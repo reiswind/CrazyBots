@@ -69,6 +69,7 @@
     <Compile Include="Assets\StrategyCameraLite\Scripts\StrategyCamera.cs" />
     <Compile Include="Assets\Scripts\HexGrid.cs" />
     <Compile Include="Assets\Scripts\HexCell.cs" />
+    <Compile Include="Assets\Scripts\Engine1.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\References\TerrainQuest.Generator.dll" />

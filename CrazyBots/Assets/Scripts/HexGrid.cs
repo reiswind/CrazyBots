@@ -1,154 +1,213 @@
 ﻿using Assets.Scripts;
 using Engine.Interface;
+using System;
 //using Engine.Master;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class HexGrid : MonoBehaviour {
 
-	public Color defaultColor = Color.white;
+	//public Color defaultColor = Color.white;
 
 	public HexCell cellPrefab;
 	public Text cellLabelPrefab;
-	public UnitFrame unitFramePrefab;
+	public Engine1 unitFramePrefab;
 
 	public int gridWidth = 20;
 	public int gridHeight = 20;
-	float hexWidth = 1.732f;
-	float hexHeight = 2.0f;
 	public float gap = 0.0f;
 
+	float hexWidth = 1.732f;
+	float hexHeight = 2.0f;
+
 	Vector3 startPos;
-
 	Canvas gridCanvas;
-	//HexMesh hexMesh;
 
-    Engine.Master.Game game;
+	public Dictionary<Position, HexCell> GroundCells { get; private set; }
+	public Dictionary<string, Engine1> Units { get; private set; }
 
-	void Awake () {
+	// Shard with backgound tread
+	private IGameController game;
+	private bool windowClosed;
+	private List<Move> newMoves;
+	public EventWaitHandle WaitForTurn = new EventWaitHandle(false, EventResetMode.AutoReset);
+	public EventWaitHandle WaitForDraw = new EventWaitHandle(false, EventResetMode.AutoReset);
+	private Thread computeMoves = null;
+
+	public void CreateGame(GameModel gameModel)
+	{
+		// (int)DateTime.Now.Ticks; -1789305431
+		newMoves = new List<Move>();
+		game = gameModel.CreateGame();
+
+		GroundCells = new Dictionary<Position, HexCell>();
+		Units = new Dictionary<string, Engine1>();
+
+		// Render ground
+		for (int y = 0; y < game.Map.MapHeight; y++)
+		{
+			for (int x = 0; x < game.Map.MapWidth; x++)
+			{
+				Position pos = new Position(x, y);
+				Tile t = game.Map.GetTile(pos);
+				HexCell hexCell = CreateCell(t);
+
+				GroundCells.Add(pos, hexCell);
+			}
+		}
+
+		// Start game engine
+		computeMoves = new Thread(new ThreadStart(ComputeMove));
+		computeMoves.Start();
+		WaitForDraw.Set();
+	}
+
+	public void ComputeMove()
+	{
+		try
+		{
+			// Prerender some ground
+			//ClientMap.RenderBackgound(Game, allImages, 0, 0, Game.Map.MapWidth, Game.Map.MapHeight, true, gridSize);
+
+			while (!windowClosed)
+			{
+				long iTicks = DateTime.Now.Ticks;
+				DateTime tStart = DateTime.Now;
+
+				while (!windowClosed)
+				{
+					if (!WaitForDraw.WaitOne(10))
+					{
+						// Animation not ready
+						Thread.Sleep(10);
+						continue;
+					}
+					break;
+				}
+
+				int id = 0;
+
+				//lock (allImages)
+				{
+					Move nextMove = new Move();
+					nextMove.MoveType = MoveType.None;
+
+					List<Move> current = game.ProcessMove(id, nextMove);
+					if (newMoves.Count > 0)
+                    {
+						int x = 0;
+                    }
+					newMoves.Clear();
+					newMoves.AddRange(current);
+
+					//ProcessAreas(allImages);
+					//ProcessCurrentMoves(newMoves, allImages);
+					//lastMapInfo = Game.Map.GetMapInfo();
+				}
+				// New move is ready, continue with next move
+				WaitForTurn.Set();
+			}
+		}
+		catch (Exception err)
+		{
+			throw new Exception("Game move wrecked " + err.Message);
+		}
+	}
+
+	void Awake () 
+	{
+		gridCanvas = GetComponentInChildren<Canvas>();
 
 		GameModel gameModel = new GameModel();
 		gameModel.MapHeight = gridWidth;
 		gameModel.MapWidth = gridHeight;
 
-		gameModel.Players = new List<PlayerModel>();
-
-		PlayerModel p = new PlayerModel();
-		p.ControlLevel = 1;
-		p.Id = 1;
-		p.Name = "WebPLayer";
-		p.StartPosition = new Position(10, 10);
-		gameModel.Players.Add(p);
-
-		game = new Engine.Master.Game(gameModel, 1991245194);
-
-		gridCanvas = GetComponentInChildren<Canvas>();
-		//hexMesh = GetComponentInChildren<HexMesh>();
-
-		/*
-		Tile t1 = game.Map.GetTile(new Position(0, 0));
-		CreateCell(t1);
-
-		Tile t2 = game.Map.GetTile(new Position(1, 0));
-		CreateCell(t2);*/
-
-		
-		for (int y = 0; y < game.Map.MapHeight; y++) 
+		if (gridWidth > 10)
 		{
-			for (int x = 0; x < game.Map.MapWidth; x++) 
-			{
-				Tile t = game.Map.GetTile(new Position(x, y));
-				CreateCell(t);
-			}
+			gameModel.Players = new List<PlayerModel>();
+
+			PlayerModel p = new PlayerModel();
+			p.ControlLevel = 1;
+			p.Id = 1;
+			p.Name = "WebPLayer";
+			p.StartPosition = new Position(10, 10);
+			gameModel.Players.Add(p);
 		}
+		CreateGame(gameModel);
 
 		InvokeRepeating("invoke", 1, 1F);
 	}
 
-	void invoke()
+    private void OnDestroy()
+    {
+		windowClosed = true;
+    }
+
+    void Start()
 	{
-		Move nextMove = new Move();
-		nextMove.MoveType = MoveType.None;
-
-		List<Move> newMoves = game.ProcessMove(0, nextMove);
-		foreach (Move move in newMoves)
-        {
-			if (move.MoveType == MoveType.Add)
-            {
-					CreateUnit(move);
-
-			}
-        }
-	}
-
-	void Start () {
 		CalcStartPos();
 
 		hexWidth += hexWidth * gap;
 		hexHeight += hexHeight * gap;
 	}
 
+	void invoke()
+	{
+		if (WaitForTurn.WaitOne(10))
+		{
+			foreach (Engine1 unitFrame in Units.Values)
+            {
+				if (unitFrame.FinalDestination != null)
+				{
+					unitFrame.JumpToTarget(unitFrame.FinalDestination);
+					unitFrame.FinalDestination = null;
+				}
+				unitFrame.NextMove = null;
+			}
+
+			foreach (Move move in newMoves)
+			{
+				if (move.MoveType == MoveType.Add)
+				{
+					CreateUnit(move);
+				}
+				else if (move.MoveType == MoveType.Move)
+				{
+					Engine1 unit = Units[move.UnitId];
+					unit.NextMove = move;
+				}
+			}
+			newMoves.Clear();
+			WaitForDraw.Set();
+		}
+	}
+
 	void CreateUnit(Move move)
 	{
 		Position pos = move.Positions[move.Positions.Count- 1];
-		HexCoordinates hexPos = HexCoordinates.FromOffsetCoordinates(pos.X, pos.Y);
-		int x = hexPos.X;
-		int z = hexPos.Z;
+		Engine1 unit = Instantiate<Engine1>(unitFramePrefab);
 
-		Vector3 position;
-		position.x = (x + z * 0.5f - z / 2) * (HexMetrics.innerRadius * 2f);
-		position.y = 0f;
-		position.z = z * (HexMetrics.outerRadius * 1.5f);
-
-		//position.x = 12;
-		position.y = 0.5f;
-		//position.z = 24;
-
-
-		UnitFrame unit = Instantiate<UnitFrame>(unitFramePrefab);
-
+		unit.HexGrid = this;
 		unit.transform.SetParent(transform, false);
 
-		Vector2 gridPos = new Vector2(pos.X, pos.Y);
-		Vector3 unitPos3 = CalcWorldPos(gridPos);
-		unitPos3.y = 0.5f;
+		unit.JumpToTarget(pos);
+
+		/*
+		Vector3 unitPos3 = hexCell.transform.localPosition;
+		unitPos3.y += 0.2f;
 		unit.transform.localPosition = unitPos3;
-		//cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
-
-		//unit.transform.localPosition = position;
-
+		*/
 		unit.X = pos.X;
 		unit.Z = pos.Y;
 
-
-		//unit.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
-
-
+		Units.Add(move.UnitId, unit);
 		/*
-		HexCell cell = cells[i] = Instantiate<HexCell>(cellPrefab);
-		cell.transform.SetParent(transform, false);
-		cell.transform.localPosition = position;
-		cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
-
-		if (t.Height > 0.05f)
-
-			cell.color = Color.green;
-		else
-			cell.color = defaultColor;
-		*/
-		//Text label = Instantiate<Text>(cellLabelPrefab);
-		//label.rectTransform.SetParent(gridCanvas.transform, false);
-		//label.rectTransform.anchoredPosition = new Vector2(position.x, position.z);
-		//label.text = cell.coordinates.ToStringOnSeparateLines();
-		//label.text = t.Pos.X + ", " + t.Pos.Y;
-
 		Text label = Instantiate<Text>(cellLabelPrefab);
-		//label.rectTransform.SetParent(cell.transform, false);
 		label.rectTransform.SetParent(gridCanvas.transform, false);
 		label.rectTransform.anchoredPosition = new Vector2(unitPos3.x, unitPos3.z);
-		//label.text = cell.coordinates.ToStringOnSeparateLines();
-		label.text = move.UnitId;
+		label.text = "\r\n" + move.UnitId;*/
 	}
 
 	/*
@@ -194,60 +253,47 @@ public class HexGrid : MonoBehaviour {
 		startPos = new Vector3(0, 0, 0);
 	}
 
-	Vector3 CalcWorldPos(Vector2 gridPos)
+	private Vector3 CalcWorldPos(Vector2 gridPos)
 	{
-		float offset = 0;
-		if (gridPos.y % 2 != 0)
-			offset = hexWidth / 2;
+		float gridSizeX = 1.50f;
+		float gridSizeY = 1.75f;
+		float halfGridSize = 0.86f;
 
-		float x = startPos.x + gridPos.x * hexWidth + offset;
-		float z = startPos.z - gridPos.y * hexHeight * 0.75f;
+		float x = gridPos.x;
+		float y = gridPos.y;
 
-		return new Vector3(x, 0, z);
-	}
-
-
-	void CreateCell (Tile t) {
-
-		int x = t.Pos.X;
-		int y = t.Pos.Y;
-
-		Vector3 position;
-		position.x = x; // (x + z * 0.5f - z / 2) * (HexMetrics.innerRadius * 2f);
-		position.y = (float)t.Height;
-		position.z = y; // z * (HexMetrics.outerRadius * 1.5f);
+		//float x = startPos.x + gridPos.x * hexWidth + offset;
+		//float z = startPos.z - gridPos.y * hexHeight * 0.75f;
 
 		if (x % 2 != 0 && y % 2 != 0)
 		{
-			//return new Position((x * gridSize) - gapX, (y * gridSize) + HalfGridSize - gapY);
-			//return;
+			return new Vector3((x * gridSizeX), 0, -(y * gridSizeY) - halfGridSize);
 		}
 		else if (x % 2 == 0 && y % 2 != 0)
 		{
-			//return new Position((x * gridSize) - gapX, (y * gridSize) - gapY);
-			//return;
+			return new Vector3((x * gridSizeX), 0, -(y * gridSizeY));
 		}
 		else if (x % 2 != 0 && y % 2 == 0)
 		{
-			//return new Position((x * gridSize) - gapX, (y * gridSize) + HalfGridSize - gapY);
-			//return;
+			return new Vector3((x * gridSizeX), 0, -(y * gridSizeY) - halfGridSize);
 		}
-		else
-		{
-			//return new Position((x * gridSize) - gapX, y * gridSize - gapY);
-			
-		}
+		return new Vector3((x * gridSizeX), 0,  -y * gridSizeY);
+	}
 
+	private HexCell CreateCell(Tile t)
+	{
+		int x = t.Pos.X;
+		int y = t.Pos.Y;
 
 		HexCell cell = Instantiate<HexCell>(cellPrefab);
 		cell.transform.SetParent(transform, false);
-		//cell.transform.localPosition = position;
 
 		Vector2 gridPos = new Vector2(x, y);
 		Vector3 gridPos3 = CalcWorldPos(gridPos);
-		gridPos3.y = (float)t.Height;
 
+		gridPos3.y = (float)t.Height * 5;
 		cell.transform.localPosition = gridPos3;
+
 		//cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
 		cell.X = t.Pos.X;
 		cell.Z = t.Pos.Y;
@@ -259,15 +305,13 @@ public class HexGrid : MonoBehaviour {
 		else
 			cell.color = defaultColor;
 		*/
-		
-		
+/*
+
 		Text label = Instantiate<Text>(cellLabelPrefab);
-		//label.rectTransform.SetParent(cell.transform, false);
 		label.rectTransform.SetParent(gridCanvas.transform, false);
 		label.rectTransform.anchoredPosition = new Vector2(gridPos3.x, gridPos3.z);
-		//label.text = cell.coordinates.ToStringOnSeparateLines();
 		label.text = t.Pos.X.ToString() + "," + t.Pos.Y;
-		//label.text = position.x + ", " + position.y + ", " + position.z;
-		
+*/
+		return cell;
 	}
 }

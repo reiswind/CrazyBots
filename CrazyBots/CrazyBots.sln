@@ -5,15 +5,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-Editor", "Assembly-CSharp-Editor.csproj", "{6FF10275-74D3-AF10-9F84-AFA917C50213}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CrazyBots", "CrazyBots\CrazyBots.vcxproj", "{57571793-BF11-47DB-A9BA-049C9AA938C7}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9B743A06-56DC-42C2-99B1-B11DE6C02BBD} = {9B743A06-56DC-42C2-99B1-B11DE6C02BBD}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnityData", "CrazyBots\UnityData.vcxitems", "{9CC07CB0-D6B5-4B2E-990C-F644CBC7AE58}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnityPlayerStub", "UnityPlayerStub\UnityPlayerStub.vcxproj", "{9B743A06-56DC-42C2-99B1-B11DE6C02BBD}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,18 +19,6 @@ Global
 		{6FF10275-74D3-AF10-9F84-AFA917C50213}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6FF10275-74D3-AF10-9F84-AFA917C50213}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6FF10275-74D3-AF10-9F84-AFA917C50213}.Release|Any CPU.Build.0 = Release|Any CPU
-		{57571793-BF11-47DB-A9BA-049C9AA938C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{57571793-BF11-47DB-A9BA-049C9AA938C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{57571793-BF11-47DB-A9BA-049C9AA938C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{57571793-BF11-47DB-A9BA-049C9AA938C7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9CC07CB0-D6B5-4B2E-990C-F644CBC7AE58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9CC07CB0-D6B5-4B2E-990C-F644CBC7AE58}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9CC07CB0-D6B5-4B2E-990C-F644CBC7AE58}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9CC07CB0-D6B5-4B2E-990C-F644CBC7AE58}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9B743A06-56DC-42C2-99B1-B11DE6C02BBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9B743A06-56DC-42C2-99B1-B11DE6C02BBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9B743A06-56DC-42C2-99B1-B11DE6C02BBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9B743A06-56DC-42C2-99B1-B11DE6C02BBD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
