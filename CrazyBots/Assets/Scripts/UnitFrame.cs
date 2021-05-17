@@ -25,7 +25,7 @@ namespace Assets.Scripts
                 HexCell targetCell = HexGrid.GroundCells[finalDestination];
 
                 Vector3 unitPos3 = targetCell.transform.localPosition;
-                unitPos3.y += 0.4f;
+                unitPos3.y += 0.01f;
                 //transform.localPosition = unitPos3;
 
                 float speed = 1.75f;
@@ -48,7 +48,7 @@ namespace Assets.Scripts
                 HexCell targetCell = HexGrid.GroundCells[finalDestination];
 
                 Vector3 unitPos3 = targetCell.transform.localPosition;
-                unitPos3.y += 0.4f;
+                unitPos3.y += 0.01f;
                 transform.position = unitPos3;
                 finalDestination = null;
             }

@@ -6,38 +6,45 @@ using UnityEngine;
 public class Engine1 : MonoBehaviour
 {
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
-        AboveGround = 4.3f;
+        AboveGround = 0.3f;
     }
 
     public int X;
     public int Z;
-    public float AboveGround { get; set; }
+    private float AboveGround { get; set; }
 
     public Move NextMove { get; set; }
     public HexGrid HexGrid { get; set; }
     public Position FinalDestination { get; set; }
     void Update()
     {
-        if (NextMove != null)
+        if (NextMove == null)
+            return;
+        if (NextMove.MoveType == MoveType.Delete)
         {
-            FinalDestination = NextMove.Positions[1];
+            
+        }
+        else if (NextMove.MoveType == MoveType.Move || NextMove.MoveType == MoveType.Add)
+        {            
+            FinalDestination = NextMove.Positions[NextMove.Positions.Count - 1];
             HexCell targetCell = HexGrid.GroundCells[FinalDestination];
 
             Vector3 unitPos3 = targetCell.transform.localPosition;
-            unitPos3.y = 3; //-= AboveGround;
-            //transform.localPosition = unitPos3;
+            unitPos3.y += AboveGround;
 
             float speed = 1.75f;
             float step = speed * Time.deltaTime;
-            //transform.position = Vector3.MoveTowards(transform.position, targetCell.transform.localPosition, step);
+
             transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
 
-            //transform.m
-            transform.LookAt(unitPos3);
-
-            //NextMove = null;
+            if (NextMove.MoveType == MoveType.Move)
+            {
+                // Nah...
+                //transform.position = Vector3.RotateTowards(transform.position, unitPos3, step, 1);
+                transform.LookAt(unitPos3);
+            }
         }
     }
 
@@ -49,7 +56,8 @@ public class Engine1 : MonoBehaviour
             HexCell targetCell = HexGrid.GroundCells[pos];
 
             Vector3 unitPos3 = targetCell.transform.localPosition;
-            unitPos3.y = 3; //-= AboveGround;
+            //unitPos3.y = 3; //-= AboveGround;
+            unitPos3.y += AboveGround;
             transform.position = unitPos3;
             //FinalDestination = null;
         }

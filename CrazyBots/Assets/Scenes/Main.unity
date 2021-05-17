@@ -168,7 +168,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7531876953357348135, guid: 4342c07a9c16e0f44b8ff5234168ce76, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 21.15601
+      value: 15.029912
       objectReference: {fileID: 0}
     - target: {fileID: 7531876953357348135, guid: 4342c07a9c16e0f44b8ff5234168ce76, type: 3}
       propertyPath: m_LocalPosition.y
@@ -176,23 +176,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7531876953357348135, guid: 4342c07a9c16e0f44b8ff5234168ce76, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -9.21458
+      value: -16.905085
       objectReference: {fileID: 0}
     - target: {fileID: 7531876953357348135, guid: 4342c07a9c16e0f44b8ff5234168ce76, type: 3}
       propertyPath: m_LocalRotation.w
-      value: -0.890694
+      value: 0.9174408
       objectReference: {fileID: 0}
     - target: {fileID: 7531876953357348135, guid: 4342c07a9c16e0f44b8ff5234168ce76, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.45433044
+      value: 0.37210244
       objectReference: {fileID: 0}
     - target: {fileID: 7531876953357348135, guid: 4342c07a9c16e0f44b8ff5234168ce76, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.0140280835
+      value: 0.13053405
       objectReference: {fileID: 0}
     - target: {fileID: 7531876953357348135, guid: 4342c07a9c16e0f44b8ff5234168ce76, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.007154774
+      value: -0.05294383
       objectReference: {fileID: 0}
     - target: {fileID: 7531876953357348135, guid: 4342c07a9c16e0f44b8ff5234168ce76, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -445,9 +445,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 414a0fc06528949a0baff4f719b04a4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cellPrefab: {fileID: -2929266594273763501, guid: 4db4607d6cd8e374d859aedead1e9a34, type: 3}
+  cellPrefab: {fileID: -7160136832887898090, guid: 127a49bf73ecfbd4d8bce3802abbdba8, type: 3}
   cellLabelPrefab: {fileID: 11470134, guid: f68794ca03b6f4510b9a5bd6ee9ba2f4, type: 3}
-  unitFramePrefab: {fileID: 6751879147637380557, guid: 5ad9b898d459617428af094ab22f597d, type: 3}
+  unitFramePrefab: {fileID: -2897051209021937314, guid: 82b0594227f2c244a89c6fd79a67eaf8, type: 3}
   gridWidth: 30
   gridHeight: 30
   gap: 0
