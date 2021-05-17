@@ -11,25 +11,24 @@ public class Engine1 : MonoBehaviour
         AboveGround = 0.3f;
     }
 
-    public int X;
-    public int Z;
     private float AboveGround { get; set; }
 
-    public Move NextMove { get; set; }
-    public HexGrid HexGrid { get; set; }
-    public Position FinalDestination { get; set; }
+    internal UnitFrame UnitFrame { get; set; }
+
     void Update()
     {
-        if (NextMove == null)
+        UnitFrame.UpdateMove(this, AboveGround);
+        /*
+        if (UnitFrame.NextMove == null)
             return;
-        if (NextMove.MoveType == MoveType.Delete)
+        if (UnitFrame.NextMove.MoveType == MoveType.Delete)
         {
             
         }
-        else if (NextMove.MoveType == MoveType.Move || NextMove.MoveType == MoveType.Add)
-        {            
-            FinalDestination = NextMove.Positions[NextMove.Positions.Count - 1];
-            HexCell targetCell = HexGrid.GroundCells[FinalDestination];
+        else if (UnitFrame.NextMove.MoveType == MoveType.Move || UnitFrame.NextMove.MoveType == MoveType.Add)
+        {
+            UnitFrame.FinalDestination = UnitFrame.NextMove.Positions[UnitFrame.NextMove.Positions.Count - 1];
+            HexCell targetCell = UnitFrame.HexGrid.GroundCells[UnitFrame.FinalDestination];
 
             Vector3 unitPos3 = targetCell.transform.localPosition;
             unitPos3.y += AboveGround;
@@ -39,13 +38,14 @@ public class Engine1 : MonoBehaviour
 
             transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
 
-            if (NextMove.MoveType == MoveType.Move)
+            if (UnitFrame.NextMove.MoveType == MoveType.Move)
             {
                 // Nah...
                 //transform.position = Vector3.RotateTowards(transform.position, unitPos3, step, 1);
                 transform.LookAt(unitPos3);
             }
         }
+        */
     }
 
     public void JumpToTarget(Position pos)
@@ -53,7 +53,7 @@ public class Engine1 : MonoBehaviour
         //if (FinalDestination != null)
         {
             // Did not reach target in time. Jump to it.
-            HexCell targetCell = HexGrid.GroundCells[pos];
+            HexCell targetCell = UnitFrame.HexGrid.GroundCells[pos];
 
             Vector3 unitPos3 = targetCell.transform.localPosition;
             //unitPos3.y = 3; //-= AboveGround;

@@ -6,53 +6,150 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Assets.Scripts
+
+public class UnitFrame
 {
 
-    public class UnitFrame : MonoBehaviour
+    public Position FinalDestination { get; set; }
+    public Move NextMove { get; set; }
+    public HexGrid HexGrid { get; set; }
+
+    private MonoBehaviour currentBaseFrame;
+
+    private Engine1 engine1;
+    private Container1 container1;
+
+    public void Assemble()
     {
-        public int X;
-        public int Z;
+        if (NextMove == null || NextMove.Stats == null)
+            return;
 
-        public Move NextMove { get; set; }
-        public HexGrid HexGrid { get; set; }
-        private Position finalDestination;
-        void Update()
+        bool updatePosition = false;
+
+        if (NextMove.Stats.EngineLevel > 0)
         {
-            if (NextMove != null)
+            if (engine1 == null)
             {
-                finalDestination = NextMove.Positions[1];
-                HexCell targetCell = HexGrid.GroundCells[finalDestination];
+                engine1 = HexGrid.Instantiate<Engine1>(HexGrid.Engine1);
+                engine1.UnitFrame = this;
 
-                Vector3 unitPos3 = targetCell.transform.localPosition;
-                unitPos3.y += 0.01f;
-                //transform.localPosition = unitPos3;
-
-                float speed = 1.75f;
-                float step = speed * Time.deltaTime;
-                //transform.position = Vector3.MoveTowards(transform.position, targetCell.transform.localPosition, step);
-                transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
-
-                //transform.m
-                transform.LookAt(targetCell.transform);
-
-                //NextMove = null;
+                currentBaseFrame = engine1;
+                currentBaseFrame.transform.SetParent(HexGrid.transform, false);
+                updatePosition = true;
             }
         }
 
-        public void JumpToTarget()
-        { 
-            if (finalDestination != null)
+        if (NextMove.Stats.ContainerLevel > 0)
+        {
+            if (container1 == null)
+            {
+                container1 = HexGrid.Instantiate<Container1>(HexGrid.Container1);
+                container1.UnitFrame = this;
+
+                if (currentBaseFrame == null)
+                {
+                    currentBaseFrame = container1;
+                    currentBaseFrame.transform.SetParent(HexGrid.transform, false);
+                    updatePosition = true;
+                }
+                else
+                {
+                    container1.transform.SetParent(currentBaseFrame.transform, false);
+                }
+            }
+        }
+
+        if (currentBaseFrame != null && updatePosition)
+        {
+            Position pos = NextMove.Positions[NextMove.Positions.Count - 1];
+            HexCell targetCell = HexGrid.GroundCells[pos];
+            Vector3 unitPos3 = targetCell.transform.localPosition;
+            unitPos3.y -= 1;
+            currentBaseFrame.transform.position = unitPos3;
+        }
+    }
+
+    public void JumpToTarget(Position pos)
+    {
+        if (FinalDestination != null)
+        {
+            if (currentBaseFrame != null)
             {
                 // Did not reach target in time. Jump to it.
-                HexCell targetCell = HexGrid.GroundCells[finalDestination];
+                HexCell targetCell = HexGrid.GroundCells[pos];
 
                 Vector3 unitPos3 = targetCell.transform.localPosition;
-                unitPos3.y += 0.01f;
-                transform.position = unitPos3;
-                finalDestination = null;
+                unitPos3.y += 0.3f; // AboveGround;
+                currentBaseFrame.transform.position = unitPos3;
+
+                currentBaseFrame.transform.LookAt(unitPos3);
             }
+            FinalDestination = null;
+        }
+    }
+
+    public void UpdateMove(MonoBehaviour unit, float aboveGround)
+    {
+        if (NextMove == null)
+            return;
+
+        if (unit != currentBaseFrame)
+        {
+            // Subparts shall not move
+            return;
         }
 
+        if (NextMove.MoveType == MoveType.Delete)
+        {
+
+        }
+        else if (NextMove.MoveType == MoveType.UpdateStats)
+        {
+            Assemble();
+        }
+        else if (NextMove.MoveType == MoveType.Move || NextMove.MoveType == MoveType.Add)
+        {
+            FinalDestination = NextMove.Positions[NextMove.Positions.Count - 1];
+            HexCell targetCell = HexGrid.GroundCells[FinalDestination];
+
+            Vector3 unitPos3 = targetCell.transform.localPosition;
+            unitPos3.y += aboveGround; //AboveGround;
+
+            float speed = 1.75f / HexGrid.GameSpeed;
+            float step = speed * Time.deltaTime;
+
+            unit.transform.position = Vector3.MoveTowards(unit.transform.position, unitPos3, step);
+
+            if (NextMove.MoveType == MoveType.Move)
+            {
+                UpdateDirection(unitPos3);
+
+                // Nah...
+                //unit.transform.position = Vector3.RotateTowards(unit.transform.position, unitPos3, 1, step);
+                //unit.transform.LookAt(unitPos3);
+            }
+        }
     }
+
+    void UpdateDirection(Vector3 position)
+    {
+        //float speed = 1.75f;
+        float speed = 3.5f / HexGrid.GameSpeed;
+
+        // Determine which direction to rotate towards
+        Vector3 targetDirection = position - currentBaseFrame.transform.position;
+
+        // The step size is equal to speed times frame time.
+        float singleStep = speed * Time.deltaTime;
+
+        // Rotate the forward vector towards the target direction by one step
+        Vector3 newDirection = Vector3.RotateTowards(currentBaseFrame.transform.forward, targetDirection, singleStep, 0.0f);
+
+        // Draw a ray pointing at our target in
+        Debug.DrawRay(currentBaseFrame.transform.position, newDirection, Color.red);
+
+        // Calculate a rotation a step closer to the target and applies rotation to this object
+        currentBaseFrame.transform.rotation = Quaternion.LookRotation(newDirection);
+    }
+
 }

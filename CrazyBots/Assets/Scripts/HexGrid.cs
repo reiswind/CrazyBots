@@ -9,24 +9,24 @@ using UnityEngine.UI;
 
 public class HexGrid : MonoBehaviour {
 
-	//public Color defaultColor = Color.white;
-
 	public HexCell cellPrefab;
 	public Text cellLabelPrefab;
-	public Engine1 unitFramePrefab;
+	public Engine1 Engine1;
+	public Container1 Container1;
 
 	public int gridWidth = 20;
 	public int gridHeight = 20;
-	public float gap = 0.0f;
+	public float GameSpeed = 0.8f;
 
-	float hexWidth = 1.732f;
-	float hexHeight = 2.0f;
+	//private float gap = 0.0f;
+	//private float hexWidth = 1.732f;
+	//private float hexHeight = 2.0f;
 
-	Vector3 startPos;
-	Canvas gridCanvas;
+	//Vector3 startPos;
+	private Canvas gridCanvas;
 
 	public Dictionary<Position, HexCell> GroundCells { get; private set; }
-	public Dictionary<string, Engine1> Units { get; private set; }
+	public Dictionary<string, UnitFrame> Units { get; private set; }
 
 	// Shard with backgound tread
 	private IGameController game;
@@ -40,10 +40,10 @@ public class HexGrid : MonoBehaviour {
 	{
 		// (int)DateTime.Now.Ticks; -1789305431
 		newMoves = new List<Move>();
-		game = gameModel.CreateGame(-1789305431);
+		game = gameModel.CreateGame(); // -1789305431);
 
 		GroundCells = new Dictionary<Position, HexCell>();
-		Units = new Dictionary<string, Engine1>();
+		Units = new Dictionary<string, UnitFrame>();
 
 		// Render ground
 		for (int y = 0; y < game.Map.MapHeight; y++)
@@ -96,12 +96,16 @@ public class HexGrid : MonoBehaviour {
 
 					List<Move> current = game.ProcessMove(id, nextMove);
 					if (newMoves.Count > 0)
-                    {
-						int x = 0;
-                    }
-					newMoves.Clear();
-					newMoves.AddRange(current);
-
+					{
+						//throw new Exception("Should not happen");
+						// Heppens during shutdown, ignore
+						windowClosed = true;
+					}
+					else
+					{
+						newMoves.Clear();
+						newMoves.AddRange(current);
+					}
 					//ProcessAreas(allImages);
 					//ProcessCurrentMoves(newMoves, allImages);
 					//lastMapInfo = Game.Map.GetMapInfo();
@@ -118,6 +122,9 @@ public class HexGrid : MonoBehaviour {
 
 	void Awake () 
 	{
+		if (GameSpeed == 0)
+			GameSpeed = 0.5f;
+
 		gridCanvas = GetComponentInChildren<Canvas>();
 
 		GameModel gameModel = new GameModel();
@@ -137,7 +144,7 @@ public class HexGrid : MonoBehaviour {
 		}
 		CreateGame(gameModel);
 
-		InvokeRepeating("invoke", 1f, 1f);
+		InvokeRepeating("invoke", 1f, GameSpeed);
 	}
 
     private void OnDestroy()
@@ -147,17 +154,17 @@ public class HexGrid : MonoBehaviour {
 
     void Start()
 	{
-		CalcStartPos();
+		//CalcStartPos();
 
-		hexWidth += hexWidth * gap;
-		hexHeight += hexHeight * gap;
+		//hexWidth += hexWidth * gap;
+		//hexHeight += hexHeight * gap;
 	}
 
 	void invoke()
 	{
 		if (WaitForTurn.WaitOne(10))
 		{
-			foreach (Engine1 unitFrame in Units.Values)
+			foreach (UnitFrame unitFrame in Units.Values)
             {
 				if (unitFrame.FinalDestination != null)
 				{
@@ -173,9 +180,9 @@ public class HexGrid : MonoBehaviour {
 				{
 					CreateUnit(move);
 				}
-				else if (move.MoveType == MoveType.Move)
+				else if (move.MoveType == MoveType.Move || move.MoveType == MoveType.UpdateStats)
 				{
-					Engine1 unit = Units[move.UnitId];
+					UnitFrame unit = Units[move.UnitId];
 					unit.NextMove = move;
 				}
 			}
@@ -186,25 +193,26 @@ public class HexGrid : MonoBehaviour {
 
 	void CreateUnit(Move move)
 	{
-		Position pos = move.Positions[move.Positions.Count- 1];
-		Engine1 unit = Instantiate<Engine1>(unitFramePrefab);
+		UnitFrame unit = new UnitFrame();
 
 		unit.HexGrid = this;
-		unit.transform.SetParent(transform, false);
-
-		//unit.JumpToTarget(pos);
 		unit.NextMove = move;
 
+		/*
+		Position pos = move.Positions[move.Positions.Count- 1];
+		//unit.transform.SetParent(transform, false);
 		HexCell targetCell = GroundCells[pos];
-
 		Vector3 unitPos3 = targetCell.transform.localPosition;
 		unitPos3.y -= 1;
-		unit.transform.position = unitPos3;
+		unit.transform.position = unitPos3;*/
 
-		unit.X = pos.X;
-		unit.Z = pos.Y;
+		unit.Assemble();
 
 		Units.Add(move.UnitId, unit);
+
+
+
+
 		/*
 		Text label = Instantiate<Text>(cellLabelPrefab);
 		label.rectTransform.SetParent(gridCanvas.transform, false);
@@ -222,27 +230,7 @@ public class HexGrid : MonoBehaviour {
 		hexMesh.Triangulate(cells);
 	}*/
 
-	public static Position GetPixelPos(int x, int y, int topx, int topy, int gridSize)
-	{
-		int HalfGridSize = gridSize / 2;
-		int gapX = topx * gridSize;
-		int gapY = topy * gridSize;
-
-		if (x % 2 != 0 && y % 2 != 0)
-		{
-			return new Position((x * gridSize) - gapX, (y * gridSize) + HalfGridSize - gapY);
-		}
-		else if (x % 2 == 0 && y % 2 != 0)
-		{
-			return new Position((x * gridSize) - gapX, (y * gridSize) - gapY);
-		}
-		else if (x % 2 != 0 && y % 2 == 0)
-		{
-			return new Position((x * gridSize) - gapX, (y * gridSize) + HalfGridSize - gapY);
-		}
-		return new Position((x * gridSize) - gapX, y * gridSize - gapY);
-	}
-
+	/*
 	void CalcStartPos()
 	{
 		float offset = 0;
@@ -253,7 +241,7 @@ public class HexGrid : MonoBehaviour {
 		float z = hexHeight * 0.75f * (gridHeight / 2);
 
 		startPos = new Vector3(0, 0, 0);
-	}
+	}*/
 
 	private Vector3 CalcWorldPos(Vector2 gridPos)
 	{
@@ -263,9 +251,6 @@ public class HexGrid : MonoBehaviour {
 
 		float x = gridPos.x;
 		float y = gridPos.y;
-
-		//float x = startPos.x + gridPos.x * hexWidth + offset;
-		//float z = startPos.z - gridPos.y * hexHeight * 0.75f;
 
 		if (x % 2 != 0 && y % 2 != 0)
 		{
@@ -293,13 +278,11 @@ public class HexGrid : MonoBehaviour {
 		Vector2 gridPos = new Vector2(x, y);
 		Vector3 gridPos3 = CalcWorldPos(gridPos);
 
-
-		//cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
 		cell.X = t.Pos.X;
 		cell.Z = t.Pos.Y;
 
 		double height = t.Height;
-		float tileY = 0f;
+		float tileY;
 
 		string materialName;
 		if (height > 0.27 && height < 0.33)
@@ -343,22 +326,10 @@ public class HexGrid : MonoBehaviour {
 
 		//
 		Material material = Resources.Load<Material>(materialName);
-		//UnityEngine.Object material = Resources.Load("Materials/Grass");
 
 		MeshRenderer meshRenderer = cell.GetComponent<MeshRenderer>();
-		// Get the current material applied on the GameObject
-		//Material oldMaterial = meshRenderer.material;
-		//Debug.Log("Applied Material: " + oldMaterial.name);
-		// Set the new material on the GameObject
 		meshRenderer.material = material;
 
-		/*
-		if (t != null && t.Height > 0.05f)
-
-			cell.color = Color.green;
-		else
-			cell.color = defaultColor;
-		*/
 		/*
 
 				Text label = Instantiate<Text>(cellLabelPrefab);
