@@ -59,14 +59,11 @@
     <Compile Include="Assets\Scripts\AnotherGrid.cs" />
     <Compile Include="Assets\unPopular Games\Scripts\CameraController.cs" />
     <Compile Include="Assets\StrategyCameraLite\Example\Scripts\HelpUI.cs" />
-    <Compile Include="Assets\Scripts\HexCoordinates.cs" />
     <Compile Include="Assets\Scripts\CameraControllerx.cs" />
-    <Compile Include="Assets\Scripts\HexMetrics.cs" />
     <Compile Include="Assets\StrategyCameraLite\Scripts\StrategyCamera.cs" />
     <Compile Include="Assets\Scripts\UnitFrame.cs" />
     <Compile Include="Assets\Scripts\Engine1.cs" />
     <Compile Include="Assets\Scripts\Container1.cs" />
-    <Compile Include="Assets\Scripts\HexMesh.cs" />
     <Compile Include="Assets\Scripts\HexMapEditor.cs" />
     <Compile Include="Assets\StrategyCameraLite\Example\Scripts\DemoUI.cs" />
     <Compile Include="Assets\Scripts\HexGrid.cs" />

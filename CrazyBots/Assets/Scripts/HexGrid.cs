@@ -18,11 +18,6 @@ public class HexGrid : MonoBehaviour {
 	public int gridHeight = 20;
 	public float GameSpeed = 0.8f;
 
-	//private float gap = 0.0f;
-	//private float hexWidth = 1.732f;
-	//private float hexHeight = 2.0f;
-
-	//Vector3 startPos;
 	private Canvas gridCanvas;
 
 	public Dictionary<Position, HexCell> GroundCells { get; private set; }
@@ -68,9 +63,6 @@ public class HexGrid : MonoBehaviour {
 	{
 		try
 		{
-			// Prerender some ground
-			//ClientMap.RenderBackgound(Game, allImages, 0, 0, Game.Map.MapWidth, Game.Map.MapHeight, true, gridSize);
-
 			while (!windowClosed)
 			{
 				long iTicks = DateTime.Now.Ticks;
@@ -89,34 +81,29 @@ public class HexGrid : MonoBehaviour {
 
 				int id = 0;
 
-				//lock (allImages)
-				{
-					Move nextMove = new Move();
-					nextMove.MoveType = MoveType.None;
+				Move nextMove = new Move();
+				nextMove.MoveType = MoveType.None;
 
-					List<Move> current = game.ProcessMove(id, nextMove);
-					if (newMoves.Count > 0)
-					{
-						//throw new Exception("Should not happen");
-						// Heppens during shutdown, ignore
-						windowClosed = true;
-					}
-					else
-					{
-						newMoves.Clear();
-						newMoves.AddRange(current);
-					}
-					//ProcessAreas(allImages);
-					//ProcessCurrentMoves(newMoves, allImages);
-					//lastMapInfo = Game.Map.GetMapInfo();
+				List<Move> current = game.ProcessMove(id, nextMove);
+				if (newMoves.Count > 0)
+				{
+					// Heppens during shutdown, ignore
+					windowClosed = true;
 				}
+				else
+				{
+					newMoves.Clear();
+					newMoves.AddRange(current);
+				}
+				//lastMapInfo = Game.Map.GetMapInfo();
+				
 				// New move is ready, continue with next move
 				WaitForTurn.Set();
 			}
 		}
 		catch (Exception err)
 		{
-			throw new Exception("Game move wrecked " + err.Message);
+			//throw new Exception("Game move wrecked " + err.Message);
 		}
 	}
 
@@ -184,6 +171,11 @@ public class HexGrid : MonoBehaviour {
 				{
 					UnitFrame unit = Units[move.UnitId];
 					unit.NextMove = move;
+				}
+				else if (move.MoveType == MoveType.UpdateGround)
+                {
+					HexCell hexCell = GroundCells[move.Positions[0]];
+					hexCell.NextMove = move;
 				}
 			}
 			newMoves.Clear();
@@ -267,8 +259,7 @@ public class HexGrid : MonoBehaviour {
 		Vector2 gridPos = new Vector2(x, y);
 		Vector3 gridPos3 = CalcWorldPos(gridPos);
 
-		cell.X = t.Pos.X;
-		cell.Z = t.Pos.Y;
+		cell.Tile = t;
 
 		double height = t.Height;
 		float tileY;
