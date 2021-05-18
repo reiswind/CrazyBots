@@ -17,10 +17,11 @@ public class UnitFrame
     public Move NextMove { get; set; }
     public HexGrid HexGrid { get; set; }
 
-    private UnitPart currentBaseFrame;
+    internal UnitPart currentBaseFrame;
 
     private Engine1 engine1;
     private Container1 container1;
+
 
     public void Assemble()
     {

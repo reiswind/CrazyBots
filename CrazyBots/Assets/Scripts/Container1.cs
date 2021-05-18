@@ -17,7 +17,8 @@ public class Container1 : UnitPart
 
     void Update()
     {
-        UnitFrame.UpdateMove(this);
+        if (UnitFrame.currentBaseFrame == this)
+            UnitFrame.UpdateMove(this);
     }
 }
 
