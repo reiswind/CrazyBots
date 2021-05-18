@@ -3,21 +3,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Engine1 : MonoBehaviour
+public class Engine1 : UnitPart
 {
     // Start is called before the first frame update
     void Awake()
     {
         AboveGround = 0.3f;
+
+        //Mesh mesh = Resources.Load<Mesh>("Meshes/Engine1");
+        //GetComponent<MeshFilter>().sharedMesh = mesh;
     }
 
-    private float AboveGround { get; set; }
+
 
     internal UnitFrame UnitFrame { get; set; }
 
     void Update()
     {
-        UnitFrame.UpdateMove(this, AboveGround);
+        UnitFrame.UpdateMove(this);
         /*
         if (UnitFrame.NextMove == null)
             return;

@@ -6,7 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-
+public class UnitPart : MonoBehaviour
+{
+    public float AboveGround { get; set; }
+}
 public class UnitFrame
 {
 
@@ -14,7 +17,7 @@ public class UnitFrame
     public Move NextMove { get; set; }
     public HexGrid HexGrid { get; set; }
 
-    private MonoBehaviour currentBaseFrame;
+    private UnitPart currentBaseFrame;
 
     private Engine1 engine1;
     private Container1 container1;
@@ -48,12 +51,20 @@ public class UnitFrame
 
                 if (currentBaseFrame == null)
                 {
+                    container1.AboveGround = 1.75f;
+
                     currentBaseFrame = container1;
                     currentBaseFrame.transform.SetParent(HexGrid.transform, false);
                     updatePosition = true;
                 }
                 else
                 {
+                    Vector3 unitPos3 = new Vector3();
+                    unitPos3.x = 0;
+                    unitPos3.z = 0;
+                    unitPos3.y = 1.65f; // 
+                    container1.transform.position = unitPos3;
+
                     container1.transform.SetParent(currentBaseFrame.transform, false);
                 }
             }
@@ -79,7 +90,7 @@ public class UnitFrame
                 HexCell targetCell = HexGrid.GroundCells[pos];
 
                 Vector3 unitPos3 = targetCell.transform.localPosition;
-                unitPos3.y += 0.3f; // AboveGround;
+                unitPos3.y += currentBaseFrame.AboveGround;
                 currentBaseFrame.transform.position = unitPos3;
 
                 currentBaseFrame.transform.LookAt(unitPos3);
@@ -88,7 +99,7 @@ public class UnitFrame
         }
     }
 
-    public void UpdateMove(MonoBehaviour unit, float aboveGround)
+    public void UpdateMove(UnitPart unit)
     {
         if (NextMove == null)
             return;
@@ -113,7 +124,7 @@ public class UnitFrame
             HexCell targetCell = HexGrid.GroundCells[FinalDestination];
 
             Vector3 unitPos3 = targetCell.transform.localPosition;
-            unitPos3.y += aboveGround; //AboveGround;
+            unitPos3.y += unit.AboveGround;
 
             float speed = 1.75f / HexGrid.GameSpeed;
             float step = speed * Time.deltaTime;

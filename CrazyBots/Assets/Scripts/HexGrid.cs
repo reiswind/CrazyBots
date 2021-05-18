@@ -198,20 +198,9 @@ public class HexGrid : MonoBehaviour {
 		unit.HexGrid = this;
 		unit.NextMove = move;
 
-		/*
-		Position pos = move.Positions[move.Positions.Count- 1];
-		//unit.transform.SetParent(transform, false);
-		HexCell targetCell = GroundCells[pos];
-		Vector3 unitPos3 = targetCell.transform.localPosition;
-		unitPos3.y -= 1;
-		unit.transform.position = unitPos3;*/
-
 		unit.Assemble();
 
 		Units.Add(move.UnitId, unit);
-
-
-
 
 		/*
 		Text label = Instantiate<Text>(cellLabelPrefab);
