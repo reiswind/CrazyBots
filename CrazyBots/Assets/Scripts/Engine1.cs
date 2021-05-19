@@ -24,7 +24,7 @@ public class Engine1 : UnitPart
     {
         if (UnitFrame.currentBaseFrame == this)
         {
-            if (UnitFrame.NextMove.MoveType == MoveType.Extract)
+            if (UnitFrame.NextMove != null && UnitFrame.NextMove.MoveType == MoveType.Extract)
             {
                 //if (extractSource == null)
                 {
@@ -38,7 +38,7 @@ public class Engine1 : UnitPart
                     Destroy(extractSource, 0.5f);
 
                     Vector3 pos = new Vector3();
-                    pos.y = 0.3f;
+                    //pos.y = 0.3f;
                     extractSource.transform.localPosition = pos;
 
 
@@ -49,7 +49,7 @@ public class Engine1 : UnitPart
                     Destroy(extractTarget, 0.5f);
 
                     pos = new Vector3();
-                    pos.y = 0.3f;
+                    //pos.y = 0.3f;
                     extractTarget.transform.localPosition = pos;
                 }
                 UnitFrame.NextMove = null;

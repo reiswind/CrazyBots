@@ -22,6 +22,32 @@ public class UnitFrame
     private Engine1 engine1;
     private Container1 container1;
 
+    private ParticleSystem particleSource;
+
+    private void Upgrade()
+    {
+        if (particleSource == null)
+        {
+            Position from = NextMove.Positions[0];
+            HexCell sourceCell = HexGrid.GroundCells[from];
+
+            particleSource = HexGrid.MakeParticleSource();
+            particleSource.transform.SetParent(sourceCell.transform, false);
+        }
+
+        Position to = NextMove.Positions[1];
+        HexCell targetCell = HexGrid.GroundCells[to];
+
+        ParticleSystemForceField particleTarget = HexGrid.MakeParticleTarget();
+        particleTarget.transform.SetParent(targetCell.transform, false);
+
+        particleSource.externalForces.SetInfluence(0, particleTarget);
+        HexGrid.Destroy(particleTarget, 2.5f);
+
+        particleSource.Play();
+
+        NextMove = null;
+    }
 
     public void Assemble()
     {
@@ -114,6 +140,10 @@ public class UnitFrame
         if (NextMove.MoveType == MoveType.Delete)
         {
 
+        }
+        else if (NextMove.MoveType == MoveType.Upgrade)
+        {
+            Upgrade();
         }
         else if (NextMove.MoveType == MoveType.UpdateStats)
         {

@@ -174,6 +174,11 @@ public class HexGrid : MonoBehaviour {
 					UnitFrame unit = Units[move.UnitId];
 					unit.NextMove = move;
 				}
+				else if (move.MoveType == MoveType.Upgrade)
+				{
+					UnitFrame unit = Units[move.OtherUnitId];
+					unit.NextMove = move;
+				}
 				else if (move.MoveType == MoveType.UpdateGround)
 				{
 					HexCell hexCell = GroundCells[move.Positions[0]];
@@ -184,6 +189,22 @@ public class HexGrid : MonoBehaviour {
 			newMoves.Clear();
 			WaitForDraw.Set();
 		}
+	}
+
+	public ParticleSystem MakeParticleSource()
+    {
+		ParticleSystem extractSourcePrefab = Resources.Load<ParticleSystem>("ExtractSource");
+		ParticleSystem extractSource;
+		extractSource = Instantiate(extractSourcePrefab); //, targetCell.transform, false);
+		return extractSource;
+	}
+
+	public ParticleSystemForceField MakeParticleTarget()
+	{
+		ParticleSystemForceField extractPrefab = Resources.Load<ParticleSystemForceField>("ExtractTarget");
+		ParticleSystemForceField extract;
+		extract = Instantiate(extractPrefab); //, targetCell.transform, false);
+		return extract;
 	}
 
 	void CreateUnit(Move move)
