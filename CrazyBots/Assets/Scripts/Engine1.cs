@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Engine1 : UnitPart
+public class Engine1 : MonoBehaviour
 {
+    public float AboveGround { get; set; }
+    public UnitFrame UnitFrame { get; set; }
     // Start is called before the first frame update
     void Awake()
     {
@@ -14,14 +16,10 @@ public class Engine1 : UnitPart
         //GetComponent<MeshFilter>().sharedMesh = mesh;
     }
 
-
-
-    internal UnitFrame UnitFrame { get; set; }
-
-    
-
     void Update()
     {
+        //return;
+
         if (UnitFrame.currentBaseFrame == this)
         {
             if (UnitFrame.NextMove != null && UnitFrame.NextMove.MoveType == MoveType.Extract)
@@ -56,7 +54,7 @@ public class Engine1 : UnitPart
             }
             else
             {
-                UnitFrame.UpdateMove(this);
+                UnitFrame.UpdateMove(this, AboveGround);
             }
         }
         /*
@@ -88,20 +86,4 @@ public class Engine1 : UnitPart
         }
         */
     }
-
-    public void JumpToTarget(Position pos)
-    {
-        //if (FinalDestination != null)
-        {
-            // Did not reach target in time. Jump to it.
-            HexCell targetCell = UnitFrame.HexGrid.GroundCells[pos];
-
-            Vector3 unitPos3 = targetCell.transform.localPosition;
-            //unitPos3.y = 3; //-= AboveGround;
-            unitPos3.y += AboveGround;
-            transform.position = unitPos3;
-            //FinalDestination = null;
-        }
-    }
-
 }

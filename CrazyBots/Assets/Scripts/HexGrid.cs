@@ -1,4 +1,4 @@
-﻿using Assets.Scripts;
+﻿
 using Engine.Interface;
 using System;
 //using Engine.Master;
@@ -7,12 +7,15 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HexGrid : MonoBehaviour {
-
+public class HexGrid : MonoBehaviour 
+{
 	public HexCell cellPrefab;
 	public Text cellLabelPrefab;
 	public Engine1 Engine1;
 	public Container1 Container1;
+	public Assembler1 Assembler1;
+
+	public float HexCellHeight = 0.3f;
 
 	public int gridWidth = 20;
 	public int gridHeight = 20;

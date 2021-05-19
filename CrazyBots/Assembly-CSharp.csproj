@@ -56,7 +56,6 @@
     <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio Tools for Unity\16.0\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\AnotherGrid.cs" />
     <Compile Include="Assets\unPopular Games\Scripts\CameraController.cs" />
     <Compile Include="Assets\StrategyCameraLite\Example\Scripts\HelpUI.cs" />
     <Compile Include="Assets\Scripts\CameraControllerx.cs" />
@@ -68,6 +67,7 @@
     <Compile Include="Assets\StrategyCameraLite\Example\Scripts\DemoUI.cs" />
     <Compile Include="Assets\Scripts\HexGrid.cs" />
     <Compile Include="Assets\Scripts\HexCell.cs" />
+    <Compile Include="Assets\Scripts\Assembler1.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\References\TerrainQuest.Generator.dll" />

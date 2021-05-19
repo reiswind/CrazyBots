@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class Container1 : UnitPart
+public class Container1 : MonoBehaviour
 {
+    public float AboveGround { get; set; }
+    public UnitFrame UnitFrame { get; set; }
 
     void Awake()
     {
@@ -13,12 +15,10 @@ public class Container1 : UnitPart
         //GetComponent<MeshFilter>().sharedMesh = mesh;
     }
 
-    internal UnitFrame UnitFrame { get; set; }
-
     void Update()
     {
-        if (UnitFrame.currentBaseFrame == this)
-            UnitFrame.UpdateMove(this);
+        //if (UnitFrame.currentBaseFrame == this)
+        //    UnitFrame.UpdateMove(this, AboveGround);
     }
 }
 

@@ -8,19 +8,21 @@ using UnityEngine;
 
 public class UnitPart : MonoBehaviour
 {
-    public float AboveGround { get; set; }
+    
 }
+
 public class UnitFrame
 {
-
+  
     public Position FinalDestination { get; set; }
     public Move NextMove { get; set; }
     public HexGrid HexGrid { get; set; }
 
-    internal UnitPart currentBaseFrame;
+    internal MonoBehaviour currentBaseFrame;
 
     private Engine1 engine1;
     private Container1 container1;
+    private Assembler1 assembler1;
 
     private ParticleSystem particleSource;
 
@@ -51,8 +53,12 @@ public class UnitFrame
 
     public void Assemble()
     {
+
         if (NextMove == null || NextMove.Stats == null)
             return;
+
+        Position pos = NextMove.Positions[NextMove.Positions.Count - 1];
+        HexCell targetCell = HexGrid.GroundCells[pos];
 
         bool updatePosition = false;
 
@@ -63,9 +69,14 @@ public class UnitFrame
                 engine1 = HexGrid.Instantiate<Engine1>(HexGrid.Engine1);
                 engine1.UnitFrame = this;
 
+                engine1.AboveGround = HexGrid.HexCellHeight + 0.1f;
+
                 currentBaseFrame = engine1;
-                currentBaseFrame.transform.SetParent(HexGrid.transform, false);
-                updatePosition = true;
+                currentBaseFrame.transform.SetParent(targetCell.transform, false);
+
+                Vector3 unitPos3 = engine1.transform.position;
+                unitPos3.y += HexGrid.HexCellHeight;
+                engine1.transform.position = unitPos3;
             }
         }
 
@@ -78,18 +89,25 @@ public class UnitFrame
 
                 if (currentBaseFrame == null)
                 {
-                    container1.AboveGround = 1.75f;
+                    container1.AboveGround = HexGrid.HexCellHeight + 0.1f;
 
                     currentBaseFrame = container1;
-                    currentBaseFrame.transform.SetParent(HexGrid.transform, false);
-                    updatePosition = true;
+                    currentBaseFrame.transform.SetParent(targetCell.transform, false);
+
+                    Vector3 unitPos3 = container1.transform.position;
+                    unitPos3.y += HexGrid.HexCellHeight;
+                    container1.transform.position = unitPos3;
                 }
                 else
                 {
                     Vector3 unitPos3 = new Vector3();
-                    unitPos3.x = 0;
-                    unitPos3.z = 0;
-                    unitPos3.y = 1.65f; // 
+                    unitPos3.x = 0.3f; // right
+                    unitPos3.x = 0.0f; // left
+                    unitPos3.z = 0.15f; // middle
+                    unitPos3.z = 0.45f; // front
+                    unitPos3.z = -0.05f; // rear
+
+                    unitPos3.y = 0.1f; // 
                     container1.transform.position = unitPos3;
 
                     container1.transform.SetParent(currentBaseFrame.transform, false);
@@ -97,18 +115,39 @@ public class UnitFrame
             }
         }
 
+
         if (currentBaseFrame != null && updatePosition)
         {
-            Position pos = NextMove.Positions[NextMove.Positions.Count - 1];
-            HexCell targetCell = HexGrid.GroundCells[pos];
-            Vector3 unitPos3 = targetCell.transform.localPosition;
-            unitPos3.y -= 1;
-            currentBaseFrame.transform.position = unitPos3;
+            //Vector3 unitPos3 = targetCell.transform.localPosition;
+            //unitPos3.y += 2;
+            //currentBaseFrame.transform.position = unitPos3;
         }
+
+        if (NextMove.Stats.ProductionLevel > 0)
+        {
+            if (assembler1 == null && currentBaseFrame != null)
+            {
+                assembler1 = HexGrid.Instantiate<Assembler1>(HexGrid.Assembler1);
+                assembler1.UnitFrame = this;
+                assembler1.transform.SetParent(targetCell.transform, false);
+
+                Vector3 unitPos3 = assembler1.transform.position; // new Vector3(); // targetCell.transform.localPosition;
+                unitPos3.x += 0.3f;
+                //unitPos3.z = 0;
+                unitPos3.y += HexGrid.HexCellHeight; // 
+                assembler1.transform.position = unitPos3;
+
+
+            }
+        }
+
+
     }
 
     public void JumpToTarget(Position pos)
     {
+        return;
+
         if (FinalDestination != null)
         {
             if (currentBaseFrame != null)
@@ -117,7 +156,7 @@ public class UnitFrame
                 HexCell targetCell = HexGrid.GroundCells[pos];
 
                 Vector3 unitPos3 = targetCell.transform.localPosition;
-                unitPos3.y += currentBaseFrame.AboveGround;
+                //unitPos3.y += currentBaseFrame.AboveGround;
                 currentBaseFrame.transform.position = unitPos3;
 
                 currentBaseFrame.transform.LookAt(unitPos3);
@@ -126,7 +165,7 @@ public class UnitFrame
         }
     }
 
-    public void UpdateMove(UnitPart unit)
+    public void UpdateMove(MonoBehaviour unit, float aboveGround)
     {
         if (NextMove == null)
             return;
@@ -155,7 +194,7 @@ public class UnitFrame
             HexCell targetCell = HexGrid.GroundCells[FinalDestination];
 
             Vector3 unitPos3 = targetCell.transform.localPosition;
-            unitPos3.y += unit.AboveGround;
+            unitPos3.y += aboveGround;
 
             float speed = 1.75f / HexGrid.GameSpeed;
             float step = speed * Time.deltaTime;
