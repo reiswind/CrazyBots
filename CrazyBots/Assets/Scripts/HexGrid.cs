@@ -14,8 +14,11 @@ public class HexGrid : MonoBehaviour
 	public Engine1 Engine1;
 	public Container1 Container1;
 	public Assembler1 Assembler1;
+	public Extractor1 Extractor1;
+	public Weapon1 Weapon1;
+	public Reactor1 Reactor1;
 
-	public float HexCellHeight = 0.3f;
+	internal float hexCellHeight = 0.25f;
 
 	public int gridWidth = 20;
 	public int gridHeight = 20;

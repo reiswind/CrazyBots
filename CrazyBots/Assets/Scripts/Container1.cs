@@ -17,8 +17,7 @@ public class Container1 : MonoBehaviour
 
     void Update()
     {
-        //if (UnitFrame.currentBaseFrame == this)
-        //    UnitFrame.UpdateMove(this, AboveGround);
+        UnitFrame.Move(this);
     }
 }
 

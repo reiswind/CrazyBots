@@ -450,6 +450,8 @@ MonoBehaviour:
   Engine1: {fileID: -2897051209021937314, guid: 82b0594227f2c244a89c6fd79a67eaf8, type: 3}
   Container1: {fileID: 6614795129200016868, guid: a0b95ee24318ac641ad7855f15d33ab0, type: 3}
   Assembler1: {fileID: 155480144514342666, guid: 384b88d7cf12d484295089ddfeefd893, type: 3}
+  Extractor1: {fileID: -584540323005264623, guid: 340629bc8c6dace44956005105f81a27, type: 3}
+  Weapon1: {fileID: 2539268581436537434, guid: 4d7335850de1f61408aa56dc6393ffad, type: 3}
   HexCellHeight: 0.3
   gridWidth: 30
   gridHeight: 30
