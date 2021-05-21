@@ -74,7 +74,6 @@
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\References\TerrainQuest.Generator.dll" />
-     <None Include="Assets\Resources\Materials\VertexColors.shader" />
      <None Include="Assets\References\Engine.dll" />
      <None Include="Assets\References\Newtonsoft.Json.dll" />
     <Reference Include="UnityEngine">

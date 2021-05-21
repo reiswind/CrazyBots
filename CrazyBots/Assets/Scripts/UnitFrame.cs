@@ -35,13 +35,43 @@ public class UnitLayout
     bool rearLeft = true;
     bool rearRight = true;
 
+    public bool PlaceWeapon(MonoBehaviour container1, MonoBehaviour engine1, HexCell targetCell, HexGrid hexGrid)
+    {
+        if (frontLeft == false || frontRight == false || centerLeft == false || centerRight == false)
+        {
+            // Does not fit
+            return false;
+        }
+        if (engine1 == null)
+        {
+        }
+        else
+        {
+            Vector3 unitPos3 = new Vector3();
+            unitPos3.y += 0.09f; // Engine height
+
+            unitPos3.z += 0.25f; // front
+            //unitPos3.x += 0.15f; // middle
+
+            frontLeft = false;
+            frontRight = false;
+
+            centerLeft = false;
+            centerRight = false;
+
+            container1.transform.position = unitPos3;
+            container1.transform.SetParent(engine1.transform, false);
+        }
+        return true;
+    }
+
     public void PlacePart(MonoBehaviour container1, MonoBehaviour engine1, HexCell targetCell, HexGrid hexGrid)
     {
         if (engine1 == null)
         {
-            container1.transform.SetParent(targetCell.transform, false);
+            container1.transform.SetParent(hexGrid.transform, false);
 
-            Vector3 unitPos3 = container1.transform.position;
+            Vector3 unitPos3 = targetCell.transform.position;
             unitPos3.y += hexGrid.hexCellHeight;
 
             if (centerLeft == true)
@@ -83,11 +113,25 @@ public class UnitLayout
         }
         else
         {
+            container1.transform.SetParent(engine1.transform, false);
+
             Vector3 unitPos3 = new Vector3();
 
             unitPos3.y += 0.09f; // Engine height
 
-            if (centerLeft == true)
+            if (rearRight == true)
+            {
+                unitPos3.z -= 0.25f; // rear
+                unitPos3.x += 0.15f; // right
+                rearRight = false;
+            }
+            else if (rearLeft == true)
+            {
+                unitPos3.z -= 0.25f; // rear
+                unitPos3.x -= 0.15f; // left
+                rearLeft = false;
+            }
+            else if (centerLeft == true)
             {
                 unitPos3.x -= 0.15f; // left
                 centerLeft = false;
@@ -100,27 +144,16 @@ public class UnitLayout
             else if (frontRight == true)
             {
                 unitPos3.z += 0.45f; // front
-                unitPos3.x += 0.3f; // right
+                unitPos3.x += 0.15f; // right
                 frontRight = false;
             }
             else if (frontLeft == true)
             {
                 unitPos3.z += 0.45f; // front
-                unitPos3.x -= 0.3f; // left
+                unitPos3.x -= 0.15f; // left
                 frontLeft = false;
             }
-            else if (rearRight == true)
-            {
-                unitPos3.z -= 0.45f; // rear
-                unitPos3.x += 0.3f; // right
-                rearRight = false;
-            }
-            else if (rearLeft == true)
-            {
-                unitPos3.z -= 0.45f; // rear
-                unitPos3.x -= 0.3f; // left
-                rearLeft = false;
-            }
+            
 
             /*
             unitPos3.x = 0.3f; // right
@@ -134,7 +167,6 @@ public class UnitLayout
             */
 
             container1.transform.position = unitPos3;
-            container1.transform.SetParent(engine1.transform, false);
         }
     }
 
@@ -156,8 +188,6 @@ public class UnitFrame
     private Weapon1 weapon1;
     private Extractor1 extractor1;
     private Reactor1 reactor1;
-
-    private ParticleSystem particleSource;
 
     public UnitFrame()
     {
@@ -189,11 +219,9 @@ public class UnitFrame
             {
                 engine1 = HexGrid.Instantiate<Engine1>(HexGrid.Engine1);
                 engine1.UnitFrame = this;
+                engine1.transform.SetParent(HexGrid.transform, false);
 
-                engine1.AboveGround = HexGrid.hexCellHeight + 0.1f;
-                engine1.transform.SetParent(targetCell.transform, false);
-
-                Vector3 unitPos3 = engine1.transform.position;
+                Vector3 unitPos3 = targetCell.transform.position;
                 unitPos3.y += HexGrid.hexCellHeight;
                 engine1.transform.position = unitPos3;
             }
@@ -205,7 +233,28 @@ public class UnitFrame
                 HexGrid.Destroy(engine1);
                 engine1 = null;
             }
-        }        
+        }
+
+        if (NextMove.Stats.WeaponLevel > 0)
+        {
+            if (weapon1 == null && NextMove.Stats.ContainerLevel == 1)
+            {
+                weapon1 = HexGrid.Instantiate<Weapon1>(HexGrid.Weapon1);
+                weapon1.UnitFrame = this;
+                if (!unitLayout.PlaceWeapon(weapon1, engine1, targetCell, HexGrid))
+                {
+
+                }
+            }
+        }
+        else
+        {
+            if (weapon1 != null)
+            {
+                HexGrid.Destroy(weapon1);
+                weapon1 = null;
+            }
+        }
 
         if (NextMove.Stats.ContainerLevel > 0)
         {
