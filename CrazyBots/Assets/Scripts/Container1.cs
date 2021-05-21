@@ -17,7 +17,7 @@ public class Container1 : MonoBehaviour
 
     void Update()
     {
-        UnitFrame.Move(this);
+        UnitFrame?.Move(this);
     }
 }
 

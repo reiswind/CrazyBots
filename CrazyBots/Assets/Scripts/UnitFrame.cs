@@ -65,11 +65,11 @@ public class UnitLayout
         return true;
     }
 
-    public void PlacePart(MonoBehaviour container1, MonoBehaviour engine1, HexCell targetCell, HexGrid hexGrid)
+    public void PlacePart(MonoBehaviour part, MonoBehaviour engine1, HexCell targetCell, HexGrid hexGrid)
     {
         if (engine1 == null)
         {
-            container1.transform.SetParent(hexGrid.transform, false);
+            part.transform.SetParent(hexGrid.transform, false);
 
             Vector3 unitPos3 = targetCell.transform.position;
             unitPos3.y += hexGrid.hexCellHeight;
@@ -109,13 +109,13 @@ public class UnitLayout
                 rearLeft = false;
             }
 
-            container1.transform.position = unitPos3;
+            part.transform.position = unitPos3;
         }
         else
         {
-            container1.transform.SetParent(engine1.transform, false);
+            part.transform.SetParent(engine1.transform, false);
 
-            Vector3 unitPos3 = new Vector3();
+            Vector3 unitPos3 = engine1.transform.position;
 
             unitPos3.y += 0.09f; // Engine height
 
@@ -166,7 +166,7 @@ public class UnitLayout
             unitPos3.y = 0.1f; // 
             */
 
-            container1.transform.position = unitPos3;
+            part.transform.position = unitPos3;
         }
     }
 

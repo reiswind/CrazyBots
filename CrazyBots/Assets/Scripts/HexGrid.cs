@@ -41,7 +41,7 @@ public class HexGrid : MonoBehaviour
 	{
 		// (int)DateTime.Now.Ticks; -1789305431
 		newMoves = new List<Move>();
-		game = gameModel.CreateGame( -1789305431);
+		game = gameModel.CreateGame(); // -1789305431);
 
 		GroundCells = new Dictionary<Position, HexCell>();
 		Units = new Dictionary<string, UnitFrame>();
@@ -197,19 +197,19 @@ public class HexGrid : MonoBehaviour
 		}
 	}
 
-	public ParticleSystem MakeParticleSource()
+	public ParticleSystem MakeParticleSource(string resource)
     {
-		ParticleSystem extractSourcePrefab = Resources.Load<ParticleSystem>("ExtractSource");
+		ParticleSystem extractSourcePrefab = Resources.Load<ParticleSystem>("Particles\\" + resource);
 		ParticleSystem extractSource;
-		extractSource = Instantiate(extractSourcePrefab); //, targetCell.transform, false);
+		extractSource = Instantiate(extractSourcePrefab);
 		return extractSource;
 	}
 
 	public ParticleSystemForceField MakeParticleTarget()
 	{
-		ParticleSystemForceField extractPrefab = Resources.Load<ParticleSystemForceField>("ExtractTarget");
+		ParticleSystemForceField extractPrefab = Resources.Load<ParticleSystemForceField>("Particles\\" + "ExtractTarget");
 		ParticleSystemForceField extract;
-		extract = Instantiate(extractPrefab); //, targetCell.transform, false);
+		extract = Instantiate(extractPrefab);
 		return extract;
 	}
 
