@@ -189,6 +189,10 @@ public class UnitFrame
     private Extractor1 extractor1;
     private Reactor1 reactor1;
 
+    // Current postions
+    internal Position currentPos;
+    internal int playerId;
+
     public UnitFrame()
     {
         unitLayout = new UnitLayout();
@@ -196,7 +200,7 @@ public class UnitFrame
 
     private void SetPlayerColor(MonoBehaviour unit)
     {
-        Material playerMaterial = Resources.Load<Material>("Materials/Player" + NextMove.PlayerId);
+        Material playerMaterial = Resources.Load<Material>("Materials/Player" + playerId);
         MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
 
         Material[] newMaterials = new Material[meshRenderer.materials.Count()];
@@ -218,6 +222,13 @@ public class UnitFrame
 
     public void Assemble()
     {
+        MoveUpdateStats stats = MoveUpdateStats;
+        if (stats == null)
+            return;
+
+        if (currentPos == null)
+            return;
+
         /*
         NextMove.Stats.EngineLevel
         NextMove.Stats.ArmorLevel **
@@ -228,16 +239,17 @@ public class UnitFrame
         NextMove.Stats.ProductionLevel
         */
 
-        if (NextMove == null || NextMove.Stats == null)
-            return;
+        //if (NextMove == null || NextMove.Stats == null)
+        //    return;
 
-        Position pos = NextMove.Positions[NextMove.Positions.Count - 1];
-        HexCell targetCell = HexGrid.GroundCells[pos];
+        //Position pos = NextMove.Positions[NextMove.Positions.Count - 1];
+        HexCell targetCell = HexGrid.GroundCells[currentPos];
+
 
         // Place the engine
-        if (NextMove.Stats.EngineLevel > 0)
+        if (stats.EngineLevel > 0)
         {
-            if (engine1 == null && NextMove.Stats.EngineLevel == 1)
+            if (engine1 == null && stats.EngineLevel == 1)
             {
                 engine1 = HexGrid.Instantiate<Engine1>(HexGrid.Engine1);
                 engine1.UnitFrame = this;
@@ -259,9 +271,9 @@ public class UnitFrame
             }
         }
 
-        if (NextMove.Stats.WeaponLevel > 0)
+        if (stats.WeaponLevel > 0)
         {
-            if (weapon1 == null && NextMove.Stats.ContainerLevel == 1)
+            if (weapon1 == null && stats.ContainerLevel == 1)
             {
                 weapon1 = HexGrid.Instantiate<Weapon1>(HexGrid.Weapon1);
                 weapon1.UnitFrame = this;
@@ -282,9 +294,9 @@ public class UnitFrame
             }
         }
 
-        if (NextMove.Stats.ContainerLevel > 0)
+        if (stats.ContainerLevel > 0)
         {
-            if (container1 == null && NextMove.Stats.ContainerLevel == 1)
+            if (container1 == null && stats.ContainerLevel == 1)
             {
                 container1 = HexGrid.Instantiate<Container1>(HexGrid.Container1);
                 container1.UnitFrame = this;
@@ -293,6 +305,7 @@ public class UnitFrame
                 unitLayout.PlacePart(container1, engine1, targetCell, HexGrid);
 
             }
+            container1.UpdateContent(stats.ContainerFull);
         }
         else
         {
@@ -303,9 +316,9 @@ public class UnitFrame
             }
         }
 
-        if (NextMove.Stats.ExtractorLevel > 0)
+        if (stats.ExtractorLevel > 0)
         {
-            if (extractor1 == null && NextMove.Stats.ExtractorLevel == 1)
+            if (extractor1 == null && stats.ExtractorLevel == 1)
             {
                 extractor1 = HexGrid.Instantiate<Extractor1>(HexGrid.Extractor1);
                 extractor1.UnitFrame = this;
@@ -323,9 +336,9 @@ public class UnitFrame
             }
         }
         
-        if (NextMove.Stats.ProductionLevel > 0)
+        if (stats.ProductionLevel > 0)
         {
-            if (assembler1 == null && NextMove.Stats.ProductionLevel == 1)
+            if (assembler1 == null && stats.ProductionLevel == 1)
             {
                 assembler1 = HexGrid.Instantiate<Assembler1>(HexGrid.Assembler1);
                 assembler1.UnitFrame = this;
@@ -343,9 +356,9 @@ public class UnitFrame
             }
         }
 
-        if (NextMove.Stats.ReactorLevel > 0)
+        if (stats.ReactorLevel > 0)
         {
-            if (reactor1 == null && NextMove.Stats.ProductionLevel == 1)
+            if (reactor1 == null && stats.ProductionLevel == 1)
             {
                 reactor1 = HexGrid.Instantiate<Reactor1>(HexGrid.Reactor1);
                 reactor1.UnitFrame = this;
@@ -386,12 +399,27 @@ public class UnitFrame
         }
     }
 
+    public MoveUpdateStats MoveUpdateStats { get; set; }
+
+    public void UpdateStats(MoveUpdateStats stats)
+    {
+        MoveUpdateStats = stats;
+        Assemble();
+    }
+
     public void Move(MonoBehaviour unit)
     {
+        if (NextMove?.MoveType == MoveType.Upgrade)
+        {
+
+        }
         if (NextMove?.MoveType == MoveType.UpdateStats)
         {
-            Assemble();
             NextMove = null;
+        }
+        if (NextMove?.MoveType == MoveType.Add || NextMove?.MoveType == MoveType.Move)
+        {
+            currentPos = NextMove.Positions[NextMove.Positions.Count - 1];
         }
     }
 }

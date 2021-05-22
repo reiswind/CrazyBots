@@ -41,7 +41,7 @@ public class HexGrid : MonoBehaviour
 	{
 		// (int)DateTime.Now.Ticks; -1789305431
 		newMoves = new List<Move>();
-		game = gameModel.CreateGame(); // -1789305431);
+		game = gameModel.CreateGame(-1599727108);
 
 		GroundCells = new Dictionary<Position, HexCell>();
 		Units = new Dictionary<string, UnitFrame>();
@@ -157,6 +157,7 @@ public class HexGrid : MonoBehaviour
 	{
 		if (WaitForTurn.WaitOne(10))
 		{
+			int x = 0;
 			foreach (UnitFrame unitFrame in Units.Values)
             {
 				if (unitFrame.FinalDestination != null)
@@ -173,9 +174,13 @@ public class HexGrid : MonoBehaviour
 				{
 					CreateUnit(move);
 				}
+				else if (move.MoveType == MoveType.UpdateStats)
+				{
+					UnitFrame unit = Units[move.UnitId];
+					unit.UpdateStats(move.Stats);
+				}
 				else if (move.MoveType == MoveType.Move || 
-					move.MoveType == MoveType.UpdateStats ||
-					move.MoveType == MoveType.Extract)
+					     move.MoveType == MoveType.Extract)
 				{
 					UnitFrame unit = Units[move.UnitId];
 					unit.NextMove = move;
@@ -220,6 +225,9 @@ public class HexGrid : MonoBehaviour
 		unit.HexGrid = this;
 		unit.NextMove = move;
 
+		unit.playerId = move.PlayerId;
+		unit.MoveUpdateStats = move.Stats;
+		unit.currentPos = move.Positions[move.Positions.Count - 1];
 		unit.Assemble();
 
 		Units.Add(move.UnitId, unit);
