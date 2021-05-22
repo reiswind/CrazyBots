@@ -65,6 +65,18 @@ public class UnitLayout
         return true;
     }
 
+    public void PlaceOnGround(MonoBehaviour part, MonoBehaviour engine1, HexCell targetCell, HexGrid hexGrid)
+    {
+        if (engine1 == null)
+        {
+            part.transform.SetParent(hexGrid.transform, false);
+
+            Vector3 unitPos3 = targetCell.transform.position;
+            unitPos3.y += hexGrid.hexCellHeight - 0.10f;
+            part.transform.position = unitPos3;
+        }
+    }
+
     public void PlacePart(MonoBehaviour part, MonoBehaviour engine1, HexCell targetCell, HexGrid hexGrid)
     {
         if (engine1 == null)
@@ -72,7 +84,7 @@ public class UnitLayout
             part.transform.SetParent(hexGrid.transform, false);
 
             Vector3 unitPos3 = targetCell.transform.position;
-            unitPos3.y += hexGrid.hexCellHeight;
+            unitPos3.y += hexGrid.hexCellHeight + 0.05f;
 
             if (centerLeft == true)
             {
@@ -320,11 +332,18 @@ public class UnitFrame
         {
             if (extractor1 == null && stats.ExtractorLevel == 1)
             {
-                extractor1 = HexGrid.Instantiate<Extractor1>(HexGrid.Extractor1);
+                if (engine1 == null)
+                {
+                    extractor1 = HexGrid.Instantiate<Extractor1>(HexGrid.ExtractorGround1);
+                    unitLayout.PlaceOnGround(extractor1, engine1, targetCell, HexGrid);
+                }
+                else
+                {
+                    extractor1 = HexGrid.Instantiate<Extractor1>(HexGrid.Extractor1);
+                    unitLayout.PlacePart(extractor1, engine1, targetCell, HexGrid);
+                }
                 extractor1.UnitFrame = this;
                 SetPlayerColor(extractor1);
-
-                unitLayout.PlacePart(extractor1, engine1, targetCell, HexGrid);
             }
         }
         else

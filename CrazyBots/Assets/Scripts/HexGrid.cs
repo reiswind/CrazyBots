@@ -15,6 +15,7 @@ public class HexGrid : MonoBehaviour
 	public Container1 Container1;
 	public Assembler1 Assembler1;
 	public Extractor1 Extractor1;
+	public Extractor1 ExtractorGround1;
 	public Weapon1 Weapon1;
 	public Reactor1 Reactor1;
 
@@ -157,7 +158,6 @@ public class HexGrid : MonoBehaviour
 	{
 		if (WaitForTurn.WaitOne(10))
 		{
-			int x = 0;
 			foreach (UnitFrame unitFrame in Units.Values)
             {
 				if (unitFrame.FinalDestination != null)
