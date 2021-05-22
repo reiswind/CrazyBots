@@ -194,6 +194,28 @@ public class UnitFrame
         unitLayout = new UnitLayout();
     }
 
+    private void SetPlayerColor(MonoBehaviour unit)
+    {
+        Material playerMaterial = Resources.Load<Material>("Materials/Player" + NextMove.PlayerId);
+        MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
+
+        Material[] newMaterials = new Material[meshRenderer.materials.Count()];
+
+        for (int i = 0; i < meshRenderer.materials.Count(); i++)
+        {
+            Material material = meshRenderer.materials[i];
+            if (material.name.StartsWith("Player"))
+            {
+                newMaterials[i] = playerMaterial;
+            }
+            else
+            {
+                newMaterials[i] = material;
+            }
+        }
+        meshRenderer.materials = newMaterials;
+    }
+
     public void Assemble()
     {
         /*
@@ -219,6 +241,8 @@ public class UnitFrame
             {
                 engine1 = HexGrid.Instantiate<Engine1>(HexGrid.Engine1);
                 engine1.UnitFrame = this;
+                SetPlayerColor(engine1);
+
                 engine1.transform.SetParent(HexGrid.transform, false);
 
                 Vector3 unitPos3 = targetCell.transform.position;
@@ -241,6 +265,8 @@ public class UnitFrame
             {
                 weapon1 = HexGrid.Instantiate<Weapon1>(HexGrid.Weapon1);
                 weapon1.UnitFrame = this;
+                SetPlayerColor(weapon1);
+               
                 if (!unitLayout.PlaceWeapon(weapon1, engine1, targetCell, HexGrid))
                 {
 
@@ -262,6 +288,8 @@ public class UnitFrame
             {
                 container1 = HexGrid.Instantiate<Container1>(HexGrid.Container1);
                 container1.UnitFrame = this;
+                SetPlayerColor(container1);
+
                 unitLayout.PlacePart(container1, engine1, targetCell, HexGrid);
 
             }
@@ -281,6 +309,8 @@ public class UnitFrame
             {
                 extractor1 = HexGrid.Instantiate<Extractor1>(HexGrid.Extractor1);
                 extractor1.UnitFrame = this;
+                SetPlayerColor(extractor1);
+
                 unitLayout.PlacePart(extractor1, engine1, targetCell, HexGrid);
             }
         }
@@ -299,6 +329,8 @@ public class UnitFrame
             {
                 assembler1 = HexGrid.Instantiate<Assembler1>(HexGrid.Assembler1);
                 assembler1.UnitFrame = this;
+                SetPlayerColor(assembler1);
+
                 unitLayout.PlacePart(assembler1, engine1, targetCell, HexGrid);
             }
         }
@@ -317,6 +349,8 @@ public class UnitFrame
             {
                 reactor1 = HexGrid.Instantiate<Reactor1>(HexGrid.Reactor1);
                 reactor1.UnitFrame = this;
+                SetPlayerColor(reactor1);
+
                 unitLayout.PlacePart(reactor1, engine1, targetCell, HexGrid);
             }
         }
