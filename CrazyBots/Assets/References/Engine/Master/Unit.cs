@@ -258,7 +258,7 @@ namespace Engine.Master
                     if (startCode == "StartFactory" || startCode == "StartColony")
                     {
                         Container.Metal = Container.Capacity;
-                        Container.Capacity = 100000;
+                        //Container.Capacity = 100000;
                     }
                 }
             }

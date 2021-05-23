@@ -21,7 +21,7 @@ public class Container1 : MonoBehaviour
     void Update()
     {
         UnitFrame?.Move(this);
-        UpdateContent(UnitFrame?.MoveUpdateStats.ContainerFull);
+        //UpdateContent(UnitFrame?.MoveUpdateStats.ContainerFull);
     }
 
     public void UpdateContent(int? percentage)

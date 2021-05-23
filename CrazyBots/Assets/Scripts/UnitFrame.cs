@@ -65,28 +65,68 @@ public class UnitLayout
         return true;
     }
 
+    public bool PlaceBigPart(MonoBehaviour container1, MonoBehaviour engine1, HexCell targetCell, HexGrid hexGrid)
+    {
+        if (frontLeft == false || frontRight == false || centerLeft == false || centerRight == false)
+        {
+            // Does not fit
+            return false;
+        }
+        if (engine1 == null)
+        {
+        }
+        else
+        {
+            Vector3 unitPos3 = new Vector3();
+            unitPos3.y += 0.05f; // Engine height
+
+            //unitPos3.z += 0.25f; // front
+            //unitPos3.x += 0.15f; // middle
+
+            frontLeft = false;
+            frontRight = false;
+
+            centerLeft = false;
+            centerRight = false;
+
+            container1.transform.position = unitPos3;
+            container1.transform.SetParent(engine1.transform, false);
+        }
+        return true;
+    }
+
     public void PlaceOnGround(MonoBehaviour part, MonoBehaviour engine1, HexCell targetCell, HexGrid hexGrid)
     {
         if (engine1 == null)
         {
-            part.transform.SetParent(hexGrid.transform, false);
-
             Vector3 unitPos3 = targetCell.transform.position;
-            unitPos3.y += hexGrid.hexCellHeight - 0.10f;
+            unitPos3.y += hexGrid.hexCellHeight - 0.02f;
             part.transform.position = unitPos3;
+
+            part.transform.SetParent(hexGrid.transform, false);
         }
     }
 
-    public void PlacePart(MonoBehaviour part, MonoBehaviour engine1, HexCell targetCell, HexGrid hexGrid)
+    public void PlacePart(MonoBehaviour part, MonoBehaviour parent, HexCell targetCell, HexGrid hexGrid)
     {
-        if (engine1 == null)
+        if (parent == null)
         {
-            part.transform.SetParent(hexGrid.transform, false);
-
-            Vector3 unitPos3 = targetCell.transform.position;
+            Vector3 unitPos3 = new Vector3();
             unitPos3.y += hexGrid.hexCellHeight + 0.05f;
 
-            if (centerLeft == true)
+            if (rearRight == true)
+            {
+                unitPos3.z -= 0.45f; // rear
+                unitPos3.x += 0.3f; // right
+                rearRight = false;
+            }
+            else if (rearLeft == true)
+            {
+                unitPos3.z -= 0.45f; // rear
+                unitPos3.x -= 0.3f; // left
+                rearLeft = false;
+            }
+            else if (centerLeft == true)
             {
                 unitPos3.x -= 0.3f; // left
                 centerLeft = false;
@@ -108,28 +148,17 @@ public class UnitLayout
                 unitPos3.x -= 0.3f; // left
                 frontLeft = false;
             }
-            else if (rearRight == true)
-            {
-                unitPos3.z -= 0.45f; // rear
-                unitPos3.x += 0.3f; // right
-                rearRight = false;
-            }
-            else if (rearLeft == true)
-            {
-                unitPos3.z -= 0.45f; // rear
-                unitPos3.x -= 0.3f; // left
-                rearLeft = false;
-            }
-
             part.transform.position = unitPos3;
+            part.transform.SetParent(hexGrid.transform, false);
         }
         else
         {
-            part.transform.SetParent(engine1.transform, false);
+            Vector3 unitPos3 = new Vector3();
 
-            Vector3 unitPos3 = engine1.transform.position;
-
-            unitPos3.y += 0.09f; // Engine height
+            if (parent is Engine1)
+                unitPos3.y += 0.09f; // Engine height
+            else
+                unitPos3.y += 0.03f; // Foundation height
 
             if (rearRight == true)
             {
@@ -179,6 +208,7 @@ public class UnitLayout
             */
 
             part.transform.position = unitPos3;
+            part.transform.SetParent(parent.transform, false);
         }
     }
 
@@ -204,6 +234,8 @@ public class UnitFrame
     // Current postions
     internal Position currentPos;
     internal int playerId;
+
+    internal MonoBehaviour foundationPart;
 
     public UnitFrame()
     {
@@ -265,6 +297,8 @@ public class UnitFrame
             {
                 engine1 = HexGrid.Instantiate<Engine1>(HexGrid.Engine1);
                 engine1.UnitFrame = this;
+
+                foundationPart = engine1;
                 SetPlayerColor(engine1);
 
                 engine1.transform.SetParent(HexGrid.transform, false);
@@ -291,7 +325,7 @@ public class UnitFrame
                 weapon1.UnitFrame = this;
                 SetPlayerColor(weapon1);
                
-                if (!unitLayout.PlaceWeapon(weapon1, engine1, targetCell, HexGrid))
+                if (!unitLayout.PlaceWeapon(weapon1, foundationPart, targetCell, HexGrid))
                 {
 
                 }
@@ -314,6 +348,7 @@ public class UnitFrame
                 {
                     extractor1 = HexGrid.Instantiate<Extractor1>(HexGrid.ExtractorGround1);
                     unitLayout.PlaceOnGround(extractor1, engine1, targetCell, HexGrid);
+                    foundationPart = extractor1;
                 }
                 else
                 {
@@ -340,10 +375,19 @@ public class UnitFrame
             {
                 container1 = HexGrid.Instantiate<Container1>(HexGrid.Container1);
                 container1.UnitFrame = this;
+
                 SetPlayerColor(container1);
-
-                unitLayout.PlacePart(container1, engine1, targetCell, HexGrid);
-
+                if (foundationPart is Extractor1 && stats.ProductionLevel > 0)
+                {
+                    Vector3 unitPos3 = new Vector3();
+                    unitPos3.y += 0.15f;
+                    container1.transform.position = unitPos3;
+                    container1.transform.SetParent(foundationPart.transform, false);
+                }
+                else
+                {
+                    unitLayout.PlacePart(container1, foundationPart, targetCell, HexGrid);
+                }
             }
             container1.UpdateContent(stats.ContainerFull);
         }
@@ -356,8 +400,6 @@ public class UnitFrame
             }
         }
 
-        
-        
         if (stats.ProductionLevel > 0)
         {
             if (assembler1 == null && stats.ProductionLevel == 1)
@@ -366,7 +408,7 @@ public class UnitFrame
                 assembler1.UnitFrame = this;
                 SetPlayerColor(assembler1);
 
-                unitLayout.PlacePart(assembler1, engine1, targetCell, HexGrid);
+                unitLayout.PlaceBigPart(assembler1, foundationPart, targetCell, HexGrid);
             }
         }
         else
@@ -386,7 +428,7 @@ public class UnitFrame
                 reactor1.UnitFrame = this;
                 SetPlayerColor(reactor1);
 
-                unitLayout.PlacePart(reactor1, engine1, targetCell, HexGrid);
+                unitLayout.PlacePart(reactor1, foundationPart, targetCell, HexGrid);
             }
         }
         else
