@@ -56,26 +56,72 @@
     <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio Tools for Unity\16.0\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\Extractor1.cs" />
-    <Compile Include="Assets\unPopular Games\Scripts\CameraController.cs" />
-    <Compile Include="Assets\StrategyCameraLite\Example\Scripts\HelpUI.cs" />
-    <Compile Include="Assets\Scripts\Reactor1.cs" />
-    <Compile Include="Assets\Scripts\CameraControllerx.cs" />
-    <Compile Include="Assets\StrategyCameraLite\Scripts\StrategyCamera.cs" />
-    <Compile Include="Assets\Scripts\Weapon1.cs" />
+    <Compile Include="Assets\References\Engine\Interface\Player.cs" />
+    <Compile Include="Assets\References\Engine\Master\Bullet.cs" />
+    <Compile Include="Assets\References\Engine\Master\Reactor.cs" />
+    <Compile Include="Assets\References\Engine\Ants\AntDestination.cs" />
     <Compile Include="Assets\Scripts\UnitFrame.cs" />
+    <Compile Include="Assets\References\Engine\Control\Dispatcher.cs" />
     <Compile Include="Assets\Scripts\Engine1.cs" />
     <Compile Include="Assets\Scripts\Container1.cs" />
+    <Compile Include="Assets\References\Engine\Master\Extractor.cs" />
+    <Compile Include="Assets\References\Engine\Control\Assemble.cs" />
+    <Compile Include="Assets\References\Engine\Interface\Tile.cs" />
+    <Compile Include="Assets\Scripts\Extractor1.cs" />
+    <Compile Include="Assets\References\Engine\Algorithms\HighResolutionTime.cs" />
+    <Compile Include="Assets\References\Engine\Master\Map.cs" />
+    <Compile Include="Assets\unPopular Games\Scripts\CameraController.cs" />
+    <Compile Include="Assets\References\Engine\Ants\Ant.cs" />
+    <Compile Include="Assets\References\Engine\Interface\Area.cs" />
+    <Compile Include="Assets\References\Engine\Control\Collect.cs" />
+    <Compile Include="Assets\References\Engine\Interface\Position.cs" />
+    <Compile Include="Assets\References\Engine\Ants\ControlAnt.cs" />
+    <Compile Include="Assets\References\Engine\Control\Control.cs" />
+    <Compile Include="Assets\References\Engine\Ants\Pheromone.cs" />
     <Compile Include="Assets\Scripts\Assembler1.cs" />
+    <Compile Include="Assets\References\Engine\Ants\AntFactory.cs" />
     <Compile Include="Assets\Scripts\HexMapEditor.cs" />
+    <Compile Include="Assets\References\Engine\Interface\Move.cs" />
+    <Compile Include="Assets\References\Engine\Algorithms\PathFinderFast.cs" />
+    <Compile Include="Assets\References\Engine\Interface\IControl.cs" />
+    <Compile Include="Assets\StrategyCameraLite\Example\Scripts\HelpUI.cs" />
+    <Compile Include="Assets\References\Engine\Master\Units.cs" />
+    <Compile Include="Assets\Scripts\Reactor1.cs" />
+    <Compile Include="Assets\Scripts\CameraControllerx.cs" />
     <Compile Include="Assets\StrategyCameraLite\Example\Scripts\DemoUI.cs" />
+    <Compile Include="Assets\References\Engine\Master\Unit.cs" />
+    <Compile Include="Assets\References\Engine\Control\Storage.cs" />
+    <Compile Include="Assets\References\Engine\Master\Weapon.cs" />
+    <Compile Include="Assets\References\Engine\Algorithms\AuthorAttribute.cs" />
+    <Compile Include="Assets\References\Engine\Algorithms\IPathFinder.cs" />
+    <Compile Include="Assets\StrategyCameraLite\Scripts\StrategyCamera.cs" />
+    <Compile Include="Assets\References\Engine\Control\ControlNothing.cs" />
+    <Compile Include="Assets\References\Engine\Master\Ability.cs" />
+    <Compile Include="Assets\References\Engine\Ants\AntWorker.cs" />
+    <Compile Include="Assets\References\Engine\Control\Attack.cs" />
+    <Compile Include="Assets\References\Engine\Master\Assembler.cs" />
+    <Compile Include="Assets\References\Engine\Algorithms\Bresehnham.cs" />
+    <Compile Include="Assets\References\Engine\Ants\AntContainer.cs" />
+    <Compile Include="Assets\References\Engine\Master\Radar.cs" />
+    <Compile Include="Assets\References\Engine\Control\ControllerUnit.cs" />
+    <Compile Include="Assets\References\Engine\Master\Container.cs" />
+    <Compile Include="Assets\References\Engine\Control\Command.cs" />
+    <Compile Include="Assets\References\Engine\Master\ControlMaster.cs" />
+    <Compile Include="Assets\References\Engine\Master\Game.cs" />
+    <Compile Include="Assets\References\Engine\Interface\GameModel.cs" />
+    <Compile Include="Assets\References\Engine\Control\UnitType.cs" />
+    <Compile Include="Assets\References\Engine\Control\Scout.cs" />
+    <Compile Include="Assets\References\Engine\Master\Armor .cs" />
+    <Compile Include="Assets\Scripts\Weapon1.cs" />
     <Compile Include="Assets\Scripts\HexGrid.cs" />
     <Compile Include="Assets\Scripts\HexCell.cs" />
+    <Compile Include="Assets\References\Engine\Master\Engine.cs" />
+    <Compile Include="Assets\References\Engine\Algorithms\PriorityQueueB.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\References\TerrainQuest.Generator.dll" />
-     <None Include="Assets\References\Engine.dll" />
      <None Include="Assets\References\Newtonsoft.Json.dll" />
+     <None Include="Assets\References\Newtonsoft.Json.xml" />
     <Reference Include="UnityEngine">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2020.3.7f1\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
     </Reference>
@@ -292,20 +338,8 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>Assets\References\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.Analytics.StandardEvents">
-      <HintPath>Library\PackageCache\com.unity.analytics@3.5.3\AnalyticsStandardEvents\Unity.Analytics.StandardEvents.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Analytics.Editor">
-      <HintPath>Library\PackageCache\com.unity.analytics@3.5.3\Unity.Analytics.Editor.dll</HintPath>
-    </Reference>
     <Reference Include="TerrainQuest.Generator">
       <HintPath>Assets\References\TerrainQuest.Generator.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Analytics.Tracker">
-      <HintPath>Library\PackageCache\com.unity.analytics@3.5.3\Unity.Analytics.Tracker.dll</HintPath>
-    </Reference>
-    <Reference Include="Engine">
-      <HintPath>Assets\References\Engine.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2020.3.7f1\Editor\Data\NetStandard\ref\2.0.0\netstandard.dll</HintPath>
@@ -652,17 +686,8 @@
     <Reference Include="System.Xml.Serialization">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2020.3.7f1\Editor\Data\NetStandard\compat\2.0.0\shims\netfx\System.Xml.Serialization.dll</HintPath>
     </Reference>
-    <Reference Include="Purchasing.Common">
-      <HintPath>Library\ScriptAssemblies\Purchasing.Common.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.VSCode.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.VSCode.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.2D.Tilemap.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.2D.Tilemap.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Purchasing">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.Purchasing.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.TextMeshPro.Editor.dll</HintPath>
@@ -670,23 +695,14 @@
     <Reference Include="Unity.VisualStudio.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.VisualStudio.Editor.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.Timeline.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.Timeline.Editor.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Timeline">
       <HintPath>Library\ScriptAssemblies\Unity.Timeline.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>Library\ScriptAssemblies\Unity.TextMeshPro.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Purchasing.SecurityStub">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.Purchasing.SecurityStub.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Advertisements">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.Advertisements.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.2D.Sprite.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.2D.Sprite.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Postprocessing.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.Postprocessing.Editor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.UI">
       <HintPath>Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>
@@ -694,50 +710,8 @@
     <Reference Include="Unity.Rider.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.Rider.Editor.dll</HintPath>
     </Reference>
-    <Reference Include="Analytics">
-      <HintPath>Library\ScriptAssemblies\Analytics.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.SpatialTracking">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.SpatialTracking.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Analytics.DataPrivacy">
-      <HintPath>Library\ScriptAssemblies\Unity.Analytics.DataPrivacy.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Purchasing.SecurityCore">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.Purchasing.SecurityCore.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Postprocessing.Runtime">
-      <HintPath>Library\ScriptAssemblies\Unity.Postprocessing.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Purchasing.Codeless">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.Purchasing.Codeless.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.XR.LegacyInputHelpers">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.XR.LegacyInputHelpers.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Timeline.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.Timeline.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Purchasing.Stores">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.Purchasing.Stores.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.XR.LegacyInputHelpers">
-      <HintPath>Library\ScriptAssemblies\UnityEditor.XR.LegacyInputHelpers.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Monetization">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.Monetization.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.Purchasing">
-      <HintPath>Library\ScriptAssemblies\UnityEditor.Purchasing.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.SpatialTracking">
-      <HintPath>Library\ScriptAssemblies\UnityEditor.SpatialTracking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Advertisements.Editor">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.Advertisements.Editor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
