@@ -234,12 +234,47 @@ public class UnitFrame
     // Current postions
     internal Position currentPos;
     internal int playerId;
-
+    internal string UnitId { get; set; }
     internal MonoBehaviour foundationPart;
 
     public UnitFrame()
     {
         unitLayout = new UnitLayout();
+    }
+
+    public void Delete()
+    {
+        //foundationPart = null;
+        if (weapon1 != null)
+        {
+            HexGrid.Destroy(weapon1.gameObject);
+            weapon1 = null;
+        }
+        if (extractor1 != null)
+        {
+            HexGrid.Destroy(extractor1.gameObject);
+            extractor1 = null;
+        }
+        if (container1 != null)
+        {
+            HexGrid.Destroy(container1.gameObject);
+            container1 = null;
+        }
+        if (assembler1 != null)
+        {
+            HexGrid.Destroy(assembler1.gameObject);
+            assembler1 = null;
+        }
+        if (reactor1 != null)
+        {
+            HexGrid.Destroy(reactor1.gameObject);
+            reactor1 = null;
+        }
+        if (engine1 != null)
+        {
+            HexGrid.Destroy(engine1.gameObject);
+            engine1 = null;
+        }
     }
 
     private void SetPlayerColor(MonoBehaviour unit)
@@ -283,21 +318,18 @@ public class UnitFrame
         NextMove.Stats.ProductionLevel
         */
 
-        //if (NextMove == null || NextMove.Stats == null)
-        //    return;
-
-        //Position pos = NextMove.Positions[NextMove.Positions.Count - 1];
         HexCell targetCell = HexGrid.GroundCells[currentPos];
-
 
         // Place the engine
         if (stats.EngineLevel > 0)
         {
             if (engine1 == null && stats.EngineLevel == 1)
             {
-                engine1 = HexGrid.Instantiate<Engine1>(HexGrid.Engine1);
-                engine1.UnitFrame = this;
+                engine1 = HexGrid.MakeEngine1();
 
+                engine1.UnitFrame = this;
+                engine1.UnitId = UnitId;
+                engine1.name = "Engine-" + UnitId;
                 foundationPart = engine1;
                 SetPlayerColor(engine1);
 
@@ -323,6 +355,7 @@ public class UnitFrame
             {
                 weapon1 = HexGrid.Instantiate<Weapon1>(HexGrid.Weapon1);
                 weapon1.UnitFrame = this;
+                weapon1.name = "Weapon-" + UnitId;
                 SetPlayerColor(weapon1);
                
                 if (!unitLayout.PlaceWeapon(weapon1, foundationPart, targetCell, HexGrid))
@@ -355,6 +388,7 @@ public class UnitFrame
                     extractor1 = HexGrid.Instantiate<Extractor1>(HexGrid.Extractor1);
                     unitLayout.PlacePart(extractor1, engine1, targetCell, HexGrid);
                 }
+                extractor1.name = "Extractor-" + UnitId;
                 extractor1.UnitFrame = this;
                 SetPlayerColor(extractor1);
             }
@@ -375,6 +409,7 @@ public class UnitFrame
             {
                 container1 = HexGrid.Instantiate<Container1>(HexGrid.Container1);
                 container1.UnitFrame = this;
+                container1.name = "Container-" + UnitId;
 
                 SetPlayerColor(container1);
                 if (foundationPart is Extractor1 && stats.ProductionLevel > 0)

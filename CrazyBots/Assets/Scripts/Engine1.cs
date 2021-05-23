@@ -8,11 +8,19 @@ public class Engine1 : MonoBehaviour
     private float AboveGround { get; set; }
     public UnitFrame UnitFrame { get; set; }
 
+    public string UnitId { get; set; }
+
     // Start is called before the first frame update
     void Awake()
     {
         AboveGround = 0.01f;
     }
+
+    void OnDestroy()
+    {
+        int x = 0;
+    }
+
 
     void Update()
     {
@@ -28,12 +36,15 @@ public class Engine1 : MonoBehaviour
             float speed = 1.75f / UnitFrame.HexGrid.GameSpeed;
             float step = speed * Time.deltaTime;
 
-            transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
-
-            //if (UnitFrame.NextMove.MoveType == MoveType.Move)
+            if (UnitFrame.NextMove?.MoveType == MoveType.Add)
             {
-                UpdateDirection(unitPos3);
+                step = 1;
             }
+            else
+            {
+                transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
+            }
+            UpdateDirection(unitPos3);
         }
     }
 

@@ -3,6 +3,8 @@ using Engine.Interface;
 using System;
 //using Engine.Master;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Json;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,7 +13,7 @@ public class HexGrid : MonoBehaviour
 {
 	public HexCell cellPrefab;
 	public Text cellLabelPrefab;
-	public Engine1 Engine1;
+	//public Engine1 Engine1;
 	public Container1 Container1;
 	public Assembler1 Assembler1;
 	public Extractor1 Extractor1;
@@ -23,7 +25,7 @@ public class HexGrid : MonoBehaviour
 
 	public int gridWidth = 20;
 	public int gridHeight = 20;
-	public float GameSpeed = 0.8f;
+	public float GameSpeed = 0.3f;
 
 	private Canvas gridCanvas;
 
@@ -117,28 +119,43 @@ public class HexGrid : MonoBehaviour
 	void Awake () 
 	{
 		if (GameSpeed == 0)
-			GameSpeed = 0.5f;
+			GameSpeed = 0.3f;
 
 		gridCanvas = GetComponentInChildren<Canvas>();
 
-		GameModel gameModel = new GameModel();
-		gameModel.MapHeight = gridWidth;
-		gameModel.MapWidth = gridHeight;
+		GameModel gameModel;
 
-		if (gridWidth > 10)
+		//string filename = @"C:\Develop\blazor\Client\Models\SoloAnt.json";
+		string filename = @"C:\Develop\blazor\Client\Models\Simple.json";
+		if (File.Exists(filename))
 		{
-			gameModel.Players = new List<PlayerModel>();
+			var serializer = new DataContractJsonSerializer(typeof(GameModel));
+			using (FileStream x = File.Open(filename, FileMode.Open))
+			{
+				gameModel = (GameModel)serializer.ReadObject(x);
+			}
+		}
+		else
+		{
+			gameModel = new GameModel();
+			gameModel.MapHeight = gridWidth;
+			gameModel.MapWidth = gridHeight;
 
-			PlayerModel p = new PlayerModel();
-			p.ControlLevel = 1;
-			p.Id = 1;
-			p.Name = "WebPLayer";
-			p.StartPosition = new Position(10, 10);
-			gameModel.Players.Add(p);
+			if (gridWidth > 10)
+			{
+				gameModel.Players = new List<PlayerModel>();
+
+				PlayerModel p = new PlayerModel();
+				p.ControlLevel = 1;
+				p.Id = 1;
+				p.Name = "WebPLayer";
+				p.StartPosition = new Position(10, 10);
+				gameModel.Players.Add(p);
+			}
 		}
 		CreateGame(gameModel);
 
-		InvokeRepeating("invoke", 1f, GameSpeed);
+		InvokeRepeating("invoke", 0.5f, GameSpeed);
 	}
 
     private void OnDestroy()
@@ -195,13 +212,34 @@ public class HexGrid : MonoBehaviour
 					HexCell hexCell = GroundCells[move.Positions[0]];
 					hexCell.NextMove = move;
 				}
-				
+				else if (move.MoveType == MoveType.Delete)
+				{
+					Debug.Log("Delete Unit " + move.UnitId);
+
+					UnitFrame unit = Units[move.UnitId];
+					unit.NextMove = null;
+					unit.Delete();
+					Units.Remove(move.UnitId);
+				}
+
 			}
 			newMoves.Clear();
 			WaitForDraw.Set();
 		}
 	}
 
+	public void MyDestroy(GameObject x)
+    {
+		Destroy(x);
+    }
+	public Engine1 MakeEngine1()
+    {
+		GameObject prefab = (GameObject)Resources.Load("Prefabs/Unit/Engine1");
+		GameObject engine1 = Instantiate(prefab);
+
+		Engine1 sc = engine1.GetComponent<Engine1>();
+		return sc;
+	}
 	public ParticleSystem MakeParticleSource(string resource)
     {
 		ParticleSystem extractSourcePrefab = Resources.Load<ParticleSystem>("Particles\\" + resource);
@@ -227,7 +265,7 @@ public class HexGrid : MonoBehaviour
 
 		unit.playerId = move.PlayerId;
 		unit.MoveUpdateStats = move.Stats;
-
+		unit.UnitId = move.UnitId;
 
 		unit.currentPos = move.Positions[0];
 		unit.Assemble();

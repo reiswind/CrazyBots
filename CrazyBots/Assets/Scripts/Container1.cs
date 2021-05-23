@@ -21,7 +21,6 @@ public class Container1 : MonoBehaviour
     void Update()
     {
         UnitFrame?.Move(this);
-        //UpdateContent(UnitFrame?.MoveUpdateStats.ContainerFull);
     }
 
     public void UpdateContent(int? percentage)
@@ -37,16 +36,17 @@ public class Container1 : MonoBehaviour
 
                 while (crystals.Count > numCrystals)
                 {
+                    /*
                     GameObject crystal = crystals[0];
 
                     Destroy(crystal);
 
                     crystals.Remove(crystal);
-                    /*
-                    GameObject crystal = crystals[crystals.Count-1];
-                    crystals.Remove(crystal);
+                    */
                     
-                    Destroy(crystal);*/
+                    GameObject crystal = crystals[crystals.Count-1];
+                    crystals.Remove(crystal);                    
+                    Destroy(crystal);
                 }
                 while (crystals.Count < numCrystals)
                 {
