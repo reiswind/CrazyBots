@@ -270,7 +270,7 @@ public class UnitFrame
                 engine1.transform.SetParent(HexGrid.transform, false);
 
                 Vector3 unitPos3 = targetCell.transform.position;
-                unitPos3.y += HexGrid.hexCellHeight;
+                unitPos3.y += HexGrid.hexCellHeight - 0.05f; // Start beyond assembler
                 engine1.transform.position = unitPos3;
             }
         }
@@ -306,28 +306,6 @@ public class UnitFrame
             }
         }
 
-        if (stats.ContainerLevel > 0)
-        {
-            if (container1 == null && stats.ContainerLevel == 1)
-            {
-                container1 = HexGrid.Instantiate<Container1>(HexGrid.Container1);
-                container1.UnitFrame = this;
-                SetPlayerColor(container1);
-
-                unitLayout.PlacePart(container1, engine1, targetCell, HexGrid);
-
-            }
-            container1.UpdateContent(stats.ContainerFull);
-        }
-        else
-        {
-            if (container1 != null)
-            {
-                HexGrid.Destroy(container1);
-                container1 = null;
-            }
-        }
-
         if (stats.ExtractorLevel > 0)
         {
             if (extractor1 == null && stats.ExtractorLevel == 1)
@@ -354,6 +332,31 @@ public class UnitFrame
                 extractor1 = null;
             }
         }
+
+
+        if (stats.ContainerLevel > 0)
+        {
+            if (container1 == null && stats.ContainerLevel == 1)
+            {
+                container1 = HexGrid.Instantiate<Container1>(HexGrid.Container1);
+                container1.UnitFrame = this;
+                SetPlayerColor(container1);
+
+                unitLayout.PlacePart(container1, engine1, targetCell, HexGrid);
+
+            }
+            container1.UpdateContent(stats.ContainerFull);
+        }
+        else
+        {
+            if (container1 != null)
+            {
+                HexGrid.Destroy(container1);
+                container1 = null;
+            }
+        }
+
+        
         
         if (stats.ProductionLevel > 0)
         {

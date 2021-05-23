@@ -227,7 +227,9 @@ public class HexGrid : MonoBehaviour
 
 		unit.playerId = move.PlayerId;
 		unit.MoveUpdateStats = move.Stats;
-		unit.currentPos = move.Positions[move.Positions.Count - 1];
+
+
+		unit.currentPos = move.Positions[0];
 		unit.Assemble();
 
 		Units.Add(move.UnitId, unit);

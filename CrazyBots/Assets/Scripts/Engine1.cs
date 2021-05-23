@@ -17,7 +17,7 @@ public class Engine1 : MonoBehaviour
     void Update()
     {
         UnitFrame.Move(this);
-        if (UnitFrame.NextMove?.MoveType == MoveType.Move)
+        if (UnitFrame.NextMove?.MoveType == MoveType.Move || UnitFrame.NextMove?.MoveType == MoveType.Add)
         {
             Position FinalDestination = UnitFrame.NextMove.Positions[UnitFrame.NextMove.Positions.Count - 1];
             HexCell targetCell = UnitFrame.HexGrid.GroundCells[FinalDestination];
@@ -30,7 +30,7 @@ public class Engine1 : MonoBehaviour
 
             transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
 
-            if (UnitFrame.NextMove.MoveType == MoveType.Move)
+            //if (UnitFrame.NextMove.MoveType == MoveType.Move)
             {
                 UpdateDirection(unitPos3);
             }
