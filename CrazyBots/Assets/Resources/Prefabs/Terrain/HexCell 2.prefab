@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4107294213743374750}
   - component: {fileID: 2226182406558188884}
   - component: {fileID: -7160136832887898090}
+  - component: {fileID: -4881373292374243840}
   m_Layer: 0
   m_Name: HexCell 2
   m_TagString: Untagged
@@ -94,9 +95,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3d3de04c7eaa4677adc5cb5e120ecef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coordinates:
-    x: 0
-    z: 0
-  X: 0
-  Z: 0
-  color: {r: 0, g: 0, b: 0, a: 0}
+--- !u!64 &-4881373292374243840
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 424465822519370881}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 2534964839176971238, guid: 977bcf150c790a24e8d342deb1d6e374, type: 3}

@@ -35,23 +35,13 @@ public class Container1 : MonoBehaviour
                     numCrystals = 20;
 
                 while (crystals.Count > numCrystals)
-                {
-                    /*
-                    GameObject crystal = crystals[0];
-
-                    Destroy(crystal);
-
-                    crystals.Remove(crystal);
-                    */
-                    
+                {                  
                     GameObject crystal = crystals[crystals.Count-1];
                     crystals.Remove(crystal);                    
                     Destroy(crystal);
                 }
                 while (crystals.Count < numCrystals)
                 {
-                    //numCrystals++;
-
                     Vector2 randomPos = Random.insideUnitCircle;
 
                     Vector3 unitPos3 = transform.position;

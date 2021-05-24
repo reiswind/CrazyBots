@@ -119,7 +119,7 @@ public class HexGrid : MonoBehaviour
 		GameModel gameModel;
 
 		//string filename = @"C:\Develop\blazor\Client\Models\SoloAnt.json";
-		string filename = @"C:\Develop\blazor\Client\Models\Unittest.json";
+		string filename = @"C:\Develop\blazor\Client\Models\UnittestFight.json";
 		if (File.Exists(filename))
 		{
 			var serializer = new DataContractJsonSerializer(typeof(GameModel));
@@ -182,6 +182,11 @@ public class HexGrid : MonoBehaviour
 				}
 				else if (move.MoveType == MoveType.Move || 
 					     move.MoveType == MoveType.Extract)
+				{
+					UnitFrame unit = Units[move.UnitId];
+					unit.NextMove = move;
+				}
+				else if (move.MoveType == MoveType.Fire)
 				{
 					UnitFrame unit = Units[move.UnitId];
 					unit.NextMove = move;
