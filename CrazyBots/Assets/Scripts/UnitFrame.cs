@@ -95,16 +95,13 @@ public class UnitLayout
         return true;
     }
 
-    public void PlaceOnGround(MonoBehaviour part, MonoBehaviour engine1, HexCell targetCell, HexGrid hexGrid)
+    public void PlaceOnGround(MonoBehaviour part, HexCell targetCell, HexGrid hexGrid)
     {
-        if (engine1 == null)
-        {
-            Vector3 unitPos3 = targetCell.transform.position;
-            unitPos3.y += hexGrid.hexCellHeight - 0.02f;
-            part.transform.position = unitPos3;
+        Vector3 unitPos3 = targetCell.transform.position;
+        unitPos3.y += hexGrid.hexCellHeight - 0.02f;
+        part.transform.position = unitPos3;
 
-            part.transform.SetParent(hexGrid.transform, false);
-        }
+        part.transform.SetParent(hexGrid.transform, false);
     }
 
     public void PlacePart(MonoBehaviour part, MonoBehaviour parent, HexCell targetCell, HexGrid hexGrid)
@@ -244,7 +241,7 @@ public class UnitFrame
 
     public void Delete()
     {
-        //foundationPart = null;
+        foundationPart = null;
         if (weapon1 != null)
         {
             HexGrid.Destroy(weapon1.gameObject);
@@ -325,7 +322,7 @@ public class UnitFrame
         {
             if (engine1 == null && stats.EngineLevel == 1)
             {
-                engine1 = HexGrid.MakeEngine1();
+                engine1 = HexGrid.InstantiatePrefab<Engine1>("Engine1");
 
                 engine1.UnitFrame = this;
                 engine1.UnitId = UnitId;
@@ -351,16 +348,24 @@ public class UnitFrame
 
         if (stats.WeaponLevel > 0)
         {
-            if (weapon1 == null && stats.ContainerLevel == 1)
+            if (weapon1 == null && stats.WeaponLevel == 1)
             {
-                weapon1 = HexGrid.Instantiate<Weapon1>(HexGrid.Weapon1);
+                weapon1 = HexGrid.InstantiatePrefab<Weapon1>("Weapon1");
                 weapon1.UnitFrame = this;
                 weapon1.name = "Weapon-" + UnitId;
                 SetPlayerColor(weapon1);
-               
-                if (!unitLayout.PlaceWeapon(weapon1, foundationPart, targetCell, HexGrid))
-                {
 
+                if (foundationPart == null)
+                {
+                    unitLayout.PlaceOnGround(weapon1, targetCell, HexGrid);
+                    foundationPart = weapon1;
+                }
+                else
+                {
+                    if (!unitLayout.PlaceWeapon(weapon1, foundationPart, targetCell, HexGrid))
+                    {
+
+                    }
                 }
             }
         }
@@ -377,16 +382,16 @@ public class UnitFrame
         {
             if (extractor1 == null && stats.ExtractorLevel == 1)
             {
-                if (engine1 == null)
+                if (foundationPart == null)
                 {
-                    extractor1 = HexGrid.Instantiate<Extractor1>(HexGrid.ExtractorGround1);
-                    unitLayout.PlaceOnGround(extractor1, engine1, targetCell, HexGrid);
+                    extractor1 = HexGrid.InstantiatePrefab<Extractor1>("ExtractorGround1");
+                    unitLayout.PlaceOnGround(extractor1, targetCell, HexGrid);
                     foundationPart = extractor1;
                 }
                 else
                 {
-                    extractor1 = HexGrid.Instantiate<Extractor1>(HexGrid.Extractor1);
-                    unitLayout.PlacePart(extractor1, engine1, targetCell, HexGrid);
+                    extractor1 = HexGrid.InstantiatePrefab<Extractor1>("Extractor1");
+                    unitLayout.PlacePart(extractor1, foundationPart, targetCell, HexGrid);
                 }
                 extractor1.name = "Extractor-" + UnitId;
                 extractor1.UnitFrame = this;
@@ -407,7 +412,8 @@ public class UnitFrame
         {
             if (container1 == null && stats.ContainerLevel == 1)
             {
-                container1 = HexGrid.Instantiate<Container1>(HexGrid.Container1);
+                //container1 = HexGrid.Instantiate<Container1>(HexGrid.Container1);
+                container1 = HexGrid.InstantiatePrefab<Container1>("Container1");
                 container1.UnitFrame = this;
                 container1.name = "Container-" + UnitId;
 
@@ -421,7 +427,15 @@ public class UnitFrame
                 }
                 else
                 {
-                    unitLayout.PlacePart(container1, foundationPart, targetCell, HexGrid);
+                    if (foundationPart == null)
+                    {
+                        unitLayout.PlaceOnGround(container1, targetCell, HexGrid);
+                        foundationPart = extractor1;
+                    }
+                    else
+                    {
+                        unitLayout.PlacePart(container1, foundationPart, targetCell, HexGrid);
+                    }
                 }
             }
             container1.UpdateContent(stats.ContainerFull);
@@ -439,11 +453,19 @@ public class UnitFrame
         {
             if (assembler1 == null && stats.ProductionLevel == 1)
             {
-                assembler1 = HexGrid.Instantiate<Assembler1>(HexGrid.Assembler1);
+                assembler1 = HexGrid.InstantiatePrefab<Assembler1>("Assembler1");
                 assembler1.UnitFrame = this;
                 SetPlayerColor(assembler1);
 
-                unitLayout.PlaceBigPart(assembler1, foundationPart, targetCell, HexGrid);
+                if (foundationPart == null)
+                {
+                    unitLayout.PlaceOnGround(assembler1, targetCell, HexGrid);
+                    foundationPart = assembler1;
+                }
+                else
+                {
+                    unitLayout.PlaceBigPart(assembler1, foundationPart, targetCell, HexGrid);
+                }
             }
         }
         else
@@ -457,13 +479,21 @@ public class UnitFrame
 
         if (stats.ReactorLevel > 0)
         {
-            if (reactor1 == null && stats.ProductionLevel == 1)
+            if (reactor1 == null && stats.ReactorLevel == 1)
             {
-                reactor1 = HexGrid.Instantiate<Reactor1>(HexGrid.Reactor1);
+                reactor1 = HexGrid.InstantiatePrefab<Reactor1>("Reactor1");
                 reactor1.UnitFrame = this;
                 SetPlayerColor(reactor1);
 
-                unitLayout.PlacePart(reactor1, foundationPart, targetCell, HexGrid);
+                if (foundationPart == null)
+                {
+                    unitLayout.PlaceOnGround(reactor1, targetCell, HexGrid);
+                    foundationPart = reactor1;
+                }
+                else
+                {
+                    unitLayout.PlacePart(reactor1, foundationPart, targetCell, HexGrid);
+                }
             }
         }
         else
@@ -480,7 +510,7 @@ public class UnitFrame
     public void JumpToTarget(Position pos)
     {
         return;
-
+        /*
         if (FinalDestination != null)
         {
             if (engine1 != null)
@@ -495,7 +525,7 @@ public class UnitFrame
                 engine1.transform.LookAt(unitPos3);
             }
             FinalDestination = null;
-        }
+        }*/
     }
 
     public MoveUpdateStats MoveUpdateStats { get; set; }

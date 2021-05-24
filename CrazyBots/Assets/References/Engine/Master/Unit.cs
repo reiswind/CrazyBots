@@ -250,12 +250,16 @@ namespace Engine.Master
             }
             if (parts.Length >= 6)
             {
-                level = Convert.ToInt32(parts[5]);
+                if (parts[5].StartsWith("F"))
+                    level = Convert.ToInt32(parts[5].Substring(1));
+                else
+                    level = Convert.ToInt32(parts[5]);
                 if (level > 0)
                 {
                     Container = new Container(this, level);
 
-                    if (startCode == "StartFactory" || startCode == "StartColony")
+                    //if (startCode == "StartFactory" || startCode == "StartColony")
+                    if (parts[5].StartsWith("F"))
                     {
                         Container.Metal = Container.Capacity;
                         //Container.Capacity = 100000;
@@ -274,7 +278,7 @@ namespace Engine.Master
                 if (level > 0)
                     Radar = new Radar(this, level);
             }
-            UnderConstruction = true;
+            UnderConstruction = IsComplete();
         }
 
         public void Upgrade(string unitCode)

@@ -13,13 +13,6 @@ public class HexGrid : MonoBehaviour
 {
 	public HexCell cellPrefab;
 	public Text cellLabelPrefab;
-	//public Engine1 Engine1;
-	public Container1 Container1;
-	public Assembler1 Assembler1;
-	public Extractor1 Extractor1;
-	public Extractor1 ExtractorGround1;
-	public Weapon1 Weapon1;
-	public Reactor1 Reactor1;
 
 	internal float hexCellHeight = 0.25f;
 
@@ -110,7 +103,7 @@ public class HexGrid : MonoBehaviour
 				WaitForTurn.Set();
 			}
 		}
-		catch (Exception err)
+		catch (Exception)
 		{
 			//throw new Exception("Game move wrecked " + err.Message);
 		}
@@ -126,7 +119,7 @@ public class HexGrid : MonoBehaviour
 		GameModel gameModel;
 
 		//string filename = @"C:\Develop\blazor\Client\Models\SoloAnt.json";
-		string filename = @"C:\Develop\blazor\Client\Models\Simple.json";
+		string filename = @"C:\Develop\blazor\Client\Models\Unittest.json";
 		if (File.Exists(filename))
 		{
 			var serializer = new DataContractJsonSerializer(typeof(GameModel));
@@ -149,7 +142,6 @@ public class HexGrid : MonoBehaviour
 				p.ControlLevel = 1;
 				p.Id = 1;
 				p.Name = "WebPLayer";
-				p.StartPosition = new Position(10, 10);
 				gameModel.Players.Add(p);
 			}
 		}
@@ -162,14 +154,6 @@ public class HexGrid : MonoBehaviour
     {
 		windowClosed = true;
     }
-
-    void Start()
-	{
-		//CalcStartPos();
-
-		//hexWidth += hexWidth * gap;
-		//hexHeight += hexHeight * gap;
-	}
 
 	void invoke()
 	{
@@ -232,13 +216,13 @@ public class HexGrid : MonoBehaviour
     {
 		Destroy(x);
     }
-	public Engine1 MakeEngine1()
+	public T InstantiatePrefab<T>(string name)
     {
-		GameObject prefab = (GameObject)Resources.Load("Prefabs/Unit/Engine1");
-		GameObject engine1 = Instantiate(prefab);
+		GameObject prefab = (GameObject)Resources.Load("Prefabs/Unit/" + name);
+		GameObject instance = Instantiate(prefab);
 
-		Engine1 sc = engine1.GetComponent<Engine1>();
-		return sc;
+		T script = instance.GetComponent<T>();
+		return script;
 	}
 	public ParticleSystem MakeParticleSource(string resource)
     {

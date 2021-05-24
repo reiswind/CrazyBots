@@ -50,7 +50,7 @@ public class Container1 : MonoBehaviour
                 }
                 while (crystals.Count < numCrystals)
                 {
-                    numCrystals++;
+                    //numCrystals++;
 
                     Vector2 randomPos = Random.insideUnitCircle;
 
@@ -68,8 +68,6 @@ public class Container1 : MonoBehaviour
                     crystal.transform.position = unitPos3;
                     crystal.transform.rotation = Random.rotation;
                     crystals.Add(crystal);
-
-                    break;
                 }
 
                 filled = percentage.Value;

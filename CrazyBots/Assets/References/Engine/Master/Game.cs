@@ -33,28 +33,31 @@ namespace Engine.Master
 
         public Map Map { get; private set; }
 
+        
         private void StartWithFactory(List<Move> newMoves)
         {
 
             foreach (Player player in Players.Values)
             {
-                Move move;
+                //Move move;
 
                 // Factory
                 string newUnitId = GetNextUnitId("unit");
 
                 if (player.PlayerModel.ControlLevel == 1)
                 {
+                    /*
                     move = new Move();
                     move.MoveType = MoveType.Add;
                     move.PlayerId = player.PlayerModel.Id;
                     move.UnitId = newUnitId + ":StartColony";
                     move.Positions = new List<Position>();
                     move.Positions.Add(player.PlayerModel.StartPosition);
-                    newMoves.Add(move);
+                    newMoves.Add(move);*/
                 }
                 else
                 {
+                    /*
                     move = new Move();
                     move.MoveType = MoveType.Add;
                     move.PlayerId = player.PlayerModel.Id;
@@ -69,11 +72,12 @@ namespace Engine.Master
                     assemble.Map = Map;
                     assemble.AssignUnit(newUnitId);
                     player.Commands.Add(assemble);
-
+                    */
                     // Human player must set commands by himself
 
                     if (player.PlayerModel.ControlLevel != 0)
                     {
+                        /*
                         Collect collect = new Collect();
                         collect.Center = player.PlayerModel.StartPosition;
                         collect.PlayerId = player.PlayerModel.Id;
@@ -86,9 +90,22 @@ namespace Engine.Master
                         collect.CommandSources.Add(commandSource);
 
                         player.Commands.Add(collect);
+                        */
                     }
                 }
                 //break;
+            }
+            foreach (UnitModel unitModel in GameModel.Units)
+            {
+                Move move = new Move();
+                move.MoveType = MoveType.Add;
+                move.PlayerId = unitModel.PlayerId;
+                move.UnitId = unitModel.Parts; // newUnitId + ":StartColony";
+                move.Positions = new List<Position>();
+                move.Positions.Add(unitModel.Position);
+                newMoves.Add(move);
+
+                // Turn into direction missing
             }
         }
 

@@ -16,12 +16,6 @@ public class Engine1 : MonoBehaviour
         AboveGround = 0.01f;
     }
 
-    void OnDestroy()
-    {
-        int x = 0;
-    }
-
-
     void Update()
     {
         UnitFrame.Move(this);
@@ -33,18 +27,25 @@ public class Engine1 : MonoBehaviour
             Vector3 unitPos3 = targetCell.transform.localPosition;
             unitPos3.y += UnitFrame.HexGrid.hexCellHeight + AboveGround;
 
-            float speed = 1.75f / UnitFrame.HexGrid.GameSpeed;
-            float step = speed * Time.deltaTime;
-
-            if (UnitFrame.NextMove?.MoveType == MoveType.Add)
+            if (UnitFrame.NextMove.Positions.Count > 1)
             {
-                step = 1;
+                float speed = 1.75f / UnitFrame.HexGrid.GameSpeed;
+                float step = speed * Time.deltaTime;
+
+                if (UnitFrame.NextMove?.MoveType == MoveType.Add)
+                {
+                    step = 1;
+                }
+                else
+                {
+                    transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
+                }
+                UpdateDirection(unitPos3);
             }
             else
             {
-                transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
+                transform.position = Vector3.MoveTowards(transform.position, unitPos3, 1);
             }
-            UpdateDirection(unitPos3);
         }
     }
 

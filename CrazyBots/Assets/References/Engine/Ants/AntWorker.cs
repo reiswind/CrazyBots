@@ -741,10 +741,6 @@ namespace Engine.Ants
             {
                 NothingFound = true;
                 ReturnHome = true;
-                if (cntrlUnit.UnitId == "unit2")
-                {
-                    int x = 0;
-                }
 
                 cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
             }

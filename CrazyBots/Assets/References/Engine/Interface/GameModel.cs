@@ -52,7 +52,7 @@ namespace Engine.Interface
         [DataMember]
         public int MapHeight { get; set; }
         [DataMember]
-        public String Obstacles { get; set; }
+        public List<UnitModel> Units { get; set; }
 
         public override string ToString()
         {
@@ -73,6 +73,17 @@ namespace Engine.Interface
     }
 
     [DataContract]
+    public class UnitModel
+    {
+        [DataMember]
+        public int PlayerId { get; set; }
+        [DataMember]
+        public Position Position { get; set; }
+        [DataMember]
+        public string Parts { get; set; }
+    }
+
+    [DataContract]
     public class PlayerModel
     {
         [DataMember]
@@ -81,8 +92,6 @@ namespace Engine.Interface
         public string Name { get; set; }
         [DataMember]
         public int ControlLevel { get; set; }
-        [DataMember]
-        public Position StartPosition { get; set; }
 
         public override string ToString()
         {

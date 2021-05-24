@@ -206,7 +206,12 @@ namespace Engine.Control
 
                             Pheromones.DropStaticPheromones(player, cntrlUnit.Pos, 20, PheromoneType.ToHome);
                         }
-
+                        else if (playerUnit.Unit.Engine != null)
+                        {
+                            AntWorker antWorker = new AntWorker(this, playerUnit);
+                            antWorker.Alive = true;
+                            Ants.Add(cntrlUnit.UnitId, antWorker);
+                        }
                     }
                 }
             }
