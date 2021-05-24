@@ -97,11 +97,18 @@ public class UnitLayout
 
     public void PlaceOnGround(MonoBehaviour part, HexCell targetCell, HexGrid hexGrid)
     {
-        Vector3 unitPos3 = targetCell.transform.position;
-        unitPos3.y += hexGrid.hexCellHeight - 0.02f;
-        part.transform.position = unitPos3;
+        try
+        {
+            Vector3 unitPos3 = targetCell.transform.position;
+            unitPos3.y += hexGrid.hexCellHeight - 0.02f;
+            part.transform.position = unitPos3;
 
-        part.transform.SetParent(hexGrid.transform, false);
+            part.transform.SetParent(hexGrid.transform, false);
+        }
+        catch (Exception err)
+        {
+            Debug.Log(err);
+        }
     }
 
     public void PlacePart(MonoBehaviour part, MonoBehaviour parent, HexCell targetCell, HexGrid hexGrid)
@@ -330,11 +337,13 @@ public class UnitFrame
                 foundationPart = engine1;
                 SetPlayerColor(engine1);
 
+                unitLayout.PlaceOnGround(engine1, targetCell, HexGrid);
+                /*
                 engine1.transform.SetParent(HexGrid.transform, false);
 
                 Vector3 unitPos3 = targetCell.transform.position;
                 unitPos3.y += HexGrid.hexCellHeight - 0.05f; // Start beyond assembler
-                engine1.transform.position = unitPos3;
+                engine1.transform.position = unitPos3;*/
             }
         }
         else

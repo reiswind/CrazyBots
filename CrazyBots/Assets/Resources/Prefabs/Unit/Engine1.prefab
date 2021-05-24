@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 116691353773515628}
   - component: {fileID: 2772639996075005862}
   - component: {fileID: -2897051209021937314}
+  - component: {fileID: -2855918224792141651}
+  - component: {fileID: -7360160860549807447}
   m_Layer: 0
   m_Name: Engine1
   m_TagString: Untagged
@@ -95,3 +97,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8af93ac480113614a9e959f27ab62937, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!54 &-2855918224792141651
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4430021489797428851}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!65 &-7360160860549807447
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4430021489797428851}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.6091313, y: 0.090073794, z: 0.90749073}
+  m_Center: {x: 0, y: 0.045036897, z: 0.021757945}

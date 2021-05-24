@@ -120,6 +120,7 @@ public class HexGrid : MonoBehaviour
 
 		//string filename = @"C:\Develop\blazor\Client\Models\SoloAnt.json";
 		string filename = @"C:\Develop\blazor\Client\Models\UnittestFight.json";
+		//string filename = @"C:\Develop\blazor\Client\Models\Unittest.json";
 		if (File.Exists(filename))
 		{
 			var serializer = new DataContractJsonSerializer(typeof(GameModel));
