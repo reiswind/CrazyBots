@@ -323,7 +323,7 @@ public class HexGrid : MonoBehaviour
 
 		HexCell cell = Instantiate<HexCell>(cellPrefab);
 		cell.transform.SetParent(transform, false);
-
+		cell.gameObject.name = "Ground " + x.ToString() + "," + y.ToString();
 		Vector2 gridPos = new Vector2(x, y);
 		Vector3 gridPos3 = CalcWorldPos(gridPos);
 

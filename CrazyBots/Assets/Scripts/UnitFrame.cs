@@ -333,7 +333,7 @@ public class UnitFrame
 
                 engine1.UnitFrame = this;
                 engine1.UnitId = UnitId;
-                engine1.name = "Engine-" + UnitId;
+                engine1.name = UnitId + "-Engine";
                 foundationPart = engine1;
                 SetPlayerColor(engine1);
 
@@ -361,7 +361,7 @@ public class UnitFrame
             {
                 weapon1 = HexGrid.InstantiatePrefab<Weapon1>("Weapon1");
                 weapon1.UnitFrame = this;
-                weapon1.name = "Weapon-" + UnitId;
+                weapon1.name = UnitId + "-Weapon";
                 SetPlayerColor(weapon1);
 
                 if (foundationPart == null)
@@ -402,7 +402,8 @@ public class UnitFrame
                     extractor1 = HexGrid.InstantiatePrefab<Extractor1>("Extractor1");
                     unitLayout.PlacePart(extractor1, foundationPart, targetCell, HexGrid);
                 }
-                extractor1.name = "Extractor-" + UnitId;
+
+                extractor1.name = UnitId + "-Extractor";
                 extractor1.UnitFrame = this;
                 SetPlayerColor(extractor1);
             }
@@ -424,7 +425,8 @@ public class UnitFrame
                 //container1 = HexGrid.Instantiate<Container1>(HexGrid.Container1);
                 container1 = HexGrid.InstantiatePrefab<Container1>("Container1");
                 container1.UnitFrame = this;
-                container1.name = "Container-" + UnitId;
+                container1.name = UnitId + "-Container";
+                //container1.gameObject.name = UnitId;
 
                 SetPlayerColor(container1);
                 if (foundationPart is Extractor1 && stats.ProductionLevel > 0)
@@ -464,6 +466,8 @@ public class UnitFrame
             {
                 assembler1 = HexGrid.InstantiatePrefab<Assembler1>("Assembler1");
                 assembler1.UnitFrame = this;
+                assembler1.name = UnitId + "-Assembler1";
+                
                 SetPlayerColor(assembler1);
 
                 if (foundationPart == null)
@@ -492,6 +496,8 @@ public class UnitFrame
             {
                 reactor1 = HexGrid.InstantiatePrefab<Reactor1>("Reactor1");
                 reactor1.UnitFrame = this;
+                reactor1.name = UnitId + "-Reactor1";
+
                 SetPlayerColor(reactor1);
 
                 if (foundationPart == null)

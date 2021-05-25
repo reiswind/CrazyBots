@@ -47,20 +47,25 @@ public class Weapon1 : MonoBehaviour
 
             if (!shot)
             {
+                Vector3 launchPosition = transform.position;
+                //launchPosition.x += 1.1f;
+                //launchPosition.z += 1.1f;
+                launchPosition.y += 1f;
+
                 //shot = true;
                 Shell shell = UnitFrame.HexGrid.InstantiatePrefab<Shell>("Shell");
-                shell.transform.position = transform.position;
+                shell.transform.position = launchPosition; // transform.position;
                 shell.transform.rotation = transform.rotation;
+
+                shell.TargetUnitId = UnitFrame.NextMove.OtherUnitId;
+                shell.UnitFrame = UnitFrame;
 
                 Rigidbody rigidbody = shell.GetComponent<Rigidbody>();
 
-                Vector3 vector3 = new Vector3();
-                vector3.x = 3.1f;
-                vector3.z = 3.1f;
-                vector3.y = 5.1f;
+
                 //rigidbody.velocity = vector3;
 
-                rigidbody.velocity = calcBallisticVelocityVector(transform.position, targetCell.transform.position, 75);
+                rigidbody.velocity = calcBallisticVelocityVector(launchPosition, targetCell.transform.position, 45);
 
                 //shot = transform;
             }

@@ -84,6 +84,7 @@
     <Compile Include="Assets\References\Engine\Interface\Move.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\PathFinderFast.cs" />
     <Compile Include="Assets\References\Engine\Interface\IControl.cs" />
+    <Compile Include="Assets\Scripts\Shell.cs" />
     <Compile Include="Assets\StrategyCameraLite\Example\Scripts\HelpUI.cs" />
     <Compile Include="Assets\References\Engine\Master\Units.cs" />
     <Compile Include="Assets\Scripts\Reactor1.cs" />
@@ -117,7 +118,6 @@
     <Compile Include="Assets\Scripts\HexCell.cs" />
     <Compile Include="Assets\References\Engine\Master\Engine.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\PriorityQueueB.cs" />
-    <Compile Include="Assets\Scripts\Shell.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\References\TerrainQuest.Generator.dll" />
