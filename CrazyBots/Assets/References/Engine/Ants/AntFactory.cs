@@ -164,10 +164,19 @@ namespace Engine.Ants
                                             break;
                                         }
                                     }
-                                    else
+                                    else if (constructedUnit.Unit.Weapon == null)
                                     {
                                         //if (possibleMove.UnitId == "Armor")
                                         if (possibleMove.UnitId == "Weapon")
+                                        {
+                                            moves.Add(possibleMove);
+                                            unitMoved = true;
+                                            break;
+                                        }
+                                    }
+                                    else if (constructedUnit.Unit.Extractor == null)
+                                    {
+                                        if (possibleMove.UnitId == "Extractor")
                                         {
                                             moves.Add(possibleMove);
                                             unitMoved = true;

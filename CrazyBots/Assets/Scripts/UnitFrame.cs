@@ -251,32 +251,32 @@ public class UnitFrame
         foundationPart = null;
         if (weapon1 != null)
         {
-            HexGrid.Destroy(weapon1.gameObject);
+            HexGrid.Destroy(weapon1.gameObject, 0.5f);
             weapon1 = null;
         }
         if (extractor1 != null)
         {
-            HexGrid.Destroy(extractor1.gameObject);
+            HexGrid.Destroy(extractor1.gameObject, 0.5f);
             extractor1 = null;
         }
         if (container1 != null)
         {
-            HexGrid.Destroy(container1.gameObject);
+            HexGrid.Destroy(container1.gameObject, 0.5f);
             container1 = null;
         }
         if (assembler1 != null)
         {
-            HexGrid.Destroy(assembler1.gameObject);
+            HexGrid.Destroy(assembler1.gameObject, 0.5f);
             assembler1 = null;
         }
         if (reactor1 != null)
         {
-            HexGrid.Destroy(reactor1.gameObject);
+            HexGrid.Destroy(reactor1.gameObject, 0.5f);
             reactor1 = null;
         }
         if (engine1 != null)
         {
-            HexGrid.Destroy(engine1.gameObject);
+            HexGrid.Destroy(engine1.gameObject, 0.5f);
             engine1 = null;
         }
     }

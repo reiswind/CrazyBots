@@ -18,7 +18,7 @@ public class HexGrid : MonoBehaviour
 
 	public int gridWidth = 20;
 	public int gridHeight = 20;
-	public float GameSpeed = 0.3f;
+	public float GameSpeed = 0.01f;
 
 	private Canvas gridCanvas;
 
@@ -37,7 +37,7 @@ public class HexGrid : MonoBehaviour
 	{
 		// (int)DateTime.Now.Ticks; -1789305431
 		newMoves = new List<Move>();
-		game = gameModel.CreateGame(-1599727108);
+		game = gameModel.CreateGame(); // -1599727108);
 
 		GroundCells = new Dictionary<Position, HexCell>();
 		Units = new Dictionary<string, UnitFrame>();
@@ -112,14 +112,15 @@ public class HexGrid : MonoBehaviour
 	void Awake () 
 	{
 		if (GameSpeed == 0)
-			GameSpeed = 0.3f;
+			GameSpeed = 0.01f;
 
 		gridCanvas = GetComponentInChildren<Canvas>();
 
 		GameModel gameModel;
 
 		//string filename = @"C:\Develop\blazor\Client\Models\SoloAnt.json";
-		string filename = @"C:\Develop\blazor\Client\Models\UnittestFight.json";
+		//string filename = @"C:\Develop\blazor\Client\Models\UnittestFight.json";
+		string filename = @"C:\Develop\blazor\Client\Models\Simple.json";
 		//string filename = @"C:\Develop\blazor\Client\Models\Unittest.json";
 		if (File.Exists(filename))
 		{

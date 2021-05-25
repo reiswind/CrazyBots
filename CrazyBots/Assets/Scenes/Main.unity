@@ -449,7 +449,7 @@ MonoBehaviour:
   cellLabelPrefab: {fileID: 11470134, guid: f68794ca03b6f4510b9a5bd6ee9ba2f4, type: 3}
   gridWidth: 30
   gridHeight: 30
-  GameSpeed: 0.8
+  GameSpeed: 0.08
 --- !u!4 &1571186512
 Transform:
   m_ObjectHideFlags: 0

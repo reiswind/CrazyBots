@@ -23,7 +23,7 @@ namespace Engine.Control
 
         public Dictionary<string, Ant> Ants = new Dictionary<string, Ant>();
 
-        public int MaxWorker = 25;
+        public int MaxWorker = 35;
         public int NumberOfWorkers;
 
         public ControlAnt(IGameController gameController, PlayerModel playerModel, GameModel gameModel)
@@ -244,7 +244,7 @@ namespace Engine.Control
                     }
                     else
                     {
-                        ant.PlayerUnit.Unit.ExtractMe = true;   
+                        ant.PlayerUnit.Unit.ExtractMe = true;
                     }
                 }
             }
@@ -267,6 +267,9 @@ namespace Engine.Control
                 {
                     if (!(ant is AntFactory))
                     {
+                        if (!ant.PlayerUnit.Unit.IsComplete())
+                            continue;
+
                         if (ant.Move(player, moves))
                         {
                             ant.StuckCounter = 0;

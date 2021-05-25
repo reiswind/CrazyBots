@@ -34,7 +34,7 @@ public class Engine1 : MonoBehaviour
 
                 if (UnitFrame.NextMove?.MoveType == MoveType.Add)
                 {
-                    step = 1;
+                    transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
                 }
                 else
                 {

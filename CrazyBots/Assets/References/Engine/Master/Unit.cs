@@ -278,7 +278,7 @@ namespace Engine.Master
                 if (level > 0)
                     Radar = new Radar(this, level);
             }
-            UnderConstruction = IsComplete();
+            UnderConstruction = true; // !IsComplete();
         }
 
         public void Upgrade(string unitCode)
