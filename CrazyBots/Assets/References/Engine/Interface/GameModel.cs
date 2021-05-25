@@ -44,6 +44,8 @@ namespace Engine.Interface
     public class GameModel
     {
         [DataMember]
+        public int? Seed { get; set; }
+        [DataMember]
         public string Name { get; set; }
         [DataMember]
         public List<PlayerModel> Players { get; set;  }

@@ -9,8 +9,6 @@ public class Weapon1 : MonoBehaviour
 
     private bool shot;
 
-
-
     private Vector3 calcBallisticVelocityVector(Vector3 initialPos, Vector3 finalPos, float angle)
     {
         var toPos = initialPos - finalPos;

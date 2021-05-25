@@ -13,6 +13,10 @@ public class Assembler1 : MonoBehaviour
     void Update()
     {
         UnitFrame.Move(this);
+        if (UnitFrame.NextMove?.MoveType == MoveType.Add)
+        {
+            int x = 0;
+        }
         if (UnitFrame.NextMove?.MoveType == MoveType.Upgrade)
         {
             if (particleSource == null)
@@ -37,6 +41,10 @@ public class Assembler1 : MonoBehaviour
             particleSource.externalForces.SetInfluence(0, particleTarget);
             HexGrid.Destroy(particleTarget, 2.5f);
 
+            var main = particleSource.main;
+            main.duration = particleSource.main.duration * UnitFrame.HexGrid.GameSpeed;
+
+            //particleSource.main.duration = particleSource.main.duration * UnitFrame.HexGrid.GameSpeed;
             particleSource.Play();
 
             ParticleSystem particleDust = UnitFrame.HexGrid.MakeParticleSource("Build");

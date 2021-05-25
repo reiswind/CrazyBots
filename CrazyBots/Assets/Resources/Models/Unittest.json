@@ -1,0 +1,104 @@
+{
+  "Name": "Unittest",
+  "MapWidth": 40,
+  "MapHeight": 40,
+  "Players": [
+
+    {
+      "ControlLevel": 1,
+      "Id": 1,
+      "Name": "Blue"
+    }
+  ],
+  "Units": [
+    {
+      "Name": "Engine",
+      "PlayerId": 1,
+	  "Parts": "1",
+      "Position": {
+        "X": 0,
+        "Y": 10
+      }
+    },{
+      "Name": "Armor",
+      "PlayerId": 1,
+	  "Parts": "0;1",
+      "Position": {
+        "X": 1,
+        "Y": 10
+      }
+    },{
+      "Name": "Weapon",
+      "PlayerId": 1,
+	  "Parts": "0;0;1",
+      "Position": {
+        "X": 2,
+        "Y": 10
+      }
+    },{
+      "Name": "Assembler",
+      "PlayerId": 1,
+	  "Parts": "0;0;0;1",
+      "Position": {
+        "X": 3,
+        "Y": 10
+      }
+    },{
+      "Name": "Extractor",
+      "PlayerId": 1,
+	  "Parts": "0;0;0;0;1",
+      "Position": {
+        "X": 4,
+        "Y": 10
+      }
+    },{
+      "Name": "Container",
+      "PlayerId": 1,
+	  "Parts": "0;0;0;0;0;1",
+      "Position": {
+        "X": 5,
+        "Y": 10
+      }
+    },{
+      "Name": "FullContainer",
+      "PlayerId": 1,
+	  "Parts": "0;0;0;0;0;F1",
+      "Position": {
+        "X": 6,
+        "Y": 10
+      }
+    },{
+      "Name": "Reactor",
+      "PlayerId": 1,
+	  "Parts": "0;0;0;0;0;0;1",
+      "Position": {
+        "X": 7,
+        "Y": 10
+      }
+    },{
+      "Name": "Radar",
+      "PlayerId": 1,
+	  "Parts": "0;0;0;0;0;0;0;1",
+      "Position": {
+        "X": 8,
+        "Y": 10
+      }
+    },{
+      "Name": "Moving Container",
+      "PlayerId": 1,
+	  "Parts": "1;0;0;0;1;1;1;0",
+      "Position": {
+        "X": 8,
+        "Y": 12
+      }
+    },{
+      "Name": "Armed Worker",
+      "PlayerId": 1,
+	  "Parts": "1;0;1;0;1;F1;0;0",
+      "Position": {
+        "X": 9,
+        "Y": 12
+      }
+    }
+  ]
+}

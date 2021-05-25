@@ -35,14 +35,14 @@ public class UnitLayout
     bool rearLeft = true;
     bool rearRight = true;
 
-    public bool PlaceWeapon(MonoBehaviour container1, MonoBehaviour engine1, HexCell targetCell, HexGrid hexGrid)
+    public bool PlaceWeapon(MonoBehaviour container1, MonoBehaviour foundationPart, HexCell targetCell, HexGrid hexGrid)
     {
         if (frontLeft == false || frontRight == false || centerLeft == false || centerRight == false)
         {
             // Does not fit
             return false;
         }
-        if (engine1 == null)
+        if (foundationPart == null)
         {
         }
         else
@@ -60,25 +60,25 @@ public class UnitLayout
             centerRight = false;
 
             container1.transform.position = unitPos3;
-            container1.transform.SetParent(engine1.transform, false);
+            container1.transform.SetParent(foundationPart.transform, false);
         }
         return true;
     }
 
-    public bool PlaceBigPart(MonoBehaviour container1, MonoBehaviour engine1, HexCell targetCell, HexGrid hexGrid)
+    public bool PlaceBigPart(MonoBehaviour container1, MonoBehaviour foundationPart, HexCell targetCell, HexGrid hexGrid)
     {
         if (frontLeft == false || frontRight == false || centerLeft == false || centerRight == false)
         {
             // Does not fit
             return false;
         }
-        if (engine1 == null)
+        if (foundationPart == null)
         {
         }
         else
         {
             Vector3 unitPos3 = new Vector3();
-            unitPos3.y += 0.05f; // Engine height
+            unitPos3.y += 0.7f;
 
             //unitPos3.z += 0.25f; // front
             //unitPos3.x += 0.15f; // middle
@@ -90,7 +90,7 @@ public class UnitLayout
             centerRight = false;
 
             container1.transform.position = unitPos3;
-            container1.transform.SetParent(engine1.transform, false);
+            container1.transform.SetParent(foundationPart.transform, false);
         }
         return true;
     }
@@ -100,7 +100,7 @@ public class UnitLayout
         try
         {
             Vector3 unitPos3 = targetCell.transform.position;
-            unitPos3.y += hexGrid.hexCellHeight - 0.02f;
+            unitPos3.y += hexGrid.hexCellHeight + 0.1f; // Place above, gravitiy will pull it down
             part.transform.position = unitPos3;
 
             part.transform.SetParent(hexGrid.transform, false);
@@ -116,7 +116,7 @@ public class UnitLayout
         if (parent == null)
         {
             Vector3 unitPos3 = new Vector3();
-            unitPos3.y += hexGrid.hexCellHeight + 0.05f;
+            unitPos3.y += hexGrid.hexCellHeight + 0.25f;
 
             if (rearRight == true)
             {
@@ -162,7 +162,7 @@ public class UnitLayout
             if (parent is Engine1)
                 unitPos3.y += 0.09f; // Engine height
             else
-                unitPos3.y += 0.03f; // Foundation height
+                unitPos3.y += 2.03f; // Foundation height
 
             if (rearRight == true)
             {
@@ -248,35 +248,37 @@ public class UnitFrame
 
     public void Delete()
     {
+        float delay = 0.3f * HexGrid.GameSpeed;
+
         foundationPart = null;
         if (weapon1 != null)
         {
-            HexGrid.Destroy(weapon1.gameObject, 0.5f);
+            HexGrid.Destroy(weapon1.gameObject, delay);
             weapon1 = null;
         }
         if (extractor1 != null)
         {
-            HexGrid.Destroy(extractor1.gameObject, 0.5f);
+            HexGrid.Destroy(extractor1.gameObject, delay);
             extractor1 = null;
         }
         if (container1 != null)
         {
-            HexGrid.Destroy(container1.gameObject, 0.5f);
+            HexGrid.Destroy(container1.gameObject, delay);
             container1 = null;
         }
         if (assembler1 != null)
         {
-            HexGrid.Destroy(assembler1.gameObject, 0.5f);
+            HexGrid.Destroy(assembler1.gameObject, delay);
             assembler1 = null;
         }
         if (reactor1 != null)
         {
-            HexGrid.Destroy(reactor1.gameObject, 0.5f);
+            HexGrid.Destroy(reactor1.gameObject, delay);
             reactor1 = null;
         }
         if (engine1 != null)
         {
-            HexGrid.Destroy(engine1.gameObject, 0.5f);
+            HexGrid.Destroy(engine1.gameObject, delay);
             engine1 = null;
         }
     }
@@ -462,7 +464,6 @@ public class UnitFrame
         {
             if (container1 == null && stats.ContainerLevel == 1)
             {
-                //container1 = HexGrid.Instantiate<Container1>(HexGrid.Container1);
                 container1 = HexGrid.InstantiatePrefab<Container1>("Container1");
                 container1.UnitFrame = this;
                 container1.name = UnitId + "-Container";
@@ -471,7 +472,7 @@ public class UnitFrame
                 if (foundationPart is Extractor1 && stats.ProductionLevel > 0)
                 {
                     Vector3 unitPos3 = new Vector3();
-                    unitPos3.y += 0.15f;
+                    unitPos3.y += 1.7f;
                     container1.transform.position = unitPos3;
                     container1.transform.SetParent(foundationPart.transform, false);
                 }
@@ -563,6 +564,7 @@ public class UnitFrame
 
     public void JumpToTarget(Position pos)
     {
+
         return;
         /*
         if (FinalDestination != null)

@@ -13,13 +13,23 @@ public class Engine1 : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        AboveGround = 0.01f;
+        AboveGround = 0.14f;
     }
 
     void Update()
     {
         UnitFrame.Move(this);
-        if (UnitFrame.NextMove?.MoveType == MoveType.Move || UnitFrame.NextMove?.MoveType == MoveType.Add)
+        if (UnitFrame.NextMove?.MoveType == MoveType.Add)
+        {
+            Position FinalDestination = UnitFrame.NextMove.Positions[UnitFrame.NextMove.Positions.Count - 1];
+            HexCell targetCell = UnitFrame.HexGrid.GroundCells[FinalDestination];
+
+            Vector3 unitPos3 = targetCell.transform.localPosition;
+            unitPos3.y += UnitFrame.HexGrid.hexCellHeight + AboveGround;
+
+            transform.position = Vector3.MoveTowards(transform.position, unitPos3, 1);
+        }
+        else if (UnitFrame.NextMove?.MoveType == MoveType.Move)
         {
             Position FinalDestination = UnitFrame.NextMove.Positions[UnitFrame.NextMove.Positions.Count - 1];
             HexCell targetCell = UnitFrame.HexGrid.GroundCells[FinalDestination];
@@ -32,14 +42,7 @@ public class Engine1 : MonoBehaviour
                 float speed = 1.75f / UnitFrame.HexGrid.GameSpeed;
                 float step = speed * Time.deltaTime;
 
-                if (UnitFrame.NextMove?.MoveType == MoveType.Add)
-                {
-                    transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
-                }
-                else
-                {
-                    transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
-                }
+                transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
                 UpdateDirection(unitPos3);
             }
             else

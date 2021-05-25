@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Json;
+using System.Text;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
@@ -33,11 +34,17 @@ public class HexGrid : MonoBehaviour
 	public EventWaitHandle WaitForDraw = new EventWaitHandle(false, EventResetMode.AutoReset);
 	private Thread computeMoves = null;
 
+	private bool useThread = true;
+
 	public void CreateGame(GameModel gameModel)
 	{
 		// (int)DateTime.Now.Ticks; -1789305431
 		newMoves = new List<Move>();
-		game = gameModel.CreateGame(); // -1599727108);
+
+		if (gameModel.Seed.HasValue)
+			game = gameModel.CreateGame(gameModel.Seed.Value);
+		else
+			game = gameModel.CreateGame();
 
 		GroundCells = new Dictionary<Position, HexCell>();
 		Units = new Dictionary<string, UnitFrame>();
@@ -55,13 +62,80 @@ public class HexGrid : MonoBehaviour
 			}
 		}
 
-		// Start game engine
-		computeMoves = new Thread(new ThreadStart(ComputeMove));
-		computeMoves.Start();
-		WaitForDraw.Set();
+		if (useThread)
+		{
+			// Start game engine
+			computeMoves = new Thread(new ThreadStart(ComputeMove));
+			computeMoves.Start();
+			WaitForDraw.Set();
+		}
 	}
 
-	public void ComputeMove()
+	private float lastDeltaTime;
+
+    public void Update()
+    {
+		if (!useThread)
+        {
+			lastDeltaTime += Time.deltaTime;
+			if (lastDeltaTime > 1)
+			{
+				lastDeltaTime = 0;
+
+				Move nextMove = new Move();
+				nextMove.MoveType = MoveType.None;
+
+				List<Move> newMoves = game.ProcessMove(0, nextMove);
+
+				foreach (Move move in newMoves)
+				{
+					if (move.MoveType == MoveType.Add)
+					{
+						CreateUnit(move);
+					}
+					else if (move.MoveType == MoveType.UpdateStats)
+					{
+						UnitFrame unit = Units[move.UnitId];
+						unit.UpdateStats(move.Stats);
+					}
+					else if (move.MoveType == MoveType.Move ||
+							 move.MoveType == MoveType.Extract ||
+							 move.MoveType == MoveType.Fire)
+					{
+						UnitFrame unit = Units[move.UnitId];
+						unit.NextMove = move;
+					}
+					else if (move.MoveType == MoveType.Hit)
+					{
+						UnitFrame unit = Units[move.UnitId];
+						unit.NextMove = move;
+					}
+					else if (move.MoveType == MoveType.Upgrade)
+					{
+						UnitFrame unit = Units[move.OtherUnitId];
+						unit.NextMove = move;
+					}
+					else if (move.MoveType == MoveType.UpdateGround)
+					{
+						HexCell hexCell = GroundCells[move.Positions[0]];
+						hexCell.NextMove = move;
+					}
+					else if (move.MoveType == MoveType.Delete)
+					{
+						Debug.Log("Delete Unit " + move.UnitId);
+
+						UnitFrame unit = Units[move.UnitId];
+						unit.NextMove = null;
+						unit.Delete();
+						Units.Remove(move.UnitId);
+					}
+
+				}
+			}
+		}
+	}
+
+    public void ComputeMove()
 	{
 		try
 		{
@@ -116,19 +190,23 @@ public class HexGrid : MonoBehaviour
 
 		gridCanvas = GetComponentInChildren<Canvas>();
 
+		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
+
 		GameModel gameModel;
 
 		//string filename = @"C:\Develop\blazor\Client\Models\SoloAnt.json";
 		//string filename = @"C:\Develop\blazor\Client\Models\UnittestFight.json";
-		string filename = @"C:\Develop\blazor\Client\Models\Simple.json";
+		//string filename = @"C:\Develop\blazor\Client\Models\Simple.json";
 		//string filename = @"C:\Develop\blazor\Client\Models\Unittest.json";
-		if (File.Exists(filename))
+		if (gameModelContent != null)
 		{
 			var serializer = new DataContractJsonSerializer(typeof(GameModel));
-			using (FileStream x = File.Open(filename, FileMode.Open))
-			{
-				gameModel = (GameModel)serializer.ReadObject(x);
-			}
+
+			MemoryStream mem = new MemoryStream(Encoding.UTF8.GetBytes(gameModelContent.ToString()));
+			gameModel = (GameModel)serializer.ReadObject(mem);
+			
 		}
 		else
 		{
@@ -163,10 +241,10 @@ public class HexGrid : MonoBehaviour
 		{
 			foreach (UnitFrame unitFrame in Units.Values)
             {
-				if (unitFrame.FinalDestination != null)
+				//if (unitFrame.FinalDestination != null)
 				{
 					unitFrame.JumpToTarget(unitFrame.FinalDestination);
-					unitFrame.FinalDestination = null;
+					//unitFrame.FinalDestination = null;
 				}
 				unitFrame.NextMove = null;
 			}

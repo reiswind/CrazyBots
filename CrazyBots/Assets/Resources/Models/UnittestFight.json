@@ -1,0 +1,39 @@
+{
+  "Seed": -1599727108,
+  "Name": "Unittest",
+  "MapWidth": 40,
+  "MapHeight": 40,
+  "Players": [
+
+    {
+      "ControlLevel": 1,
+      "Id": 1,
+      "Name": "Blue"
+    },
+	{
+      "ControlLevel": 1,
+      "Id": 2,
+      "Name": "Red"
+    }
+  ],
+  "Units": [
+    {
+      "Name": "Armed Worker",
+      "PlayerId": 1,
+	  "Parts": "1;0;1;0;1;F1;0;0",
+      "Position": {
+        "X": 9,
+        "Y": 12
+      }
+    },
+	{
+      "Name": "Dummy",
+      "PlayerId": 2,
+	  "Parts": "1;0;0;0;1;1;1;0",
+      "Position": {
+        "X": 10,
+        "Y": 11
+      }
+    }
+  ]
+}
