@@ -13,6 +13,20 @@ public class HexCell : MonoBehaviour
 
     void Start()
     {
+        CreateMinerals();
+    }
+
+    void Update()
+    {
+        if (NextMove != null)
+        {
+            CreateMinerals();
+            NextMove = null;
+        }
+    }
+
+    private void CreateMinerals()
+    {
         if (Tile.Metal > 0)
         {
             if (crystals == null)
@@ -42,26 +56,17 @@ public class HexCell : MonoBehaviour
                 }
             }
         }
-    }
-
-    void Update()
-    {
-        if (NextMove != null)
+        if (crystals != null)
         {
-            if (crystals != null)
+            while (crystals.Count > Tile.Metal)
             {
-                while (crystals.Count > Tile.Metal)
-                {
-                    GameObject crystal = crystals[0];
+                GameObject crystal = crystals[0];
 
-                    Destroy(crystal);
+                Destroy(crystal);
 
-                    crystals.Remove(crystal);
-                }
+                crystals.Remove(crystal);
+            }
 
-            }        
-            NextMove = null;
         }
-
     }
 }

@@ -182,12 +182,13 @@ public class HexGrid : MonoBehaviour
 					unit.UpdateStats(move.Stats);
 				}
 				else if (move.MoveType == MoveType.Move || 
-					     move.MoveType == MoveType.Extract)
+					     move.MoveType == MoveType.Extract ||
+						 move.MoveType == MoveType.Fire)
 				{
 					UnitFrame unit = Units[move.UnitId];
 					unit.NextMove = move;
 				}
-				else if (move.MoveType == MoveType.Fire)
+				else if (move.MoveType == MoveType.Hit)
 				{
 					UnitFrame unit = Units[move.UnitId];
 					unit.NextMove = move;

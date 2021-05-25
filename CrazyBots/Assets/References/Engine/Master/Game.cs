@@ -718,6 +718,12 @@ namespace Engine.Master
                             // Bullet + demage Part
                             unitTile.Metal += 2 + releasedMetal;
                         }
+
+                        Move groundMove = new Move();
+                        groundMove.MoveType = MoveType.UpdateGround;
+                        groundMove.Positions = new List<Position>();
+                        groundMove.Positions.Add(move.Positions[1]);
+                        nextMoves.Add(groundMove);
                     }
                     else
                     {
