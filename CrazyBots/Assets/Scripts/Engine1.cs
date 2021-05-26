@@ -24,7 +24,7 @@ public class Engine1 : MonoBehaviour
             Position FinalDestination = UnitFrame.NextMove.Positions[UnitFrame.NextMove.Positions.Count - 1];
             HexCell targetCell = UnitFrame.HexGrid.GroundCells[FinalDestination];
 
-            Vector3 unitPos3 = targetCell.transform.localPosition;
+            Vector3 unitPos3 = targetCell.Cell.transform.localPosition;
             unitPos3.y += UnitFrame.HexGrid.hexCellHeight + AboveGround;
 
             transform.position = Vector3.MoveTowards(transform.position, unitPos3, 1);
@@ -34,7 +34,7 @@ public class Engine1 : MonoBehaviour
             Position FinalDestination = UnitFrame.NextMove.Positions[UnitFrame.NextMove.Positions.Count - 1];
             HexCell targetCell = UnitFrame.HexGrid.GroundCells[FinalDestination];
 
-            Vector3 unitPos3 = targetCell.transform.localPosition;
+            Vector3 unitPos3 = targetCell.Cell.transform.localPosition;
             unitPos3.y += UnitFrame.HexGrid.hexCellHeight + AboveGround;
 
             if (UnitFrame.NextMove.Positions.Count > 0)

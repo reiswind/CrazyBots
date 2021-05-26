@@ -45,7 +45,7 @@ public class Weapon1 : MonoBehaviour
                     Position FinalDestination = UnitFrame.NextMove.Positions[UnitFrame.NextMove.Positions.Count - 1];
                     HexCell targetCell = UnitFrame.HexGrid.GroundCells[FinalDestination];
 
-                    Vector3 unitPos3 = targetCell.transform.localPosition;
+                    Vector3 unitPos3 = targetCell.Cell.transform.localPosition;
                     unitPos3.y += UnitFrame.HexGrid.hexCellHeight;
                     UpdateDirection(unitPos3);
                 }
@@ -56,7 +56,7 @@ public class Weapon1 : MonoBehaviour
             Position FinalDestination = UnitFrame.NextMove.Positions[UnitFrame.NextMove.Positions.Count - 1];
             HexCell targetCell = UnitFrame.HexGrid.GroundCells[FinalDestination];
 
-            Vector3 unitPos3 = targetCell.transform.localPosition;
+            Vector3 unitPos3 = targetCell.Cell.transform.localPosition;
             unitPos3.y += UnitFrame.HexGrid.hexCellHeight;
             UpdateDirection(unitPos3);
 
@@ -75,7 +75,7 @@ public class Weapon1 : MonoBehaviour
 
             Rigidbody rigidbody = shell.GetComponent<Rigidbody>();
 
-            rigidbody.velocity = calcBallisticVelocityVector(launchPosition, targetCell.transform.position, 25);
+            rigidbody.velocity = calcBallisticVelocityVector(launchPosition, targetCell.Cell.transform.position, 25);
             shot = 10;
 
             UnitFrame.NextMove = null;

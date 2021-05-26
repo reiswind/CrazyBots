@@ -22,14 +22,14 @@ public class Assembler1 : MonoBehaviour
                 HexCell sourceCell = UnitFrame.HexGrid.GroundCells[from];
 
                 particleSource = UnitFrame.HexGrid.MakeParticleSource("ExtractSource");
-                particleSource.transform.SetParent(sourceCell.transform, false);
+                particleSource.transform.SetParent(sourceCell.Cell.transform, false);
             }
 
             Position to = UnitFrame.NextMove.Positions[1];
             HexCell targetCell = UnitFrame.HexGrid.GroundCells[to];
 
             ParticleSystemForceField particleTarget = UnitFrame.HexGrid.MakeParticleTarget();
-            particleTarget.transform.SetParent(targetCell.transform, false);
+            particleTarget.transform.SetParent(targetCell.Cell.transform, false);
 
             Vector3 unitPos3 = particleTarget.transform.position;
             unitPos3.y += 0.1f;
@@ -45,7 +45,7 @@ public class Assembler1 : MonoBehaviour
             particleSource.Play();
 
             ParticleSystem particleDust = UnitFrame.HexGrid.MakeParticleSource("Build");
-            particleDust.transform.SetParent(targetCell.transform, false);
+            particleDust.transform.SetParent(targetCell.Cell.transform, false);
             particleDust.transform.position = particleTarget.transform.position;
 
             particleDust.Play();

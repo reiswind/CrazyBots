@@ -12,7 +12,6 @@ using UnityEngine.UI;
 
 public class HexGrid : MonoBehaviour 
 {
-	public HexCell cellPrefab;
 	public Text cellLabelPrefab;
 
 	internal float hexCellHeight = 0.25f;
@@ -27,7 +26,7 @@ public class HexGrid : MonoBehaviour
 	public Dictionary<string, UnitFrame> Units { get; private set; }
 
 	// Shard with backgound tread
-	private IGameController game;
+	internal IGameController game;
 	private bool windowClosed;
 	private List<Move> newMoves;
 	public EventWaitHandle WaitForTurn = new EventWaitHandle(false, EventResetMode.AutoReset);
@@ -35,6 +34,21 @@ public class HexGrid : MonoBehaviour
 	private Thread computeMoves = null;
 
 	private bool useThread = true;
+
+	internal List<GameObject> smallTrees = new List<GameObject>();
+
+	public void AddTree(string name, List<GameObject> trees, float scale)
+    {
+		GameObject treePrefab = Resources.Load<GameObject>("LowPolyTreePack/Prefabs/" + name);
+
+		Vector3 sc = new Vector3();
+		sc.x = scale;
+		sc.y = scale;
+		sc.z = scale;
+		treePrefab.transform.localScale = sc;
+
+		trees.Add(treePrefab);
+	}
 
 	public void CreateGame(GameModel gameModel)
 	{
@@ -49,6 +63,24 @@ public class HexGrid : MonoBehaviour
 		GroundCells = new Dictionary<Position, HexCell>();
 		Units = new Dictionary<string, UnitFrame>();
 
+
+		AddTree("Tree Type0 03", smallTrees, 0.3f);
+		AddTree("Tree Type2 05", smallTrees, 0.3f);
+		AddTree("Tree Type2 02", smallTrees, 0.5f);
+		/*
+		GameObject treePrefab = Resources.Load<GameObject>("LowPolyTreePack/Prefabs/Tree Type0 03");
+
+		Vector3 sc = new Vector3();
+		sc.x = 0.3f;
+		sc.y = 0.3f;
+		sc.z = 0.3f;
+		treePrefab.transform.localScale = sc;
+		*/
+		//smallTrees.Add(treePrefab);
+
+
+		GameObject cellPrefab = (GameObject)Resources.Load("Prefabs/Terrain/HexCell 2");
+
 		// Render ground
 		for (int y = 0; y < game.Map.MapHeight; y++)
 		{
@@ -56,7 +88,7 @@ public class HexGrid : MonoBehaviour
 			{
 				Position pos = new Position(x, y);
 				Tile t = game.Map.GetTile(pos);
-				HexCell hexCell = CreateCell(t);
+				HexCell hexCell = CreateCell(t, cellPrefab);
 
 				GroundCells.Add(pos, hexCell);
 			}
@@ -119,6 +151,7 @@ public class HexGrid : MonoBehaviour
 					{
 						HexCell hexCell = GroundCells[move.Positions[0]];
 						hexCell.NextMove = move;
+						hexCell.UpdateGround();
 					}
 					else if (move.MoveType == MoveType.Delete)
 					{
@@ -281,6 +314,7 @@ public class HexGrid : MonoBehaviour
 				{
 					HexCell hexCell = GroundCells[move.Positions[0]];
 					hexCell.NextMove = move;
+					hexCell.UpdateGround();
 				}
 				else if (move.MoveType == MoveType.Delete)
 				{
@@ -396,16 +430,20 @@ public class HexGrid : MonoBehaviour
 		return new Vector3((x * gridSizeX), 0,  -y * gridSizeY);
 	}
 
-	private HexCell CreateCell(Tile t)
+	private HexCell CreateCell(Tile t, GameObject cellPrefabx)
 	{
 		int x = t.Pos.X;
 		int y = t.Pos.Y;
 
-		HexCell cell = Instantiate<HexCell>(cellPrefab);
-		cell.enabled = false;
-		//cell.hideFlags = HideFlags.HideInHierarchy;
-		cell.transform.SetParent(transform, false);
-		cell.gameObject.name = "Ground " + x.ToString() + "," + y.ToString();
+		GameObject gameObjectCell = Instantiate(cellPrefabx);
+		gameObjectCell.hideFlags = HideFlags.DontSave; //.enabled = false;
+		gameObjectCell.transform.SetParent(transform, false);
+		gameObjectCell.name = "Ground " + x.ToString() + "," + y.ToString();
+
+		HexCell cell = new HexCell(); // Instantiate<HexCell>(cellPrefab);
+		cell.Cell = gameObjectCell;
+		cell.HexGrid = this;
+
 		Vector2 gridPos = new Vector2(x, y);
 		Vector3 gridPos3 = CalcWorldPos(gridPos);
 
@@ -425,25 +463,29 @@ public class HexGrid : MonoBehaviour
 			materialName = "Materials/DarkSand";
 			tileY = 0.4f;
 		}
-		else if (height > 0.48 && height < 0.52)
+		else if (height > 0.50 && height <= 0.52)
 		{
 			materialName = "Materials/DarkWood";
 			tileY = 0.9f;
+			cell.NumberOfSmallTrees = 4;
 		}
-		else if (height > 0.47 && height < 0.53)
+		else if (height > 0.47 && height <= 0.50)
 		{
 			materialName = "Materials/Wood";
 			tileY = 0.8f;
+			cell.NumberOfSmallTrees = 3;
 		}
-		else if (height >= 0.46 && height <= 0.54)
+		else if (height >= 0.46 && height <= 0.53)
 		{
 			materialName = "Materials/LightWood";
 			tileY = 0.7f;
+			cell.NumberOfSmallTrees = 2;
 		}
 		else if (height >= 0.45 && height <= 0.55)
 		{
 			materialName = "Materials/GrassDark";
 			tileY = 0.6f;
+			cell.NumberOfSmallTrees = 1;
 		}
 		else
 		{
@@ -452,13 +494,18 @@ public class HexGrid : MonoBehaviour
 		}
 
 		gridPos3.y = tileY / 2;
-		cell.transform.localPosition = gridPos3;
+		gameObjectCell.transform.localPosition = gridPos3;
 
 		//
 		Material material = Resources.Load<Material>(materialName);
 
-		MeshRenderer meshRenderer = cell.GetComponent<MeshRenderer>();
+		MeshRenderer meshRenderer = gameObjectCell.GetComponent<MeshRenderer>();
 		meshRenderer.material = material;
+
+
+		cell.CreateMinerals();
+
+		cell.CreateTrees(smallTrees);
 
 		/*
 

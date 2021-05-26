@@ -127,7 +127,7 @@ public class UnitLayout
     {
         try
         {
-            Vector3 unitPos3 = targetCell.transform.position;
+            Vector3 unitPos3 = targetCell.Cell.transform.position;
             unitPos3.y += hexGrid.hexCellHeight;
             part.transform.position = unitPos3;
 
