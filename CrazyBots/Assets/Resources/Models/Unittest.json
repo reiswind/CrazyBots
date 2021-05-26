@@ -2,6 +2,7 @@
   "Name": "Unittest",
   "MapWidth": 40,
   "MapHeight": 40,
+  "Seed": 1,
   "Players": [
 
     {
@@ -98,6 +99,14 @@
       "Position": {
         "X": 9,
         "Y": 12
+      }
+    },{
+      "Name": "Factory Assembler",
+      "PlayerId": 1,
+	  "Parts": "0;0;0;1;1;1;1;0",
+      "Position": {
+        "X": 9,
+        "Y": 14
       }
     }
   ]

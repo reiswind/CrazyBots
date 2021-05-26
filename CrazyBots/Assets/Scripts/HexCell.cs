@@ -13,6 +13,7 @@ public class HexCell : MonoBehaviour
 
     void Start()
     {
+        crystals = new List<GameObject>();
         CreateMinerals();
     }
 
@@ -27,45 +28,30 @@ public class HexCell : MonoBehaviour
 
     private void CreateMinerals()
     {
-        if (Tile.Metal > 0)
+        while (crystals.Count < Tile.Metal)
         {
-            if (crystals == null)
-            {
-                crystals = new List<GameObject>();
-            }
-            int metalRemaining = Tile.Metal;
-            while (metalRemaining > 0)
-            {
-                Vector2 randomPos = Random.insideUnitCircle;
+            Vector2 randomPos = Random.insideUnitCircle;
 
-                Vector3 unitPos3 = transform.position;
-                unitPos3.x += (randomPos.x * 0.7f);
-                unitPos3.z += (randomPos.y * 0.8f);
-                unitPos3.y += 0.23f; // 
+            Vector3 unitPos3 = transform.position;
+            unitPos3.x += (randomPos.x * 0.7f);
+            unitPos3.z += (randomPos.y * 0.8f);
+            unitPos3.y += 0.23f; // 
 
-                GameObject crystalResource = Resources.Load<GameObject>("Prefabs/Terrain/Crystal");
-                GameObject crystal = Instantiate(crystalResource, transform, false);
+            GameObject crystalResource = Resources.Load<GameObject>("Prefabs/Terrain/Crystal");
+            GameObject crystal = Instantiate(crystalResource, transform, false);
+            crystal.transform.position = unitPos3;
 
-                //crystal.transform.SetParent(transform, false);
-                crystal.transform.position = unitPos3;
+            crystal.transform.rotation = Random.rotation;
 
-                crystal.transform.rotation = Random.rotation;
-
-                metalRemaining--;
-                crystals.Add(crystal);
-            }
+            crystals.Add(crystal);
         }
-        if (crystals != null)
+        while (crystals.Count > Tile.Metal)
         {
-            while (crystals.Count > Tile.Metal)
-            {
-                GameObject crystal = crystals[0];
+            GameObject crystal = crystals[0];
 
-                Destroy(crystal);
+            Destroy(crystal);
 
-                crystals.Remove(crystal);
-            }
-
+            crystals.Remove(crystal);
         }
     }
 }

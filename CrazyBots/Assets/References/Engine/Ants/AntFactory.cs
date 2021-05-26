@@ -22,25 +22,7 @@ namespace Engine.Ants
             Unit cntrlUnit = PlayerUnit.Unit;
 
             
-            if (cntrlUnit.Extractor != null)
-            {
-                List<Move> possiblemoves = new List<Move>();
-                cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, null, MoveFilter.Extract);
-                if (possiblemoves.Count > 0)
-                {
-                    foreach (Move possibleMove in possiblemoves)
-                    {
-                        Tile n = player.Game.Map.GetTile(possibleMove.Positions[1]);
-                        if (n.Unit != null && n.Unit.Assembler != null && !n.Unit.ExtractMe)
-                        {
-                            // Do not extract from attached factory
-                            //continue;
-                        }
-                        moves.Add(possibleMove);
-                        return true;
-                    }
-                }            
-            }
+            
 
             bool everyOutTileOccupied = true;
 
@@ -268,6 +250,30 @@ namespace Engine.Ants
                     }
                 }
             }
+
+            if (!unitMoved)
+            {
+                if (cntrlUnit.Extractor != null)
+                {
+                    List<Move> possiblemoves = new List<Move>();
+                    cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, null, MoveFilter.Extract);
+                    if (possiblemoves.Count > 0)
+                    {
+                        foreach (Move possibleMove in possiblemoves)
+                        {
+                            Tile n = player.Game.Map.GetTile(possibleMove.Positions[1]);
+                            if (n.Unit != null && n.Unit.Assembler != null && !n.Unit.ExtractMe)
+                            {
+                                // Do not extract from attached factory
+                                //continue;
+                            }
+                            moves.Add(possibleMove);
+                            return true;
+                        }
+                    }
+                }
+            }
+
             return unitMoved;
         }
     }

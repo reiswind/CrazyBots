@@ -19,7 +19,7 @@ public class Engine1 : MonoBehaviour
     void Update()
     {
         UnitFrame.Move(this);
-        if (UnitFrame.NextMove?.MoveType == MoveType.Add)
+        if (false && UnitFrame.NextMove?.MoveType == MoveType.Add)
         {
             Position FinalDestination = UnitFrame.NextMove.Positions[UnitFrame.NextMove.Positions.Count - 1];
             HexCell targetCell = UnitFrame.HexGrid.GroundCells[FinalDestination];
@@ -29,7 +29,7 @@ public class Engine1 : MonoBehaviour
 
             transform.position = Vector3.MoveTowards(transform.position, unitPos3, 1);
         }
-        else if (UnitFrame.NextMove?.MoveType == MoveType.Move)
+        else if (UnitFrame.NextMove?.MoveType == MoveType.Move || UnitFrame.NextMove?.MoveType == MoveType.Add)
         {
             Position FinalDestination = UnitFrame.NextMove.Positions[UnitFrame.NextMove.Positions.Count - 1];
             HexCell targetCell = UnitFrame.HexGrid.GroundCells[FinalDestination];
@@ -37,7 +37,7 @@ public class Engine1 : MonoBehaviour
             Vector3 unitPos3 = targetCell.transform.localPosition;
             unitPos3.y += UnitFrame.HexGrid.hexCellHeight + AboveGround;
 
-            if (UnitFrame.NextMove.Positions.Count > 1)
+            if (UnitFrame.NextMove.Positions.Count > 0)
             {
                 float speed = 1.75f / UnitFrame.HexGrid.GameSpeed;
                 float step = speed * Time.deltaTime;
@@ -65,6 +65,7 @@ public class Engine1 : MonoBehaviour
 
         // Rotate the forward vector towards the target direction by one step
         Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetDirection, singleStep, 0.0f);
+        newDirection.y = 0;
 
         // Draw a ray pointing at our target in
         //Debug.DrawRay(transform.position, newDirection, Color.red);

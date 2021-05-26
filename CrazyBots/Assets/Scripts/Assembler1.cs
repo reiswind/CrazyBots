@@ -13,10 +13,7 @@ public class Assembler1 : MonoBehaviour
     void Update()
     {
         UnitFrame.Move(this);
-        if (UnitFrame.NextMove?.MoveType == MoveType.Add)
-        {
-            int x = 0;
-        }
+
         if (UnitFrame.NextMove?.MoveType == MoveType.Upgrade)
         {
             if (particleSource == null)
