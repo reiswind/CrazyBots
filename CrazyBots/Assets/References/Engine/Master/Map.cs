@@ -255,8 +255,8 @@ namespace Engine.Master
 
         private HeightMap GenerateTerrain(int? seed = null)
         {
-            var generator1 = new FlatGenerator(200, 200, 1);
-            var generator2 = new DSNoiseGenerator(200, 200, seed: seed);
+            var generator1 = new FlatGenerator(1000, 1000, 1);
+            var generator2 = new DSNoiseGenerator(1000, 1000, seed: seed);
 
             var node1 = new GeneratorNode(generator1);
             var node2 = new GeneratorNode(generator2);

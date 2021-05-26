@@ -1,7 +1,7 @@
 {
   "Name": "3vs3 Ants",
-  "MapWidth": 80,
-  "MapHeight": 42,
+  "MapWidth": 50,
+  "MapHeight": 50,
   "Seed": 355394747,
   "MapType": "1",
   "Players": [

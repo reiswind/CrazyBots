@@ -1,8 +1,8 @@
 {
   "Seed": -1599727108,
   "Name": "Unittest",
-  "MapWidth": 40,
-  "MapHeight": 40,
+  "MapWidth": 300,
+  "MapHeight": 300,
   "Players": [
 
     {

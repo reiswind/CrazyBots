@@ -402,6 +402,8 @@ public class HexGrid : MonoBehaviour
 		int y = t.Pos.Y;
 
 		HexCell cell = Instantiate<HexCell>(cellPrefab);
+		cell.enabled = false;
+		//cell.hideFlags = HideFlags.HideInHierarchy;
 		cell.transform.SetParent(transform, false);
 		cell.gameObject.name = "Ground " + x.ToString() + "," + y.ToString();
 		Vector2 gridPos = new Vector2(x, y);
