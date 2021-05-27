@@ -1,4 +1,6 @@
-﻿using Engine.Interface;
+﻿using Engine.Ants;
+using Engine.Interface;
+using Engine.Master;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,22 +12,105 @@ using TerrainQuest.Generator.Generators;
 using TerrainQuest.Generator.Generators.Noise;
 using TerrainQuest.Generator.Graph;
 
-namespace Engine.Master
+namespace Engine.Interface
 {
     public class MapPlayerInfo
     {
         public int TotalMetal { get; set; }
-        public int TotalUnits{ get; set; }
+        public int TotalUnits { get; set; }
     }
+
+    public class MapPheromoneItem
+    {
+        public MapPheromoneItem()
+        {
+
+        }
+        public int PlayerId { get; set; }
+        public float Intensity { get; set; }
+        public bool IsStatic { get; set; }
+        public PheromoneType PheromoneType { get; set; }
+    }
+
+    public class MapPheromone
+    {
+        public MapPheromone()
+        {
+            PheromoneItems = new List<MapPheromoneItem>();
+        }
+        public Position Pos { get; set; }
+        public List<MapPheromoneItem> PheromoneItems { get; private set; }
+    }
+
     public class MapInfo
     {
         public MapInfo()
         {
             PlayerInfo = new Dictionary<int, MapPlayerInfo>();
+            Pheromones = new Dictionary<Position, MapPheromone>();
         }
         public int TotalMetal { get; set; }
         public Dictionary<int, MapPlayerInfo> PlayerInfo { get; private set; }
+
+        public Dictionary<Position, MapPheromone> Pheromones { get; private set; }
+
+        internal void ComputeMapInfo(Game game)
+        {
+            foreach (Pheromone pheromone in game.Pheromones.AllPhromones)
+            {
+                MapPheromone mapPheromone = new MapPheromone();
+                mapPheromone.Pos = pheromone.Pos;
+
+                foreach (PheromoneItem pheromoneItem in pheromone.PheromoneItems)
+                {
+                    MapPheromoneItem mapPheromoneItem = new MapPheromoneItem();
+
+                    mapPheromoneItem.PlayerId = pheromoneItem.PlayerId;
+                    mapPheromoneItem.PheromoneType = pheromoneItem.PheromoneType;
+                    mapPheromoneItem.Intensity = pheromoneItem.Intensity;
+                    mapPheromoneItem.IsStatic = pheromoneItem.IsStatic;
+
+                    mapPheromone.PheromoneItems.Add(mapPheromoneItem);
+                }
+                Pheromones.Add(mapPheromone.Pos, mapPheromone);
+            }
+
+            foreach (Tile t in game.Map.Tiles.Values)
+            {
+                TotalMetal += t.Metal;
+                if (t.Unit != null)
+                {
+                    int unitMetal = t.Unit.CountMetal();
+                    TotalMetal += unitMetal;
+
+                    MapPlayerInfo mapPlayerInfo;
+                    if (PlayerInfo.ContainsKey(t.Unit.Owner.PlayerModel.Id))
+                    {
+                        mapPlayerInfo = PlayerInfo[t.Unit.Owner.PlayerModel.Id];
+                    }
+                    else
+                    {
+                        mapPlayerInfo = new MapPlayerInfo();
+                        PlayerInfo.Add(t.Unit.Owner.PlayerModel.Id, mapPlayerInfo);
+                    }
+                    mapPlayerInfo.TotalMetal += unitMetal;
+                    mapPlayerInfo.TotalUnits++;
+                }
+            }
+
+            /*
+            if (checkTotalMetal != 0)
+            {
+                if (checkTotalMetal != mapInfo.TotalMetal)
+                {
+                    //throw new Exception("Metal changed");
+                }
+            }*/
+        }
     }
+}
+namespace Engine.Master
+{
     public class Map
     {
         public Dictionary<Position, Tile> Tiles = new Dictionary<Position, Tile>();
@@ -62,45 +147,6 @@ namespace Engine.Master
                     Matrix[x, y] = 0;
                 }
             }*/
-        }
-        private int checkTotalMetal;
-
-        public MapInfo GetMapInfo()
-        {
-            MapInfo mapInfo = new MapInfo();
-
-            foreach (Tile t in Tiles.Values)
-            {
-                mapInfo.TotalMetal += t.Metal;
-                if (t.Unit != null)
-                {
-                    int unitMetal = t.Unit.CountMetal();
-                    mapInfo.TotalMetal += unitMetal;
-
-                    MapPlayerInfo mapPlayerInfo;
-                    if (mapInfo.PlayerInfo.ContainsKey(t.Unit.Owner.PlayerModel.Id))
-                    {
-                        mapPlayerInfo = mapInfo.PlayerInfo[t.Unit.Owner.PlayerModel.Id];
-                    }
-                    else
-                    {
-                        mapPlayerInfo = new MapPlayerInfo();
-                        mapInfo.PlayerInfo.Add(t.Unit.Owner.PlayerModel.Id, mapPlayerInfo);
-                    }
-                    mapPlayerInfo.TotalMetal += unitMetal;
-                    mapPlayerInfo.TotalUnits++;
-                }
-            }
-
-            if (checkTotalMetal != 0)
-            {
-                if (checkTotalMetal != mapInfo.TotalMetal)
-                {
-                    //throw new Exception("Metal changed");
-                }
-            }
-
-            return mapInfo;
         }
 
         public Dictionary<Position, TileWithDistance> EnumerateTiles(Position startPos, int range, bool includeStartPos = true, Func<TileWithDistance, bool> stopper = null, Func<TileWithDistance, bool> matcher = null)
@@ -239,7 +285,7 @@ namespace Engine.Master
                         totalMetal += t.Metal;
                     }
                 }
-                checkTotalMetal = GetMapInfo().TotalMetal;
+                //checkTotalMetal = GetMapInfo().TotalMetal;
             }
             if (Tiles.ContainsKey(pos))
                 return Tiles[pos];

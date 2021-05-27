@@ -8,7 +8,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{218D4D2C-6475-F4E9-3FDF-2D0614211B68}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -121,10 +122,10 @@
     <Compile Include="Assets\References\Engine\Algorithms\PriorityQueueB.cs" />
   </ItemGroup>
   <ItemGroup>
-     <None Include="Assets\References\TerrainQuest.Generator.dll" />
-     <None Include="Assets\References\Newtonsoft.Json.dll" />
-     <None Include="Assets\Resources\LowPolyTreePack\README.txt" />
-     <None Include="Assets\References\Newtonsoft.Json.xml" />
+    <None Include="Assets\References\TerrainQuest.Generator.dll" />
+    <None Include="Assets\References\Newtonsoft.Json.dll" />
+    <None Include="Assets\Resources\LowPolyTreePack\README.txt" />
+    <None Include="Assets\References\Newtonsoft.Json.xml" />
     <Reference Include="UnityEngine">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2020.3.7f1\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
     </Reference>

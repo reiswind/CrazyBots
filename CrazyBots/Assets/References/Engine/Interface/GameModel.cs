@@ -27,6 +27,7 @@ namespace Engine.Interface
 
     public interface IGameController
     {
+        MapInfo GetDebugMapInfo();
         List<Move> ProcessMove(int playerId, Move myMove);
 
         void ComputePossibleMoves(Position pos, List<Move> possibleMoves, List<Position> includedPositions, MoveFilter moveFilter);

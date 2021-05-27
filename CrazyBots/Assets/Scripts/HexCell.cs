@@ -13,11 +13,34 @@ public class HexCell
     private List<GameObject> smallTrees;
 
     internal int NumberOfSmallTrees;
+    internal MeshRenderer meshRenderer;
+    internal Material pheromaterial;
 
     public HexCell()
     {
         minerals = new List<GameObject>();
         smallTrees = new List<GameObject>();
+    }
+
+    internal void Update(MapPheromone mapPheromone)
+    {
+        
+        pheromaterial.color = Random.ColorHSV();
+        /*
+        for (int i = 0; i < meshRenderer.materials.Length; i++)
+        {
+            Material material = meshRenderer.materials[i];
+            if (material.name.StartsWith("Player"))
+            {
+                material.color = Color.red;
+
+            }
+            else
+            {
+                //newMaterials[i] = material;
+            }
+        }
+        */
     }
 
     internal void UpdateGround()

@@ -1,4 +1,5 @@
 ﻿using Engine.Algorithms;
+using Engine.Ants;
 using Engine.Control;
 using Engine.Interface;
 using Newtonsoft.Json;
@@ -151,9 +152,12 @@ namespace Engine.Master
             return Map.GetTile(p);
         }
 
+        public Pheromones Pheromones { get; set; }
+
         private void Init(GameModel gameModel, int initSeed)
         {
-            Ants.Pheromones.Clear();
+            Pheromones = new Pheromones();
+
             seed = initSeed;
             Random = new Random(seed);
             MoveNr = 0;
@@ -1110,40 +1114,7 @@ namespace Engine.Master
                 }
                 else if (move.MoveType == MoveType.Extract)
                 {
-                    /*
-                    Unit unit = Map.Units.GetUnitAt(move.Positions[0]);
-                    if (unit != null && unit.Extractor != null)
-                    {
-                        bool extracted = false;
-
-                        Position fromPos = move.Positions[move.Positions.Count-1];
-                        extracted = unit.Extractor.ExtractInto(fromPos, lastMoves);
-
-                        if (extracted)
-                        {
-                            Move moveUpdate = new Move();
-
-                            moveUpdate.MoveType = MoveType.UpdateStats;
-                            moveUpdate.UnitId = unit.UnitId;
-                            moveUpdate.PlayerId = unit.Owner.PlayerModel.Id;
-                            moveUpdate.Positions = new List<Position>();
-                            moveUpdate.Positions.Add(unit.Pos);
-                            moveUpdate.Stats = unit.CollectStats();
-
-                            lastMoves.Add(moveUpdate);
-                            
-                        }
-                        else
-                        {
-                            // cloud not extract, ignore move
-                            move.MoveType = MoveType.None;
-                        }
-                    }
-                    else
-                    {
-                        // move failed
-                        move.MoveType = MoveType.None;
-                    }*/
+                    
                 }
                 else if (move.MoveType == MoveType.Fire)
                 {
@@ -1168,9 +1139,7 @@ namespace Engine.Master
                         moveUpdate.Stats = fireingUnit.CollectStats();
 
                         lastMoves.Add(moveUpdate);
-                        
                     }
-
                 }
                 else if (move.MoveType == MoveType.Move)
                 {
@@ -1183,7 +1152,7 @@ namespace Engine.Master
                 }
             }
             newMoves.Clear();
-
+            /*
             foreach (Unit unit in Map.Units.List.Values)
             {
                 bool found = false;
@@ -1197,75 +1166,18 @@ namespace Engine.Master
                 }
                 if (!found)
                 {
-                    //if (unit.Weapon != null && unit.Stats.FireCooldown > 0)
+                    if (unit.Assembler != null) 
                     {
-                        //unit.Stats.FireCooldown--;
-                        //if (unit.Stats.FireCooldown == 0)
-                        {
-                            /*
-                            Move move = new Move();
-                            move.MoveType = MoveType.UpdateStats;
-                            move.UnitId = unit.UnitId;
-                            move.PlayerId = unit.Owner.PlayerModel.Id;
-
-                            move.Positions = new List<Position>();
-                            move.Positions.Add(unit.Pos);
-
-                            move.Stats = unit.Stats;
-                            if (move.Stats == null)
-                                throw new Exception();
-
-                            lastMoves.Add(move);
-                            */
-                        }
-                    }
-                    //if (unit.Engine != null && unit.Stats.MoveCooldown > 0)
-                    {
-                        //unit.Stats.MoveCooldown--;
-                        //if (unit.Stats.MoveCooldown == 0)
-                        {
-                            /*
-                            Move move = new Move();
-                            move.MoveType = MoveType.UpdateStats;
-                            move.UnitId = unit.UnitId;
-                            move.PlayerId = unit.Owner.PlayerModel.Id;
-
-                            move.Positions = new List<Position>();
-                            move.Positions.Add(unit.Pos);
-
-                            move.Stats = unit.Stats;
-                            if (move.Stats == null)
-                                throw new Exception();
-
-                            lastMoves.Add(move);
-                            */
-                        }
-                    }
-                    if (unit.Assembler != null) // && unit.Stats.ProductionCooldown > 0)
-                    {
-                        //unit.Stats.ProductionCooldown--;
-                        //if (unit.Stats.ProductionCooldown == 0)
                         {
                             Player player = Players[unit.Owner.PlayerModel.Id];
                             if (player.CanProduceMoreUnits())
                             {
-                                /*
-                                Move move = new Move();
-                                move.MoveType = MoveType.UpdateStats;
-                                move.PlayerId = unit.Owner.PlayerModel.Id;
-                                move.UnitId = unit.UnitId;
-                                move.Positions = new List<Position>();
-                                move.Positions.Add(unit.Pos);
-                                move.Stats = unit.Stats;
-                                if (move.Stats == null)
-                                    throw new Exception();
-                                lastMoves.Add(move);
-                                */
+                                
                             }
                         }
                     }
                 }
-            }
+            }*/
         }
 
         private void UpdateAll(int playerId, List<Move> returnMoves)
@@ -1336,8 +1248,6 @@ namespace Engine.Master
                         acceptedMoves.Add(move);
                     }
                 }
-
-
 
                 foreach (Move move in moveToTargets.Values)
                 {
@@ -1475,7 +1385,10 @@ namespace Engine.Master
                     }
                 }
 
-                CreateAreas();
+                mapInfo = new MapInfo();
+                mapInfo.ComputeMapInfo(this);
+
+                //CreateAreas();
                 if (playerId == 0)
                 {
                     returnMoves = lastMoves;
@@ -1489,9 +1402,6 @@ namespace Engine.Master
                 //OutgoingMoves.Add(MoveNr, lastMoves);
                 MoveNr++;
             }
-
-            // Unsorted. So UpdateUnit comes bevor this unit moves. Better: Remmove the Update Unit because the move does ths update
-
             return returnMoves;
             /*
             var mySortedList = new SortedList<MoveType, Move>(new MoveTypeComparer());
@@ -1504,6 +1414,12 @@ namespace Engine.Master
             // Check if a unit moves to a occupied place
             return mySortedList.Values.ToList();
             */
+        }
+        private MapInfo mapInfo;
+
+        public MapInfo GetDebugMapInfo()
+        {
+            return mapInfo;
         }
 
         public List<Area> Areas { get; private set; }

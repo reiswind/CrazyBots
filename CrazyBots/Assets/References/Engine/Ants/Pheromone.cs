@@ -12,20 +12,21 @@ namespace Engine.Ants
         None,
         ToHome,
         ToFood,
-        Enemy
+        Enemy,
+        Energy
     }
 
     public class Pheromones
     {
-        private static Dictionary<Position, Pheromone> Items = new Dictionary<Position, Pheromone>();
-        public static int Age { get; private set; }
+        private Dictionary<Position, Pheromone> Items = new Dictionary<Position, Pheromone>();
+        public int Age { get; private set; }
 
-        public static void Clear()
+        public void Clear()
         {
             Items.Clear();
         }
 
-        public static IEnumerable<Pheromone> AllPhromones
+        public IEnumerable<Pheromone> AllPhromones
         {
             get
             {
@@ -33,12 +34,12 @@ namespace Engine.Ants
             }
         }
 
-        public static void Add(Pheromone pheromone)
+        public void Add(Pheromone pheromone)
         {
             Items.Add(pheromone.Pos, pheromone);
         }
 
-        public static void Deposit(int playerId, Position pos, PheromoneType pheromoneType, float intensity, bool isStatic)
+        public void Deposit(Player player, Position pos, PheromoneType pheromoneType, float intensity, bool isStatic)
         {
             Pheromone pheromone;
 
@@ -46,24 +47,54 @@ namespace Engine.Ants
             {
                 pheromone = new Pheromone();
                 pheromone.Pos = pos;
-                Pheromones.Add(pheromone);
+                player.Game.Pheromones.Add(pheromone);
             }
             else
             {
                 pheromone = Items[pos];
             }
-            pheromone.Deposit(playerId, intensity, pheromoneType, isStatic);
+            pheromone.Deposit(player.PlayerModel.Id, intensity, pheromoneType, isStatic);
 
         }
 
-        public static Pheromone FindAt(Position pos)
+        public Pheromone FindAt(Position pos)
         {
             if (pos != null && Items.ContainsKey(pos))
                 return Items[pos];
             return null;
         }
 
-        public static void DropStaticPheromones(Player player, Position pos, int range, PheromoneType pheromoneType)
+        public void RemoveAllStaticPheromones(Player player, PheromoneType pheromoneType)
+        {
+            List<Pheromone> tobeRemoved = new List<Pheromone>();
+
+            foreach (Pheromone pheromone in Items.Values)
+            {
+                List<PheromoneItem> itemTobeRemoved = new List<PheromoneItem>();
+                foreach (PheromoneItem pheromoneItem in pheromone.PheromoneItems)
+                {
+                    if (pheromoneItem.PlayerId == player.PlayerModel.Id &&
+                        pheromoneItem.PheromoneType == pheromoneType)
+                    {
+                        itemTobeRemoved.Add(pheromoneItem);
+                    }
+                }
+                foreach (PheromoneItem pheromoneItem1 in itemTobeRemoved)
+                {
+                    pheromone.PheromoneItems.Remove(pheromoneItem1);
+                }
+                if (pheromone.PheromoneItems.Count == 0)
+                {
+                    tobeRemoved.Add(pheromone);
+                }
+            }
+            foreach (Pheromone pheromone1 in tobeRemoved)
+            {
+                Items.Remove(pheromone1.Pos);
+            }
+        }
+
+        public void DropStaticPheromones(Player player, Position pos, int range, PheromoneType pheromoneType)
         {
             Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(pos, range, false);
 
@@ -74,11 +105,11 @@ namespace Engine.Ants
 
                 //float intensity = 1f / (tileWithDistance.Distance) * (2f - tileWithDistance.Distance / 10f);
 
-                Deposit(player.PlayerModel.Id, tileWithDistance.Pos, pheromoneType, intensity, true);
+                Deposit(player, tileWithDistance.Pos, pheromoneType, intensity, true);
             }
          }
 
-        public static void Evaporate()
+        public void Evaporate()
         {
             Age++;
 

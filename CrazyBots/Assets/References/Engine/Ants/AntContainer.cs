@@ -38,9 +38,7 @@ namespace Engine.Ants
                             Tile n = player.Game.Map.GetTile(possibleMove.Positions[1]);
                             if (n.Unit != null && n.Unit.Assembler != null && !n.Unit.ExtractMe)
                             {
-                                // YES not extract from attached factory
-                                // continue;
-                                int x = 0;
+                                // YES extract from attached factory
                             }
                             moves.Add(possibleMove);
                             return true;

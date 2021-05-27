@@ -331,26 +331,37 @@ public class UnitFrame
         }
     }
 
-    private void SetPlayerColor(MonoBehaviour unit)
+    internal static Material playerMaterial1;
+    internal static Material playerMaterial2;
+    internal static Material playerMaterial3;
+
+    internal static void SetPlayerColor(int playerId, GameObject unit)
     {
-        Material playerMaterial = Resources.Load<Material>("Materials/Player" + playerId);
+        if (playerMaterial1 == null)
+        {
+            playerMaterial1 = Resources.Load<Material>("Materials/Player1");
+            playerMaterial2 = Resources.Load<Material>("Materials/Player2");
+            playerMaterial3 = Resources.Load<Material>("Materials/Player3");
+        }
         MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
 
-        Material[] newMaterials = new Material[meshRenderer.materials.Count()];
-
-        for (int i = 0; i < meshRenderer.materials.Count(); i++)
+        //Material[] newMaterials = new Material[meshRenderer.materials.Length];
+        for (int i = 0; i < meshRenderer.materials.Length; i++)
         {
             Material material = meshRenderer.materials[i];
             if (material.name.StartsWith("Player"))
             {
-                newMaterials[i] = playerMaterial;
+                if (playerId == 1) material.color = playerMaterial1.color;
+                if (playerId == 2) material.color = playerMaterial2.color;
+                if (playerId == 3) material.color = playerMaterial3.color;
+                
             }
             else
             {
-                newMaterials[i] = material;
+                //newMaterials[i] = material;
             }
         }
-        meshRenderer.materials = newMaterials;
+        //meshRenderer.materials = newMaterials;
     }
 
     private void ReparentParts()
@@ -415,7 +426,7 @@ public class UnitFrame
                 engine1.UnitId = UnitId;
                 engine1.name = UnitId + "-Engine";
                 foundationPart = engine1;
-                SetPlayerColor(engine1);
+                SetPlayerColor(playerId, engine1.gameObject);
 
                 unitLayout.PlaceOnGround(engine1, targetCell, HexGrid);
             }
@@ -452,7 +463,8 @@ public class UnitFrame
 
                 extractor1.name = UnitId + "-Extractor";
                 extractor1.UnitFrame = this;
-                SetPlayerColor(extractor1);
+                
+                SetPlayerColor(playerId, extractor1.gameObject);
             }
         }
         else
@@ -483,7 +495,7 @@ public class UnitFrame
                 assembler.Level = stats.ProductionLevel;
                 assembler.name = UnitId + "-Assembler";
 
-                SetPlayerColor(assembler);
+                SetPlayerColor(playerId, assembler.gameObject);
 
                 if (foundationPart == null)
                 {
@@ -525,7 +537,7 @@ public class UnitFrame
                 container.name = UnitId + "-Container";
                 container.Level = stats.ContainerLevel;
 
-                SetPlayerColor(container);
+                SetPlayerColor(playerId, container.gameObject);
                 if (foundationPart is Extractor1)
                 {
                     if (stats.ProductionLevel > 0)
@@ -571,7 +583,7 @@ public class UnitFrame
                 reactor1.UnitFrame = this;
                 reactor1.name = UnitId + "-Reactor1";
 
-                SetPlayerColor(reactor1);
+                SetPlayerColor(playerId, reactor1.gameObject);
                 if (foundationPart is Extractor1)
                 {
                     if (stats.ProductionLevel > 0 && stats.ContainerLevel > 0)
@@ -614,8 +626,8 @@ public class UnitFrame
                 weapon1 = HexGrid.InstantiatePrefab<Weapon1>("Weapon1");
                 weapon1.UnitFrame = this;
                 weapon1.name = UnitId + "-Weapon";
-                SetPlayerColor(weapon1);
-
+                SetPlayerColor(playerId, weapon1.gameObject);
+                
                 if (foundationPart == null)
                 {
                     unitLayout.PlaceOnGround(weapon1, targetCell, HexGrid);

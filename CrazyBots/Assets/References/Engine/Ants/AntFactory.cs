@@ -21,7 +21,7 @@ namespace Engine.Ants
 
             Unit cntrlUnit = PlayerUnit.Unit;
             AntContainer containerUnit = null;
-            bool everyOutTileOccupied = true;
+            //bool everyOutTileOccupied = true;
 
             bool addContainer = false;
             bool addAssembler = false;
@@ -42,12 +42,12 @@ namespace Engine.Ants
                     }
                     else
                     {
-                        everyOutTileOccupied = false;
+                        //everyOutTileOccupied = false;
                     }
                 }
                 else
                 {
-                    everyOutTileOccupied = false;
+                    //everyOutTileOccupied = false;
                 }
             }
             if (containerFound)

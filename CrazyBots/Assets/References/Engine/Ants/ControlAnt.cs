@@ -197,7 +197,9 @@ namespace Engine.Control
 
             }
 
-            Pheromones.Evaporate();
+            player.Game.Pheromones.RemoveAllStaticPheromones(player, PheromoneType.Energy);
+
+            player.Game.Pheromones.Evaporate();
 
             // Returned moves
             List<Move> moves = new List<Move>();
@@ -250,7 +252,7 @@ namespace Engine.Control
                                 antFactory.Alive = true;
                                 Ants.Add(cntrlUnit.UnitId, antFactory);
 
-                                Pheromones.DropStaticPheromones(player, cntrlUnit.Pos, 20, PheromoneType.ToHome);
+                                //Pheromones.DropStaticPheromones(player, cntrlUnit.Pos, 20, PheromoneType.ToHome);
                             }
                             else if (playerUnit.Unit.Engine != null)
                             {
@@ -279,6 +281,10 @@ namespace Engine.Control
                 }
                 else
                 {
+                    if (ant.PlayerUnit.Unit.Reactor != null)
+                    {
+                        player.Game.Pheromones.DropStaticPheromones(player, ant.PlayerUnit.Unit.Pos, 20, PheromoneType.Energy);
+                    }
                     if (ant.PlayerUnit.Unit.IsComplete())
                     {
                         if (ant is AntWorker)

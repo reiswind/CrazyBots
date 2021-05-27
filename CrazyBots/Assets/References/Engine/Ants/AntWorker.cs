@@ -221,7 +221,7 @@ namespace Engine.Ants
                 antDestination.pos_d = phem_d;
                 if (pheromoneType != PheromoneType.None)
                 {
-                    antDestination.Pheromone = Pheromones.FindAt(t.Pos);
+                    antDestination.Pheromone = player.Game.Pheromones.FindAt(t.Pos);
                     if (antDestination.Pheromone == null || antDestination.Pheromone.GetIntensityF(player.PlayerModel.Id, pheromoneType) == 0)
                         return;
                 }
@@ -297,7 +297,7 @@ namespace Engine.Ants
 
             Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(PlayerUnit.Unit.Pos, 3, false, matcher: tile =>
             {
-                Pheromone pheroHere = Pheromones.FindAt(tile.Pos);
+                Pheromone pheroHere = player.Game.Pheromones.FindAt(tile.Pos);
                 if (tile.Metal > 0)
                 {
                     AddDestination(possibleTiles, player, tile.Tile, 0.6f, false, PheromoneType.None);
@@ -714,7 +714,7 @@ namespace Engine.Ants
 
                     case PheromoneType.ToFood:
                         intensity = 0.5f; // (FoodIntensity / MaxFoodIntensity) * FoodTrailDepositRate;
-                        Pheromones.Deposit(player.PlayerModel.Id, cntrlUnit.Pos, pheromoneType, intensity, false);
+                        player.Game.Pheromones.Deposit(player, cntrlUnit.Pos, pheromoneType, intensity, false);
                         break;
                 }
             }

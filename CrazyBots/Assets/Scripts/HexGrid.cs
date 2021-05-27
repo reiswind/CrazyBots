@@ -35,6 +35,8 @@ public class HexGrid : MonoBehaviour
 
 	private bool useThread = true;
 
+	public MapInfo MapInfo;
+
 	internal List<GameObject> smallTrees = new List<GameObject>();
 
 	public void AddTree(string name, List<GameObject> trees, float scale)
@@ -203,6 +205,8 @@ public class HexGrid : MonoBehaviour
 				{
 					newMoves.Clear();
 					newMoves.AddRange(current);
+
+					MapInfo = game.GetDebugMapInfo();
 				}
 				//lastMapInfo = Game.Map.GetMapInfo();
 				
@@ -223,10 +227,10 @@ public class HexGrid : MonoBehaviour
 
 		gridCanvas = GetComponentInChildren<Canvas>();
 
-		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -273,6 +277,18 @@ public class HexGrid : MonoBehaviour
 	{
 		if (WaitForTurn.WaitOne(10))
 		{
+			foreach (Position pos in MapInfo.Pheromones.Keys)
+			{
+				MapPheromone mapPheromone = MapInfo.Pheromones[pos];
+				HexCell hexCell = GroundCells[pos];
+				hexCell.Update(mapPheromone);
+			}
+
+			// 
+			foreach (MapPlayerInfo mapPlayerInfo in MapInfo.PlayerInfo.Values)
+            {
+			}
+
 			foreach (UnitFrame unitFrame in Units.Values)
             {
 				//if (unitFrame.FinalDestination != null)
@@ -479,19 +495,19 @@ public class HexGrid : MonoBehaviour
 		{
 			materialName = "Materials/DarkWood";
 			tileY = 0.9f;
-			cell.NumberOfSmallTrees = 3;
+			cell.NumberOfSmallTrees = 0;
 		}
 		else if (height > 0.47 && height <= 0.50)
 		{
 			materialName = "Materials/Wood";
 			tileY = 0.8f;
-			cell.NumberOfSmallTrees = 2;
+			cell.NumberOfSmallTrees = 0;
 		}
 		else if (height >= 0.46 && height <= 0.53)
 		{
 			materialName = "Materials/LightWood";
 			tileY = 0.7f;
-			cell.NumberOfSmallTrees = 1;
+			cell.NumberOfSmallTrees = 0;
 		}
 		else if (height >= 0.45 && height <= 0.55)
 		{
@@ -509,11 +525,36 @@ public class HexGrid : MonoBehaviour
 		gameObjectCell.transform.localPosition = gridPos3;
 
 		//
-		Material material = Resources.Load<Material>(materialName);
+		Material materialReource = Resources.Load<Material>(materialName);
 
-		MeshRenderer meshRenderer = gameObjectCell.GetComponent<MeshRenderer>();
-		meshRenderer.material = material;
+		cell.meshRenderer = gameObjectCell.GetComponent<MeshRenderer>();
+		//cell.meshRenderer.material = materialReource;
+		
+		//Material[] newMaterials = new Material[meshRenderer.materials.Length];
+		for (int i = 0; i < cell.meshRenderer.materials.Length; i++)
+		{
+			Material material = cell.meshRenderer.materials[i];
 
+			//material.mainTexture = null;
+			//material.globalIlluminationFlags = MaterialGlobalIlluminationFlags.EmissiveIsBlack;
+			if (material.name.StartsWith("Player"))
+			{
+				//material.color = Color.red;
+				cell.pheromaterial = material;
+				material.color = materialReource.color;
+				
+				//materialReource.name = "Player";
+				//newMaterials[i] = materialReource;
+			}
+			else
+			{
+				material.color = materialReource.color;
+				//materialReource.name = "Ground";
+				//newMaterials[i] = materialReource;
+			}
+			
+		}
+		//meshRenderer.materials = newMaterials;
 
 		cell.CreateMinerals();
 
