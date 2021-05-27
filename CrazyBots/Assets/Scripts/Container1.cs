@@ -9,6 +9,8 @@ public class Container1 : MonoBehaviour
     public float AboveGround { get; set; }
     public UnitFrame UnitFrame { get; set; }
 
+    internal int Level { get; set; }
+
     private List<GameObject> crystals;
 
     private int filled;
@@ -29,10 +31,26 @@ public class Container1 : MonoBehaviour
         {
             if (percentage != filled)
             {
-                int numCrystals = percentage.Value * 20 / 100;
+                int numCrystals = 0;
 
-                if (numCrystals > 20)
-                    numCrystals = 20;
+                if (Level == 1)
+                {
+                    numCrystals = percentage.Value * 20 / 100;
+                    if (numCrystals > 20)
+                        numCrystals = 20;
+                }
+                if (Level == 2)
+                {
+                    numCrystals = (percentage.Value * 60) / 1000;
+                    if (numCrystals > 60)
+                        numCrystals = 60;
+                }
+                if (Level == 3)
+                {
+                    numCrystals = (percentage.Value * 220) / 1000;
+                    if (numCrystals > 220)
+                        numCrystals = 220;
+                }
 
                 while (crystals.Count > numCrystals)
                 {                  
@@ -51,6 +69,12 @@ public class Container1 : MonoBehaviour
 
                     if (crystals.Count > 10)
                         unitPos3.y += 0.05f;
+
+                    if (Level == 3)
+                    {
+                        unitPos3.y += 0.65f;
+                    }
+
 
                     GameObject crystalResource = Resources.Load<GameObject>("Prefabs/Terrain/Crystal");
                     GameObject crystal = Instantiate(crystalResource, transform, false);

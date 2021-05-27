@@ -9,6 +9,11 @@ namespace Engine.Ants
 {
     internal class Ant
     {
+        public Ant(ControlAnt control)
+        {
+            Control = control;
+        }
+
         public Ant(ControlAnt control, PlayerUnit playerUnit)
         {
             PlayerUnit = playerUnit;

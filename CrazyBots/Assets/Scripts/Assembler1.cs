@@ -9,6 +9,8 @@ public class Assembler1 : MonoBehaviour
 
     private ParticleSystem particleSource;
 
+    internal int Level { get; set; }
+
     // Update is called once per frame
     void Update()
     {
@@ -16,6 +18,13 @@ public class Assembler1 : MonoBehaviour
 
         if (UnitFrame.NextMove?.MoveType == MoveType.Upgrade)
         {
+            if (UnitFrame.NextMove?.MoveType == MoveType.Upgrade &&
+                UnitFrame.NextMove?.Stats != null)
+            {
+                UnitFrame.MoveUpdateStats = UnitFrame.NextMove.Stats;
+                UnitFrame.Assemble();
+            }
+
             if (particleSource == null)
             {
                 Position from = UnitFrame.NextMove.Positions[0];
@@ -25,7 +34,7 @@ public class Assembler1 : MonoBehaviour
                 particleSource.transform.SetParent(sourceCell.Cell.transform, false);
             }
 
-            Position to = UnitFrame.NextMove.Positions[1];
+            Position to = UnitFrame.NextMove.Positions[UnitFrame.NextMove.Positions.Count-1];
             HexCell targetCell = UnitFrame.HexGrid.GroundCells[to];
 
             ParticleSystemForceField particleTarget = UnitFrame.HexGrid.MakeParticleTarget();

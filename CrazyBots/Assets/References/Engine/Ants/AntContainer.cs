@@ -10,6 +10,11 @@ namespace Engine.Ants
 {
     internal class AntContainer : Ant
     {
+        public AntContainer(ControlAnt control) : base(control)
+        {
+
+        }
+
         public AntContainer(ControlAnt control, PlayerUnit playerUnit) : base(control, playerUnit)
         {
 
@@ -28,14 +33,18 @@ namespace Engine.Ants
                 {
                     foreach (Move possibleMove in possiblemoves)
                     {
-                        Tile n = player.Game.Map.GetTile(possibleMove.Positions[1]);
-                        if (n.Unit != null && n.Unit.Assembler != null && !n.Unit.ExtractMe)
+                        if (Control.IsExtractable(player, possibleMove, moves))
                         {
-                            // Do not extract from attached factory
-                            continue;
+                            Tile n = player.Game.Map.GetTile(possibleMove.Positions[1]);
+                            if (n.Unit != null && n.Unit.Assembler != null && !n.Unit.ExtractMe)
+                            {
+                                // YES not extract from attached factory
+                                // continue;
+                                int x = 0;
+                            }
+                            moves.Add(possibleMove);
+                            return true;
                         }
-                        moves.Add(possibleMove);
-                        return true;
                     }
                 }
             }

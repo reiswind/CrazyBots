@@ -1047,7 +1047,9 @@ namespace Engine.Master
                 else if (move.MoveType == MoveType.Upgrade)
                 {
                     Unit factory = Map.Units.GetUnitAt(move.Positions[0]);
-                    Unit newUnit = Map.Units.GetUnitAt(move.Positions[1]);
+                    Unit newUnit = null;
+                    if (move.Positions.Count > 1)
+                        newUnit = Map.Units.GetUnitAt(move.Positions[1]);
 
                     if (factory != null && newUnit != null)
                     {
@@ -1063,7 +1065,18 @@ namespace Engine.Master
                         lastMoves.Add(moveUpdate);
                         
                     }
-                    if (newUnit != null)
+                    if (newUnit == null)
+                    {
+                        if (move.OtherUnitId == "RemoveContainerAndUpgradeAssembler")
+                        {
+                            factory.Assembler.Level++;
+                            factory.Container = null;
+
+                            move.Stats = factory.CollectStats();
+                            move.OtherUnitId = move.UnitId;
+                        }
+                    }
+                    else
                     {
                         UpdateGroundPlates(lastMoves, newUnit, remove: true);
                         newUnit.Upgrade(move.UnitId);

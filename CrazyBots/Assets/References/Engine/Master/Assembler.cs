@@ -12,15 +12,19 @@ namespace Engine.Master
     {
         public int Level { get; set; }
 
-        public bool CanProduce
-        {
-            get
-            {
-                if (Unit.Container != null && Unit.Container.Metal > 0)
-                    return true;
+        public Container AttachedContainer { get; set; }
 
-                return Unit.Metal > 0;
+        public bool CanProduce()
+        {
+            if (Unit.Container != null && Unit.Container.Metal > 0)
+                return true;
+
+            if (AttachedContainer != null)
+            {
+                if (AttachedContainer != null && AttachedContainer.Metal > 0)
+                    return true;
             }
+            return Unit.Metal > 0;
         }
 
         public Assembler(Unit owner, int level) : base(owner)
@@ -35,7 +39,19 @@ namespace Engine.Master
             else if (Unit.Metal > 0)
                 Unit.Metal--;
             else
-                throw new Exception();
+            {
+                if (AttachedContainer != null)
+                {
+                    if (AttachedContainer != null && AttachedContainer.Metal > 0)
+                        AttachedContainer.Metal--;
+                    else if (AttachedContainer.Metal > 0)
+                        AttachedContainer.Metal--;
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
         }
 
         private Move CreateAssembleMove(Position pos, string productCode)
@@ -268,7 +284,7 @@ namespace Engine.Master
             if ((moveFilter & MoveFilter.Assemble) == 0 && (moveFilter & MoveFilter.Upgrade) == 0)
                 return;
 
-            if (!CanProduce)
+            if (!CanProduce())
                 return;
 
             Dictionary<Position, TileWithDistance> neighbors = CollectOutputPositions();

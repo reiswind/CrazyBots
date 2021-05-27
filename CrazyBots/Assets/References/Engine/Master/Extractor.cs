@@ -280,49 +280,25 @@ namespace Engine.Master
                         if (Unit.Container != null)
                         {
                             int totalMetal = 0;
-                            //int addMetalToThisEachContainer;
 
                             if (fromTile.Unit.Engine != null)
                             {
                                 // Take all
                                 totalMetal = fromTile.Unit.Container.Metal;
-                                //addMetalToThisEachContainer = totalMetal;
-                                //if (addMetalToThisEachContainer > fromTile.Unit.Container.Metal)
-                                //    addMetalToThisEachContainer = fromTile.Unit.Container.Metal;
                             }
                             else
                             {
                                 if (Unit.BuilderWaitForMetal)
                                 {
-                                    // All up to 16
-                                    //addMetalToThisEachContainer = fromTile.Unit.Container.Metal;
                                     Unit.BuilderWaitForMetal = false;
-                                    //if (addMetalToThisEachContainer > 16)
-                                    //    addMetalToThisEachContainer = 16;
                                 }
                                 else
                                 {
-                                    // Half
-                                    int half = Unit.Container.Metal + fromTile.Unit.Container.Metal / 2;
-
-                                    totalMetal = fromTile.Unit.Container.Metal - half;
-                                    if (totalMetal < 0) totalMetal = 0;
-
-                                    /*addMetalToThisEachContainer = totalMetal / 2 - Unit.Container.Metal;
-                                    if (addMetalToThisEachContainer > fromTile.Unit.Container.Metal)
-                                        addMetalToThisEachContainer = fromTile.Unit.Container.Metal;
-                                    else if (addMetalToThisEachContainer < 0)
-                                        addMetalToThisEachContainer = 0;
-                                    */
+                                    // Take all
+                                    totalMetal = fromTile.Unit.Container.Metal;
                                 }
 
                             }
-                            /*
-                            if (addMetalToThisEachContainer < 0)
-                            {
-                                throw new Exception("omg");
-                            }*/
-
                             
                             if (Unit.Container.Metal + totalMetal > Unit.Container.Capacity)
                             {
@@ -335,7 +311,13 @@ namespace Engine.Master
                                 metalRemoved = totalMetal;
                                 fromTile.Unit.Container.Metal -= metalRemoved;
                             }
-                            
+
+                            if (fromTile.Unit.Metal > 0)
+                            {
+                                metalRemoved += fromTile.Unit.Metal;
+                                fromTile.Unit.Metal = 0;
+                            }
+
                             if (fromTile.Unit.Container.Metal < 0)
                             {
                                 throw new Exception("omg");

@@ -23,7 +23,9 @@ namespace Engine.Control
 
         public Dictionary<string, Ant> Ants = new Dictionary<string, Ant>();
 
-        public int MaxWorker = 35;
+        public Dictionary<Position, Ant> CreatedAnts = new Dictionary<Position, Ant>();
+
+        public int MaxWorker = 25;
         public int NumberOfWorkers;
 
         public ControlAnt(IGameController gameController, PlayerModel playerModel, GameModel gameModel)
@@ -93,6 +95,40 @@ namespace Engine.Control
                 }
             }
             return occupied;
+        }
+        public bool IsExtractable(Player player, Move possibleMove, List<Move> moves)
+        {
+            bool extractable = true;
+
+            foreach (Move intendedMove in moves)
+            {
+                if (intendedMove.MoveType == MoveType.Upgrade)
+                {
+                    if (possibleMove.UnitId == intendedMove.UnitId)
+                    {
+                        extractable = false;
+                        break;
+                    }
+                }
+            }
+            
+            return extractable;
+        }
+
+        public bool IsBeingExtracted(List<Move> moves, Position pos)
+        {
+            foreach (Move intendedMove in moves)
+            {
+                if (intendedMove.MoveType == MoveType.Extract)
+                {
+                    if (intendedMove.Positions[intendedMove.Positions.Count - 1] == pos)
+                    {
+                        // Unit should not move until empty
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         public bool IsOccupied(Player player, List<Move> moves, Position destination)
@@ -198,23 +234,36 @@ namespace Engine.Control
                     }
                     else
                     {
-                        if (playerUnit.Unit.Assembler != null)
+                        if (CreatedAnts.ContainsKey(cntrlUnit.Pos))
                         {
-                            AntFactory antFactory = new AntFactory(this, playerUnit);
-                            antFactory.Alive = true;
-                            Ants.Add(cntrlUnit.UnitId, antFactory);
-
-                            Pheromones.DropStaticPheromones(player, cntrlUnit.Pos, 20, PheromoneType.ToHome);
+                            // Attach unit
+                            Ant ant = CreatedAnts[cntrlUnit.Pos];
+                            ant.Alive = true;
+                            ant.PlayerUnit = playerUnit;
+                            Ants.Add(cntrlUnit.UnitId, ant);
                         }
-                        else if (playerUnit.Unit.Engine != null)
+                        else
                         {
-                            AntWorker antWorker = new AntWorker(this, playerUnit);
-                            antWorker.Alive = true;
-                            Ants.Add(cntrlUnit.UnitId, antWorker);
+                            if (playerUnit.Unit.Assembler != null)
+                            {
+                                AntFactory antFactory = new AntFactory(this, playerUnit);
+                                antFactory.Alive = true;
+                                Ants.Add(cntrlUnit.UnitId, antFactory);
+
+                                Pheromones.DropStaticPheromones(player, cntrlUnit.Pos, 20, PheromoneType.ToHome);
+                            }
+                            else if (playerUnit.Unit.Engine != null)
+                            {
+                                AntWorker antWorker = new AntWorker(this, playerUnit);
+                                antWorker.Alive = true;
+                                Ants.Add(cntrlUnit.UnitId, antWorker);
+                            }
                         }
                     }
                 }
             }
+
+            CreatedAnts.Clear();
 
             NumberOfWorkers = 0;
 
@@ -241,6 +290,8 @@ namespace Engine.Control
                     {
                         if (ant.PlayerUnit.Unit.Engine != null)
                             NumberOfWorkers++;
+
+                        movableAnts.Add(ant);
                     }
                     else
                     {
@@ -259,7 +310,7 @@ namespace Engine.Control
                 }
             }
 
-            unmovedAnts.Clear();
+            unmovedAnts.Clear();    
             unmovedAnts.AddRange(movableAnts);
             while (unmovedAnts.Count > 0)
             {
@@ -268,7 +319,15 @@ namespace Engine.Control
                     if (!(ant is AntFactory))
                     {
                         if (!ant.PlayerUnit.Unit.IsComplete())
+                        {
+                            movableAnts.Remove(ant);
                             continue;
+                        }
+                        if (IsBeingExtracted(moves, ant.PlayerUnit.Unit.Pos))
+                        {
+                            movableAnts.Remove(ant);
+                            continue;
+                        }
 
                         if (ant.Move(player, moves))
                         {

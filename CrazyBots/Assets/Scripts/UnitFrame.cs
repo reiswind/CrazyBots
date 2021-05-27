@@ -35,9 +35,9 @@ public class UnitLayout
     bool rearLeft = true;
     bool rearRight = true;
 
-    private Frame frame1; // Frame level 1
-    private Frame frame2; // Frame level 2
-    private Frame frame3; // Frame level 3
+    internal Frame frame1; // Frame level 1
+    internal Frame frame2; // Frame level 2
+    internal Frame frame3; // Frame level 3
 
     public bool PlaceWeapon(MonoBehaviour container1, MonoBehaviour foundationPart, HexCell targetCell, HexGrid hexGrid)
     {
@@ -68,6 +68,25 @@ public class UnitLayout
         }
         return true;
     }
+
+    public bool PlaceOnTop(MonoBehaviour bigPart, MonoBehaviour foundationPart, HexCell targetCell, HexGrid hexGrid, float y)
+    {
+        if (foundationPart == null)
+        {
+        }
+        else
+        {
+            Vector3 unitPos3 = new Vector3();
+
+            unitPos3.y += y;
+
+            bigPart.transform.position = unitPos3;
+            bigPart.transform.SetParent(foundationPart.transform, false);
+
+        }
+        return true;
+    }
+
 
     public bool PlaceBigPart(MonoBehaviour bigPart, MonoBehaviour foundationPart, HexCell targetCell, HexGrid hexGrid)
     {
@@ -257,8 +276,9 @@ public class UnitFrame
     private UnitLayout unitLayout;
 
     private Engine1 engine1;
-    private Container1 container1;
-    private Assembler1 assembler1;
+    private Container1 container;
+
+    private Assembler1 assembler;
     private Weapon1 weapon1;
     private Extractor1 extractor1;
     private Reactor1 reactor1;
@@ -289,15 +309,15 @@ public class UnitFrame
             HexGrid.Destroy(extractor1.gameObject, delay);
             extractor1 = null;
         }
-        if (container1 != null)
+        if (container != null)
         {
-            HexGrid.Destroy(container1.gameObject, delay);
-            container1 = null;
+            HexGrid.Destroy(container.gameObject, delay);
+            container = null;
         }
-        if (assembler1 != null)
+        if (assembler != null)
         {
-            HexGrid.Destroy(assembler1.gameObject, delay);
-            assembler1 = null;
+            HexGrid.Destroy(assembler.gameObject, delay);
+            assembler = null;
         }
         if (reactor1 != null)
         {
@@ -337,19 +357,19 @@ public class UnitFrame
     {
         if (engine1 != null && engine1 != foundationPart)
         {
-            container1.transform.SetParent(foundationPart.transform.parent);
+            engine1.transform.SetParent(foundationPart.transform.parent);
         }
         if (weapon1 != null && weapon1 != foundationPart)
         {
             weapon1.transform.SetParent(foundationPart.transform.parent);
         }
-        if (assembler1 != null && assembler1 != foundationPart)
+        if (assembler != null && assembler != foundationPart)
         {
-            assembler1.transform.SetParent(foundationPart.transform.parent);
+            assembler.transform.SetParent(foundationPart.transform.parent);
         }
-        if (container1 != null && container1 != foundationPart)
+        if (container != null && container != foundationPart)
         {
-            container1.transform.SetParent(foundationPart.transform.parent);
+            container.transform.SetParent(foundationPart.transform.parent);
         }
         if (reactor1 != null && reactor1 != foundationPart)
         {
@@ -398,12 +418,6 @@ public class UnitFrame
                 SetPlayerColor(engine1);
 
                 unitLayout.PlaceOnGround(engine1, targetCell, HexGrid);
-                /*
-                engine1.transform.SetParent(HexGrid.transform, false);
-
-                Vector3 unitPos3 = targetCell.transform.position;
-                unitPos3.y += HexGrid.hexCellHeight - 0.05f; // Start beyond assembler
-                engine1.transform.position = unitPos3;*/
             }
         }
         else
@@ -455,75 +469,96 @@ public class UnitFrame
             }
         }
 
-        
-
-        
-
         if (stats.ProductionLevel > 0)
         {
-            if (assembler1 == null && stats.ProductionLevel == 1)
+            if (assembler == null || assembler.Level != stats.ProductionLevel)
             {
-                assembler1 = HexGrid.InstantiatePrefab<Assembler1>("Assembler1");
-                assembler1.UnitFrame = this;
-                assembler1.name = UnitId + "-Assembler1";
+                if (assembler != null)
+                {
+                    HexGrid.Destroy(assembler.gameObject);
+                    assembler = null;
+                }
+                assembler = HexGrid.InstantiatePrefab<Assembler1>("Assembler" + stats.ProductionLevel);
+                assembler.UnitFrame = this;
+                assembler.Level = stats.ProductionLevel;
+                assembler.name = UnitId + "-Assembler";
 
-                SetPlayerColor(assembler1);
+                SetPlayerColor(assembler);
 
                 if (foundationPart == null)
                 {
-                    unitLayout.PlaceOnGround(assembler1, targetCell, HexGrid);
-                    foundationPart = assembler1;
+                    unitLayout.PlaceOnGround(assembler, targetCell, HexGrid);
+                    foundationPart = assembler;
                 }
                 else
                 {
-                    unitLayout.PlaceBigPart(assembler1, foundationPart, targetCell, HexGrid);
+                    if (unitLayout.frame1 != null)
+                    {
+                        HexGrid.Destroy(unitLayout.frame1.gameObject);
+                        unitLayout.frame1 = null;
+                    }
+                    unitLayout.PlaceBigPart(assembler, foundationPart, targetCell, HexGrid);
                 }
             }
         }
         else
         {
-            if (assembler1 != null)
+            if (assembler != null)
             {
-                HexGrid.Destroy(assembler1.gameObject);
-                assembler1 = null;
+                HexGrid.Destroy(assembler.gameObject);
+                assembler = null;
             }
         }
 
 
         if (stats.ContainerLevel > 0)
         {
-            if (container1 == null && stats.ContainerLevel == 1)
+            if (container == null ||  container.Level != stats.ContainerLevel)
             {
-                container1 = HexGrid.InstantiatePrefab<Container1>("Container1");
-                container1.UnitFrame = this;
-                container1.name = UnitId + "-Container";
+                if (container != null)
+                {
+                    HexGrid.Destroy(container.gameObject);
+                    container = null;
+                }
+                container = HexGrid.InstantiatePrefab<Container1>("Container" + stats.ContainerLevel);
+                container.UnitFrame = this;
+                container.name = UnitId + "-Container";
+                container.Level = stats.ContainerLevel;
 
-                SetPlayerColor(container1);
+                SetPlayerColor(container);
                 if (foundationPart is Extractor1)
                 {
-                    unitLayout.PlaceBigPart(container1, foundationPart, targetCell, HexGrid);
+                    if (stats.ProductionLevel > 0)
+                    {
+                        // Put it on top of the assembler
+                        unitLayout.PlaceOnTop(container, foundationPart, targetCell, HexGrid, 0.6f);
+                    }
+                    else
+                    {
+                        unitLayout.PlaceOnTop(container, foundationPart, targetCell, HexGrid, 0.3f);
+                    }
                 }
                 else
                 {
                     if (foundationPart == null)
                     {
-                        unitLayout.PlaceOnGround(container1, targetCell, HexGrid);
-                        foundationPart = extractor1;
+                        unitLayout.PlaceOnGround(container, targetCell, HexGrid);
+                        foundationPart = container;
                     }
                     else
                     {
-                        unitLayout.PlacePart(container1, foundationPart, targetCell, HexGrid);
+                        unitLayout.PlacePart(container, foundationPart, targetCell, HexGrid);
                     }
                 }
             }
-            container1.UpdateContent(stats.ContainerFull);
+            container.UpdateContent(stats.ContainerFull);
         }
         else
         {
-            if (container1 != null)
+            if (container != null)
             {
-                HexGrid.Destroy(container1.gameObject);
-                container1 = null;
+                HexGrid.Destroy(container.gameObject);
+                container = null;
             }
         }
 
@@ -539,7 +574,15 @@ public class UnitFrame
                 SetPlayerColor(reactor1);
                 if (foundationPart is Extractor1)
                 {
-                    unitLayout.PlaceBigPart(reactor1, foundationPart, targetCell, HexGrid);
+                    if (stats.ProductionLevel > 0 && stats.ContainerLevel > 0)
+                    {
+                        // Put it on top of the container
+                        unitLayout.PlaceOnTop(reactor1, foundationPart, targetCell, HexGrid, 0.8f);
+                    }
+                    else
+                    {
+                        unitLayout.PlaceBigPart(reactor1, foundationPart, targetCell, HexGrid);
+                    }
                 }
                 else
                 {
@@ -638,6 +681,8 @@ public class UnitFrame
             Assemble();
             NextMove = null;
         }
+        
+
         if (NextMove?.MoveType == MoveType.UpdateStats)
         {
             NextMove = null;

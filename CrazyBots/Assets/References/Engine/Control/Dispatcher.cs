@@ -293,7 +293,7 @@ namespace Engine.Control
                         if (playerUnit.PossibleMoves.Count > 0)
                             continue;
 
-                        if (playerUnit.Unit.Assembler != null && playerUnit.Unit.Assembler.CanProduce)
+                        if (playerUnit.Unit.Assembler != null && playerUnit.Unit.Assembler.CanProduce())
                         {
                             // Leave the assigend command to produce the unit
                             assembler = playerUnit;
@@ -327,7 +327,7 @@ namespace Engine.Control
                     if (playerUnit.PossibleMoves.Count > 0)
                         continue;
 
-                    if (playerUnit.Unit.Assembler != null && playerUnit.Unit.Assembler.CanProduce)
+                    if (playerUnit.Unit.Assembler != null && playerUnit.Unit.Assembler.CanProduce())
                     {
                         // Leave the assigend command to produce the unit
                         assembler = playerUnit;
@@ -406,7 +406,7 @@ namespace Engine.Control
 
                                 if (assembler.Unit.Assembler != null)
                                 {
-                                    if (moveableUnits.Contains(playerUnit) && assembler.Unit.Assembler.CanProduce)
+                                    if (moveableUnits.Contains(playerUnit) && assembler.Unit.Assembler.CanProduce())
                                     {
                                         List<Move> possibleUpgrademoves = new List<Move>();
                                         assembler.Unit.Assembler.ComputePossibleMoves(possibleUpgrademoves, null, MoveFilter.Upgrade);

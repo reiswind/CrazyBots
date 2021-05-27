@@ -725,6 +725,7 @@ namespace Engine.Ants
             Unit cntrlUnit = PlayerUnit.Unit;
             bool unitMoved = false;
 
+            /*
             foreach (Move intendedMove in moves)
             {
                 if (intendedMove.MoveType == MoveType.Extract)
@@ -735,7 +736,7 @@ namespace Engine.Ants
                         return true;
                     }
                 }
-            }
+            }*/
 
             if (!ReturnHome && Energy == 0)
             {

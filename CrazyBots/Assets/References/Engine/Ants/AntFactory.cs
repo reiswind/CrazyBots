@@ -20,32 +20,29 @@ namespace Engine.Ants
             bool unitMoved = false;
 
             Unit cntrlUnit = PlayerUnit.Unit;
-
-            
-            
-
+            AntContainer containerUnit = null;
             bool everyOutTileOccupied = true;
 
             bool addContainer = false;
             bool addAssembler = false;
-                bool containerFound = false;
+            bool containerFound = false;
+
             // Do we have a container?
             foreach (Tile n in player.Game.Map.GetTile(cntrlUnit.Pos).Neighbors)
             {
                 if (n.Unit != null && n.Unit.Owner.PlayerModel.Id == player.PlayerModel.Id)
                 {
-                    if (n.Unit.Container != null && n.Unit.Engine == null)
+                    if (Control.Ants.ContainsKey(n.Unit.UnitId))
                     {
-                        if (n.Unit.Container.Metal >= n.Unit.Container.Capacity)
+                        if (Control.Ants[n.Unit.UnitId] is AntContainer)
                         {
-                            addAssembler = true;
+                            containerUnit = Control.Ants[n.Unit.UnitId] as AntContainer;
+                            containerFound = true;
                         }
-                        containerFound = true;
                     }
                     else
                     {
-                        //if (n.Unit != null && n.Unit.Assembler != null && !n.Unit.ExtractMe)
-                            everyOutTileOccupied = false;
+                        everyOutTileOccupied = false;
                     }
                 }
                 else
@@ -53,15 +50,36 @@ namespace Engine.Ants
                     everyOutTileOccupied = false;
                 }
             }
-            if (!containerFound)
+            if (containerFound)
+            {
+                // Must be complete empty
+                if (containerUnit != null && 
+                    containerUnit.PlayerUnit.Unit.IsComplete() &&
+                    cntrlUnit.Container != null &&
+                    cntrlUnit.Container.Metal == 0 &&
+                    cntrlUnit.Metal == 0)
+                {
+                    // Remove the local container, since the factory is attached to a container.
+                    Move move = new Move();
+                    move.MoveType = MoveType.Upgrade;
+                    move.Positions = new List<Position>();
+                    move.Positions.Add(cntrlUnit.Pos);
+                    move.UnitId = cntrlUnit.UnitId;
+                    move.OtherUnitId = "RemoveContainerAndUpgradeAssembler";
+                    moves.Add(move);
+
+                    return true;
+                }
+            }
+            else
             {
                 //addAssembler = false;
-                //if (cntrlUnit.Container != null && cntrlUnit.Container.Metal >= cntrlUnit.Container.Capacity)
-                //    addContainer = true;
+                if (cntrlUnit.Container != null && cntrlUnit.Container.Metal >= cntrlUnit.Container.Capacity)
+                    addContainer = true;
             }
             
-            if (everyOutTileOccupied)
-                cntrlUnit.ExtractMe = true;
+            //if (everyOutTileOccupied)
+            //    cntrlUnit.ExtractMe = true;
 
 
             /*
@@ -74,7 +92,9 @@ namespace Engine.Ants
 
             if (cntrlUnit.Assembler != null)
             {
-                if (cntrlUnit.Assembler.CanProduce)
+                cntrlUnit.Assembler.AttachedContainer = containerUnit?.PlayerUnit.Unit.Container;
+
+                if (cntrlUnit.Assembler.CanProduce())
                 {
                     List<Move> possiblemoves = new List<Move>();
                     PlayerUnit.Unit.Assembler.ComputePossibleMoves(possiblemoves, null, MoveFilter.Upgrade);
@@ -88,20 +108,16 @@ namespace Engine.Ants
                                 Ant ant = Control.Ants[constructedUnit.Unit.UnitId];
                                 if (ant is AntContainer)
                                 {
-                                    if (ant.PlayerUnit.Unit.Extractor == null)
+                                    
+                                    if (ant.PlayerUnit.Unit.Container == null ||
+                                        ant.PlayerUnit.Unit.Container.Level < 3)
                                     { 
-                                        if (possibleMove.UnitId == "Extractor")
+                                        if (possibleMove.UnitId == "Container")
                                         {
                                             moves.Add(possibleMove);
                                             unitMoved = true;
                                             break;
                                         }
-                                    }
-                                    else if (possibleMove.UnitId == "Container")
-                                    {
-                                        moves.Add(possibleMove);
-                                        unitMoved = true;
-                                        break;
                                     }
                                 }
                                 else if (ant is AntFactory)
@@ -221,7 +237,7 @@ namespace Engine.Ants
                                 {
                                     if (addContainer)
                                     {
-                                        if (possibleMove.UnitId == "Container")
+                                        if (possibleMove.UnitId == "Extractor")
                                         {
                                             possibleMoves.Add(possibleMove);
                                         }
@@ -242,7 +258,15 @@ namespace Engine.Ants
                                 if (possibleMoves.Count > 0)
                                 {
                                     int idx = player.Game.Random.Next(possibleMoves.Count);
-                                    moves.Add(possibleMoves[idx]);
+                                    Move move = possibleMoves[idx];
+                                    moves.Add(move);
+
+                                    if (addContainer)
+                                    {
+                                        AntContainer antContainer = new AntContainer(Control);
+                                        Control.CreatedAnts.Add(move.Positions[1], antContainer);
+                                    }
+
                                     unitMoved = true;
                                 }
                             }
@@ -253,7 +277,7 @@ namespace Engine.Ants
 
             if (!unitMoved)
             {
-                if (cntrlUnit.Extractor != null)
+                if (cntrlUnit.Extractor != null && !containerFound)
                 {
                     List<Move> possiblemoves = new List<Move>();
                     cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, null, MoveFilter.Extract);

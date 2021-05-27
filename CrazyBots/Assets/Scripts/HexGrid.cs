@@ -226,6 +226,7 @@ public class HexGrid : MonoBehaviour
 		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -371,8 +372,19 @@ public class HexGrid : MonoBehaviour
 		unit.MoveUpdateStats = move.Stats;
 		unit.UnitId = move.UnitId;
 
-		unit.currentPos = move.Positions[0];
+		if (move.Stats.EngineLevel == 0)
+		{
+			// Cannot move to targetpos
+			unit.currentPos = move.Positions[move.Positions.Count-1];
+		}
+		else
+		{
+			// Move to targetpos
+			unit.currentPos = move.Positions[0];
+		}
 		unit.Assemble();
+
+		
 
 		Units.Add(move.UnitId, unit);
 
@@ -467,25 +479,25 @@ public class HexGrid : MonoBehaviour
 		{
 			materialName = "Materials/DarkWood";
 			tileY = 0.9f;
-			cell.NumberOfSmallTrees = 4;
+			cell.NumberOfSmallTrees = 3;
 		}
 		else if (height > 0.47 && height <= 0.50)
 		{
 			materialName = "Materials/Wood";
 			tileY = 0.8f;
-			cell.NumberOfSmallTrees = 3;
+			cell.NumberOfSmallTrees = 2;
 		}
 		else if (height >= 0.46 && height <= 0.53)
 		{
 			materialName = "Materials/LightWood";
 			tileY = 0.7f;
-			cell.NumberOfSmallTrees = 2;
+			cell.NumberOfSmallTrees = 1;
 		}
 		else if (height >= 0.45 && height <= 0.55)
 		{
 			materialName = "Materials/GrassDark";
 			tileY = 0.6f;
-			cell.NumberOfSmallTrees = 1;
+			cell.NumberOfSmallTrees = 0;
 		}
 		else
 		{

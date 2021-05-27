@@ -404,7 +404,7 @@ namespace Engine.Control
             // Find a unit to produce
             foreach (PlayerUnit unit in UnitsAlreadyInArea)
             {
-                if (unit.Unit.Assembler != null && unit.Unit.Assembler.CanProduce)
+                if (unit.Unit.Assembler != null && unit.Unit.Assembler.CanProduce())
                 {
                     // produce missing part
                     assemblerUnit = unit;

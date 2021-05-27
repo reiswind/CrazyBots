@@ -365,7 +365,7 @@ namespace Engine.Master
             if (Assembler != null)
             {
                 stats.ProductionLevel = Assembler.Level;
-                stats.CanProduce = Assembler.CanProduce;
+                stats.CanProduce = Assembler.CanProduce();
             }
             if (Extractor != null)
             {
