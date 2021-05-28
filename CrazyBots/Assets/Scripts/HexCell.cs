@@ -13,8 +13,9 @@ public class HexCell
     private List<GameObject> smallTrees;
 
     internal int NumberOfSmallTrees;
-    internal MeshRenderer meshRenderer;
-    internal Material pheromaterial;
+
+    private static GameObject markerPrefab;
+    private GameObject markerToEnergy;
 
     public HexCell()
     {
@@ -24,7 +25,39 @@ public class HexCell
 
     internal void Update(MapPheromone mapPheromone)
     {
-        
+        if (markerToEnergy == null)
+        {
+            if (markerPrefab == null)
+                markerPrefab = Resources.Load<GameObject>("Prefabs/Terrain/Marker");
+            markerToEnergy = HexGrid.Instantiate(markerPrefab, Cell.transform, false);
+            markerToEnergy.name = Cell.name + "-Energy";
+            //MeshRenderer meshRenderer = markerToEnergy.GetComponent<MeshRenderer>();
+            //meshRenderer.material.color = Color.red;
+        }
+
+        float highestEnergy = 0;
+        int highestPlayerId = 0;
+
+        foreach (MapPheromoneItem mapPheromoneItem in mapPheromone.PheromoneItems)
+        {
+            if (mapPheromoneItem.PheromoneType == Engine.Ants.PheromoneType.Energy)
+            {
+                if (mapPheromoneItem.Intensity > highestEnergy)
+                {
+                    highestEnergy = mapPheromoneItem.Intensity;
+                    highestPlayerId = mapPheromoneItem.PlayerId;
+                }
+            }
+            if (highestEnergy > 0)
+            {
+                Vector3 position = markerToEnergy.transform.position;
+                position.y = HexGrid.hexCellHeight + 0.052f + (0.2f * highestEnergy);
+                markerToEnergy.transform.position = position;
+
+                UnitFrame.SetPlayerColor(highestPlayerId, markerToEnergy);
+            }
+        }
+
         //pheromaterial.color = Random.ColorHSV();
         /*
         for (int i = 0; i < meshRenderer.materials.Length; i++)

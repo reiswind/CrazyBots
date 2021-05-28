@@ -227,10 +227,10 @@ public class HexGrid : MonoBehaviour
 
 		gridCanvas = GetComponentInChildren<Canvas>();
 
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -527,10 +527,11 @@ public class HexGrid : MonoBehaviour
 		//
 		Material materialReource = Resources.Load<Material>(materialName);
 
-		cell.meshRenderer = gameObjectCell.GetComponent<MeshRenderer>();
-		//cell.meshRenderer.material = materialReource;
+		MeshRenderer meshRenderer = gameObjectCell.GetComponent<MeshRenderer>();
+		meshRenderer.material = materialReource;
 		
 		//Material[] newMaterials = new Material[meshRenderer.materials.Length];
+		/*
 		for (int i = 0; i < cell.meshRenderer.materials.Length; i++)
 		{
 			Material material = cell.meshRenderer.materials[i];
@@ -553,11 +554,10 @@ public class HexGrid : MonoBehaviour
 				//newMaterials[i] = materialReource;
 			}
 			
-		}
+		}*/
 		//meshRenderer.materials = newMaterials;
 
 		cell.CreateMinerals();
-
 		cell.CreateTrees(smallTrees);
 
 		/*
