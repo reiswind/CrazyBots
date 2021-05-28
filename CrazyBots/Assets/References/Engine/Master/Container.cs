@@ -16,7 +16,7 @@ namespace Engine.Master
         {
             get
             {
-                return 30;
+                //return 30;
 
                 if (extraCapacity != 0) return extraCapacity;
                 if (Level == 1) return 20;

@@ -82,6 +82,11 @@ namespace Engine.Ants
             if (Control.NumberOfWorkers < Control.MaxWorker)
                 addWorker = true;
 
+            bool addFighter = false;
+            if (addWorker == false && Control.NumberOfFighter < Control.MaxFighter)
+                addFighter = true;
+
+
             if (cntrlUnit.Assembler != null)
             {
                 cntrlUnit.Assembler.AttachedContainer = containerUnit?.PlayerUnit.Unit.Container;
@@ -242,7 +247,7 @@ namespace Engine.Ants
                                             possibleMoves.Add(possibleMove);
                                         }
                                     }
-                                    else if (addWorker)
+                                    else if (addWorker || addFighter)
                                     {
                                         if (possibleMove.UnitId == "Engine")
                                         {
@@ -265,6 +270,13 @@ namespace Engine.Ants
                                     {
                                         AntWorker antWorker = new AntWorker(Control);
                                         antWorker.IsWorker = true;
+                                        Control.NumberOfWorkers++;
+                                        Control.CreatedAnts.Add(move.Positions[1], antWorker);
+                                    }
+                                    else if (addFighter)
+                                    {
+                                        AntWorker antWorker = new AntWorker(Control);
+                                        antWorker.IsWorker = false;
                                         Control.NumberOfWorkers++;
                                         Control.CreatedAnts.Add(move.Positions[1], antWorker);
                                     }

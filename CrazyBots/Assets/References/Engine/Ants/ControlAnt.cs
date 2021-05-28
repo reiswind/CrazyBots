@@ -26,7 +26,9 @@ namespace Engine.Control
         public Dictionary<Position, Ant> CreatedAnts = new Dictionary<Position, Ant>();
 
         public int MaxWorker = 5;
+        public int MaxFighter = 15;
         public int NumberOfWorkers;
+        public int NumberOfFighter;
 
         public ControlAnt(IGameController gameController, PlayerModel playerModel, GameModel gameModel)
         {
@@ -369,6 +371,7 @@ namespace Engine.Control
             CreatedAnts.Clear();
 
             NumberOfWorkers = 0;
+            NumberOfFighter = 0;
 
             List<Ant> movableAnts = new List<Ant>();
             List<Ant> killedAnts = new List<Ant>();
@@ -389,6 +392,8 @@ namespace Engine.Control
                         {
                             if (antWorker.IsWorker)
                                 NumberOfWorkers++;
+                            else
+                                NumberOfFighter++;
                         }
 
                         UpdateContainerDeposits(player, ant);
@@ -410,8 +415,8 @@ namespace Engine.Control
                     }
                     else if (ant.PlayerUnit.Unit.UnderConstruction)
                     {
-                        if (ant.PlayerUnit.Unit.Engine != null)
-                            NumberOfWorkers++;
+                        //if (ant.PlayerUnit.Unit.Engine != null)
+                        //    NumberOfWorkers++;
 
                         movableAnts.Add(ant);
                     }
