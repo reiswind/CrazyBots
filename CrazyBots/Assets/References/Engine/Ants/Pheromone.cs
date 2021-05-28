@@ -13,7 +13,8 @@ namespace Engine.Ants
         ToHome,
         ToFood,
         Enemy,
-        Energy
+        Energy,
+        AwayFromEnergy
     }
 
     public class Pheromones
@@ -278,25 +279,29 @@ namespace Engine.Ants
         }
         public float GetIntensityF(int playerId, PheromoneType pheromoneType)
         {
+            PheromoneType lookForThis = pheromoneType;
+            if (pheromoneType == PheromoneType.AwayFromEnergy)
+                lookForThis = PheromoneType.Energy;
+
             float intensity = 0;
 
             foreach (PheromoneItem pheromoneItem in PheromoneItems)
             {
                 if ((playerId == 0 || pheromoneItem.PlayerId == playerId) &&
-                    pheromoneItem.PheromoneType == pheromoneType)
+                    pheromoneItem.PheromoneType == lookForThis)
                 {
                     intensity += pheromoneItem.Intensity;
                 }
             }
             if (intensity > 1)
                 intensity = 1;
-            /*
-            if (pheromoneType == PheromoneType.ToFood)
-                return IntensityFood;
-            
-            if (pheromoneType == PheromoneType.ToHome)
-                return IntensityHome;
-            */
+
+            if (pheromoneType == PheromoneType.AwayFromEnergy)
+            {
+                intensity = 1 - intensity;
+                if (intensity < 0.1f)
+                    intensity = 0.1f;
+            }
             return intensity;
         }
 

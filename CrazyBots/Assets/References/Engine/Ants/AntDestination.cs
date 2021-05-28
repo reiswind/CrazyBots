@@ -18,7 +18,8 @@ namespace Engine.Ants
     {
         public Tile Tile { get; set; }
         public Pheromone Pheromone { get; set; }
-        public float pos_d { get; set; }
+        public float phem_d { get; set; }
+        public float Intensity { get; set; }
     }
 
 }

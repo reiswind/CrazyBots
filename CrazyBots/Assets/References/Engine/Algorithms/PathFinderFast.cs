@@ -321,7 +321,7 @@ namespace Engine.Algorithms
                             }
                         }
 
-                        if (!n.CanMoveTo())
+                        if (n.Pos != end && !n.CanMoveTo())
                         {
                             continue;
                         }

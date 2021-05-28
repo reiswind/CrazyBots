@@ -81,7 +81,7 @@ namespace Engine.Ants
             return Direction.C;
         }
 
-        private Tile GetNextPosition(Player player, Position pos, Direction direction, List<Move> moves)
+        private Tile GetNextPosition(Player player, Position pos, Direction direction)
         {
             Position next = null;
             if (direction == Direction.N)
@@ -219,12 +219,25 @@ namespace Engine.Ants
 
                 AntDestination antDestination = new AntDestination();
                 antDestination.Tile = t;
-                antDestination.pos_d = phem_d;
+                antDestination.phem_d = phem_d;
                 if (pheromoneType != PheromoneType.None)
                 {
                     antDestination.Pheromone = player.Game.Pheromones.FindAt(t.Pos);
-                    if (antDestination.Pheromone == null || antDestination.Pheromone.GetIntensityF(player.PlayerModel.Id, pheromoneType) == 0)
+                    if (antDestination.Pheromone == null)
                         return;
+
+                    float intensity = antDestination.Pheromone.GetIntensityF(player.PlayerModel.Id, pheromoneType);
+                    if (pheromoneType == PheromoneType.AwayFromEnergy)
+                    {
+                        if (intensity == 1)
+                            return;
+                    }
+                    else
+                    {
+                        if (intensity == 0)
+                            return;
+                    }
+                    antDestination.Intensity = intensity;
                 }
                 possibleTiles.Add(antDestination);
             }
@@ -284,7 +297,7 @@ namespace Engine.Ants
 
         private int SmellFoodCooldown;
 
-        private bool SmellFood(Player player, List<Move> moves)
+        private bool SmellFood(Player player)
         {
             if (SmellFoodCooldown > 0)
             {
@@ -386,14 +399,16 @@ namespace Engine.Ants
             return false;
         }
 
-        private AntDestination FindBest(Player player, List<AntDestination> possibleTiles, PheromoneType pheromoneType)
+        private AntDestination FindBest(Player player, List<AntDestination> possibleTiles) //, PheromoneType pheromoneType)
         {
             AntDestination moveToTile = null;
 
             float a, b;
-            if (pheromoneType == PheromoneType.ToHome) { a = 0.5f; b = 1.0f; }
-            else if (pheromoneType == PheromoneType.ToFood) { a = 0.5f; b = 0.8f; }
-            else { a = 0.5f; b = 0.8f; }
+            a = 0.5f; b = 0.8f;
+
+            //if (pheromoneType == PheromoneType.ToHome) { a = 0.5f; b = 1.0f; }
+            //else if (pheromoneType == PheromoneType.ToFood) { a = 0.5f; b = 0.8f; }
+            //else { a = 0.5f; b = 0.8f; }
 
             float best_str = 0.01f;     // Best pheromone strength
 
@@ -401,20 +416,17 @@ namespace Engine.Ants
             {
                 float phem_d = 0.01f;
                 if (destination.Pheromone != null)
-                    phem_d = destination.Pheromone.GetIntensityF(player.PlayerModel.Id, pheromoneType);
+                    phem_d = destination.Intensity; //.Pheromone.GetIntensityF(player.PlayerModel.Id, pheromoneType);
                 if (phem_d == 0)
                     phem_d = 0.01f;
 
-                float pos_d = destination.pos_d;
+                float pos_d = destination.phem_d;
 
                 // Formula for overall attractiveness
                 // Alpha is pheromone intensity, and Beta is direction factor
                 // Should have really wrote it somewhere else than source code
                 float trail_str;
-                if (pheromoneType == PheromoneType.None)
-                    trail_str = (phem_d * a) * (pos_d * b);
-                else
-                    trail_str = (phem_d * a) * (pos_d * b);
+                trail_str = (phem_d * a) * (pos_d * b);
 
                 // Compare, is it better than another directions ?
                 if (trail_str > best_str)
@@ -440,8 +452,41 @@ namespace Engine.Ants
             return moveToTile;
         }
 
+        private List<AntDestination> ComputePossibleTiles(Player player, List<Tile> tiles, PheromoneType pheromoneType)
+        {
+            List<Tile> copyOfTiles = new List<Tile>();
+            copyOfTiles.AddRange(tiles);
 
-        public bool Move(Player player, List<Move> moves, PheromoneType pheromoneType)
+            List<AntDestination> possibleTiles = new List<AntDestination>();
+
+            while (copyOfTiles.Count > 0)
+            {
+                int idx = player.Game.Random.Next(copyOfTiles.Count);
+                Tile t = copyOfTiles[idx];
+                AddDestination(possibleTiles, player, t, 0.6f, true, pheromoneType);
+                copyOfTiles.RemoveAt(idx);
+            }
+            return possibleTiles;
+        }
+
+        private List<Tile> MakeForwardTilesList(Player player, Unit cntrlUnit)
+        {
+            List<Tile> tiles = new List<Tile>();
+
+            Tile tileForward = GetNextPosition(player, cntrlUnit.Pos, cntrlUnit.Direction);
+            if (tileForward != null) tiles.Add(tileForward);
+
+            Tile tileLeft = GetNextPosition(player, cntrlUnit.Pos, TurnLeft(cntrlUnit.Direction));
+            if (tileLeft != null) tiles.Add(tileLeft);
+
+            Tile tileRight = GetNextPosition(player, cntrlUnit.Pos, TurnRight(cntrlUnit.Direction));
+            if (tileRight != null) tiles.Add(tileRight);
+
+            return tiles;
+        }
+
+
+        public bool MoveUnit(Player player, List<Move> moves)
         {
             if (MoveAttempts > 0)
             {
@@ -449,53 +494,160 @@ namespace Engine.Ants
             }
             Unit cntrlUnit = PlayerUnit.Unit;
 
-            Tile tileForward = GetNextPosition(player, cntrlUnit.Pos, cntrlUnit.Direction, moves);
-            Tile tileLeft = GetNextPosition(player, cntrlUnit.Pos, TurnLeft(cntrlUnit.Direction), moves);
-            Tile tileRight = GetNextPosition(player, cntrlUnit.Pos, TurnRight(cntrlUnit.Direction), moves);
-
-            /*
-            if (tileForward == null && tileLeft == null && tileRight == null)
+            // Follow trail if possible.
+            Position moveToPosition = null;
+            if (FollowThisRoute != null)
             {
-                cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
-                return true;
-            }*/
-
-            List<AntDestination> possibleTiles = new List<AntDestination>();
-            bool dropPheromone = true;
-
-            AddDestination(possibleTiles, player, tileForward, 0.6f, true, pheromoneType);
-            AddDestination(possibleTiles, player, tileLeft, 0.6f, true, pheromoneType);
-            AddDestination(possibleTiles, player, tileRight, 0.6f, true, pheromoneType);
-            if (possibleTiles.Count == 0 && StuckCounter > 0)
-            {
-                Tile tileHardRight;
-                Tile tileHardLeft;
-                tileHardRight = GetNextPosition(player, cntrlUnit.Pos, TurnRight(TurnRight(cntrlUnit.Direction)), moves);
-                AddDestination(possibleTiles, player, tileHardRight, 0.3f, true, pheromoneType);
-
-                tileHardLeft = GetNextPosition(player, cntrlUnit.Pos, TurnLeft(TurnLeft(cntrlUnit.Direction)), moves);
-                AddDestination(possibleTiles, player, tileHardLeft, 0.3f, true, pheromoneType);
-
-                tileHardLeft = GetNextPosition(player, cntrlUnit.Pos, TurnAround(cntrlUnit.Direction), moves);
-                AddDestination(possibleTiles, player, tileHardLeft, 0.1f, true, pheromoneType);
+                if (FollowThisRoute.Count == 0)
+                {
+                    FollowThisRoute = null;
+                }
+                else
+                {
+                    moveToPosition = FollowThisRoute[0];
+                    if (Control.IsOccupied(player, moves, moveToPosition))
+                    {
+                        moveToPosition = null;
+                        FollowThisRoute = null;
+                    }
+                    else
+                    {
+                        FollowThisRoute.RemoveAt(0);
+                        if (FollowThisRoute.Count == 0)
+                            FollowThisRoute = null;
+                    }
+                }
             }
 
-            AntDestination moveToTile = null;
-            while (possibleTiles.Count > 0 && moveToTile == null)
-            {
-                moveToTile = FindBest(player, possibleTiles, pheromoneType);
-                if (moveToTile == null)
-                    break;
 
+            List<Tile> tiles = MakeForwardTilesList(player, cntrlUnit);
+                /*
+            Tile tileForward = GetNextPosition(player, cntrlUnit.Pos, cntrlUnit.Direction, moves);
+            if (tileForward != null) tiles.Add(tileForward);
+
+            Tile tileLeft = GetNextPosition(player, cntrlUnit.Pos, TurnLeft(cntrlUnit.Direction), moves);
+            if (tileLeft != null) tiles.Add(tileLeft);
+
+            Tile tileRight = GetNextPosition(player, cntrlUnit.Pos, TurnRight(cntrlUnit.Direction), moves);
+            if (tileRight != null) tiles.Add(tileRight);
+                */
+            PheromoneType pheromoneType = PheromoneType.AwayFromEnergy;
+
+            // Minerals needed?
+            if (cntrlUnit.Weapon != null && !cntrlUnit.Weapon.WeaponLoaded)
+            {
+                pheromoneType = PheromoneType.ToFood;
+            }
+            else if (IsWorker)
+            {
+                if (cntrlUnit.Container != null && cntrlUnit.Container.Metal < cntrlUnit.Container.Capacity)
                 {
+                    // Fill up with food!
+                    pheromoneType = PheromoneType.ToFood;
+                }
+                else
+                {
+                    // Look for a target to unload
+                    pheromoneType = PheromoneType.ToHome;
+                }
+            }
+            else if (!IsWorker)
+            {
+                pheromoneType = PheromoneType.Enemy;
+            }
+
+            List<AntDestination> possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
+            if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.ToFood)
+            {
+                moveToPosition = Control.FindFood(player, this);
+                if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
+                {
+                    moveToPosition = null;
+                    FollowThisRoute = null;
+                }
+            }
+            if (IsWorker && possibleTiles.Count == 0 && pheromoneType == PheromoneType.ToHome)
+            {
+                moveToPosition = Control.FindContainer(player, this);
+                if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
+                {
+                    moveToPosition = null;
+                    FollowThisRoute = null;
+                }
+            }
+            if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.Enemy)
+            {
+                moveToPosition = Control.FindEnemy(player, this);
+                if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
+                {
+                    moveToPosition = null;
+                    FollowThisRoute = null;
+                }
+            }
+            if (moveToPosition == null)
+            {
+                if (possibleTiles.Count == 0 && pheromoneType != PheromoneType.AwayFromEnergy)
+                {
+                    // Fighter may try to move to border until food is found
+                    pheromoneType = PheromoneType.AwayFromEnergy;
+                    possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
+                }
+
+                
+                    /*
+                    if (possibleTiles.Count == 0 && StuckCounter > 0)
+                    {
+                        Tile tileHardRight;
+                        Tile tileHardLeft;
+                        tileHardRight = GetNextPosition(player, cntrlUnit.Pos, TurnRight(TurnRight(cntrlUnit.Direction)), moves);
+                        AddDestination(possibleTiles, player, tileHardRight, 0.3f, true, pheromoneType);
+
+                        tileHardLeft = GetNextPosition(player, cntrlUnit.Pos, TurnLeft(TurnLeft(cntrlUnit.Direction)), moves);
+                        AddDestination(possibleTiles, player, tileHardLeft, 0.3f, true, pheromoneType);
+
+                        tileHardLeft = GetNextPosition(player, cntrlUnit.Pos, TurnAround(cntrlUnit.Direction), moves);
+                        AddDestination(possibleTiles, player, tileHardLeft, 0.1f, true, pheromoneType);
+                    }*/
+
+                AntDestination moveToTile = null;
+                while (possibleTiles.Count > 0 && moveToTile == null)
+                {
+                    moveToTile = FindBest(player, possibleTiles);
+                    if (moveToTile == null)
+                        break;
+
                     if (Control.IsOccupied(player, moves, moveToTile.Tile.Pos))
                     {
                         possibleTiles.Remove(moveToTile);
                         moveToTile = null;
                     }
-                }                
+                }
+
+                if (moveToTile == null)
+                {
+                    if (pheromoneType == PheromoneType.AwayFromEnergy)
+                    {
+                        // out of reactor range
+                        moveToPosition = Control.FindReactor(player, this);
+                        if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
+                        {
+                            moveToPosition = null;
+                            FollowThisRoute = null;
+                        }
+                        else
+                        {
+                            cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
+                            return true;
+                        }
+                    }
+                }
+                else
+                {
+                    moveToPosition = moveToTile.Tile.Pos;
+                }
             }
 
+            /*
             if (moveToTile != null && StuckCounter > 2)
             {
                 // If it is really occupied
@@ -503,7 +655,7 @@ namespace Engine.Ants
                 {
                     moveToTile = null;
                 }
-            }
+            }*/
 
             /* Does not help
             if (moveToTile != null) // && ReturnHome)
@@ -524,6 +676,7 @@ namespace Engine.Ants
                 }
             }*/
 
+            /*
             if (moveToTile == null || StuckCounter > 2)
             {
                 // No pheromone found, move randomly
@@ -590,9 +743,9 @@ namespace Engine.Ants
                     }
                 }
             }
-            
-            
+            */
 
+            /*
             if (moveToTile != null)
             {
                 if (CheckHandover(moveToTile.Tile.Pos, moves))
@@ -603,10 +756,15 @@ namespace Engine.Ants
                 {
                     moveToTile = null;
                 }
+            }*/
+
+            if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
+            {
+                moveToPosition = null;
             }
 
             Move move = null;
-            if (moveToTile != null)
+            if (moveToPosition != null)
             {
                 move = new Move();
                 move.MoveType = MoveType.Move;
@@ -614,16 +772,17 @@ namespace Engine.Ants
                 move.PlayerId = player.PlayerModel.Id;
                 move.Positions = new List<Position>();
                 move.Positions.Add(cntrlUnit.Pos);
-                move.Positions.Add(moveToTile.Tile.Pos);
+                move.Positions.Add(moveToPosition);
                 moves.Add(move);
 
+                /*
                 if (dropPheromone && !NothingFound)
                 {
                     if (pheromoneType == PheromoneType.ToFood)
                         DropPheromone(player, PheromoneType.ToHome);
                     else if (pheromoneType == PheromoneType.ToHome)
                         DropPheromone(player, PheromoneType.ToFood);
-                }
+                }*/
             }
 
             return move != null;
@@ -739,6 +898,7 @@ namespace Engine.Ants
                 }
             }*/
 
+            /*
             if (!ReturnHome && Energy == 0)
             {
                 NothingFound = true;
@@ -746,8 +906,10 @@ namespace Engine.Ants
 
                 cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
             }
+            */
 
             // Check if reached
+            /*
             if (ReturnHome)
             {
                 if (IsCloseToFactory(player, 3))
@@ -788,12 +950,14 @@ namespace Engine.Ants
                                     //unitMoved = GoHome(player, moves, true);
                                     //if (unitMoved)
                                     //    return unitMoved;
-                                }*/
+                                } * /
                             }
                         }
                     }
                 }
-            }
+            }*/
+
+            /*
             if (ReturnHome)
             {
                 //GoHome(player, moves);
@@ -810,6 +974,7 @@ namespace Engine.Ants
                     cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
                 }
             }
+            */
 
             if (cntrlUnit.Weapon != null)
             {
@@ -836,7 +1001,6 @@ namespace Engine.Ants
 
                     Control.MineralsFound(player, move.Positions[1]);
 
-
                     unitMoved = true;
                     return unitMoved;
                 }
@@ -844,16 +1008,8 @@ namespace Engine.Ants
 
             if (cntrlUnit.Engine != null && cntrlUnit.UnderConstruction == false)
             {
-                if (ReturnHome)
-                {
-                    if (Move(player, moves, PheromoneType.ToHome))
-                        unitMoved = true;
-                }
-                else
-                {
-                    if (Move(player, moves, PheromoneType.ToFood))
-                        unitMoved = true;
-                }
+                if (MoveUnit(player, moves))
+                    unitMoved = true;
                 
             }
             return unitMoved;

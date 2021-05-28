@@ -40,6 +40,7 @@ namespace Engine.Ants
         public int PheromoneDepositNeedMinerals { get; set; }
         public int PheromoneDepositNeedMineralsLevel { get; set; }
 
+        public List<Position> FollowThisRoute { get; set; }
         public virtual bool Move(Player player, List<Move> moves)
         {
             return true;

@@ -26,7 +26,7 @@ namespace Engine.Control
         public Dictionary<Position, Ant> CreatedAnts = new Dictionary<Position, Ant>();
 
         public int MaxWorker = 5;
-        public int MaxFighter = 15;
+        public int MaxFighter = 5;
         public int NumberOfWorkers;
         public int NumberOfFighter;
 
@@ -261,6 +261,216 @@ namespace Engine.Control
             return occupied;
         }
 
+        public Position FindReactor(Player player, Ant antWorker)
+        {
+            List<Position> bestPositions = null;
+
+            foreach (Ant ant in Ants.Values)
+            {
+                if (ant.PlayerUnit.Unit.Reactor == null)
+                    continue;
+
+                // Distance at all
+                Position posFactory = ant.PlayerUnit.Unit.Pos;
+                double d = posFactory.GetDistanceTo(antWorker.PlayerUnit.Unit.Pos);
+                //if (d < 28)
+                {
+                    List<Position> positions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, posFactory, antWorker.PlayerUnit.Unit);
+                    if (positions != null)
+                    {
+                        if (bestPositions == null || bestPositions.Count > positions.Count)
+                        {
+                            bestPositions = positions;
+                        }
+                    }
+                }
+            }
+            if (bestPositions != null && bestPositions.Count > 1)
+            {
+                if (bestPositions.Count > 2)
+                {
+                    antWorker.FollowThisRoute = new List<Position>();
+                    for (int i = 2; i < 7 && i < bestPositions.Count-1; i++)
+                    {
+                        antWorker.FollowThisRoute.Add(bestPositions[i]);
+                    }
+                }
+                return bestPositions[1];
+            }
+            return null;
+        }
+
+        public Position FindContainer(Player player, Ant antWorker)
+        {
+            Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(antWorker.PlayerUnit.Unit.Pos, 3, false, matcher: tile =>
+            {
+                // If engine is not null, could be a friendly unit that needs refuel.
+                if (tile.Unit != null && 
+                    tile.Unit.Container != null &&
+                    tile.Unit.Engine == null &&
+                    tile.Unit.Container.Metal < tile.Unit.Container.Capacity)
+                    return true;
+                return false;
+            });
+
+            List<Position> bestPositions = null;
+
+            foreach (TileWithDistance t in tiles.Values)
+            {
+                List<Position> positions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, t.Pos, antWorker.PlayerUnit.Unit);
+                if (positions != null)
+                {
+                    bestPositions = positions;
+                    break;
+                }
+            }
+            if (bestPositions == null)
+            {                
+                foreach (Ant antFactory in Ants.Values)
+                {
+                    if (!(antFactory is AntFactory)) 
+                        continue;
+
+                    // Distance at all
+                    Position posFactory = antFactory.PlayerUnit.Unit.Pos; 
+                    double d = posFactory.GetDistanceTo(antWorker.PlayerUnit.Unit.Pos);
+                    if (d < 18)
+                    {
+                        List<Position> positions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, posFactory, antWorker.PlayerUnit.Unit);
+                        if (positions != null)
+                        {
+                            if (bestPositions == null || bestPositions.Count > positions.Count)
+                            {
+                                bestPositions = positions;
+                            }
+                        }
+                    }
+                }
+            }
+            if (bestPositions != null && bestPositions.Count > 1)
+            {
+                if (bestPositions.Count > 2)
+                {
+                    antWorker.FollowThisRoute = new List<Position>();
+                    for (int i = 2; i < 7 && i < bestPositions.Count - 1; i++)
+                    {
+                        antWorker.FollowThisRoute.Add(bestPositions[i]);
+                    }
+                }
+                return bestPositions[1];
+            }
+            return null;
+        }
+
+        public Position FindFood(Player player, Ant ant)
+        {
+            Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.Pos, 3, false, matcher: tile =>
+            {
+                if (tile.Metal > 0)
+                    return true;
+                return false;
+            });
+
+            List<Position> bestPositions = null;
+
+            foreach (TileWithDistance t in tiles.Values)
+            {
+                List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, t.Pos, ant.PlayerUnit.Unit);
+                if (positions != null)
+                {
+                    bestPositions = positions;
+                    break;
+                }
+            }
+            if (bestPositions == null)
+            {
+                foreach (Position pos in mineralsDeposits.Keys)
+                {
+                    // Distance at all
+                    double d = pos.GetDistanceTo(ant.PlayerUnit.Unit.Pos);
+                    if (d < 18)
+                    {
+                        List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, pos, ant.PlayerUnit.Unit);
+                        if (positions != null)
+                        {
+                            if (bestPositions == null || bestPositions.Count > positions.Count)
+                            {
+                                bestPositions = positions;
+                            }
+                        }
+                    }
+                }
+            }
+            if (bestPositions != null && bestPositions.Count > 1)
+            {
+                if (bestPositions.Count > 2)
+                {
+                    ant.FollowThisRoute = new List<Position>();
+                    for (int i=2; i < 7 && i < bestPositions.Count - 1; i++)
+                    {
+                        ant.FollowThisRoute.Add(bestPositions[i]);
+                    }
+                }
+                return bestPositions[1];
+            }
+            return null;
+        }
+
+        public Position FindEnemy(Player player, Ant ant)
+        {
+            Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.Pos, 3, false, matcher: tile =>
+            {
+                if (tile.Unit != null &&
+                    tile.Unit.Owner.PlayerModel.Id != player.PlayerModel.Id)
+                    return true;
+                return false;
+            });
+
+            List<Position> bestPositions = null;
+
+            foreach (TileWithDistance t in tiles.Values)
+            {
+                List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, t.Pos, ant.PlayerUnit.Unit);
+                if (positions != null)
+                {
+                    bestPositions = positions;
+                    break;
+                }
+            }
+            if (bestPositions == null)
+            {
+                foreach (Position pos in enemyDeposits.Keys)
+                {
+                    // Distance at all
+                    double d = pos.GetDistanceTo(ant.PlayerUnit.Unit.Pos);
+                    //if (d < 18)
+                    {
+                        List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, pos, ant.PlayerUnit.Unit);
+                        if (positions != null)
+                        {
+                            if (bestPositions == null || bestPositions.Count > positions.Count)
+                            {
+                                bestPositions = positions;
+                            }
+                        }
+                    }
+                }
+            }
+            if (bestPositions != null && bestPositions.Count > 1)
+            {
+                if (bestPositions.Count > 2)
+                {
+                    ant.FollowThisRoute = new List<Position>();
+                    for (int i = 2; i < 7 && i < bestPositions.Count - 1; i++)
+                    {
+                        ant.FollowThisRoute.Add(bestPositions[i]);
+                    }
+                }
+                return bestPositions[1];
+            }
+            return null;
+        }
+
         private static int moveNr;
 
         public List<Move> Turn(Player player)
@@ -407,7 +617,7 @@ namespace Engine.Control
                             }
                             else
                             {
-                                ant.PlayerUnit.Unit.Reactor.Power -= 0.01f;
+                                //ant.PlayerUnit.Unit.Reactor.Power -= 0.01f;
                                 player.Game.Pheromones.UpdatePheromones(ant.PheromoneDepositEnergy, ant.PlayerUnit.Unit.Reactor.Power);
                             }
                         }
