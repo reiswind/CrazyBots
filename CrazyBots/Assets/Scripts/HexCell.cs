@@ -17,6 +17,8 @@ public class HexCell
     private static GameObject markerPrefab;
     private GameObject markerEnergy;
     private GameObject markerToHome;
+    private GameObject markerToMineral;
+    private GameObject markerToEnemy;
 
     public HexCell()
     {
@@ -36,6 +38,14 @@ public class HexCell
             { 
                 markerToHome.transform.position = Cell.transform.position;
             }
+            if (markerToMineral != null)
+            {
+                markerToMineral.transform.position = Cell.transform.position;
+            }
+            if (markerToEnemy != null)
+            {
+                markerToEnemy.transform.position = Cell.transform.position;
+            }
         }
         else
         {
@@ -49,7 +59,17 @@ public class HexCell
                 markerToHome = HexGrid.Instantiate(markerPrefab, Cell.transform, false);
                 markerToHome.name = Cell.name + "-Home";
                 MeshRenderer meshRenderer = markerToHome.GetComponent<MeshRenderer>();
-                meshRenderer.material.color = new Color(0, 0, 0.4f);
+                meshRenderer.material.color = new Color(0, 0, 0.6f);
+
+                markerToMineral = HexGrid.Instantiate(markerPrefab, Cell.transform, false);
+                markerToMineral.name = Cell.name + "-Mineral";
+                meshRenderer = markerToMineral.GetComponent<MeshRenderer>();
+                meshRenderer.material.color = new Color(0, 0.4f, 0);
+
+                markerToEnemy = HexGrid.Instantiate(markerPrefab, Cell.transform, false);
+                markerToEnemy.name = Cell.name + "-Mineral";
+                meshRenderer = markerToEnemy.GetComponent<MeshRenderer>();
+                meshRenderer.material.color = new Color(0.4f, 0, 0);
             }
 
             if (mapPheromone.IntensityToHome > 0)
@@ -65,6 +85,36 @@ public class HexCell
                 position.y -= 1;
                 position.x += 0.1f;
                 markerToHome.transform.position = position;
+            }
+
+            if (mapPheromone.IntensityToMineral > 0)
+            {
+                Vector3 position = Cell.transform.position;
+                position.y += 0.054f + (0.2f * mapPheromone.IntensityToMineral);
+                position.x += 0.2f;
+                markerToMineral.transform.position = position;
+            }
+            else
+            {
+                Vector3 position = Cell.transform.position;
+                position.y -= 1;
+                position.x += 0.2f;
+                markerToMineral.transform.position = position;
+            }
+
+            if (mapPheromone.IntensityToEnemy > 0)
+            {
+                Vector3 position = Cell.transform.position;
+                position.y += 0.054f + (0.2f * mapPheromone.IntensityToEnemy);
+                position.x += 0.3f;
+                markerToEnemy.transform.position = position;
+            }
+            else
+            {
+                Vector3 position = Cell.transform.position;
+                position.y -= 1;
+                position.x += 0.3f;
+                markerToEnemy.transform.position = position;
             }
 
             float highestEnergy = -1;

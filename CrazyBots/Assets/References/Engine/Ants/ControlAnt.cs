@@ -131,6 +131,38 @@ namespace Engine.Control
             return false;
         }
 
+        private Dictionary<Position, int> mineralsDeposits = new Dictionary<Position, int>();
+
+        private Dictionary<Position, int> enemyDeposits = new Dictionary<Position, int>();
+
+        public void EnemyFound(Player player, Position pos)
+        {
+            if (enemyDeposits.ContainsKey(pos))
+            {
+                // Update
+                player.Game.Pheromones.UpdatePheromones(enemyDeposits[pos], 1);
+            }
+            else
+            {
+                int id = player.Game.Pheromones.DropPheromones(player, pos, 3, PheromoneType.Enemy, 1, false);
+                enemyDeposits.Add(pos, id);
+            }
+        }
+
+        public void MineralsFound(Player player, Position pos)
+        {
+            if (mineralsDeposits.ContainsKey(pos))
+            {
+                // Update
+                player.Game.Pheromones.UpdatePheromones(mineralsDeposits[pos], 1);
+            }
+            else
+            {
+                int id = player.Game.Pheromones.DropPheromones(player, pos, 3, PheromoneType.ToFood, 1, false);
+                mineralsDeposits.Add(pos, id);
+            }
+        }
+
         private void UpdateContainerDeposits(Player player, Ant ant)
         {
             if (ant.PlayerUnit.Unit.Container != null &&
@@ -149,7 +181,7 @@ namespace Engine.Control
                     int range = 2;
                     if (ant.PlayerUnit.Unit.Container.Level == 2)
                         range = 3;
-                    if (ant.PlayerUnit.Unit.Container.Level == 3)
+                    else if (ant.PlayerUnit.Unit.Container.Level == 3)
                         range = 4;
 
                     ant.PheromoneDepositNeedMineralsLevel = ant.PlayerUnit.Unit.Container.Level;
@@ -256,6 +288,30 @@ namespace Engine.Control
                 //player.Commands.Add();
             }
 
+            // Remove all spotted enemys
+            foreach (int id in enemyDeposits.Values)
+            {
+                player.Game.Pheromones.DeletePheromones(id);
+            }
+            enemyDeposits.Clear();
+
+            // Update spotted minerals
+            List<Position> removeSpottedMinerals = new List<Position>();
+            foreach (Position pos in mineralsDeposits.Keys)
+            {
+                Tile t = player.Game.Map.GetTile(pos);
+                if (t.Metal == 0)
+                {
+                    removeSpottedMinerals.Add(pos);
+                }
+            }
+            foreach (Position pos in removeSpottedMinerals)
+            {
+                player.Game.Pheromones.DeletePheromones(mineralsDeposits[pos]);
+                mineralsDeposits.Remove(pos);
+            }
+            enemyDeposits.Clear();
+
             foreach (Ant ant in Ants.Values)
             {
                 ant.MoveAttempts = 0;
@@ -303,6 +359,10 @@ namespace Engine.Control
                             }*/
                         }
                     }
+                }
+                else
+                {
+                    EnemyFound(player, cntrlUnit.Pos);
                 }
             }
 

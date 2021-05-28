@@ -831,7 +831,12 @@ namespace Engine.Ants
                 if (possiblemoves.Count > 0)
                 {
                     int idx = player.Game.Random.Next(possiblemoves.Count);
-                    moves.Add(possiblemoves[idx]);
+                    Move move = possiblemoves[idx];
+                    moves.Add(move);
+
+                    Control.MineralsFound(player, move.Positions[1]);
+
+
                     unitMoved = true;
                     return unitMoved;
                 }

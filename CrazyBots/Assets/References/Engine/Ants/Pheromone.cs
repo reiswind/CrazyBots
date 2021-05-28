@@ -139,6 +139,8 @@ namespace Engine.Ants
                 float totaldistance = range - tileWithDistance.Distance;
                 float distance = (totaldistance * 100) / range / 100;
 
+                float relativIntensity = distance * intensity;
+
                 PheromoneStackItem pheromoneStackItem = new PheromoneStackItem();
 
                 Pheromone pheromone;
@@ -152,7 +154,7 @@ namespace Engine.Ants
 
                 pheromoneStackItem.Pheromone = pheromone;
                 pheromoneStackItem.Distance = distance;
-                pheromoneStackItem.PheromoneItem = pheromone.Deposit(player.PlayerModel.Id, intensity, pheromoneType, isStatic);
+                pheromoneStackItem.PheromoneItem = pheromone.Deposit(player.PlayerModel.Id, relativIntensity, pheromoneType, isStatic);
 
                 pheromoneStack.PheromoneItems.Add(pheromoneStackItem);
             }
