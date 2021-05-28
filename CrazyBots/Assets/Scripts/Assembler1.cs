@@ -47,6 +47,7 @@ public class Assembler1 : MonoBehaviour
             particleSource.externalForces.SetInfluence(0, particleTarget);
             HexGrid.Destroy(particleTarget, 2.5f);
 
+            particleSource.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             var main = particleSource.main;
             main.duration = particleSource.main.duration * UnitFrame.HexGrid.GameSpeed;
 

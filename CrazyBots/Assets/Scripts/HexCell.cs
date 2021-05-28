@@ -25,7 +25,7 @@ public class HexCell
     internal void Update(MapPheromone mapPheromone)
     {
         
-        pheromaterial.color = Random.ColorHSV();
+        //pheromaterial.color = Random.ColorHSV();
         /*
         for (int i = 0; i < meshRenderer.materials.Length; i++)
         {
