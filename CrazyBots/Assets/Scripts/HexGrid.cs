@@ -273,16 +273,29 @@ public class HexGrid : MonoBehaviour
 		windowClosed = true;
     }
 
+	private List<Position> updatedPositions = new List<Position>();
+
 	void invoke()
 	{
 		if (WaitForTurn.WaitOne(10))
 		{
+			List<Position> newUpdatedPositions = new List<Position>();
+
 			foreach (Position pos in MapInfo.Pheromones.Keys)
 			{
 				MapPheromone mapPheromone = MapInfo.Pheromones[pos];
 				HexCell hexCell = GroundCells[pos];
 				hexCell.Update(mapPheromone);
+
+				newUpdatedPositions.Add(pos);
+				updatedPositions.Remove(pos);
 			}
+			foreach (Position pos in updatedPositions)
+            {
+				HexCell hexCell = GroundCells[pos];
+				hexCell.Update(null);
+			}
+			updatedPositions = newUpdatedPositions;
 
 			// 
 			foreach (MapPlayerInfo mapPlayerInfo in MapInfo.PlayerInfo.Values)
@@ -495,7 +508,7 @@ public class HexGrid : MonoBehaviour
 		{
 			materialName = "Materials/DarkWood";
 			tileY = 0.9f;
-			cell.NumberOfSmallTrees = 0;
+			cell.NumberOfSmallTrees = 1;
 		}
 		else if (height > 0.47 && height <= 0.50)
 		{

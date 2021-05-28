@@ -39,7 +39,7 @@ namespace Engine.Ants
             Items.Add(pheromone.Pos, pheromone);
         }
 
-        public void Deposit(Player player, Position pos, PheromoneType pheromoneType, float intensity, bool isStatic)
+        public PheromoneItem Deposit(Player player, Position pos, PheromoneType pheromoneType, float intensity, bool isStatic)
         {
             Pheromone pheromone;
 
@@ -53,8 +53,7 @@ namespace Engine.Ants
             {
                 pheromone = Items[pos];
             }
-            pheromone.Deposit(player.PlayerModel.Id, intensity, pheromoneType, isStatic);
-
+            return pheromone.Deposit(player.PlayerModel.Id, intensity, pheromoneType, isStatic);
         }
 
         public Pheromone FindAt(Position pos)
@@ -94,19 +93,71 @@ namespace Engine.Ants
             }
         }
 
-        public void DropStaticPheromones(Player player, Position pos, int range, PheromoneType pheromoneType)
+        private Dictionary<int, PheromoneStack> pheromoneStacks = new Dictionary<int, PheromoneStack>();
+
+        public void DeletePheromones(int id)
         {
+            PheromoneStack pheromoneStack = pheromoneStacks[id];
+            foreach (PheromoneStackItem pheromoneStackItem in pheromoneStack.PheromoneItems)
+            {
+                Pheromone pheromone = pheromoneStackItem.Pheromone;
+                pheromone.PheromoneItems.Remove(pheromoneStackItem.PheromoneItem);
+                if (pheromone.PheromoneItems.Count == 0)
+                {
+                    Items.Remove(pheromone.Pos);
+                }                
+            }
+            pheromoneStacks.Remove(id);
+        }
+
+        public void UpdatePheromones(int id, float intensity)
+        {
+            PheromoneStack pheromoneStack = pheromoneStacks[id];
+            foreach (PheromoneStackItem pheromoneStackItem in pheromoneStack.PheromoneItems)
+            {
+                float relativIntensity = pheromoneStackItem.Distance * intensity;
+                if (relativIntensity > 1)
+                    relativIntensity = 1;
+                if (relativIntensity < 0)
+                    relativIntensity = 0;
+                pheromoneStackItem.PheromoneItem.Intensity = relativIntensity;
+            }
+        }
+
+        public int DropPheromones(Player player, Position pos, int range, PheromoneType pheromoneType, float intensity, bool isStatic)
+        {
+            PheromoneStack pheromoneStack = new PheromoneStack();
+
+            PheromoneStack.pheromoneStackCounter++;
+            int counter = PheromoneStack.pheromoneStackCounter;
+            pheromoneStacks.Add(counter, pheromoneStack);
+
             Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(pos, range, false);
 
             foreach (TileWithDistance tileWithDistance in tiles.Values)
             {
-                float distance = range - tileWithDistance.Distance;
-                float intensity = (distance * 100) / range / 100;
+                float totaldistance = range - tileWithDistance.Distance;
+                float distance = (totaldistance * 100) / range / 100;
 
-                //float intensity = 1f / (tileWithDistance.Distance) * (2f - tileWithDistance.Distance / 10f);
+                PheromoneStackItem pheromoneStackItem = new PheromoneStackItem();
 
-                Deposit(player, tileWithDistance.Pos, pheromoneType, intensity, true);
+                Pheromone pheromone;
+                pheromone = FindAt(tileWithDistance.Pos);
+                if (pheromone == null)
+                {
+                    pheromone = new Pheromone();
+                    pheromone.Pos = tileWithDistance.Pos;
+                    player.Game.Pheromones.Add(pheromone);
+                }
+
+                pheromoneStackItem.Pheromone = pheromone;
+                pheromoneStackItem.Distance = distance;
+                pheromoneStackItem.PheromoneItem = pheromone.Deposit(player.PlayerModel.Id, intensity, pheromoneType, isStatic);
+
+                pheromoneStack.PheromoneItems.Add(pheromoneStackItem);
             }
+
+            return counter;
          }
 
         public void Evaporate()
@@ -128,6 +179,28 @@ namespace Engine.Ants
         }
     }
 
+
+    public class PheromoneStack
+    {
+        public PheromoneStack()
+        {
+            PheromoneItems = new List<PheromoneStackItem>();
+        }
+        public static int pheromoneStackCounter;
+
+        public List<PheromoneStackItem> PheromoneItems { get; private set; }
+
+    }
+
+    public class PheromoneStackItem
+    {
+        public float Distance { get; set; }
+        public Pheromone Pheromone { get; set; }
+        public PheromoneItem PheromoneItem { get; set; }
+    }
+
+
+
     public class PheromoneItem
     {
         public int PlayerId { get; set; }
@@ -139,7 +212,9 @@ namespace Engine.Ants
         {
             if (!IsStatic)
             {
-                if (PheromoneType == PheromoneType.ToFood)
+                if (PheromoneType == PheromoneType.Energy)
+                    Intensity -= Intensity * 0.1f;
+                else if (PheromoneType == PheromoneType.ToFood)
                     Intensity -= Intensity * 0.02f;
                 else if (PheromoneType == PheromoneType.ToHome)
                     Intensity -= Intensity * 0.05f; // FOOD_TRAIL_FORGET_RATE
@@ -175,7 +250,7 @@ namespace Engine.Ants
             PheromoneItems = new List<PheromoneItem>();
         }
 
-        public void Deposit(int playerId, float intensity, PheromoneType pheromoneType, bool isStatic)
+        public PheromoneItem Deposit(int playerId, float intensity, PheromoneType pheromoneType, bool isStatic)
         {
             PheromoneItem pheromoneItem = new PheromoneItem();
             pheromoneItem.PlayerId = playerId;
@@ -197,6 +272,7 @@ namespace Engine.Ants
                 if (IntensityFood > 1)
                     IntensityFood = 1;
             }*/
+            return pheromoneItem;
         }
         public float GetIntensityF(int playerId, PheromoneType pheromoneType)
         {
@@ -204,7 +280,7 @@ namespace Engine.Ants
 
             foreach (PheromoneItem pheromoneItem in PheromoneItems)
             {
-                if (pheromoneItem.PlayerId == playerId &&
+                if ((playerId == 0 || pheromoneItem.PlayerId == playerId) &&
                     pheromoneItem.PheromoneType == pheromoneType)
                 {
                     intensity += pheromoneItem.Intensity;

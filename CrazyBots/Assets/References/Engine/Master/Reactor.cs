@@ -8,6 +8,8 @@ namespace Engine.Master
 {
     public class Reactor : Ability
     {
+        public float Power { get; set; }
+
         public int Level { get; set; }
 
         public Reactor(Unit owner, int level) : base(owner)

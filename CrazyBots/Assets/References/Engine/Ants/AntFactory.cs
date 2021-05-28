@@ -77,18 +77,10 @@ namespace Engine.Ants
                 if (cntrlUnit.Container != null && cntrlUnit.Container.Metal >= cntrlUnit.Container.Capacity)
                     addContainer = true;
             }
-            
-            //if (everyOutTileOccupied)
-            //    cntrlUnit.ExtractMe = true;
 
-
-            /*
-            if (cntrlUnit.Container != null && cntrlUnit.Container.Metal >= cntrlUnit.Container.Capacity)
-            {
-                // Max reach.
-                addContainer = true;
-            }*/
-
+            bool addWorker = false;
+            if (Control.NumberOfWorkers < Control.MaxWorker)
+                addWorker = true;
 
             if (cntrlUnit.Assembler != null)
             {
@@ -186,6 +178,7 @@ namespace Engine.Ants
                             else
                             {
                                 // Build a Worker
+                                /*
                                 if (constructedUnit.Unit.Engine != null)
                                 {
                                     if (possibleMove.UnitId == "Extractor")
@@ -218,7 +211,7 @@ namespace Engine.Ants
                                         unitMoved = true;
                                         break;
                                     }
-                                }
+                                }*/
                             }
 
                         }
@@ -249,10 +242,12 @@ namespace Engine.Ants
                                             possibleMoves.Add(possibleMove);
                                         }
                                     }
-                                    else if (possibleMove.UnitId == "Engine")
+                                    else if (addWorker)
                                     {
-                                        if (Control.NumberOfWorkers < Control.MaxWorker)
+                                        if (possibleMove.UnitId == "Engine")
+                                        {
                                             possibleMoves.Add(possibleMove);
+                                        }
                                     }
                                 }
                                 if (possibleMoves.Count > 0)
@@ -265,6 +260,13 @@ namespace Engine.Ants
                                     {
                                         AntContainer antContainer = new AntContainer(Control);
                                         Control.CreatedAnts.Add(move.Positions[1], antContainer);
+                                    }
+                                    else if (addWorker)
+                                    {
+                                        AntWorker antWorker = new AntWorker(Control);
+                                        antWorker.IsWorker = true;
+                                        Control.NumberOfWorkers++;
+                                        Control.CreatedAnts.Add(move.Positions[1], antWorker);
                                     }
 
                                     unitMoved = true;

@@ -39,6 +39,7 @@ namespace Engine.Interface
             PheromoneItems = new List<MapPheromoneItem>();
         }
         public Position Pos { get; set; }
+        public float IntensityToHome { get; set; }
         public List<MapPheromoneItem> PheromoneItems { get; private set; }
     }
 
@@ -60,6 +61,8 @@ namespace Engine.Interface
             {
                 MapPheromone mapPheromone = new MapPheromone();
                 mapPheromone.Pos = pheromone.Pos;
+
+                mapPheromone.IntensityToHome = pheromone.GetIntensityF(0, PheromoneType.ToHome);
 
                 foreach (PheromoneItem pheromoneItem in pheromone.PheromoneItems)
                 {

@@ -11,11 +11,12 @@ namespace Engine.Ants
 {
     internal class AntWorker : Ant
     {
+        public bool IsWorker { get; set; }
         public bool ReturnHome { get; set; }
         public bool NothingFound { get; set; }
         public bool GotLostNoWayHome { get; set; }
 
-        public AntWorker(ControlAnt control, PlayerUnit playerUnit) : base(control, playerUnit)
+        public AntWorker(ControlAnt control) : base(control)
         {
 
         }

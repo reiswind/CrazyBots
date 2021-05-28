@@ -25,7 +25,7 @@ namespace Engine.Control
 
         public Dictionary<Position, Ant> CreatedAnts = new Dictionary<Position, Ant>();
 
-        public int MaxWorker = 25;
+        public int MaxWorker = 5;
         public int NumberOfWorkers;
 
         public ControlAnt(IGameController gameController, PlayerModel playerModel, GameModel gameModel)
@@ -131,6 +131,46 @@ namespace Engine.Control
             return false;
         }
 
+        private void UpdateContainerDeposits(Player player, Ant ant)
+        {
+            if (ant.PlayerUnit.Unit.Container != null &&
+                ant.PlayerUnit.Unit.Engine == null &&
+                ant.PlayerUnit.Unit.Container.Metal < ant.PlayerUnit.Unit.Container.Capacity)
+            {
+                // Standing containers
+                if (ant.PheromoneDepositNeedMinerals != 0 &&
+                    ant.PheromoneDepositNeedMineralsLevel != ant.PlayerUnit.Unit.Container.Level)
+                {
+                    player.Game.Pheromones.DeletePheromones(ant.PheromoneDepositNeedMinerals);
+                    ant.PheromoneDepositNeedMinerals = 0;
+                }
+                if (ant.PheromoneDepositNeedMinerals == 0)
+                {
+                    int range = 2;
+                    if (ant.PlayerUnit.Unit.Container.Level == 2)
+                        range = 3;
+                    if (ant.PlayerUnit.Unit.Container.Level == 3)
+                        range = 4;
+
+                    ant.PheromoneDepositNeedMineralsLevel = ant.PlayerUnit.Unit.Container.Level;
+                    int intensity = (ant.PlayerUnit.Unit.Container.Metal * 100 / ant.PlayerUnit.Unit.Container.Capacity) / 100;
+                    ant.PheromoneDepositNeedMinerals = player.Game.Pheromones.DropPheromones(player, ant.PlayerUnit.Unit.Pos, range, PheromoneType.ToHome, 1, true);
+                }
+                else
+                {
+                    int intensity = (ant.PlayerUnit.Unit.Container.Metal * 100 / ant.PlayerUnit.Unit.Container.Capacity) / 100;
+                    player.Game.Pheromones.UpdatePheromones(ant.PheromoneDepositNeedMinerals, 1);
+                }
+            }
+            if (ant.PheromoneDepositNeedMinerals != 0 &&
+                (ant.PlayerUnit.Unit.Container == null || ant.PlayerUnit.Unit.Container.Metal >= ant.PlayerUnit.Unit.Container.Capacity))
+            {
+                // Exits no longer. Remove deposit.
+                player.Game.Pheromones.DeletePheromones(ant.PheromoneDepositNeedMinerals);
+                ant.PheromoneDepositNeedMinerals = 0;
+            }
+        }
+
         public bool IsOccupied(Player player, List<Move> moves, Position destination)
         {
             bool occupied = false;
@@ -197,7 +237,7 @@ namespace Engine.Control
 
             }
 
-            player.Game.Pheromones.RemoveAllStaticPheromones(player, PheromoneType.Energy);
+            //player.Game.Pheromones.RemoveAllStaticPheromones(player, PheromoneType.Energy);
 
             player.Game.Pheromones.Evaporate();
 
@@ -254,12 +294,13 @@ namespace Engine.Control
 
                                 //Pheromones.DropStaticPheromones(player, cntrlUnit.Pos, 20, PheromoneType.ToHome);
                             }
+                            /*
                             else if (playerUnit.Unit.Engine != null)
                             {
                                 AntWorker antWorker = new AntWorker(this, playerUnit);
                                 antWorker.Alive = true;
                                 Ants.Add(cntrlUnit.UnitId, antWorker);
-                            }
+                            }*/
                         }
                     }
                 }
@@ -281,15 +322,30 @@ namespace Engine.Control
                 }
                 else
                 {
-                    if (ant.PlayerUnit.Unit.Reactor != null)
-                    {
-                        player.Game.Pheromones.DropStaticPheromones(player, ant.PlayerUnit.Unit.Pos, 20, PheromoneType.Energy);
-                    }
                     if (ant.PlayerUnit.Unit.IsComplete())
                     {
-                        if (ant is AntWorker)
-                            NumberOfWorkers++;
+                        AntWorker antWorker = ant as AntWorker;
+                        if (antWorker != null)
+                        {
+                            if (antWorker.IsWorker)
+                                NumberOfWorkers++;
+                        }
 
+                        UpdateContainerDeposits(player, ant);
+
+                        if (ant.PlayerUnit.Unit.Reactor != null)
+                        {
+                            if (ant.PheromoneDepositEnergy == 0)
+                            {
+                                ant.PlayerUnit.Unit.Reactor.Power = 1;
+                                ant.PheromoneDepositEnergy = player.Game.Pheromones.DropPheromones(player, ant.PlayerUnit.Unit.Pos, 20, PheromoneType.Energy, ant.PlayerUnit.Unit.Reactor.Power, true);
+                            }
+                            else
+                            {
+                                ant.PlayerUnit.Unit.Reactor.Power -= 0.01f;
+                                player.Game.Pheromones.UpdatePheromones(ant.PheromoneDepositEnergy, ant.PlayerUnit.Unit.Reactor.Power);
+                            }
+                        }
                         movableAnts.Add(ant);
                     }
                     else if (ant.PlayerUnit.Unit.UnderConstruction)

@@ -15,7 +15,8 @@ public class HexCell
     internal int NumberOfSmallTrees;
 
     private static GameObject markerPrefab;
-    private GameObject markerToEnergy;
+    private GameObject markerEnergy;
+    private GameObject markerToHome;
 
     public HexCell()
     {
@@ -25,55 +26,76 @@ public class HexCell
 
     internal void Update(MapPheromone mapPheromone)
     {
-        if (markerToEnergy == null)
+        if (mapPheromone == null)
         {
-            if (markerPrefab == null)
-                markerPrefab = Resources.Load<GameObject>("Prefabs/Terrain/Marker");
-            markerToEnergy = HexGrid.Instantiate(markerPrefab, Cell.transform, false);
-            markerToEnergy.name = Cell.name + "-Energy";
-            //MeshRenderer meshRenderer = markerToEnergy.GetComponent<MeshRenderer>();
-            //meshRenderer.material.color = Color.red;
-        }
-
-        float highestEnergy = 0;
-        int highestPlayerId = 0;
-
-        foreach (MapPheromoneItem mapPheromoneItem in mapPheromone.PheromoneItems)
-        {
-            if (mapPheromoneItem.PheromoneType == Engine.Ants.PheromoneType.Energy)
+            if (markerEnergy != null)
             {
-                if (mapPheromoneItem.Intensity > highestEnergy)
-                {
-                    highestEnergy = mapPheromoneItem.Intensity;
-                    highestPlayerId = mapPheromoneItem.PlayerId;
-                }
+                markerEnergy.transform.position = Cell.transform.position;
             }
-            if (highestEnergy > 0)
-            {
-                Vector3 position = markerToEnergy.transform.position;
-                position.y = HexGrid.hexCellHeight + 0.052f + (0.2f * highestEnergy);
-                markerToEnergy.transform.position = position;
-
-                UnitFrame.SetPlayerColor(highestPlayerId, markerToEnergy);
+            if (markerToHome != null)
+            { 
+                markerToHome.transform.position = Cell.transform.position;
             }
         }
-
-        //pheromaterial.color = Random.ColorHSV();
-        /*
-        for (int i = 0; i < meshRenderer.materials.Length; i++)
+        else
         {
-            Material material = meshRenderer.materials[i];
-            if (material.name.StartsWith("Player"))
+            if (markerEnergy == null)
             {
-                material.color = Color.red;
+                if (markerPrefab == null)
+                    markerPrefab = Resources.Load<GameObject>("Prefabs/Terrain/Marker");
+                markerEnergy = HexGrid.Instantiate(markerPrefab, Cell.transform, false);
+                markerEnergy.name = Cell.name + "-Energy";
 
+                markerToHome = HexGrid.Instantiate(markerPrefab, Cell.transform, false);
+                markerToHome.name = Cell.name + "-Home";
+                MeshRenderer meshRenderer = markerToHome.GetComponent<MeshRenderer>();
+                meshRenderer.material.color = new Color(0, 0, 0.4f);
+            }
+
+            if (mapPheromone.IntensityToHome > 0)
+            {
+                Vector3 position = Cell.transform.position;
+                position.y += 0.054f + (0.2f * mapPheromone.IntensityToHome);
+                position.x += 0.1f;
+                markerToHome.transform.position = position;
             }
             else
             {
-                //newMaterials[i] = material;
+                Vector3 position = Cell.transform.position;
+                position.y -= 1;
+                position.x += 0.1f;
+                markerToHome.transform.position = position;
+            }
+
+            float highestEnergy = -1;
+            int highestPlayerId = 0;
+
+            foreach (MapPheromoneItem mapPheromoneItem in mapPheromone.PheromoneItems)
+            {
+                if (mapPheromoneItem.PheromoneType == Engine.Ants.PheromoneType.Energy)
+                {
+                    if (mapPheromoneItem.Intensity >= highestEnergy)
+                    {
+                        highestEnergy = mapPheromoneItem.Intensity;
+                        highestPlayerId = mapPheromoneItem.PlayerId;
+                    }
+                }
+            }
+            //highestEnergy = 0;
+            if (highestEnergy > 0)
+            {
+                Vector3 position = Cell.transform.position;
+                position.y += 0.054f + (0.2f * highestEnergy);
+                markerEnergy.transform.position = position;
+                UnitFrame.SetPlayerColor(highestPlayerId, markerEnergy);                
+            }
+            else
+            {
+                Vector3 position = Cell.transform.position;
+                position.y -= 1;
+                markerEnergy.transform.position = position;
             }
         }
-        */
     }
 
     internal void UpdateGround()

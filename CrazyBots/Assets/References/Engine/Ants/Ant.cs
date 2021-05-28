@@ -36,6 +36,10 @@ namespace Engine.Ants
         public PlayerUnit PlayerUnit { get; set; }
         public ControlAnt Control { get; set; }
 
+        public int PheromoneDepositEnergy { get; set; }
+        public int PheromoneDepositNeedMinerals { get; set; }
+        public int PheromoneDepositNeedMineralsLevel { get; set; }
+
         public virtual bool Move(Player player, List<Move> moves)
         {
             return true;
