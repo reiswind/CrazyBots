@@ -316,12 +316,26 @@ public class HexGrid : MonoBehaviour
 			{
 				if (move.MoveType == MoveType.Add)
 				{
-					CreateUnit(move);
+					if (Units.ContainsKey(move.UnitId))
+					{
+						// Happend in player view
+					}
+					else
+					{
+						CreateUnit(move);
+					}
 				}
 				else if (move.MoveType == MoveType.UpdateStats)
 				{
-					UnitFrame unit = Units[move.UnitId];
-					unit.UpdateStats(move.Stats);
+					if (Units.ContainsKey(move.UnitId))
+					{
+						UnitFrame unit = Units[move.UnitId];
+						unit.UpdateStats(move.Stats);
+					}
+					else
+					{
+						// Happend in player view
+					}
 				}
 				else if (move.MoveType == MoveType.Move || 
 					     move.MoveType == MoveType.Extract ||
@@ -412,9 +426,6 @@ public class HexGrid : MonoBehaviour
 			unit.currentPos = move.Positions[0];
 		}
 		unit.Assemble();
-
-		
-
 		Units.Add(move.UnitId, unit);
 
 		/*
