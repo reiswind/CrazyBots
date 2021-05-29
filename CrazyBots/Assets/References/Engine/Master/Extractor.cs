@@ -236,7 +236,8 @@ namespace Engine.Master
         {
             get
             {
-                if (Unit.Metal > 0)
+                
+                //if (Unit.Metal > 0)
                 {
                     if (Unit.Container == null || Unit.Container.Metal >= Unit.Container.Capacity)
                     {
@@ -312,11 +313,12 @@ namespace Engine.Master
                                 fromTile.Unit.Container.Metal -= metalRemoved;
                             }
 
+                            /*
                             if (fromTile.Unit.Metal > 0)
                             {
                                 metalRemoved += fromTile.Unit.Metal;
                                 fromTile.Unit.Metal = 0;
-                            }
+                            }*/
 
                             if (fromTile.Unit.Container.Metal < 0)
                             {
@@ -357,13 +359,13 @@ namespace Engine.Master
                     {
                         Unit targetUnit = fromTile.Unit;
 
-                        if (targetUnit.Metal > 0)
+                        /*if (targetUnit.Metal > 0)
                         {
                             // Remove metal first
                             targetUnit.Metal--;
                             metalRemoved += 1;
                         }
-                        else
+                        else*/
                         {
                             // Remove parts
                             int totalMetalInUnitBeforeHit = targetUnit.CountMetal();
@@ -439,13 +441,14 @@ namespace Engine.Master
                     // Enemy unit!
                     Unit targetUnit = fromTile.Unit;
 
-                    if (targetUnit.Metal > 0)
+                    /*if (targetUnit.Metal > 0)
+
                     {
                         // Remove metal first
                         targetUnit.Metal--;
                         metalRemoved += 1;
                     }
-                    else
+                    else*/
                     {
                         int totalMetalInUnitBeforeHit = targetUnit.CountMetal();
 
@@ -523,11 +526,12 @@ namespace Engine.Master
             }
             if (metalRemoved > 0)
             {
+                /*
                 if (Unit.Metal == 0)
                 {
                     Unit.Metal = 1;
                     metalRemoved--;
-                }
+                }*/
                 if (metalRemoved > 0)
                 {
                     if (Unit.Container == null)

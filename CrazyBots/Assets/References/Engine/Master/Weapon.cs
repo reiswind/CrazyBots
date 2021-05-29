@@ -21,7 +21,7 @@ namespace Engine.Master
             {
                 if (Unit.Container != null && Unit.Container.Metal > 0)
                     return true;
-                return Unit.Metal > 0;
+                return false; // Unit.Metal > 0;
             }
         }
 

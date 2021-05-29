@@ -1126,9 +1126,9 @@ namespace Engine.Master
                     {
                         if (fireingUnit.Container != null && fireingUnit.Container.Metal > 0)
                             fireingUnit.Container.Metal--;
-                        else if (fireingUnit.Metal > 0)
+                        /*else if (fireingUnit.Metal > 0)
                             fireingUnit.Metal--;
-                        else
+                        else*/
                             throw new Exception();
                         move.Stats = fireingUnit.CollectStats();
 

@@ -24,7 +24,7 @@ namespace Engine.Master
                 if (AttachedContainer != null && AttachedContainer.Metal > 0)
                     return true;
             }
-            return Unit.Metal > 0;
+            return false; // Unit.Metal > 0;
         }
 
         public Assembler(Unit owner, int level) : base(owner)
@@ -36,8 +36,8 @@ namespace Engine.Master
         {
             if (Unit.Container != null && Unit.Container.Metal > 0)
                 Unit.Container.Metal--;
-            else if (Unit.Metal > 0)
-                Unit.Metal--;
+            /*else if (Unit.Metal > 0)
+                Unit.Metal--;*/
             else
             {
                 if (AttachedContainer != null)

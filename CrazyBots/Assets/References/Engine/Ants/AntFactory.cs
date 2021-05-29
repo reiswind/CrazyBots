@@ -56,8 +56,8 @@ namespace Engine.Ants
                 if (containerUnit != null && 
                     containerUnit.PlayerUnit.Unit.IsComplete() &&
                     cntrlUnit.Container != null &&
-                    cntrlUnit.Container.Metal == 0 &&
-                    cntrlUnit.Metal == 0)
+                    cntrlUnit.Container.Metal == 0 
+                    /*&& cntrlUnit.Metal == 0*/)
                 {
                     // Remove the local container, since the factory is attached to a container.
                     Move move = new Move();

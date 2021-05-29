@@ -101,7 +101,7 @@ namespace Engine.Master
         public string UnitId { get; set; }
 
         // Unit can store one Metal.
-        public int Metal { get; set; }
+        //public int Metal { get; set; }
         public int Power { get; set; }
 
         // Unit can be extracted
@@ -114,7 +114,7 @@ namespace Engine.Master
 
         public int CountMetal()
         {
-            int metal = Metal;
+            int metal = 0;
             if (Container != null) metal += Container.Metal;
 
             // Every part is one metal
@@ -198,13 +198,13 @@ namespace Engine.Master
             else if (startCode == "StartFactory")
             {
                 Power = 100;
-                Metal = 1;
+                //Metal = 1;
                 unitCode = "1;0;0;1;1;1;0";
             }
             else if (startCode == "StartColony")
             {
                 Power = 100;
-                Metal = 1;
+                //Metal = 1;
                 unitCode = "0;0;0;1;1;1;1";
             }
             else if (startCode == "StartContainer")

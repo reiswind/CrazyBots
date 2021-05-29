@@ -178,7 +178,7 @@ namespace Engine.Ants
                 if (antFactory != null || antContainer != null)
                 {
                     if (ant.PlayerUnit.Unit.Container != null &&
-                        ant.PlayerUnit.Unit.Metal < ant.PlayerUnit.Unit.Container.Capacity)
+                        ant.PlayerUnit.Unit.Container.Metal < ant.PlayerUnit.Unit.Container.Capacity)
                     {
                         Move move = player.Game.MoveTo(cntrlUnit.Pos, ant.PlayerUnit.Unit.Pos, cntrlUnit.Engine);
                         if (move != null)
