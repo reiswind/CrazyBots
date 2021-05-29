@@ -13,12 +13,12 @@ public class Engine1 : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        AboveGround = 0.14f;
+        AboveGround = 0.0f;
     }
 
     void Update()
     {
-        UnitFrame.Move(this);
+        UnitFrame?.Move(this);
         if (false && UnitFrame.NextMove?.MoveType == MoveType.Add)
         {
             Position FinalDestination = UnitFrame.NextMove.Positions[UnitFrame.NextMove.Positions.Count - 1];

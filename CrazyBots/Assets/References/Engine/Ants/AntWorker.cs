@@ -989,23 +989,29 @@ namespace Engine.Ants
                 }
             }
 
-            if (cntrlUnit.Extractor != null && cntrlUnit.Container != null && cntrlUnit.Container.Metal < cntrlUnit.Container.Capacity)
+            if (!IsWorker && cntrlUnit.Weapon != null && cntrlUnit.Weapon.WeaponLoaded)
             {
-                List<Move> possiblemoves = new List<Move>();
-                cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, null, MoveFilter.Extract);
-                if (possiblemoves.Count > 0)
+                // Fight, do not extract if can fire
+            }
+            else
+            {
+                if (cntrlUnit.Extractor != null && cntrlUnit.Container != null && cntrlUnit.Container.Metal < cntrlUnit.Container.Capacity)
                 {
-                    int idx = player.Game.Random.Next(possiblemoves.Count);
-                    Move move = possiblemoves[idx];
-                    moves.Add(move);
+                    List<Move> possiblemoves = new List<Move>();
+                    cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, null, MoveFilter.Extract);
+                    if (possiblemoves.Count > 0)
+                    {
+                        int idx = player.Game.Random.Next(possiblemoves.Count);
+                        Move move = possiblemoves[idx];
+                        moves.Add(move);
 
-                    Control.MineralsFound(player, move.Positions[1]);
+                        Control.MineralsFound(player, move.Positions[1]);
 
-                    unitMoved = true;
-                    return unitMoved;
+                        unitMoved = true;
+                        return unitMoved;
+                    }
                 }
             }
-
             if (cntrlUnit.Engine != null && cntrlUnit.UnderConstruction == false)
             {
                 if (MoveUnit(player, moves))

@@ -197,7 +197,7 @@ public class HexCell
             Vector3 unitPos3 = Cell.transform.position;
             unitPos3.x += (randomPos.x * 0.7f);
             unitPos3.z += (randomPos.y * 0.8f);
-            unitPos3.y += 0.23f; // 
+            unitPos3.y += 0.13f; // 
 
             GameObject crystalResource = Resources.Load<GameObject>("Prefabs/Terrain/Crystal");
             GameObject crystal = HexGrid.Instantiate(crystalResource, Cell.transform, false);

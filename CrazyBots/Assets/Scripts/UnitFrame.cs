@@ -645,6 +645,7 @@ public class UnitFrame
                     }
                 }
             }
+            weapon1.UpdateContent(stats.WeaponLoaded);
         }
         else
         {

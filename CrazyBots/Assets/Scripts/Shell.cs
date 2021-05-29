@@ -14,8 +14,16 @@ public class Shell : MonoBehaviour
         Destroy(this.gameObject, 2.6f);
     }
 
+    private void OnCollisionEnter(Collider other)
+    {
+
+    }
+
     private void OnTriggerEnter(Collider other)
     {
+        if (other == null || string.IsNullOrEmpty(other.name))
+            return;
+
         bool targetHit = false;
         if (other.name.StartsWith("Ground"))
         {
@@ -24,6 +32,11 @@ public class Shell : MonoBehaviour
         }
         else if (other.name.StartsWith(TargetUnitId))
         {
+            Rigidbody otherRigid = other.GetComponent<Rigidbody>();
+            Vector3 velo = otherRigid.velocity;
+            velo.y = 1.5f + (Random.value*3);
+            otherRigid.velocity = velo;
+
             targetHit = true;
             Destroy(this.gameObject);
         }

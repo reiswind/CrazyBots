@@ -30,11 +30,17 @@ public class Weapon1 : MonoBehaviour
         return velocity * vI;
     }
 
+    internal void UpdateContent(bool weaponLoaded)
+    {
+        Transform ammo = transform.Find("Ammo");
+        ammo?.gameObject.SetActive(weaponLoaded);
+    }
+
     // Update is called once per frame
     void Update()
     {
         UnitFrame?.Move(this);
-        if (UnitFrame.NextMove?.MoveType == MoveType.Move)
+        if (UnitFrame?.NextMove?.MoveType == MoveType.Move)
         {
             if (shot > 0)
             {
@@ -56,26 +62,30 @@ public class Weapon1 : MonoBehaviour
             Position FinalDestination = UnitFrame.NextMove.Positions[UnitFrame.NextMove.Positions.Count - 1];
             HexCell targetCell = UnitFrame.HexGrid.GroundCells[FinalDestination];
 
+            Transform launchPosition = transform.Find("Ammo");
+
+            /*
             Vector3 unitPos3 = targetCell.Cell.transform.localPosition;
             unitPos3.y += UnitFrame.HexGrid.hexCellHeight;
             UpdateDirection(unitPos3);
+            Vector3 launchPosition = transform.position;*/
 
-            Vector3 launchPosition = transform.position;
             //launchPosition.x += 1.1f;
             //launchPosition.z += 1.1f;
-            launchPosition.y += 1f;
+            //launchPosition.y += 1f;
 
             //shot = true;
             Shell shell = UnitFrame.HexGrid.InstantiatePrefab<Shell>("Shell");
-            shell.transform.position = launchPosition; // transform.position;
-            shell.transform.rotation = transform.rotation;
+            shell.transform.position = launchPosition.position;
+            //shell.transform.position = launchPosition; // transform.position;
+            shell.transform.rotation = launchPosition.rotation;
 
             shell.TargetUnitId = UnitFrame.NextMove.OtherUnitId;
             shell.UnitFrame = UnitFrame;
 
             Rigidbody rigidbody = shell.GetComponent<Rigidbody>();
 
-            rigidbody.velocity = calcBallisticVelocityVector(launchPosition, targetCell.Cell.transform.position, 25);
+            rigidbody.velocity = calcBallisticVelocityVector(launchPosition.position, targetCell.Cell.transform.position, 25);
             shot = 10;
 
             UnitFrame.NextMove = null;

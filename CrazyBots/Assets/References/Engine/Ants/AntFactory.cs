@@ -99,6 +99,11 @@ namespace Engine.Ants
                     {
                         foreach (Move possibleMove in possiblemoves)
                         {
+                            if (Control.IsUpgrading(player, moves, possibleMove.Positions[1]))
+                            {
+                                continue;
+                            }
+
                             PlayerUnit constructedUnit = player.Units[possibleMove.Positions[1]];
                             if (Control.Ants.ContainsKey(constructedUnit.Unit.UnitId))
                             {
@@ -233,6 +238,12 @@ namespace Engine.Ants
 
                                 foreach (Move possibleMove in possiblemoves)
                                 {
+                                    if (Control.IsOccupied(player, moves, possibleMove.Positions[1]))
+                                    {
+                                        continue;
+                                    }
+
+
                                     if (addContainer)
                                     {
                                         if (possibleMove.UnitId == "Extractor")

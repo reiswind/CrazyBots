@@ -1073,11 +1073,14 @@ namespace Engine.Master
                     {
                         if (move.OtherUnitId == "RemoveContainerAndUpgradeAssembler")
                         {
-                            factory.Assembler.Level++;
-                            factory.Container = null;
+                            if (factory.Assembler != null)
+                            {
+                                factory.Assembler.Level++;
+                                factory.Container = null;
 
-                            move.Stats = factory.CollectStats();
-                            move.OtherUnitId = move.UnitId;
+                                move.Stats = factory.CollectStats();
+                                move.OtherUnitId = move.UnitId;
+                            }
                         }
                     }
                     else

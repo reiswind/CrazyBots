@@ -26,7 +26,7 @@ namespace Engine.Control
         public Dictionary<Position, Ant> CreatedAnts = new Dictionary<Position, Ant>();
 
         public int MaxWorker = 5;
-        public int MaxFighter = 5;
+        public int MaxFighter = 25;
         public int NumberOfWorkers;
         public int NumberOfFighter;
 
@@ -203,6 +203,24 @@ namespace Engine.Control
                 player.Game.Pheromones.DeletePheromones(ant.PheromoneDepositNeedMinerals);
                 ant.PheromoneDepositNeedMinerals = 0;
             }
+        }
+
+        public bool IsUpgrading(Player player, List<Move> moves, Position destination)
+        {
+            bool occupied = false;
+
+            foreach (Move intendedMove in moves)
+            {
+                if (intendedMove.MoveType == MoveType.Upgrade)
+                {
+                    if (intendedMove.Positions[intendedMove.Positions.Count - 1] == destination)
+                    {
+                        occupied = true;
+                        break;
+                    }
+                }
+            }
+            return occupied;
         }
 
         public bool IsOccupied(Player player, List<Move> moves, Position destination)
@@ -554,21 +572,22 @@ namespace Engine.Control
                         }
                         else
                         {
+                            
+                            // Guess by units preplaced on the map
                             if (playerUnit.Unit.Assembler != null)
                             {
                                 AntFactory antFactory = new AntFactory(this, playerUnit);
                                 antFactory.Alive = true;
                                 Ants.Add(cntrlUnit.UnitId, antFactory);
-
-                                //Pheromones.DropStaticPheromones(player, cntrlUnit.Pos, 20, PheromoneType.ToHome);
-                            }
-                            /*
+                            }                            
                             else if (playerUnit.Unit.Engine != null)
                             {
-                                AntWorker antWorker = new AntWorker(this, playerUnit);
+                                AntWorker antWorker = new AntWorker(this);
+                                antWorker.PlayerUnit = playerUnit;
                                 antWorker.Alive = true;
+                                antWorker.IsWorker = playerUnit.Unit.Weapon == null;
                                 Ants.Add(cntrlUnit.UnitId, antWorker);
-                            }*/
+                            }
                         }
                     }
                 }
@@ -694,6 +713,16 @@ namespace Engine.Control
 
             foreach (Ant ant in killedAnts)
             {
+                if (ant.PheromoneDepositEnergy != 0)
+                {
+                    player.Game.Pheromones.DeletePheromones(ant.PheromoneDepositEnergy);
+                    ant.PheromoneDepositEnergy = 0;
+                }
+                if (ant.PheromoneDepositNeedMinerals != 0)
+                {
+                    player.Game.Pheromones.DeletePheromones(ant.PheromoneDepositNeedMinerals);
+                    ant.PheromoneDepositNeedMinerals = 0;
+                }
                 Ants.Remove(ant.PlayerUnit.Unit.UnitId);
             }            
             return moves;
