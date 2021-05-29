@@ -37,6 +37,55 @@ public class HexGrid : MonoBehaviour
 
 	public MapInfo MapInfo;
 
+	void Awake()
+	{
+		if (GameSpeed == 0)
+			GameSpeed = 0.01f;
+
+		gridCanvas = GetComponentInChildren<Canvas>();
+
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+
+		GameModel gameModel;
+
+		//string filename = @"C:\Develop\blazor\Client\Models\SoloAnt.json";
+		//string filename = @"C:\Develop\blazor\Client\Models\UnittestFight.json";
+		//string filename = @"C:\Develop\blazor\Client\Models\Simple.json";
+		//string filename = @"C:\Develop\blazor\Client\Models\Unittest.json";
+		if (gameModelContent != null)
+		{
+			var serializer = new DataContractJsonSerializer(typeof(GameModel));
+
+			MemoryStream mem = new MemoryStream(Encoding.UTF8.GetBytes(gameModelContent.ToString()));
+			gameModel = (GameModel)serializer.ReadObject(mem);
+
+		}
+		else
+		{
+			gameModel = new GameModel();
+			gameModel.MapHeight = gridWidth;
+			gameModel.MapWidth = gridHeight;
+
+			if (gridWidth > 10)
+			{
+				gameModel.Players = new List<PlayerModel>();
+
+				PlayerModel p = new PlayerModel();
+				p.ControlLevel = 1;
+				p.Id = 1;
+				p.Name = "WebPLayer";
+				gameModel.Players.Add(p);
+			}
+		}
+		CreateGame(gameModel);
+
+		InvokeRepeating("invoke", 0.5f, GameSpeed);
+	}
+
+
 	internal List<GameObject> smallTrees = new List<GameObject>();
 
 	public void AddTree(string name, List<GameObject> trees, float scale)
@@ -218,54 +267,6 @@ public class HexGrid : MonoBehaviour
 		{
 			//throw new Exception("Game move wrecked " + err.Message);
 		}
-	}
-
-	void Awake () 
-	{
-		if (GameSpeed == 0)
-			GameSpeed = 0.01f;
-
-		gridCanvas = GetComponentInChildren<Canvas>();
-
-		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
-
-		GameModel gameModel;
-
-		//string filename = @"C:\Develop\blazor\Client\Models\SoloAnt.json";
-		//string filename = @"C:\Develop\blazor\Client\Models\UnittestFight.json";
-		//string filename = @"C:\Develop\blazor\Client\Models\Simple.json";
-		//string filename = @"C:\Develop\blazor\Client\Models\Unittest.json";
-		if (gameModelContent != null)
-		{
-			var serializer = new DataContractJsonSerializer(typeof(GameModel));
-
-			MemoryStream mem = new MemoryStream(Encoding.UTF8.GetBytes(gameModelContent.ToString()));
-			gameModel = (GameModel)serializer.ReadObject(mem);
-			
-		}
-		else
-		{
-			gameModel = new GameModel();
-			gameModel.MapHeight = gridWidth;
-			gameModel.MapWidth = gridHeight;
-
-			if (gridWidth > 10)
-			{
-				gameModel.Players = new List<PlayerModel>();
-
-				PlayerModel p = new PlayerModel();
-				p.ControlLevel = 1;
-				p.Id = 1;
-				p.Name = "WebPLayer";
-				gameModel.Players.Add(p);
-			}
-		}
-		CreateGame(gameModel);
-
-		InvokeRepeating("invoke", 0.5f, GameSpeed);
 	}
 
     private void OnDestroy()

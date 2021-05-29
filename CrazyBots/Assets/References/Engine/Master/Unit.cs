@@ -374,6 +374,7 @@ namespace Engine.Master
             if (Container != null)
             {
                 stats.ContainerLevel = Container.Level;
+                stats.ContainerBluePrint = Container.BluePrint;
                 stats.ContainerFull = (Container.Metal *100) / Container.Capacity;
                 if (stats.ContainerFull > 100)
                 {

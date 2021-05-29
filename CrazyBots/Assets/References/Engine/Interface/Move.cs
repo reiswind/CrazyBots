@@ -63,6 +63,9 @@ namespace Engine.Interface
         [DataMember]
         public int ContainerFull { get; set; }
         [DataMember]
+        public string ContainerBluePrint { get; set; }
+
+        [DataMember]
         public int RadarLevel { get; set; }
         [DataMember]
         public int ReactorLevel { get; set; }

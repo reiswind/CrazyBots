@@ -18,18 +18,18 @@
   ],
   "Units": [
     {
-      "Name": "Armed Worker",
+      "Name": "Fighter",
       "PlayerId": 1,
-	  "Parts": "1;0;1;0;1;F1;0;0",
+	  "Parts": "1;1;1;0;1;0;0;0",
       "Position": {
         "X": 9,
         "Y": 12
       }
     },
 	{
-      "Name": "Dummy",
-      "PlayerId": 2,
-	  "Parts": "1;0;1;0;1;1;0;0",
+      "Name": "Worker",
+      "PlayerId": 1,
+	  "Parts": "1;1;0;0;1;1;0;0",
       "Position": {
         "X": 10,
         "Y": 11

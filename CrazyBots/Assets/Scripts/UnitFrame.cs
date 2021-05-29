@@ -69,6 +69,37 @@ public class UnitLayout
         return true;
     }
 
+    public bool PlaceContainer(MonoBehaviour container1, MonoBehaviour foundationPart, HexCell targetCell, HexGrid hexGrid)
+    {
+        if (rearLeft == false || rearRight == false || centerLeft == false || centerRight == false)
+        {
+            // Does not fit
+            return false;
+        }
+        if (foundationPart == null)
+        {
+        }
+        else
+        {
+            Vector3 unitPos3 = new Vector3();
+            unitPos3.y += 0.09f; // Engine height
+
+            unitPos3.z -= 0.15f; // front
+            //unitPos3.x += 0.15f; // middle
+
+            rearLeft = false;
+            rearRight = false;
+
+            centerLeft = false;
+            centerRight = false;
+
+            container1.transform.position = unitPos3;
+            container1.transform.SetParent(foundationPart.transform, false);
+        }
+        return true;
+    }
+
+
     public bool PlaceOnTop(MonoBehaviour bigPart, MonoBehaviour foundationPart, HexCell targetCell, HexGrid hexGrid, float y)
     {
         if (foundationPart == null)
@@ -168,12 +199,12 @@ public class UnitLayout
             if (rearRight == true)
             {
                 unitPos3.z -= 0.45f; // rear
-                unitPos3.x += 0.3f; // right
+                unitPos3.x += 0.4f; // right
                 rearRight = false;
             }
             else if (rearLeft == true)
             {
-                unitPos3.z -= 0.45f; // rear
+                unitPos3.z -= 0.35f; // rear
                 unitPos3.x -= 0.3f; // left
                 rearLeft = false;
             }
@@ -189,13 +220,13 @@ public class UnitLayout
             }
             else if (frontRight == true)
             {
-                unitPos3.z += 0.45f; // front
+                unitPos3.z += 0.25f; // front
                 unitPos3.x += 0.3f; // right
                 frontRight = false;
             }
             else if (frontLeft == true)
             {
-                unitPos3.z += 0.45f; // front
+                unitPos3.z += 0.25f; // front
                 unitPos3.x -= 0.3f; // left
                 frontLeft = false;
             }
@@ -235,13 +266,13 @@ public class UnitLayout
             }
             else if (frontRight == true)
             {
-                unitPos3.z += 0.45f; // front
+                unitPos3.z += 0.30f; // front
                 unitPos3.x += 0.15f; // right
                 frontRight = false;
             }
             else if (frontLeft == true)
             {
-                unitPos3.z += 0.45f; // front
+                unitPos3.z += 0.30f; // front
                 unitPos3.x -= 0.15f; // left
                 frontLeft = false;
             }
@@ -445,6 +476,8 @@ public class UnitFrame
             }
         }
 
+
+        // Place big extractor
         if (stats.ExtractorLevel > 0)
         {
             if (extractor1 == null && stats.ExtractorLevel == 1)
@@ -454,17 +487,12 @@ public class UnitFrame
                     extractor1 = HexGrid.InstantiatePrefab<Extractor1>("ExtractorGround1");
                     unitLayout.PlaceOnGround(extractor1, targetCell, HexGrid);
                     foundationPart = extractor1;
-                }
-                else
-                {
-                    extractor1 = HexGrid.InstantiatePrefab<Extractor1>("Extractor1");
-                    unitLayout.PlacePart(extractor1, foundationPart, targetCell, HexGrid);
-                }
 
-                extractor1.name = UnitId + "-Extractor";
-                extractor1.UnitFrame = this;
-                
-                SetPlayerColor(playerId, extractor1.gameObject);
+                    extractor1.name = UnitId + "-Extractor";
+                    extractor1.UnitFrame = this;
+
+                    SetPlayerColor(playerId, extractor1.gameObject);
+                }
             }
         }
         else
@@ -559,7 +587,12 @@ public class UnitFrame
                     }
                     else
                     {
-                        unitLayout.PlacePart(container, foundationPart, targetCell, HexGrid);
+                        // Blueprint
+                        if (!unitLayout.PlaceContainer(container, foundationPart, targetCell, HexGrid))
+                        {
+
+                        }
+                        //unitLayout.PlacePart(container, foundationPart, targetCell, HexGrid);
                     }
                 }
             }
@@ -655,6 +688,26 @@ public class UnitFrame
                 weapon1 = null;
             }
         }
+
+
+        // Place small extractor
+        if (stats.ExtractorLevel > 0)
+        {
+            if (extractor1 == null && stats.ExtractorLevel == 1)
+            {
+                if (foundationPart != null)
+                {
+                    extractor1 = HexGrid.InstantiatePrefab<Extractor1>("Extractor1");
+                    unitLayout.PlacePart(extractor1, foundationPart, targetCell, HexGrid);
+
+                    extractor1.name = UnitId + "-Extractor";
+                    extractor1.UnitFrame = this;
+
+                    SetPlayerColor(playerId, extractor1.gameObject);
+                }
+            }
+        }
+
     }
 
     public void JumpToTarget(Position pos)

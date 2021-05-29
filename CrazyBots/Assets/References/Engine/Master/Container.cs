@@ -10,6 +10,7 @@ namespace Engine.Master
     {
         public int Level { get; set; }
         public int Metal { get; set; }
+        public string BluePrint { get; set; }
 
         private int extraCapacity;
         public int Capacity
