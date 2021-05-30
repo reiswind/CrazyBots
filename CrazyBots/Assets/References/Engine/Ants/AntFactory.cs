@@ -299,7 +299,7 @@ namespace Engine.Ants
                                     {
                                         AntWorker antWorker = new AntWorker(Control);
                                         antWorker.IsWorker = false;
-                                        Control.NumberOfWorkers++;
+                                        Control.NumberOfFighter++;
                                         Control.CreatedAnts.Add(move.Positions[1], antWorker);
                                     }
 

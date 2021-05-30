@@ -120,7 +120,12 @@ namespace Engine.Master
             // Every part is one metal
             if (Engine != null) metal++;
             if (Armor != null) metal++;
-            if (Weapon != null) metal++;
+            if (Weapon != null)
+            {
+                if (Weapon.Container != null)
+                    metal += Weapon.Container.Metal;
+                metal++;
+            }
             if (Assembler != null) metal++;
             if (Extractor != null) metal++;
             if (Container != null) metal++;

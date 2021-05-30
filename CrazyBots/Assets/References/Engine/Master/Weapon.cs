@@ -9,9 +9,12 @@ namespace Engine.Master
 {
     public class Weapon : Ability
     {
+        public Container Container { get; set; }
         public int Level { get; set; }
         public Weapon(Unit owner, int level) : base(owner)
         {
+            Container = new Container(owner, 1);
+            Container.Capacity = 1;
             Level = level;
         }
 
@@ -19,9 +22,11 @@ namespace Engine.Master
         {
             get
             {
+                if (Container != null && Container.Metal > 0)
+                    return true;
                 if (Unit.Container != null && Unit.Container.Metal > 0)
                     return true;
-                return false; // Unit.Metal > 0;
+                return false;
             }
         }
 

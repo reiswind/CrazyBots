@@ -1025,7 +1025,7 @@ namespace Engine.Ants
             }
             else
             {
-                if (cntrlUnit.Extractor != null && cntrlUnit.Container != null && cntrlUnit.Container.Metal < cntrlUnit.Container.Capacity)
+                if (cntrlUnit.Extractor != null && cntrlUnit.Extractor.CanExtract)
                 {
                     List<Move> possiblemoves = new List<Move>();
                     cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, null, MoveFilter.Extract);

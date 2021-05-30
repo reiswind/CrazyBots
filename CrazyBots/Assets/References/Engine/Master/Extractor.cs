@@ -236,16 +236,19 @@ namespace Engine.Master
         {
             get
             {
-                
-                //if (Unit.Metal > 0)
+                if (Unit.Weapon != null)
                 {
-                    if (Unit.Container == null || Unit.Container.Metal >= Unit.Container.Capacity)
+                    if (Unit.Weapon.Container != null && Unit.Weapon.Container.Metal < Unit.Weapon.Container.Capacity)
                     {
-                        // Unit full Not possible to extract
-                        return false;
+                        return true;
                     }
                 }
-                return true;
+
+                if (Unit.Container != null && Unit.Container.Metal < Unit.Container.Capacity)
+                {
+                    return true;
+                }                
+                return false;
             }
         }
 
@@ -534,13 +537,20 @@ namespace Engine.Master
                 }*/
                 if (metalRemoved > 0)
                 {
-                    if (Unit.Container == null)
+                    if (Unit.Weapon != null && Unit.Weapon.Container != null)
                     {
-                        fromTile.Metal += metalRemoved;
+                        Unit.Weapon.Container.Metal += metalRemoved;
                     }
                     else
                     {
-                        Unit.Container.Metal += metalRemoved;
+                        if (Unit.Container == null)
+                        {
+                            fromTile.Metal += metalRemoved;
+                        }
+                        else
+                        {
+                            Unit.Container.Metal += metalRemoved;
+                        }
                     }
                 }
             }

@@ -1125,10 +1125,14 @@ namespace Engine.Master
                     Unit fireingUnit = Map.Units.GetUnitAt(move.Positions[0]);
                     if (fireingUnit != null && fireingUnit.Weapon != null)
                     {
-                        if (fireingUnit.Container != null && fireingUnit.Container.Metal > 0)
+                        if (fireingUnit.Weapon.Container != null && fireingUnit.Weapon.Container.Metal > 0)
+                        {
+                            fireingUnit.Weapon.Container.Metal--;
+                        }
+                        else if (fireingUnit.Container != null && fireingUnit.Container.Metal > 0)
+                        {
                             fireingUnit.Container.Metal--;
-                        /*else if (fireingUnit.Metal > 0)
-                            fireingUnit.Metal--;*/
+                        }
                         else
                             throw new Exception();
                         move.Stats = fireingUnit.CollectStats();

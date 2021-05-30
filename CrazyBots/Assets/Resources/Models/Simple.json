@@ -2,7 +2,7 @@
   "Name": "3vs3 Ants",
   "MapWidth": 50,
   "MapHeight": 50,
-  "Seed": -185647238,
+  "Seedx": -185647238,
   "MapType": "1",
   "Players": [
     {
@@ -77,12 +77,39 @@
       }
     },
 	{
-      "Name": "Colony2",
+      "Name": "Colony3",
       "PlayerId": 3,
 	  "Parts": "0;0;0;1;1;F1;1;0",
       "Position": {
         "X": 28,
         "Y": 24
+      }
+    },
+	{
+      "Name": "Colony31",
+      "PlayerId": 3,
+	  "Parts": "0;0;0;1;1;F1;1;0",
+      "Position": {
+        "X": 34,
+        "Y": 28
+      }
+    },
+	{
+      "Name": "Colony32",
+      "PlayerId": 3,
+	  "Parts": "0;0;0;1;1;F1;1;0",
+      "Position": {
+        "X": 38,
+        "Y": 32
+      }
+    },
+	{
+      "Name": "Colony32",
+      "PlayerId": 3,
+	  "Parts": "0;0;0;1;1;F1;1;0",
+      "Position": {
+        "X": 34,
+        "Y": 21
       }
     }
 	]
