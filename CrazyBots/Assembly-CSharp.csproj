@@ -69,6 +69,7 @@
     <Compile Include="Assets\References\Engine\Interface\Position.cs" />
     <Compile Include="Assets\References\Engine\Control\Control.cs" />
     <Compile Include="Assets\References\Engine\Ants\Pheromone.cs" />
+    <Compile Include="Assets\Scripts\Armor.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\PathFinderFast.cs" />
     <Compile Include="Assets\StrategyCameraLite\Example\Scripts\HelpUI.cs" />
     <Compile Include="Assets\Scripts\Reactor1.cs" />
@@ -119,7 +120,6 @@
     <Compile Include="Assets\Scripts\HexCell.cs" />
     <Compile Include="Assets\References\Engine\Master\Engine.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\PriorityQueueB.cs" />
-    <Compile Include="Assets\Scripts\Armor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\References\TerrainQuest.Generator.dll" />

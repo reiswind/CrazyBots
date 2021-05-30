@@ -537,6 +537,7 @@ namespace Engine.Ants
             if (cntrlUnit.Weapon != null && !cntrlUnit.Weapon.WeaponLoaded)
             {
                 pheromoneType = PheromoneType.ToFood;
+                //pheromoneType = PheromoneType.AwayFromEnergy;
             }
             else if (IsWorker)
             {
@@ -640,8 +641,37 @@ namespace Engine.Ants
                             return true;
                         }
                     }
+                    // cannot reach anything cause to crowded?
+                    //if (pheromoneType == PheromoneType.ToFood)
+                    else
+                    {
+                        pheromoneType = PheromoneType.ToHome;
+                        possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
+                        if (possibleTiles.Count == 0)
+                        {
+                            pheromoneType = PheromoneType.AwayFromEnergy;
+                            possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
+                            if (possibleTiles.Count == 0)
+                            {
+                                cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
+                                return true;
+                            }
+                        }
+                        while (possibleTiles.Count > 0 && moveToTile == null)
+                        {
+                            moveToTile = FindBest(player, possibleTiles);
+                            if (moveToTile == null)
+                                break;
+
+                            if (Control.IsOccupied(player, moves, moveToTile.Tile.Pos))
+                            {
+                                possibleTiles.Remove(moveToTile);
+                                moveToTile = null;
+                            }
+                        }
+                    }
                 }
-                else
+                if (moveToTile != null)
                 {
                     moveToPosition = moveToTile.Tile.Pos;
                 }

@@ -294,7 +294,7 @@ namespace Engine.Control
                 //if (d < 28)
                 {
                     List<Position> positions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, posFactory, antWorker.PlayerUnit.Unit);
-                    if (positions != null)
+                    if (positions != null && positions.Count > 2)
                     {
                         if (bestPositions == null || bestPositions.Count > positions.Count)
                         {
@@ -336,7 +336,7 @@ namespace Engine.Control
             foreach (TileWithDistance t in tiles.Values)
             {
                 List<Position> positions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, t.Pos, antWorker.PlayerUnit.Unit);
-                if (positions != null)
+                if (positions != null && positions.Count > 2)
                 {
                     bestPositions = positions;
                     break;
@@ -355,7 +355,7 @@ namespace Engine.Control
                     if (d < 18)
                     {
                         List<Position> positions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, posFactory, antWorker.PlayerUnit.Unit);
-                        if (positions != null)
+                        if (positions != null && positions.Count > 2)
                         {
                             if (bestPositions == null || bestPositions.Count > positions.Count)
                             {
@@ -394,7 +394,7 @@ namespace Engine.Control
             foreach (TileWithDistance t in tiles.Values)
             {
                 List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, t.Pos, ant.PlayerUnit.Unit);
-                if (positions != null)
+                if (positions != null && positions.Count > 2)
                 {
                     bestPositions = positions;
                     break;
@@ -409,7 +409,7 @@ namespace Engine.Control
                     if (d < 18)
                     {
                         List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, pos, ant.PlayerUnit.Unit);
-                        if (positions != null)
+                        if (positions != null && positions.Count > 2)
                         {
                             if (bestPositions == null || bestPositions.Count > positions.Count)
                             {
@@ -449,7 +449,7 @@ namespace Engine.Control
             foreach (TileWithDistance t in tiles.Values)
             {
                 List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, t.Pos, ant.PlayerUnit.Unit);
-                if (positions != null)
+                if (positions != null && positions.Count > 2)
                 {
                     bestPositions = positions;
                     break;
@@ -464,7 +464,7 @@ namespace Engine.Control
                     //if (d < 18)
                     {
                         List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, pos, ant.PlayerUnit.Unit);
-                        if (positions != null)
+                        if (positions != null && positions.Count > 2)
                         {
                             if (bestPositions == null || bestPositions.Count > positions.Count)
                             {
@@ -632,12 +632,12 @@ namespace Engine.Control
                             if (ant.PheromoneDepositEnergy == 0)
                             {
                                 ant.PlayerUnit.Unit.Reactor.Power = 1;
-                                ant.PheromoneDepositEnergy = player.Game.Pheromones.DropPheromones(player, ant.PlayerUnit.Unit.Pos, 20, PheromoneType.Energy, ant.PlayerUnit.Unit.Reactor.Power, true);
+                                ant.PheromoneDepositEnergy = player.Game.Pheromones.DropPheromones(player, ant.PlayerUnit.Unit.Pos, 12, PheromoneType.Energy, ant.PlayerUnit.Unit.Reactor.Power, true, 0.2f);
                             }
                             else
                             {
                                 //ant.PlayerUnit.Unit.Reactor.Power -= 0.01f;
-                                player.Game.Pheromones.UpdatePheromones(ant.PheromoneDepositEnergy, ant.PlayerUnit.Unit.Reactor.Power);
+                                player.Game.Pheromones.UpdatePheromones(ant.PheromoneDepositEnergy, ant.PlayerUnit.Unit.Reactor.Power, 0.2f);
                             }
                         }
                         movableAnts.Add(ant);

@@ -155,7 +155,9 @@ namespace Engine.Ants
                                 }
                                 else if (ant is AntWorker)
                                 {
-                                    if (constructedUnit.Unit.Container == null)
+                                    AntWorker antWorker = ant as AntWorker;
+
+                                    if (antWorker.IsWorker && constructedUnit.Unit.Container == null)
                                     {
                                         if (possibleMove.UnitId == "Container")
                                         {
@@ -164,7 +166,7 @@ namespace Engine.Ants
                                             break;
                                         }
                                     }
-                                    else if (constructedUnit.Unit.Weapon == null)
+                                    else if (!antWorker.IsWorker && constructedUnit.Unit.Weapon == null)
                                     {
                                         //if (possibleMove.UnitId == "Armor")
                                         if (possibleMove.UnitId == "Weapon")
@@ -177,6 +179,15 @@ namespace Engine.Ants
                                     else if (constructedUnit.Unit.Extractor == null)
                                     {
                                         if (possibleMove.UnitId == "Extractor")
+                                        {
+                                            moves.Add(possibleMove);
+                                            unitMoved = true;
+                                            break;
+                                        }
+                                    }
+                                    else if (constructedUnit.Unit.Armor == null)
+                                    {
+                                        if (possibleMove.UnitId == "Armor")
                                         {
                                             moves.Add(possibleMove);
                                             unitMoved = true;

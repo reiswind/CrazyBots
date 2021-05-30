@@ -82,9 +82,9 @@ public class UnitLayout
         else
         {
             Vector3 unitPos3 = new Vector3();
-            unitPos3.y += 0.09f; // Engine height
+            unitPos3.y += 0.19f; // Engine height
 
-            unitPos3.z -= 0.15f; // front
+            unitPos3.z -= 0.14f; // front
             //unitPos3.x += 0.15f; // middle
 
             rearLeft = false;
@@ -313,6 +313,7 @@ public class UnitFrame
     private Weapon1 weapon1;
     private Extractor1 extractor1;
     private Reactor1 reactor1;
+    private Armor armor;
 
     // Current postions
     internal Position currentPos;
@@ -707,7 +708,31 @@ public class UnitFrame
                 }
             }
         }
+        // Place small armoir
+        if (stats.ArmorLevel > 0)
+        {
+            if (armor == null && stats.ArmorLevel == 1)
+            {
+                if (foundationPart != null)
+                {
+                    armor = HexGrid.InstantiatePrefab<Armor>("Armor1");
+                    unitLayout.PlacePart(armor, foundationPart, targetCell, HexGrid);
 
+                    armor.name = UnitId + "-Armor";
+                    armor.UnitFrame = this;
+
+                    SetPlayerColor(playerId, armor.gameObject);
+                }
+            }
+        }
+        else
+        {
+            if (armor != null)
+            {
+                HexGrid.Destroy(armor.gameObject);
+                armor = null;
+            }
+        }
     }
 
     public void JumpToTarget(Position pos)

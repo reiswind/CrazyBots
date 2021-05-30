@@ -44,8 +44,8 @@ public class HexGrid : MonoBehaviour
 
 		gridCanvas = GetComponentInChildren<Canvas>();
 
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
-		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 

@@ -447,11 +447,12 @@ namespace Engine.Master
                     addedUnits.Add(thisUnit);
 
                     // is there a unit on the map?
+                    /* Could be, but may move later so no error
                     Unit otherUnit = Map.Units.GetUnitAt(Destination);
                     if (otherUnit != null)
                     {
                         throw new Exception("Handle collisions failed");
-                    }
+                    }*/
                 }
             }
             
@@ -1127,8 +1128,8 @@ namespace Engine.Master
                         if (fireingUnit.Container != null && fireingUnit.Container.Metal > 0)
                             fireingUnit.Container.Metal--;
                         /*else if (fireingUnit.Metal > 0)
-                            fireingUnit.Metal--;
-                        else*/
+                            fireingUnit.Metal--;*/
+                        else
                             throw new Exception();
                         move.Stats = fireingUnit.CollectStats();
 
@@ -1217,9 +1218,9 @@ namespace Engine.Master
         private void HandleCollisions(List<Move> newMoves)
         {
             CollisionCntr++;
-            if (CollisionCntr == 445)
+            if (CollisionCntr == 127)
             {
-
+                int x = 0;
             }
 
             bool somethingChanged = true;
@@ -1266,6 +1267,9 @@ namespace Engine.Master
                         // Move to invalid pos
                         // Happend with bad startup pos
                         //throw new Exception("how dare you");
+                        moveToTargets.Remove(move.Positions[move.Positions.Count - 1]);
+                        somethingChanged = true;
+                        break;
                     }
                     else if (t.Unit != null)
                     {
@@ -1285,6 +1289,10 @@ namespace Engine.Master
                         {
                             // (Hit) Could do nasty things, but for now, the unit does not move
                             somethingChanged = true;
+                        }
+                        else
+                        {
+                            //
                         }
                     }
                     else

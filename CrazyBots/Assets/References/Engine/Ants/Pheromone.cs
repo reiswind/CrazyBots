@@ -111,7 +111,7 @@ namespace Engine.Ants
             pheromoneStacks.Remove(id);
         }
 
-        public void UpdatePheromones(int id, float intensity)
+        public void UpdatePheromones(int id, float intensity, float minIntensity = 0)
         {
             PheromoneStack pheromoneStack = pheromoneStacks[id];
             foreach (PheromoneStackItem pheromoneStackItem in pheromoneStack.PheromoneItems)
@@ -121,11 +121,13 @@ namespace Engine.Ants
                     relativIntensity = 1;
                 if (relativIntensity < 0)
                     relativIntensity = 0;
+                if (relativIntensity < minIntensity)
+                    relativIntensity = minIntensity;
                 pheromoneStackItem.PheromoneItem.Intensity = relativIntensity;
             }
         }
 
-        public int DropPheromones(Player player, Position pos, int range, PheromoneType pheromoneType, float intensity, bool isStatic)
+        public int DropPheromones(Player player, Position pos, int range, PheromoneType pheromoneType, float intensity, bool isStatic, float minIntensity = 0)
         {
             PheromoneStack pheromoneStack = new PheromoneStack();
 
@@ -141,6 +143,8 @@ namespace Engine.Ants
                 float distance = (totaldistance * 100) / range / 100;
 
                 float relativIntensity = distance * intensity;
+                if (relativIntensity < minIntensity)
+                    relativIntensity = minIntensity;
 
                 PheromoneStackItem pheromoneStackItem = new PheromoneStackItem();
 

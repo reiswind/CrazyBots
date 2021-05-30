@@ -14,11 +14,6 @@ public class Shell : MonoBehaviour
         Destroy(this.gameObject, 2.6f);
     }
 
-    private void OnCollisionEnter(Collider other)
-    {
-
-    }
-
     private void OnTriggerEnter(Collider other)
     {
         if (other == null || string.IsNullOrEmpty(other.name))
