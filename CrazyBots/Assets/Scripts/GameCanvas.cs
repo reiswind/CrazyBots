@@ -21,6 +21,9 @@ public class GameCanvas : MonoBehaviour
         Game.StartGame();
     }
 
+    UnitFrame unitFrame = null;
+    string selectedObjectText;
+
     // Update is called once per frame
     void Update()
     {
@@ -33,16 +36,78 @@ public class GameCanvas : MonoBehaviour
         {
             RaycastHit raycastHit;
 
+            unitFrame = null;
             if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out raycastHit, Mathf.Infinity))
             {
-                //int x = 0;
-                UISelectedItemText.text = raycastHit.collider.name;
+                Engine1 engine1 = raycastHit.collider.GetComponent<Engine1>();
+                if (engine1 != null) unitFrame = engine1.UnitFrame;
+                if (unitFrame == null)
+                {
+                    Armor armor = raycastHit.collider.GetComponent<Armor>();
+                    if (armor != null) unitFrame = armor.UnitFrame;
+                }
+                if (unitFrame == null)
+                {
+                    Weapon1 weapon1 = raycastHit.collider.GetComponent<Weapon1>();
+                    if (weapon1 != null) unitFrame = weapon1.UnitFrame;
+                }
+                if (unitFrame == null)
+                {
+                    Container1 container1 = raycastHit.collider.GetComponent<Container1>();
+                    if (container1 != null) unitFrame = container1.UnitFrame;
+                }
+                if (unitFrame == null)
+                {
+                    Extractor1 extractor1 = raycastHit.collider.GetComponent<Extractor1>();
+                    if (extractor1 != null) unitFrame = extractor1.UnitFrame;
+                }
+                if (unitFrame == null)
+                {
+                    Reactor1 reactor1 = raycastHit.collider.GetComponent<Reactor1>();
+                    if (reactor1 != null) unitFrame = reactor1.UnitFrame;
+                }
+
+                if (unitFrame == null)
+                {
+                    selectedObjectText = raycastHit.collider.name;
+                }
             }
             else
             {
-                UISelectedItemText.text = "Nothing";
+                selectedObjectText = "Nothing";
             }
         }
-        
+        if (unitFrame != null && unitFrame.HasBeenDestroyed)
+        {
+            selectedObjectText = "Destroyed: " + unitFrame.UnitId;
+            unitFrame = null;
+        }
+        if (unitFrame != null)
+        {
+            if (unitFrame.MoveUpdateStats == null)
+            {
+                UISelectedItemText.text = "No Stats: " + unitFrame.UnitId;
+            }
+            else
+            {
+                string text;
+
+                text = unitFrame.UnitId + "\r\n";
+                text += " " + unitFrame.currentPos.X + ", " + unitFrame.currentPos.Y + "\r\n";
+                text += " " + unitFrame.MoveUpdateStats.WeaponLoaded.ToString() + "\r\n";
+
+                UISelectedItemText.text = text;
+
+            }
+        }
+        else if (selectedObjectText != null)
+        {
+            UISelectedItemText.text = selectedObjectText;
+        }
+        else
+        {
+
+            UISelectedItemText.text = null;
+        }
     }
 }

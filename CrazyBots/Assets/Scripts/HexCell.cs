@@ -11,8 +11,9 @@ public class HexCell
     internal GameObject Cell { get; set; }
     private List<GameObject> minerals;
     private List<GameObject> smallTrees;
+    private List<GameObject> smallRocks;
 
-    internal int NumberOfSmallTrees;
+    //internal int NumberOfSmallTrees;
 
     private static GameObject markerPrefab;
     private GameObject markerEnergy;
@@ -24,10 +25,12 @@ public class HexCell
     {
         minerals = new List<GameObject>();
         smallTrees = new List<GameObject>();
+        smallRocks = new List<GameObject>();
     }
 
     internal void Update(MapPheromone mapPheromone)
     {
+        return;
         if (mapPheromone == null)
         {
             if (markerEnergy != null)
@@ -152,38 +155,61 @@ public class HexCell
     {
         if (NextMove != null)
         {
+            CreateTrees();
             CreateMinerals();
             NextMove = null;
         }
     }
 
-    internal void CreateTrees(List<GameObject> smmallTrees)
+    internal void CreateTrees()
     {
-        while (smallTrees.Count < NumberOfSmallTrees)
+        while (smallTrees.Count < Tile.NumberOfSmallTrees)
         {
             Vector2 randomPos = Random.insideUnitCircle;
 
             Vector3 unitPos3 = Cell.transform.position;
             unitPos3.x += (randomPos.x * 0.7f);
             unitPos3.z += (randomPos.y * 0.8f);
-            unitPos3.y += 0.23f; // 
 
-            int treeIdx =  HexGrid.game.Random.Next(smmallTrees.Count);
+            int treeIdx =  HexGrid.game.Random.Next(HexGrid.smallTrees.Count);
 
-            GameObject smallTree = HexGrid.Instantiate(smmallTrees[treeIdx], Cell.transform, false);
+            GameObject smallTree = HexGrid.Instantiate(HexGrid.smallTrees[treeIdx], Cell.transform, false);
             smallTree.transform.position = unitPos3;
-
-            //smallTree.transform.rotation = Random.rotation;
 
             smallTrees.Add(smallTree);
         }
-        while (smallTrees.Count > NumberOfSmallTrees)
+        while (smallTrees.Count > Tile.NumberOfSmallTrees)
         {
-            GameObject smallTree = minerals[0];
+            GameObject smallTree = smallTrees[0];
 
             HexGrid.Destroy(smallTree);
 
             smallTrees.Remove(smallTree);
+        }
+
+        while (smallRocks.Count < Tile.NumberOfRocks)
+        {
+            Vector2 randomPos = Random.insideUnitCircle;
+
+            Vector3 unitPos3 = Cell.transform.position;
+            unitPos3.x += (randomPos.x * 0.7f);
+            unitPos3.z += (randomPos.y * 0.8f);
+            unitPos3.y += 0.1f; // 
+
+            int idx = HexGrid.game.Random.Next(HexGrid.smallRocks.Count);
+
+            GameObject smallRock = HexGrid.Instantiate(HexGrid.smallRocks[idx], Cell.transform, false);
+            smallRock.transform.position = unitPos3;
+
+            smallRocks.Add(smallRock);
+        }
+        while (smallRocks.Count > Tile.NumberOfRocks)
+        {
+            GameObject smallTree = smallRocks[0];
+
+            HexGrid.Destroy(smallTree);
+
+            smallRocks.Remove(smallTree);
         }
     }
 

@@ -62,6 +62,9 @@ public class HexGrid : MonoBehaviour
 			MemoryStream mem = new MemoryStream(Encoding.UTF8.GetBytes(gameModelContent.ToString()));
 			gameModel = (GameModel)serializer.ReadObject(mem);
 
+			gameModel.MapHeight = gridWidth;
+			gameModel.MapWidth = gridHeight;
+
 		}
 		else
 		{
@@ -87,6 +90,7 @@ public class HexGrid : MonoBehaviour
 
 
 	internal List<GameObject> smallTrees = new List<GameObject>();
+	internal List<GameObject> smallRocks = new List<GameObject>();
 
 	public void AddTree(string name, List<GameObject> trees, float scale)
     {
@@ -99,6 +103,19 @@ public class HexGrid : MonoBehaviour
 		treePrefab.transform.localScale = sc;
 
 		trees.Add(treePrefab);
+	}
+
+	public void AddRock(string name, List<GameObject> rocks, float scale)
+	{
+		GameObject treePrefab = Resources.Load<GameObject>("LowPolyRockPack/Prefabs/" + name);
+
+		Vector3 sc = new Vector3();
+		sc.x = scale;
+		sc.y = scale;
+		sc.z = scale;
+		treePrefab.transform.localScale = sc;
+
+		rocks.Add(treePrefab);
 	}
 
 	public void CreateGame(GameModel gameModel)
@@ -114,10 +131,46 @@ public class HexGrid : MonoBehaviour
 		GroundCells = new Dictionary<Position, HexCell>();
 		Units = new Dictionary<string, UnitFrame>();
 
+		AddTree("Tree Type0 03", smallTrees, 0.2f);
+		AddTree("Tree Type2 05", smallTrees, 0.2f);
+		AddTree("Tree Type2 02", smallTrees, 0.2f);
+		AddTree("Tree Type4 04", smallTrees, 0.2f);
+		AddTree("Tree Type4 05", smallTrees, 0.2f);
+		AddTree("Tree Type0 02", smallTrees, 0.2f);
 
-		AddTree("Tree Type0 03", smallTrees, 0.3f);
-		AddTree("Tree Type2 05", smallTrees, 0.3f);
-		AddTree("Tree Type2 02", smallTrees, 0.5f);
+
+		//AddRock("Rock Type2 03", smallRocks, 0.3f);
+		AddRock("Rock Type1 01", smallRocks, 0.3f);
+		AddRock("Rock Type1 02", smallRocks, 0.3f);
+		AddRock("Rock Type1 03", smallRocks, 0.3f);
+		AddRock("Rock Type1 04", smallRocks, 0.3f);
+
+		AddRock("Rock Type2 01", smallRocks, 0.3f);
+		AddRock("Rock Type2 02", smallRocks, 0.3f);
+		AddRock("Rock Type2 03", smallRocks, 0.3f);
+		AddRock("Rock Type2 04", smallRocks, 0.3f);
+
+		AddRock("Rock Type3 01", smallRocks, 0.3f);
+		AddRock("Rock Type3 02", smallRocks, 0.3f);
+		AddRock("Rock Type3 03", smallRocks, 0.3f);
+		AddRock("Rock Type3 04", smallRocks, 0.3f);
+
+		AddRock("Rock Type4 01", smallRocks, 0.3f);
+		AddRock("Rock Type4 02", smallRocks, 0.3f);
+		AddRock("Rock Type4 03", smallRocks, 0.3f);
+		AddRock("Rock Type4 04", smallRocks, 0.3f);
+
+		AddRock("Rock Type3 01", smallRocks, 0.3f);
+		AddRock("Rock Type3 02", smallRocks, 0.3f);
+		AddRock("Rock Type3 03", smallRocks, 0.3f);
+		AddRock("Rock Type3 04", smallRocks, 0.3f);
+
+		AddTree("Tree Type7 01", smallRocks, 0.35f);
+		AddTree("Tree Type7 02", smallRocks, 0.35f);
+		AddTree("Tree Type7 03", smallRocks, 0.35f);
+		AddTree("Tree Type7 04", smallRocks, 0.35f);
+
+
 		/*
 		GameObject treePrefab = Resources.Load<GameObject>("LowPolyTreePack/Prefabs/Tree Type0 03");
 
@@ -493,7 +546,7 @@ public class HexGrid : MonoBehaviour
 		gameObjectCell.transform.SetParent(transform, false);
 		gameObjectCell.name = "Ground " + x.ToString() + "," + y.ToString();
 
-		HexCell cell = new HexCell(); // Instantiate<HexCell>(cellPrefab);
+		HexCell cell = new HexCell();
 		cell.Cell = gameObjectCell;
 		cell.HexGrid = this;
 
@@ -506,39 +559,35 @@ public class HexGrid : MonoBehaviour
 		float tileY;
 
 		string materialName;
-		if (height > 0.27 && height < 0.33)
+		if (t.IsSand())
 		{
 			materialName = "Materials/Sand";
 			tileY = 0.3f;
 		}
-		else if (height >= 0.26 && height <= 0.32)
+		else if (t.IsDarkSand())
 		{
 			materialName = "Materials/DarkSand";
 			tileY = 0.4f;
 		}
-		else if (height > 0.50 && height <= 0.52)
+		else if (t.IsDarkWood())
 		{
 			materialName = "Materials/DarkWood";
 			tileY = 0.9f;
-			cell.NumberOfSmallTrees = 1;
 		}
-		else if (height > 0.47 && height <= 0.50)
+		else if (t.IsWood())
 		{
 			materialName = "Materials/Wood";
 			tileY = 0.8f;
-			cell.NumberOfSmallTrees = 0;
 		}
-		else if (height >= 0.46 && height <= 0.53)
+		else if (t.IsLightWood())
 		{
 			materialName = "Materials/LightWood";
 			tileY = 0.7f;
-			cell.NumberOfSmallTrees = 0;
 		}
-		else if (height >= 0.45 && height <= 0.55)
+		else if (t.IsGrassDark())
 		{
 			materialName = "Materials/GrassDark";
 			tileY = 0.6f;
-			cell.NumberOfSmallTrees = 0;
 		}
 		else
 		{
@@ -546,52 +595,19 @@ public class HexGrid : MonoBehaviour
 			tileY = 0.5f;
 		}
 
-		gridPos3.y = tileY / 2;
+		//gridPos3.y = tileY / 2;
+		gridPos3.y = ((float)height * 5);
 		gameObjectCell.transform.localPosition = gridPos3;
 
 		//
-		Material materialReource = Resources.Load<Material>(materialName);
+		Material materialResource = Resources.Load<Material>(materialName);
 
 		MeshRenderer meshRenderer = gameObjectCell.GetComponent<MeshRenderer>();
-		meshRenderer.material = materialReource;
-		
-		//Material[] newMaterials = new Material[meshRenderer.materials.Length];
-		/*
-		for (int i = 0; i < cell.meshRenderer.materials.Length; i++)
-		{
-			Material material = cell.meshRenderer.materials[i];
-
-			//material.mainTexture = null;
-			//material.globalIlluminationFlags = MaterialGlobalIlluminationFlags.EmissiveIsBlack;
-			if (material.name.StartsWith("Player"))
-			{
-				//material.color = Color.red;
-				cell.pheromaterial = material;
-				material.color = materialReource.color;
-				
-				//materialReource.name = "Player";
-				//newMaterials[i] = materialReource;
-			}
-			else
-			{
-				material.color = materialReource.color;
-				//materialReource.name = "Ground";
-				//newMaterials[i] = materialReource;
-			}
-			
-		}*/
-		//meshRenderer.materials = newMaterials;
+		meshRenderer.material = materialResource;
 
 		cell.CreateMinerals();
-		cell.CreateTrees(smallTrees);
+		cell.CreateTrees();
 
-		/*
-
-				Text label = Instantiate<Text>(cellLabelPrefab);
-				label.rectTransform.SetParent(gridCanvas.transform, false);
-				label.rectTransform.anchoredPosition = new Vector2(gridPos3.x, gridPos3.z);
-				label.text = t.Pos.X.ToString() + "," + t.Pos.Y;
-		*/
 		return cell;
 	}
 }

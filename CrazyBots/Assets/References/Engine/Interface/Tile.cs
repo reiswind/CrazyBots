@@ -81,6 +81,10 @@ namespace Engine.Interface
         public int Metal { get; set; }
         public int Plates { get; set; }
 
+        public int NumberOfSmallTrees { get; set; }
+        public int NumberOfRocks { get; set; }
+
+
         internal Tile(Map map, Position pos)
         {
             Map = map;
@@ -95,10 +99,47 @@ namespace Engine.Interface
             }
         }
 
+        public bool IsDarkWood()
+        {
+            return Height > 0.48 && Height <= 0.53;
+        }
+
+        public bool IsWood()
+        {
+            return ((Height > 0.41 && Height <= 0.48) || (Height > 0.53 && Height <= 0.60));
+        }
+
+        public bool IsLightWood()
+        {
+            return ((Height > 0.34 && Height <= 0.41) || (Height > 0.60 && Height <= 0.67));
+            //return Height >= 0.40 && Height <= 0.47;
+        }
+        public bool IsGrassDark()
+        {
+            return ((Height > 0.27 && Height <= 0.34) || (Height > 0.67 && Height <= 0.74));
+            //return Height >= 0.35 && Height <= 0.40;
+        }
+        public bool IsGras()
+        {
+            return ((Height > 0.20 && Height <= 0.27) || (Height > 0.74 && Height <= 0.81));
+            //return Height >= 0.26 && Height <= 0.32;
+        }
+        public bool IsDarkSand()
+        {
+            return ((Height > 0.13 && Height <= 0.20) || (Height > 0.81 && Height <= 0.88));
+            //return Height >= 0.26 && Height <= 0.32;
+        }
+        public bool IsSand()
+        {
+            return ((Height > 0.0 && Height <= 0.13) || (Height > 0.88 && Height <= 1));
+            //return Height > 0.27 && Height < 0.33;
+        }
+        
+
         public bool CanMoveTo()
         {
             //if (Height < 0.05 || Height > 0.95)
-            if (Height >= 0.45 && Height <= 0.55)
+            if (NumberOfSmallTrees > 0 ||NumberOfRocks > 0)
             {
                 return false;
             }

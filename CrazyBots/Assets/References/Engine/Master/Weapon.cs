@@ -76,7 +76,6 @@ namespace Engine.Master
 
                         if (neighborsTile.Distance <= Range)
                         {
-
                             openList.Add(neighborsTile);
                             resultList.Add(n);
                         }
@@ -99,21 +98,42 @@ namespace Engine.Master
             {
                 // Cannot fire on ground
                 if (n.Unit == null)
-                    continue;
-                // Cannot fire on ourselves
-                if (n.Unit.Owner == Unit.Owner)
-                    continue;
+                {
+                    if (n.NumberOfSmallTrees > 0 || n.NumberOfRocks > 0)
+                    {
+                        Move move = new Move();
+                        move.MoveType = MoveType.Fire;
+                        move.UnitId = Unit.UnitId;
+                        move.OtherUnitId = "Tree";
+                        move.Positions = new List<Position>();
+                        move.Positions.Add(Unit.Pos);
+                        move.Positions.Add(n.Pos);
 
-                Move move = new Move();
-                move.MoveType = MoveType.Fire;
-                move.UnitId = Unit.UnitId;
-                //move.Stats = Unit.Stats;
-                move.OtherUnitId = n.Unit.UnitId;
-                move.Positions = new List<Position>();
-                move.Positions.Add(Unit.Pos);
-                move.Positions.Add(n.Pos);
+                        possibleMoves.Add(move);
 
-                possibleMoves.Add(move);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    // Cannot fire on ourselves
+                    if (n.Unit.Owner != Unit.Owner)
+                    {
+
+                        Move move = new Move();
+                        move.MoveType = MoveType.Fire;
+                        move.UnitId = Unit.UnitId;
+                        move.OtherUnitId = n.Unit.UnitId;
+                        move.Positions = new List<Position>();
+                        move.Positions.Add(Unit.Pos);
+                        move.Positions.Add(n.Pos);
+
+                        possibleMoves.Add(move);
+                    }
+                }
             }
         }
     }

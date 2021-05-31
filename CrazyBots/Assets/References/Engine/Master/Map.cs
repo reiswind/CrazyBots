@@ -241,38 +241,64 @@ namespace Engine.Master
                         Tile t = new Tile(this, p);
                         Tiles.Add(p, t);
 
-                        t.Height = terrain.Data[x, y] / 2;
+                        t.Height = terrain.Data[x, y];
 
+                        if (t.IsDarkWood())
+                        {
+                            if (Game.Random.Next(8) == 1)
+                            {
+                                t.NumberOfSmallTrees = 1;
+                                t.Metal = 1;
+                            }
+                        }
+                        else if (t.IsWood())
+                        {
+                            if (Game.Random.Next(14) == 0)
+                            {
+                                t.NumberOfSmallTrees = 3;
+                                t.Metal = 1;
+                            }
+                        }
+                        else if (t.IsLightWood())
+                        {
+                            if (Game.Random.Next(25) == 0)
+                            {
+                                t.NumberOfSmallTrees = 4;
+                                t.Metal = 1;
+                            }
+                        }
+                        else if (t.IsDarkSand())
+                        {
+                            if (Game.Random.Next(25) == 0)
+                            {
+                                t.NumberOfRocks = 4;
+                                t.Metal = 4;
+                            }
+                        }
+                        else if (t.IsSand())
+                        {
+                            if (Game.Random.Next(30) == 0)
+                            {
+                                t.NumberOfRocks = 3;
+                                t.Metal = 3;
+                            }
+                            else if (Game.Random.Next(20) == 0)
+                            {
+                                t.NumberOfRocks = 2;
+                                t.Metal = 2;
+                            }
+                        }
+                        else if (t.IsGrassDark())
+                        {
+                            if (Game.Random.Next(30) == 0)
+                                t.Metal = 20;
+                        }
+                        else if (t.IsGras())
+                        {
+                            if (Game.Random.Next(20) == 0)
+                                t.Metal = 20;
+                        }
                         /*
-                        if (t.Height < 0.05)
-                        {
-
-                        }
-                        else if (t.Height < 0.1)
-                        {
-
-                        }
-                        else if (t.Height < 0.3)
-                        {
-                            t.Metal = Game.Random.Next(2);
-                        }
-                        else if (t.Height <= 0.7)
-                        {
-                            t.Metal = Game.Random.Next(3);
-                        }
-                        else if (t.Height > 0.7)
-                        {
-                            t.Metal = Game.Random.Next(3);
-                        }
-                        else if (t.Height > 0.9)
-                        {
-                            
-                        }
-                        else
-                        {
-
-                        }
-                        */
                         if (t.Height >= 0.45 && t.Height <= 0.55)
                         {
                             t.Metal = 0;
@@ -288,7 +314,7 @@ namespace Engine.Master
                                 t.Metal = 100;
                             else
                                 t.Metal = 0; // Game.Random.Next(3);
-                        }
+                        }*/
                         totalMetal += t.Metal;
                     }
                 }

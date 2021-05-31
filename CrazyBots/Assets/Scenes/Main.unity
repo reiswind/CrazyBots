@@ -1019,9 +1019,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 414a0fc06528949a0baff4f719b04a4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridWidth: 300
-  gridHeight: 300
-  GameSpeed: 0.4
+  gridWidth: 100
+  gridHeight: 100
+  GameSpeed: 0.8
 --- !u!4 &1571186512
 Transform:
   m_ObjectHideFlags: 0

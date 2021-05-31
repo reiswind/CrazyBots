@@ -106,6 +106,11 @@ namespace Engine.Master
                 move.Positions.Add(unitModel.Position);
                 newMoves.Add(move);
 
+                Tile t = Map.GetTile(unitModel.Position);
+                t.Metal = 0;
+                t.NumberOfSmallTrees = 0;
+                t.NumberOfRocks = 0;
+
                 // Turn into direction missing
             }
         }
@@ -732,14 +737,19 @@ namespace Engine.Master
                     }
                     else
                     {
+                        // Fired on ground (+Bullet)
+                        Tile targetTile = Map.GetTile(move.Positions[1]);
+                        targetTile.Metal++;
+                        if (targetTile.NumberOfSmallTrees > 0)
+                            targetTile.NumberOfSmallTrees--;
+                        else if (targetTile.NumberOfRocks > 0)
+                            targetTile.NumberOfRocks--;
+
                         Move hitmove = new Move();
                         hitmove.MoveType = MoveType.UpdateGround;
                         hitmove.Positions = new List<Position>();
                         hitmove.Positions.Add(move.Positions[1]);
                         nextMoves.Add(hitmove);
-
-                        // Fired on ground (+Bullet)
-                        Map.GetTile(move.Positions[1]).Metal++;
                     }
                     finishedMoves.Add(move);
                 }

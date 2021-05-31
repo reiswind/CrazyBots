@@ -351,6 +351,11 @@ namespace Engine.Master
                     {
                         // Unit full Not possible to extract
                         canExtractMore = false;
+
+                        if (Unit.Weapon != null && Unit.Weapon.Container.Metal < Unit.Weapon.Container.Capacity)
+                        {
+                            canExtractMore = true;
+                        }
                     }
                     else if (Unit.Container != null && Unit.Container.Metal + metalRemoved >= Unit.Container.Capacity)
                     {

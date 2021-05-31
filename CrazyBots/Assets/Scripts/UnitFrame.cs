@@ -321,6 +321,8 @@ public class UnitFrame
     internal string UnitId { get; set; }
     internal MonoBehaviour foundationPart;
 
+    internal bool HasBeenDestroyed { get; set; }
+
     public UnitFrame()
     {
         unitLayout = new UnitLayout();
@@ -328,6 +330,8 @@ public class UnitFrame
 
     public void Delete()
     {
+        HasBeenDestroyed = true;
+
         float delay = 0.3f * HexGrid.GameSpeed;
 
         foundationPart = null;
