@@ -519,251 +519,78 @@ namespace Engine.Ants
                 }
             }
 
-
-            List<Tile> tiles = MakeForwardTilesList(player, cntrlUnit);
-                /*
-            Tile tileForward = GetNextPosition(player, cntrlUnit.Pos, cntrlUnit.Direction, moves);
-            if (tileForward != null) tiles.Add(tileForward);
-
-            Tile tileLeft = GetNextPosition(player, cntrlUnit.Pos, TurnLeft(cntrlUnit.Direction), moves);
-            if (tileLeft != null) tiles.Add(tileLeft);
-
-            Tile tileRight = GetNextPosition(player, cntrlUnit.Pos, TurnRight(cntrlUnit.Direction), moves);
-            if (tileRight != null) tiles.Add(tileRight);
-                */
-            PheromoneType pheromoneType = PheromoneType.AwayFromEnergy;
-
-            // Minerals needed?
-            if (cntrlUnit.Weapon != null && !cntrlUnit.Weapon.WeaponLoaded)
-            {
-                pheromoneType = PheromoneType.ToFood;
-                //pheromoneType = PheromoneType.AwayFromEnergy;
-            }
-            else if (IsWorker)
-            {
-                if (cntrlUnit.Container != null && cntrlUnit.Container.Metal < cntrlUnit.Container.Capacity)
-                {
-                    // Fill up with food!
-                    pheromoneType = PheromoneType.ToFood;
-                }
-                else
-                {
-                    // Look for a target to unload
-                    pheromoneType = PheromoneType.ToHome;
-                }
-            }
-            else if (!IsWorker)
-            {
-                pheromoneType = PheromoneType.Enemy;
-            }
-
-            List<AntDestination> possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
-            if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.ToFood)
-            {
-                moveToPosition = Control.FindFood(player, this);
-                if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
-                {
-                    moveToPosition = null;
-                    FollowThisRoute = null;
-                }
-            }
-            if (IsWorker && possibleTiles.Count == 0 && pheromoneType == PheromoneType.ToHome)
-            {
-                moveToPosition = Control.FindContainer(player, this);
-                if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
-                {
-                    moveToPosition = null;
-                    FollowThisRoute = null;
-                }
-            }
-            if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.Enemy)
-            {
-                moveToPosition = Control.FindEnemy(player, this);
-                if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
-                {
-                    moveToPosition = null;
-                    FollowThisRoute = null;
-                }
-            }
             if (moveToPosition == null)
             {
-                if (possibleTiles.Count == 0 && pheromoneType != PheromoneType.AwayFromEnergy)
+                List<Tile> tiles = MakeForwardTilesList(player, cntrlUnit);
+                PheromoneType pheromoneType = PheromoneType.AwayFromEnergy;
+
+                // Minerals needed?
+                if (cntrlUnit.Weapon != null && !cntrlUnit.Weapon.WeaponLoaded)
                 {
-                    // Fighter may try to move to border until food is found
-                    pheromoneType = PheromoneType.AwayFromEnergy;
-                    possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
+                    pheromoneType = PheromoneType.ToFood;
+                    //pheromoneType = PheromoneType.AwayFromEnergy;
                 }
-
-                
-                    /*
-                    if (possibleTiles.Count == 0 && StuckCounter > 0)
-                    {
-                        Tile tileHardRight;
-                        Tile tileHardLeft;
-                        tileHardRight = GetNextPosition(player, cntrlUnit.Pos, TurnRight(TurnRight(cntrlUnit.Direction)), moves);
-                        AddDestination(possibleTiles, player, tileHardRight, 0.3f, true, pheromoneType);
-
-                        tileHardLeft = GetNextPosition(player, cntrlUnit.Pos, TurnLeft(TurnLeft(cntrlUnit.Direction)), moves);
-                        AddDestination(possibleTiles, player, tileHardLeft, 0.3f, true, pheromoneType);
-
-                        tileHardLeft = GetNextPosition(player, cntrlUnit.Pos, TurnAround(cntrlUnit.Direction), moves);
-                        AddDestination(possibleTiles, player, tileHardLeft, 0.1f, true, pheromoneType);
-                    }*/
-
-                AntDestination moveToTile = null;
-                while (possibleTiles.Count > 0 && moveToTile == null)
+                else if (IsWorker)
                 {
-                    moveToTile = FindBest(player, possibleTiles);
-                    if (moveToTile == null)
-                        break;
-
-                    if (Control.IsOccupied(player, moves, moveToTile.Tile.Pos))
+                    if (cntrlUnit.Container != null && cntrlUnit.Container.Metal < cntrlUnit.Container.Capacity)
                     {
-                        possibleTiles.Remove(moveToTile);
-                        moveToTile = null;
+                        // Fill up with food!
+                        pheromoneType = PheromoneType.ToFood;
                     }
-                }
-
-                if (moveToTile == null)
-                {
-                    if (pheromoneType == PheromoneType.AwayFromEnergy)
-                    {
-                        // out of reactor range
-                        moveToPosition = Control.FindReactor(player, this);
-                        if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
-                        {
-                            moveToPosition = null;
-                            FollowThisRoute = null;
-                        }
-                        else
-                        {
-                            cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
-                            return true;
-                        }
-                    }
-                    // cannot reach anything cause to crowded?
-                    //if (pheromoneType == PheromoneType.ToFood)
                     else
                     {
+                        // Look for a target to unload
                         pheromoneType = PheromoneType.ToHome;
+                    }
+                }
+                else if (!IsWorker)
+                {
+                    pheromoneType = PheromoneType.Enemy;
+                }
+
+                List<AntDestination> possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
+                if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.ToFood)
+                {
+                    moveToPosition = Control.FindFood(player, this);
+                    if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
+                    {
+                        moveToPosition = null;
+                        FollowThisRoute = null;
+                    }
+                }
+                if (IsWorker && possibleTiles.Count == 0 && pheromoneType == PheromoneType.ToHome)
+                {
+                    moveToPosition = Control.FindContainer(player, this);
+                    if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
+                    {
+                        moveToPosition = null;
+                        FollowThisRoute = null;
+                    }
+                }
+                if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.Enemy)
+                {
+                    moveToPosition = Control.FindEnemy(player, this);
+                    if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
+                    {
+                        moveToPosition = null;
+                        FollowThisRoute = null;
+                    }
+                }
+                if (moveToPosition == null)
+                {
+                    if (possibleTiles.Count == 0 && pheromoneType != PheromoneType.AwayFromEnergy)
+                    {
+                        // Fighter may try to move to border until food is found
+                        pheromoneType = PheromoneType.AwayFromEnergy;
                         possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
-                        if (possibleTiles.Count == 0)
-                        {
-                            pheromoneType = PheromoneType.AwayFromEnergy;
-                            possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
-                            if (possibleTiles.Count == 0)
-                            {
-                                cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
-                                return true;
-                            }
-                        }
-                        while (possibleTiles.Count > 0 && moveToTile == null)
-                        {
-                            moveToTile = FindBest(player, possibleTiles);
-                            if (moveToTile == null)
-                                break;
-
-                            if (Control.IsOccupied(player, moves, moveToTile.Tile.Pos))
-                            {
-                                possibleTiles.Remove(moveToTile);
-                                moveToTile = null;
-                            }
-                        }
                     }
-                }
-                if (moveToTile != null)
-                {
-                    moveToPosition = moveToTile.Tile.Pos;
-                }
-            }
 
-            /*
-            if (moveToTile != null && StuckCounter > 2)
-            {
-                // If it is really occupied
-                if (Control.IsOccupied(player, moves, moveToTile.Tile.Pos))
-                {
-                    moveToTile = null;
-                }
-            }*/
-
-            /* Does not help
-            if (moveToTile != null) // && ReturnHome)
-            {
-                // Wrong way check
-                List<AntDestination> checkPossibleTiles = new List<AntDestination>();
-                AddDestination(checkPossibleTiles, player, moveToTile.Tile, 1f, true, pheromoneType);
-
-                Tile back = GetNextPosition(player, cntrlUnit.Pos, TurnAround(cntrlUnit.Direction), moves);
-                AddDestination(checkPossibleTiles, player, back, 1f, true, pheromoneType);
-                if (checkPossibleTiles.Count == 2)
-                {
-                    AntDestination isBackBetter = FindBest(player, possibleTiles, pheromoneType);
-                    if (isBackBetter != null && isBackBetter != moveToTile)
+                    AntDestination moveToTile = null;
+                    while (possibleTiles.Count > 0 && moveToTile == null)
                     {
-                        moveToTile = isBackBetter;
-                    }
-                }
-            }*/
-
-            /*
-            if (moveToTile == null || StuckCounter > 2)
-            {
-                // No pheromone found, move randomly
-                if (ReturnHome) // pheromoneType == PheromoneType.ToHome)
-                {
-                    //return GoHome(player, moves, true);
-                    GotLostNoWayHome = true;
-                }
-                else
-                {
-                    // Smell Food
-                    bool smelled = SmellFood(player, moves);
-                    if (smelled)
-                    {
-                        return Move(player, moves, pheromoneType);
-                    }
-                }
-
-                possibleTiles.Clear();
-                // Add tiles without pheromones
-                AddDestination(possibleTiles, player, tileForward, 1f, true, PheromoneType.None);
-                AddDestination(possibleTiles, player, tileLeft, 1f, true, PheromoneType.None);
-                AddDestination(possibleTiles, player, tileRight, 1f, true, PheromoneType.None);
-
-                // Move random forward
-                while (moveToTile == null && possibleTiles.Count > 0)
-                {
-                    int idx = player.Game.Random.Next(possibleTiles.Count);
-                    moveToTile = possibleTiles[idx];
-
-                    if (Control.IsOccupied(player, moves, moveToTile.Tile.Pos))
-                    {
-                        possibleTiles.Remove(moveToTile);
-                        moveToTile = null;
-                    }
-                }
-                
-                if (moveToTile == null)
-                {
-                    // Move random backward
-                    possibleTiles.Clear();
-
-                    Tile tileHardRight;
-                    Tile tileHardLeft;
-                    tileHardRight = GetNextPosition(player, cntrlUnit.Pos, TurnRight(TurnRight(cntrlUnit.Direction)), moves);
-                    AddDestination(possibleTiles, player, tileHardRight, 0.3f, true, PheromoneType.None);
-
-                    tileHardLeft = GetNextPosition(player, cntrlUnit.Pos, TurnLeft(TurnLeft(cntrlUnit.Direction)), moves);
-                    AddDestination(possibleTiles, player, tileHardLeft, 0.3f, true, PheromoneType.None);
-
-                    tileHardLeft = GetNextPosition(player, cntrlUnit.Pos, TurnAround(cntrlUnit.Direction), moves);
-                    AddDestination(possibleTiles, player, tileHardLeft, 0.1f, true, PheromoneType.None);
-
-                    while (moveToTile == null && possibleTiles.Count > 0)
-                    {
-                        int idx = player.Game.Random.Next(possibleTiles.Count);
-                        moveToTile = possibleTiles[idx];
+                        moveToTile = FindBest(player, possibleTiles);
+                        if (moveToTile == null)
+                            break;
 
                         if (Control.IsOccupied(player, moves, moveToTile.Tile.Pos))
                         {
@@ -771,23 +598,70 @@ namespace Engine.Ants
                             moveToTile = null;
                         }
                     }
+
+                    if (moveToTile == null)
+                    {
+                        if (pheromoneType == PheromoneType.AwayFromEnergy)
+                        {
+                            // out of reactor range
+                            moveToPosition = Control.FindReactor(player, this);
+                            if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
+                            {
+                                moveToPosition = null;
+                                FollowThisRoute = null;
+                            }
+                            else
+                            {
+                                cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
+                                return true;
+                            }
+                        }
+                        // cannot reach anything cause to crowded?
+                        //if (pheromoneType == PheromoneType.ToFood)
+                        else
+                        {
+                            pheromoneType = PheromoneType.ToHome;
+                            possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
+                            if (possibleTiles.Count == 0)
+                            {
+                                pheromoneType = PheromoneType.AwayFromEnergy;
+                                possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
+                                if (possibleTiles.Count == 0)
+                                {
+                                    cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
+                                    return true;
+                                }
+                            }
+                            while (possibleTiles.Count > 0 && moveToTile == null)
+                            {
+                                moveToTile = FindBest(player, possibleTiles);
+                                if (moveToTile == null)
+                                    break;
+
+                                if (Control.IsOccupied(player, moves, moveToTile.Tile.Pos))
+                                {
+                                    possibleTiles.Remove(moveToTile);
+                                    moveToTile = null;
+                                }
+                            }
+                        }
+                    }
+                    if (moveToTile != null)
+                    {
+                        moveToPosition = moveToTile.Tile.Pos;
+                    }
                 }
-            }
-            */
 
-            /*
-            if (moveToTile != null)
-            {
-                if (CheckHandover(moveToTile.Tile.Pos, moves))
-                    return true;
-
-                // If it is really occupied
-                if (Control.IsOccupied(player, moves, moveToTile.Tile.Pos))
+                /*
+                if (moveToTile != null && StuckCounter > 2)
                 {
-                    moveToTile = null;
-                }
-            }*/
-
+                    // If it is really occupied
+                    if (Control.IsOccupied(player, moves, moveToTile.Tile.Pos))
+                    {
+                        moveToTile = null;
+                    }
+                }*/
+            }
             if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
             {
                 moveToPosition = null;

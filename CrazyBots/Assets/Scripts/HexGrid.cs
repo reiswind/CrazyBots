@@ -12,20 +12,16 @@ using UnityEngine.UI;
 
 public class HexGrid : MonoBehaviour 
 {
-	public Text cellLabelPrefab;
-
 	internal float hexCellHeight = 0.25f;
 
 	public int gridWidth = 20;
 	public int gridHeight = 20;
 	public float GameSpeed = 0.01f;
 
-	private Canvas gridCanvas;
-
 	public Dictionary<Position, HexCell> GroundCells { get; private set; }
 	public Dictionary<string, UnitFrame> Units { get; private set; }
 
-	// Shard with backgound tread
+	// Shared with backgound tread
 	internal IGameController game;
 	private bool windowClosed;
 	private List<Move> newMoves;
@@ -39,10 +35,14 @@ public class HexGrid : MonoBehaviour
 
 	void Awake()
 	{
+	}
+
+	internal void StartGame()
+	{ 
 		if (GameSpeed == 0)
 			GameSpeed = 0.01f;
 
-		gridCanvas = GetComponentInChildren<Canvas>();
+		//gridCanvas = GetComponentInChildren<Canvas>();
 
 		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
@@ -257,7 +257,7 @@ public class HexGrid : MonoBehaviour
 
 					MapInfo = game.GetDebugMapInfo();
 				}
-				//lastMapInfo = Game.Map.GetMapInfo();
+				//lastMapInfo = game.Map.GetMapInfo();
 				
 				// New move is ready, continue with next move
 				WaitForTurn.Set();

@@ -76,6 +76,7 @@ public class Weapon1 : MonoBehaviour
 
             //shot = true;
             Shell shell = UnitFrame.HexGrid.InstantiatePrefab<Shell>("Shell");
+            shell.gameObject.hideFlags = HideFlags.HideAndDontSave;
             shell.transform.position = launchPosition.position;
             //shell.transform.position = launchPosition; // transform.position;
             shell.transform.rotation = launchPosition.rotation;
