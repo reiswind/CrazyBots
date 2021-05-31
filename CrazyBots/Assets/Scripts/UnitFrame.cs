@@ -127,7 +127,7 @@ public class UnitLayout
         else
         {
             Vector3 unitPos3 = new Vector3();
-
+            /*
             if (frame1 == null)
             {
                 frame1 = hexGrid.InstantiatePrefab<Frame>("Frame");
@@ -156,7 +156,7 @@ public class UnitLayout
                 frame3.transform.SetParent(foundationPart.transform, false);
 
                 //unitPos3.y += 1.2f; // Height level 1 + 2 + 3
-            }
+            }*/
 
 
             frontLeft = false;
@@ -659,9 +659,9 @@ public class UnitFrame
 
         if (stats.WeaponLevel > 0)
         {
-            if (weapon1 == null && stats.WeaponLevel == 1)
+            if (weapon1 == null) // && stats.WeaponLevel == 1)
             {
-                weapon1 = HexGrid.InstantiatePrefab<Weapon1>("Weapon1");
+                weapon1 = HexGrid.InstantiatePrefab<Weapon1>("Weapon" + stats.WeaponLevel);
                 weapon1.UnitFrame = this;
                 weapon1.name = UnitId + "-Weapon";
                 SetPlayerColor(playerId, weapon1.gameObject);

@@ -170,19 +170,6 @@ public class HexGrid : MonoBehaviour
 		AddTree("Tree Type7 03", smallRocks, 0.35f);
 		AddTree("Tree Type7 04", smallRocks, 0.35f);
 
-
-		/*
-		GameObject treePrefab = Resources.Load<GameObject>("LowPolyTreePack/Prefabs/Tree Type0 03");
-
-		Vector3 sc = new Vector3();
-		sc.x = 0.3f;
-		sc.y = 0.3f;
-		sc.z = 0.3f;
-		treePrefab.transform.localScale = sc;
-		*/
-		//smallTrees.Add(treePrefab);
-
-
 		GameObject cellPrefab = (GameObject)Resources.Load("Prefabs/Terrain/HexCell 2");
 
 		// Render ground
@@ -211,6 +198,7 @@ public class HexGrid : MonoBehaviour
 
     public void Update()
     {
+		/*
 		if (!useThread)
         {
 			lastDeltaTime += Time.deltaTime;
@@ -269,7 +257,7 @@ public class HexGrid : MonoBehaviour
 
 				}
 			}
-		}
+		}*/
 	}
 
     public void ComputeMove()
@@ -395,8 +383,11 @@ public class HexGrid : MonoBehaviour
 					     move.MoveType == MoveType.Extract ||
 						 move.MoveType == MoveType.Fire)
 				{
-					UnitFrame unit = Units[move.UnitId];
-					unit.NextMove = move;
+					if (Units.ContainsKey(move.UnitId)) // Playervision
+					{
+						UnitFrame unit = Units[move.UnitId];
+						unit.NextMove = move;
+					}
 				}
 				else if (move.MoveType == MoveType.Hit)
 				{

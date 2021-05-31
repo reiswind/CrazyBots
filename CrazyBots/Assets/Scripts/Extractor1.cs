@@ -10,7 +10,10 @@ public class Extractor1 : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        UnitFrame?.Move(this);
+        if (UnitFrame == null)
+            return;
+
+        UnitFrame.Move(this);
         if (UnitFrame.NextMove?.MoveType == MoveType.Extract)
         {
             ParticleSystem particleSource;

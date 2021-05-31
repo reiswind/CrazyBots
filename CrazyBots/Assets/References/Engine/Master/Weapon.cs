@@ -14,7 +14,14 @@ namespace Engine.Master
         public Weapon(Unit owner, int level) : base(owner)
         {
             Container = new Container(owner, 1);
-            Container.Capacity = 1;
+            if (level == 1)
+                Container.Capacity = 1;
+            else if (level == 2)
+                Container.Capacity = 3;
+            else if (level == 3)
+                Container.Capacity = 10;
+
+
             Level = level;
         }
 
@@ -38,52 +45,6 @@ namespace Engine.Master
             }
         }
 
-        private void ListHitableTiles(List<Tile> resultList, List<Position> includedPositions)
-        {
-            List<TileWithDistance> openList = new List<TileWithDistance>();
-            Dictionary<Position, TileWithDistance> reachedTiles = new Dictionary<Position, TileWithDistance>();
-
-            TileWithDistance startTile = new TileWithDistance(Unit.Game.Map.GetTile(Unit.Pos), 0);
-
-            openList.Add(startTile);
-            reachedTiles.Add(startTile.Pos, startTile);
-
-            while (openList.Count > 0)
-            {
-                TileWithDistance tile = openList[0];
-                openList.RemoveAt(0);
-
-                if (tile.Distance > Range)
-                    continue;
-
-                foreach (Tile n in tile.Neighbors)
-                {
-                    if (n.Pos == Unit.Pos)
-                        continue;
-
-                    if (!Unit.Owner.VisiblePositions.Contains(n.Pos))
-                        continue;
-
-                    if (includedPositions != null)
-                    {
-                        if (!includedPositions.Contains(n.Pos))
-                            continue;
-                    }
-                    if (!reachedTiles.ContainsKey(n.Pos))
-                    {
-                        TileWithDistance neighborsTile = new TileWithDistance(Unit.Game.Map.GetTile(n.Pos), tile.Distance + 1);
-                        reachedTiles.Add(neighborsTile.Pos, neighborsTile);
-
-                        if (neighborsTile.Distance <= Range)
-                        {
-                            openList.Add(neighborsTile);
-                            resultList.Add(n);
-                        }
-                    }
-                }
-            }
-        }
-
         public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position> includedPositions, MoveFilter moveFilter)
         {
             if ((moveFilter & MoveFilter.Fire) == 0)
@@ -92,14 +53,28 @@ namespace Engine.Master
             if (!WeaponLoaded)
                 return;
 
-            List<Tile> resultList = new List<Tile>();
-            ListHitableTiles(resultList, includedPositions);
-            foreach (Tile n in resultList)
+
+
+            Dictionary<Position, TileWithDistance> tiles = Unit.Game.Map.EnumerateTiles(Unit.Pos, Range , false, matcher: tile =>
+            {
+                if (tile.Pos == Unit.Pos)
+                    return true;
+
+                if (!Unit.Owner.VisiblePositions.Contains(tile.Pos))
+                    return false;
+
+                return true;
+            });
+
+
+            //List<Tile> resultList = new List<Tile>();
+            //ListHitableTiles(resultList, includedPositions);
+            foreach (TileWithDistance n in tiles.Values)
             {
                 // Cannot fire on ground
                 if (n.Unit == null)
                 {
-                    if (n.NumberOfSmallTrees > 0 || n.NumberOfRocks > 0)
+                    if (n.Tile.NumberOfSmallTrees > 0 || n.Tile.NumberOfRocks > 0)
                     {
                         Move move = new Move();
                         move.MoveType = MoveType.Fire;
@@ -107,7 +82,7 @@ namespace Engine.Master
                         move.OtherUnitId = "Tree";
                         move.Positions = new List<Position>();
                         move.Positions.Add(Unit.Pos);
-                        move.Positions.Add(n.Pos);
+                        move.Positions.Add(n.Tile.Pos);
 
                         possibleMoves.Add(move);
 

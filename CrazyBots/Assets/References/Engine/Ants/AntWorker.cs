@@ -887,9 +887,21 @@ namespace Engine.Ants
                 if (possiblemoves.Count > 0)
                 {
                     int idx = player.Game.Random.Next(possiblemoves.Count);
-                    moves.Add(possiblemoves[idx]);
-                    unitMoved = true;
-                    return unitMoved;
+                    if (cntrlUnit.Engine == null)
+                    {
+                        // Do not fire at trees
+                        while (possiblemoves.Count > 0 && possiblemoves[idx].OtherUnitId == "Tree")
+                        {
+                            possiblemoves.RemoveAt(idx);
+                            idx = player.Game.Random.Next(possiblemoves.Count);
+                        }
+                    }
+                    if (possiblemoves.Count > 0)
+                    {
+                        moves.Add(possiblemoves[idx]);
+                        unitMoved = true;
+                        return unitMoved;
+                    }
                 }
             }
 

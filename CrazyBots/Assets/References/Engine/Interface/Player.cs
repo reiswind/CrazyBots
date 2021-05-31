@@ -102,7 +102,13 @@ namespace Engine.Interface
         {
             List<Position> calcPos = new List<Position>();
 
-            CollectVisiblePos(this.Unit.Game, pos, calcPos, 2);
+            int visibilityRange = 2;
+            if (Unit.Reactor != null)
+            {
+                visibilityRange = 15;
+            }
+
+            CollectVisiblePos(this.Unit.Game, pos, calcPos, visibilityRange);
             positions.AddRange(calcPos);
             if (keep)
             {

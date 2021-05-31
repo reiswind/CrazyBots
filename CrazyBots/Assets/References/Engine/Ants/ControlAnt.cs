@@ -25,8 +25,8 @@ namespace Engine.Control
 
         public Dictionary<Position, Ant> CreatedAnts = new Dictionary<Position, Ant>();
 
-        public int MaxWorker = 5;
-        public int MaxFighter = 15;
+        public int MaxWorker = 8;
+        public int MaxFighter = 35;
         public int NumberOfWorkers;
         public int NumberOfFighter;
 
@@ -586,6 +586,15 @@ namespace Engine.Control
                                 antWorker.PlayerUnit = playerUnit;
                                 antWorker.Alive = true;
                                 antWorker.IsWorker = playerUnit.Unit.Weapon == null;
+                                Ants.Add(cntrlUnit.UnitId, antWorker);
+                            }
+                            else if (playerUnit.Unit.Weapon != null)
+                            {
+                                // Defense?
+                                AntWorker antWorker = new AntWorker(this);
+                                antWorker.PlayerUnit = playerUnit;
+                                antWorker.Alive = true;
+                                antWorker.IsWorker = false;
                                 Ants.Add(cntrlUnit.UnitId, antWorker);
                             }
                         }

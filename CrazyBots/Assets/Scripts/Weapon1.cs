@@ -32,14 +32,20 @@ public class Weapon1 : MonoBehaviour
 
     internal void UpdateContent(bool weaponLoaded)
     {
-        Transform ammo = transform.Find("Ammo");
+        Transform weapon = transform.Find("Weapon");
+        if (weapon == null) weapon = transform;
+
+        Transform ammo = weapon.Find("Ammo");
         ammo?.gameObject.SetActive(weaponLoaded);
     }
 
     // Update is called once per frame
     void Update()
     {
-        UnitFrame?.Move(this);
+        if (UnitFrame == null)
+            return;
+
+        UnitFrame.Move(this);
         if (UnitFrame?.NextMove?.MoveType == MoveType.Move)
         {
             if (shot > 0)
@@ -53,7 +59,7 @@ public class Weapon1 : MonoBehaviour
 
                     Vector3 unitPos3 = targetCell.Cell.transform.localPosition;
                     unitPos3.y += UnitFrame.HexGrid.hexCellHeight;
-                    UpdateDirection(unitPos3);
+                    //UpdateDirection(unitPos3);
                 }
             }
         }
@@ -62,7 +68,28 @@ public class Weapon1 : MonoBehaviour
             Position FinalDestination = UnitFrame.NextMove.Positions[UnitFrame.NextMove.Positions.Count - 1];
             HexCell targetCell = UnitFrame.HexGrid.GroundCells[FinalDestination];
 
-            Transform launchPosition = transform.Find("Ammo");
+            float angle = 25;
+            Transform launchPosition;
+            Transform weaponPosition = transform.Find("Weapon");
+            if (weaponPosition != null)
+            {
+                angle = 2;
+                UpdateDirection(weaponPosition.transform, targetCell.Cell.transform.position, 0.04f);
+                launchPosition = weaponPosition.transform.Find("Ammo");
+            }
+            else
+            {
+                UpdateDirection(transform, targetCell.Cell.transform.position, 3.4f);
+                launchPosition = transform.Find("Ammo");
+            }
+
+            //launchPosition = transform.Find("Ammo");
+            if (launchPosition == null)
+            {
+                Debug.LogError("Missing Ammo");
+                return;
+            }
+            launchPosition.gameObject.SetActive(false);
 
             /*
             Vector3 unitPos3 = targetCell.Cell.transform.localPosition;
@@ -86,17 +113,17 @@ public class Weapon1 : MonoBehaviour
 
             Rigidbody rigidbody = shell.GetComponent<Rigidbody>();
 
-            rigidbody.velocity = calcBallisticVelocityVector(launchPosition.position, targetCell.Cell.transform.position, 25);
+            rigidbody.velocity = calcBallisticVelocityVector(launchPosition.position, targetCell.Cell.transform.position, angle);
             shot = 10;
 
             UnitFrame.NextMove = null;
         }
     }
 
-    void UpdateDirection(Vector3 position)
+    static void UpdateDirection(Transform transform, Vector3 position, float speed)
     {
         //float speed = 1.75f;
-        float speed = 3.5f / UnitFrame.HexGrid.GameSpeed;
+        //float speed = 3.5f / UnitFrame.HexGrid.GameSpeed;
 
         // Determine which direction to rotate towards
         Vector3 targetDirection = position - transform.position;

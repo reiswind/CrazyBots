@@ -276,19 +276,34 @@ namespace Engine.Master
 
             if (fromTile.Unit != null)
             {
+                // friendly unit
                 if (fromTile.Unit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
                 {
-                    // friendly unit
+                    Container targetContainer = null;
+                    if (Unit.Weapon != null && Unit.Weapon.Container != null && Unit.Weapon.Container.Metal < Unit.Weapon.Container.Capacity)
+                    {
+                        targetContainer = Unit.Weapon.Container;
+                    }
+                    if (Unit.Container != null)
+                    {
+                        targetContainer = Unit.Container;
+                    }
+
+                    Container sourceContainer = null;
                     if (fromTile.Unit.Container != null && fromTile.Unit.Container.Metal > 0)
                     {
-                        if (Unit.Container != null)
+                        sourceContainer = fromTile.Unit.Container;
+                    }
+                    if (sourceContainer != null && sourceContainer.Metal > 0)
+                    {
+                        if (targetContainer != null)
                         {
                             int totalMetal = 0;
 
                             if (fromTile.Unit.Engine != null)
                             {
                                 // Take all
-                                totalMetal = fromTile.Unit.Container.Metal;
+                                totalMetal = sourceContainer.Metal;
                             }
                             else
                             {
@@ -299,21 +314,21 @@ namespace Engine.Master
                                 else
                                 {
                                     // Take all
-                                    totalMetal = fromTile.Unit.Container.Metal;
+                                    totalMetal = sourceContainer.Metal;
                                 }
 
                             }
                             
-                            if (Unit.Container.Metal + totalMetal > Unit.Container.Capacity)
+                            if (targetContainer.Metal + totalMetal > targetContainer.Capacity)
                             {
                                 // Remove not more than fits in the container
-                                metalRemoved = Unit.Container.Capacity - Unit.Container.Metal;
-                                fromTile.Unit.Container.Metal -= metalRemoved;
+                                metalRemoved = targetContainer.Capacity - targetContainer.Metal;
+                                sourceContainer.Metal -= metalRemoved;
                             }
                             else
                             {
                                 metalRemoved = totalMetal;
-                                fromTile.Unit.Container.Metal -= metalRemoved;
+                                sourceContainer.Metal -= metalRemoved;
                             }
 
                             /*
@@ -323,7 +338,7 @@ namespace Engine.Master
                                 fromTile.Unit.Metal = 0;
                             }*/
 
-                            if (fromTile.Unit.Container.Metal < 0)
+                            if (sourceContainer.Metal < 0)
                             {
                                 throw new Exception("omg");
                             }
@@ -347,17 +362,17 @@ namespace Engine.Master
                     }
 
                     bool canExtractMore = true;
-                    if (Unit.Container == null)
+                    if (targetContainer == null)
                     {
                         // Unit full Not possible to extract
                         canExtractMore = false;
-
+                        /*
                         if (Unit.Weapon != null && Unit.Weapon.Container.Metal < Unit.Weapon.Container.Capacity)
                         {
                             canExtractMore = true;
-                        }
+                        }*/
                     }
-                    else if (Unit.Container != null && Unit.Container.Metal + metalRemoved >= Unit.Container.Capacity)
+                    else if (targetContainer.Metal + metalRemoved >= targetContainer.Capacity)
                     {
                         // Unit full Not possible to extract
                         canExtractMore = false;

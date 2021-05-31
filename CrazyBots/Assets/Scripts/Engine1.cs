@@ -18,7 +18,10 @@ public class Engine1 : MonoBehaviour
 
     void Update()
     {
-        UnitFrame?.Move(this);
+        if (UnitFrame == null)
+            return;
+
+        UnitFrame.Move(this);
         if (false && UnitFrame.NextMove?.MoveType == MoveType.Add)
         {
             Position FinalDestination = UnitFrame.NextMove.Positions[UnitFrame.NextMove.Positions.Count - 1];

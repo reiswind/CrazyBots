@@ -50,12 +50,33 @@
       }
     },
 	{
+      "Name": "DefenseTower",
+      "PlayerId": 1,
+	  "Parts": "0;0;3;0;1;0;0;0",
+      "Position": {
+        "X": 10,
+        "Y": 9
+      }
+    },
+	{
+      "Name": "DefenseTower",
+      "PlayerId": 1,
+	  "Parts": "0;0;3;0;1;0;0;0",
+      "Position": {
+        "X": 11,
+        "Y": 7
+      }
+    },
+	
+	
+	
+	{
       "Name": "Colony2",
       "PlayerId": 2,
 	  "Parts": "0;0;0;1;1;F1;1;0",
       "Position": {
-        "X": 18,
-        "Y": 14
+        "X": 10,
+        "Y": 29
       }
     },
 	{
@@ -63,8 +84,8 @@
       "PlayerId": 2,
 	  "Parts": "0;0;0;1;1;F1;1;0",
       "Position": {
-        "X": 18,
-        "Y": 17
+        "X": 9,
+        "Y": 24
       }
     },
 	{
@@ -72,8 +93,8 @@
       "PlayerId": 2,
 	  "Parts": "0;0;0;1;1;F1;1;0",
       "Position": {
-        "X": 22,
-        "Y": 16
+        "X": 7,
+        "Y": 24
       }
     },
 	{
