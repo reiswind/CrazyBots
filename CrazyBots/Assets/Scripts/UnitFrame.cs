@@ -35,10 +35,6 @@ public class UnitLayout
     bool rearLeft = true;
     bool rearRight = true;
 
-    internal Frame frame1; // Frame level 1
-    internal Frame frame2; // Frame level 2
-    internal Frame frame3; // Frame level 3
-
     public bool PlaceWeapon(MonoBehaviour container1, MonoBehaviour foundationPart, HexCell targetCell, HexGrid hexGrid)
     {
         if (frontLeft == false || frontRight == false || centerLeft == false || centerRight == false)
@@ -537,11 +533,6 @@ public class UnitFrame
                 }
                 else
                 {
-                    if (unitLayout.frame1 != null)
-                    {
-                        HexGrid.Destroy(unitLayout.frame1.gameObject);
-                        unitLayout.frame1 = null;
-                    }
                     unitLayout.PlaceBigPart(assembler, foundationPart, targetCell, HexGrid);
                 }
             }

@@ -32,6 +32,10 @@ namespace Engine.Interface
 
     public class MoveUpdateStats
     {
+        public MoveUpdateStats()
+        {
+
+        }
 
         [DataMember]
         public int EngineLevel { get; set; }
@@ -77,6 +81,11 @@ namespace Engine.Interface
     [DataContract]
     public class Move
     {
+        public Move()
+        {
+
+        }
+
         internal int Priority { get; set; }
         /// <summary>
         /// The Player who made that move
@@ -84,7 +93,6 @@ namespace Engine.Interface
         [DataMember]
         public int PlayerId { get; set; }
         [DataMember]
-        [JsonConverter(typeof(StringEnumConverter))]
         public MoveType MoveType { get; set; }
         /// <summary>
         /// The route

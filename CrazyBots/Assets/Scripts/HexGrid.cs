@@ -1,5 +1,6 @@
 ﻿
 using Engine.Interface;
+using Newtonsoft.Json;
 using System;
 //using Engine.Master;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class HexGrid : MonoBehaviour 
@@ -27,9 +29,12 @@ public class HexGrid : MonoBehaviour
 	private List<Move> newMoves;
 	public EventWaitHandle WaitForTurn = new EventWaitHandle(false, EventResetMode.AutoReset);
 	public EventWaitHandle WaitForDraw = new EventWaitHandle(false, EventResetMode.AutoReset);
-	private Thread computeMoves = null;
+	private Thread computeMoves;
 
-	private bool useThread = true;
+	private bool useThread;
+
+	private string remoteGameIndex;
+
 
 	public MapInfo MapInfo;
 
@@ -38,7 +43,7 @@ public class HexGrid : MonoBehaviour
 	}
 
 	internal void StartGame()
-	{ 
+	{
 		if (GameSpeed == 0)
 			GameSpeed = 0.01f;
 
@@ -86,6 +91,7 @@ public class HexGrid : MonoBehaviour
 		CreateGame(gameModel);
 
 		InvokeRepeating("invoke", 0.5f, GameSpeed);
+
 	}
 
 
@@ -124,9 +130,14 @@ public class HexGrid : MonoBehaviour
 		newMoves = new List<Move>();
 
 		if (gameModel.Seed.HasValue)
+		{
 			game = gameModel.CreateGame(gameModel.Seed.Value);
+		}
 		else
+		{
 			game = gameModel.CreateGame();
+			gameModel.Seed = game.Seed;
+		}
 
 		GroundCells = new Dictionary<Position, HexCell>();
 		Units = new Dictionary<string, UnitFrame>();
@@ -138,8 +149,6 @@ public class HexGrid : MonoBehaviour
 		AddTree("Tree Type4 05", smallTrees, 0.2f);
 		AddTree("Tree Type0 02", smallTrees, 0.2f);
 
-
-		//AddRock("Rock Type2 03", smallRocks, 0.3f);
 		AddRock("Rock Type1 01", smallRocks, 0.3f);
 		AddRock("Rock Type1 02", smallRocks, 0.3f);
 		AddRock("Rock Type1 03", smallRocks, 0.3f);
@@ -185,6 +194,15 @@ public class HexGrid : MonoBehaviour
 			}
 		}
 
+		if (Application.platform == RuntimePlatform.WebGLPlayer)
+		{
+			
+		}
+		else
+        {
+			useThread = true;
+		}
+
 		if (useThread)
 		{
 			// Start game engine
@@ -192,72 +210,82 @@ public class HexGrid : MonoBehaviour
 			computeMoves.Start();
 			WaitForDraw.Set();
 		}
+		else
+        {
+			StartCoroutine(StartRemoteGame(gameModel));
+		}
 	}
 
-	private float lastDeltaTime;
+	private bool readyForNextMove;
+
+	IEnumerator<object> StartRemoteGame(GameModel gameModel)
+	{
+		string body = JsonConvert.SerializeObject(gameModel);
+
+		using (UnityWebRequest www = UnityWebRequest.Post("https://fastfertig.net/api/GameEngine", body))
+		{
+			yield return www.SendWebRequest();
+
+			if (www.result != UnityWebRequest.Result.Success)
+			{
+				Debug.Log(www.error);
+			}
+			else
+			{
+				remoteGameIndex = www.downloadHandler.text;
+				readyForNextMove = true;
+			}
+		}
+	}
+
+	IEnumerator<object> GetRemoteMove()
+	{
+		if (string.IsNullOrEmpty(remoteGameIndex))
+		{
+			yield return null;
+		}
+		else
+		{
+			string body = "";
+			using (UnityWebRequest www = UnityWebRequest.Post("https://fastfertig.net/api/GameMove/" + remoteGameIndex, body))
+			{
+				yield return www.SendWebRequest();
+
+				if (www.result != UnityWebRequest.Result.Success)
+				{
+					Debug.Log(www.error);
+				}
+				else
+				{
+					string movesJson = www.downloadHandler.text;
+					if (!string.IsNullOrEmpty(movesJson))
+					{
+						List<Move> current = JsonConvert.DeserializeObject(movesJson, typeof(List<Move>)) as List<Move>;
+
+						newMoves.Clear();
+						newMoves.AddRange(current);
+
+						ProcessNewMoves();
+
+						readyForNextMove = true;
+					}
+				}
+			}
+		}
+	}
+
 
     public void Update()
     {
 		/*
 		if (!useThread)
         {
-			lastDeltaTime += Time.deltaTime;
-			if (lastDeltaTime > 1)
-			{
-				lastDeltaTime = 0;
-
-				Move nextMove = new Move();
-				nextMove.MoveType = MoveType.None;
-
-				List<Move> newMoves = game.ProcessMove(0, nextMove);
-
-				foreach (Move move in newMoves)
-				{
-					if (move.MoveType == MoveType.Add)
-					{
-						CreateUnit(move);
-					}
-					else if (move.MoveType == MoveType.UpdateStats)
-					{
-						UnitFrame unit = Units[move.UnitId];
-						unit.UpdateStats(move.Stats);
-					}
-					else if (move.MoveType == MoveType.Move ||
-							 move.MoveType == MoveType.Extract ||
-							 move.MoveType == MoveType.Fire)
-					{
-						UnitFrame unit = Units[move.UnitId];
-						unit.NextMove = move;
-					}
-					else if (move.MoveType == MoveType.Hit)
-					{
-						UnitFrame unit = Units[move.UnitId];
-						unit.NextMove = move;
-					}
-					else if (move.MoveType == MoveType.Upgrade)
-					{
-						UnitFrame unit = Units[move.OtherUnitId];
-						unit.NextMove = move;
-					}
-					else if (move.MoveType == MoveType.UpdateGround)
-					{
-						HexCell hexCell = GroundCells[move.Positions[0]];
-						hexCell.NextMove = move;
-						hexCell.UpdateGround();
-					}
-					else if (move.MoveType == MoveType.Delete)
-					{
-						Debug.Log("Delete Unit " + move.UnitId);
-
-						UnitFrame unit = Units[move.UnitId];
-						unit.NextMove = null;
-						unit.Delete();
-						Units.Remove(move.UnitId);
-					}
-
-				}
+			if (readyForNextMove)
+            {
+				readyForNextMove = false;
+				StartCoroutine(GetRemoteMove());
 			}
-		}*/
+        }*/
 	}
 
     public void ComputeMove()
@@ -317,12 +345,12 @@ public class HexGrid : MonoBehaviour
 
 	private List<Position> updatedPositions = new List<Position>();
 
-	void invoke()
+	private void ProcessNewMoves()
 	{
-		if (WaitForTurn.WaitOne(10))
-		{
-			List<Position> newUpdatedPositions = new List<Position>();
+		List<Position> newUpdatedPositions = new List<Position>();
 
+		if (MapInfo != null)
+		{
 			foreach (Position pos in MapInfo.Pheromones.Keys)
 			{
 				MapPheromone mapPheromone = MapInfo.Pheromones[pos];
@@ -333,7 +361,7 @@ public class HexGrid : MonoBehaviour
 				updatedPositions.Remove(pos);
 			}
 			foreach (Position pos in updatedPositions)
-            {
+			{
 				HexCell hexCell = GroundCells[pos];
 				hexCell.Update(null);
 			}
@@ -341,83 +369,101 @@ public class HexGrid : MonoBehaviour
 
 			// 
 			foreach (MapPlayerInfo mapPlayerInfo in MapInfo.PlayerInfo.Values)
-            {
-			}
-
-			foreach (UnitFrame unitFrame in Units.Values)
-            {
-				//if (unitFrame.FinalDestination != null)
-				{
-					unitFrame.JumpToTarget(unitFrame.FinalDestination);
-					//unitFrame.FinalDestination = null;
-				}
-				unitFrame.NextMove = null;
-			}
-
-			foreach (Move move in newMoves)
 			{
-				if (move.MoveType == MoveType.Add)
-				{
-					if (Units.ContainsKey(move.UnitId))
-					{
-						// Happend in player view
-					}
-					else
-					{
-						CreateUnit(move);
-					}
-				}
-				else if (move.MoveType == MoveType.UpdateStats)
-				{
-					if (Units.ContainsKey(move.UnitId))
-					{
-						UnitFrame unit = Units[move.UnitId];
-						unit.UpdateStats(move.Stats);
-					}
-					else
-					{
-						// Happend in player view
-					}
-				}
-				else if (move.MoveType == MoveType.Move || 
-					     move.MoveType == MoveType.Extract ||
-						 move.MoveType == MoveType.Fire)
-				{
-					if (Units.ContainsKey(move.UnitId)) // Playervision
-					{
-						UnitFrame unit = Units[move.UnitId];
-						unit.NextMove = move;
-					}
-				}
-				else if (move.MoveType == MoveType.Hit)
-				{
-					UnitFrame unit = Units[move.UnitId];
-					unit.NextMove = move;
-				}
-				else if (move.MoveType == MoveType.Upgrade)
-				{
-					UnitFrame unit = Units[move.OtherUnitId];
-					unit.NextMove = move;
-				}
-				else if (move.MoveType == MoveType.UpdateGround)
-				{
-					HexCell hexCell = GroundCells[move.Positions[0]];
-					hexCell.NextMove = move;
-					hexCell.UpdateGround();
-				}
-				else if (move.MoveType == MoveType.Delete)
-				{
-					Debug.Log("Delete Unit " + move.UnitId);
-
-					UnitFrame unit = Units[move.UnitId];
-					unit.NextMove = null;
-					unit.Delete();
-					Units.Remove(move.UnitId);
-				}
-
 			}
-			newMoves.Clear();
-			WaitForDraw.Set();
+		}
+
+		foreach (UnitFrame unitFrame in Units.Values)
+		{
+			//if (unitFrame.FinalDestination != null)
+			{
+				unitFrame.JumpToTarget(unitFrame.FinalDestination);
+				//unitFrame.FinalDestination = null;
+			}
+			unitFrame.NextMove = null;
+		}
+
+		foreach (Move move in newMoves)
+		{
+			if (move.MoveType == MoveType.Add)
+			{
+				if (Units.ContainsKey(move.UnitId))
+				{
+					// Happend in player view
+				}
+				else
+				{
+					CreateUnit(move);
+				}
+			}
+			else if (move.MoveType == MoveType.UpdateStats)
+			{
+				if (Units.ContainsKey(move.UnitId))
+				{
+					UnitFrame unit = Units[move.UnitId];
+					unit.UpdateStats(move.Stats);
+				}
+				else
+				{
+					// Happend in player view
+				}
+			}
+			else if (move.MoveType == MoveType.Move ||
+					 move.MoveType == MoveType.Extract ||
+					 move.MoveType == MoveType.Fire)
+			{
+				if (Units.ContainsKey(move.UnitId)) // Playervision
+				{
+					UnitFrame unit = Units[move.UnitId];
+					unit.NextMove = move;
+				}
+			}
+			else if (move.MoveType == MoveType.Hit)
+			{
+				UnitFrame unit = Units[move.UnitId];
+				unit.NextMove = move;
+			}
+			else if (move.MoveType == MoveType.Upgrade)
+			{
+				UnitFrame unit = Units[move.OtherUnitId];
+				unit.NextMove = move;
+			}
+			else if (move.MoveType == MoveType.UpdateGround)
+			{
+				HexCell hexCell = GroundCells[move.Positions[0]];
+				hexCell.NextMove = move;
+				hexCell.UpdateGround();
+			}
+			else if (move.MoveType == MoveType.Delete)
+			{
+				Debug.Log("Delete Unit " + move.UnitId);
+
+				UnitFrame unit = Units[move.UnitId];
+				unit.NextMove = null;
+				unit.Delete();
+				Units.Remove(move.UnitId);
+			}
+		}
+		newMoves.Clear();
+	}
+
+	void invoke()
+	{
+		if (!useThread)
+        {
+			if (readyForNextMove)
+			{
+				readyForNextMove = false;
+				StartCoroutine(GetRemoteMove());
+			}
+		}
+		if (useThread)
+		{
+			if (WaitForTurn.WaitOne(10))
+			{
+				ProcessNewMoves();
+				WaitForDraw.Set();
+			}
 		}
 	}
 
