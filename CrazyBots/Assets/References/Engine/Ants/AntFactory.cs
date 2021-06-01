@@ -75,7 +75,10 @@ namespace Engine.Ants
             {
                 //addAssembler = false;
                 if (cntrlUnit.Container != null && cntrlUnit.Container.Metal >= cntrlUnit.Container.Capacity)
-                    addContainer = true;
+                {
+                    if (player.PlayerModel.Id > 1)
+                        addContainer = true;
+                }
             }
 
             bool addWorker = false;
@@ -292,6 +295,8 @@ namespace Engine.Ants
                                     {
                                         AntWorker antWorker = new AntWorker(Control);
                                         antWorker.IsWorker = true;
+                                        antWorker.HoldPosition = true;
+
                                         Control.NumberOfWorkers++;
                                         Control.CreatedAnts.Add(move.Positions[1], antWorker);
                                     }

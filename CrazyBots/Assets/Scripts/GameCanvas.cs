@@ -1,3 +1,4 @@
+using Engine.Interface;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,12 +25,63 @@ public class GameCanvas : MonoBehaviour
     UnitFrame unitFrame = null;
     string selectedObjectText;
 
+    private Tile GetClickedPosition()
+    {
+        RaycastHit raycastHit;
+
+        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out raycastHit, Mathf.Infinity))
+        {
+            foreach (HexCell cell in Game.GroundCells.Values)
+            {
+                if (cell.Cell == raycastHit.collider.gameObject)
+                {
+                    return cell.Tile;
+                }
+            }
+        }
+        return null;
+    }
+
+    private bool ShifKeyIsDown;
+
     // Update is called once per frame
     void Update()
     {
         if (Game != null && Game.MapInfo != null)
         {
             UIMineralText.text = Game.MapInfo.TotalMetal.ToString();
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+            ShifKeyIsDown = true;
+        if (Input.GetKeyUp(KeyCode.LeftShift))
+            ShifKeyIsDown = false;
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            Tile targetPosition = GetClickedPosition();
+
+            if (unitFrame != null && targetPosition != null && targetPosition.CanMoveTo())
+            {
+                // Move it there
+                GameCommand gameCommand = new GameCommand();
+
+                gameCommand.UnitId = unitFrame.UnitId;
+                gameCommand.UnitPosition = unitFrame.currentPos;
+                gameCommand.TargetPosition = targetPosition.Pos;
+                gameCommand.UnitMoveType = UnitMoveType.Move;
+
+                gameCommand.Append = ShifKeyIsDown;
+
+                Game.GameCommands.Add(gameCommand);
+                /*
+                if (gameCommand.Append)
+                    Debug.Log("Move to " + gameCommand.TargetPosition.X + "," + gameCommand.TargetPosition.Y + " SHIFT");
+                else
+                    Debug.Log("Move to " + gameCommand.TargetPosition.X + "," + gameCommand.TargetPosition.Y);
+                */
+            }
+
         }
 
         if (Input.GetMouseButtonDown(0))

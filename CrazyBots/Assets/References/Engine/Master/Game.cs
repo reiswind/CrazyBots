@@ -1319,7 +1319,7 @@ namespace Engine.Master
             }
         }
 
-        public List<Move> ProcessMove(int playerId, Move myMove)
+        public List<Move> ProcessMove(int playerId, Move myMove, List<GameCommand> gameCommands)
         {
             List<Move> returnMoves = new List<Move>();
             lock (GameModel)
@@ -1364,6 +1364,40 @@ namespace Engine.Master
                             }
                             newMoves.AddRange(lastMoves);
                             lastMoves.Clear();
+                        }
+                    }
+                }
+
+                if (gameCommands != null)
+                {
+                    foreach (GameCommand gameCommand in gameCommands)
+                    {
+                        Unit unit = Map.Units.FindUnit(gameCommand.UnitId);
+                        if (unit != null)
+                        {
+                            if (unit.UnitId != gameCommand.UnitId)
+                            {
+                                throw new Exception("bah!");
+                            }
+                            if (unit.GameCommands == null)
+                                unit.GameCommands = new List<GameCommand>();
+
+                            // No shift? Everything before is garbage
+                            if (!gameCommand.Append)
+                            {
+                                unit.GameCommands.Clear();
+                            }
+                            unit.GameCommands.Add(gameCommand);
+                            
+                            foreach (GameCommand gameCommand1 in unit.GameCommands)
+                            {
+                                if (gameCommand.Append)
+                                    UnityEngine.Debug.Log("Move to " + gameCommand1.TargetPosition.X + "," + gameCommand1.TargetPosition.Y + " SHIFT");
+                                else
+                                    UnityEngine.Debug.Log("Move to " + gameCommand1.TargetPosition.X + "," + gameCommand1.TargetPosition.Y);
+                            }
+                            
+
                         }
                     }
                 }

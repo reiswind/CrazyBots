@@ -94,6 +94,16 @@ namespace Engine.Master
             units.TryGetValue(pos, out unit);
             return unit;
         }
+
+        public Unit FindUnit(string unitId)
+        {
+            foreach (Unit unit in units.Values)
+            {
+                if (unit.UnitId == unitId)
+                    return unit;
+            }
+            return null;
+        }
     }
 
 }

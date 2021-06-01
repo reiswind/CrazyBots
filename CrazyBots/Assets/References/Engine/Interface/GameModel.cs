@@ -9,6 +9,21 @@ using System.Threading.Tasks;
 
 namespace Engine.Interface
 {
+    public enum UnitMoveType
+    {
+        Move,
+        AttackMove
+    }
+
+    public class GameCommand
+    {
+        public string UnitId { get; set; }
+        public Position UnitPosition { get; set; }
+        public Position TargetPosition { get; set; }
+        public UnitMoveType UnitMoveType { get; set; }
+        public bool Append { get; set; }
+    }
+
     public enum MoveFilter
     {
         Fire = 0x0001,
@@ -28,7 +43,7 @@ namespace Engine.Interface
     public interface IGameController
     {
         MapInfo GetDebugMapInfo();
-        List<Move> ProcessMove(int playerId, Move myMove);
+        List<Move> ProcessMove(int playerId, Move myMove, List<GameCommand> gameCommands);
 
         void ComputePossibleMoves(Position pos, List<Move> possibleMoves, List<Position> includedPositions, MoveFilter moveFilter);
         Move MoveTo(Position From, Position To, Master.Engine engine);

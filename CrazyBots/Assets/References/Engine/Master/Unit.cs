@@ -100,8 +100,7 @@ namespace Engine.Master
         [DataMember]
         public string UnitId { get; set; }
 
-        // Unit can store one Metal.
-        //public int Metal { get; set; }
+        public List<GameCommand> GameCommands { get; set; }
         public int Power { get; set; }
 
         // Unit can be extracted

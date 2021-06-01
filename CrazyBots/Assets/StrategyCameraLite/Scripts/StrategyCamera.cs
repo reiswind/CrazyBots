@@ -25,7 +25,7 @@ public class StrategyCamera : MonoBehaviour
 	[Header("Movement Input settings")]
 	public string MovementForwardAxis = "Vertical";
 	public string MovementSidewaysAxis = "Horizontal";
-	public KeyCode FastSpeedKey = KeyCode.LeftShift;
+	public KeyCode FastSpeedKey = KeyCode.RightShift; //.LeftShift;
 	public bool AllowMouseDragging = true;
 	public MouseButton DraggingMouseButton = MouseButton.RightMouseButton;
 	public bool InvertDragging = false;

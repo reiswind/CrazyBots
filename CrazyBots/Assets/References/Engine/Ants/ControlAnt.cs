@@ -11,10 +11,6 @@ using System.Threading.Tasks;
 
 namespace Engine.Control
 {
-
-
-    
-
     internal class ControlAnt : IControl
     {
         public PlayerModel PlayerModel { get; set; }
@@ -25,8 +21,8 @@ namespace Engine.Control
 
         public Dictionary<Position, Ant> CreatedAnts = new Dictionary<Position, Ant>();
 
-        public int MaxWorker = 8;
-        public int MaxFighter = 35;
+        public int MaxWorker = 3;
+        public int MaxFighter = 0;
         public int NumberOfWorkers;
         public int NumberOfFighter;
 
@@ -653,9 +649,6 @@ namespace Engine.Control
                     }
                     else if (ant.PlayerUnit.Unit.UnderConstruction)
                     {
-                        //if (ant.PlayerUnit.Unit.Engine != null)
-                        //    NumberOfWorkers++;
-
                         movableAnts.Add(ant);
                     }
                     else
@@ -684,6 +677,13 @@ namespace Engine.Control
                     if (!(ant is AntFactory))
                     {
                         if (!ant.PlayerUnit.Unit.IsComplete())
+                        {
+                            movableAnts.Remove(ant);
+                            continue;
+                        }
+                        ant.HandleGameCommands(player);
+                        
+                        if (ant.CurrentGameCommand == null && ant.HoldPosition)
                         {
                             movableAnts.Remove(ant);
                             continue;

@@ -20,15 +20,19 @@ public class HexGrid : MonoBehaviour
 	public int gridHeight = 20;
 	public float GameSpeed = 0.01f;
 
-	public Dictionary<Position, HexCell> GroundCells { get; private set; }
-	public Dictionary<string, UnitFrame> Units { get; private set; }
+	internal Dictionary<Position, HexCell> GroundCells { get; private set; }
+	internal Dictionary<string, UnitFrame> Units { get; private set; }
 
-	// Shared with backgound tread
+	// Filled in UI Thread
+	internal List<GameCommand> GameCommands { get; private set; }
+
+	// Shared with backgound thread
 	internal IGameController game;
 	private bool windowClosed;
 	private List<Move> newMoves;
-	public EventWaitHandle WaitForTurn = new EventWaitHandle(false, EventResetMode.AutoReset);
-	public EventWaitHandle WaitForDraw = new EventWaitHandle(false, EventResetMode.AutoReset);
+	private List<GameCommand> newGameCommands;
+	internal EventWaitHandle WaitForTurn = new EventWaitHandle(false, EventResetMode.AutoReset);
+	internal EventWaitHandle WaitForDraw = new EventWaitHandle(false, EventResetMode.AutoReset);
 	private Thread computeMoves;
 
 	private bool useThread;
@@ -49,10 +53,10 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -139,6 +143,7 @@ public class HexGrid : MonoBehaviour
 			gameModel.Seed = game.Seed;
 		}
 
+		GameCommands = new List<GameCommand>();
 		GroundCells = new Dictionary<Position, HexCell>();
 		Units = new Dictionary<string, UnitFrame>();
 
@@ -274,20 +279,6 @@ public class HexGrid : MonoBehaviour
 		}
 	}
 
-
-    public void Update()
-    {
-		/*
-		if (!useThread)
-        {
-			if (readyForNextMove)
-            {
-				readyForNextMove = false;
-				StartCoroutine(GetRemoteMove());
-			}
-        }*/
-	}
-
     public void ComputeMove()
 	{
 		try
@@ -312,11 +303,23 @@ public class HexGrid : MonoBehaviour
 
 				Move nextMove = new Move();
 				nextMove.MoveType = MoveType.None;
+				if (newGameCommands != null)
+				{
+					foreach (GameCommand gameCommand in newGameCommands)
+					{
+						if (gameCommand.Append)
+							UnityEngine.Debug.Log("NEW to " + gameCommand.TargetPosition.X + "," + gameCommand.TargetPosition.Y + " SHIFT");
+						else
+							UnityEngine.Debug.Log("NEW to " + gameCommand.TargetPosition.X + "," + gameCommand.TargetPosition.Y);
+					}
+				}
 
-				List<Move> current = game.ProcessMove(id, nextMove);
+				List<Move> current = game.ProcessMove(id, nextMove, newGameCommands);
+				newGameCommands = null;
+
 				if (newMoves.Count > 0)
 				{
-					// Heppens during shutdown, ignore
+					// Happens during shutdown, ignore
 					windowClosed = true;
 				}
 				else
@@ -326,7 +329,6 @@ public class HexGrid : MonoBehaviour
 
 					MapInfo = game.GetDebugMapInfo();
 				}
-				//lastMapInfo = game.Map.GetMapInfo();
 				
 				// New move is ready, continue with next move
 				WaitForTurn.Set();
@@ -461,6 +463,9 @@ public class HexGrid : MonoBehaviour
 		{
 			if (WaitForTurn.WaitOne(10))
 			{
+				newGameCommands = GameCommands;
+				GameCommands = new List<GameCommand>();
+
 				ProcessNewMoves();
 				WaitForDraw.Set();
 			}
