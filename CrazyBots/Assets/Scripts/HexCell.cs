@@ -11,6 +11,7 @@ public class HexCell
     public bool ShowPheromones { get; set; }
     internal GameObject Cell { get; set; }
     private List<GameObject> minerals;
+    private GameObject mineralObstacle;
     private List<GameObject> destructables;
     private List<GameObject> obstacles;
 
@@ -183,7 +184,7 @@ public class HexCell
                 int treeIdx = HexGrid.game.Random.Next(HexGrid.smallTrees.Count);
                 destructable = HexGrid.Instantiate(HexGrid.smallTrees[treeIdx], Cell.transform, false);
             }
-
+            destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
             destructable.transform.position = unitPos3;
 
             destructables.Add(destructable);
@@ -207,6 +208,7 @@ public class HexCell
             int treeIdx = HexGrid.game.Random.Next(HexGrid.obstacles.Count);
             obstacle = HexGrid.Instantiate(HexGrid.obstacles[treeIdx], Cell.transform, false);
 
+            obstacle.transform.Rotate(Vector3.up, Random.Range(0, 360));
             obstacle.transform.position = unitPos3;
 
             obstacles.Add(obstacle);
@@ -222,29 +224,61 @@ public class HexCell
 
     internal void CreateMinerals()
     {
-        while (minerals.Count < Tile.Metal)
+        if (Tile.Metal >= 20 )
         {
-            Vector2 randomPos = Random.insideUnitCircle;
+            if (mineralObstacle == null)
+            {
+                Material crystalMaterial = Resources.Load<Material>("Materials/CrystalMat");
 
-            Vector3 unitPos3 = Cell.transform.position;
-            unitPos3.x += (randomPos.x * 0.7f);
-            unitPos3.z += (randomPos.y * 0.8f);
-            unitPos3.y += 0.13f; // 
+                int treeIdx = HexGrid.game.Random.Next(HexGrid.obstacles.Count);
+                mineralObstacle = HexGrid.Instantiate(HexGrid.obstacles[treeIdx], Cell.transform, false);
 
-            GameObject crystalResource = Resources.Load<GameObject>("Prefabs/Terrain/Crystal");
-            GameObject crystal = HexGrid.Instantiate(crystalResource, Cell.transform, false);
-            
-            crystal.transform.SetPositionAndRotation(unitPos3, Random.rotation);
+                MeshRenderer meshRenderer = mineralObstacle.GetComponent<MeshRenderer>();
+                meshRenderer.material = crystalMaterial;
+                mineralObstacle.transform.Rotate(Vector3.up, Random.Range(0, 360));
 
-            minerals.Add(crystal);
+                mineralObstacle.transform.position = Cell.transform.position;
+            }
+
+            while (minerals.Count > 0)
+            {
+                GameObject crystal = minerals[0];
+                HexGrid.Destroy(crystal);
+                minerals.Remove(crystal);
+            }
         }
-        while (minerals.Count > Tile.Metal)
+        else 
         {
-            GameObject crystal = minerals[0];
+            if (Tile.Metal < 20 && mineralObstacle != null)
+            {
+                HexGrid.Destroy(mineralObstacle);
+                mineralObstacle = null;
+            }
+            
+            while (minerals.Count < Tile.Metal)
+            {
+                Vector2 randomPos = Random.insideUnitCircle;
 
-            HexGrid.Destroy(crystal);
+                Vector3 unitPos3 = Cell.transform.position;
+                unitPos3.x += (randomPos.x * 0.7f);
+                unitPos3.z += (randomPos.y * 0.8f);
+                unitPos3.y += 0.13f; // 
 
-            minerals.Remove(crystal);
+                GameObject crystalResource = Resources.Load<GameObject>("Prefabs/Terrain/Crystal");
+                GameObject crystal = HexGrid.Instantiate(crystalResource, Cell.transform, false);
+
+                crystal.transform.SetPositionAndRotation(unitPos3, Random.rotation);
+
+                minerals.Add(crystal);
+            }
+            while (minerals.Count > Tile.Metal)
+            {
+                GameObject crystal = minerals[0];
+
+                HexGrid.Destroy(crystal);
+
+                minerals.Remove(crystal);
+            }
         }
     }
 }

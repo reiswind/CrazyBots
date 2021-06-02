@@ -890,7 +890,7 @@ namespace Engine.Ants
                     if (cntrlUnit.Engine == null)
                     {
                         // Do not fire at trees
-                        while (possiblemoves.Count > 0 && possiblemoves[idx].OtherUnitId == "Tree")
+                        while (possiblemoves.Count > 0 && possiblemoves[idx].OtherUnitId == "Destructable")
                         {
                             possiblemoves.RemoveAt(idx);
                             idx = player.Game.Random.Next(possiblemoves.Count);

@@ -13,7 +13,13 @@ namespace Engine.Master
         public int Level { get; set; }
         public Weapon(Unit owner, int level) : base(owner)
         {
-            Container = new Container(owner, 1);
+            int justatest = 0;
+            if (owner.Owner != null &&
+                owner.Owner.PlayerModel.Id == 2)
+                Container = new Container(owner, 3);
+            else
+                Container = new Container(owner, 1);
+
             if (level == 1)
                 Container.Capacity = 1;
             else if (level == 2)

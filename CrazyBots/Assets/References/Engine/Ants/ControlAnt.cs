@@ -21,8 +21,8 @@ namespace Engine.Control
 
         public Dictionary<Position, Ant> CreatedAnts = new Dictionary<Position, Ant>();
 
-        public int MaxWorker = 3;
-        public int MaxFighter = 0;
+        public int MaxWorker = 5;
+        public int MaxFighter = 25;
         public int NumberOfWorkers;
         public int NumberOfFighter;
 
@@ -668,13 +668,22 @@ namespace Engine.Control
                 }
             }
 
+            foreach (Ant ant in unmovedAnts)
+            {
+                if (ant is AntContainer)
+                {
+                    ant.Move(player, moves);
+                    movableAnts.Remove(ant);
+                }
+            }
+
             unmovedAnts.Clear();    
             unmovedAnts.AddRange(movableAnts);
             while (unmovedAnts.Count > 0)
             {
                 foreach (Ant ant in unmovedAnts)
                 {
-                    if (!(ant is AntFactory))
+                    if (ant is AntWorker)
                     {
                         if (!ant.PlayerUnit.Unit.IsComplete())
                         {

@@ -298,6 +298,8 @@ namespace Engine.Master
                             if (Game.Random.Next(20) == 0)
                                 t.Metal = 20;
                         }
+
+                        
                         totalMetal += t.Metal;
                     }
                 }

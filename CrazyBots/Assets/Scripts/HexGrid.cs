@@ -49,10 +49,10 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -144,6 +144,10 @@ public class HexGrid : MonoBehaviour
 		GroundCells = new Dictionary<Position, HexCell>();
 		Units = new Dictionary<string, UnitFrame>();
 
+		AddRock("Rock Type1 01", obstacles, 0.8f);
+		AddRock("Rock Type1 02", obstacles, 0.8f);
+		AddRock("Rock Type5 02", obstacles, 0.3f);
+		AddRock("Rock Type3 02", obstacles, 0.8f);
 		AddRock("Rock Type6 04", obstacles, 0.8f);
 
 		AddTree("Tree Type0 03", smallTrees, 0.2f);
