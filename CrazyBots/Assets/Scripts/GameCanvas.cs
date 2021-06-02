@@ -25,7 +25,7 @@ public class GameCanvas : MonoBehaviour
     UnitFrame unitFrame = null;
     string selectedObjectText;
 
-    private Tile GetClickedPosition()
+    private HexCell GetClickedPosition()
     {
         RaycastHit raycastHit;
 
@@ -35,7 +35,7 @@ public class GameCanvas : MonoBehaviour
             {
                 if (cell.Cell == raycastHit.collider.gameObject)
                 {
-                    return cell.Tile;
+                    return cell;
                 }
             }
         }
@@ -59,21 +59,38 @@ public class GameCanvas : MonoBehaviour
 
         if (Input.GetMouseButtonDown(1))
         {
-            Tile targetPosition = GetClickedPosition();
+            HexCell targetCell = GetClickedPosition();
 
-            if (unitFrame != null && targetPosition != null && targetPosition.CanMoveTo())
+            if (unitFrame != null && targetCell != null && targetCell.Tile.CanMoveTo())
             {
-                // Move it there
-                GameCommand gameCommand = new GameCommand();
+                if (unitFrame.IsAssembler())
+                {
+                    // Move it there
+                    GameCommand gameCommand = new GameCommand();
 
-                gameCommand.UnitId = unitFrame.UnitId;
-                gameCommand.UnitPosition = unitFrame.currentPos;
-                gameCommand.TargetPosition = targetPosition.Pos;
-                gameCommand.UnitMoveType = UnitMoveType.Move;
+                    gameCommand.UnitId = unitFrame.UnitId;
+                    gameCommand.TargetPosition = targetCell.Tile.Pos;
 
-                gameCommand.Append = ShifKeyIsDown;
+                    if (targetCell.Tile.Metal > 0)
+                        gameCommand.GameCommandType = GameCommandType.Minerals;
+                    else
+                        gameCommand.GameCommandType = GameCommandType.Attack;
 
-                Game.GameCommands.Add(gameCommand);
+                    gameCommand.Append = ShifKeyIsDown;
+                    Game.GameCommands.Add(gameCommand);
+
+                    if (!ShifKeyIsDown)
+                        unitFrame.ClearWayPoints();
+
+                    UnitCommand unitCommand = new UnitCommand();
+                    unitCommand.GameCommand = gameCommand;
+                    unitCommand.TargetCell = targetCell;
+
+                    unitFrame.UnitCommands.Add(unitCommand);
+                    unitFrame.UpdateWayPoints();
+
+                    targetCell.UnitCommands.Add(unitCommand);
+                }
                 /*
                 if (gameCommand.Append)
                     Debug.Log("Move to " + gameCommand.TargetPosition.X + "," + gameCommand.TargetPosition.Y + " SHIFT");
@@ -102,6 +119,11 @@ public class GameCanvas : MonoBehaviour
                 {
                     Weapon1 weapon1 = raycastHit.collider.GetComponent<Weapon1>();
                     if (weapon1 != null) unitFrame = weapon1.UnitFrame;
+                }
+                if (unitFrame == null)
+                {
+                    Assembler1 assembler1 = raycastHit.collider.GetComponent<Assembler1>();
+                    if (assembler1 != null) unitFrame = assembler1.UnitFrame;
                 }
                 if (unitFrame == null)
                 {

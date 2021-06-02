@@ -297,6 +297,12 @@ namespace Engine.Ants
                                         antWorker.IsWorker = true;
                                         Control.NumberOfWorkers++;
                                         Control.CreatedAnts.Add(move.Positions[1], antWorker);
+
+                                        /*
+                                        if (cntrlUnit.GameCommands != null && cntrlUnit.GameCommands.Count > 0)
+                                        {
+                                            antWorker.CurrentGameCommand = cntrlUnit.GameCommands[0];
+                                        }*/
                                     }
                                     else if (addFighter)
                                     {
@@ -304,6 +310,20 @@ namespace Engine.Ants
                                         antWorker.IsWorker = false;
                                         Control.NumberOfFighter++;
                                         Control.CreatedAnts.Add(move.Positions[1], antWorker);
+
+                                        
+                                        if (cntrlUnit.GameCommands != null && cntrlUnit.GameCommands.Count > 0)
+                                        {
+                                            GameCommand gameCommand = cntrlUnit.GameCommands[0];
+                                            if (gameCommand.GameCommandType == GameCommandType.Attack)
+                                            {
+                                                GameCommand attackMove = new GameCommand();
+                                                attackMove.GameCommandType = GameCommandType.AttackMove;
+                                                attackMove.TargetPosition = gameCommand.TargetPosition;
+
+                                                antWorker.CurrentGameCommand = attackMove;
+                                            }
+                                        }
                                     }
 
                                     unitMoved = true;

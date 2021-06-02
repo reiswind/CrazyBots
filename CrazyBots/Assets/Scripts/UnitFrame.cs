@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 
 public class UnitPart : MonoBehaviour
@@ -292,10 +293,15 @@ public class UnitLayout
 
 }
 
+public class UnitCommand
+{
+    public GameCommand GameCommand { get; set; }
+    public GameObject GameObject { get; set; }
+    public HexCell TargetCell { get; set; }
+}
 
 public class UnitFrame
 {
-  
     public Position FinalDestination { get; set; }
     public Move NextMove { get; set; }
     public HexGrid HexGrid { get; set; }
@@ -319,9 +325,18 @@ public class UnitFrame
 
     internal bool HasBeenDestroyed { get; set; }
 
+    internal List<UnitCommand> UnitCommands { get; private set; }
+
     public UnitFrame()
     {
         unitLayout = new UnitLayout();
+
+        UnitCommands = new List<UnitCommand>();
+    }
+
+    public bool IsAssembler()
+    {
+        return assembler != null && engine1 == null;
     }
 
     public void Delete()
@@ -424,6 +439,59 @@ public class UnitFrame
         }
         
 
+    }
+
+    public void ClearWayPoints()
+    {
+        foreach (UnitCommand unitCommand in UnitCommands)
+        {
+            if (unitCommand.GameObject != null)
+            {
+                HexGrid.Destroy(unitCommand.GameObject);
+            }
+        }
+        UnitCommands.Clear();
+    }
+
+    public void UpdateWayPoints()
+    {
+        foreach (UnitCommand unitCommand in UnitCommands)
+        {
+            if (unitCommand.GameObject == null)
+            {
+                HexCell targetCell = HexGrid.GroundCells[unitCommand.GameCommand.TargetPosition];
+
+                GameObject waypointPrefab = Resources.Load<GameObject>("Prefabs/Terrain/Waypoint");
+
+                unitCommand.GameObject = HexGrid.Instantiate(waypointPrefab, targetCell.Cell.transform, false);
+                unitCommand.GameObject.name = "Waypoint";
+
+                //var go = new GameObject();
+                var lr = unitCommand.GameObject.GetComponent<LineRenderer>();
+                //lr.startWidth = 0.1f;
+                lr.startColor = Color.red;
+
+                //lr.endWidth = 0.1f;
+                lr.endColor = Color.red;
+
+                //var gun = GameObject.Find("Gun");
+                //var projectile = GameObject.Find("Projectile");
+
+                Vector3 v1 = foundationPart.transform.position;
+                Vector3 v2 = targetCell.Cell.transform.position;
+                v1.y += 0.3f;
+                v2.y += 0.3f;
+
+                lr.SetPosition(0, v1);
+                lr.SetPosition(1, v2);
+
+                /*
+                Vector3 v1 = foundationPart.transform.position;
+                Vector3 v2 = targetCell.Cell.transform.position;
+                v1.y = v2.y = 5;
+                Debug.DrawLine(v1, v2, Color.red, 100);*/
+            }
+        }
     }
 
     public void Assemble()

@@ -9,18 +9,20 @@ using System.Threading.Tasks;
 
 namespace Engine.Interface
 {
-    public enum UnitMoveType
+    public enum GameCommandType
     {
         Move,
-        AttackMove
+        AttackMove,
+        Attack,
+        Minerals
     }
 
     public class GameCommand
     {
         public string UnitId { get; set; }
-        public Position UnitPosition { get; set; }
+        //public Position UnitPosition { get; set; }
         public Position TargetPosition { get; set; }
-        public UnitMoveType UnitMoveType { get; set; }
+        public GameCommandType GameCommandType { get; set; }
         public bool Append { get; set; }
     }
 

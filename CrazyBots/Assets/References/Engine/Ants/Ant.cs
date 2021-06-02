@@ -52,6 +52,7 @@ namespace Engine.Ants
 
         internal void HandleGameCommands(Player player)
         {
+            bool hasChanged = false;
             if (PlayerUnit.Unit.GameCommands != null && PlayerUnit.Unit.GameCommands.Count > 0)
             {
                 /*
@@ -114,6 +115,7 @@ namespace Engine.Ants
                                 PlayerUnit.Unit.GameCommands.RemoveAt(0);
                             CurrentGameCommand = null;
                             FollowThisRoute = null;
+                            hasChanged = true;
                         }
 
                     }
@@ -122,6 +124,7 @@ namespace Engine.Ants
                 {
                     CurrentGameCommand = null;
                     FollowThisRoute = null;
+                    hasChanged = true;
                 }
                 if (CurrentGameCommand == null)
                 {                    
@@ -134,20 +137,34 @@ namespace Engine.Ants
                             CurrentGameCommand = gameCommand;
                     }
                 }
-
-                if (CurrentGameCommand != null && FollowThisRoute == null)
+                if (CurrentGameCommand != null)
                 {
-                    List<Position> positions = player.Game.FindPath(PlayerUnit.Unit.Pos, CurrentGameCommand.TargetPosition, PlayerUnit.Unit);
-                    if (positions != null && positions.Count > 1)
+                    if (CurrentGameCommand.GameCommandType == GameCommandType.Attack)
                     {
-                        FollowThisRoute = new List<Position>();
-                        for (int i = 1; i < positions.Count; i++)
+                        if (hasChanged)
                         {
-                            FollowThisRoute.Add(positions[i]);
+                            //int x = player.Game.Pheromones.DropPheromones(player, CurrentGameCommand.TargetPosition, 5, PheromoneType.Enemy, 0.5f, true);
+                            Control.EnemyFound(player, CurrentGameCommand.TargetPosition);
+                        }
+                    }
+
+                    if (CurrentGameCommand.GameCommandType == GameCommandType.Move ||
+                        CurrentGameCommand.GameCommandType == GameCommandType.AttackMove)
+                    {
+                        if (CurrentGameCommand != null && FollowThisRoute == null)
+                        {
+                            List<Position> positions = player.Game.FindPath(PlayerUnit.Unit.Pos, CurrentGameCommand.TargetPosition, PlayerUnit.Unit);
+                            if (positions != null && positions.Count > 1)
+                            {
+                                FollowThisRoute = new List<Position>();
+                                for (int i = 1; i < positions.Count; i++)
+                                {
+                                    FollowThisRoute.Add(positions[i]);
+                                }
+                            }
                         }
                     }
                 }
-
             }
         }
 

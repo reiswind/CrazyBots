@@ -10,6 +10,9 @@ public class HexCell
     public Move NextMove { get; set; }
     public bool ShowPheromones { get; set; }
     internal GameObject Cell { get; set; }
+
+    internal List<UnitCommand> UnitCommands { get; private set; }
+
     private List<GameObject> minerals;
     private GameObject mineralObstacle;
     private List<GameObject> destructables;
@@ -26,6 +29,9 @@ public class HexCell
         minerals = new List<GameObject>();
         destructables = new List<GameObject>();
         obstacles = new List<GameObject>();
+
+        UnitCommands = new List<UnitCommand>();
+        ShowPheromones = true;
     }
 
     internal void Update(MapPheromone mapPheromone)

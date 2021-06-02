@@ -21,7 +21,7 @@ namespace Engine.Control
 
         public Dictionary<Position, Ant> CreatedAnts = new Dictionary<Position, Ant>();
 
-        public int MaxWorker = 5;
+        public int MaxWorker = 2;
         public int MaxFighter = 25;
         public int NumberOfWorkers;
         public int NumberOfFighter;
@@ -133,18 +133,21 @@ namespace Engine.Control
 
         private Dictionary<Position, int> enemyDeposits = new Dictionary<Position, int>();
 
-        public void EnemyFound(Player player, Position pos)
+        public int EnemyFound(Player player, Position pos)
         {
+            int id;
             if (enemyDeposits.ContainsKey(pos))
             {
+                id = enemyDeposits[pos];
                 // Update
-                player.Game.Pheromones.UpdatePheromones(enemyDeposits[pos], 1);
+                player.Game.Pheromones.UpdatePheromones(id, 0.5f);
             }
             else
             {
-                int id = player.Game.Pheromones.DropPheromones(player, pos, 3, PheromoneType.Enemy, 1, false);
+                id = player.Game.Pheromones.DropPheromones(player, pos, 5, PheromoneType.Enemy, 0.5f, false);
                 enemyDeposits.Add(pos, id);
             }
+            return id;
         }
 
         public void MineralsFound(Player player, Position pos)
@@ -515,11 +518,12 @@ namespace Engine.Control
             }
 
             // Remove all spotted enemys
+            /*
             foreach (int id in enemyDeposits.Values)
             {
                 player.Game.Pheromones.DeletePheromones(id);
             }
-            enemyDeposits.Clear();
+            enemyDeposits.Clear();*/
 
             // Update spotted minerals
             List<Position> removeSpottedMinerals = new List<Position>();
@@ -536,7 +540,6 @@ namespace Engine.Control
                 player.Game.Pheromones.DeletePheromones(mineralsDeposits[pos]);
                 mineralsDeposits.Remove(pos);
             }
-            enemyDeposits.Clear();
 
             foreach (Ant ant in Ants.Values)
             {
@@ -565,6 +568,17 @@ namespace Engine.Control
                             ant.Alive = true;
                             ant.PlayerUnit = playerUnit;
                             Ants.Add(cntrlUnit.UnitId, ant);
+
+                            if (ant.CurrentGameCommand != null)
+                            {
+                                ant.CurrentGameCommand.UnitId = cntrlUnit.UnitId;
+                                if (ant.PlayerUnit.Unit.GameCommands == null)
+                                    ant.PlayerUnit.Unit.GameCommands = new List<GameCommand>();
+                                ant.PlayerUnit.Unit.GameCommands.Add(ant.CurrentGameCommand);
+                                ant.CurrentGameCommand = null;
+
+                                ant.HandleGameCommands(player);
+                            }
                         }
                         else
                         {
@@ -598,7 +612,7 @@ namespace Engine.Control
                 }
                 else
                 {
-                    EnemyFound(player, cntrlUnit.Pos);
+                    //EnemyFound(player, cntrlUnit.Pos);
                 }
             }
 
@@ -663,6 +677,8 @@ namespace Engine.Control
             {
                 if (ant is AntFactory)
                 {
+                    ant.HandleGameCommands(player);
+
                     ant.Move(player, moves);
                     movableAnts.Remove(ant);
                 }
