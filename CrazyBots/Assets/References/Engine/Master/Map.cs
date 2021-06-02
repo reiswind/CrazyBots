@@ -247,7 +247,7 @@ namespace Engine.Master
                         {
                             if (Game.Random.Next(8) == 1)
                             {
-                                t.NumberOfSmallTrees = 1;
+                                t.NumberOfDestructables = 1;
                                 t.Metal = 1;
                             }
                         }
@@ -255,7 +255,7 @@ namespace Engine.Master
                         {
                             if (Game.Random.Next(14) == 0)
                             {
-                                t.NumberOfSmallTrees = 3;
+                                t.NumberOfDestructables = 3;
                                 t.Metal = 1;
                             }
                         }
@@ -263,7 +263,7 @@ namespace Engine.Master
                         {
                             if (Game.Random.Next(25) == 0)
                             {
-                                t.NumberOfSmallTrees = 4;
+                                t.NumberOfDestructables = 4;
                                 t.Metal = 1;
                             }
                         }
@@ -271,7 +271,7 @@ namespace Engine.Master
                         {
                             if (Game.Random.Next(25) == 0)
                             {
-                                t.NumberOfRocks = 4;
+                                t.NumberOfDestructables = 4;
                                 t.Metal = 4;
                             }
                         }
@@ -279,12 +279,12 @@ namespace Engine.Master
                         {
                             if (Game.Random.Next(30) == 0)
                             {
-                                t.NumberOfRocks = 3;
+                                t.NumberOfDestructables = 3;
                                 t.Metal = 3;
                             }
                             else if (Game.Random.Next(20) == 0)
                             {
-                                t.NumberOfRocks = 2;
+                                t.NumberOfObstacles = 2;
                                 t.Metal = 2;
                             }
                         }
@@ -298,23 +298,6 @@ namespace Engine.Master
                             if (Game.Random.Next(20) == 0)
                                 t.Metal = 20;
                         }
-                        /*
-                        if (t.Height >= 0.45 && t.Height <= 0.55)
-                        {
-                            t.Metal = 0;
-                        }
-                        else if (t.Height > 0.27 && t.Height < 0.33)
-                        {
-                            t.Metal = 0;
-                        }
-                        else
-                        {
-                            if (Game.Random.Next(80) == 0)
-                                //if (t.Pos.X == 30 && t.Pos.Y == 15)
-                                t.Metal = 100;
-                            else
-                                t.Metal = 0; // Game.Random.Next(3);
-                        }*/
                         totalMetal += t.Metal;
                     }
                 }

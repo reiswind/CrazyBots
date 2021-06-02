@@ -74,12 +74,12 @@ namespace Engine.Master
                 // Cannot fire on ground
                 if (n.Unit == null)
                 {
-                    if (n.Tile.NumberOfSmallTrees > 0 || n.Tile.NumberOfRocks > 0)
+                    if (n.Tile.NumberOfDestructables > 0)
                     {
                         Move move = new Move();
                         move.MoveType = MoveType.Fire;
                         move.UnitId = Unit.UnitId;
-                        move.OtherUnitId = "Tree";
+                        move.OtherUnitId = "Destructable";
                         move.Positions = new List<Position>();
                         move.Positions.Add(Unit.Pos);
                         move.Positions.Add(n.Tile.Pos);

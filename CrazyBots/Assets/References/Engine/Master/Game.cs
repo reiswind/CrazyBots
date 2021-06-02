@@ -108,8 +108,8 @@ namespace Engine.Master
 
                 Tile t = Map.GetTile(unitModel.Position);
                 t.Metal = 0;
-                t.NumberOfSmallTrees = 0;
-                t.NumberOfRocks = 0;
+                t.NumberOfDestructables = 0;
+                t.NumberOfObstacles = 0;
 
                 // Turn into direction missing
             }
@@ -740,10 +740,8 @@ namespace Engine.Master
                         // Fired on ground (+Bullet)
                         Tile targetTile = Map.GetTile(move.Positions[1]);
                         targetTile.Metal++;
-                        if (targetTile.NumberOfSmallTrees > 0)
-                            targetTile.NumberOfSmallTrees--;
-                        else if (targetTile.NumberOfRocks > 0)
-                            targetTile.NumberOfRocks--;
+                        if (targetTile.NumberOfDestructables > 0)
+                            targetTile.NumberOfDestructables--;
 
                         Move hitmove = new Move();
                         hitmove.MoveType = MoveType.UpdateGround;
@@ -1234,7 +1232,7 @@ namespace Engine.Master
             CollisionCntr++;
             if (CollisionCntr == 127)
             {
-                int x = 0;
+
             }
 
             bool somethingChanged = true;

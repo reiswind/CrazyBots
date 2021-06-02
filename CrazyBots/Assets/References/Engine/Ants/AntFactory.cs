@@ -295,8 +295,6 @@ namespace Engine.Ants
                                     {
                                         AntWorker antWorker = new AntWorker(Control);
                                         antWorker.IsWorker = true;
-                                        antWorker.HoldPosition = true;
-
                                         Control.NumberOfWorkers++;
                                         Control.CreatedAnts.Add(move.Positions[1], antWorker);
                                     }

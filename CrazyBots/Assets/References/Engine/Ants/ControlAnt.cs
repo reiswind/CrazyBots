@@ -683,11 +683,12 @@ namespace Engine.Control
                         }
                         ant.HandleGameCommands(player);
                         
+                        /*
                         if (ant.CurrentGameCommand == null && ant.HoldPosition)
                         {
                             movableAnts.Remove(ant);
                             continue;
-                        }
+                        }*/
                         if (IsBeingExtracted(moves, ant.PlayerUnit.Unit.Pos))
                         {
                             movableAnts.Remove(ant);

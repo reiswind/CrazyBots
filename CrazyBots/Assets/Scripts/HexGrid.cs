@@ -42,10 +42,6 @@ public class HexGrid : MonoBehaviour
 
 	public MapInfo MapInfo;
 
-	void Awake()
-	{
-	}
-
 	internal void StartGame()
 	{
 		if (GameSpeed == 0)
@@ -94,13 +90,14 @@ public class HexGrid : MonoBehaviour
 		}
 		CreateGame(gameModel);
 
-		InvokeRepeating("invoke", 0.5f, GameSpeed);
+		InvokeRepeating(nameof(invoke), 0.5f, GameSpeed);
 
 	}
 
 
 	internal List<GameObject> smallTrees = new List<GameObject>();
 	internal List<GameObject> smallRocks = new List<GameObject>();
+	internal List<GameObject> obstacles = new List<GameObject>();
 
 	public void AddTree(string name, List<GameObject> trees, float scale)
     {
@@ -146,6 +143,8 @@ public class HexGrid : MonoBehaviour
 		GameCommands = new List<GameCommand>();
 		GroundCells = new Dictionary<Position, HexCell>();
 		Units = new Dictionary<string, UnitFrame>();
+
+		AddRock("Rock Type6 04", obstacles, 0.8f);
 
 		AddTree("Tree Type0 03", smallTrees, 0.2f);
 		AddTree("Tree Type2 05", smallTrees, 0.2f);
@@ -476,7 +475,9 @@ public class HexGrid : MonoBehaviour
     {
 		Destroy(x);
     }
-	public T InstantiatePrefab<T>(string name)
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Type Safety", "UNT0014:Invalid type for call to GetComponent", Justification = "<Pending>")]
+    public T InstantiatePrefab<T>(string name)
     {
 		GameObject prefab = (GameObject)Resources.Load("Prefabs/Unit/" + name);
 		GameObject instance = Instantiate(prefab);
@@ -598,43 +599,35 @@ public class HexGrid : MonoBehaviour
 		cell.Tile = t;
 
 		double height = t.Height;
-		float tileY;
 
 		string materialName;
 		if (t.IsSand())
 		{
 			materialName = "Materials/Sand";
-			tileY = 0.3f;
 		}
 		else if (t.IsDarkSand())
 		{
 			materialName = "Materials/DarkSand";
-			tileY = 0.4f;
 		}
 		else if (t.IsDarkWood())
 		{
 			materialName = "Materials/DarkWood";
-			tileY = 0.9f;
 		}
 		else if (t.IsWood())
 		{
 			materialName = "Materials/Wood";
-			tileY = 0.8f;
 		}
 		else if (t.IsLightWood())
 		{
 			materialName = "Materials/LightWood";
-			tileY = 0.7f;
 		}
 		else if (t.IsGrassDark())
 		{
 			materialName = "Materials/GrassDark";
-			tileY = 0.6f;
 		}
 		else
 		{
 			materialName = "Materials/Grass";
-			tileY = 0.5f;
 		}
 
 		//gridPos3.y = tileY / 2;
@@ -648,7 +641,8 @@ public class HexGrid : MonoBehaviour
 		meshRenderer.material = materialResource;
 
 		cell.CreateMinerals();
-		cell.CreateTrees();
+		cell.CreateDestructables();
+		cell.CreateObstacles();
 
 		return cell;
 	}

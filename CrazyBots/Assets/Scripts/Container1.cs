@@ -82,8 +82,7 @@ public class Container1 : MonoBehaviour
                     GameObject crystalResource = Resources.Load<GameObject>("Prefabs/Terrain/Crystal");
                     GameObject crystal = Instantiate(crystalResource, transform, false);
 
-                    crystal.transform.position = unitPos3;
-                    crystal.transform.rotation = Random.rotation;
+                    crystal.transform.SetPositionAndRotation(unitPos3, Random.rotation);
                     crystals.Add(crystal);
                 }
 

@@ -36,7 +36,10 @@ public class Weapon1 : MonoBehaviour
         if (weapon == null) weapon = transform;
 
         Transform ammo = weapon.Find("Ammo");
-        ammo?.gameObject.SetActive(weaponLoaded);
+        if (ammo != null)
+        {
+            ammo.gameObject.SetActive(weaponLoaded);
+        }
     }
 
     // Update is called once per frame
@@ -104,9 +107,8 @@ public class Weapon1 : MonoBehaviour
             //shot = true;
             Shell shell = UnitFrame.HexGrid.InstantiatePrefab<Shell>("Shell");
             shell.gameObject.hideFlags = HideFlags.HideAndDontSave;
-            shell.transform.position = launchPosition.position;
             //shell.transform.position = launchPosition; // transform.position;
-            shell.transform.rotation = launchPosition.rotation;
+            shell.transform.SetPositionAndRotation(launchPosition.position, launchPosition.rotation);
 
             shell.TargetUnitId = UnitFrame.NextMove.OtherUnitId;
             shell.UnitFrame = UnitFrame;

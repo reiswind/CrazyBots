@@ -31,7 +31,7 @@ public class CameraControllerx : MonoBehaviour
 
         Vector3 dir = transform.forward * zInput + transform.right * xInput;
 
-        transform.position += dir * moveSpeed * Time.deltaTime;
+        transform.position += moveSpeed * Time.deltaTime * dir;
     }
 
     void Zoom()
@@ -44,7 +44,7 @@ public class CameraControllerx : MonoBehaviour
         else if (dist > maxZoomDist && scrollInput < 0.0f)
             return;
 
-        cam.transform.position += cam.transform.forward * scrollInput * zoomSpeed;
+        cam.transform.position += scrollInput * zoomSpeed * cam.transform.forward;
     }
 
     public void FocusOnPosition(Vector3 pos)

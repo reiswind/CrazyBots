@@ -81,8 +81,8 @@ namespace Engine.Interface
         public int Metal { get; set; }
         public int Plates { get; set; }
 
-        public int NumberOfSmallTrees { get; set; }
-        public int NumberOfRocks { get; set; }
+        public int NumberOfDestructables { get; set; }
+        public int NumberOfObstacles { get; set; }
 
 
         internal Tile(Map map, Position pos)
@@ -138,8 +138,7 @@ namespace Engine.Interface
 
         public bool CanMoveTo()
         {
-            //if (Height < 0.05 || Height > 0.95)
-            if (NumberOfSmallTrees > 0 ||NumberOfRocks > 0)
+            if (NumberOfObstacles > 0 || NumberOfDestructables > 0)
             {
                 return false;
             }
