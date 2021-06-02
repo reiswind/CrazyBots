@@ -20,7 +20,7 @@ public class HexGrid : MonoBehaviour
 	public int gridHeight = 20;
 	public float GameSpeed = 0.01f;
 
-	internal Dictionary<Position, HexCell> GroundCells { get; private set; }
+	internal Dictionary<Position, GroundCell> GroundCells { get; private set; }
 	internal Dictionary<string, UnitFrame> Units { get; private set; }
 
 	// Filled in UI Thread
@@ -49,10 +49,10 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -141,7 +141,7 @@ public class HexGrid : MonoBehaviour
 		}
 
 		GameCommands = new List<GameCommand>();
-		GroundCells = new Dictionary<Position, HexCell>();
+		GroundCells = new Dictionary<Position, GroundCell>();
 		Units = new Dictionary<string, UnitFrame>();
 
 		AddRock("Rock Type1 01", obstacles, 0.8f);
@@ -196,7 +196,7 @@ public class HexGrid : MonoBehaviour
 			{
 				Position pos = new Position(x, y);
 				Tile t = game.Map.GetTile(pos);
-				HexCell hexCell = CreateCell(t, cellPrefab);
+				GroundCell hexCell = CreateCell(t, cellPrefab);
 
 				GroundCells.Add(pos, hexCell);
 			}
@@ -359,16 +359,16 @@ public class HexGrid : MonoBehaviour
 			foreach (Position pos in MapInfo.Pheromones.Keys)
 			{
 				MapPheromone mapPheromone = MapInfo.Pheromones[pos];
-				HexCell hexCell = GroundCells[pos];
-				hexCell.Update(mapPheromone);
+				GroundCell hexCell = GroundCells[pos];
+				hexCell.UpdatePheromones(mapPheromone);
 
 				newUpdatedPositions.Add(pos);
 				updatedPositions.Remove(pos);
 			}
 			foreach (Position pos in updatedPositions)
 			{
-				HexCell hexCell = GroundCells[pos];
-				hexCell.Update(null);
+				GroundCell hexCell = GroundCells[pos];
+				hexCell.UpdatePheromones(null);
 			}
 			updatedPositions = newUpdatedPositions;
 
@@ -435,7 +435,7 @@ public class HexGrid : MonoBehaviour
 			}
 			else if (move.MoveType == MoveType.UpdateGround)
 			{
-				HexCell hexCell = GroundCells[move.Positions[0]];
+				GroundCell hexCell = GroundCells[move.Positions[0]];
 				hexCell.NextMove = move;
 				hexCell.UpdateGround();
 			}
@@ -583,24 +583,26 @@ public class HexGrid : MonoBehaviour
 		return new Vector3((x * gridSizeX), 0,  -y * gridSizeY);
 	}
 
-	private HexCell CreateCell(Tile t, GameObject cellPrefabx)
+	private GroundCell CreateCell(Tile t, GameObject cellPrefabx)
 	{
 		int x = t.Pos.X;
 		int y = t.Pos.Y;
 
 		GameObject gameObjectCell = Instantiate(cellPrefabx);
-		gameObjectCell.hideFlags = HideFlags.DontSave; //.enabled = false;
+		gameObjectCell.hideFlags = HideFlags.DontSave; //.enabled = false;	
 		gameObjectCell.transform.SetParent(transform, false);
 		gameObjectCell.name = "Ground " + x.ToString() + "," + y.ToString();
 
-		HexCell cell = new HexCell();
-		cell.Cell = gameObjectCell;
-		cell.HexGrid = this;
+		GroundCell groundCell = gameObjectCell.GetComponent<GroundCell>();
+
+		//HexCell cell = new HexCell();
+		//cell.Cell = gameObjectCell;
+		groundCell.HexGrid = this;
 
 		Vector2 gridPos = new Vector2(x, y);
 		Vector3 gridPos3 = CalcWorldPos(gridPos);
 
-		cell.Tile = t;
+		groundCell.Tile = t;
 
 		double height = t.Height;
 
@@ -644,10 +646,10 @@ public class HexGrid : MonoBehaviour
 		MeshRenderer meshRenderer = gameObjectCell.GetComponent<MeshRenderer>();
 		meshRenderer.material = materialResource;
 
-		cell.CreateMinerals();
-		cell.CreateDestructables();
-		cell.CreateObstacles();
+		groundCell.CreateMinerals();
+		groundCell.CreateDestructables();
+		groundCell.CreateObstacles();
 
-		return cell;
+		return groundCell;
 	}
 }

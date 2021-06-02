@@ -1,55 +1,120 @@
 using Engine.Interface;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+
+internal class HitByMouseClick
+{
+    public UnitFrame UnitFrame { get; set; }
+    public GroundCell GroundCell { get; set; }
+}
 
 public class GameCanvas : MonoBehaviour
 {
     public GameObject MineralText;
-    public GameObject SelectedItemText;
-    public HexGrid Game;
+    public GameObject SelectedObjectText;
+    public GameObject SelectedObjectsText;
+    public HexGrid HexGrid;
 
     private Text UIMineralText;
-    private Text UISelectedItemText;
+    private Text UISelectedObjectsText;
+    private Text UISelectedObjectText;
 
     // Start is called before the first frame update
     void Start()
     {
         UIMineralText = MineralText.GetComponent<Text>();
-        UISelectedItemText = SelectedItemText.GetComponent<Text>();
+        UISelectedObjectText = SelectedObjectText.GetComponent<Text>();
+        UISelectedObjectsText = SelectedObjectsText.GetComponent<Text>();
 
-        Game.StartGame();
+        HexGrid.StartGame();
     }
 
-    UnitFrame unitFrame = null;
-    string selectedObjectText;
+    private UnitFrame selectedUnitFrame;
+    private GroundCell lastSelectedGroundCell;
+    
 
-    private HexCell GetClickedPosition()
+    private HitByMouseClick GetClickedInfo()
     {
-        RaycastHit raycastHit;
+        HitByMouseClick hitByMouseClick = null;
 
+        RaycastHit raycastHit;
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out raycastHit, Mathf.Infinity))
         {
-            foreach (HexCell cell in Game.GroundCells.Values)
+            hitByMouseClick = new HitByMouseClick();
+            hitByMouseClick.GroundCell = raycastHit.collider.gameObject.GetComponent<GroundCell>();
+            hitByMouseClick.UnitFrame = GetUnitFrameFromRayCast(raycastHit);
+            if (hitByMouseClick.UnitFrame != null && hitByMouseClick.GroundCell == null)
             {
-                if (cell.Cell == raycastHit.collider.gameObject)
+                hitByMouseClick.GroundCell = HexGrid.GroundCells[hitByMouseClick.UnitFrame.currentPos];
+            }
+            if (hitByMouseClick.UnitFrame == null && hitByMouseClick.GroundCell != null)
+            {
+                foreach (UnitFrame unitFrame in HexGrid.Units.Values)
                 {
-                    return cell;
+                    if (unitFrame.currentPos == hitByMouseClick.GroundCell.Tile.Pos)
+                    {
+                        hitByMouseClick.UnitFrame = unitFrame;
+                        break;
+                    }
                 }
             }
         }
+
+        return hitByMouseClick;
+    }
+
+    private UnitFrame GetUnitFrameFromRayCast(RaycastHit raycastHit)
+    {
+        Engine1 engine1 = raycastHit.collider.GetComponent<Engine1>();
+        if (engine1 != null) return engine1.UnitFrame;
+        Armor armor = raycastHit.collider.GetComponent<Armor>();
+        if (armor != null) return armor.UnitFrame;
+        Weapon1 weapon1 = raycastHit.collider.GetComponent<Weapon1>();
+        if (weapon1 != null) return weapon1.UnitFrame;
+        Assembler1 assembler1 = raycastHit.collider.GetComponent<Assembler1>();
+        if (assembler1 != null) return assembler1.UnitFrame;
+        Container1 container1 = raycastHit.collider.GetComponent<Container1>();
+        if (container1 != null) return container1.UnitFrame;
+        Extractor1 extractor1 = raycastHit.collider.GetComponent<Extractor1>();
+        if (extractor1 != null) return extractor1.UnitFrame;
+        Reactor1 reactor1 = raycastHit.collider.GetComponent<Reactor1>();
+        if (reactor1 != null) return reactor1.UnitFrame;
+
         return null;
     }
+
+    private void AppendGroundInfo(GroundCell gc, StringBuilder sb)
+    {
+        sb.AppendLine("Position: " + gc.Tile.Pos.X + ", " + gc.Tile.Pos.Y);
+        if (gc.Tile.Metal > 0)
+            sb.AppendLine("Minerals: " + gc.Tile.Metal);
+        if (gc.Tile.NumberOfDestructables > 0)
+            sb.AppendLine("NumberOfDestructables: " + gc.Tile.NumberOfDestructables);
+        if (gc.Tile.NumberOfObstacles > 0)
+            sb.AppendLine("NumberOfObstacles: " + gc.Tile.NumberOfObstacles);
+
+        if (gc.UnitCommands != null)
+        {
+            foreach (UnitCommand unitCommand in gc.UnitCommands)
+            {
+                sb.AppendLine("Command: " + unitCommand.GameCommand.ToString() + " Owner: " + unitCommand.Owner.UnitId);
+            }
+        }
+
+    }
+
 
     private bool ShifKeyIsDown;
 
     // Update is called once per frame
     void Update()
     {
-        if (Game != null && Game.MapInfo != null)
+        if (HexGrid != null && HexGrid.MapInfo != null)
         {
-            UIMineralText.text = Game.MapInfo.TotalMetal.ToString();
+            UIMineralText.text = HexGrid.MapInfo.TotalMetal.ToString();
         }
 
         if (Input.GetKeyDown(KeyCode.LeftShift))
@@ -59,37 +124,38 @@ public class GameCanvas : MonoBehaviour
 
         if (Input.GetMouseButtonDown(1))
         {
-            HexCell targetCell = GetClickedPosition();
+            HitByMouseClick hitByMouseClick = GetClickedInfo();
 
-            if (unitFrame != null && targetCell != null && targetCell.Tile.CanMoveTo())
+            if (selectedUnitFrame != null && hitByMouseClick.GroundCell != null) // && groundCell.Tile.CanMoveTo())
             {
-                if (unitFrame.IsAssembler())
+                if (selectedUnitFrame.IsAssembler())
                 {
                     // Move it there
                     GameCommand gameCommand = new GameCommand();
 
-                    gameCommand.UnitId = unitFrame.UnitId;
-                    gameCommand.TargetPosition = targetCell.Tile.Pos;
+                    gameCommand.UnitId = selectedUnitFrame.UnitId;
+                    gameCommand.TargetPosition = hitByMouseClick.GroundCell.Tile.Pos;
 
-                    if (targetCell.Tile.Metal > 0)
+                    if (hitByMouseClick.GroundCell.Tile.Metal > 0)
                         gameCommand.GameCommandType = GameCommandType.Minerals;
                     else
                         gameCommand.GameCommandType = GameCommandType.Attack;
 
                     gameCommand.Append = ShifKeyIsDown;
-                    Game.GameCommands.Add(gameCommand);
+                    HexGrid.GameCommands.Add(gameCommand);
 
                     if (!ShifKeyIsDown)
-                        unitFrame.ClearWayPoints();
+                        selectedUnitFrame.ClearWayPoints();
 
                     UnitCommand unitCommand = new UnitCommand();
                     unitCommand.GameCommand = gameCommand;
-                    unitCommand.TargetCell = targetCell;
+                    unitCommand.Owner = selectedUnitFrame;
+                    unitCommand.TargetCell = hitByMouseClick.GroundCell;
 
-                    unitFrame.UnitCommands.Add(unitCommand);
-                    unitFrame.UpdateWayPoints();
+                    selectedUnitFrame.UnitCommands.Add(unitCommand);
+                    selectedUnitFrame.UpdateWayPoints();
 
-                    targetCell.UnitCommands.Add(unitCommand);
+                    hitByMouseClick.GroundCell.UnitCommands.Add(unitCommand);
                 }
                 /*
                 if (gameCommand.Append)
@@ -103,85 +169,103 @@ public class GameCanvas : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            RaycastHit raycastHit;
+            HitByMouseClick hitByMouseClick = GetClickedInfo();
 
-            unitFrame = null;
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out raycastHit, Mathf.Infinity))
+            if (hitByMouseClick == null)
             {
-                Engine1 engine1 = raycastHit.collider.GetComponent<Engine1>();
-                if (engine1 != null) unitFrame = engine1.UnitFrame;
-                if (unitFrame == null)
-                {
-                    Armor armor = raycastHit.collider.GetComponent<Armor>();
-                    if (armor != null) unitFrame = armor.UnitFrame;
-                }
-                if (unitFrame == null)
-                {
-                    Weapon1 weapon1 = raycastHit.collider.GetComponent<Weapon1>();
-                    if (weapon1 != null) unitFrame = weapon1.UnitFrame;
-                }
-                if (unitFrame == null)
-                {
-                    Assembler1 assembler1 = raycastHit.collider.GetComponent<Assembler1>();
-                    if (assembler1 != null) unitFrame = assembler1.UnitFrame;
-                }
-                if (unitFrame == null)
-                {
-                    Container1 container1 = raycastHit.collider.GetComponent<Container1>();
-                    if (container1 != null) unitFrame = container1.UnitFrame;
-                }
-                if (unitFrame == null)
-                {
-                    Extractor1 extractor1 = raycastHit.collider.GetComponent<Extractor1>();
-                    if (extractor1 != null) unitFrame = extractor1.UnitFrame;
-                }
-                if (unitFrame == null)
-                {
-                    Reactor1 reactor1 = raycastHit.collider.GetComponent<Reactor1>();
-                    if (reactor1 != null) unitFrame = reactor1.UnitFrame;
-                }
-
-                if (unitFrame == null)
-                {
-                    selectedObjectText = raycastHit.collider.name;
-                }
+                lastSelectedGroundCell = null;
+                selectedUnitFrame = null;
             }
             else
             {
-                selectedObjectText = "Nothing";
+                lastSelectedGroundCell = hitByMouseClick.GroundCell;
+                selectedUnitFrame = hitByMouseClick.UnitFrame;
             }
         }
-        if (unitFrame != null && unitFrame.HasBeenDestroyed)
+        if (selectedUnitFrame != null)
         {
-            selectedObjectText = "Destroyed: " + unitFrame.UnitId;
-            unitFrame = null;
-        }
-        if (unitFrame != null)
-        {
-            if (unitFrame.MoveUpdateStats == null)
+            StringBuilder sb = new StringBuilder();
+
+            UnitFrame unit = selectedUnitFrame;
+            GroundCell gc = HexGrid.GroundCells[unit.currentPos];
+
+            sb.AppendLine("Unit: " + unit.UnitId);
+            if (unit.HasBeenDestroyed)
             {
-                UISelectedItemText.text = "No Stats: " + unitFrame.UnitId;
+                sb.AppendLine("Destroyed");
+                selectedUnitFrame = null;
+            }
+            if (unit.MoveUpdateStats == null)
+            {
+                sb.AppendLine("No Stats: " + unit.UnitId);
             }
             else
             {
-                string text;
-
-                text = unitFrame.UnitId + "\r\n";
-                text += " " + unitFrame.currentPos.X + ", " + unitFrame.currentPos.Y + "\r\n";
-                text += " " + unitFrame.MoveUpdateStats.WeaponLoaded.ToString() + "\r\n";
-
-                UISelectedItemText.text = text;
-
+                if (unit.MoveUpdateStats != null)
+                {
+                    if (unit.MoveUpdateStats.ArmorLevel > 0)
+                    {
+                        sb.AppendLine("Armor: " + unit.MoveUpdateStats.ArmorLevel);
+                    }
+                    if (unit.MoveUpdateStats.ContainerLevel > 0)
+                    {
+                        sb.AppendLine("Container: " + unit.MoveUpdateStats.ContainerLevel + " Full: " + unit.MoveUpdateStats.ContainerFull + "%");
+                    }
+                    if (unit.MoveUpdateStats.EngineLevel > 0)
+                    {
+                        sb.AppendLine("Engine: " + unit.MoveUpdateStats.EngineLevel);
+                    }
+                    if (unit.MoveUpdateStats.ExtractorLevel > 0)
+                    {
+                        sb.AppendLine("Extractor: " + unit.MoveUpdateStats.ExtractorLevel);
+                    }
+                    if (unit.MoveUpdateStats.ProductionLevel > 0)
+                    {
+                        sb.Append("Production: " + unit.MoveUpdateStats.ProductionLevel);
+                        if (unit.MoveUpdateStats.CanProduce)
+                            sb.AppendLine(" CanProduce");
+                        else
+                            sb.AppendLine("");
+                    }
+                    if (unit.MoveUpdateStats.RadarLevel > 0)
+                    {
+                        sb.AppendLine("Radar: " + unit.MoveUpdateStats.RadarLevel);
+                    }
+                    if (unit.MoveUpdateStats.ReactorLevel > 0)
+                    {
+                        sb.AppendLine("Reactor: " + unit.MoveUpdateStats.ReactorLevel);
+                    }
+                    if (unit.MoveUpdateStats.WeaponLevel > 0)
+                    {
+                        sb.Append("Weapon: " + unit.MoveUpdateStats.WeaponLevel);
+                        if (unit.MoveUpdateStats.WeaponLoaded)
+                            sb.AppendLine(" Loaded");
+                        else
+                            sb.AppendLine("");
+                    }
+                }
             }
+            sb.AppendLine("");
+            AppendGroundInfo(gc, sb);
+
+            UISelectedObjectText.text = sb.ToString();
+            UISelectedObjectsText.text = "Object";
         }
-        else if (selectedObjectText != null)
+        else if (lastSelectedGroundCell != null)
         {
-            UISelectedItemText.text = selectedObjectText;
+            GroundCell gc = lastSelectedGroundCell;
+
+            StringBuilder sb = new StringBuilder();
+            AppendGroundInfo(gc, sb);
+
+            UISelectedObjectText.text = sb.ToString();
         }
         else
         {
 
-            UISelectedItemText.text = null;
+            UISelectedObjectText.text = null;
+            UISelectedObjectsText.text = "NONE";
         }
+
     }
 }

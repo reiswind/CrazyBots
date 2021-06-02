@@ -19,16 +19,16 @@ public class Extractor1 : MonoBehaviour
             ParticleSystem particleSource;
 
             Position from = UnitFrame.NextMove.Positions[1];
-            HexCell sourceCell = UnitFrame.HexGrid.GroundCells[from];
+            GroundCell sourceCell = UnitFrame.HexGrid.GroundCells[from];
 
             particleSource = UnitFrame.HexGrid.MakeParticleSource("ExtractSource");
-            particleSource.transform.SetParent(sourceCell.Cell.transform, false);
+            particleSource.transform.SetParent(sourceCell.transform, false);
 
             Position to = UnitFrame.NextMove.Positions[0];
-            HexCell targetCell = UnitFrame.HexGrid.GroundCells[to];
+            GroundCell targetCell = UnitFrame.HexGrid.GroundCells[to];
 
             ParticleSystemForceField particleTarget = UnitFrame.HexGrid.MakeParticleTarget();
-            particleTarget.transform.SetParent(targetCell.Cell.transform, false);
+            particleTarget.transform.SetParent(targetCell.transform, false);
 
             Vector3 unitPos3 = particleTarget.transform.position;
             unitPos3.y += 0.1f;

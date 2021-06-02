@@ -58,9 +58,9 @@ public class Weapon1 : MonoBehaviour
                 {
                     // Point weapon into move direction (TOdo;: Does not work)
                     Position FinalDestination = UnitFrame.NextMove.Positions[UnitFrame.NextMove.Positions.Count - 1];
-                    HexCell targetCell = UnitFrame.HexGrid.GroundCells[FinalDestination];
+                    GroundCell targetCell = UnitFrame.HexGrid.GroundCells[FinalDestination];
 
-                    Vector3 unitPos3 = targetCell.Cell.transform.localPosition;
+                    Vector3 unitPos3 = targetCell.transform.localPosition;
                     unitPos3.y += UnitFrame.HexGrid.hexCellHeight;
                     //UpdateDirection(unitPos3);
                 }
@@ -69,7 +69,7 @@ public class Weapon1 : MonoBehaviour
         if (UnitFrame.NextMove?.MoveType == MoveType.Fire)
         {
             Position FinalDestination = UnitFrame.NextMove.Positions[UnitFrame.NextMove.Positions.Count - 1];
-            HexCell targetCell = UnitFrame.HexGrid.GroundCells[FinalDestination];
+            GroundCell targetCell = UnitFrame.HexGrid.GroundCells[FinalDestination];
 
             float angle = 25;
             Transform launchPosition;
@@ -77,12 +77,12 @@ public class Weapon1 : MonoBehaviour
             if (weaponPosition != null)
             {
                 angle = 2;
-                UpdateDirection(weaponPosition.transform, targetCell.Cell.transform.position, 0.04f);
+                UpdateDirection(weaponPosition.transform, targetCell.transform.position, 0.04f);
                 launchPosition = weaponPosition.transform.Find("Ammo");
             }
             else
             {
-                UpdateDirection(transform, targetCell.Cell.transform.position, 3.4f);
+                UpdateDirection(transform, targetCell.transform.position, 3.4f);
                 launchPosition = transform.Find("Ammo");
             }
 
@@ -115,7 +115,7 @@ public class Weapon1 : MonoBehaviour
 
             Rigidbody rigidbody = shell.GetComponent<Rigidbody>();
 
-            rigidbody.velocity = calcBallisticVelocityVector(launchPosition.position, targetCell.Cell.transform.position, angle);
+            rigidbody.velocity = calcBallisticVelocityVector(launchPosition.position, targetCell.transform.position, angle);
             shot = 10;
 
             UnitFrame.NextMove = null;

@@ -36,7 +36,7 @@ public class UnitLayout
     bool rearLeft = true;
     bool rearRight = true;
 
-    public bool PlaceWeapon(MonoBehaviour container1, MonoBehaviour foundationPart, HexCell targetCell, HexGrid hexGrid)
+    public bool PlaceWeapon(MonoBehaviour container1, MonoBehaviour foundationPart, GroundCell targetCell, HexGrid hexGrid)
     {
         if (frontLeft == false || frontRight == false || centerLeft == false || centerRight == false)
         {
@@ -66,7 +66,7 @@ public class UnitLayout
         return true;
     }
 
-    public bool PlaceContainer(MonoBehaviour container1, MonoBehaviour foundationPart, HexCell targetCell, HexGrid hexGrid)
+    public bool PlaceContainer(MonoBehaviour container1, MonoBehaviour foundationPart, GroundCell targetCell, HexGrid hexGrid)
     {
         if (rearLeft == false || rearRight == false || centerLeft == false || centerRight == false)
         {
@@ -97,7 +97,7 @@ public class UnitLayout
     }
 
 
-    public bool PlaceOnTop(MonoBehaviour bigPart, MonoBehaviour foundationPart, HexCell targetCell, HexGrid hexGrid, float y)
+    public bool PlaceOnTop(MonoBehaviour bigPart, MonoBehaviour foundationPart, GroundCell targetCell, HexGrid hexGrid, float y)
     {
         if (foundationPart == null)
         {
@@ -116,7 +116,7 @@ public class UnitLayout
     }
 
 
-    public bool PlaceBigPart(MonoBehaviour bigPart, MonoBehaviour foundationPart, HexCell targetCell, HexGrid hexGrid)
+    public bool PlaceBigPart(MonoBehaviour bigPart, MonoBehaviour foundationPart, GroundCell targetCell, HexGrid hexGrid)
     {
         if (foundationPart == null)
         {
@@ -170,11 +170,11 @@ public class UnitLayout
         return true;
     }
 
-    public void PlaceOnGround(MonoBehaviour part, HexCell targetCell, HexGrid hexGrid)
+    public void PlaceOnGround(MonoBehaviour part, GroundCell targetCell, HexGrid hexGrid)
     {
         try
         {
-            Vector3 unitPos3 = targetCell.Cell.transform.position;
+            Vector3 unitPos3 = targetCell.transform.position;
             unitPos3.y += hexGrid.hexCellHeight;
             part.transform.position = unitPos3;
 
@@ -186,7 +186,7 @@ public class UnitLayout
         }
     }
 
-    public void PlacePart(MonoBehaviour part, MonoBehaviour parent, HexCell targetCell, HexGrid hexGrid)
+    public void PlacePart(MonoBehaviour part, MonoBehaviour parent, GroundCell targetCell, HexGrid hexGrid)
     {
         if (parent == null)
         {
@@ -297,7 +297,8 @@ public class UnitCommand
 {
     public GameCommand GameCommand { get; set; }
     public GameObject GameObject { get; set; }
-    public HexCell TargetCell { get; set; }
+    public GroundCell TargetCell { get; set; }
+    public UnitFrame Owner { get; set; }
 }
 
 public class UnitFrame
@@ -459,11 +460,11 @@ public class UnitFrame
         {
             if (unitCommand.GameObject == null)
             {
-                HexCell targetCell = HexGrid.GroundCells[unitCommand.GameCommand.TargetPosition];
+                GroundCell targetCell = HexGrid.GroundCells[unitCommand.GameCommand.TargetPosition];
 
                 GameObject waypointPrefab = Resources.Load<GameObject>("Prefabs/Terrain/Waypoint");
 
-                unitCommand.GameObject = HexGrid.Instantiate(waypointPrefab, targetCell.Cell.transform, false);
+                unitCommand.GameObject = HexGrid.Instantiate(waypointPrefab, targetCell.transform, false);
                 unitCommand.GameObject.name = "Waypoint";
 
                 //var go = new GameObject();
@@ -478,7 +479,7 @@ public class UnitFrame
                 //var projectile = GameObject.Find("Projectile");
 
                 Vector3 v1 = foundationPart.transform.position;
-                Vector3 v2 = targetCell.Cell.transform.position;
+                Vector3 v2 = targetCell.transform.position;
                 v1.y += 0.3f;
                 v2.y += 0.3f;
 
@@ -513,7 +514,7 @@ public class UnitFrame
         NextMove.Stats.ProductionLevel
         */
 
-        HexCell targetCell = HexGrid.GroundCells[currentPos];
+        GroundCell targetCell = HexGrid.GroundCells[currentPos];
 
         // Place the engine
         if (stats.EngineLevel > 0)

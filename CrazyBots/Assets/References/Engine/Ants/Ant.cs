@@ -139,6 +139,13 @@ namespace Engine.Ants
                 }
                 if (CurrentGameCommand != null)
                 {
+                    if (CurrentGameCommand.GameCommandType == GameCommandType.Minerals)
+                    {
+                        if (hasChanged)
+                        {
+                            int x = player.Game.Pheromones.DropPheromones(player, CurrentGameCommand.TargetPosition, 5, PheromoneType.ToFood, 0.5f, false);
+                        }
+                    }
                     if (CurrentGameCommand.GameCommandType == GameCommandType.Attack)
                     {
                         if (hasChanged)

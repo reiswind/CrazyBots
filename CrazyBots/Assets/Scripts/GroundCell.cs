@@ -1,15 +1,15 @@
-﻿using Engine.Interface;
+using Engine.Interface;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HexCellx
+public class GroundCell : MonoBehaviour
 {
     public Tile Tile { get; set; }
 
     public HexGrid HexGrid { get; set; }
     public Move NextMove { get; set; }
     public bool ShowPheromones { get; set; }
-    internal GameObject Cell { get; set; }
 
     internal List<UnitCommand> UnitCommands { get; private set; }
 
@@ -24,7 +24,7 @@ public class HexCellx
     private GameObject markerToMineral;
     private GameObject markerToEnemy;
 
-    public HexCellx()
+    public GroundCell()
     {
         minerals = new List<GameObject>();
         destructables = new List<GameObject>();
@@ -34,7 +34,7 @@ public class HexCellx
         ShowPheromones = true;
     }
 
-    internal void Update(MapPheromone mapPheromone)
+    internal void UpdatePheromones (MapPheromone mapPheromone)
     {
         if (!ShowPheromones)
             return;
@@ -42,19 +42,19 @@ public class HexCellx
         {
             if (markerEnergy != null)
             {
-                markerEnergy.transform.position = Cell.transform.position;
+                markerEnergy.transform.position = transform.position;
             }
             if (markerToHome != null)
-            { 
-                markerToHome.transform.position = Cell.transform.position;
+            {
+                markerToHome.transform.position = transform.position;
             }
             if (markerToMineral != null)
             {
-                markerToMineral.transform.position = Cell.transform.position;
+                markerToMineral.transform.position = transform.position;
             }
             if (markerToEnemy != null)
             {
-                markerToEnemy.transform.position = Cell.transform.position;
+                markerToEnemy.transform.position = transform.position;
             }
         }
         else
@@ -63,35 +63,35 @@ public class HexCellx
             {
                 if (markerPrefab == null)
                     markerPrefab = Resources.Load<GameObject>("Prefabs/Terrain/Marker");
-                markerEnergy = HexGrid.Instantiate(markerPrefab, Cell.transform, false);
-                markerEnergy.name = Cell.name + "-Energy";
+                markerEnergy = HexGrid.Instantiate(markerPrefab, transform, false);
+                markerEnergy.name = name + "-Energy";
 
-                markerToHome = HexGrid.Instantiate(markerPrefab, Cell.transform, false);
-                markerToHome.name = Cell.name + "-Home";
+                markerToHome = HexGrid.Instantiate(markerPrefab, transform, false);
+                markerToHome.name = name + "-Home";
                 MeshRenderer meshRenderer = markerToHome.GetComponent<MeshRenderer>();
                 meshRenderer.material.color = new Color(0, 0, 0.6f);
 
-                markerToMineral = HexGrid.Instantiate(markerPrefab, Cell.transform, false);
-                markerToMineral.name = Cell.name + "-Mineral";
+                markerToMineral = HexGrid.Instantiate(markerPrefab, transform, false);
+                markerToMineral.name = name + "-Mineral";
                 meshRenderer = markerToMineral.GetComponent<MeshRenderer>();
                 meshRenderer.material.color = new Color(0, 0.4f, 0);
 
-                markerToEnemy = HexGrid.Instantiate(markerPrefab, Cell.transform, false);
-                markerToEnemy.name = Cell.name + "-Mineral";
+                markerToEnemy = HexGrid.Instantiate(markerPrefab, transform, false);
+                markerToEnemy.name = name + "-Mineral";
                 meshRenderer = markerToEnemy.GetComponent<MeshRenderer>();
                 meshRenderer.material.color = new Color(0.4f, 0, 0);
             }
 
             if (mapPheromone.IntensityToHome > 0)
             {
-                Vector3 position = Cell.transform.position;
+                Vector3 position = transform.position;
                 position.y += 0.054f + (0.2f * mapPheromone.IntensityToHome);
                 position.x += 0.1f;
                 markerToHome.transform.position = position;
             }
             else
             {
-                Vector3 position = Cell.transform.position;
+                Vector3 position = transform.position;
                 position.y -= 1;
                 position.x += 0.1f;
                 markerToHome.transform.position = position;
@@ -99,14 +99,14 @@ public class HexCellx
 
             if (mapPheromone.IntensityToMineral > 0)
             {
-                Vector3 position = Cell.transform.position;
+                Vector3 position = transform.position;
                 position.y += 0.054f + (0.2f * mapPheromone.IntensityToMineral);
                 position.x += 0.2f;
                 markerToMineral.transform.position = position;
             }
             else
             {
-                Vector3 position = Cell.transform.position;
+                Vector3 position = transform.position;
                 position.y -= 1;
                 position.x += 0.2f;
                 markerToMineral.transform.position = position;
@@ -114,14 +114,14 @@ public class HexCellx
 
             if (mapPheromone.IntensityToEnemy > 0)
             {
-                Vector3 position = Cell.transform.position;
+                Vector3 position = transform.position;
                 position.y += 0.054f + (0.2f * mapPheromone.IntensityToEnemy);
                 position.x += 0.3f;
                 markerToEnemy.transform.position = position;
             }
             else
             {
-                Vector3 position = Cell.transform.position;
+                Vector3 position = transform.position;
                 position.y -= 1;
                 position.x += 0.3f;
                 markerToEnemy.transform.position = position;
@@ -144,14 +144,14 @@ public class HexCellx
             //highestEnergy = 0;
             if (highestEnergy > 0)
             {
-                Vector3 position = Cell.transform.position;
+                Vector3 position = transform.position;
                 position.y += 0.054f + (0.2f * highestEnergy);
                 markerEnergy.transform.position = position;
-                UnitFrame.SetPlayerColor(highestPlayerId, markerEnergy);                
+                UnitFrame.SetPlayerColor(highestPlayerId, markerEnergy);
             }
             else
             {
-                Vector3 position = Cell.transform.position;
+                Vector3 position = transform.position;
                 position.y -= 1;
                 markerEnergy.transform.position = position;
             }
@@ -175,7 +175,7 @@ public class HexCellx
         {
             Vector2 randomPos = Random.insideUnitCircle;
 
-            Vector3 unitPos3 = Cell.transform.position;
+            Vector3 unitPos3 = transform.position;
             unitPos3.x += (randomPos.x * 0.7f);
             unitPos3.z += (randomPos.y * 0.8f);
 
@@ -183,12 +183,12 @@ public class HexCellx
             if (Tile.IsDarkSand() || Tile.IsSand())
             {
                 int treeIdx = HexGrid.game.Random.Next(HexGrid.smallRocks.Count);
-                destructable = HexGrid.Instantiate(HexGrid.smallRocks[treeIdx], Cell.transform, false);
+                destructable = HexGrid.Instantiate(HexGrid.smallRocks[treeIdx], transform, false);
             }
             else
             {
                 int treeIdx = HexGrid.game.Random.Next(HexGrid.smallTrees.Count);
-                destructable = HexGrid.Instantiate(HexGrid.smallTrees[treeIdx], Cell.transform, false);
+                destructable = HexGrid.Instantiate(HexGrid.smallTrees[treeIdx], transform, false);
             }
             destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
             destructable.transform.position = unitPos3;
@@ -207,12 +207,12 @@ public class HexCellx
     {
         while (obstacles.Count < Tile.NumberOfObstacles)
         {
-            Vector3 unitPos3 = Cell.transform.position;
+            Vector3 unitPos3 = transform.position;
 
             GameObject obstacle;
-             
+
             int treeIdx = HexGrid.game.Random.Next(HexGrid.obstacles.Count);
-            obstacle = HexGrid.Instantiate(HexGrid.obstacles[treeIdx], Cell.transform, false);
+            obstacle = HexGrid.Instantiate(HexGrid.obstacles[treeIdx], transform, false);
 
             obstacle.transform.Rotate(Vector3.up, Random.Range(0, 360));
             obstacle.transform.position = unitPos3;
@@ -230,20 +230,20 @@ public class HexCellx
 
     internal void CreateMinerals()
     {
-        if (Tile.Metal >= 20 )
+        if (Tile.Metal >= 20)
         {
             if (mineralObstacle == null)
             {
                 Material crystalMaterial = Resources.Load<Material>("Materials/CrystalMat");
 
                 int treeIdx = HexGrid.game.Random.Next(HexGrid.obstacles.Count);
-                mineralObstacle = HexGrid.Instantiate(HexGrid.obstacles[treeIdx], Cell.transform, false);
+                mineralObstacle = HexGrid.Instantiate(HexGrid.obstacles[treeIdx], transform, false);
 
                 MeshRenderer meshRenderer = mineralObstacle.GetComponent<MeshRenderer>();
                 meshRenderer.material = crystalMaterial;
                 mineralObstacle.transform.Rotate(Vector3.up, Random.Range(0, 360));
 
-                mineralObstacle.transform.position = Cell.transform.position;
+                mineralObstacle.transform.position = transform.position;
             }
 
             while (minerals.Count > 0)
@@ -253,25 +253,25 @@ public class HexCellx
                 minerals.Remove(crystal);
             }
         }
-        else 
+        else
         {
             if (Tile.Metal < 20 && mineralObstacle != null)
             {
                 HexGrid.Destroy(mineralObstacle);
                 mineralObstacle = null;
             }
-            
+
             while (minerals.Count < Tile.Metal)
             {
                 Vector2 randomPos = Random.insideUnitCircle;
 
-                Vector3 unitPos3 = Cell.transform.position;
+                Vector3 unitPos3 = transform.position;
                 unitPos3.x += (randomPos.x * 0.7f);
                 unitPos3.z += (randomPos.y * 0.8f);
                 unitPos3.y += 0.13f; // 
 
                 GameObject crystalResource = Resources.Load<GameObject>("Prefabs/Terrain/Crystal");
-                GameObject crystal = HexGrid.Instantiate(crystalResource, Cell.transform, false);
+                GameObject crystal = HexGrid.Instantiate(crystalResource, transform, false);
 
                 crystal.transform.SetPositionAndRotation(unitPos3, Random.rotation);
 
