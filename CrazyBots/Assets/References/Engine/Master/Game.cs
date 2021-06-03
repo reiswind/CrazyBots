@@ -1126,7 +1126,21 @@ namespace Engine.Master
                 }
                 else if (move.MoveType == MoveType.Extract)
                 {
-                    
+                    /*
+                    Unit fireingUnit = Map.Units.GetUnitAt(move.Positions[0]);
+
+                    Move moveUpdate = new Move();
+
+                    moveUpdate.MoveType = MoveType.UpdateStats;
+                    moveUpdate.UnitId = fireingUnit.UnitId;
+                    moveUpdate.PlayerId = fireingUnit.Owner.PlayerModel.Id;
+                    moveUpdate.Positions = new List<Position>();
+                    moveUpdate.Positions.Add(fireingUnit.Pos);
+                    moveUpdate.Stats = fireingUnit.CollectStats();
+
+                    moveUpdate.Stats.WeaponLoaded = true;
+
+                    lastMoves.Add(moveUpdate);*/
                 }
                 else if (move.MoveType == MoveType.Fire)
                 {

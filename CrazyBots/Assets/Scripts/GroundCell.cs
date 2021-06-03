@@ -227,6 +227,14 @@ public class GroundCell : MonoBehaviour
         }
     }
 
+    public bool IsSelected { get; private set; }
+    internal void SetSelected(bool selected)
+    {
+        IsSelected = selected;
+        Light light = GetComponentInChildren<Light>();
+        if (light != null)
+            light.enabled = selected;
+    }
 
     internal void CreateMinerals()
     {

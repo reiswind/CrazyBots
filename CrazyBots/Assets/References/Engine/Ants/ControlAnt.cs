@@ -21,8 +21,8 @@ namespace Engine.Control
 
         public Dictionary<Position, Ant> CreatedAnts = new Dictionary<Position, Ant>();
 
-        public int MaxWorker = 6;
-        public int MaxFighter = 25;
+        public int MaxWorker = 0;
+        public int MaxFighter = 1;
         public int NumberOfWorkers;
         public int NumberOfFighter;
 
@@ -133,6 +133,19 @@ namespace Engine.Control
 
         private Dictionary<Position, int> enemyDeposits = new Dictionary<Position, int>();
 
+        public void RemoveEnemyFound(Player player, int id)
+        {
+            foreach (Position pos in enemyDeposits.Keys)
+            {
+                if (enemyDeposits[pos] == id)
+                {
+                    enemyDeposits.Remove(pos);
+                    break;
+                }
+
+            }
+            player.Game.Pheromones.DeletePheromones(id);
+        }
         public int EnemyFound(Player player, Position pos)
         {
             int id;
@@ -758,6 +771,12 @@ namespace Engine.Control
                     player.Game.Pheromones.DeletePheromones(ant.PheromoneDepositNeedMinerals);
                     ant.PheromoneDepositNeedMinerals = 0;
                 }
+                if (ant.PheromoneWaypointAttack != 0)
+                {
+                    player.Game.Pheromones.DeletePheromones(ant.PheromoneWaypointAttack);
+                    ant.PheromoneWaypointAttack = 0;
+                }
+
                 Ants.Remove(ant.PlayerUnit.Unit.UnitId);
             }            
             return moves;

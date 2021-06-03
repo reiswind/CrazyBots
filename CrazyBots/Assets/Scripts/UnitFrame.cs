@@ -454,43 +454,63 @@ public class UnitFrame
         UnitCommands.Clear();
     }
 
+    private bool selectionChanged;
+    public bool IsSelected { get; private set; }
+    internal void SetSelected(bool selected)
+    {
+        if (IsSelected != selected)
+        {
+            selectionChanged = true;
+            IsSelected = selected;
+        }
+        /*
+        Light light = GetComponentInChildren<Light>();
+        if (light != null)
+            light.enabled = selected;*/
+    }
+
     public void UpdateWayPoints()
     {
         foreach (UnitCommand unitCommand in UnitCommands)
         {
-            if (unitCommand.GameObject == null)
+            if (IsSelected)
             {
-                GroundCell targetCell = HexGrid.GroundCells[unitCommand.GameCommand.TargetPosition];
+                if (unitCommand.GameObject == null)
+                {
+                    GroundCell targetCell = HexGrid.GroundCells[unitCommand.GameCommand.TargetPosition];
 
-                GameObject waypointPrefab = Resources.Load<GameObject>("Prefabs/Terrain/Waypoint");
+                    GameObject waypointPrefab = Resources.Load<GameObject>("Prefabs/Terrain/Waypoint");
 
-                unitCommand.GameObject = HexGrid.Instantiate(waypointPrefab, targetCell.transform, false);
-                unitCommand.GameObject.name = "Waypoint";
+                    unitCommand.GameObject = HexGrid.Instantiate(waypointPrefab, targetCell.transform, false);
+                    unitCommand.GameObject.name = "Waypoint";
 
-                //var go = new GameObject();
-                var lr = unitCommand.GameObject.GetComponent<LineRenderer>();
-                //lr.startWidth = 0.1f;
-                lr.startColor = Color.red;
+                    //var go = new GameObject();
+                    var lr = unitCommand.GameObject.GetComponent<LineRenderer>();
+                    //lr.startWidth = 0.1f;
+                    lr.startColor = Color.red;
 
-                //lr.endWidth = 0.1f;
-                lr.endColor = Color.red;
+                    //lr.endWidth = 0.1f;
+                    lr.endColor = Color.red;
 
-                //var gun = GameObject.Find("Gun");
-                //var projectile = GameObject.Find("Projectile");
+                    //var gun = GameObject.Find("Gun");
+                    //var projectile = GameObject.Find("Projectile");
 
-                Vector3 v1 = foundationPart.transform.position;
-                Vector3 v2 = targetCell.transform.position;
-                v1.y += 0.3f;
-                v2.y += 0.3f;
+                    Vector3 v1 = foundationPart.transform.position;
+                    Vector3 v2 = targetCell.transform.position;
+                    v1.y += 0.3f;
+                    v2.y += 0.3f;
 
-                lr.SetPosition(0, v1);
-                lr.SetPosition(1, v2);
-
-                /*
-                Vector3 v1 = foundationPart.transform.position;
-                Vector3 v2 = targetCell.Cell.transform.position;
-                v1.y = v2.y = 5;
-                Debug.DrawLine(v1, v2, Color.red, 100);*/
+                    lr.SetPosition(0, v1);
+                    lr.SetPosition(1, v2);
+                }
+            }
+            else
+            {
+                if (unitCommand.GameObject != null)
+                {
+                    HexGrid.Destroy(unitCommand.GameObject);
+                    unitCommand.GameObject = null;
+                }
             }
         }
     }
@@ -830,6 +850,13 @@ public class UnitFrame
 
     public void Move(MonoBehaviour unit)
     {
+        if (selectionChanged)
+        {
+            UpdateWayPoints();
+
+            selectionChanged = false;
+        }
+
         if (NextMove?.MoveType == MoveType.Hit) // && unit == foundationPart)
         {
             MoveUpdateStats = NextMove.Stats;

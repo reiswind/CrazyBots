@@ -173,12 +173,31 @@ public class GameCanvas : MonoBehaviour
 
             if (hitByMouseClick == null)
             {
+                if (lastSelectedGroundCell != null)
+                {
+                    lastSelectedGroundCell.SetSelected(false);
+                }
                 lastSelectedGroundCell = null;
                 selectedUnitFrame = null;
             }
             else
             {
+                if (lastSelectedGroundCell != hitByMouseClick.GroundCell)
+                {
+                    if (lastSelectedGroundCell != null)
+                        lastSelectedGroundCell.SetSelected(false);
+                    if (hitByMouseClick.GroundCell != null)
+                        hitByMouseClick.GroundCell.SetSelected(true);
+                }
                 lastSelectedGroundCell = hitByMouseClick.GroundCell;
+
+                if (selectedUnitFrame != hitByMouseClick.UnitFrame)
+                {
+                    if (selectedUnitFrame != null)
+                        selectedUnitFrame.SetSelected(false);
+                    if (hitByMouseClick.UnitFrame != null)
+                        hitByMouseClick.UnitFrame.SetSelected(true);
+                }
                 selectedUnitFrame = hitByMouseClick.UnitFrame;
             }
         }
@@ -187,7 +206,6 @@ public class GameCanvas : MonoBehaviour
             StringBuilder sb = new StringBuilder();
 
             UnitFrame unit = selectedUnitFrame;
-            GroundCell gc = HexGrid.GroundCells[unit.currentPos];
 
             sb.AppendLine("Unit: " + unit.UnitId);
             if (unit.HasBeenDestroyed)
@@ -246,6 +264,8 @@ public class GameCanvas : MonoBehaviour
                 }
             }
             sb.AppendLine("");
+
+            GroundCell gc = HexGrid.GroundCells[unit.currentPos];
             AppendGroundInfo(gc, sb);
 
             UISelectedObjectText.text = sb.ToString();

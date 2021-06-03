@@ -42,6 +42,9 @@ namespace Engine.Ants
         public int PheromoneDepositNeedMinerals { get; set; }
         public int PheromoneDepositNeedMineralsLevel { get; set; }
 
+
+        public int PheromoneWaypointAttack { get; set; }
+
         public List<Position> FollowThisRoute { get; set; }
         public virtual bool Move(Player player, List<Move> moves)
         {
@@ -150,8 +153,12 @@ namespace Engine.Ants
                     {
                         if (hasChanged)
                         {
-                            //int x = player.Game.Pheromones.DropPheromones(player, CurrentGameCommand.TargetPosition, 5, PheromoneType.Enemy, 0.5f, true);
-                            Control.EnemyFound(player, CurrentGameCommand.TargetPosition);
+                            if (PheromoneWaypointAttack != 0)
+                            {
+                                Control.RemoveEnemyFound(player, PheromoneWaypointAttack);
+                                PheromoneWaypointAttack = 0;
+                            }
+                            PheromoneWaypointAttack = Control.EnemyFound(player, CurrentGameCommand.TargetPosition);
                         }
                     }
 
