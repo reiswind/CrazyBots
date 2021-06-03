@@ -21,8 +21,8 @@ namespace Engine.Control
 
         public Dictionary<Position, Ant> CreatedAnts = new Dictionary<Position, Ant>();
 
-        public int MaxWorker = 0;
-        public int MaxFighter = 1;
+        public int MaxWorker = 6;
+        public int MaxFighter = 30;
         public int NumberOfWorkers;
         public int NumberOfFighter;
 

@@ -382,34 +382,44 @@ public class UnitFrame
     internal static Material playerMaterial1;
     internal static Material playerMaterial2;
     internal static Material playerMaterial3;
+    internal static Material frameMaterial;
 
     internal static void SetPlayerColor(int playerId, GameObject unit)
     {
+        
+
         if (playerMaterial1 == null)
         {
             playerMaterial1 = Resources.Load<Material>("Materials/Player1");
             playerMaterial2 = Resources.Load<Material>("Materials/Player2");
             playerMaterial3 = Resources.Load<Material>("Materials/Player3");
+            frameMaterial = Resources.Load<Material>("Materials/MyFrame");
+
+            //frameMaterial = Resources.Load<Material>("Materials/TransparentFrame");
         }
         MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
 
-        //Material[] newMaterials = new Material[meshRenderer.materials.Length];
+        Material[] newMaterials = new Material[meshRenderer.materials.Length];
         for (int i = 0; i < meshRenderer.materials.Length; i++)
         {
             Material material = meshRenderer.materials[i];
             if (material.name.StartsWith("Player"))
             {
+                /*
                 if (playerId == 1) material.color = playerMaterial1.color;
                 if (playerId == 2) material.color = playerMaterial2.color;
-                if (playerId == 3) material.color = playerMaterial3.color;
-                
+                if (playerId == 3) material.color = playerMaterial3.color;*/
+
+                if (playerId == 1) newMaterials[i] = playerMaterial1;
+                if (playerId == 2) newMaterials[i] = playerMaterial2;
+                if (playerId == 3) newMaterials[i] = playerMaterial3;
             }
             else
             {
-                //newMaterials[i] = material;
+                newMaterials[i] = frameMaterial;
             }
         }
-        //meshRenderer.materials = newMaterials;
+        meshRenderer.materials = newMaterials;
     }
 
     private void ReparentParts()
