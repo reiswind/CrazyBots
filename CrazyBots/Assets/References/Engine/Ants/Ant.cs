@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using UnityEngine;
 
 namespace Engine.Ants
 {
@@ -72,19 +71,10 @@ namespace Engine.Ants
                     // Continue with gamecommand
                     if (CurrentGameCommand.TargetPosition == PlayerUnit.Unit.Pos)
                     {
-                        Debug.Log("REACHED");
 
                         // Reached
                         CurrentGameCommand = null;
                         PlayerUnit.Unit.GameCommands.RemoveAt(0);
-
-                        foreach (GameCommand gameCommand in PlayerUnit.Unit.GameCommands)
-                        {
-                            if (gameCommand.Append)
-                                Debug.Log("REACHED to " + gameCommand.TargetPosition.X + "," + gameCommand.TargetPosition.Y + " SHIFT");
-                            else
-                                Debug.Log("REACHED to " + gameCommand.TargetPosition.X + "," + gameCommand.TargetPosition.Y);
-                        }
                     }
                     else
                     {
@@ -101,16 +91,6 @@ namespace Engine.Ants
                         
                         if (newCommand == null)
                         {
-                            // Keep command, do nothing
-                            Debug.Log("KEEP");
-
-                            foreach (GameCommand gameCommand in PlayerUnit.Unit.GameCommands)
-                            {
-                                if (gameCommand.Append)
-                                    Debug.Log("KEEP to " + gameCommand.TargetPosition.X + "," + gameCommand.TargetPosition.Y + " SHIFT");
-                                else
-                                    Debug.Log("KEEP to " + gameCommand.TargetPosition.X + "," + gameCommand.TargetPosition.Y);
-                            }
                         }
                         else
                         {

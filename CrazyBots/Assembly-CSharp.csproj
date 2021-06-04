@@ -59,6 +59,7 @@
     <Compile Include="Assets\References\Engine\Interface\Player.cs" />
     <Compile Include="Assets\References\Engine\Master\Bullet.cs" />
     <Compile Include="Assets\References\Engine\Master\Reactor.cs" />
+    <Compile Include="Assets\References\Engine\Interface\Blueprints.cs" />
     <Compile Include="Assets\References\Engine\Control\Assemble.cs" />
     <Compile Include="Assets\Scripts\Extractor1.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\HighResolutionTime.cs" />
@@ -104,6 +105,7 @@
     <Compile Include="Assets\Scripts\Frame.cs" />
     <Compile Include="Assets\StrategyCameraLite\Example\Scripts\DemoUI.cs" />
     <Compile Include="Assets\References\Engine\Master\Unit.cs" />
+    <Compile Include="Assets\Scripts\UnitBase.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\AuthorAttribute.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\IPathFinder.cs" />
     <Compile Include="Assets\References\Engine\Control\ControlNothing.cs" />
@@ -120,8 +122,6 @@
     <Compile Include="Assets\Scripts\HexGrid.cs" />
     <Compile Include="Assets\References\Engine\Master\Engine.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\PriorityQueueB.cs" />
-    <Compile Include="Assets\References\Engine\Interface\Blueprints.cs" />
-    <Compile Include="Assets\Scripts\UnitBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\References\TerrainQuest.Generator.dll" />

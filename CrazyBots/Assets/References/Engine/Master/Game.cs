@@ -1302,14 +1302,6 @@ namespace Engine.Master
                                     unit.GameCommands.Clear();
                                 }
                                 unit.GameCommands.Add(gameCommand);
-
-                                foreach (GameCommand gameCommand1 in unit.GameCommands)
-                                {
-                                    if (gameCommand.Append)
-                                        UnityEngine.Debug.Log("Move to " + gameCommand1.TargetPosition.X + "," + gameCommand1.TargetPosition.Y + " SHIFT");
-                                    else
-                                        UnityEngine.Debug.Log("Move to " + gameCommand1.TargetPosition.X + "," + gameCommand1.TargetPosition.Y);
-                                }
                             }
                         }
                     }
