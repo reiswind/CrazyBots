@@ -147,7 +147,7 @@ public class GroundCell : MonoBehaviour
                 Vector3 position = transform.position;
                 position.y += 0.054f + (0.2f * highestEnergy);
                 markerEnergy.transform.position = position;
-                UnitFrame.SetPlayerColor(highestPlayerId, markerEnergy);
+                UnitBase.SetPlayerColor(highestPlayerId, markerEnergy);
             }
             else
             {

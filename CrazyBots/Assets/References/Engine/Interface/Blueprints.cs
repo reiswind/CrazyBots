@@ -33,7 +33,7 @@ namespace Engine.Interface
             blueprint.Name = "Worker";
             blueprint.Parts.Add(new BlueprintPart("Engine1"));
             blueprint.Parts.Add(new BlueprintPart("Extractor1"));
-            blueprint.Parts.Add(new BlueprintPart("Container1", true));
+            blueprint.Parts.Add(new BlueprintPart("Container1"));
             blueprint.Parts.Add(new BlueprintPart("Armor1"));
             Items.Add(blueprint);
 
@@ -42,7 +42,7 @@ namespace Engine.Interface
             blueprint.Name = "Fighter";
             blueprint.Parts.Add(new BlueprintPart("Engine1"));
             blueprint.Parts.Add(new BlueprintPart("Extractor1"));
-            blueprint.Parts.Add(new BlueprintPart("Weapon1", true));
+            blueprint.Parts.Add(new BlueprintPart("Weapon1"));
             blueprint.Parts.Add(new BlueprintPart("Armor1"));
             Items.Add(blueprint);
         }

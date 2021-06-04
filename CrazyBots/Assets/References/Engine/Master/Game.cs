@@ -105,7 +105,7 @@ namespace Engine.Master
                     move.UnitId = unitModel.Parts;
                 else
                     move.UnitId = unitModel.Blueprint;
-
+                move.OtherUnitId = unitModel.Blueprint;
                 move.Positions = new List<Position>();
                 move.Positions.Add(unitModel.Position);
                 newMoves.Add(move);

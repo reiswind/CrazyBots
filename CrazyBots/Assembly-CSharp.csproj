@@ -87,7 +87,6 @@
     <Compile Include="Assets\References\Engine\Master\Armor .cs" />
     <Compile Include="Assets\Scripts\Weapon1.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntDestination.cs" />
-    <Compile Include="Assets\Scripts\UnitFrame.cs" />
     <Compile Include="Assets\References\Engine\Control\Dispatcher.cs" />
     <Compile Include="Assets\Scripts\Engine1.cs" />
     <Compile Include="Assets\Scripts\Container1.cs" />
@@ -119,10 +118,10 @@
     <Compile Include="Assets\References\Engine\Control\UnitType.cs" />
     <Compile Include="Assets\References\Engine\Control\Scout.cs" />
     <Compile Include="Assets\Scripts\HexGrid.cs" />
-    <Compile Include="Assets\Scripts\HexCell.cs" />
     <Compile Include="Assets\References\Engine\Master\Engine.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\PriorityQueueB.cs" />
     <Compile Include="Assets\References\Engine\Interface\Blueprints.cs" />
+    <Compile Include="Assets\Scripts\UnitBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\References\TerrainQuest.Generator.dll" />

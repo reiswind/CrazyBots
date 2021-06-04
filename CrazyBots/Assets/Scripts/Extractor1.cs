@@ -5,41 +5,29 @@ using UnityEngine;
 
 public class Extractor1 : MonoBehaviour
 {
-    public UnitFrame UnitFrame { get; set; }
-
-    // Update is called once per frame
-    void Update()
+    public void Extract(HexGrid hexGrid, Move move)
     {
-        if (UnitFrame == null)
-            return;
+        ParticleSystem particleSource;
 
-        UnitFrame.Move(this);
-        if (UnitFrame.NextMove?.MoveType == MoveType.Extract)
-        {
-            ParticleSystem particleSource;
+        Position from = move.Positions[1];
+        GroundCell sourceCell = hexGrid.GroundCells[from];
 
-            Position from = UnitFrame.NextMove.Positions[1];
-            GroundCell sourceCell = UnitFrame.HexGrid.GroundCells[from];
+        particleSource = hexGrid.MakeParticleSource("ExtractSource");
+        particleSource.transform.SetParent(sourceCell.transform, false);
 
-            particleSource = UnitFrame.HexGrid.MakeParticleSource("ExtractSource");
-            particleSource.transform.SetParent(sourceCell.transform, false);
+        Position to = move.Positions[0];
+        GroundCell targetCell = hexGrid.GroundCells[to];
 
-            Position to = UnitFrame.NextMove.Positions[0];
-            GroundCell targetCell = UnitFrame.HexGrid.GroundCells[to];
+        ParticleSystemForceField particleTarget = hexGrid.MakeParticleTarget();
+        particleTarget.transform.SetParent(targetCell.transform, false);
 
-            ParticleSystemForceField particleTarget = UnitFrame.HexGrid.MakeParticleTarget();
-            particleTarget.transform.SetParent(targetCell.transform, false);
+        Vector3 unitPos3 = particleTarget.transform.position;
+        unitPos3.y += 0.1f;
+        particleTarget.transform.position = unitPos3;
 
-            Vector3 unitPos3 = particleTarget.transform.position;
-            unitPos3.y += 0.1f;
-            particleTarget.transform.position = unitPos3;
+        particleSource.externalForces.SetInfluence(0, particleTarget);
+        HexGrid.Destroy(particleTarget, 2.5f);
 
-            particleSource.externalForces.SetInfluence(0, particleTarget);
-            HexGrid.Destroy(particleTarget, 2.5f);
-
-            particleSource.Play();
-
-            UnitFrame.NextMove = null;
-        }
+        particleSource.Play();
     }
 }

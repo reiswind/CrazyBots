@@ -5,9 +5,6 @@ using UnityEngine;
 
 public class Weapon1 : MonoBehaviour
 {
-    public UnitFrame UnitFrame { get; set; }
-
-    private int shot;
 
     private Vector3 calcBallisticVelocityVector(Vector3 initialPos, Vector3 finalPos, float angle)
     {
@@ -42,85 +39,59 @@ public class Weapon1 : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Fire(HexGrid hexGrid, Move move)
     {
-        if (UnitFrame == null)
+        Position FinalDestination = move.Positions[move.Positions.Count - 1];
+        GroundCell targetCell = hexGrid.GroundCells[FinalDestination];
+
+        float angle = 25;
+        Transform launchPosition;
+        Transform weaponPosition = transform.Find("Weapon");
+        if (weaponPosition != null)
+        {
+            angle = 2;
+            UpdateDirection(weaponPosition.transform, targetCell.transform.position, 0.04f);
+            launchPosition = weaponPosition.transform.Find("Ammo");
+        }
+        else
+        {
+            UpdateDirection(transform, targetCell.transform.position, 3.4f);
+            launchPosition = transform.Find("Ammo");
+        }
+
+        //launchPosition = transform.Find("Ammo");
+        if (launchPosition == null)
+        {
+            Debug.LogError("Missing Ammo");
             return;
-
-        UnitFrame.Move(this);
-        if (UnitFrame?.NextMove?.MoveType == MoveType.Move)
-        {
-            if (shot > 0)
-            {
-                shot--;
-                if (shot == 0)
-                {
-                    // Point weapon into move direction (TOdo;: Does not work)
-                    Position FinalDestination = UnitFrame.NextMove.Positions[UnitFrame.NextMove.Positions.Count - 1];
-                    GroundCell targetCell = UnitFrame.HexGrid.GroundCells[FinalDestination];
-
-                    Vector3 unitPos3 = targetCell.transform.localPosition;
-                    unitPos3.y += UnitFrame.HexGrid.hexCellHeight;
-                    //UpdateDirection(unitPos3);
-                }
-            }
         }
-        if (UnitFrame.NextMove?.MoveType == MoveType.Fire)
-        {
-            Position FinalDestination = UnitFrame.NextMove.Positions[UnitFrame.NextMove.Positions.Count - 1];
-            GroundCell targetCell = UnitFrame.HexGrid.GroundCells[FinalDestination];
+        launchPosition.gameObject.SetActive(false);
 
-            float angle = 25;
-            Transform launchPosition;
-            Transform weaponPosition = transform.Find("Weapon");
-            if (weaponPosition != null)
-            {
-                angle = 2;
-                UpdateDirection(weaponPosition.transform, targetCell.transform.position, 0.04f);
-                launchPosition = weaponPosition.transform.Find("Ammo");
-            }
-            else
-            {
-                UpdateDirection(transform, targetCell.transform.position, 3.4f);
-                launchPosition = transform.Find("Ammo");
-            }
+        /*
+        Vector3 unitPos3 = targetCell.Cell.transform.localPosition;
+        unitPos3.y += UnitFrame.HexGrid.hexCellHeight;
+        UpdateDirection(unitPos3);
+        Vector3 launchPosition = transform.position;*/
 
-            //launchPosition = transform.Find("Ammo");
-            if (launchPosition == null)
-            {
-                Debug.LogError("Missing Ammo");
-                return;
-            }
-            launchPosition.gameObject.SetActive(false);
+        //launchPosition.x += 1.1f;
+        //launchPosition.z += 1.1f;
+        //launchPosition.y += 1f;
 
-            /*
-            Vector3 unitPos3 = targetCell.Cell.transform.localPosition;
-            unitPos3.y += UnitFrame.HexGrid.hexCellHeight;
-            UpdateDirection(unitPos3);
-            Vector3 launchPosition = transform.position;*/
+        //shot = true;
+        Shell shell = hexGrid.InstantiatePrefab<Shell>("Shell");
+        shell.gameObject.hideFlags = HideFlags.HideAndDontSave;
+        //shell.transform.position = launchPosition; // transform.position;
+        shell.transform.SetPositionAndRotation(launchPosition.position, launchPosition.rotation);
 
-            //launchPosition.x += 1.1f;
-            //launchPosition.z += 1.1f;
-            //launchPosition.y += 1f;
+        shell.TargetUnitId = move.OtherUnitId;
+        
+        Rigidbody rigidbody = shell.GetComponent<Rigidbody>();
 
-            //shot = true;
-            Shell shell = UnitFrame.HexGrid.InstantiatePrefab<Shell>("Shell");
-            shell.gameObject.hideFlags = HideFlags.HideAndDontSave;
-            //shell.transform.position = launchPosition; // transform.position;
-            shell.transform.SetPositionAndRotation(launchPosition.position, launchPosition.rotation);
+        rigidbody.velocity = calcBallisticVelocityVector(launchPosition.position, targetCell.transform.position, angle);
 
-            shell.TargetUnitId = UnitFrame.NextMove.OtherUnitId;
-            shell.UnitFrame = UnitFrame;
 
-            Rigidbody rigidbody = shell.GetComponent<Rigidbody>();
-
-            rigidbody.velocity = calcBallisticVelocityVector(launchPosition.position, targetCell.transform.position, angle);
-            shot = 10;
-
-            UnitFrame.NextMove = null;
-        }
     }
+    
 
     static void UpdateDirection(Transform transform, Vector3 position, float speed)
     {

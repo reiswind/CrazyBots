@@ -21,7 +21,8 @@ public class HexGrid : MonoBehaviour
 	public float GameSpeed = 0.01f;
 
 	internal Dictionary<Position, GroundCell> GroundCells { get; private set; }
-	internal Dictionary<string, UnitFrame> Units { get; private set; }
+	//internal Dictionary<string, UnitFrame> Units { get; private set; }
+	internal Dictionary<string, UnitBase> BaseUnits { get; private set; }
 
 	// Filled in UI Thread
 	internal List<GameCommand> GameCommands { get; private set; }
@@ -49,10 +50,10 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -142,7 +143,7 @@ public class HexGrid : MonoBehaviour
 
 		GameCommands = new List<GameCommand>();
 		GroundCells = new Dictionary<Position, GroundCell>();
-		Units = new Dictionary<string, UnitFrame>();
+		BaseUnits = new Dictionary<string, UnitBase>();
 
 		AddRock("Rock Type1 01", obstacles, 0.8f);
 		AddRock("Rock Type1 02", obstacles, 0.8f);
@@ -377,22 +378,23 @@ public class HexGrid : MonoBehaviour
 			{
 			}
 		}
-
-		foreach (UnitFrame unitFrame in Units.Values)
+		
+		foreach (UnitBase unitBase in BaseUnits.Values)
 		{
-			//if (unitFrame.FinalDestination != null)
+			if (unitBase.DestinationPos != null)
 			{
-				unitFrame.JumpToTarget(unitFrame.FinalDestination);
-				//unitFrame.FinalDestination = null;
+				unitBase.CurrentPos = unitBase.DestinationPos;
+				unitBase.DestinationPos = null;
+				unitBase.PutAtCurrentPosition();
 			}
-			unitFrame.NextMove = null;
 		}
+
 
 		foreach (Move move in newMoves)
 		{
 			if (move.MoveType == MoveType.Add)
 			{
-				if (Units.ContainsKey(move.UnitId))
+				if (BaseUnits.ContainsKey(move.UnitId))
 				{
 					// Happend in player view
 				}
@@ -405,6 +407,7 @@ public class HexGrid : MonoBehaviour
 			{
 				CreateUnit(move);
 			}
+			/*
 			else if (move.MoveType == MoveType.UpdateStats)
 			{
 				if (Units.ContainsKey(move.UnitId))
@@ -416,26 +419,46 @@ public class HexGrid : MonoBehaviour
 				{
 					// Happend in player view
 				}
-			}
-			else if (move.MoveType == MoveType.Move ||
-					 move.MoveType == MoveType.Extract ||
-					 move.MoveType == MoveType.Fire)
+			}*/
+			else if (move.MoveType == MoveType.Extract ||
+					 move.MoveType == MoveType.Fire ||
+					 move.MoveType == MoveType.Hit ||
+				     move.MoveType == MoveType.UpdateStats)
 			{
-				if (Units.ContainsKey(move.UnitId)) // Playervision
+				if (BaseUnits.ContainsKey(move.UnitId))
 				{
-					UnitFrame unit = Units[move.UnitId];
-					unit.NextMove = move;
+					UnitBase unit = BaseUnits[move.UnitId];
+					unit.UpdateStats(move.Stats);
+
+					if (move.MoveType == MoveType.Extract)
+                    {
+						unit.Extract(move);
+                    }
+					if (move.MoveType == MoveType.Fire)
+					{
+						unit.Fire(move);
+					}
 				}
+				
 			}
-			else if (move.MoveType == MoveType.Hit)
+			else if (move.MoveType == MoveType.Move)
 			{
-				UnitFrame unit = Units[move.UnitId];
-				unit.NextMove = move;
+				if (BaseUnits.ContainsKey(move.UnitId))
+				{
+					UnitBase unit = BaseUnits[move.UnitId];
+					unit.MoveTo(move.Positions[1]);
+				}
+				
 			}
 			else if (move.MoveType == MoveType.Upgrade)
 			{
-				UnitFrame unit = Units[move.OtherUnitId];
-				unit.NextMove = move;
+				if (BaseUnits.ContainsKey(move.OtherUnitId))
+				{
+					// 
+					UnitBase unit = BaseUnits[move.OtherUnitId];
+					unit.Upgrade(move);
+				}
+				
 			}
 			else if (move.MoveType == MoveType.UpdateGround)
 			{
@@ -445,12 +468,20 @@ public class HexGrid : MonoBehaviour
 			}
 			else if (move.MoveType == MoveType.Delete)
 			{
-				Debug.Log("Delete Unit " + move.UnitId);
-
-				UnitFrame unit = Units[move.UnitId];
-				unit.NextMove = null;
-				unit.Delete();
-				Units.Remove(move.UnitId);
+				if (BaseUnits.ContainsKey(move.UnitId))
+				{
+					UnitBase unit = BaseUnits[move.UnitId];
+					unit.Delete();
+					BaseUnits.Remove(move.UnitId);
+				}
+				/*
+				if (Units.ContainsKey(move.OtherUnitId))
+				{
+					UnitFrame unit = Units[move.UnitId];
+					unit.NextMove = null;
+					unit.Delete();
+					Units.Remove(move.UnitId);
+				}*/
 			}
 		}
 		newMoves.Clear();
@@ -493,6 +524,14 @@ public class HexGrid : MonoBehaviour
 		T script = instance.GetComponent<T>();
 		return script;
 	}
+
+	public GameObject InstantiatePrefab(string name)
+	{
+		GameObject prefab = (GameObject)Resources.Load("Prefabs/Unit/" + name);
+		GameObject instance = Instantiate(prefab);
+		return instance;
+	}
+
 	public ParticleSystem MakeParticleSource(string resource)
     {
 		ParticleSystem extractSourcePrefab = Resources.Load<ParticleSystem>("Particles\\" + resource);
@@ -511,28 +550,63 @@ public class HexGrid : MonoBehaviour
 
 	void CreateUnit(Move move)
 	{
-		UnitFrame unit = new UnitFrame();
+		string unitModel;
+
+		if (move.Stats.BlueprintName.StartsWith("Fighter") ||
+			move.Stats.BlueprintName.StartsWith("Worker"))
+		{
+			unitModel = "MovableUnitBigPart";
+		}
+		else
+        {
+			unitModel = "GroundUnit";
+		}
+		UnitBase unit = InstantiatePrefab<UnitBase>(unitModel);
 
 		unit.HexGrid = this;
-		unit.NextMove = move;
+		unit.CurrentPos = move.Positions[0];
 
-		unit.playerId = move.PlayerId;
+		unit.PlayerId = move.PlayerId;
 		unit.MoveUpdateStats = move.Stats;
 		unit.UnitId = move.UnitId;
 
-		if (move.Stats.EngineLevel == 0)
-		{
-			// Cannot move to targetpos
-			unit.currentPos = move.Positions[move.Positions.Count-1];
-		}
-		else
+		unit.Assemble();
+		unit.PutAtCurrentPosition();
+
+		if (move.Positions.Count > 1)
 		{
 			// Move to targetpos
-			unit.currentPos = move.Positions[0];
+			unit.DestinationPos = move.Positions[move.Positions.Count - 1];
 		}
-		unit.Assemble();
-		Units.Add(move.UnitId, unit);
+		BaseUnits.Add(move.UnitId, unit);
 
+		
+		/*
+		else
+		{
+			UnitFrame unit = new UnitFrame();
+
+			unit.HexGrid = this;
+			unit.NextMove = move;
+
+			unit.playerId = move.PlayerId;
+			unit.MoveUpdateStats = move.Stats;
+			unit.UnitId = move.UnitId;
+
+			if (move.Stats.EngineLevel == 0)
+			{
+				// Cannot move to targetpos
+				unit.currentPos = move.Positions[move.Positions.Count - 1];
+			}
+			else
+			{
+				// Move to targetpos
+				unit.currentPos = move.Positions[0];
+			}
+			unit.Assemble();
+			Units.Add(move.UnitId, unit);
+		}
+		*/
 		/*
 		Text label = Instantiate<Text>(cellLabelPrefab);
 		label.rectTransform.SetParent(gridCanvas.transform, false);

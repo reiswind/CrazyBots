@@ -7,7 +7,6 @@ public class Shell : MonoBehaviour
     public ParticleSystem m_ExplosionParticles;
 
     internal string TargetUnitId { get; set; }
-    public UnitFrame UnitFrame { get; set; }
     // Start is called before the first frame update
     void Start()
     {

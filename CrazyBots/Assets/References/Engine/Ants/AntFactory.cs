@@ -76,8 +76,8 @@ namespace Engine.Ants
                 //addAssembler = false;
                 if (cntrlUnit.Container != null && cntrlUnit.Container.Metal >= cntrlUnit.Container.Capacity)
                 {
-                    if (player.PlayerModel.Id > 1)
-                        addContainer = true;
+                    //if (player.PlayerModel.Id > 1)
+                    //    addContainer = true;
                 }
             }
 

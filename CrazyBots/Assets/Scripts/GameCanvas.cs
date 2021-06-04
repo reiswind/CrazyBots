@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 internal class HitByMouseClick
 {
-    public UnitFrame UnitFrame { get; set; }
+    public UnitBase UnitFrame { get; set; }
     public GroundCell GroundCell { get; set; }
 }
 
@@ -32,7 +32,7 @@ public class GameCanvas : MonoBehaviour
         HexGrid.StartGame();
     }
 
-    private UnitFrame selectedUnitFrame;
+    private UnitBase selectedUnitFrame;
     private GroundCell lastSelectedGroundCell;
     
 
@@ -48,13 +48,13 @@ public class GameCanvas : MonoBehaviour
             hitByMouseClick.UnitFrame = GetUnitFrameFromRayCast(raycastHit);
             if (hitByMouseClick.UnitFrame != null && hitByMouseClick.GroundCell == null)
             {
-                hitByMouseClick.GroundCell = HexGrid.GroundCells[hitByMouseClick.UnitFrame.currentPos];
+                hitByMouseClick.GroundCell = HexGrid.GroundCells[hitByMouseClick.UnitFrame.CurrentPos];
             }
             if (hitByMouseClick.UnitFrame == null && hitByMouseClick.GroundCell != null)
             {
-                foreach (UnitFrame unitFrame in HexGrid.Units.Values)
+                foreach (UnitBase unitFrame in HexGrid.BaseUnits.Values)
                 {
-                    if (unitFrame.currentPos == hitByMouseClick.GroundCell.Tile.Pos)
+                    if (unitFrame.CurrentPos == hitByMouseClick.GroundCell.Tile.Pos)
                     {
                         hitByMouseClick.UnitFrame = unitFrame;
                         break;
@@ -66,8 +66,15 @@ public class GameCanvas : MonoBehaviour
         return hitByMouseClick;
     }
 
-    private UnitFrame GetUnitFrameFromRayCast(RaycastHit raycastHit)
+    private UnitBase GetUnitFrameFromRayCast(RaycastHit raycastHit)
     {
+        UnitBase unitBase = raycastHit.collider.GetComponent<UnitBase>();
+        if (unitBase != null) return unitBase;
+
+        unitBase = raycastHit.collider.transform.parent.GetComponent<UnitBase>();
+        if (unitBase != null) return unitBase;
+
+        /*
         Engine1 engine1 = raycastHit.collider.GetComponent<Engine1>();
         if (engine1 != null) return engine1.UnitFrame;
         Armor armor = raycastHit.collider.GetComponent<Armor>();
@@ -82,7 +89,7 @@ public class GameCanvas : MonoBehaviour
         if (extractor1 != null) return extractor1.UnitFrame;
         Reactor1 reactor1 = raycastHit.collider.GetComponent<Reactor1>();
         if (reactor1 != null) return reactor1.UnitFrame;
-
+        */
         return null;
     }
 
@@ -128,6 +135,7 @@ public class GameCanvas : MonoBehaviour
 
             if (selectedUnitFrame != null && hitByMouseClick.GroundCell != null) // && groundCell.Tile.CanMoveTo())
             {
+                
                 if (selectedUnitFrame.IsAssembler())
                 {
                     // Move it there
@@ -157,6 +165,7 @@ public class GameCanvas : MonoBehaviour
 
                     hitByMouseClick.GroundCell.UnitCommands.Add(unitCommand);
                 }
+
                 /*
                 if (gameCommand.Append)
                     Debug.Log("Move to " + gameCommand.TargetPosition.X + "," + gameCommand.TargetPosition.Y + " SHIFT");
@@ -205,7 +214,7 @@ public class GameCanvas : MonoBehaviour
         {
             StringBuilder sb = new StringBuilder();
 
-            UnitFrame unit = selectedUnitFrame;
+            UnitBase unit = selectedUnitFrame;
 
             sb.AppendLine("Unit: " + unit.UnitId);
             if (unit.HasBeenDestroyed)
@@ -284,7 +293,7 @@ public class GameCanvas : MonoBehaviour
             }
             sb.AppendLine("");
 
-            GroundCell gc = HexGrid.GroundCells[unit.currentPos];
+            GroundCell gc = HexGrid.GroundCells[unit.CurrentPos];
             AppendGroundInfo(gc, sb);
 
             UISelectedObjectText.text = sb.ToString();
