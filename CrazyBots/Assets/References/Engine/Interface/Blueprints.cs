@@ -41,10 +41,20 @@ namespace Engine.Interface
             blueprint = new Blueprint();
             blueprint.Name = "Fighter";
             blueprint.Parts.Add(new BlueprintPart("Engine1"));
-            blueprint.Parts.Add(new BlueprintPart("Extractor1"));
             blueprint.Parts.Add(new BlueprintPart("Weapon1"));
+            blueprint.Parts.Add(new BlueprintPart("Extractor1"));
             blueprint.Parts.Add(new BlueprintPart("Armor1"));
             Items.Add(blueprint);
+
+            // Assembler (moving)
+            blueprint = new Blueprint();
+            blueprint.Name = "Assembler";
+            blueprint.Parts.Add(new BlueprintPart("Engine1"));
+            blueprint.Parts.Add(new BlueprintPart("Assembler1"));
+            blueprint.Parts.Add(new BlueprintPart("Extractor1"));
+            blueprint.Parts.Add(new BlueprintPart("Armor1"));
+            Items.Add(blueprint);
+
         }
 
         public Blueprint FindBlueprint(string name)

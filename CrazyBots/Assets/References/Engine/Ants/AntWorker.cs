@@ -9,9 +9,16 @@ using System.Threading.Tasks;
 
 namespace Engine.Ants
 {
+    internal enum AntWorkerType
+    {
+        None,
+        Worker,
+        Fighter,
+        Assembler
+    }
     internal class AntWorker : Ant
     {
-        public bool IsWorker { get; set; }
+        public AntWorkerType AntWorkerType { get; set; }
         public bool ReturnHome { get; set; }
         public bool NothingFound { get; set; }
         public bool GotLostNoWayHome { get; set; }
@@ -530,7 +537,7 @@ namespace Engine.Ants
                     pheromoneType = PheromoneType.ToFood;
                     //pheromoneType = PheromoneType.AwayFromEnergy;
                 }
-                else if (IsWorker)
+                else if (AntWorkerType == AntWorkerType.Worker)
                 {
                     if (cntrlUnit.Container != null && cntrlUnit.Container.Metal < cntrlUnit.Container.Capacity)
                     {
@@ -543,9 +550,13 @@ namespace Engine.Ants
                         pheromoneType = PheromoneType.ToHome;
                     }
                 }
-                else if (!IsWorker)
+                else if (AntWorkerType == AntWorkerType.Fighter)
                 {
                     pheromoneType = PheromoneType.Enemy;
+                }
+                else if (AntWorkerType == AntWorkerType.Assembler)
+                {
+                    pheromoneType = PheromoneType.Assemble;
                 }
 
                 List<AntDestination> possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
@@ -558,7 +569,7 @@ namespace Engine.Ants
                         FollowThisRoute = null;
                     }
                 }
-                if (IsWorker && possibleTiles.Count == 0 && pheromoneType == PheromoneType.ToHome)
+                if (AntWorkerType == AntWorkerType.Worker && possibleTiles.Count == 0 && pheromoneType == PheromoneType.ToHome)
                 {
                     moveToPosition = Control.FindContainer(player, this);
                     if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
@@ -905,7 +916,7 @@ namespace Engine.Ants
                 }
             }
 
-            if (!IsWorker && cntrlUnit.Weapon != null && cntrlUnit.Weapon.WeaponLoaded)
+            if (AntWorkerType == AntWorkerType.Fighter && cntrlUnit.Weapon != null && cntrlUnit.Weapon.WeaponLoaded)
             {
                 // Fight, do not extract if can fire
             }

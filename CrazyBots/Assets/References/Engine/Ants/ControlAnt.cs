@@ -21,10 +21,13 @@ namespace Engine.Control
 
         public Dictionary<Position, Ant> CreatedAnts = new Dictionary<Position, Ant>();
 
-        public int MaxWorker = 6;
-        public int MaxFighter = 10;
+        public int MaxWorker = 0;
+        public int MaxFighter = 0;
+        public int MaxAssembler = 1;
+
         public int NumberOfWorkers;
         public int NumberOfFighter;
+        public int NumberOfAssembler;
 
         public ControlAnt(IGameController gameController, PlayerModel playerModel, GameModel gameModel)
         {
@@ -218,7 +221,7 @@ namespace Engine.Control
             }
         }
 
-        public bool IsUpgrading(Player player, List<Move> moves, Position destination)
+        public bool IsUpgrading(Player player, List<Move> moves, Move move)
         {
             bool occupied = false;
 
@@ -226,7 +229,8 @@ namespace Engine.Control
             {
                 if (intendedMove.MoveType == MoveType.Upgrade)
                 {
-                    if (intendedMove.Positions[intendedMove.Positions.Count - 1] == destination)
+                    if (intendedMove.Positions[intendedMove.Positions.Count - 1] == move.Positions[intendedMove.Positions.Count - 1] &&
+                        intendedMove.OtherUnitId == move.OtherUnitId)
                     {
                         occupied = true;
                         break;
@@ -599,7 +603,7 @@ namespace Engine.Control
                         {
                             
                             // Guess by units preplaced on the map
-                            if (playerUnit.Unit.Assembler != null)
+                            if (playerUnit.Unit.Assembler != null && playerUnit.Unit.Engine == null)
                             {
                                 AntFactory antFactory = new AntFactory(this, playerUnit);
                                 antFactory.Alive = true;
@@ -610,7 +614,10 @@ namespace Engine.Control
                                 AntWorker antWorker = new AntWorker(this);
                                 antWorker.PlayerUnit = playerUnit;
                                 antWorker.Alive = true;
-                                antWorker.IsWorker = playerUnit.Unit.Weapon == null;
+                                if (playerUnit.Unit.Weapon == null)
+                                    antWorker.AntWorkerType = AntWorkerType.Worker;
+                                else
+                                    antWorker.AntWorkerType = AntWorkerType.Fighter;
                                 Ants.Add(cntrlUnit.UnitId, antWorker);
                             }
                             else if (playerUnit.Unit.Weapon != null)
@@ -619,7 +626,7 @@ namespace Engine.Control
                                 AntWorker antWorker = new AntWorker(this);
                                 antWorker.PlayerUnit = playerUnit;
                                 antWorker.Alive = true;
-                                antWorker.IsWorker = false;
+                                antWorker.AntWorkerType = AntWorkerType.None;
                                 Ants.Add(cntrlUnit.UnitId, antWorker);
                             }
                         }
@@ -635,6 +642,7 @@ namespace Engine.Control
 
             NumberOfWorkers = 0;
             NumberOfFighter = 0;
+            NumberOfAssembler = 0;
 
             List<Ant> movableAnts = new List<Ant>();
             List<Ant> killedAnts = new List<Ant>();
@@ -653,10 +661,12 @@ namespace Engine.Control
                         AntWorker antWorker = ant as AntWorker;
                         if (antWorker != null)
                         {
-                            if (antWorker.IsWorker)
+                            if (antWorker.AntWorkerType == AntWorkerType.Worker)
                                 NumberOfWorkers++;
-                            else
+                            if (antWorker.AntWorkerType == AntWorkerType.Fighter)
                                 NumberOfFighter++;
+                            if (antWorker.AntWorkerType == AntWorkerType.Assembler)
+                                NumberOfAssembler++;
                         }
 
                         UpdateContainerDeposits(player, ant);

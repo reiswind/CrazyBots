@@ -14,6 +14,7 @@ namespace Engine.Ants
         ToFood,
         Enemy,
         Energy,
+        Assemble,
         AwayFromEnergy
     }
 

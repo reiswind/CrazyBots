@@ -397,36 +397,6 @@ public class UnitBase : MonoBehaviour
                     weapon.UpdateContent(moveUpdateUnitPart.Minerals > 0);
                 }
             }
-            /*
-            if (moveUpdateUnitPart.Name.StartsWith("Extractor"))
-            {
-                if (moveUpdateUnitPart.Exists)
-                {
-                    Extractor = bigPart.gameObject.GetComponent<Extractor1>();
-                }
-            }*/
-                /*
-                if (moveUpdateUnitPart.Name.StartsWith("Engine"))
-                {
-                    engine.gameObject.SetActive(moveUpdateUnitPart.Exists);
-                }
-                else if (moveUpdateUnitPart.Name.StartsWith("Container"))
-                {
-                    bigPart.gameObject.SetActive(moveUpdateUnitPart.Exists);
-                    if (moveUpdateUnitPart.Exists)
-                    {
-                        Container = bigPart.gameObject.GetComponent<Container1>();
-                        if (Container != null)
-                        {
-                            Container.UpdateContent(moveUpdateUnitPart.Minerals.Value, moveUpdateUnitPart.Capacity.Value);
-                        }
-                    }
-                }
-                else
-                {
-                    sparePart.gameObject.SetActive(moveUpdateUnitPart.Exists);
-                    sparePart = part2;
-                }*/
         }
     }
 }

@@ -24,7 +24,7 @@ namespace Engine.Ants
             //bool everyOutTileOccupied = true;
 
             bool addContainer = false;
-            bool addAssembler = false;
+            //bool addAssemblerOnGround = false;
             bool containerFound = false;
 
             // Do we have a container?
@@ -85,10 +85,13 @@ namespace Engine.Ants
             if (Control.NumberOfWorkers < Control.MaxWorker)
                 addWorker = true;
 
+            bool addAssembler = false;
+            if (addWorker == false && Control.NumberOfAssembler < Control.MaxAssembler)
+                addAssembler = true;
+
             bool addFighter = false;
             if (addWorker == false && Control.NumberOfFighter < Control.MaxFighter)
                 addFighter = true;
-
 
             if (cntrlUnit.Assembler != null)
             {
@@ -96,255 +99,129 @@ namespace Engine.Ants
 
                 if (cntrlUnit.Assembler.CanProduce())
                 {
+                    bool upgrading = false;
+
                     List<Move> possiblemoves = new List<Move>();
                     PlayerUnit.Unit.Assembler.ComputePossibleMoves(possiblemoves, null, MoveFilter.Upgrade);
-                    if (possiblemoves.Count > 0)
+                    while (possiblemoves.Count > 0)
                     {
                         int idx = player.Game.Random.Next(possiblemoves.Count);
                         Move move = possiblemoves[idx];
+
+                        if (Control.IsUpgrading(player, moves, move))
+                        {
+                            possiblemoves.RemoveAt(idx);
+                            continue;
+                        }
+                        upgrading = true;
                         moves.Add(move);
+                        break;
+                    }
 
-                        //foreach (Move possibleMove in possiblemoves)
-                        //{
-                            /*
-                            if (Control.IsUpgrading(player, moves, possibleMove.Positions[1]))
-                            {
-                                continue;
-                            }
+                    if (!upgrading)
+                    {
+                        PlayerUnit.Unit.Assembler.ComputePossibleMoves(possiblemoves, null, MoveFilter.Assemble);
+                        if (possiblemoves.Count > 0)
+                        {
+                            // possiblemoves contains possible output places
+                            List<Move> possibleMoves = new List<Move>();
 
-                            PlayerUnit constructedUnit = player.Units[possibleMove.Positions[1]];
-                            if (Control.Ants.ContainsKey(constructedUnit.Unit.UnitId))
+                            foreach (Move possibleMove in possiblemoves)
                             {
-                                Ant ant = Control.Ants[constructedUnit.Unit.UnitId];
-                                if (ant is AntContainer)
+                                if (Control.IsOccupied(player, moves, possibleMove.Positions[1]))
                                 {
-                                    
-                                    if (ant.PlayerUnit.Unit.Container == null ||
-                                        ant.PlayerUnit.Unit.Container.Level < 3)
-                                    { 
-                                        if (possibleMove.UnitId == "Container")
-                                        {
-                                            moves.Add(possibleMove);
-                                            unitMoved = true;
-                                            break;
-                                        }
-                                    }
+                                    continue;
                                 }
-                                else if (ant is AntFactory)
-                                {
-                                    // Build a factory add Extractor, Container, 
-                                    if (ant.PlayerUnit.Unit.Extractor == null)
-                                    {
-                                        if (possibleMove.UnitId == "Extractor")
-                                        {
-                                            moves.Add(possibleMove);
-                                            unitMoved = true;
-                                            break;
-                                        }
-                                    }
-                                    if (ant.PlayerUnit.Unit.Container == null)
-                                    {
-                                        if (possibleMove.UnitId == "Container")
-                                        {
-                                            moves.Add(possibleMove);
-                                            unitMoved = true;
-                                            break;
-                                        }
-                                    }
-                                    if (ant.PlayerUnit.Unit.Radar == null)
-                                    {
-                                        if (possibleMove.UnitId == "Radar")
-                                        {
-                                            moves.Add(possibleMove);
-                                            unitMoved = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                                else if (ant is AntWorker)
-                                {
-                                    AntWorker antWorker = ant as AntWorker;
 
-                                    if (antWorker.IsWorker && constructedUnit.Unit.Container == null)
-                                    {
-                                        if (possibleMove.UnitId == "Container")
-                                        {
-                                            moves.Add(possibleMove);
-                                            unitMoved = true;
-                                            break;
-                                        }
-                                    }
-                                    else if (!antWorker.IsWorker && constructedUnit.Unit.Weapon == null)
-                                    {
-                                        //if (possibleMove.UnitId == "Armor")
-                                        if (possibleMove.UnitId == "Weapon")
-                                        {
-                                            moves.Add(possibleMove);
-                                            unitMoved = true;
-                                            break;
-                                        }
-                                    }
-                                    else if (constructedUnit.Unit.Extractor == null)
-                                    {
-                                        if (possibleMove.UnitId == "Extractor")
-                                        {
-                                            moves.Add(possibleMove);
-                                            unitMoved = true;
-                                            break;
-                                        }
-                                    }
-                                    else if (constructedUnit.Unit.Armor == null)
-                                    {
-                                        if (possibleMove.UnitId == "Armor")
-                                        {
-                                            moves.Add(possibleMove);
-                                            unitMoved = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                // Build a Worker
-                                /*
-                                if (constructedUnit.Unit.Engine != null)
+                                if (addContainer)
                                 {
                                     if (possibleMove.UnitId == "Extractor")
                                     {
-                                        AntWorker antWorker = new AntWorker(Control, constructedUnit);
-                                        Control.Ants.Add(constructedUnit.Unit.UnitId, antWorker);
-                                        moves.Add(possibleMove);
-                                        unitMoved = true;
-                                        break;
+                                        possibleMoves.Add(possibleMove);
                                     }
                                 }
-                                else if (constructedUnit.Unit.Container != null)
-                                {
-                                    if (possibleMove.UnitId == "Container")
-                                    {
-                                        AntContainer antAntContainer = new AntContainer(Control, constructedUnit);
-                                        Control.Ants.Add(constructedUnit.Unit.UnitId, antAntContainer);
-                                        moves.Add(possibleMove);
-                                        unitMoved = true;
-                                        break;
-                                    }
-                                }
-                                else if (constructedUnit.Unit.Assembler != null)
+                                else if (addAssembler)
                                 {
                                     if (possibleMove.UnitId == "Assembler")
                                     {
-                                        AntFactory antFactory = new AntFactory(Control, constructedUnit);
-                                        Control.Ants.Add(constructedUnit.Unit.UnitId, antFactory);
-                                        moves.Add(possibleMove);
-                                        unitMoved = true;
-                                        break;
+                                        possibleMoves.Add(possibleMove);
                                     }
                                 }
-                            }*/
-
-                        
-                    }
-                    else
-                    {
-                        //if (Control.NumberOfWorkers < Control.MaxWorker)
-                        {
-                            PlayerUnit.Unit.Assembler.ComputePossibleMoves(possiblemoves, null, MoveFilter.Assemble);
-                            if (possiblemoves.Count > 0)
+                                else if (addWorker)
+                                {
+                                    if (possibleMove.UnitId.StartsWith("Worker"))
+                                    {
+                                        possibleMoves.Add(possibleMove);
+                                    }
+                                }
+                                else if (addFighter)
+                                {
+                                    if (possibleMove.UnitId.StartsWith("Fighter"))
+                                    {
+                                        possibleMoves.Add(possibleMove);
+                                    }
+                                }
+                            }
+                            if (possibleMoves.Count > 0)
                             {
-                                // possiblemoves contains possible output places
-                                List<Move> possibleMoves = new List<Move>();
+                                int idx = player.Game.Random.Next(possibleMoves.Count);
+                                Move move = possibleMoves[idx];
+                                moves.Add(move);
 
-                                foreach (Move possibleMove in possiblemoves)
+                                if (addContainer)
                                 {
-                                    if (Control.IsOccupied(player, moves, possibleMove.Positions[1]))
-                                    {
-                                        continue;
-                                    }
+                                    AntContainer antContainer = new AntContainer(Control);
+                                    Control.CreatedAnts.Add(move.Positions[1], antContainer);
+                                }
+                                else if (addAssembler)
+                                {
+                                    AntWorker antWorker = new AntWorker(Control);
+                                    antWorker.AntWorkerType = AntWorkerType.Assembler;
+                                    Control.NumberOfWorkers++;
+                                    Control.CreatedAnts.Add(move.Positions[1], antWorker);
+                                }
+                                else if (addWorker)
+                                {
+                                    AntWorker antWorker = new AntWorker(Control);
+                                    antWorker.AntWorkerType = AntWorkerType.Worker;
+                                    Control.NumberOfWorkers++;
+                                    Control.CreatedAnts.Add(move.Positions[1], antWorker);
 
-                                    if (addContainer)
+                                    if (cntrlUnit.GameCommands != null && cntrlUnit.GameCommands.Count > 0)
                                     {
-                                        if (possibleMove.UnitId == "Extractor")
+                                        GameCommand gameCommand = cntrlUnit.GameCommands[0];
+                                        if (gameCommand.GameCommandType == GameCommandType.Minerals)
                                         {
-                                            possibleMoves.Add(possibleMove);
-                                        }
-                                    }
-                                    else if (addAssembler)
-                                    {
-                                        if (possibleMove.UnitId == "Assembler")
-                                        {
-                                            possibleMoves.Add(possibleMove);
-                                        }
-                                    }
-                                    else if (addWorker)
-                                    {
-                                        if (possibleMove.UnitId.StartsWith("Worker"))
-                                        {
-                                            possibleMoves.Add(possibleMove);
-                                        }
-                                    }
-                                    else if (addFighter)
-                                    {
-                                        if (possibleMove.UnitId.StartsWith("Fighter"))
-                                        {
-                                            possibleMoves.Add(possibleMove);
+                                            GameCommand attackMove = new GameCommand();
+                                            attackMove.GameCommandType = GameCommandType.Move;
+                                            attackMove.TargetPosition = gameCommand.TargetPosition;
+
+                                            antWorker.CurrentGameCommand = attackMove;
                                         }
                                     }
                                 }
-                                if (possibleMoves.Count > 0)
+                                else if (addFighter)
                                 {
-                                    int idx = player.Game.Random.Next(possibleMoves.Count);
-                                    Move move = possibleMoves[idx];
-                                    moves.Add(move);
+                                    AntWorker antWorker = new AntWorker(Control);
+                                    antWorker.AntWorkerType = AntWorkerType.Fighter;
+                                    Control.NumberOfFighter++;
+                                    Control.CreatedAnts.Add(move.Positions[1], antWorker);
 
-                                    if (addContainer)
+                                    if (cntrlUnit.GameCommands != null && cntrlUnit.GameCommands.Count > 0)
                                     {
-                                        AntContainer antContainer = new AntContainer(Control);
-                                        Control.CreatedAnts.Add(move.Positions[1], antContainer);
-                                    }
-                                    else if (addWorker)
-                                    {
-                                        AntWorker antWorker = new AntWorker(Control);
-                                        antWorker.IsWorker = true;
-                                        Control.NumberOfWorkers++;
-                                        Control.CreatedAnts.Add(move.Positions[1], antWorker);
-
-                                        if (cntrlUnit.GameCommands != null && cntrlUnit.GameCommands.Count > 0)
+                                        GameCommand gameCommand = cntrlUnit.GameCommands[0];
+                                        if (gameCommand.GameCommandType == GameCommandType.Attack)
                                         {
-                                            GameCommand gameCommand = cntrlUnit.GameCommands[0];
-                                            if (gameCommand.GameCommandType == GameCommandType.Minerals)
-                                            {
-                                                GameCommand attackMove = new GameCommand();
-                                                attackMove.GameCommandType = GameCommandType.Move;
-                                                attackMove.TargetPosition = gameCommand.TargetPosition;
+                                            GameCommand attackMove = new GameCommand();
+                                            attackMove.GameCommandType = GameCommandType.AttackMove;
+                                            attackMove.TargetPosition = gameCommand.TargetPosition;
 
-                                                antWorker.CurrentGameCommand = attackMove;
-                                            }
+                                            antWorker.CurrentGameCommand = attackMove;
                                         }
                                     }
-                                    else if (addFighter)
-                                    {
-                                        AntWorker antWorker = new AntWorker(Control);
-                                        antWorker.IsWorker = false;
-                                        Control.NumberOfFighter++;
-                                        Control.CreatedAnts.Add(move.Positions[1], antWorker);
-                                        
-                                        if (cntrlUnit.GameCommands != null && cntrlUnit.GameCommands.Count > 0)
-                                        {
-                                            GameCommand gameCommand = cntrlUnit.GameCommands[0];
-                                            if (gameCommand.GameCommandType == GameCommandType.Attack)
-                                            {
-                                                GameCommand attackMove = new GameCommand();
-                                                attackMove.GameCommandType = GameCommandType.AttackMove;
-                                                attackMove.TargetPosition = gameCommand.TargetPosition;
-
-                                                antWorker.CurrentGameCommand = attackMove;
-                                            }
-                                        }
-                                    }
-
-                                    unitMoved = true;
                                 }
+
+                                unitMoved = true;
                             }
                         }
                     }
