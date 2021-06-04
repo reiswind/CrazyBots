@@ -221,6 +221,25 @@ public class GameCanvas : MonoBehaviour
             {
                 if (unit.MoveUpdateStats != null)
                 {
+                    sb.AppendLine("Blueprint: " + unit.MoveUpdateStats.BlueprintName);
+
+                    foreach (MoveUpdateUnitPart part in unit.MoveUpdateStats.UnitParts)
+                    {
+                        sb.Append("  " + part.Name);
+                        if (part.Exists)
+                        {
+                            if (part.Minerals.HasValue)
+                                sb.Append("  " + part.Minerals.Value);
+                            if (part.Capacity.HasValue)
+                                sb.Append("/" + part.Capacity.Value);
+                        }
+                        else
+                        {
+                            sb.Append("  Missing");
+                        }
+                        sb.AppendLine();
+                    }
+                    /*
                     if (unit.MoveUpdateStats.ArmorLevel > 0)
                     {
                         sb.AppendLine("Armor: " + unit.MoveUpdateStats.ArmorLevel);
@@ -260,7 +279,7 @@ public class GameCanvas : MonoBehaviour
                             sb.AppendLine(" Loaded");
                         else
                             sb.AppendLine("");
-                    }
+                    }*/
                 }
             }
             sb.AppendLine("");

@@ -31,7 +31,7 @@ namespace Engine.Master
     {
         private static string logFile = null; // = @"c:\Temp\moves.json";
         public GameModel GameModel { get; private set; }
-
+        public Blueprints Blueprints { get; set; }
         public Map Map { get; private set; }
 
         
@@ -101,7 +101,11 @@ namespace Engine.Master
                 Move move = new Move();
                 move.MoveType = MoveType.Add;
                 move.PlayerId = unitModel.PlayerId;
-                move.UnitId = unitModel.Parts; // newUnitId + ":StartColony";
+                if (string.IsNullOrEmpty(unitModel.Blueprint))
+                    move.UnitId = unitModel.Parts;
+                else
+                    move.UnitId = unitModel.Blueprint;
+
                 move.Positions = new List<Position>();
                 move.Positions.Add(unitModel.Position);
                 newMoves.Add(move);
@@ -161,6 +165,7 @@ namespace Engine.Master
 
         private void Init(GameModel gameModel, int initSeed)
         {
+            Blueprints = new Blueprints();
             Pheromones = new Pheromones();
 
             seed = initSeed;
@@ -379,7 +384,7 @@ namespace Engine.Master
 
             foreach (Move move in newMoves)
             {
-                if (move.MoveType == MoveType.Move || move.MoveType == MoveType.Add)
+                if (move.MoveType == MoveType.Move || move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
                 {
                     Position Destination;
                     Position From;
@@ -393,7 +398,7 @@ namespace Engine.Master
                     if (move.MoveType == MoveType.Move && move.Stats == null)
                         move.Stats = thisUnit.CollectStats();
 
-                    if (move.MoveType == MoveType.Add)
+                    if (move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
                     {
                         // New units will be added here
                         int? containerNetal = null;
@@ -426,6 +431,16 @@ namespace Engine.Master
 
                         thisUnit.Power = 100;
                         thisUnit.ExtractMe = markForExtraction;
+
+                        if (move.MoveType == MoveType.Add)
+                        {
+                            thisUnit.CreateAllPartsFromBlueprint();
+                        }
+                        else
+                        {
+                            thisUnit.CreateFirstPartFromBlueprint();
+                        }
+
 
                         move.UnitId = thisUnit.UnitId;
                         move.Stats = thisUnit.CollectStats();
@@ -471,137 +486,7 @@ namespace Engine.Master
             }
         }
 
-        private void Szenario1(List<Move> newMoves)
-        {
-            int playerNum = 0;
-            foreach (Player player in Players.Values)
-            {
-                if (playerNum == 0)
-                {
-                    Move move = new Move();
-                    move.MoveType = MoveType.Add;
-                    move.PlayerId = player.PlayerModel.Id;
-                    //move.UnitId = "1;1;1";
-                    move.UnitId = "1;1;1;1";
-                    move.Positions = new List<Position>();
-                    move.Positions.Add(new Position(0, 0));
-
-                    newMoves.Add(move);
-
-                    playerNum++;
-                }
-                else if (playerNum == 1)
-                {
-                    Move move = new Move();
-                    move.MoveType = MoveType.Add;
-                    move.PlayerId = player.PlayerModel.Id;
-                    move.UnitId = "1;0;0;1";
-                    move.Positions = new List<Position>();
-                    move.Positions.Add(new Position(2, 2));
-
-                    newMoves.Add(move);
-
-                    playerNum++;
-                }
-            }
-        }
-
-        private void SzenarioShowUnits(List<Move> newMoves)
-        {
-            Move move;
-
-            int playerNum = 0;
-            foreach (Player player in Players.Values)
-            {
-                if (playerNum == 0)
-                {
-                    move = new Move();
-                    move.MoveType = MoveType.Add;
-                    move.PlayerId = player.PlayerModel.Id;
-                    move.UnitId = "1;0;0";
-                    move.Positions = new List<Position>();
-                    move.Positions.Add(new Position(0, 0));
-                    newMoves.Add(move);
-
-                    move = new Move();
-                    move.MoveType = MoveType.Add;
-                    move.PlayerId = player.PlayerModel.Id;
-                    move.UnitId = "1;0;1";
-                    move.Positions = new List<Position>();
-                    move.Positions.Add(new Position(0, 1));
-                    newMoves.Add(move);
-
-                    move = new Move();
-                    move.MoveType = MoveType.Add;
-                    move.PlayerId = player.PlayerModel.Id;
-                    move.UnitId = "1;1;1";
-                    move.Positions = new List<Position>();
-                    move.Positions.Add(new Position(0, 2));
-                    newMoves.Add(move);
-
-                    move = new Move();
-                    move.MoveType = MoveType.Add;
-                    move.PlayerId = player.PlayerModel.Id;
-                    move.UnitId = "1;1;1;1";
-                    move.Positions = new List<Position>();
-                    move.Positions.Add(new Position(0, 3));
-                    newMoves.Add(move);
-
-                    move = new Move();
-                    move.MoveType = MoveType.Add;
-                    move.PlayerId = player.PlayerModel.Id;
-                    move.UnitId = "1;0;1;1;1";
-                    move.Positions = new List<Position>();
-                    move.Positions.Add(new Position(0, 4));
-                    newMoves.Add(move);
-
-                    move = new Move();
-                    move.MoveType = MoveType.Add;
-                    move.PlayerId = player.PlayerModel.Id;
-                    move.UnitId = "0;1;0";
-                    move.Positions = new List<Position>();
-                    move.Positions.Add(new Position(1, 0));
-                    newMoves.Add(move);
-
-                    move = new Move();
-                    move.MoveType = MoveType.Add;
-                    move.PlayerId = player.PlayerModel.Id;
-                    move.UnitId = "0;0;1";
-                    move.Positions = new List<Position>();
-                    move.Positions.Add(new Position(2, 0));
-                    newMoves.Add(move);
-
-                    move = new Move();
-                    move.MoveType = MoveType.Add;
-                    move.PlayerId = player.PlayerModel.Id;
-                    move.UnitId = "0;0;0;1";
-                    move.Positions = new List<Position>();
-                    move.Positions.Add(new Position(3, 0));
-                    newMoves.Add(move);
-
-                    move = new Move();
-                    move.MoveType = MoveType.Add;
-                    move.PlayerId = player.PlayerModel.Id;
-                    move.UnitId = "0;0;0;0;1";
-                    move.Positions = new List<Position>();
-                    move.Positions.Add(new Position(4, 0));
-                    newMoves.Add(move);
-
-                    playerNum++;
-                }
-                else if (playerNum == 1)
-                {
-                    move = new Move();
-                    move.MoveType = MoveType.Add;
-                    move.PlayerId = player.PlayerModel.Id;
-                    move.UnitId = "1;0;1;1;1";
-                    move.Positions = new List<Position>();
-                    move.Positions.Add(new Position(0, -4));
-                    newMoves.Add(move);
-                }
-            }
-        }
-
+        
         private void Initialize(List<Move> newMoves)
         {
             //Szenario1(newMoves);
@@ -619,6 +504,7 @@ namespace Engine.Master
             foreach (Move move in lastMoves)
             {
                 if (move.MoveType == MoveType.Add ||
+                    move.MoveType == MoveType.Build ||
                     move.MoveType == MoveType.Assemble ||
                     move.MoveType == MoveType.Upgrade ||
                     move.MoveType == MoveType.Hit ||
@@ -839,7 +725,7 @@ namespace Engine.Master
 
                     foreach (Move move in moves)
                     {
-                        if (move.MoveType == MoveType.Add)
+                        if (move.MoveType == MoveType.Build || move.MoveType == MoveType.Add)
                         {
                             if (unitsThatMoved.ContainsKey(move.OtherUnitId))
                                 throw new Exception("Cheater");
@@ -925,7 +811,7 @@ namespace Engine.Master
             }
             foreach (Move move in moves)
             {
-                if (move.MoveType == MoveType.Add)
+                if (move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
                 {
                     int cnt = move.Positions.Count;
                     Position p = move.Positions[cnt-1];
@@ -1027,7 +913,7 @@ namespace Engine.Master
             lastMoves.Clear();
             foreach (Move move in newMoves)
             {
-                if (move.MoveType == MoveType.Add)
+                if (move.MoveType == MoveType.Build || move.MoveType == MoveType.Add)
                 {
                     Unit factory = Map.Units.GetUnitAt(move.Positions[0]);
                     Unit newUnit = null;
@@ -1260,7 +1146,7 @@ namespace Engine.Master
                 Dictionary<Position, Move> moveToTargets = new Dictionary<Position, Move>();
                 foreach (Move move in newMoves)
                 {
-                    if (move.MoveType == MoveType.Move || move.MoveType == MoveType.Add)
+                    if (move.MoveType == MoveType.Move || move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
                     {
                         Position destination = move.Positions[move.Positions.Count - 1];
                         if (moveToTargets.ContainsKey(destination))
@@ -1303,7 +1189,7 @@ namespace Engine.Master
                         // Move onto another unit? Check if this unit goes away
                         foreach (Move unitMove in moveToTargets.Values)
                         {
-                            if ((unitMove.MoveType == MoveType.Move || unitMove.MoveType == MoveType.Add) && t.Unit.UnitId == unitMove.UnitId)
+                            if ((unitMove.MoveType == MoveType.Move || unitMove.MoveType == MoveType.Build || unitMove.MoveType == MoveType.Add) && t.Unit.UnitId == unitMove.UnitId)
                             {
                                 // This unit moves away, so it is ok
                                 acceptedMoves.Add(move);

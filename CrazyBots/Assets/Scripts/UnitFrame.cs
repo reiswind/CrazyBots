@@ -879,7 +879,7 @@ public class UnitFrame
         {
             NextMove = null;
         }
-        if (NextMove?.MoveType == MoveType.Add || NextMove?.MoveType == MoveType.Move)
+        if (NextMove?.MoveType == MoveType.Add || NextMove?.MoveType == MoveType.Move || NextMove?.MoveType == MoveType.Build)
         {
             currentPos = NextMove.Positions[NextMove.Positions.Count - 1];
         }

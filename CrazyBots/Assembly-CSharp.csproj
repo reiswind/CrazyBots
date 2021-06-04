@@ -122,6 +122,7 @@
     <Compile Include="Assets\Scripts\HexCell.cs" />
     <Compile Include="Assets\References\Engine\Master\Engine.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\PriorityQueueB.cs" />
+    <Compile Include="Assets\References\Engine\Interface\Blueprints.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\References\TerrainQuest.Generator.dll" />

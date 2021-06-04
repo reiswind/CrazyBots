@@ -111,6 +111,8 @@ namespace Engine.Master
         public Direction Direction { get; set; }
         public Game Game { get; set; }
 
+        public Blueprint Blueprint { get; set; }
+
         public int CountMetal()
         {
             int metal = 0;
@@ -150,143 +152,308 @@ namespace Engine.Master
             return parts >= 4;
         }
 
+        public void CreateFirstPartFromBlueprint()
+        {
+            CreateBlueprintPart(Blueprint.Parts[0]);
+            UnderConstruction = true;
+        }
+
+        private void CreateBlueprintPart(BlueprintPart blueprintPart)
+        {
+            if (blueprintPart.Name == "Engine1")
+                Engine = new Engine(this, 1);
+            else if (blueprintPart.Name == "Engine2")
+                Engine = new Engine(this, 2);
+            else if (blueprintPart.Name == "Engine3")
+                Engine = new Engine(this, 3);
+
+            else if (blueprintPart.Name == "Armor1")
+                Armor = new Armor(this, 1);
+            else if (blueprintPart.Name == "Armor2")
+                Armor = new Armor(this, 2);
+            else if (blueprintPart.Name == "Armor3")
+                Armor = new Armor(this, 3);
+
+            else if (blueprintPart.Name == "Weapon1")
+                Weapon = new Weapon(this, 1);
+            else if (blueprintPart.Name == "Weapon2")
+                Weapon = new Weapon(this, 2);
+            else if (blueprintPart.Name == "Weapon3")
+                Weapon = new Weapon(this, 3);
+
+            else if (blueprintPart.Name == "Assembler1")
+                Assembler = new Assembler(this, 1);
+            else if (blueprintPart.Name == "Assembler2")
+                Assembler = new Assembler(this, 2);
+            else if (blueprintPart.Name == "Assembler3")
+                Assembler = new Assembler(this, 3);
+
+            else if (blueprintPart.Name == "Extractor1")
+                Extractor = new Extractor(this, 1);
+            else if (blueprintPart.Name == "Extractor2")
+                Extractor = new Extractor(this, 2);
+            else if (blueprintPart.Name == "Extractor3")
+                Extractor = new Extractor(this, 3);
+
+            else if (blueprintPart.Name == "Container1")
+            {
+                Container = new Container(this, 1);
+                if (blueprintPart.Filled)
+                    Container.Metal = Container.Capacity;
+            }
+            else if (blueprintPart.Name == "Container2")
+            {
+                Container = new Container(this, 2);
+                if (blueprintPart.Filled)
+                    Container.Metal = Container.Capacity;
+            }
+            else if (blueprintPart.Name == "Container3")
+            {
+                Container = new Container(this, 3);
+                if (blueprintPart.Filled)
+                    Container.Metal = Container.Capacity;
+            }
+
+            else if (blueprintPart.Name == "Reactor1")
+                Reactor = new Reactor(this, 1);
+            else if (blueprintPart.Name == "Reactor2")
+                Reactor = new Reactor(this, 2);
+            else if (blueprintPart.Name == "Reactor3")
+                Reactor = new Reactor(this, 3);
+
+            else if (blueprintPart.Name == "Radar1")
+                Radar = new Radar(this, 1);
+            else if (blueprintPart.Name == "Radar2")
+                Radar = new Radar(this, 2);
+            else if (blueprintPart.Name == "Radar3")
+                Radar = new Radar(this, 3);
+        }
+
+        public bool IsInstalled(BlueprintPart blueprintPart)
+        {
+            if (blueprintPart.Name == "Engine1")
+                return Engine != null && Engine.Level == 1;
+            if (blueprintPart.Name == "Engine2")
+                return Engine != null && Engine.Level == 2;
+            if (blueprintPart.Name == "Engine3")
+                return Engine != null && Engine.Level == 3;
+
+            if (blueprintPart.Name == "Armor1")
+                return Armor != null && Armor.Level == 1;
+            if (blueprintPart.Name == "Armor2")
+                return Armor != null && Armor.Level == 2;
+            if (blueprintPart.Name == "Armor3")
+                return Armor != null && Armor.Level == 3;
+
+            if (blueprintPart.Name == "Weapon1")
+                return Weapon != null && Weapon.Level == 1;
+            if (blueprintPart.Name == "Weapon2")
+                return Weapon != null && Weapon.Level == 2;
+            if (blueprintPart.Name == "Weapon3")
+                return Weapon != null && Weapon.Level == 3;
+
+            if (blueprintPart.Name == "Assembler1")
+                return Assembler != null && Assembler.Level == 1;
+            if (blueprintPart.Name == "Assembler2")
+                return Assembler != null && Assembler.Level == 2;
+            if (blueprintPart.Name == "Assembler3")
+                return Assembler != null && Assembler.Level == 3;
+
+            if (blueprintPart.Name == "Extractor1")
+                return Extractor != null && Extractor.Level == 1;
+            if (blueprintPart.Name == "Extractor2")
+                return Extractor != null && Extractor.Level == 2;
+            if (blueprintPart.Name == "Extractor3")
+                return Extractor != null && Extractor.Level == 3;
+
+            if (blueprintPart.Name == "Container1")
+                return Container != null && Container.Level == 1;
+            if (blueprintPart.Name == "Container2")
+                return Container != null && Container.Level == 2;
+            if (blueprintPart.Name == "Container3")
+                return Container != null && Container.Level == 3;
+
+            if (blueprintPart.Name == "Reactor1")
+                return Reactor != null && Reactor.Level == 1;
+            if (blueprintPart.Name == "Reactor2")
+                return Reactor != null && Reactor.Level == 2;
+            if (blueprintPart.Name == "Reactor3")
+                return Reactor != null && Reactor.Level == 3;
+
+            if (blueprintPart.Name == "Radar1")
+                return Radar != null && Radar.Level == 1;
+            if (blueprintPart.Name == "Radar2")
+                return Radar != null && Radar.Level == 2;
+            if (blueprintPart.Name == "Radar3")
+                return Radar != null && Radar.Level == 3;
+
+            return false;
+        }
+
+        public void CreateAllPartsFromBlueprint()
+        {
+            foreach (BlueprintPart blueprintPart in Blueprint.Parts)
+            {
+                CreateBlueprintPart(blueprintPart);
+            }
+            UnderConstruction = false;
+        }
+
         public Unit(Game game, string startCode)
         {
             Game = game;
 
-            int p = startCode.IndexOf(':');
-            if (p > 0)
-            {
-                UnitId = startCode.Substring(0, p);
-                startCode = startCode.Substring(p+1);
-            }
-            else
+            Blueprint = game.Blueprints.FindBlueprint(startCode);
+            if (Blueprint != null)
             {
                 UnitId = game.GetNextUnitId("unit");
-            }
-            string unitCode = "";
-
-            string[] parts;
-            if (startCode == "Engine")
-            {
-                unitCode = "1";
-            }
-            else if (startCode == "Armor")
-            {
-                unitCode = "0;1";
-            }
-            else if (startCode == "Weapon")
-            {
-                unitCode = "0;0;1";
-            }
-            else if (startCode == "Assembler")
-            {
-                unitCode = "0;0;0;1";
-            }
-            else if (startCode == "Extractor")
-            {
-                unitCode = "0;0;0;0;1";
-            }
-            else if (startCode == "Container")
-            {
-                unitCode = "0;0;0;0;0;1";
-            }
-            else if (startCode == "Reactor")
-            {
-                unitCode = "0;0;0;0;0;0;1";
-            }
-            else if (startCode == "Radar")
-            {
-                unitCode = "0;0;0;0;0;0;0;1";
-            }
-            else if (startCode == "StartFactory")
-            {
-                Power = 100;
-                //Metal = 1;
-                unitCode = "1;0;0;1;1;1;0";
-            }
-            else if (startCode == "StartColony")
-            {
-                Power = 100;
-                //Metal = 1;
-                unitCode = "0;0;0;1;1;1;1";
-            }
-            else if (startCode == "StartContainer")
-            {
-                unitCode = "0;1;0;0;0;3";
+                UnderConstruction = true;
             }
             else
             {
-                unitCode = startCode;
-            }
-            parts = unitCode.Split(';');
-
-            int level;
-            if (parts.Length >= 1)
-            {
-                level = Convert.ToInt32(parts[0]);
-                if (level > 0)
-                    this.Engine = new Engine(this, level);
-            }
-            if (parts.Length >= 2)
-            {
-                level = Convert.ToInt32(parts[1]);
-                if (level > 0)
-                    this.Armor = new Armor(this, level);
-            }
-            if (parts.Length >= 3)
-            {
-                level = Convert.ToInt32(parts[2]);
-                if (level > 0)
-                    this.Weapon = new Weapon(this, level);
-            }
-            if (parts.Length >= 4)
-            {
-                level = Convert.ToInt32(parts[3]);
-                if (level > 0)
-                    Assembler = new Assembler(this, level);
-            }
-            if (parts.Length >= 5)
-            {
-                level = Convert.ToInt32(parts[4]);
-                if (level > 0)
-                    Extractor = new Extractor(this, level);
-            }
-            if (parts.Length >= 6)
-            {
-                if (parts[5].StartsWith("F"))
-                    level = Convert.ToInt32(parts[5].Substring(1));
-                else
-                    level = Convert.ToInt32(parts[5]);
-                if (level > 0)
+                int p = startCode.IndexOf(':');
+                if (p > 0)
                 {
-                    Container = new Container(this, level);
+                    UnitId = startCode.Substring(0, p);
+                    startCode = startCode.Substring(p + 1);
+                }
+                else
+                {
+                    UnitId = game.GetNextUnitId("unit");
+                }
+                string unitCode = "";
 
-                    //if (startCode == "StartFactory" || startCode == "StartColony")
+                string[] parts;
+                if (startCode == "Engine")
+                {
+                    unitCode = "1";
+                }
+                else if (startCode == "Armor")
+                {
+                    unitCode = "0;1";
+                }
+                else if (startCode == "Weapon")
+                {
+                    unitCode = "0;0;1";
+                }
+                else if (startCode == "Assembler")
+                {
+                    unitCode = "0;0;0;1";
+                }
+                else if (startCode == "Extractor")
+                {
+                    unitCode = "0;0;0;0;1";
+                }
+                else if (startCode == "Container")
+                {
+                    unitCode = "0;0;0;0;0;1";
+                }
+                else if (startCode == "Reactor")
+                {
+                    unitCode = "0;0;0;0;0;0;1";
+                }
+                else if (startCode == "Radar")
+                {
+                    unitCode = "0;0;0;0;0;0;0;1";
+                }
+                else if (startCode == "StartFactory")
+                {
+                    Power = 100;
+                    //Metal = 1;
+                    unitCode = "1;0;0;1;1;1;0";
+                }
+                else if (startCode == "StartColony")
+                {
+                    Power = 100;
+                    //Metal = 1;
+                    unitCode = "0;0;0;1;1;1;1";
+                }
+                else if (startCode == "StartContainer")
+                {
+                    unitCode = "0;1;0;0;0;3";
+                }
+                else
+                {
+                    unitCode = startCode;
+                }
+                parts = unitCode.Split(';');
+
+                int level;
+                if (parts.Length >= 1)
+                {
+                    level = Convert.ToInt32(parts[0]);
+                    if (level > 0)
+                        this.Engine = new Engine(this, level);
+                }
+                if (parts.Length >= 2)
+                {
+                    level = Convert.ToInt32(parts[1]);
+                    if (level > 0)
+                        this.Armor = new Armor(this, level);
+                }
+                if (parts.Length >= 3)
+                {
+                    level = Convert.ToInt32(parts[2]);
+                    if (level > 0)
+                        this.Weapon = new Weapon(this, level);
+                }
+                if (parts.Length >= 4)
+                {
+                    level = Convert.ToInt32(parts[3]);
+                    if (level > 0)
+                        Assembler = new Assembler(this, level);
+                }
+                if (parts.Length >= 5)
+                {
+                    level = Convert.ToInt32(parts[4]);
+                    if (level > 0)
+                        Extractor = new Extractor(this, level);
+                }
+                if (parts.Length >= 6)
+                {
                     if (parts[5].StartsWith("F"))
+                        level = Convert.ToInt32(parts[5].Substring(1));
+                    else
+                        level = Convert.ToInt32(parts[5]);
+                    if (level > 0)
                     {
-                        Container.Metal = Container.Capacity;
-                        //Container.Capacity = 100000;
+                        Container = new Container(this, level);
+
+                        //if (startCode == "StartFactory" || startCode == "StartColony")
+                        if (parts[5].StartsWith("F"))
+                        {
+                            Container.Metal = Container.Capacity;
+                            //Container.Capacity = 100000;
+                        }
                     }
                 }
+                if (parts.Length >= 7)
+                {
+                    level = Convert.ToInt32(parts[6]);
+                    if (level > 0)
+                        Reactor = new Reactor(this, level);
+                }
+                if (parts.Length >= 8)
+                {
+                    level = Convert.ToInt32(parts[7]);
+                    if (level > 0)
+                        Radar = new Radar(this, level);
+                }
+                UnderConstruction = true; // !IsComplete();
             }
-            if (parts.Length >= 7)
-            {
-                level = Convert.ToInt32(parts[6]);
-                if (level > 0)
-                    Reactor = new Reactor(this, level);
-            }
-            if (parts.Length >= 8)
-            {
-                level = Convert.ToInt32(parts[7]);
-                if (level > 0)
-                    Radar = new Radar(this, level);
-            }
-            UnderConstruction = true; // !IsComplete();
         }
 
         public void Upgrade(string unitCode)
         {
+            foreach (BlueprintPart blueprintPart in Blueprint.Parts)
+            {
+                if (blueprintPart.Name == unitCode)
+                {
+                    CreateBlueprintPart(blueprintPart);
+                    break;
+                }
+            }
+            /*
             if (unitCode == "Engine")
             {
                 if (Engine == null)
@@ -342,7 +509,7 @@ namespace Engine.Master
                     Radar = new Radar(this, 1);
                 else
                     Radar.Level++;
-            }
+            }*/
             if (IsComplete())
             {
                 UnderConstruction = false;
@@ -357,6 +524,33 @@ namespace Engine.Master
         public MoveUpdateStats CollectStats()
         {
             MoveUpdateStats stats = new MoveUpdateStats();
+            stats.BlueprintName = Blueprint.Name;
+
+            stats.UnitParts = new List<MoveUpdateUnitPart>();
+            foreach (BlueprintPart blueprintPart in Blueprint.Parts)
+            {
+                MoveUpdateUnitPart moveUpdateUnitPart = new MoveUpdateUnitPart();
+
+                moveUpdateUnitPart.Name = blueprintPart.Name;
+                moveUpdateUnitPart.Exists = IsInstalled(blueprintPart);
+
+                if (moveUpdateUnitPart.Exists)
+                {
+                    if (blueprintPart.Name.StartsWith("Weapon"))
+                    {
+                        moveUpdateUnitPart.Minerals = Weapon.Container.Metal;
+                        moveUpdateUnitPart.Capacity = Weapon.Container.Capacity;
+                    }
+                    if (blueprintPart.Name.StartsWith("Container"))
+                    {
+                        moveUpdateUnitPart.Minerals = Container.Metal;
+                        moveUpdateUnitPart.Capacity = Container.Capacity;
+                    }
+                }
+                stats.UnitParts.Add(moveUpdateUnitPart);
+            }
+
+            // OLD Code
             if (Engine != null)
                 stats.EngineLevel = Engine.Level;
             if (Armor != null)
@@ -378,7 +572,6 @@ namespace Engine.Master
             if (Container != null)
             {
                 stats.ContainerLevel = Container.Level;
-                stats.ContainerBluePrint = Container.BluePrint;
                 stats.ContainerFull = (Container.Metal *100) / Container.Capacity;
                 if (stats.ContainerFull > 100)
                 {

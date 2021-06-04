@@ -100,8 +100,13 @@ namespace Engine.Ants
                     PlayerUnit.Unit.Assembler.ComputePossibleMoves(possiblemoves, null, MoveFilter.Upgrade);
                     if (possiblemoves.Count > 0)
                     {
-                        foreach (Move possibleMove in possiblemoves)
-                        {
+                        int idx = player.Game.Random.Next(possiblemoves.Count);
+                        Move move = possiblemoves[idx];
+                        moves.Add(move);
+
+                        //foreach (Move possibleMove in possiblemoves)
+                        //{
+                            /*
                             if (Control.IsUpgrading(player, moves, possibleMove.Positions[1]))
                             {
                                 continue;
@@ -235,10 +240,10 @@ namespace Engine.Ants
                                         unitMoved = true;
                                         break;
                                     }
-                                }*/
-                            }
+                                }
+                            }*/
 
-                        }
+                        
                     }
                     else
                     {
@@ -257,7 +262,6 @@ namespace Engine.Ants
                                         continue;
                                     }
 
-
                                     if (addContainer)
                                     {
                                         if (possibleMove.UnitId == "Extractor")
@@ -272,9 +276,16 @@ namespace Engine.Ants
                                             possibleMoves.Add(possibleMove);
                                         }
                                     }
-                                    else if (addWorker || addFighter)
+                                    else if (addWorker)
                                     {
-                                        if (possibleMove.UnitId == "Engine")
+                                        if (possibleMove.UnitId.StartsWith("Worker"))
+                                        {
+                                            possibleMoves.Add(possibleMove);
+                                        }
+                                    }
+                                    else if (addFighter)
+                                    {
+                                        if (possibleMove.UnitId.StartsWith("Fighter"))
                                         {
                                             possibleMoves.Add(possibleMove);
                                         }
@@ -298,11 +309,18 @@ namespace Engine.Ants
                                         Control.NumberOfWorkers++;
                                         Control.CreatedAnts.Add(move.Positions[1], antWorker);
 
-                                        /*
                                         if (cntrlUnit.GameCommands != null && cntrlUnit.GameCommands.Count > 0)
                                         {
-                                            antWorker.CurrentGameCommand = cntrlUnit.GameCommands[0];
-                                        }*/
+                                            GameCommand gameCommand = cntrlUnit.GameCommands[0];
+                                            if (gameCommand.GameCommandType == GameCommandType.Minerals)
+                                            {
+                                                GameCommand attackMove = new GameCommand();
+                                                attackMove.GameCommandType = GameCommandType.Move;
+                                                attackMove.TargetPosition = gameCommand.TargetPosition;
+
+                                                antWorker.CurrentGameCommand = attackMove;
+                                            }
+                                        }
                                     }
                                     else if (addFighter)
                                     {
@@ -310,7 +328,6 @@ namespace Engine.Ants
                                         antWorker.IsWorker = false;
                                         Control.NumberOfFighter++;
                                         Control.CreatedAnts.Add(move.Positions[1], antWorker);
-
                                         
                                         if (cntrlUnit.GameCommands != null && cntrlUnit.GameCommands.Count > 0)
                                         {

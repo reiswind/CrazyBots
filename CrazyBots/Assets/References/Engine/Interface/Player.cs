@@ -481,7 +481,7 @@ namespace Engine.Interface
             Dictionary<Position, PlayerUnit> movedToUnits = new Dictionary<Position, PlayerUnit>();
             foreach (Move move in moves)
             {
-                if (move.MoveType == MoveType.Add)
+                if (move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
                 {
                     Position to = move.Positions[move.Positions.Count - 1];
                     if (this.Units.ContainsKey(to))
@@ -621,7 +621,7 @@ namespace Engine.Interface
 
             foreach (Move move in moves)
             {
-                if (move.MoveType == MoveType.Add)
+                if (move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
                 {
                     if (this.VisiblePositions.Contains(move.Positions[move.Positions.Count - 1]))
                         LastMoves.Add(move);
@@ -753,7 +753,7 @@ namespace Engine.Interface
                             bool moveExists = false;
                             foreach (Move curMove in LastMoves)
                             {
-                                if ((curMove.MoveType == MoveType.Add || curMove.MoveType == MoveType.Move) &&
+                                if ((curMove.MoveType == MoveType.Add || curMove.MoveType == MoveType.Build || curMove.MoveType == MoveType.Move) &&
                                     curMove.UnitId == unit.UnitId)
                                 {
                                     moveExists = true;

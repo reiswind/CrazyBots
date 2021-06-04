@@ -101,6 +101,8 @@ namespace Engine.Interface
         public Position Position { get; set; }
         [DataMember]
         public string Parts { get; set; }
+        [DataMember]
+        public string Blueprint { get; set; }
     }
 
     [DataContract]

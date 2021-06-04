@@ -60,7 +60,7 @@ namespace Engine.Master
 
             // possible production move
             move = new Move();
-            move.MoveType = MoveType.Add;
+            move.MoveType = MoveType.Build;
             move.Positions = new List<Position>();
             move.Positions.Add(Unit.Pos);
             move.Positions.Add(pos);
@@ -305,6 +305,12 @@ namespace Engine.Master
                     {
                         if (Level > 0)
                         {
+                            // Can build everything
+                            foreach (Blueprint blueprint in Unit.Owner.Game.Blueprints.Items)
+                            {
+                                possibleMoves.Add(CreateAssembleMove(neighbor.Pos, blueprint.Name));
+                            }
+                            /*
                             possibleMoves.Add(CreateAssembleMove(neighbor.Pos, "Engine"));
                             possibleMoves.Add(CreateAssembleMove(neighbor.Pos, "Armor"));
                             possibleMoves.Add(CreateAssembleMove(neighbor.Pos, "Weapon"));
@@ -313,6 +319,7 @@ namespace Engine.Master
                             possibleMoves.Add(CreateAssembleMove(neighbor.Pos, "Container"));
                             possibleMoves.Add(CreateAssembleMove(neighbor.Pos, "Reactor"));
                             possibleMoves.Add(CreateAssembleMove(neighbor.Pos, "Radar"));
+                            */
                         }
                     }
                 }
@@ -324,6 +331,14 @@ namespace Engine.Master
                         {
                             if ((moveFilter & MoveFilter.Upgrade) > 0)
                             {
+                                foreach (BlueprintPart blueprintPart in neighbor.Unit.Blueprint.Parts)
+                                {
+                                    if (!neighbor.Unit.IsInstalled(blueprintPart))
+                                    {
+                                        possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, blueprintPart.Name));
+                                    }
+                                }
+                                /*
                                 if (neighbor.Unit.Engine == null || neighbor.Unit.Engine.Level < 3)
                                 {
                                     possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, "Engine"));
@@ -356,7 +371,7 @@ namespace Engine.Master
                                 {
                                     possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, "Radar"));
                                 }
-                                
+                                */
                             }
                         }
                     }

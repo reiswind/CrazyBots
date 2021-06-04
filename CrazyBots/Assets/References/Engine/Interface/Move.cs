@@ -15,6 +15,7 @@ namespace Engine.Interface
         Skip,
 
         Add,
+        Build,
         Upgrade,
         Move,
         Fire,
@@ -30,12 +31,25 @@ namespace Engine.Interface
         UpdateAll
     }
 
+    public class MoveUpdateUnitPart
+    {
+        public string Name { get; set; }
+
+        // True if the part exists
+        public bool Exists { get; set; }
+        // Minerals in part
+        public int? Minerals { get; set; }
+        public int? Capacity { get; set; }
+    }
+
     public class MoveUpdateStats
     {
         public MoveUpdateStats()
         {
 
         }
+        public string BlueprintName { get; set; }
+        public List<MoveUpdateUnitPart> UnitParts { get; set; }
 
         [DataMember]
         public int EngineLevel { get; set; }
@@ -66,8 +80,7 @@ namespace Engine.Interface
         public int ContainerLevel { get; set; }
         [DataMember]
         public int ContainerFull { get; set; }
-        [DataMember]
-        public string ContainerBluePrint { get; set; }
+
 
         [DataMember]
         public int RadarLevel { get; set; }

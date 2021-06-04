@@ -21,8 +21,8 @@ namespace Engine.Control
 
         public Dictionary<Position, Ant> CreatedAnts = new Dictionary<Position, Ant>();
 
-        public int MaxWorker = 6;
-        public int MaxFighter = 30;
+        public int MaxWorker = 1;
+        public int MaxFighter = 1;
         public int NumberOfWorkers;
         public int NumberOfFighter;
 
@@ -82,6 +82,7 @@ namespace Engine.Control
                 foreach (Move intendedMove in moves)
                 {
                     if (intendedMove.MoveType == MoveType.Move ||
+                        intendedMove.MoveType == MoveType.Build ||
                         intendedMove.MoveType == MoveType.Add)
                     {
                         if (intendedMove.Positions[intendedMove.Positions.Count - 1] == destination)
@@ -252,7 +253,7 @@ namespace Engine.Control
                         // Our own unit, that has engine may move away
                         foreach (Move intendedMove in moves)
                         {
-                            if ( (intendedMove.MoveType == MoveType.Move || intendedMove.MoveType == MoveType.Add) &&
+                            if ( (intendedMove.MoveType == MoveType.Move || intendedMove.MoveType == MoveType.Add || intendedMove.MoveType == MoveType.Build) &&
                                 currentUnit.Unit.UnitId == intendedMove.UnitId)
                             {
                                 if (intendedMove.Positions[0] == destination)
@@ -278,7 +279,8 @@ namespace Engine.Control
                 foreach (Move intendedMove in moves)
                 {
                     if (intendedMove.MoveType == MoveType.Move ||
-                        intendedMove.MoveType == MoveType.Add)
+                        intendedMove.MoveType == MoveType.Add ||
+                        intendedMove.MoveType == MoveType.Build)
                     {
                         if (intendedMove.Positions[intendedMove.Positions.Count-1] == destination)
                         {

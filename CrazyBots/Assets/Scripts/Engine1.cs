@@ -32,7 +32,7 @@ public class Engine1 : MonoBehaviour
 
             transform.position = Vector3.MoveTowards(transform.position, unitPos3, 1);
         }
-        else if (UnitFrame.NextMove?.MoveType == MoveType.Move || UnitFrame.NextMove?.MoveType == MoveType.Add)
+        else if (UnitFrame.NextMove?.MoveType == MoveType.Move || UnitFrame.NextMove?.MoveType == MoveType.Build || UnitFrame.NextMove?.MoveType == MoveType.Add)
         {
             Position FinalDestination = UnitFrame.NextMove.Positions[UnitFrame.NextMove.Positions.Count - 1];
             GroundCell targetCell = UnitFrame.HexGrid.GroundCells[FinalDestination];

@@ -54,7 +54,8 @@ namespace Engine.Control
             foreach (Move intendedMove in moves)
             {
                 if (intendedMove.MoveType == MoveType.Move ||
-                    intendedMove.MoveType == MoveType.Add)
+                    intendedMove.MoveType == MoveType.Add ||
+                    intendedMove.MoveType == MoveType.Build)
                 {
                     if (intendedMove.UnitId == unit.UnitId)
                     {
@@ -84,6 +85,7 @@ namespace Engine.Control
                 foreach (Move intendedMove in moves)
                 {
                     if (intendedMove.MoveType == MoveType.Move ||
+                        intendedMove.MoveType == MoveType.Build ||
                         intendedMove.MoveType == MoveType.Add)
                     {
                         if (intendedMove.Positions[intendedMove.Positions.Count-1] == destination)
@@ -505,7 +507,7 @@ namespace Engine.Control
                     int idx = GameController.Random.Next(playerUnit.PossibleMoves.Count);
                     PlayerMove move = playerUnit.PossibleMoves[idx];
 
-                    if ((move.Move.MoveType == MoveType.Move || move.Move.MoveType == MoveType.Add) &&
+                    if ((move.Move.MoveType == MoveType.Move || move.Move.MoveType == MoveType.Add || move.Move.MoveType == MoveType.Build) &&
                         IsOccupied(player, moves, move.Move.Positions[move.Move.Positions.Count - 1]))
                     {
                         // Skip this move, otherwise collision an no unit moves
