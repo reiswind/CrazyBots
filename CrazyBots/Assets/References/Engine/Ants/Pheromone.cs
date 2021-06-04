@@ -15,7 +15,8 @@ namespace Engine.Ants
         Enemy,
         Energy,
         Assemble,
-        AwayFromEnergy
+        AwayFromEnergy,
+        ToWork
     }
 
     public class Pheromones

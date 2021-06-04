@@ -54,8 +54,6 @@ namespace Engine.Master
             if (!WeaponLoaded)
                 return;
 
-
-
             Dictionary<Position, TileWithDistance> tiles = Unit.Game.Map.EnumerateTiles(Unit.Pos, Range , false, matcher: tile =>
             {
                 if (tile.Pos == Unit.Pos)

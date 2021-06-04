@@ -438,7 +438,8 @@ namespace Engine.Master
                         }
                         else
                         {
-                            thisUnit.CreateFirstPartFromBlueprint();
+                            if (move.OtherUnitId != "Ghost")
+                                thisUnit.CreateFirstPartFromBlueprint();
                         }
 
 
@@ -1270,32 +1271,46 @@ namespace Engine.Master
                 {
                     foreach (GameCommand gameCommand in gameCommands)
                     {
-                        Unit unit = Map.Units.FindUnit(gameCommand.UnitId);
-                        if (unit != null)
+                        if (gameCommand.GameCommandType == GameCommandType.Build)
                         {
-                            if (unit.UnitId != gameCommand.UnitId)
-                            {
-                                throw new Exception("bah!");
-                            }
-                            if (unit.GameCommands == null)
-                                unit.GameCommands = new List<GameCommand>();
+                            Move move = new Move();
+                            move.MoveType = MoveType.Build;
+                            move.PlayerId = gameCommand.PlayerId;
+                            move.UnitId = gameCommand.UnitId;
+                            move.OtherUnitId = "Ghost";
+                            move.Positions = new List<Position>();
+                            move.Positions.Add(gameCommand.TargetPosition);
+                            newMoves.Add(move);
+                        }
 
-                            // No shift? Everything before is garbage
-                            if (!gameCommand.Append)
+                        if (gameCommand.GameCommandType == GameCommandType.Minerals ||
+                            gameCommand.GameCommandType == GameCommandType.Attack)
+                        { 
+                            Unit unit = Map.Units.FindUnit(gameCommand.UnitId);
+                            if (unit != null)
                             {
-                                unit.GameCommands.Clear();
-                            }
-                            unit.GameCommands.Add(gameCommand);
-                            
-                            foreach (GameCommand gameCommand1 in unit.GameCommands)
-                            {
-                                if (gameCommand.Append)
-                                    UnityEngine.Debug.Log("Move to " + gameCommand1.TargetPosition.X + "," + gameCommand1.TargetPosition.Y + " SHIFT");
-                                else
-                                    UnityEngine.Debug.Log("Move to " + gameCommand1.TargetPosition.X + "," + gameCommand1.TargetPosition.Y);
-                            }
-                            
+                                if (unit.UnitId != gameCommand.UnitId)
+                                {
+                                    throw new Exception("bah!");
+                                }
+                                if (unit.GameCommands == null)
+                                    unit.GameCommands = new List<GameCommand>();
 
+                                // No shift? Everything before is garbage
+                                if (!gameCommand.Append)
+                                {
+                                    unit.GameCommands.Clear();
+                                }
+                                unit.GameCommands.Add(gameCommand);
+
+                                foreach (GameCommand gameCommand1 in unit.GameCommands)
+                                {
+                                    if (gameCommand.Append)
+                                        UnityEngine.Debug.Log("Move to " + gameCommand1.TargetPosition.X + "," + gameCommand1.TargetPosition.Y + " SHIFT");
+                                    else
+                                        UnityEngine.Debug.Log("Move to " + gameCommand1.TargetPosition.X + "," + gameCommand1.TargetPosition.Y);
+                                }
+                            }
                         }
                     }
                 }

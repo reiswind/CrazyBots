@@ -14,11 +14,13 @@ namespace Engine.Interface
         Move,
         AttackMove,
         Attack,
-        Minerals
+        Minerals,
+        Build
     }
 
     public class GameCommand
     {
+        public int PlayerId { get; set; }
         public string UnitId { get; set; }
         //public Position UnitPosition { get; set; }
         public Position TargetPosition { get; set; }

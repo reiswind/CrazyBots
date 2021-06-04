@@ -134,6 +134,7 @@ namespace Engine.Control
         }
 
         private Dictionary<Position, int> mineralsDeposits = new Dictionary<Position, int>();
+        private Dictionary<Position, int> workDeposits = new Dictionary<Position, int>();
 
         private Dictionary<Position, int> enemyDeposits = new Dictionary<Position, int>();
 
@@ -178,6 +179,20 @@ namespace Engine.Control
             {
                 int id = player.Game.Pheromones.DropPheromones(player, pos, 3, PheromoneType.ToFood, 1, false);
                 mineralsDeposits.Add(pos, id);
+            }
+        }
+
+        public void WorkFound(Player player, Position pos)
+        {
+            if (workDeposits.ContainsKey(pos))
+            {
+                // Update
+                //player.Game.Pheromones.UpdatePheromones(workDeposits[pos], 1);
+            }
+            else
+            {
+                int id = player.Game.Pheromones.DropPheromones(player, pos, 3, PheromoneType.ToWork, 1, false);
+                workDeposits.Add(pos, id);
             }
         }
 
@@ -398,6 +413,66 @@ namespace Engine.Control
             return null;
         }
 
+        public Position FindWork(Player player, Ant ant)
+        {
+            Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.Pos, 3, false, matcher: tile =>
+            {
+                // Own damaged units
+                if (tile.Unit != null &&
+                    tile.Unit.Owner.PlayerModel.Id == player.PlayerModel.Id &&
+                    !tile.Unit.IsComplete())
+                {
+                    return true;
+                }
+                return false;
+            });
+
+            List<Position> bestPositions = null;
+
+            foreach (TileWithDistance t in tiles.Values)
+            {
+                List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, t.Pos, ant.PlayerUnit.Unit);
+                if (positions != null && positions.Count > 2)
+                {
+                    bestPositions = positions;
+                    break;
+                }
+            }
+            if (bestPositions == null)
+            {
+                foreach (Position pos in workDeposits.Keys)
+                {
+                    // Distance at all
+                    double d = pos.GetDistanceTo(ant.PlayerUnit.Unit.Pos);
+                    if (d < 18)
+                    {
+                        List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, pos, ant.PlayerUnit.Unit);
+                        if (positions != null && positions.Count > 2)
+                        {
+                            if (bestPositions == null || bestPositions.Count > positions.Count)
+                            {
+                                bestPositions = positions;
+                            }
+                        }
+                    }
+                }
+            }
+            if (bestPositions != null && bestPositions.Count > 1)
+            {
+                if (bestPositions.Count > 2)
+                {
+                    ant.FollowThisRoute = new List<Position>();
+                    for (int i = 2; i < 7 && i < bestPositions.Count - 1; i++)
+                    {
+                        ant.FollowThisRoute.Add(bestPositions[i]);
+                    }
+                }
+                return bestPositions[1];
+            }
+            return null;
+        }
+
+
         public Position FindFood(Player player, Ant ant)
         {
             Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.Pos, 3, false, matcher: tile =>
@@ -601,6 +676,10 @@ namespace Engine.Control
                         }
                         else
                         {
+                            if (cntrlUnit.IsGhost())
+                            {
+                                WorkFound(player, cntrlUnit.Pos);
+                            }
                             
                             // Guess by units preplaced on the map
                             if (playerUnit.Unit.Assembler != null && playerUnit.Unit.Engine == null)

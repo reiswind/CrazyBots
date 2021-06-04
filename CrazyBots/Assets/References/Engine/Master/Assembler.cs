@@ -12,40 +12,36 @@ namespace Engine.Master
     {
         public int Level { get; set; }
 
-        public Container AttachedContainer { get; set; }
+        public Container Container { get; set; }
 
         public bool CanProduce()
         {
+            if (Container != null && Container.Metal > 0)
+                return true;
             if (Unit.Container != null && Unit.Container.Metal > 0)
                 return true;
-
-            if (AttachedContainer != null)
-            {
-                if (AttachedContainer != null && AttachedContainer.Metal > 0)
-                    return true;
-            }
-            return false; // Unit.Metal > 0;
+            return false;
         }
 
         public Assembler(Unit owner, int level) : base(owner)
         {
             Level = level;
+            Container = new Container(owner, 1);
+            Container.Capacity = 4;
+            Container.Metal = 4;
         }
 
         public void ConsumeMetalForUnit(Unit unit)
         {
             if (Unit.Container != null && Unit.Container.Metal > 0)
+            {
                 Unit.Container.Metal--;
-            /*else if (Unit.Metal > 0)
-                Unit.Metal--;*/
+            }
             else
             {
-                if (AttachedContainer != null)
+                if (Container != null && Container.Metal > 0)
                 {
-                    if (AttachedContainer != null && AttachedContainer.Metal > 0)
-                        AttachedContainer.Metal--;
-                    else if (AttachedContainer.Metal > 0)
-                        AttachedContainer.Metal--;
+                    Container.Metal--;
                 }
                 else
                 {

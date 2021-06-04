@@ -243,7 +243,13 @@ namespace Engine.Master
                         return true;
                     }
                 }
-
+                if (Unit.Assembler != null)
+                {
+                    if (Unit.Assembler.Container != null && Unit.Assembler.Container.Metal < Unit.Assembler.Container.Capacity)
+                    {
+                        return true;
+                    }
+                }
                 if (Unit.Container != null && Unit.Container.Metal < Unit.Container.Capacity)
                 {
                     return true;
@@ -283,6 +289,10 @@ namespace Engine.Master
                     if (Unit.Weapon != null && Unit.Weapon.Container != null && Unit.Weapon.Container.Metal < Unit.Weapon.Container.Capacity)
                     {
                         targetContainer = Unit.Weapon.Container;
+                    }
+                    if (Unit.Assembler != null && Unit.Assembler.Container != null && Unit.Assembler.Container.Metal < Unit.Assembler.Container.Capacity)
+                    {
+                        targetContainer = Unit.Assembler.Container;
                     }
                     if (Unit.Container != null)
                     {
@@ -557,7 +567,11 @@ namespace Engine.Master
                 }*/
                 if (metalRemoved > 0)
                 {
-                    if (Unit.Weapon != null && Unit.Weapon.Container != null)
+                    if (Unit.Assembler != null && Unit.Assembler.Container != null)
+                    {
+                        Unit.Assembler.Container.Metal += metalRemoved;
+                    }
+                    else if(Unit.Weapon != null && Unit.Weapon.Container != null)
                     {
                         Unit.Weapon.Container.Metal += metalRemoved;
                     }

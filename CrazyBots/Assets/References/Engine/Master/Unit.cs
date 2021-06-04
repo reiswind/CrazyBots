@@ -127,7 +127,12 @@ namespace Engine.Master
                     metal += Weapon.Container.Metal;
                 metal++;
             }
-            if (Assembler != null) metal++;
+            if (Assembler != null)
+            {
+                if (Assembler.Container != null)
+                    metal += Assembler.Container.Metal;
+                metal++;
+            }
             if (Extractor != null) metal++;
             if (Container != null) metal++;
             if (Reactor != null) metal++;
@@ -150,6 +155,20 @@ namespace Engine.Master
             if (Radar != null) parts += Radar.Level;
 
             return parts >= 4;
+        }
+
+        public bool IsGhost()
+        {
+            if (Engine != null) return false;
+            if (Armor != null) return false;
+            if (Weapon != null) return false;
+            if (Assembler != null) return false;
+            if (Extractor != null) return false;
+            if (Container != null) return false;
+            if (Reactor != null) return false;
+            if (Radar != null) return false;
+
+            return true;
         }
 
         public void CreateFirstPartFromBlueprint()
@@ -540,6 +559,11 @@ namespace Engine.Master
                     {
                         moveUpdateUnitPart.Minerals = Weapon.Container.Metal;
                         moveUpdateUnitPart.Capacity = Weapon.Container.Capacity;
+                    }
+                    if (blueprintPart.Name.StartsWith("Assembler"))
+                    {
+                        moveUpdateUnitPart.Minerals = Assembler.Container.Metal;
+                        moveUpdateUnitPart.Capacity = Assembler.Container.Capacity;
                     }
                     if (blueprintPart.Name.StartsWith("Container"))
                     {

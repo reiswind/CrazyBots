@@ -535,7 +535,6 @@ namespace Engine.Ants
                 if (cntrlUnit.Weapon != null && !cntrlUnit.Weapon.WeaponLoaded)
                 {
                     pheromoneType = PheromoneType.ToFood;
-                    //pheromoneType = PheromoneType.AwayFromEnergy;
                 }
                 else if (AntWorkerType == AntWorkerType.Worker)
                 {
@@ -556,13 +555,29 @@ namespace Engine.Ants
                 }
                 else if (AntWorkerType == AntWorkerType.Assembler)
                 {
-                    pheromoneType = PheromoneType.Assemble;
+                    if (cntrlUnit.Assembler != null && cntrlUnit.Assembler.CanProduce())
+                    {
+                        pheromoneType = PheromoneType.ToWork;
+                    }
+                    else
+                    {
+                        pheromoneType = PheromoneType.ToFood;
+                    }
                 }
 
                 List<AntDestination> possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
                 if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.ToFood)
                 {
                     moveToPosition = Control.FindFood(player, this);
+                    if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
+                    {
+                        moveToPosition = null;
+                        FollowThisRoute = null;
+                    }
+                }
+                if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.ToWork)
+                {
+                    moveToPosition = Control.FindWork(player, this);
                     if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
                     {
                         moveToPosition = null;
@@ -913,6 +928,20 @@ namespace Engine.Ants
                         unitMoved = true;
                         return unitMoved;
                     }
+                }
+            }
+            if (AntWorkerType == AntWorkerType.Assembler && cntrlUnit.Assembler != null && cntrlUnit.Assembler.CanProduce())
+            {
+                List<Move> possiblemoves = new List<Move>();
+                cntrlUnit.Assembler.ComputePossibleMoves(possiblemoves, null, MoveFilter.Upgrade);
+                if (possiblemoves.Count > 0)
+                {
+                    int idx = player.Game.Random.Next(possiblemoves.Count);
+                    Move move = possiblemoves[idx];
+                    moves.Add(move);
+
+                    unitMoved = true;
+                    return unitMoved;
                 }
             }
 

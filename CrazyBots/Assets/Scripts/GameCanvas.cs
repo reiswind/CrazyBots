@@ -74,22 +74,6 @@ public class GameCanvas : MonoBehaviour
         unitBase = raycastHit.collider.transform.parent.GetComponent<UnitBase>();
         if (unitBase != null) return unitBase;
 
-        /*
-        Engine1 engine1 = raycastHit.collider.GetComponent<Engine1>();
-        if (engine1 != null) return engine1.UnitFrame;
-        Armor armor = raycastHit.collider.GetComponent<Armor>();
-        if (armor != null) return armor.UnitFrame;
-        Weapon1 weapon1 = raycastHit.collider.GetComponent<Weapon1>();
-        if (weapon1 != null) return weapon1.UnitFrame;
-        Assembler1 assembler1 = raycastHit.collider.GetComponent<Assembler1>();
-        if (assembler1 != null) return assembler1.UnitFrame;
-        Container1 container1 = raycastHit.collider.GetComponent<Container1>();
-        if (container1 != null) return container1.UnitFrame;
-        Extractor1 extractor1 = raycastHit.collider.GetComponent<Extractor1>();
-        if (extractor1 != null) return extractor1.UnitFrame;
-        Reactor1 reactor1 = raycastHit.collider.GetComponent<Reactor1>();
-        if (reactor1 != null) return reactor1.UnitFrame;
-        */
         return null;
     }
 
@@ -135,7 +119,6 @@ public class GameCanvas : MonoBehaviour
 
             if (selectedUnitFrame != null && hitByMouseClick.GroundCell != null) // && groundCell.Tile.CanMoveTo())
             {
-                
                 if (selectedUnitFrame.IsAssembler())
                 {
                     // Move it there
@@ -165,6 +148,20 @@ public class GameCanvas : MonoBehaviour
 
                     hitByMouseClick.GroundCell.UnitCommands.Add(unitCommand);
                 }
+            }
+            else
+            {
+                // Build something
+                GameCommand gameCommand = new GameCommand();
+
+                gameCommand.UnitId = "Fighter";
+                gameCommand.TargetPosition = hitByMouseClick.GroundCell.Tile.Pos;
+                gameCommand.GameCommandType = GameCommandType.Build;
+                gameCommand.PlayerId = 1;
+                HexGrid.GameCommands.Add(gameCommand);
+
+                HexGrid.CreateGhost(gameCommand.UnitId, hitByMouseClick.GroundCell.Tile.Pos);
+            }
 
                 /*
                 if (gameCommand.Append)
@@ -172,7 +169,7 @@ public class GameCanvas : MonoBehaviour
                 else
                     Debug.Log("Move to " + gameCommand.TargetPosition.X + "," + gameCommand.TargetPosition.Y);
                 */
-            }
+            
 
         }
 

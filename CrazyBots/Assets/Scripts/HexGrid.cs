@@ -548,6 +548,20 @@ public class HexGrid : MonoBehaviour
 		return extract;
 	}
 
+	public void CreateGhost(string blueprintName, Position pos)
+    {
+		/*
+		Move move = new Move();
+		move.Stats = new MoveUpdateStats();
+		move.Stats.BlueprintName = blueprintName;
+		move.MoveType = MoveType.Build;
+		move.PlayerId = 1;
+		//move.UnitId = unitId;
+		move.OtherUnitId = "Ghost";
+		move.Positions = new List<Position>();
+		move.Positions.Add(pos);
+		CreateUnit(move);*/
+	}
 	void CreateUnit(Move move)
 	{
 		string unitModel;
@@ -571,6 +585,8 @@ public class HexGrid : MonoBehaviour
 		unit.MoveUpdateStats = move.Stats;
 		unit.UnitId = move.UnitId;
 
+		unit.IsGhost = move.OtherUnitId == "Ghost";
+
 		unit.Assemble();
 		unit.PutAtCurrentPosition();
 
@@ -580,39 +596,6 @@ public class HexGrid : MonoBehaviour
 			unit.DestinationPos = move.Positions[move.Positions.Count - 1];
 		}
 		BaseUnits.Add(move.UnitId, unit);
-
-		
-		/*
-		else
-		{
-			UnitFrame unit = new UnitFrame();
-
-			unit.HexGrid = this;
-			unit.NextMove = move;
-
-			unit.playerId = move.PlayerId;
-			unit.MoveUpdateStats = move.Stats;
-			unit.UnitId = move.UnitId;
-
-			if (move.Stats.EngineLevel == 0)
-			{
-				// Cannot move to targetpos
-				unit.currentPos = move.Positions[move.Positions.Count - 1];
-			}
-			else
-			{
-				// Move to targetpos
-				unit.currentPos = move.Positions[0];
-			}
-			unit.Assemble();
-			Units.Add(move.UnitId, unit);
-		}
-		*/
-		/*
-		Text label = Instantiate<Text>(cellLabelPrefab);
-		label.rectTransform.SetParent(gridCanvas.transform, false);
-		label.rectTransform.anchoredPosition = new Vector2(unitPos3.x, unitPos3.z);
-		label.text = "\r\n" + move.UnitId;*/
 	}
 
 	/*
@@ -673,9 +656,6 @@ public class HexGrid : MonoBehaviour
 		gameObjectCell.name = "Ground " + x.ToString() + "," + y.ToString();
 
 		GroundCell groundCell = gameObjectCell.GetComponent<GroundCell>();
-
-		//HexCell cell = new HexCell();
-		//cell.Cell = gameObjectCell;
 		groundCell.HexGrid = this;
 
 		Vector2 gridPos = new Vector2(x, y);

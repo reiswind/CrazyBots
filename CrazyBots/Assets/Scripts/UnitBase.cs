@@ -127,7 +127,10 @@ public class UnitBase : MonoBehaviour
         newPart.transform.SetParent(transform);
         newPart.name = name;
 
-        SetPlayerColor(PlayerId, newPart);
+        if (IsGhost)
+            SetMaterialGhost(PlayerId, newPart);
+        else
+            SetPlayerColor(PlayerId, newPart);
 
         if (part == engine)
             engine = newPart.transform;
@@ -223,6 +226,8 @@ public class UnitBase : MonoBehaviour
         }
     }
 
+    public bool IsGhost { get; set; }
+
     public void Assemble()
     {
         engine = transform.Find("Engine");
@@ -234,7 +239,8 @@ public class UnitBase : MonoBehaviour
         Transform sparePart = part1;
 
         List<MoveUpdateUnitPart> remainingParts = new List<MoveUpdateUnitPart>();
-        remainingParts.AddRange(MoveUpdateStats.UnitParts);
+        if (MoveUpdateStats.UnitParts != null)
+            remainingParts.AddRange(MoveUpdateStats.UnitParts);
 
         // Find the basic parts
         bool groundFound = false;
@@ -313,19 +319,44 @@ public class UnitBase : MonoBehaviour
     internal static Material playerMaterial2;
     internal static Material playerMaterial3;
     internal static Material frameMaterial;
+    internal static Material frameTransparentMaterial;
+    internal static Material playerTransparentMaterial;
+
+    internal void SetMaterialGhost(int playerId, GameObject unit)
+    {
+        if (frameTransparentMaterial == null)
+            frameTransparentMaterial = Resources.Load<Material>("Materials/TransparentFrame");
+        if (playerTransparentMaterial == null)
+            playerTransparentMaterial = Resources.Load<Material>("Materials/PlayerTransparent");
+
+        MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
+
+        Material[] newMaterials = new Material[meshRenderer.materials.Length];
+        for (int i = 0; i < meshRenderer.materials.Length; i++)
+        {
+            Material material = meshRenderer.materials[i];
+            if (material.name.StartsWith("Player"))
+            {
+                if (playerId == 1) newMaterials[i] = playerTransparentMaterial;
+                if (playerId == 2) newMaterials[i] = playerTransparentMaterial;
+                if (playerId == 3) newMaterials[i] = playerTransparentMaterial;
+            }
+            else
+            {
+                newMaterials[i] = frameTransparentMaterial;
+            }
+        }
+        meshRenderer.materials = newMaterials;
+    }
 
     internal static void SetPlayerColor(int playerId, GameObject unit)
     {
-
-
         if (playerMaterial1 == null)
         {
             playerMaterial1 = Resources.Load<Material>("Materials/Player1");
             playerMaterial2 = Resources.Load<Material>("Materials/Player2");
             playerMaterial3 = Resources.Load<Material>("Materials/Player3");
             frameMaterial = Resources.Load<Material>("Materials/MyFrame");
-
-            //frameMaterial = Resources.Load<Material>("Materials/TransparentFrame");
         }
         MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
 
@@ -335,11 +366,6 @@ public class UnitBase : MonoBehaviour
             Material material = meshRenderer.materials[i];
             if (material.name.StartsWith("Player"))
             {
-                /*
-                if (playerId == 1) material.color = playerMaterial1.color;
-                if (playerId == 2) material.color = playerMaterial2.color;
-                if (playerId == 3) material.color = playerMaterial3.color;*/
-
                 if (playerId == 1) newMaterials[i] = playerMaterial1;
                 if (playerId == 2) newMaterials[i] = playerMaterial2;
                 if (playerId == 3) newMaterials[i] = playerMaterial3;
@@ -369,15 +395,35 @@ public class UnitBase : MonoBehaviour
         Assembler = null;
         Weapon = null;
 
+        bool switchMaterial = false;
+        if (IsGhost)
+        {
+            foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
+            {
+                if (moveUpdateUnitPart.Exists)
+                    IsGhost = false;
+            }
+            if (!IsGhost)
+            {
+                // Switch Material
+                switchMaterial = true;
+            }
+        }
+
         foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
         {
             GameObject gameObject = GetPartByName(moveUpdateUnitPart.Name);
             if (gameObject == null) 
                 continue;
 
-            gameObject.SetActive(moveUpdateUnitPart.Exists);
+            gameObject.SetActive(IsGhost || moveUpdateUnitPart.Exists);
             if (moveUpdateUnitPart.Exists)
             {
+                if (switchMaterial)
+                {
+                    SetPlayerColor(PlayerId, gameObject);
+                }
+
                 Container1 container = gameObject.GetComponent<Container1>();
                 if (container != null)
                 {
@@ -395,6 +441,13 @@ public class UnitBase : MonoBehaviour
                 {
                     Weapon = weapon;
                     weapon.UpdateContent(moveUpdateUnitPart.Minerals > 0);
+                }
+            }
+            else
+            {
+                if (switchMaterial)
+                {
+                    SetPlayerColor(PlayerId, gameObject);
                 }
             }
         }
