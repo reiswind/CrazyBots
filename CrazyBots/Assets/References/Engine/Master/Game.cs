@@ -139,16 +139,12 @@ namespace Engine.Master
 
         public Game(GameModel gameModel)
         {
-            int tcks = (int)DateTime.Now.Ticks;
-            //tcks = -867792232;
-            //tcks = -2073632798;
-            //tcks = 506882786; // grass water
-            //tcks = 1588186970; // hill wood
-            //tcks = -2036036062;
-            //846181346
-            //tcks = 944096234;
-            //tcks = 1991245194;
-            Init(gameModel, tcks);
+            int seed;
+            if (gameModel.Seed.HasValue)
+                seed = gameModel.Seed.Value;
+            else
+                seed = (int)DateTime.Now.Ticks;
+            Init(gameModel, seed);
         }
 
         public Game(GameModel gameModel, int seed)
