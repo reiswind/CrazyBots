@@ -536,6 +536,7 @@ namespace Engine.Master
                             hitmove.MoveType = MoveType.UpdateGround;
                             hitmove.Positions = new List<Position>();
                             hitmove.Positions.Add(fromPos);
+                            hitmove.Stats = CollectGroundStats(fromPos);
                             nextMoves.Add(hitmove);
 
                             Move moveUpdate = new Move();
@@ -616,6 +617,7 @@ namespace Engine.Master
                         groundMove.MoveType = MoveType.UpdateGround;
                         groundMove.Positions = new List<Position>();
                         groundMove.Positions.Add(move.Positions[1]);
+                        groundMove.Stats = CollectGroundStats(move.Positions[1]);
                         nextMoves.Add(groundMove);
                     }
                     else
@@ -630,6 +632,7 @@ namespace Engine.Master
                         hitmove.MoveType = MoveType.UpdateGround;
                         hitmove.Positions = new List<Position>();
                         hitmove.Positions.Add(move.Positions[1]);
+                        hitmove.Stats = CollectGroundStats(move.Positions[1]);
                         nextMoves.Add(hitmove);
                     }
                     finishedMoves.Add(move);
@@ -647,6 +650,20 @@ namespace Engine.Master
             {
                 lastMoves.Add(move);
             }
+        }
+
+        private MoveUpdateStats CollectGroundStats(Position pos)
+        {
+            MoveUpdateGroundStat moveUpdateGroundStat = new MoveUpdateGroundStat();
+
+            Tile t = Map.GetTile(pos);
+            moveUpdateGroundStat.Minerals = t.Metal;
+            moveUpdateGroundStat.NumberOfDestructables = t.NumberOfDestructables;
+            moveUpdateGroundStat.NumberOfObstacles = t.NumberOfObstacles;
+            MoveUpdateStats moveUpdateStats = null;
+            moveUpdateStats = new MoveUpdateStats();
+            moveUpdateStats.MoveUpdateGroundStat = moveUpdateGroundStat;
+            return moveUpdateStats;
         }
         private void LogMoves(string header, int moveNr, List<Move> moves)
         {
@@ -898,6 +915,7 @@ namespace Engine.Master
                             hitmove.MoveType = MoveType.UpdateGround;
                             hitmove.Positions = new List<Position>();
                             hitmove.Positions.Add(n.Pos);
+                            hitmove.Stats = CollectGroundStats(n.Pos);
                             moves.Add(hitmove);
                         }
                     }

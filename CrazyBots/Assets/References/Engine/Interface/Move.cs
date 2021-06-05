@@ -41,15 +41,27 @@ namespace Engine.Interface
         public int? Minerals { get; set; }
         public int? Capacity { get; set; }
     }
-
+    public class MoveUpdateGroundStat
+    {
+        [DataMember(EmitDefaultValue = false)]
+        public int Minerals { get; set; }
+        [DataMember(EmitDefaultValue = false)]
+        public int NumberOfDestructables { get; set; }
+        [DataMember(EmitDefaultValue = false)]
+        public int NumberOfObstacles { get; set; }
+    }
     public class MoveUpdateStats
     {
         public MoveUpdateStats()
         {
 
         }
+        [DataMember(EmitDefaultValue =false)]
         public string BlueprintName { get; set; }
+        [DataMember(EmitDefaultValue = false)]
         public List<MoveUpdateUnitPart> UnitParts { get; set; }
+        [DataMember(EmitDefaultValue = false)]
+        public MoveUpdateGroundStat MoveUpdateGroundStat { get; set; }
 
         [DataMember]
         public int EngineLevel { get; set; }

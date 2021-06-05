@@ -177,6 +177,14 @@ public class GroundCell : MonoBehaviour
     {
         if (NextMove != null)
         {
+            if (NextMove.Stats != null && NextMove.Stats.MoveUpdateGroundStat != null)
+            {
+                MoveUpdateGroundStat stat = NextMove.Stats.MoveUpdateGroundStat;
+                Tile.Metal = stat.Minerals;
+                Tile.NumberOfDestructables = stat.NumberOfDestructables;
+                Tile.NumberOfObstacles = stat.NumberOfObstacles;
+                
+            }
             CreateObstacles();
             CreateDestructables();
             CreateMinerals();
