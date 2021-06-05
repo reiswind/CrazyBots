@@ -209,7 +209,7 @@ public class HexGrid : MonoBehaviour
 		}
 		else
         {
-			useThread = true;
+			//useThread = true;
 		}
 
 		if (useThread)
@@ -227,11 +227,14 @@ public class HexGrid : MonoBehaviour
 
 	private bool readyForNextMove;
 
+	//private string serverUrl = "https://fastfertig.net/api/";
+	private string serverUrl = "https://localhost:44324/api/";
+
 	IEnumerator<object> StartRemoteGame(GameModel gameModel)
 	{
 		string body = JsonConvert.SerializeObject(gameModel);
 
-		using (UnityWebRequest www = UnityWebRequest.Post("https://fastfertig.net/api/GameEngine", body))
+		using (UnityWebRequest www = UnityWebRequest.Post(serverUrl + "GameEngine", body))
 		{
 			yield return www.SendWebRequest();
 
@@ -256,7 +259,7 @@ public class HexGrid : MonoBehaviour
 		else
 		{
 			string body = "";
-			using (UnityWebRequest www = UnityWebRequest.Post("https://fastfertig.net/api/GameMove/" + remoteGameIndex, body))
+			using (UnityWebRequest www = UnityWebRequest.Post(serverUrl + "GameMove/" + remoteGameIndex, body))
 			{
 				yield return www.SendWebRequest();
 
@@ -532,17 +535,32 @@ public class HexGrid : MonoBehaviour
 		return instance;
 	}
 
+	private static ParticleSystem extractSourcePrefab;
+	private static ParticleSystem extractBuildPrefab;
+	private static ParticleSystemForceField extractPrefab;
+
 	public ParticleSystem MakeParticleSource(string resource)
     {
-		ParticleSystem extractSourcePrefab = Resources.Load<ParticleSystem>("Particles\\" + resource);
-		ParticleSystem extractSource;
-		extractSource = Instantiate(extractSourcePrefab);
+		ParticleSystem extractSource = null;
+		if (resource == "ExtractSource")
+		{
+			if (extractSourcePrefab == null)
+				extractSourcePrefab = Resources.Load<ParticleSystem>("Particles/" + resource);
+			extractSource = Instantiate(extractSourcePrefab);
+		}
+		if (resource == "Build")
+		{
+			if (extractBuildPrefab == null)
+				extractBuildPrefab = Resources.Load<ParticleSystem>("Particles/" + resource);
+			extractSource = Instantiate(extractBuildPrefab);
+		}
 		return extractSource;
 	}
 
 	public ParticleSystemForceField MakeParticleTarget()
 	{
-		ParticleSystemForceField extractPrefab = Resources.Load<ParticleSystemForceField>("Particles\\" + "ExtractTarget");
+		if (extractPrefab == null)
+			extractPrefab = Resources.Load<ParticleSystemForceField>("Particles/ExtractTarget");
 		ParticleSystemForceField extract;
 		extract = Instantiate(extractPrefab);
 		return extract;

@@ -10,7 +10,7 @@ public class Shell : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Destroy(this.gameObject, 2.6f);
+        
     }
 
     private void OnTriggerEnter(Collider other)
@@ -22,7 +22,7 @@ public class Shell : MonoBehaviour
         if (other.name.StartsWith("Ground"))
         {
             targetHit = true;
-            Destroy(this.gameObject);
+            Destroy(gameObject);
         }
         else if (other.name.StartsWith(TargetUnitId))
         {
@@ -32,7 +32,7 @@ public class Shell : MonoBehaviour
             otherRigid.velocity = velo;
 
             targetHit = true;
-            Destroy(this.gameObject);
+            Destroy(gameObject);
         }
         else
         {

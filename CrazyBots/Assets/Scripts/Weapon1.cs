@@ -38,6 +38,7 @@ public class Weapon1 : MonoBehaviour
             ammo.gameObject.SetActive(weaponLoaded);
         }
     }
+    private static GameObject shellprefab;
 
     public void Fire(HexGrid hexGrid, Move move)
     {
@@ -78,18 +79,20 @@ public class Weapon1 : MonoBehaviour
         //launchPosition.y += 1f;
 
         //shot = true;
-        Shell shell = hexGrid.InstantiatePrefab<Shell>("Shell");
+        if (shellprefab == null)
+            shellprefab = (GameObject)Resources.Load("Prefabs/Unit/Shell");
+        GameObject shellObject= Instantiate(shellprefab);
+        Shell shell = shellObject.GetComponent<Shell>();
+
         shell.gameObject.hideFlags = HideFlags.HideAndDontSave;
-        //shell.transform.position = launchPosition; // transform.position;
         shell.transform.SetPositionAndRotation(launchPosition.position, launchPosition.rotation);
 
         shell.TargetUnitId = move.OtherUnitId;
         
         Rigidbody rigidbody = shell.GetComponent<Rigidbody>();
-
         rigidbody.velocity = calcBallisticVelocityVector(launchPosition.position, targetCell.transform.position, angle);
 
-
+        Destroy(shellObject, 2.6f);
     }
     
 

@@ -9,7 +9,7 @@ public class Container1 : MonoBehaviour
     internal int Level { get; set; }
 
     private List<GameObject> crystals;
-
+    private static GameObject crystalResource;
     private int filled;
 
     public Container1()
@@ -48,11 +48,11 @@ public class Container1 : MonoBehaviour
                 {
                     unitPos3.y += 0.65f;
                 }
-
-
-                GameObject crystalResource = Resources.Load<GameObject>("Prefabs/Terrain/Crystal");
+                if (crystalResource == null)
+                {
+                    crystalResource = Resources.Load<GameObject>("Prefabs/Terrain/Crystal");
+                }
                 GameObject crystal = Instantiate(crystalResource, transform, false);
-
                 crystal.transform.SetPositionAndRotation(unitPos3, Random.rotation);
                 crystals.Add(crystal);
             }

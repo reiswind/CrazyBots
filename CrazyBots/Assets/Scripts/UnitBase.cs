@@ -228,70 +228,7 @@ public class UnitBase : MonoBehaviour
 
     public bool IsGhost { get; set; }
 
-    public void Assemble()
-    {
-        engine = transform.Find("Engine");
-        ground = transform.Find("Ground");
-        bigPart = transform.Find("BigPart");
-        part1 = transform.Find("Part1");
-        part2 = transform.Find("Part2");
-
-        Transform sparePart = part1;
-
-        List<MoveUpdateUnitPart> remainingParts = new List<MoveUpdateUnitPart>();
-        if (MoveUpdateStats.UnitParts != null)
-            remainingParts.AddRange(MoveUpdateStats.UnitParts);
-
-        // Find the basic parts
-        bool groundFound = false;
-        foreach (MoveUpdateUnitPart moveUpdateUnitPart in remainingParts)
-        {
-            if (engine != null && moveUpdateUnitPart.Name.StartsWith("Engine"))
-            {
-                ReplacePart(engine, moveUpdateUnitPart.Name);
-                remainingParts.Remove(moveUpdateUnitPart);
-                groundFound = true;
-                break;
-            }
-            if (ground != null && moveUpdateUnitPart.Name.StartsWith("Extractor"))
-            {
-                ReplacePart(ground, "ExtractorGround1"); // moveUpdateUnitPart.Name);
-                ground.name = moveUpdateUnitPart.Name;
-
-                remainingParts.Remove(moveUpdateUnitPart);
-                groundFound = true;
-                break;
-            }
-        }
-        if (groundFound == false)
-        {
-            if (engine != null)
-                engine.gameObject.SetActive(false);
-            if (ground != null)
-                ground.gameObject.SetActive(false);
-        }
-
-        // Place big parts
-        foreach (MoveUpdateUnitPart moveUpdateUnitPart in remainingParts)
-        {
-            if (moveUpdateUnitPart.Name.StartsWith("Container") ||
-                moveUpdateUnitPart.Name.StartsWith("Weapon") ||
-                moveUpdateUnitPart.Name.StartsWith("Assembler"))
-            {
-                ReplacePart(bigPart, moveUpdateUnitPart.Name);
-                remainingParts.Remove(moveUpdateUnitPart);
-                break;
-            }
-        }
-        // Place remaining parts
-        foreach (MoveUpdateUnitPart moveUpdateUnitPart in remainingParts)
-        {
-            ReplacePart(sparePart, moveUpdateUnitPart.Name);
-            sparePart = part2;
-        }
-        UpdateParts();
-    }
-
+    
     public void Extract(Move move)
     {
         if (Extractor != null)
@@ -388,8 +325,77 @@ public class UnitBase : MonoBehaviour
     private Extractor1 Extractor;
     private Weapon1 Weapon;
 
+    public void Assemble()
+    {
+        //return;
+
+        engine = transform.Find("Engine");
+        ground = transform.Find("Ground");
+        bigPart = transform.Find("BigPart");
+        part1 = transform.Find("Part1");
+        part2 = transform.Find("Part2");
+
+        Transform sparePart = part1;
+
+        List<MoveUpdateUnitPart> remainingParts = new List<MoveUpdateUnitPart>();
+        if (MoveUpdateStats.UnitParts != null)
+            remainingParts.AddRange(MoveUpdateStats.UnitParts);
+
+        // Find the basic parts
+        bool groundFound = false;
+        foreach (MoveUpdateUnitPart moveUpdateUnitPart in remainingParts)
+        {
+            if (engine != null && moveUpdateUnitPart.Name.StartsWith("Engine"))
+            {
+                ReplacePart(engine, moveUpdateUnitPart.Name);
+                remainingParts.Remove(moveUpdateUnitPart);
+                groundFound = true;
+                break;
+            }
+            if (ground != null && moveUpdateUnitPart.Name.StartsWith("Extractor"))
+            {
+                ReplacePart(ground, "ExtractorGround1"); // moveUpdateUnitPart.Name);
+                ground.name = moveUpdateUnitPart.Name;
+
+                remainingParts.Remove(moveUpdateUnitPart);
+                groundFound = true;
+                break;
+            }
+        }
+        if (groundFound == false)
+        {
+            if (engine != null)
+                engine.gameObject.SetActive(false);
+            if (ground != null)
+                ground.gameObject.SetActive(false);
+        }
+
+        // Place big parts
+        foreach (MoveUpdateUnitPart moveUpdateUnitPart in remainingParts)
+        {
+            if (moveUpdateUnitPart.Name.StartsWith("Container") ||
+                moveUpdateUnitPart.Name.StartsWith("Weapon") ||
+                moveUpdateUnitPart.Name.StartsWith("Assembler"))
+            {
+                ReplacePart(bigPart, moveUpdateUnitPart.Name);
+                remainingParts.Remove(moveUpdateUnitPart);
+                break;
+            }
+        }
+        // Place remaining parts
+        foreach (MoveUpdateUnitPart moveUpdateUnitPart in remainingParts)
+        {
+            ReplacePart(sparePart, moveUpdateUnitPart.Name);
+            sparePart = part2;
+        }
+        UpdateParts();
+    }
+
+
     public void UpdateParts()
     {
+        //return;
+
         Container = null;
         Extractor = null;
         Assembler = null;
@@ -423,7 +429,7 @@ public class UnitBase : MonoBehaviour
                 {
                     SetPlayerColor(PlayerId, gameObject);
                 }
-
+                
                 Container1 container = gameObject.GetComponent<Container1>();
                 if (container != null)
                 {
