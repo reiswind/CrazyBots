@@ -148,6 +148,14 @@ public class GameCanvas : MonoBehaviour
 
                     hitByMouseClick.GroundCell.UnitCommands.Add(unitCommand);
                 }
+                else
+                {
+                    if (lastSelectedGroundCell != null)
+                    {
+                        lastSelectedGroundCell.SetSelected(false);
+                        lastSelectedGroundCell = null;
+                    }
+                }
             }
             else
             {
@@ -192,7 +200,7 @@ public class GameCanvas : MonoBehaviour
                 {
                     if (lastSelectedGroundCell != null)
                         lastSelectedGroundCell.SetSelected(false);
-                    if (hitByMouseClick.GroundCell != null)
+                    if (hitByMouseClick.GroundCell != null && hitByMouseClick.UnitFrame == null)
                         hitByMouseClick.GroundCell.SetSelected(true);
                 }
                 lastSelectedGroundCell = hitByMouseClick.GroundCell;
@@ -245,47 +253,6 @@ public class GameCanvas : MonoBehaviour
                         }
                         sb.AppendLine();
                     }
-                    /*
-                    if (unit.MoveUpdateStats.ArmorLevel > 0)
-                    {
-                        sb.AppendLine("Armor: " + unit.MoveUpdateStats.ArmorLevel);
-                    }
-                    if (unit.MoveUpdateStats.ContainerLevel > 0)
-                    {
-                        sb.AppendLine("Container: " + unit.MoveUpdateStats.ContainerLevel + " Full: " + unit.MoveUpdateStats.ContainerFull + "%");
-                    }
-                    if (unit.MoveUpdateStats.EngineLevel > 0)
-                    {
-                        sb.AppendLine("Engine: " + unit.MoveUpdateStats.EngineLevel);
-                    }
-                    if (unit.MoveUpdateStats.ExtractorLevel > 0)
-                    {
-                        sb.AppendLine("Extractor: " + unit.MoveUpdateStats.ExtractorLevel);
-                    }
-                    if (unit.MoveUpdateStats.ProductionLevel > 0)
-                    {
-                        sb.Append("Production: " + unit.MoveUpdateStats.ProductionLevel);
-                        if (unit.MoveUpdateStats.CanProduce)
-                            sb.AppendLine(" CanProduce");
-                        else
-                            sb.AppendLine("");
-                    }
-                    if (unit.MoveUpdateStats.RadarLevel > 0)
-                    {
-                        sb.AppendLine("Radar: " + unit.MoveUpdateStats.RadarLevel);
-                    }
-                    if (unit.MoveUpdateStats.ReactorLevel > 0)
-                    {
-                        sb.AppendLine("Reactor: " + unit.MoveUpdateStats.ReactorLevel);
-                    }
-                    if (unit.MoveUpdateStats.WeaponLevel > 0)
-                    {
-                        sb.Append("Weapon: " + unit.MoveUpdateStats.WeaponLevel);
-                        if (unit.MoveUpdateStats.WeaponLoaded)
-                            sb.AppendLine(" Loaded");
-                        else
-                            sb.AppendLine("");
-                    }*/
                 }
             }
             sb.AppendLine("");

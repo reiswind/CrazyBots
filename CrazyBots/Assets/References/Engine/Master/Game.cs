@@ -491,17 +491,18 @@ namespace Engine.Master
             
             foreach (Unit addedUnit in addedUnits)
             {
-                if (addedUnit.Pos != null &&
-                    Map.Units.GetUnitAt(addedUnit.Pos) == null)
+                if (addedUnit.Pos != null)
                 {
                     if (addedUnit.IsGhost)
                     {
                         PlayerUnit playerUnit = new PlayerUnit(addedUnit);
                         addedUnit.Owner.UnitsInBuild.Add(addedUnit.Pos, playerUnit);
-                        //Map.UnitsInBuild.Add(addedUnit);
                     }
                     else
-                        Map.Units.Add(addedUnit);
+                    {
+                        if (Map.Units.GetUnitAt(addedUnit.Pos) == null)
+                            Map.Units.Add(addedUnit);
+                    }
                 }
             }
         }

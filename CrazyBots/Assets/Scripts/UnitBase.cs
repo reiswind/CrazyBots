@@ -164,7 +164,7 @@ public class UnitBase : MonoBehaviour
         HasBeenDestroyed = true;
         Destroy(this.gameObject);
     }
-
+    private Light selectionLight;
     private bool selectionChanged;
     public bool IsSelected { get; private set; }
     internal void SetSelected(bool selected)
@@ -173,6 +173,15 @@ public class UnitBase : MonoBehaviour
         {
             selectionChanged = true;
             IsSelected = selected;
+
+            if (IsSelected)
+            {
+                selectionLight = HexGrid.CreateSelectionLight(gameObject);
+            }
+            else
+            {
+                Destroy(selectionLight);
+            }
         }
         /*
         Light light = GetComponentInChildren<Light>();

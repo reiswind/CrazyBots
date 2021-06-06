@@ -548,6 +548,21 @@ public class HexGrid : MonoBehaviour
 		return instance;
 	}
 
+	private GameObject prefabSpotlight;
+
+	public Light CreateSelectionLight(GameObject gameObject)
+	{
+		if (prefabSpotlight == null)
+			prefabSpotlight = (GameObject)Resources.Load("Prefabs/Unit/Spot Light");
+		GameObject instance = Instantiate(prefabSpotlight);
+		Vector3 vector3 = gameObject.transform.position;
+		vector3.y += 2.5f;
+		instance.transform.position = vector3;
+		instance.transform.SetParent(gameObject.transform);
+
+		return instance.GetComponent<Light>();
+	}
+
 	private static ParticleSystem extractSourcePrefab;
 	private static ParticleSystem extractBuildPrefab;
 	private static ParticleSystemForceField extractPrefab;
@@ -614,8 +629,7 @@ public class HexGrid : MonoBehaviour
 		unit.PlayerId = move.PlayerId;
 		unit.MoveUpdateStats = move.Stats;
 		unit.UnitId = move.UnitId;
-
-		//unit.IsGhost = move.OtherUnitId == "Ghost";
+		unit.gameObject.name = move.UnitId;
 
 		unit.Assemble(move.MoveType == MoveType.Build);
 		unit.PutAtCurrentPosition();

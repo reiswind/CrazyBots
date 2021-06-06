@@ -256,13 +256,24 @@ public class GroundCell : MonoBehaviour
         }
     }
 
+    private Light selectionLight;
+
     public bool IsSelected { get; private set; }
     internal void SetSelected(bool selected)
     {
-        IsSelected = selected;
-        Light light = GetComponentInChildren<Light>();
-        if (light != null)
-            light.enabled = selected;
+        if (IsSelected != selected)
+        {
+            IsSelected = selected;
+
+            if (IsSelected)
+            {
+                selectionLight = HexGrid.CreateSelectionLight(gameObject);
+            }
+            else
+            {
+                Destroy(selectionLight);
+            }
+        }
     }
 
     internal void CreateMinerals()
