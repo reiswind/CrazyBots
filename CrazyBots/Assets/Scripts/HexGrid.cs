@@ -594,6 +594,7 @@ public class HexGrid : MonoBehaviour
 		return extract;
 	}
 
+
 	public void CreateGhost(string blueprintName, Position pos)
     {
 		Move move = new Move();
