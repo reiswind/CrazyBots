@@ -51,10 +51,10 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -229,8 +229,8 @@ public class HexGrid : MonoBehaviour
 
 	private bool readyForNextMove;
 
-	//private string serverUrl = "https://fastfertig.net/api/";
-	private string serverUrl = "https://localhost:44324/api/";
+	private string serverUrl = "https://fastfertig.net/api/";
+	//private string serverUrl = "https://localhost:44324/api/";
 
 	IEnumerator<object> StartRemoteGame(GameModel gameModel)
 	{
