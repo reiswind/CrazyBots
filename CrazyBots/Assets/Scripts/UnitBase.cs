@@ -369,9 +369,9 @@ public class UnitBase : MonoBehaviour
                 groundFound = true;
                 break;
             }
-            if (ground != null && moveUpdateUnitPart.Name.StartsWith("Extractor"))
+            if (ground != null && moveUpdateUnitPart.Name.StartsWith("ExtractorGround"))
             {
-                ReplacePart(ground, "ExtractorGround1", underConstruction); // moveUpdateUnitPart.Name);
+                ReplacePart(ground, moveUpdateUnitPart.Name, underConstruction); // moveUpdateUnitPart.Name);
                 ground.name = moveUpdateUnitPart.Name;
 
                 remainingParts.Remove(moveUpdateUnitPart);

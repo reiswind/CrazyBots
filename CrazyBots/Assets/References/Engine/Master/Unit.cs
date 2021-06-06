@@ -204,7 +204,7 @@ namespace Engine.Master
             else if (blueprintPart.Name == "Assembler3")
                 Assembler = new Assembler(this, 3);
 
-            else if (blueprintPart.Name == "Extractor1")
+            else if (blueprintPart.Name == "Extractor1" || blueprintPart.Name == "ExtractorGround1")
                 Extractor = new Extractor(this, 1);
             else if (blueprintPart.Name == "Extractor2")
                 Extractor = new Extractor(this, 2);
@@ -275,7 +275,7 @@ namespace Engine.Master
             if (blueprintPart.Name == "Assembler3")
                 return Assembler != null && Assembler.Level == 3;
 
-            if (blueprintPart.Name == "Extractor1")
+            if (blueprintPart.Name == "Extractor1" || blueprintPart.Name == "ExtractorGround1")
                 return Extractor != null && Extractor.Level == 1;
             if (blueprintPart.Name == "Extractor2")
                 return Extractor != null && Extractor.Level == 2;

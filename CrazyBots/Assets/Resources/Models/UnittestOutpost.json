@@ -1,5 +1,5 @@
 {
-  "Seedy": 17,
+  "Seexd": -278309450,
   "Name": "Unittest",
   "MapWidth": 300,
   "MapHeight": 300,
@@ -20,6 +20,24 @@
       "Position": {
         "X": 10,
         "Y": 12
+      }
+    },
+	{
+      "Name": "Outpost",
+      "PlayerId": 1,
+	  "Blueprint": "Outpost",
+      "Position": {
+        "X": 11,
+        "Y": 12
+      }
+    },
+	{
+      "Name": "Outpost",
+      "PlayerId": 1,
+	  "Blueprint": "Outpost",
+      "Position": {
+        "X": 10,
+        "Y": 11
       }
     }
   ]

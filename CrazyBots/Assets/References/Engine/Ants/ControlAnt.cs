@@ -21,8 +21,8 @@ namespace Engine.Control
 
         public Dictionary<Position, Ant> CreatedAnts = new Dictionary<Position, Ant>();
 
-        public int MaxWorker = 2;
-        public int MaxFighter = 35;
+        public int MaxWorker = 1;
+        public int MaxFighter = 0;
         public int MaxAssembler = 1;
 
         public int NumberOfWorkers;
@@ -604,14 +604,28 @@ namespace Engine.Control
             return null;
         }
 
+        internal void UpdateUnitCounters(Ant ant)
+        {
+            AntWorker antWorker = ant as AntWorker;
+            if (antWorker != null)
+            {
+                if (antWorker.AntWorkerType == AntWorkerType.Worker)
+                    NumberOfWorkers++;
+                if (antWorker.AntWorkerType == AntWorkerType.Fighter)
+                    NumberOfFighter++;
+                if (antWorker.AntWorkerType == AntWorkerType.Assembler)
+                    NumberOfAssembler++;
+            }
+        }
+
         private static int moveNr;
 
         public List<Move> Turn(Player player)
         {
             moveNr++;
-            if (moveNr > 17)
+            if (moveNr > 28)
             {
-
+                int x = 0;
             }
 
             //player.Game.Pheromones.RemoveAllStaticPheromones(player, PheromoneType.Energy);
@@ -761,6 +775,7 @@ namespace Engine.Control
                     if (ant.PlayerUnit == null)
                     {
                         // Ghost Ant
+                        UpdateUnitCounters(ant);
                     }
                     else
                     {
@@ -771,16 +786,7 @@ namespace Engine.Control
                 {
                     if (ant.PlayerUnit.Unit.IsComplete())
                     {
-                        AntWorker antWorker = ant as AntWorker;
-                        if (antWorker != null)
-                        {
-                            if (antWorker.AntWorkerType == AntWorkerType.Worker)
-                                NumberOfWorkers++;
-                            if (antWorker.AntWorkerType == AntWorkerType.Fighter)
-                                NumberOfFighter++;
-                            if (antWorker.AntWorkerType == AntWorkerType.Assembler)
-                                NumberOfAssembler++;
-                        }
+                        UpdateUnitCounters(ant);
 
                         UpdateContainerDeposits(player, ant);
 
@@ -801,6 +807,7 @@ namespace Engine.Control
                     }
                     else if (ant.PlayerUnit.Unit.UnderConstruction)
                     {
+                        UpdateUnitCounters(ant);
                         movableAnts.Add(ant);
                     }
                     else

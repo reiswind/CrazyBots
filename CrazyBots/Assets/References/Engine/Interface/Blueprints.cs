@@ -22,7 +22,7 @@ namespace Engine.Interface
             // Outpost
             blueprint = new Blueprint();
             blueprint.Name = "Outpost";
-            blueprint.Parts.Add(new BlueprintPart("Extractor1"));
+            blueprint.Parts.Add(new BlueprintPart("ExtractorGround1"));
             blueprint.Parts.Add(new BlueprintPart("Assembler1"));
             blueprint.Parts.Add(new BlueprintPart("Container1", true));
             blueprint.Parts.Add(new BlueprintPart("Reactor1"));

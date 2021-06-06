@@ -496,9 +496,10 @@ namespace Engine.Interface
                 if (move.MoveType == MoveType.Build)
                 {
                     Position to = move.Positions[move.Positions.Count - 1];
-                    if (this.Units.ContainsKey(to))
-                        throw new Exception();
-                    if (!UnitsInBuild.ContainsKey(to))
+                    // ignore, its a ghost
+                    //if (this.Units.ContainsKey(to))
+                    //    throw new Exception();
+                    if (move.PlayerId == PlayerModel.Id && !UnitsInBuild.ContainsKey(to))
                         throw new Exception();
                 }
                 if (move.MoveType == MoveType.Upgrade)

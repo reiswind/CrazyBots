@@ -1174,7 +1174,21 @@ namespace Engine.Master
                 Dictionary<Position, Move> moveToTargets = new Dictionary<Position, Move>();
                 foreach (Move move in newMoves)
                 {
-                    if (move.MoveType == MoveType.Move || move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
+                    // Andy position that is currently beeing upgraded or a unit turns from ghost into real
+                    // cannot be stepped on
+                    if (move.MoveType == MoveType.Upgrade)
+                    {
+                        Position destination = move.Positions[move.Positions.Count - 1];
+                        if (!moveToTargets.ContainsKey(destination))
+                        {
+                            moveToTargets.Add(destination, move);
+                        }
+                    }
+                }
+
+                foreach (Move move in newMoves)
+                {
+                    if (move.MoveType == MoveType.Move || move.MoveType == MoveType.Add) // || move.MoveType == MoveType.Build)
                     {
                         Position destination = move.Positions[move.Positions.Count - 1];
                         if (moveToTargets.ContainsKey(destination))
@@ -1195,6 +1209,9 @@ namespace Engine.Master
 
                 foreach (Move move in moveToTargets.Values)
                 {
+                    if (move.MoveType == MoveType.Upgrade)
+                        continue;
+
                     Position destination = move.Positions[move.Positions.Count - 1];
                     Tile t = Map.GetTile(destination);
                     if (t == null)

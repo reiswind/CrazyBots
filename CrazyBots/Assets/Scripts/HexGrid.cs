@@ -581,17 +581,16 @@ public class HexGrid : MonoBehaviour
 
 	public void CreateGhost(string blueprintName, Position pos)
     {
-		/*
 		Move move = new Move();
 		move.Stats = new MoveUpdateStats();
 		move.Stats.BlueprintName = blueprintName;
 		move.MoveType = MoveType.Build;
 		move.PlayerId = 1;
 		//move.UnitId = unitId;
-		move.OtherUnitId = "Ghost";
+		//move.OtherUnitId = "Ghost";
 		move.Positions = new List<Position>();
 		move.Positions.Add(pos);
-		CreateUnit(move);*/
+		//CreateUnit(move);
 	}
 	void CreateUnit(Move move)
 	{
@@ -632,7 +631,7 @@ public class HexGrid : MonoBehaviour
 		}
 		else
         {
-			UnitsInBuild.Add(move.Positions[1], unit);
+			UnitsInBuild.Add(move.Positions[move.Positions.Count - 1], unit);
 
 		}
 	}

@@ -177,7 +177,7 @@ namespace Engine.Ants
                                 {
                                     AntWorker antWorker = new AntWorker(Control);
                                     antWorker.AntWorkerType = AntWorkerType.Assembler;
-                                    Control.NumberOfWorkers++;
+                                    Control.NumberOfAssembler++;
                                     Control.CreatedAnts.Add(move.Positions[1], antWorker);
                                 }
                                 else if (addWorker)

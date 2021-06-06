@@ -638,6 +638,11 @@ namespace Engine.Ants
                             }
                             else
                             {
+                                // Do not follow the route, cause first moveToPosition would be skippd. Otherwise, 
+                                if (moveToPosition != null && FollowThisRoute != null && FollowThisRoute.Count > 0)
+                                {
+                                    FollowThisRoute.Insert(0, moveToPosition);
+                                }
                                 cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
                                 return true;
                             }
@@ -696,6 +701,21 @@ namespace Engine.Ants
             Move move = null;
             if (moveToPosition != null)
             {
+                bool myPosFound = false;
+                Tile t = player.Game.Map.GetTile(moveToPosition);
+                foreach (Tile n  in t.Neighbors)
+                { 
+                    if (n.Pos == cntrlUnit.Pos)
+                    {
+                        myPosFound = true;
+                        break;
+                    }
+                }
+                if (myPosFound == false)
+                {
+                    int x = 0;
+                }
+
                 move = new Move();
                 move.MoveType = MoveType.Move;
                 move.UnitId = cntrlUnit.UnitId;
