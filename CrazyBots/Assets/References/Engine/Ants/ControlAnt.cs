@@ -21,9 +21,9 @@ namespace Engine.Control
 
         public Dictionary<Position, Ant> CreatedAnts = new Dictionary<Position, Ant>();
 
-        public int MaxWorker = 6;
+        public int MaxWorker = 2;
         public int MaxFighter = 35;
-        public int MaxAssembler = 3;
+        public int MaxAssembler = 1;
 
         public int NumberOfWorkers;
         public int NumberOfFighter;
@@ -38,7 +38,19 @@ namespace Engine.Control
         
         public void ProcessMoves(Player player, List<Move> moves)
         {
-
+            foreach (Move move in moves)
+            {
+                if (move.MoveType == MoveType.Build)
+                {
+                    Position pos = move.Positions[move.Positions.Count - 1];
+                    if (CreatedAnts.ContainsKey(pos))
+                    {
+                        Ant ant = CreatedAnts[pos];
+                        CreatedAnts.Remove(pos);
+                        Ants.Add(move.UnitId, ant);
+                    }
+                }
+            }
         }
         
 
@@ -297,6 +309,14 @@ namespace Engine.Control
             {
                 foreach (Move intendedMove in moves)
                 {
+                    if (intendedMove.MoveType == MoveType.Upgrade)
+                    {
+                        if (intendedMove.Positions[intendedMove.Positions.Count - 1] == destination)
+                        {
+                            occupied = true;
+                            break;
+                        }
+                    }
                     if (intendedMove.MoveType == MoveType.Move ||
                         intendedMove.MoveType == MoveType.Add ||
                         intendedMove.MoveType == MoveType.Build)
@@ -318,7 +338,7 @@ namespace Engine.Control
 
             foreach (Ant ant in Ants.Values)
             {
-                if (ant.PlayerUnit.Unit.Reactor == null)
+                if (ant.PlayerUnit == null || ant.PlayerUnit.Unit.Reactor == null)
                     continue;
 
                 // Distance at all
@@ -379,6 +399,8 @@ namespace Engine.Control
             {                
                 foreach (Ant antFactory in Ants.Values)
                 {
+                    if (antFactory.PlayerUnit == null) // Ghost
+                        continue;
                     if (!(antFactory is AntFactory)) 
                         continue;
 
@@ -652,6 +674,11 @@ namespace Engine.Control
                     {
                         Ant ant = Ants[cntrlUnit.UnitId];
                         ant.Alive = true;
+                        if (ant.PlayerUnit == null)
+                        {
+                            // Turned from Ghost to real
+                            ant.PlayerUnit = playerUnit;
+                        }
                     }
                     else
                     {
@@ -676,7 +703,7 @@ namespace Engine.Control
                         }
                         else
                         {
-                            if (cntrlUnit.IsGhost())
+                            if (!cntrlUnit.IsComplete())
                             {
                                 WorkFound(player, cntrlUnit.Pos);
                             }
@@ -731,7 +758,14 @@ namespace Engine.Control
             {
                 if (!ant.Alive)
                 {
-                    killedAnts.Add(ant);
+                    if (ant.PlayerUnit == null)
+                    {
+                        // Ghost Ant
+                    }
+                    else
+                    {
+                        killedAnts.Add(ant);
+                    }
                 }
                 else
                 {

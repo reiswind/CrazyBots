@@ -175,6 +175,7 @@ namespace Engine.Interface
 
         // Unit that the player knows. Own and enemy
         public Dictionary<Position, PlayerUnit> Units = new Dictionary<Position, PlayerUnit>();
+        public Dictionary<Position, PlayerUnit> UnitsInBuild = new Dictionary<Position, PlayerUnit>();
         // Positions the player sees
         public List<Position> VisiblePositions = new List<Position>();
 
@@ -481,7 +482,7 @@ namespace Engine.Interface
             Dictionary<Position, PlayerUnit> movedToUnits = new Dictionary<Position, PlayerUnit>();
             foreach (Move move in moves)
             {
-                if (move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
+                if (move.MoveType == MoveType.Add)
                 {
                     Position to = move.Positions[move.Positions.Count - 1];
                     if (this.Units.ContainsKey(to))
@@ -491,6 +492,26 @@ namespace Engine.Interface
                     addedUnits.Add(to, playerUnit);
                     Units.Add(to, playerUnit);
                     changedUnits.Add(to);
+                }
+                if (move.MoveType == MoveType.Build)
+                {
+                    Position to = move.Positions[move.Positions.Count - 1];
+                    if (this.Units.ContainsKey(to))
+                        throw new Exception();
+                    if (!UnitsInBuild.ContainsKey(to))
+                        throw new Exception();
+                }
+                if (move.MoveType == MoveType.Upgrade)
+                {
+                    Position to = move.Positions[move.Positions.Count - 1];
+                    if (!this.Units.ContainsKey(to))
+                    {
+                        Unit unit = Game.Map.Units.GetUnitAt(to);
+                        PlayerUnit playerUnit = new PlayerUnit(unit);
+                        addedUnits.Add(to, playerUnit);
+                        Units.Add(to, playerUnit);
+                        changedUnits.Add(to);
+                    }
                 }
                 if (move.MoveType == MoveType.Move)
                 {

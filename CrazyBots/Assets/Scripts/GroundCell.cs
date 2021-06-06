@@ -180,7 +180,13 @@ public class GroundCell : MonoBehaviour
             if (NextMove.Stats != null && NextMove.Stats.MoveUpdateGroundStat != null)
             {
                 MoveUpdateGroundStat stat = NextMove.Stats.MoveUpdateGroundStat;
+                if (Tile.Metal != stat.Minerals)
+                {
+                    // Currently not in sync. later.
+                    int x =0;
+                }
                 Tile.Metal = stat.Minerals;
+
                 Tile.NumberOfDestructables = stat.NumberOfDestructables;
                 Tile.NumberOfObstacles = stat.NumberOfObstacles;
                 

@@ -23,6 +23,7 @@ public class HexGrid : MonoBehaviour
 	internal Dictionary<Position, GroundCell> GroundCells { get; private set; }
 	//internal Dictionary<string, UnitFrame> Units { get; private set; }
 	internal Dictionary<string, UnitBase> BaseUnits { get; private set; }
+	internal Dictionary<Position, UnitBase> UnitsInBuild { get; private set; }
 
 	// Filled in UI Thread
 	internal List<GameCommand> GameCommands { get; private set; }
@@ -50,10 +51,10 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -144,6 +145,7 @@ public class HexGrid : MonoBehaviour
 		GameCommands = new List<GameCommand>();
 		GroundCells = new Dictionary<Position, GroundCell>();
 		BaseUnits = new Dictionary<string, UnitBase>();
+		UnitsInBuild = new Dictionary<Position, UnitBase>();
 
 		AddRock("Rock Type1 01", obstacles, 0.8f);
 		AddRock("Rock Type1 02", obstacles, 0.8f);
@@ -209,7 +211,7 @@ public class HexGrid : MonoBehaviour
 		}
 		else
         {
-			//useThread = true;
+			useThread = true;
 		}
 
 		if (useThread)
@@ -455,12 +457,23 @@ public class HexGrid : MonoBehaviour
 			}
 			else if (move.MoveType == MoveType.Upgrade)
 			{
+				if (UnitsInBuild.ContainsKey(move.Positions[1]))
+				{
+					UnitBase unit = UnitsInBuild[move.Positions[1]];
+					UnitsInBuild.Remove(move.Positions[1]);
+					BaseUnits.Add(unit.UnitId, unit);
+				}
+
 				if (BaseUnits.ContainsKey(move.OtherUnitId))
 				{
 					// 
 					UnitBase unit = BaseUnits[move.OtherUnitId];
 					unit.Upgrade(move);
 				}
+				else
+                {
+					
+                }
 				
 			}
 			else if (move.MoveType == MoveType.UpdateGround)
@@ -603,9 +616,9 @@ public class HexGrid : MonoBehaviour
 		unit.MoveUpdateStats = move.Stats;
 		unit.UnitId = move.UnitId;
 
-		unit.IsGhost = move.OtherUnitId == "Ghost";
+		//unit.IsGhost = move.OtherUnitId == "Ghost";
 
-		unit.Assemble();
+		unit.Assemble(move.MoveType == MoveType.Build);
 		unit.PutAtCurrentPosition();
 
 		if (move.Positions.Count > 1)
@@ -613,7 +626,15 @@ public class HexGrid : MonoBehaviour
 			// Move to targetpos
 			unit.DestinationPos = move.Positions[move.Positions.Count - 1];
 		}
-		BaseUnits.Add(move.UnitId, unit);
+		if (move.MoveType == MoveType.Add)
+		{
+			BaseUnits.Add(move.UnitId, unit);
+		}
+		else
+        {
+			UnitsInBuild.Add(move.Positions[1], unit);
+
+		}
 	}
 
 	/*

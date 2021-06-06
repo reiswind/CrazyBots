@@ -11,11 +11,20 @@ public class UnitCommand
     public UnitBase Owner { get; set; }
 }
 
+public class UnitBasePart
+{
+    public string Name { get; set; }
+    public bool IsUnderConstruction { get; set; }
+    public GameObject Part { get; set; }
+
+}
+
 public class UnitBase : MonoBehaviour
 {
     public UnitBase()
     {
         UnitCommands = new List<UnitCommand>();
+        unitBaseParts = new List<UnitBasePart>();
     }
 
     public HexGrid HexGrid { get; set; }
@@ -25,6 +34,7 @@ public class UnitBase : MonoBehaviour
     internal string UnitId { get; set; }
     public MoveUpdateStats MoveUpdateStats { get; set; }
 
+    private List<UnitBasePart> unitBaseParts;
     internal bool HasBeenDestroyed { get; set; }
     // Update is called once per frame
     void Update()
@@ -97,12 +107,9 @@ public class UnitBase : MonoBehaviour
         }
     }
 
-    private Transform engine;
-    private Transform ground;
-    private Transform bigPart;
-    private Transform part1;
-    private Transform part2;
 
+
+    /*
     private GameObject GetPartByName(string name)
     {
         if (engine != null && engine.name == name)
@@ -117,9 +124,9 @@ public class UnitBase : MonoBehaviour
             return part2.gameObject;
 
         return null;
-    }
+    }*/
 
-    private void ReplacePart(Transform part, string name) 
+    private void ReplacePart(Transform part, string name, bool underConstruction) 
     {
         // Replace
         GameObject newPart = HexGrid.InstantiatePrefab(name);
@@ -127,11 +134,12 @@ public class UnitBase : MonoBehaviour
         newPart.transform.SetParent(transform);
         newPart.name = name;
 
-        if (IsGhost)
+        if (underConstruction)
             SetMaterialGhost(PlayerId, newPart);
         else
             SetPlayerColor(PlayerId, newPart);
 
+        /*
         if (part == engine)
             engine = newPart.transform;
         if (part == ground)
@@ -142,8 +150,14 @@ public class UnitBase : MonoBehaviour
             part1 = newPart.transform;
         if (part == part2)
             part2 = newPart.transform;
-
+        */
         HexGrid.MyDestroy(part.gameObject);
+
+        UnitBasePart unitBasePart = new UnitBasePart();
+        unitBasePart.Name = name;
+        unitBasePart.Part = newPart;
+        unitBasePart.IsUnderConstruction = underConstruction;
+        unitBaseParts.Add(unitBasePart);
     }
     public void Delete()
     {
@@ -226,9 +240,6 @@ public class UnitBase : MonoBehaviour
         }
     }
 
-    public bool IsGhost { get; set; }
-
-    
     public void Extract(Move move)
     {
         if (Extractor != null)
@@ -325,9 +336,15 @@ public class UnitBase : MonoBehaviour
     private Extractor1 Extractor;
     private Weapon1 Weapon;
 
-    public void Assemble()
+    public void Assemble(bool underConstruction)
     {
-        //return;
+        unitBaseParts.Clear();
+
+        Transform engine;
+        Transform ground;
+        Transform bigPart;
+        Transform part1;
+        Transform part2;
 
         engine = transform.Find("Engine");
         ground = transform.Find("Ground");
@@ -347,14 +364,14 @@ public class UnitBase : MonoBehaviour
         {
             if (engine != null && moveUpdateUnitPart.Name.StartsWith("Engine"))
             {
-                ReplacePart(engine, moveUpdateUnitPart.Name);
+                ReplacePart(engine, moveUpdateUnitPart.Name, underConstruction);
                 remainingParts.Remove(moveUpdateUnitPart);
                 groundFound = true;
                 break;
             }
             if (ground != null && moveUpdateUnitPart.Name.StartsWith("Extractor"))
             {
-                ReplacePart(ground, "ExtractorGround1"); // moveUpdateUnitPart.Name);
+                ReplacePart(ground, "ExtractorGround1", underConstruction); // moveUpdateUnitPart.Name);
                 ground.name = moveUpdateUnitPart.Name;
 
                 remainingParts.Remove(moveUpdateUnitPart);
@@ -377,7 +394,7 @@ public class UnitBase : MonoBehaviour
                 moveUpdateUnitPart.Name.StartsWith("Weapon") ||
                 moveUpdateUnitPart.Name.StartsWith("Assembler"))
             {
-                ReplacePart(bigPart, moveUpdateUnitPart.Name);
+                ReplacePart(bigPart, moveUpdateUnitPart.Name, underConstruction);
                 remainingParts.Remove(moveUpdateUnitPart);
                 break;
             }
@@ -385,7 +402,7 @@ public class UnitBase : MonoBehaviour
         // Place remaining parts
         foreach (MoveUpdateUnitPart moveUpdateUnitPart in remainingParts)
         {
-            ReplacePart(sparePart, moveUpdateUnitPart.Name);
+            ReplacePart(sparePart, moveUpdateUnitPart.Name, underConstruction);
             sparePart = part2;
         }
         UpdateParts();
@@ -401,59 +418,40 @@ public class UnitBase : MonoBehaviour
         Assembler = null;
         Weapon = null;
 
-        bool switchMaterial = false;
-        if (IsGhost)
+        foreach (UnitBasePart unitBasePart in unitBaseParts)
         {
             foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
             {
-                if (moveUpdateUnitPart.Exists)
-                    IsGhost = false;
-            }
-            if (!IsGhost)
-            {
-                // Switch Material
-                switchMaterial = true;
-            }
-        }
-
-        foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
-        {
-            GameObject gameObject = GetPartByName(moveUpdateUnitPart.Name);
-            if (gameObject == null) 
-                continue;
-
-            gameObject.SetActive(IsGhost || moveUpdateUnitPart.Exists);
-            if (moveUpdateUnitPart.Exists)
-            {
-                if (switchMaterial)
+                if (unitBasePart.Name == moveUpdateUnitPart.Name)
                 {
-                    SetPlayerColor(PlayerId, gameObject);
-                }
-                
-                Container1 container = gameObject.GetComponent<Container1>();
-                if (container != null)
-                {
-                    Container = container;
-                    container.UpdateContent(moveUpdateUnitPart.Minerals, moveUpdateUnitPart.Capacity);
-                }
-                Extractor1 extractor = gameObject.GetComponent<Extractor1>();
-                if (extractor != null)
-                    Extractor = extractor;
-                Assembler1 assembler = gameObject.GetComponent<Assembler1>();
-                if (assembler != null)
-                    Assembler = assembler;
-                Weapon1 weapon = gameObject.GetComponent<Weapon1>();
-                if (weapon != null)
-                {
-                    Weapon = weapon;
-                    weapon.UpdateContent(moveUpdateUnitPart.Minerals > 0);
-                }
-            }
-            else
-            {
-                if (switchMaterial)
-                {
-                    SetPlayerColor(PlayerId, gameObject);
+                    if (unitBasePart.IsUnderConstruction && moveUpdateUnitPart.Exists)
+                    {
+                        // Change from transparent to reals
+                        unitBasePart.IsUnderConstruction = false;
+                        SetPlayerColor(PlayerId, unitBasePart.Part);
+                    }
+                    unitBasePart.Part.SetActive(unitBasePart.IsUnderConstruction || moveUpdateUnitPart.Exists);
+                    if (moveUpdateUnitPart.Exists)
+                    {
+                        Container1 container = unitBasePart.Part.GetComponent<Container1>();
+                        if (container != null)
+                        {
+                            Container = container;
+                            container.UpdateContent(moveUpdateUnitPart.Minerals, moveUpdateUnitPart.Capacity);
+                        }
+                        Extractor1 extractor = unitBasePart.Part.GetComponent<Extractor1>();
+                        if (extractor != null)
+                            Extractor = extractor;
+                        Assembler1 assembler = unitBasePart.Part.GetComponent<Assembler1>();
+                        if (assembler != null)
+                            Assembler = assembler;
+                        Weapon1 weapon = unitBasePart.Part.GetComponent<Weapon1>();
+                        if (weapon != null)
+                        {
+                            Weapon = weapon;
+                            weapon.UpdateContent(moveUpdateUnitPart.Minerals > 0);
+                        }
+                    }
                 }
             }
         }

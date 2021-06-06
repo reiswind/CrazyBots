@@ -91,6 +91,15 @@ namespace Engine.Interface
             Pos = pos;
         }
 
+        /*
+        internal Unit UnitInBuild
+        {
+            get
+            {
+                return Map.UnitsInBuild.GetUnitAt(Pos);
+            }
+        }*/
+
         internal Unit Unit
         {
             get

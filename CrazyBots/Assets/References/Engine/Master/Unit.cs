@@ -106,6 +106,9 @@ namespace Engine.Master
         // Unit can be extracted
         public bool ExtractMe { get; set; }
         public bool UnderConstruction { get; set; }
+        // Just a plan, not built yet
+        public bool IsGhost { get; set; }
+
         public bool BuilderWaitForMetal { get; set; }
         
         public Direction Direction { get; set; }
@@ -157,7 +160,7 @@ namespace Engine.Master
             return parts >= 4;
         }
 
-        public bool IsGhost()
+        public bool HasParts()
         {
             if (Engine != null) return false;
             if (Armor != null) return false;
@@ -169,12 +172,6 @@ namespace Engine.Master
             if (Radar != null) return false;
 
             return true;
-        }
-
-        public void CreateFirstPartFromBlueprint()
-        {
-            CreateBlueprintPart(Blueprint.Parts[0]);
-            UnderConstruction = true;
         }
 
         private void CreateBlueprintPart(BlueprintPart blueprintPart)
@@ -472,6 +469,10 @@ namespace Engine.Master
                     break;
                 }
             }
+            if (UnderConstruction && IsComplete())
+            {
+                UnderConstruction = false;
+            }
             /*
             if (unitCode == "Engine")
             {
@@ -529,6 +530,8 @@ namespace Engine.Master
                 else
                     Radar.Level++;
             }*/
+
+            /*
             if (IsComplete())
             {
                 UnderConstruction = false;
@@ -536,7 +539,7 @@ namespace Engine.Master
             else
             {
                 UnderConstruction = true;
-            }
+            }*/
             ExtractMe = false;
         }
 

@@ -96,78 +96,6 @@ namespace Engine.Master
                 return true;
             }
             return false;
-
-            /*
-
-           Unit cntrlUnit = playerUnit.Unit;
-
-            Dictionary<Position, TileWithDistance> outputPositions = cntrlUnit.Assembler.CollectOutputPositions();
-            bool upgraded = false;
-
-            // Check for incomplete units at output positions
-            foreach (TileWithDistance outputPosition in outputPositions.Values)
-            {
-                if (outputPosition.Unit != null &&
-                    !outputPosition.Unit.IsComplete() &&
-                    outputPosition.Unit.Owner.PlayerModel.Id == playerUnit.Unit.Owner.PlayerModel.Id)
-                {
-                    if (dispatcherRequestUnit.FavoriteUnits != null)
-                    {
-                        bool outputPositionIsFine = false;
-                        foreach (PlayerUnit favoriteUnit in dispatcherRequestUnit.FavoriteUnits)
-                        {
-                            if (favoriteUnit.Unit.UnitId == outputPosition.Unit.UnitId)
-                            {
-                                outputPositionIsFine = true;
-                                break;
-                            }
-                        }
-                        if (!outputPositionIsFine)
-                            break;
-                    }
-                    
-                    // Own incomplete unit at output area. Try to upgrade this
-                    List<Move> possiblemoves = new List<Move>();
-                    cntrlUnit.Assembler.ComputePossibleMoves(possiblemoves, null, MoveFilter.Upgrade);
-                    if (possiblemoves.Count > 0)
-                    {
-                        foreach (Move move in possiblemoves)
-                        {
-                            Tile tile = playerUnit.Unit.Owner.Game.Map.GetTile(move.Positions[1]);
-
-                            if (DoesMoveMinRequest(move, dispatcherRequestUnit.UnitType, tile.Unit))
-                            {
-                                if (dispatcherRequestUnit.FavoriteUnits == null)
-                                    dispatcherRequestUnit.Command.AssignUnit(outputPosition.Unit.UnitId);
-
-                                playerUnit.PossibleMoves.Add(move);
-                                upgraded = true;
-                                // Take first option or random but dicide here
-                                break;
-                            }
-                        }
-                        if (upgraded)
-                            break;
-                    }
-                }
-            }
-            if (upgraded == false)
-            {
-                // Does it matter? Produce anything for now or something that is closer to unittype
-                List<Move> possiblemoves = new List<Move>();
-                cntrlUnit.Assembler.ComputePossibleMoves(possiblemoves, null, MoveFilter.Assemble);
-                if (possiblemoves.Count > 0)
-                {
-                    foreach (Move move in possiblemoves)
-                    {
-                        if (DoesMoveMinRequest(move, dispatcherRequestUnit.UnitType, null))
-                        {
-                            playerUnit.PossibleMoves.Add(move);
-
-                        }
-                    }
-                }
-            }*/
         }
 
         public static bool DoesMoveMinRequest(Move move, UnitType unitType, Unit unit)
@@ -284,6 +212,35 @@ namespace Engine.Master
                 return;
 
             Dictionary<Position, TileWithDistance> neighbors = CollectOutputPositions();
+
+            foreach (TileWithDistance neighbor in neighbors.Values)
+            {
+                if (Unit.Owner.UnitsInBuild.ContainsKey(neighbor.Tile.Pos))
+                    /*
+                    neighbor.Tile.UnitInBuild != null &&
+                    neighbor.Tile.UnitInBuild.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)*/
+                {
+                    PlayerUnit playerUnit = Unit.Owner.UnitsInBuild[neighbor.Tile.Pos];
+                    if (playerUnit.Unit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
+                    {
+                        if ((moveFilter & MoveFilter.Assemble) > 0)
+                        {
+                            // Already one Unit in progress, do not build another
+                            return;
+                        }
+                        if ((moveFilter & MoveFilter.Upgrade) > 0)
+                        {
+                            foreach (BlueprintPart blueprintPart in playerUnit.Unit.Blueprint.Parts)
+                            {
+                                if (!playerUnit.Unit.IsInstalled(blueprintPart))
+                                {
+                                    possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, blueprintPart.Name));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             foreach (TileWithDistance neighbor in neighbors.Values)
             {
                 if (!neighbor.Tile.CanMoveTo())
@@ -306,21 +263,12 @@ namespace Engine.Master
                             {
                                 possibleMoves.Add(CreateAssembleMove(neighbor.Pos, blueprint.Name));
                             }
-                            /*
-                            possibleMoves.Add(CreateAssembleMove(neighbor.Pos, "Engine"));
-                            possibleMoves.Add(CreateAssembleMove(neighbor.Pos, "Armor"));
-                            possibleMoves.Add(CreateAssembleMove(neighbor.Pos, "Weapon"));
-                            possibleMoves.Add(CreateAssembleMove(neighbor.Pos, "Assembler"));
-                            possibleMoves.Add(CreateAssembleMove(neighbor.Pos, "Extractor"));
-                            possibleMoves.Add(CreateAssembleMove(neighbor.Pos, "Container"));
-                            possibleMoves.Add(CreateAssembleMove(neighbor.Pos, "Reactor"));
-                            possibleMoves.Add(CreateAssembleMove(neighbor.Pos, "Radar"));
-                            */
                         }
                     }
                 }
                 else
                 {
+                    
                     if (neighbor.Unit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
                     {
                         if (Level > 0 && !neighbor.Unit.IsComplete())
@@ -334,40 +282,6 @@ namespace Engine.Master
                                         possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, blueprintPart.Name));
                                     }
                                 }
-                                /*
-                                if (neighbor.Unit.Engine == null || neighbor.Unit.Engine.Level < 3)
-                                {
-                                    possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, "Engine"));
-                                }
-                                if (neighbor.Unit.Armor == null || neighbor.Unit.Armor.Level < 3)
-                                {
-                                    possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, "Armor"));
-                                }
-                                if (neighbor.Unit.Weapon == null || neighbor.Unit.Weapon.Level < 3)
-                                {
-                                    possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, "Weapon"));
-                                }
-                                if (neighbor.Unit.Extractor == null || neighbor.Unit.Extractor.Level < 3)
-                                {
-                                    possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, "Extractor"));
-                                }
-                                if (neighbor.Unit.Assembler == null || neighbor.Unit.Assembler.Level < 3)
-                                {
-                                    possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, "Assembler"));
-                                }
-                                if (neighbor.Unit.Container == null || neighbor.Unit.Container.Level < 3)
-                                {
-                                    possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, "Container"));
-                                }
-                                if (neighbor.Unit.Reactor == null || neighbor.Unit.Reactor.Level < 3)
-                                {
-                                    possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, "Reactor"));
-                                }
-                                if (neighbor.Unit.Radar == null || neighbor.Unit.Radar.Level < 3)
-                                {
-                                    possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, "Radar"));
-                                }
-                                */
                             }
                         }
                     }

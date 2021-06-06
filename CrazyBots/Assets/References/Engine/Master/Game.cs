@@ -380,6 +380,23 @@ namespace Engine.Master
 
             foreach (Move move in newMoves)
             {
+                if (move.MoveType == MoveType.Upgrade)
+                {
+                    Unit newUnit = Map.Units.GetUnitAt(move.Positions[1]);
+                    if (newUnit == null)
+                    {
+                        Player player = Players[move.PlayerId];
+
+                        if (player.UnitsInBuild.ContainsKey(move.Positions[1]))
+                        {
+                            // From under construction to real unit
+                            PlayerUnit playerUnit = player.UnitsInBuild[move.Positions[1]];
+                            player.UnitsInBuild.Remove(move.Positions[1]);
+                            playerUnit.Unit.IsGhost = false;
+                            addedUnits.Add(playerUnit.Unit);
+                        }
+                    }
+                }
                 if (move.MoveType == MoveType.Move || move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
                 {
                     Position Destination;
@@ -432,13 +449,12 @@ namespace Engine.Master
                         {
                             thisUnit.CreateAllPartsFromBlueprint();
                         }
-                        else
+
+                        if (move.MoveType == MoveType.Build)
                         {
-                            if (move.OtherUnitId != "Ghost")
-                                thisUnit.CreateFirstPartFromBlueprint();
+                            thisUnit.IsGhost = true;
+                            thisUnit.UnderConstruction = true;
                         }
-
-
                         move.UnitId = thisUnit.UnitId;
                         move.Stats = thisUnit.CollectStats();
                         thisUnit.Pos = Destination;
@@ -478,7 +494,14 @@ namespace Engine.Master
                 if (addedUnit.Pos != null &&
                     Map.Units.GetUnitAt(addedUnit.Pos) == null)
                 {
-                    Map.Units.Add(addedUnit);
+                    if (addedUnit.IsGhost)
+                    {
+                        PlayerUnit playerUnit = new PlayerUnit(addedUnit);
+                        addedUnit.Owner.UnitsInBuild.Add(addedUnit.Pos, playerUnit);
+                        //Map.UnitsInBuild.Add(addedUnit);
+                    }
+                    else
+                        Map.Units.Add(addedUnit);
                 }
             }
         }
@@ -825,7 +848,7 @@ namespace Engine.Master
             }
             foreach (Move move in moves)
             {
-                if (move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
+                if (move.MoveType == MoveType.Add)
                 {
                     int cnt = move.Positions.Count;
                     Position p = move.Positions[cnt-1];
@@ -838,6 +861,21 @@ namespace Engine.Master
                     {
                         throw new Exception("wrong player");
                     }
+                }
+                if (move.MoveType == MoveType.Build)
+                {
+                    int cnt = move.Positions.Count;
+                    Position p = move.Positions[cnt - 1];
+                    /*
+                    PlayerUnit playerUnit = player.UnitsInBuild[p];
+                    if (playerUnit == null)
+                    {
+                        throw new Exception("unit not on map");
+                    }
+                    if (move.PlayerId != 0 && playerUnit.Unit.Owner.PlayerModel.Id != move.PlayerId)
+                    {
+                        throw new Exception("wrong player");
+                    }*/
                 }
                 if (move.MoveType == MoveType.Move)
                 {
@@ -877,6 +915,7 @@ namespace Engine.Master
 
         public void UpdateGroundPlates(List<Move> moves, Unit unit, bool remove = false)
         {
+            return;
             if (unit.Engine == null)
             {
                 int range = 0;
@@ -1083,32 +1122,6 @@ namespace Engine.Master
                 }
             }
             newMoves.Clear();
-            /*
-            foreach (Unit unit in Map.Units.List.Values)
-            {
-                bool found = false;
-                foreach (Move move in lastMoves)
-                {
-                    if (move.UnitId == unit.UnitId)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    if (unit.Assembler != null) 
-                    {
-                        {
-                            Player player = Players[unit.Owner.PlayerModel.Id];
-                            if (player.CanProduceMoreUnits())
-                            {
-                                
-                            }
-                        }
-                    }
-                }
-            }*/
         }
 
         private void UpdateAll(int playerId, List<Move> returnMoves)
@@ -1291,7 +1304,7 @@ namespace Engine.Master
                             move.MoveType = MoveType.Build;
                             move.PlayerId = gameCommand.PlayerId;
                             move.UnitId = gameCommand.UnitId;
-                            move.OtherUnitId = "Ghost";
+                            //move.OtherUnitId = "Ghost";
                             move.Positions = new List<Position>();
                             move.Positions.Add(gameCommand.TargetPosition);
                             newMoves.Add(move);

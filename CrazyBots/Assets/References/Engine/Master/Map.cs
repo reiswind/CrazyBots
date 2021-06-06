@@ -125,6 +125,7 @@ namespace Engine.Master
     {
         public Dictionary<Position, Tile> Tiles = new Dictionary<Position, Tile>();
         public Units Units { get; private set; }
+
         private int seed;
         public Game Game { get; private set; }
 
