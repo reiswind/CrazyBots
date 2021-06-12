@@ -15,13 +15,9 @@ internal class HitByMouseClick
 public class GameCanvas : MonoBehaviour
 {
     public GameObject MineralText;
-    public GameObject SelectedObjectText;
-    public GameObject SelectedObjectsText;
     public HexGrid HexGrid;
 
     private Text UIMineralText;
-    private Text UISelectedObjectsText;
-    private Text UISelectedObjectText;
 
     internal string SelectedBluePrint { get; set; }
 
@@ -38,20 +34,20 @@ public class GameCanvas : MonoBehaviour
     private GameObject panelArmor;
     private GameObject panelWeapon;
     private GameObject panelReactor;
-    private GameObject headerText;
+    private Text headerText;
+    private Text headerSubText;
 
     // Start is called before the first frame update
     void Start()
     {
         UIMineralText = MineralText.GetComponent<Text>();
-        UISelectedObjectText = SelectedObjectText.GetComponent<Text>();
-        UISelectedObjectsText = SelectedObjectsText.GetComponent<Text>();
 
         Transform inGamePanel = transform.Find("InGame");
         Transform gameControlPanel = inGamePanel.Find("GameControl");
 
         Transform panelItem = gameControlPanel.Find("PanelItem");
-        headerText = panelItem.Find("HeaderText").gameObject;
+        headerText = panelItem.Find("HeaderText").GetComponent<Text>();
+        headerSubText = panelItem.Find("SubText").GetComponent<Text>();
 
         Transform panelParts = panelItem.Find("PanelParts");
 
@@ -71,7 +67,7 @@ public class GameCanvas : MonoBehaviour
         {
             buttons[i] = panelSelected.Find("Button" + (i+1).ToString()).GetComponent<Button>();
             buttonText[i] = buttons[i].transform.Find("Text").GetComponent<Text>();
-            buttons[i].name = i.ToString();
+            buttons[i].name = "Button" + (i + 1).ToString();
         }
         buttons[0].onClick.AddListener(OnClickBuild1);
         buttons[1].onClick.AddListener(OnClickBuild2);
@@ -102,10 +98,48 @@ public class GameCanvas : MonoBehaviour
         return buttonText[btn-1];
     }
 
-    private void SetButtonText(int btn, string text)
+    private void SelectBlueprint(string bluePrintname)
+    {
+        Blueprint blueprint = HexGrid.game.Blueprints.FindBlueprint(bluePrintname);
+        if (blueprint == null)
+        {
+            selectedUnitFrame = null;
+        }
+        else
+        {
+            selectedUnitFrame = new UnitBase();
+
+            MoveUpdateStats stats = new MoveUpdateStats();
+            stats.BlueprintName = blueprint.Name;
+
+            stats.UnitParts = new List<MoveUpdateUnitPart>();
+            foreach (BlueprintPart blueprintPart in blueprint.Parts)
+            {
+                MoveUpdateUnitPart moveUpdateUnitPart = new MoveUpdateUnitPart();
+
+                moveUpdateUnitPart.Name = blueprintPart.Name;
+                moveUpdateUnitPart.Exists = true;
+                moveUpdateUnitPart.PartType = blueprintPart.PartType;
+                
+                stats.UnitParts.Add(moveUpdateUnitPart);
+            }
+
+            selectedUnitFrame.MoveUpdateStats = stats;
+
+        }
+    }
+
+    private void SetButtonText(int btn, string text, string bluePrintName = null)
     {
         ShowButton(btn);
+        Button button = GetButton(btn);
+        
         GetButtonText(btn).text = text;
+
+        if (bluePrintName != null)
+        {
+            button.name = bluePrintName;
+        }
     }
 
     private void HideButton(int btn)
@@ -115,7 +149,10 @@ public class GameCanvas : MonoBehaviour
 
     private void SelectButton(int btn)
     {
-        GetButton(btn).image.sprite = SelectedButtonBackground;
+        Button button = GetButton(btn);
+        button.image.sprite = SelectedButtonBackground;
+
+        SelectBlueprint(button.name);
     }
     private void UnselectButton(int btn)
     {
@@ -246,7 +283,7 @@ public class GameCanvas : MonoBehaviour
             }
             else if (topSelectedButton == 4)
             {
-                SetButtonText(5, "(a) Forschung");
+                SetButtonText(5, "(a) Outpost", "Outpost");
                 HideButton(6);
                 HideButton(7);
                 HideButton(8);
@@ -394,8 +431,10 @@ public class GameCanvas : MonoBehaviour
         return null;
     }
 
-    private void AppendGroundInfo(GroundCell gc, StringBuilder sb)
+    private void AppendGroundInfo(GroundCell gc)
     {
+        StringBuilder sb = new StringBuilder();
+
         sb.AppendLine("Position: " + gc.Tile.Pos.X + ", " + gc.Tile.Pos.Y);
         if (gc.Tile.Metal > 0)
             sb.AppendLine("Minerals: " + gc.Tile.Metal);
@@ -403,6 +442,8 @@ public class GameCanvas : MonoBehaviour
             sb.AppendLine("NumberOfDestructables: " + gc.Tile.NumberOfDestructables);
         if (gc.Tile.NumberOfObstacles > 0)
             sb.AppendLine("NumberOfObstacles: " + gc.Tile.NumberOfObstacles);
+
+        headerSubText.text = sb.ToString();
 
         if (gc.UnitCommands != null)
         {
@@ -457,16 +498,13 @@ public class GameCanvas : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            UISelectedObjectsText.text = "";
             SelectedBluePrint = null;
             UpdateCommandButtons();
         }
 
         if (Input.GetMouseButtonDown(1))
         {
-            //SelectedBluePrint = UISelectedBuildText.text = "";
-            //UISelectedObjectsText.text = "";
-            //SelectedBluePrint = null;
+
             if (lastSelectedGroundCell != null)
             {
                 lastSelectedGroundCell.SetSelected(false);
@@ -637,30 +675,39 @@ public class GameCanvas : MonoBehaviour
 
                     HideAllParts();
 
-                    headerText.GetComponent<Text>().text = unit.MoveUpdateStats.BlueprintName;
+                    headerText.text = unit.MoveUpdateStats.BlueprintName;
 
                     foreach (MoveUpdateUnitPart part in unit.MoveUpdateStats.UnitParts)
                     {
                         sb.Append("  " + part.Name);
                         if (part.Exists)
                         {
-                            if (part.Name.StartsWith("Extractor"))
+                            if (part.PartType == "Extractor")
                                 panelExtractor.SetActive(true);
-                            if (part.Name.StartsWith("Weapon"))
+                            if (part.PartType == "Weapon")
                                 panelWeapon.SetActive(true);
-                            if (part.Name.StartsWith("Assembler"))
+                            if (part.PartType == "Assembler")
                                 panelAssembler.SetActive(true);
-                            if (part.Name.StartsWith("Reactor"))
+                            if (part.PartType == "Reactor")
                                 panelReactor.SetActive(true);
-                            if (part.Name.StartsWith("Armor"))
+                            if (part.PartType == "Armor")
                                 panelArmor.SetActive(true);
 
-                            if (part.Name.StartsWith("Engine"))
+                            if (part.PartType== "Engine")
                                 panelEngine.SetActive(true);
 
-                            if (part.Name.StartsWith("Container"))
+                            if (part.PartType == "Container")
+                            {
                                 panelContainer.SetActive(true);
 
+                                sb = new StringBuilder();
+                                if (part.Minerals.HasValue)
+                                    sb.Append("Minerals  " + part.Minerals.Value);
+                                if (part.Capacity.HasValue)
+                                    sb.Append("/" + part.Capacity.Value);
+
+                                panelContainer.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+                            }
                             if (part.Minerals.HasValue)
                                 sb.Append("  " + part.Minerals.Value);
                             if (part.Capacity.HasValue)
@@ -677,27 +724,24 @@ public class GameCanvas : MonoBehaviour
             sb.AppendLine("");
 
             GroundCell gc = HexGrid.GroundCells[unit.CurrentPos];
-            AppendGroundInfo(gc, sb);
-
-            UISelectedObjectText.text = sb.ToString();
-            
+            AppendGroundInfo(gc);
         }
         else if (lastSelectedGroundCell != null)
         {
             if (selectedUnitFrame == null)
+            {
+                headerText.text = "";
                 HideAllParts();
+            }
             GroundCell gc = lastSelectedGroundCell;
 
-            StringBuilder sb = new StringBuilder();
-            AppendGroundInfo(gc, sb);
-
-            UISelectedObjectText.text = sb.ToString();
+            AppendGroundInfo(gc);
         }
         else
         {
+            headerText.text = "";
+            headerSubText.text = "";
             HideAllParts();
-            UISelectedObjectText.text = null;
-            UISelectedObjectsText.text = "";
         }
 
     }

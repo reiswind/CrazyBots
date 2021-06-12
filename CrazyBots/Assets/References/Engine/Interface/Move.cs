@@ -34,6 +34,7 @@ namespace Engine.Interface
     public class MoveUpdateUnitPart
     {
         public string Name { get; set; }
+        public string PartType { get; set; }
 
         // True if the part exists
         public bool Exists { get; set; }

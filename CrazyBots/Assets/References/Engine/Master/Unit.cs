@@ -555,20 +555,21 @@ namespace Engine.Master
 
                 moveUpdateUnitPart.Name = blueprintPart.Name;
                 moveUpdateUnitPart.Exists = IsInstalled(blueprintPart);
+                moveUpdateUnitPart.PartType = blueprintPart.PartType;
 
                 if (moveUpdateUnitPart.Exists)
                 {
-                    if (blueprintPart.Name.StartsWith("Weapon"))
+                    if (blueprintPart.PartType == "Weapon")
                     {
                         moveUpdateUnitPart.Minerals = Weapon.Container.Metal;
                         moveUpdateUnitPart.Capacity = Weapon.Container.Capacity;
                     }
-                    if (blueprintPart.Name.StartsWith("Assembler"))
+                    if (blueprintPart.PartType == "Assembler")
                     {
                         moveUpdateUnitPart.Minerals = Assembler.Container.Metal;
                         moveUpdateUnitPart.Capacity = Assembler.Container.Capacity;
                     }
-                    if (blueprintPart.Name.StartsWith("Container"))
+                    if (blueprintPart.PartType == "Container")
                     {
                         moveUpdateUnitPart.Minerals = Container.Metal;
                         moveUpdateUnitPart.Capacity = Container.Capacity;

@@ -57,6 +57,7 @@ namespace Engine.Interface
         Random Random { get; }
         Tile GetTile(Position p);
         Map Map { get; }
+        Blueprints Blueprints { get; }
         List<Area> Areas { get; }
     }
 

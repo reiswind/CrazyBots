@@ -87,14 +87,37 @@ namespace Engine.Interface
         }
         public BlueprintPart(string name)
         {
+            
+
             Name = name;
+            DetactPartType();
         }
+        private void DetactPartType()
+        {
+            if (Name.Contains("Extractor"))
+                PartType = "Extractor";
+            if (Name.Contains("Assembler"))
+                PartType = "Assembler";
+            if (Name.Contains("Container"))
+                PartType = "Container";
+            if (Name.Contains("Armor"))
+                PartType = "Armor";
+            if (Name.Contains("Engine"))
+                PartType = "Engine";
+            if (Name.Contains("Weapon"))
+                PartType = "Weapon";
+            if (Name.Contains("Reactor"))
+                PartType = "Reactor";
+        }
+
         public BlueprintPart(string name, bool filled)
         {
             Name = name;
             Filled = filled;
+            DetactPartType();
         }
 
+        public string PartType { get; set; }
         public string Name { get; set; }
         public bool Filled { get; set; }
     }
