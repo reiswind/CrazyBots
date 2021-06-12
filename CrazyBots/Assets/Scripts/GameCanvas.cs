@@ -31,6 +31,15 @@ public class GameCanvas : MonoBehaviour
     private Text[] buttonText;
     private Button[] buttons;
 
+    private GameObject panelEngine;
+    private GameObject panelExtractor;
+    private GameObject panelContainer;
+    private GameObject panelAssembler;
+    private GameObject panelArmor;
+    private GameObject panelWeapon;
+    private GameObject panelReactor;
+    private GameObject headerText;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -39,8 +48,21 @@ public class GameCanvas : MonoBehaviour
         UISelectedObjectsText = SelectedObjectsText.GetComponent<Text>();
 
         Transform inGamePanel = transform.Find("InGame");
-
         Transform gameControlPanel = inGamePanel.Find("GameControl");
+
+        Transform panelItem = gameControlPanel.Find("PanelItem");
+        headerText = panelItem.Find("HeaderText").gameObject;
+
+        Transform panelParts = panelItem.Find("PanelParts");
+
+        panelEngine = panelParts.Find("PanelEngine").gameObject;
+        panelExtractor = panelParts.Find("PanelExtractor").gameObject;
+        panelContainer = panelParts.Find("PanelContainer").gameObject;
+        panelAssembler = panelParts.Find("PanelAssembler").gameObject;
+        panelArmor = panelParts.Find("PanelArmor").gameObject;
+        panelWeapon = panelParts.Find("PanelWeapon").gameObject;
+        panelReactor = panelParts.Find("PanelReactor").gameObject;
+
         Transform panelSelected = gameControlPanel.Find("PanelSelected");
 
         buttons = new Button[12];
@@ -392,6 +414,17 @@ public class GameCanvas : MonoBehaviour
 
     }
 
+    private void HideAllParts()
+    {
+        panelEngine.SetActive(false);
+        panelExtractor.SetActive(false);
+        panelContainer.SetActive(false);
+        panelAssembler.SetActive(false);
+        panelArmor.SetActive(false);
+        panelWeapon.SetActive(false);
+        panelReactor.SetActive(false);
+    }
+
 
     private bool ShifKeyIsDown;
 
@@ -602,11 +635,32 @@ public class GameCanvas : MonoBehaviour
                 {
                     sb.AppendLine("Blueprint: " + unit.MoveUpdateStats.BlueprintName);
 
+                    HideAllParts();
+
+                    headerText.GetComponent<Text>().text = unit.MoveUpdateStats.BlueprintName;
+
                     foreach (MoveUpdateUnitPart part in unit.MoveUpdateStats.UnitParts)
                     {
                         sb.Append("  " + part.Name);
                         if (part.Exists)
                         {
+                            if (part.Name.StartsWith("Extractor"))
+                                panelExtractor.SetActive(true);
+                            if (part.Name.StartsWith("Weapon"))
+                                panelWeapon.SetActive(true);
+                            if (part.Name.StartsWith("Assembler"))
+                                panelAssembler.SetActive(true);
+                            if (part.Name.StartsWith("Reactor"))
+                                panelReactor.SetActive(true);
+                            if (part.Name.StartsWith("Armor"))
+                                panelArmor.SetActive(true);
+
+                            if (part.Name.StartsWith("Engine"))
+                                panelEngine.SetActive(true);
+
+                            if (part.Name.StartsWith("Container"))
+                                panelContainer.SetActive(true);
+
                             if (part.Minerals.HasValue)
                                 sb.Append("  " + part.Minerals.Value);
                             if (part.Capacity.HasValue)
@@ -630,6 +684,8 @@ public class GameCanvas : MonoBehaviour
         }
         else if (lastSelectedGroundCell != null)
         {
+            if (selectedUnitFrame == null)
+                HideAllParts();
             GroundCell gc = lastSelectedGroundCell;
 
             StringBuilder sb = new StringBuilder();
@@ -639,7 +695,7 @@ public class GameCanvas : MonoBehaviour
         }
         else
         {
-
+            HideAllParts();
             UISelectedObjectText.text = null;
             UISelectedObjectsText.text = "";
         }
