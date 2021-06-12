@@ -19,26 +19,17 @@ public class GameCanvas : MonoBehaviour
     public GameObject SelectedObjectsText;
     public HexGrid HexGrid;
 
-
-
     private Text UIMineralText;
     private Text UISelectedObjectsText;
     private Text UISelectedObjectText;
-    private Text UISelectedBuildText;
-
-    private Button BtnBuild1;
-    private Button BtnBuild2;
-    private Button BtnBuild3;
-    private Button BtnBuild4;
-    private Button BtnBuild5;
-
-    private Text txtBtnBuild1;
-    private Text txtBtnBuild2;
-    private Text txtBtnBuild3;
-    private Text txtBtnBuild4;
-    private Text txtBtnBuild5;
 
     internal string SelectedBluePrint { get; set; }
+
+    public Sprite SelectedButtonBackground;
+    public Sprite ButtonBackground;
+
+    private Text[] buttonText;
+    private Button[] buttons;
 
     // Start is called before the first frame update
     void Start()
@@ -47,82 +38,291 @@ public class GameCanvas : MonoBehaviour
         UISelectedObjectText = SelectedObjectText.GetComponent<Text>();
         UISelectedObjectsText = SelectedObjectsText.GetComponent<Text>();
 
-        Transform selectedObjectsPanel = transform.Find("SelectedObjectsPanel");
+        Transform inGamePanel = transform.Find("InGame");
 
-        Transform selectedBuildText = selectedObjectsPanel.Find("SelectedBuildText");
-        UISelectedBuildText = selectedBuildText.GetComponent<Text>();
+        Transform gameControlPanel = inGamePanel.Find("GameControl");
+        Transform panelSelected = gameControlPanel.Find("PanelSelected");
 
-        BtnBuild1 = selectedObjectsPanel.Find("Build1").GetComponent<Button>();
-        BtnBuild2 = selectedObjectsPanel.Find("Build2").GetComponent<Button>();
-        BtnBuild3 = selectedObjectsPanel.Find("Build3").GetComponent<Button>();
-        BtnBuild4 = selectedObjectsPanel.Find("Build4").GetComponent<Button>();
-        BtnBuild5 = selectedObjectsPanel.Find("Build5").GetComponent<Button>();
+        buttons = new Button[12];
+        buttonText = new Text[12];
+        for (int i = 0; i < 12; i++)
+        {
+            buttons[i] = panelSelected.Find("Button" + (i+1).ToString()).GetComponent<Button>();
+            buttonText[i] = buttons[i].transform.Find("Text").GetComponent<Text>();
+            buttons[i].name = i.ToString();
+        }
+        buttons[0].onClick.AddListener(OnClickBuild1);
+        buttons[1].onClick.AddListener(OnClickBuild2);
+        buttons[2].onClick.AddListener(OnClickBuild3);
+        buttons[3].onClick.AddListener(OnClickBuild4);
+        buttons[4].onClick.AddListener(OnClickBuild5);
+        buttons[5].onClick.AddListener(OnClickBuild6);
+        buttons[6].onClick.AddListener(OnClickBuild7);
+        buttons[7].onClick.AddListener(OnClickBuild8);
 
-        txtBtnBuild1 = BtnBuild1.transform.Find("Text").GetComponent<Text>();
-        BtnBuild1.onClick.AddListener(OnClickBuild1);
+        buttons[8].onClick.AddListener(OnClickBuild9);
+        buttons[9].onClick.AddListener(OnClickBuild10);
+        buttons[10].onClick.AddListener(OnClickBuild11);
+        buttons[11].onClick.AddListener(OnClickBuild12);
 
-        txtBtnBuild2 = BtnBuild2.transform.Find("Text").GetComponent<Text>();
-        BtnBuild2.onClick.AddListener(OnClickBuild2);
-
-        txtBtnBuild3 = BtnBuild3.transform.Find("Text").GetComponent<Text>();
-        BtnBuild3.onClick.AddListener(OnClickBuild3);
-
-        txtBtnBuild4 = BtnBuild4.transform.Find("Text").GetComponent<Text>();
-        BtnBuild4.onClick.AddListener(OnClickBuild4);
-
-        txtBtnBuild5 = BtnBuild5.transform.Find("Text").GetComponent<Text>();
-        BtnBuild5.onClick.AddListener(OnClickBuild5);
-
-        UISelectedBuildText.text = "";
         UpdateCommandButtons();
 
         HexGrid.StartGame();
     }
 
+    private Button GetButton(int btn)
+    {
+        return buttons[btn-1];
+    }
+
+    private Text GetButtonText(int btn)
+    {
+        return buttonText[btn-1];
+    }
+
+    private void SetButtonText(int btn, string text)
+    {
+        ShowButton(btn);
+        GetButtonText(btn).text = text;
+    }
+
+    private void HideButton(int btn)
+    {
+        GetButton(btn).gameObject.SetActive(false);
+    }
+
+    private void SelectButton(int btn)
+    {
+        GetButton(btn).image.sprite = SelectedButtonBackground;
+    }
+    private void UnselectButton(int btn)
+    {
+        GetButton(btn).image.sprite = ButtonBackground;
+    }
+
+    private void ShowButton(int btn)
+    {
+        GetButton(btn).gameObject.SetActive(true);
+    }
+
+    private int topSelectedButton;
+    private int middleSelectedButton;
+    private int lowSelectedButton;
+
     private void UpdateCommandButtons()
     {
-        if (string.IsNullOrEmpty(SelectedBluePrint))
+        if (selectedUnitFrame == null && lastSelectedGroundCell == null)
         {
-            txtBtnBuild1.text = "(1) Outpost";
-            txtBtnBuild2.text = "(2) Fighter";
-            txtBtnBuild3.text = "(3) Worker";
-            txtBtnBuild4.text = "";
-            txtBtnBuild5.text = "(X) Select";
+            topSelectedButton = 0;
+            middleSelectedButton = 0;
+            lowSelectedButton = 0;
+
+            for (int i = 1; i <= 12; i++)
+            {
+                HideButton(i);
+            }
+        }
+        else if (selectedUnitFrame == null)
+        {
+            SetButtonText(1, "(q) Building");
+            SetButtonText(2, "(w) Unit");
+            SetButtonText(3, "(e) Defense");
+            SetButtonText(4, "(r) Special");
+
+            if (topSelectedButton == 0)
+            {
+                HideButton(5);
+                HideButton(6);
+                HideButton(7);
+                HideButton(8);
+            }
+            else if (topSelectedButton == 1)
+            {
+                SetButtonText(5, "(a) Assembler");
+                SetButtonText(6, "(s) Container");
+                SetButtonText(7, "(d) Reactor");
+                SetButtonText(8, "(f) Radar");
+
+                if (middleSelectedButton == 0)
+                {
+                    HideButton(9);
+                    HideButton(10);
+                    HideButton(11);
+                    HideButton(12);
+                }
+                else if (middleSelectedButton == 5)
+                {
+                    SetButtonText(9, "(y) Shield");
+                    SetButtonText(10, "(x) Container1");
+                    HideButton(11);
+                    HideButton(12);
+                }
+                else if (middleSelectedButton == 6)
+                {
+                    SetButtonText(9, "(y) Shield");
+                    SetButtonText(10, "(x) Container3");
+                    HideButton(11);
+                    HideButton(12);
+                }
+                else if (middleSelectedButton == 7)
+                {
+                    SetButtonText(9, "(y) Shield");
+                    SetButtonText(10, "(x) Reactor3");
+                    HideButton(11);
+                    HideButton(12);
+                }
+
+            }
+            else if (topSelectedButton == 2)
+            {
+                SetButtonText(5, "(a) Assembler");
+                SetButtonText(6, "(s) Fighter");
+                SetButtonText(7, "(d) Worker");
+                HideButton(8);
+
+                if (middleSelectedButton == 0 || middleSelectedButton == 8)
+                {
+                    HideButton(9);
+                    HideButton(10);
+                    HideButton(11);
+                    HideButton(12);
+                }
+                else if (middleSelectedButton == 5)
+                {
+                    SetButtonText(9, "(y) Shield");
+                    SetButtonText(10, "(x) Container");
+                    SetButtonText(11, "(c) Engine2");
+                    HideButton(12);
+                }
+                else if (middleSelectedButton == 6)
+                {
+                    SetButtonText(9, "(y) Shield");
+                    SetButtonText(10, "(x) Weapon2");
+                    SetButtonText(11, "(c) Engine2");
+                    HideButton(12);
+                }
+                else if (middleSelectedButton == 7)
+                {
+                    SetButtonText(9, "(y) Shield");
+                    SetButtonText(10, "(x) Container2");
+                    SetButtonText(11, "(c) Engine2");
+                    HideButton(12);
+                }
+
+            }
+            else if (topSelectedButton == 3)
+            {
+                SetButtonText(5, "(a) Turret");
+                HideButton(6);
+                HideButton(7);
+                HideButton(8);
+
+                HideButton(9);
+                HideButton(10);
+                HideButton(11);
+                HideButton(12);
+            }
+            else if (topSelectedButton == 4)
+            {
+                SetButtonText(5, "(a) Forschung");
+                HideButton(6);
+                HideButton(7);
+                HideButton(8);
+
+                HideButton(9);
+                HideButton(10);
+                HideButton(11);
+                HideButton(12);
+            }
         }
         else
         {
-            txtBtnBuild1.text = "(1) Attack";
-            txtBtnBuild2.text = "(2) Minerals";
-            txtBtnBuild3.text = "(3) Assemble";
-            txtBtnBuild4.text = "";
-            txtBtnBuild5.text = "(X) Select";
+            ShowButton(1);
+            SetButtonText(1, selectedUnitFrame.name);
+            HideButton(2);
+            HideButton(3);
+            HideButton(4);
         }
     }
 
+    void SelectTopButton(int btn)
+    {
+        if (topSelectedButton != 0 && topSelectedButton != btn)
+            UnselectButton(topSelectedButton);
+        topSelectedButton = btn;
+        SelectButton(btn);
+        UpdateCommandButtons();
+    }
+
+    void SelectMiddleButton(int btn)
+    {
+        if (middleSelectedButton != 0 && middleSelectedButton != btn)
+            UnselectButton(middleSelectedButton);
+        middleSelectedButton = btn;
+        SelectButton(btn);
+        UpdateCommandButtons();
+    }
+
+    void SelectLowButton(int btn)
+    {
+        if (lowSelectedButton != 0 && lowSelectedButton != btn)
+            UnselectButton(lowSelectedButton);
+        lowSelectedButton = btn;
+        SelectButton(btn);
+        UpdateCommandButtons();
+    }
 
     void OnClickBuild1()
     {
-        SelectedBluePrint = UISelectedBuildText.text = txtBtnBuild1.text.Substring(4);
+        SelectTopButton(1);
     }
     void OnClickBuild2()
     {
-        SelectedBluePrint = UISelectedBuildText.text = txtBtnBuild2.text.Substring(4);
+        SelectTopButton(2);
     }
     void OnClickBuild3()
     {
-        SelectedBluePrint = UISelectedBuildText.text = txtBtnBuild3.text.Substring(4);
+        SelectTopButton(3);
     }
     void OnClickBuild4()
     {
-        SelectedBluePrint = UISelectedBuildText.text = txtBtnBuild4.text.Substring(4);
+        SelectTopButton(4);
     }
 
     void OnClickBuild5()
     {
-        UISelectedObjectsText.text = "";
-        SelectedBluePrint = null;
-        UpdateCommandButtons();
+        SelectMiddleButton(5);
     }
+    void OnClickBuild6()
+    {
+        SelectMiddleButton(6);
+    }
+    void OnClickBuild7()
+    {
+        SelectMiddleButton(7);
+    }
+    void OnClickBuild8()
+    {
+        SelectMiddleButton(8);
+    }
+
+    void OnClickBuild9()
+    {
+        SelectLowButton(0);
+    }
+    void OnClickBuild10()
+    {
+        SelectLowButton(10);
+    }
+    void OnClickBuild11()
+    {
+        SelectLowButton(11);
+    }
+    void OnClickBuild12()
+    {
+        SelectLowButton(12);
+    }
+
 
     private UnitBase selectedUnitFrame;
     private GroundCell lastSelectedGroundCell;
@@ -231,9 +431,19 @@ public class GameCanvas : MonoBehaviour
 
         if (Input.GetMouseButtonDown(1))
         {
-            SelectedBluePrint = UISelectedBuildText.text = "";
-            UISelectedObjectsText.text = "";
-            SelectedBluePrint = null;
+            //SelectedBluePrint = UISelectedBuildText.text = "";
+            //UISelectedObjectsText.text = "";
+            //SelectedBluePrint = null;
+            if (lastSelectedGroundCell != null)
+            {
+                lastSelectedGroundCell.SetSelected(false);
+                lastSelectedGroundCell = null;
+            }
+            if (selectedUnitFrame != null)
+            {
+                selectedUnitFrame.SetSelected(false);
+                selectedUnitFrame = null;
+            }
             UpdateCommandButtons();
 
             /*
@@ -309,6 +519,7 @@ public class GameCanvas : MonoBehaviour
 
             if (hitByMouseClick == null)
             {
+                /*
                 if (lastSelectedGroundCell != null)
                 {
                     lastSelectedGroundCell.SetSelected(false);
@@ -317,12 +528,13 @@ public class GameCanvas : MonoBehaviour
                 selectedUnitFrame = null;
 
                 SelectedBluePrint = null;
-                UpdateCommandButtons();
+                UpdateCommandButtons();*/
             }
             else
             {
                 if (!string.IsNullOrEmpty(SelectedBluePrint))
                 {
+                    /*
                     // Build something
                     if (selectedUnitFrame == null)
                     {
@@ -338,7 +550,7 @@ public class GameCanvas : MonoBehaviour
 
                         if (!ShifKeyIsDown)
                             SelectedBluePrint = UISelectedBuildText.text = "";
-                    }
+                    }*/
                 }
                 else
                 {
@@ -360,9 +572,9 @@ public class GameCanvas : MonoBehaviour
                     }
                     selectedUnitFrame = hitByMouseClick.UnitFrame;
 
-                    if (selectedUnitFrame != null)
+                    if (selectedUnitFrame != null || lastSelectedGroundCell != null)
                     {
-                        SelectedBluePrint = UISelectedObjectsText.text = selectedUnitFrame.MoveUpdateStats.BlueprintName;
+                        //SelectedBluePrint = UISelectedObjectsText.text = selectedUnitFrame.MoveUpdateStats.BlueprintName;
                         UpdateCommandButtons();
                     }
                 }
