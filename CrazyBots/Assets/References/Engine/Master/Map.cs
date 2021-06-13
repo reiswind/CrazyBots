@@ -132,6 +132,18 @@ namespace Engine.Master
         public int MapWidth { get; private set; }
         public int MapHeight { get; private set; }
 
+        private int zoneCounter;
+        private int zoneWidth;
+        private int maxZones;
+
+        public int DefaultMinerals
+        {
+            get
+            {
+                return maxZones * 40;
+            }
+        }
+
 
         public Map(Game game, int seed)
         {
@@ -140,6 +152,9 @@ namespace Engine.Master
             Units = new Units(this);
             MapWidth = game.GameModel.MapWidth;
             MapHeight = game.GameModel.MapHeight;
+
+            zoneWidth = (MapWidth / 10);
+            maxZones = zoneWidth * (MapHeight / 10) - 1;
 
             /*
             Matrix = new byte[gameModel.MapWidth, gameModel.MapHeight];
@@ -222,7 +237,32 @@ namespace Engine.Master
             return resultList;
         }
 
-        private HeightMap terrain;        
+        private HeightMap terrain;
+
+        public void DistributeMineral()
+        {
+            int minX, minY;
+
+            minX = (zoneCounter % zoneWidth) * 10; // + (zoneCounter % zoneWidth) * 10;
+            minY = (zoneCounter / zoneWidth) * 10;
+
+            while (true)
+            {
+                int x = Game.Random.Next(10);
+                int y = Game.Random.Next(10);
+
+                Position pos = new Position(minX + x, minY + y);
+                Tile t = GetTile(pos);
+                if (t == null)
+                    continue;
+
+                t.Metal++;
+                break;
+            }
+            zoneCounter++;
+            if (zoneCounter > maxZones)
+                zoneCounter = 0;
+        }
 
         public Tile GetTile(Position pos)
         {
@@ -252,7 +292,7 @@ namespace Engine.Master
                             if (Game.Random.Next(8) == 1)
                             {
                                 t.NumberOfDestructables = 1;
-                                t.Metal = 1;
+                                //t.Metal = 1;
                             }
                         }
                         else if (t.IsWood())
@@ -260,7 +300,7 @@ namespace Engine.Master
                             if (Game.Random.Next(14) == 0)
                             {
                                 t.NumberOfDestructables = 3;
-                                t.Metal = 1;
+                                //t.Metal = 1;
                             }
                         }
                         else if (t.IsLightWood())
@@ -268,7 +308,7 @@ namespace Engine.Master
                             if (Game.Random.Next(25) == 0)
                             {
                                 t.NumberOfDestructables = 4;
-                                t.Metal = 1;
+                                //t.Metal = 1;
                             }
                         }
                         else if (t.IsDarkSand())
@@ -276,7 +316,7 @@ namespace Engine.Master
                             if (Game.Random.Next(25) == 0)
                             {
                                 t.NumberOfDestructables = 4;
-                                t.Metal = 4;
+                                //t.Metal = 4;
                             }
                         }
                         else if (t.IsSand())
@@ -284,23 +324,23 @@ namespace Engine.Master
                             if (Game.Random.Next(30) == 0)
                             {
                                 t.NumberOfDestructables = 3;
-                                t.Metal = 3;
+                                //t.Metal = 3;
                             }
                             else if (Game.Random.Next(20) == 0)
                             {
                                 t.NumberOfObstacles = 2;
-                                t.Metal = 2;
+                                //t.Metal = 2;
                             }
                         }
                         else if (t.IsGrassDark())
                         {
-                            if (Game.Random.Next(30) == 0)
-                                t.Metal = 20;
+                            //if (Game.Random.Next(30) == 0)
+                            //    t.Metal = 20;
                         }
                         else if (t.IsGras())
                         {
-                            if (Game.Random.Next(20) == 0)
-                                t.Metal = 20;
+                            //if (Game.Random.Next(20) == 0)
+                            //    t.Metal = 20;
                         }
 
                         

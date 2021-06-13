@@ -745,14 +745,14 @@ namespace Engine.Control
                             }
                             
                             // Guess by units preplaced on the map
-                            /*
-                            if (playerUnit.Unit.Assembler != null && playerUnit.Unit.Engine == null)
+                            
+                            if (playerUnit.Unit.Blueprint.Name == "Outpost")
                             {
                                 AntFactory antFactory = new AntFactory(this, playerUnit);
                                 antFactory.Alive = true;
                                 Ants.Add(cntrlUnit.UnitId, antFactory);
                             }
-                            else if (playerUnit.Unit.Engine != null)
+                            /*else if (playerUnit.Unit.Engine != null)
                             {
                                 AntWorker antWorker = new AntWorker(this);
                                 antWorker.PlayerUnit = playerUnit;

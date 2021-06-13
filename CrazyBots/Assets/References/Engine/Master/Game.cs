@@ -181,6 +181,11 @@ namespace Engine.Master
                     Players.Add(playerModel.Id, p);
                 }
             }
+
+            for (int i=0; i < Map.DefaultMinerals; i++)
+            {
+                Map.DistributeMineral();
+            }
         }
 
         public void ComputePossibleMoves(Position pos, List<Move> possibleMoves, List<Position> includedPositions, MoveFilter moveFilter)
