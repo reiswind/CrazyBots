@@ -174,133 +174,152 @@ namespace Engine.Master
             return true;
         }
 
-        private void CreateBlueprintPart(BlueprintPart blueprintPart)
+        private void CreateBlueprintPart(BlueprintPart blueprintPart, bool fillContainer)
         {
-            if (blueprintPart.Name == "Engine1")
+            if (blueprintPart.PartType == "Engine")
                 Engine = new Engine(this, 1);
-            else if (blueprintPart.Name == "Engine2")
+            else if (blueprintPart.PartType == "Engine2")
                 Engine = new Engine(this, 2);
-            else if (blueprintPart.Name == "Engine3")
+            else if (blueprintPart.PartType == "Engine3")
                 Engine = new Engine(this, 3);
 
-            else if (blueprintPart.Name == "Armor1")
+            else if (blueprintPart.PartType == "Armor")
                 Armor = new Armor(this, 1);
-            else if (blueprintPart.Name == "Armor2")
+            else if (blueprintPart.PartType == "Armor2")
                 Armor = new Armor(this, 2);
-            else if (blueprintPart.Name == "Armor3")
+            else if (blueprintPart.PartType == "Armor3")
                 Armor = new Armor(this, 3);
 
-            else if (blueprintPart.Name == "Weapon1")
+            else if (blueprintPart.PartType == "Weapon")
+            {
                 Weapon = new Weapon(this, 1);
-            else if (blueprintPart.Name == "Weapon2")
+                if (blueprintPart.Capacity.HasValue)
+                    Weapon.Container.Capacity = blueprintPart.Capacity.Value;
+                if (fillContainer)
+                    Weapon.Container.Metal = Weapon.Container.Capacity;
+            }
+            else if (blueprintPart.PartType == "Weapon2")
                 Weapon = new Weapon(this, 2);
-            else if (blueprintPart.Name == "Weapon3")
+            else if (blueprintPart.PartType == "Weapon3")
                 Weapon = new Weapon(this, 3);
 
-            else if (blueprintPart.Name == "Assembler1")
+            else if (blueprintPart.PartType == "Assembler")
+            {
                 Assembler = new Assembler(this, 1);
-            else if (blueprintPart.Name == "Assembler2")
+                if (blueprintPart.Capacity.HasValue)
+                    Assembler.Container.Capacity = blueprintPart.Capacity.Value;
+                if (fillContainer)
+                    Assembler.Container.Metal = Assembler.Container.Capacity;
+
+            }
+            else if (blueprintPart.PartType == "Assembler2")
                 Assembler = new Assembler(this, 2);
-            else if (blueprintPart.Name == "Assembler3")
+            else if (blueprintPart.PartType == "Assembler3")
                 Assembler = new Assembler(this, 3);
 
-            else if (blueprintPart.Name == "Extractor1" || blueprintPart.Name == "ExtractorGround1")
+            else if (blueprintPart.PartType == "Extractor")
                 Extractor = new Extractor(this, 1);
-            else if (blueprintPart.Name == "Extractor2")
+            else if (blueprintPart.PartType == "Extractor2")
                 Extractor = new Extractor(this, 2);
-            else if (blueprintPart.Name == "Extractor3")
+            else if (blueprintPart.PartType == "Extractor3")
                 Extractor = new Extractor(this, 3);
 
-            else if (blueprintPart.Name == "Container1")
+            else if (blueprintPart.PartType == "Container")
             {
                 Container = new Container(this, 1);
-                if (blueprintPart.Filled)
+                if (blueprintPart.Capacity.HasValue)
+                    Container.Capacity = blueprintPart.Capacity.Value;
+                if (fillContainer)
                     Container.Metal = Container.Capacity;
             }
-            else if (blueprintPart.Name == "Container2")
+            else if (blueprintPart.PartType == "Container2")
             {
                 Container = new Container(this, 2);
-                if (blueprintPart.Filled)
+                if (blueprintPart.Capacity.HasValue)
+                    Container.Capacity = blueprintPart.Capacity.Value;
+                if (fillContainer)
                     Container.Metal = Container.Capacity;
             }
-            else if (blueprintPart.Name == "Container3")
+            else if (blueprintPart.PartType == "Container3")
             {
                 Container = new Container(this, 3);
-                if (blueprintPart.Filled)
+                if (blueprintPart.Capacity.HasValue)
+                    Container.Capacity = blueprintPart.Capacity.Value;
+                if (fillContainer)
                     Container.Metal = Container.Capacity;
             }
 
-            else if (blueprintPart.Name == "Reactor1")
+            else if (blueprintPart.PartType == "Reactor")
                 Reactor = new Reactor(this, 1);
-            else if (blueprintPart.Name == "Reactor2")
+            else if (blueprintPart.PartType == "Reactor2")
                 Reactor = new Reactor(this, 2);
-            else if (blueprintPart.Name == "Reactor3")
+            else if (blueprintPart.PartType == "Reactor3")
                 Reactor = new Reactor(this, 3);
 
-            else if (blueprintPart.Name == "Radar1")
+            else if (blueprintPart.PartType == "Radar")
                 Radar = new Radar(this, 1);
-            else if (blueprintPart.Name == "Radar2")
+            else if (blueprintPart.PartType == "Radar2")
                 Radar = new Radar(this, 2);
-            else if (blueprintPart.Name == "Radar3")
+            else if (blueprintPart.PartType == "Radar3")
                 Radar = new Radar(this, 3);
         }
 
         public bool IsInstalled(BlueprintPart blueprintPart)
         {
-            if (blueprintPart.Name == "Engine1")
+            if (blueprintPart.PartType == "Engine")
                 return Engine != null && Engine.Level == 1;
-            if (blueprintPart.Name == "Engine2")
+            if (blueprintPart.PartType == "Engine2")
                 return Engine != null && Engine.Level == 2;
-            if (blueprintPart.Name == "Engine3")
+            if (blueprintPart.PartType == "Engine3")
                 return Engine != null && Engine.Level == 3;
 
-            if (blueprintPart.Name == "Armor1")
+            if (blueprintPart.PartType == "Armor")
                 return Armor != null && Armor.Level == 1;
-            if (blueprintPart.Name == "Armor2")
+            if (blueprintPart.PartType == "Armor2")
                 return Armor != null && Armor.Level == 2;
-            if (blueprintPart.Name == "Armor3")
+            if (blueprintPart.PartType == "Armor3")
                 return Armor != null && Armor.Level == 3;
 
-            if (blueprintPart.Name == "Weapon1")
+            if (blueprintPart.PartType == "Weapon")
                 return Weapon != null && Weapon.Level == 1;
-            if (blueprintPart.Name == "Weapon2")
+            if (blueprintPart.PartType == "Weapon2")
                 return Weapon != null && Weapon.Level == 2;
-            if (blueprintPart.Name == "Weapon3")
+            if (blueprintPart.PartType == "Weapon3")
                 return Weapon != null && Weapon.Level == 3;
 
-            if (blueprintPart.Name == "Assembler1")
+            if (blueprintPart.PartType == "Assembler")
                 return Assembler != null && Assembler.Level == 1;
-            if (blueprintPart.Name == "Assembler2")
+            if (blueprintPart.PartType == "Assembler2")
                 return Assembler != null && Assembler.Level == 2;
-            if (blueprintPart.Name == "Assembler3")
+            if (blueprintPart.PartType == "Assembler3")
                 return Assembler != null && Assembler.Level == 3;
 
-            if (blueprintPart.Name == "Extractor1" || blueprintPart.Name == "ExtractorGround1")
+            if (blueprintPart.PartType == "Extractor")
                 return Extractor != null && Extractor.Level == 1;
-            if (blueprintPart.Name == "Extractor2")
+            if (blueprintPart.PartType == "Extractor2")
                 return Extractor != null && Extractor.Level == 2;
-            if (blueprintPart.Name == "Extractor3")
+            if (blueprintPart.PartType == "Extractor3")
                 return Extractor != null && Extractor.Level == 3;
 
-            if (blueprintPart.Name == "Container1")
+            if (blueprintPart.PartType == "Container")
                 return Container != null && Container.Level == 1;
-            if (blueprintPart.Name == "Container2")
+            if (blueprintPart.PartType == "Container2")
                 return Container != null && Container.Level == 2;
-            if (blueprintPart.Name == "Container3")
+            if (blueprintPart.PartType == "Container3")
                 return Container != null && Container.Level == 3;
 
-            if (blueprintPart.Name == "Reactor1")
+            if (blueprintPart.PartType == "Reactor")
                 return Reactor != null && Reactor.Level == 1;
-            if (blueprintPart.Name == "Reactor2")
+            if (blueprintPart.PartType == "Reactor2")
                 return Reactor != null && Reactor.Level == 2;
-            if (blueprintPart.Name == "Reactor3")
+            if (blueprintPart.PartType == "Reactor3")
                 return Reactor != null && Reactor.Level == 3;
 
-            if (blueprintPart.Name == "Radar1")
+            if (blueprintPart.PartType == "Radar")
                 return Radar != null && Radar.Level == 1;
-            if (blueprintPart.Name == "Radar2")
+            if (blueprintPart.PartType == "Radar2")
                 return Radar != null && Radar.Level == 2;
-            if (blueprintPart.Name == "Radar3")
+            if (blueprintPart.PartType == "Radar3")
                 return Radar != null && Radar.Level == 3;
 
             return false;
@@ -310,7 +329,7 @@ namespace Engine.Master
         {
             foreach (BlueprintPart blueprintPart in Blueprint.Parts)
             {
-                CreateBlueprintPart(blueprintPart);
+                CreateBlueprintPart(blueprintPart, true);
             }
             UnderConstruction = false;
         }
@@ -465,7 +484,7 @@ namespace Engine.Master
             {
                 if (blueprintPart.Name == unitCode)
                 {
-                    CreateBlueprintPart(blueprintPart);
+                    CreateBlueprintPart(blueprintPart, false);
                     break;
                 }
             }

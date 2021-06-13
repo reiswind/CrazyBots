@@ -22,37 +22,37 @@ namespace Engine.Interface
             // Outpost
             blueprint = new Blueprint();
             blueprint.Name = "Outpost";
-            blueprint.Parts.Add(new BlueprintPart("ExtractorGround1"));
-            blueprint.Parts.Add(new BlueprintPart("Assembler1"));
-            blueprint.Parts.Add(new BlueprintPart("Container1", true));
-            blueprint.Parts.Add(new BlueprintPart("Reactor1"));
+            blueprint.Parts.Add(new BlueprintPart("Foundation"));
+            blueprint.Parts.Add(new BlueprintPart("Assembler"));
+            blueprint.Parts.Add(new BlueprintPart("Container", 24));
+            blueprint.Parts.Add(new BlueprintPart("Reactor"));
             Items.Add(blueprint);
 
             // Worker to collect Minerals
             blueprint = new Blueprint();
             blueprint.Name = "Worker";
-            blueprint.Parts.Add(new BlueprintPart("Engine1"));
-            blueprint.Parts.Add(new BlueprintPart("Extractor1"));
-            blueprint.Parts.Add(new BlueprintPart("Container1"));
-            blueprint.Parts.Add(new BlueprintPart("Armor1"));
+            blueprint.Parts.Add(new BlueprintPart("Engine"));
+            blueprint.Parts.Add(new BlueprintPart("Extractor"));
+            blueprint.Parts.Add(new BlueprintPart("Container"));
+            blueprint.Parts.Add(new BlueprintPart("Armor"));
             Items.Add(blueprint);
 
             // Fighter
             blueprint = new Blueprint();
             blueprint.Name = "Fighter";
-            blueprint.Parts.Add(new BlueprintPart("Engine1"));
-            blueprint.Parts.Add(new BlueprintPart("Weapon1"));
-            blueprint.Parts.Add(new BlueprintPart("Extractor1"));
-            blueprint.Parts.Add(new BlueprintPart("Armor1"));
+            blueprint.Parts.Add(new BlueprintPart("Engine"));
+            blueprint.Parts.Add(new BlueprintPart("Weapon"));
+            blueprint.Parts.Add(new BlueprintPart("Extractor"));
+            blueprint.Parts.Add(new BlueprintPart("Armor"));
             Items.Add(blueprint);
 
             // Assembler (moving)
             blueprint = new Blueprint();
             blueprint.Name = "Assembler";
-            blueprint.Parts.Add(new BlueprintPart("Engine1"));
-            blueprint.Parts.Add(new BlueprintPart("Assembler1"));
-            blueprint.Parts.Add(new BlueprintPart("Extractor1"));
-            blueprint.Parts.Add(new BlueprintPart("Armor1"));
+            blueprint.Parts.Add(new BlueprintPart("Engine"));
+            blueprint.Parts.Add(new BlueprintPart("Assembler"));
+            blueprint.Parts.Add(new BlueprintPart("Extractor"));
+            blueprint.Parts.Add(new BlueprintPart("Armor"));
             Items.Add(blueprint);
 
         }
@@ -87,14 +87,12 @@ namespace Engine.Interface
         }
         public BlueprintPart(string name)
         {
-            
-
             Name = name;
             DetactPartType();
         }
         private void DetactPartType()
         {
-            if (Name.Contains("Extractor"))
+            if (Name.Contains("Extractor") || Name.Contains("Foundation"))
                 PartType = "Extractor";
             if (Name.Contains("Assembler"))
                 PartType = "Assembler";
@@ -110,15 +108,16 @@ namespace Engine.Interface
                 PartType = "Reactor";
         }
 
-        public BlueprintPart(string name, bool filled)
+        public BlueprintPart(string name, int capacity)
         {
             Name = name;
-            Filled = filled;
+            Capacity = capacity;
             DetactPartType();
         }
 
         public string PartType { get; set; }
         public string Name { get; set; }
-        public bool Filled { get; set; }
+        public int Level { get; set; }
+        public int? Capacity { get; set; }
     }
 }

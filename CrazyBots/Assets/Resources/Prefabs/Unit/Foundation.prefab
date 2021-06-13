@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4199253174484070260}
   - component: {fileID: 2412335217991430841}
   m_Layer: 0
-  m_Name: ExtractorGround1
+  m_Name: Foundation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

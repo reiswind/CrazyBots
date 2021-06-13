@@ -21,24 +21,6 @@
         "X": 10,
         "Y": 12
       }
-    },
-	{
-      "Name": "Outpost",
-      "PlayerId": 1,
-	  "Blueprint": "Outpost",
-      "Position": {
-        "X": 11,
-        "Y": 12
-      }
-    },
-	{
-      "Name": "Outpost",
-      "PlayerId": 1,
-	  "Blueprint": "Outpost",
-      "Position": {
-        "X": 10,
-        "Y": 11
-      }
     }
   ]
 }

@@ -51,10 +51,10 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -410,7 +410,19 @@ public class HexGrid : MonoBehaviour
 			}
 			else if (move.MoveType == MoveType.Build)
 			{
-				CreateUnit(move);
+				if (move.Positions.Count == 1 &&
+					UnitsInBuild.ContainsKey(move.Positions[0]))
+				{
+					// From Ghost to real
+					UnitBase unit = UnitsInBuild[move.Positions[0]];
+					unit.UnitId = move.UnitId;
+					UnitsInBuild.Remove(move.Positions[0]);
+					BaseUnits.Add(unit.UnitId, unit);
+				}
+				else
+                {
+					CreateUnit(move);
+                }
 			}
 			/*
 			else if (move.MoveType == MoveType.UpdateStats)
@@ -459,7 +471,9 @@ public class HexGrid : MonoBehaviour
 			{
 				if (UnitsInBuild.ContainsKey(move.Positions[1]))
 				{
+					// From Ghost to real
 					UnitBase unit = UnitsInBuild[move.Positions[1]];
+					unit.UnderConstruction = false;
 					UnitsInBuild.Remove(move.Positions[1]);
 					BaseUnits.Add(unit.UnitId, unit);
 				}
@@ -608,6 +622,49 @@ public class HexGrid : MonoBehaviour
 		move.Positions.Add(pos);
 		//CreateUnit(move);
 	}
+
+	public UnitBase CreateTempUnit(Blueprint blueprint)
+	{
+		string unitModel;
+
+		if (blueprint.Name.StartsWith("Fighter") ||
+			blueprint.Name.StartsWith("Worker") ||
+			blueprint.Name.StartsWith("Assembler"))
+		{
+			unitModel = "MovableUnitBigPart";
+		}
+		else
+		{
+			unitModel = "GroundUnit";
+		}
+		UnitBase unit = InstantiatePrefab<UnitBase>(unitModel);
+		unit.name = blueprint.Name;
+		unit.Temporary = true;
+		unit.HexGrid = this;
+		unit.gameObject.SetActive(false);
+		unit.PlayerId = 1;
+
+		MoveUpdateStats stats = new MoveUpdateStats();
+		stats.BlueprintName = blueprint.Name;
+
+		stats.UnitParts = new List<MoveUpdateUnitPart>();
+		foreach (BlueprintPart blueprintPart in blueprint.Parts)
+		{
+			MoveUpdateUnitPart moveUpdateUnitPart = new MoveUpdateUnitPart();
+
+			moveUpdateUnitPart.Name = blueprintPart.Name;
+			moveUpdateUnitPart.Exists = false;
+			moveUpdateUnitPart.PartType = blueprintPart.PartType;
+			moveUpdateUnitPart.Capacity = blueprintPart.Capacity;
+
+			stats.UnitParts.Add(moveUpdateUnitPart);
+		}
+
+		unit.MoveUpdateStats = stats;
+
+		return unit;
+    }
+
 	void CreateUnit(Move move)
 	{
 		string unitModel;

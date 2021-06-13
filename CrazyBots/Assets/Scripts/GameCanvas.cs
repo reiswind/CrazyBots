@@ -26,6 +26,7 @@ public class GameCanvas : MonoBehaviour
 
     private Text[] buttonText;
     private Button[] buttons;
+    private Button buildButton;
 
     private GameObject panelEngine;
     private GameObject panelExtractor;
@@ -48,6 +49,9 @@ public class GameCanvas : MonoBehaviour
         Transform panelItem = gameControlPanel.Find("PanelItem");
         headerText = panelItem.Find("HeaderText").GetComponent<Text>();
         headerSubText = panelItem.Find("SubText").GetComponent<Text>();
+        buildButton = panelItem.Find("BuildButton").GetComponent<Button>();
+        buildButton.gameObject.SetActive(false);
+        buildButton.onClick.AddListener(OnClickBuild);
 
         Transform panelParts = panelItem.Find("PanelParts");
 
@@ -90,6 +94,10 @@ public class GameCanvas : MonoBehaviour
 
     private Button GetButton(int btn)
     {
+        if (btn == 0 || btn > 12)
+        {
+            return null;
+        }
         return buttons[btn-1];
     }
 
@@ -98,34 +106,53 @@ public class GameCanvas : MonoBehaviour
         return buttonText[btn-1];
     }
 
+    private void UnselectUnitFrame()
+    {
+        if (selectedUnitFrame != null)
+        {
+            if (selectedUnitFrame.Temporary && selectedUnitFrame.CurrentPos != null)
+            {
+                Destroy(selectedUnitFrame.gameObject);
+            }
+            else
+            {
+                selectedUnitFrame.SetSelected(false);
+            }
+
+            selectedUnitFrame = null;
+        }
+        buildButton.gameObject.SetActive(false);
+    }
+
+    private void SelectUnitFrame(UnitBase unitBase)
+    {
+        if (unitBase != null)
+        {
+            if (unitBase.Temporary)
+                buildButton.gameObject.SetActive(true);
+
+            selectedUnitFrame = unitBase;
+            selectedUnitFrame.SetSelected(true);
+        }
+    }
+
     private void SelectBlueprint(string bluePrintname)
     {
+        UnselectUnitFrame();
+
         Blueprint blueprint = HexGrid.game.Blueprints.FindBlueprint(bluePrintname);
         if (blueprint == null)
         {
-            selectedUnitFrame = null;
+            
         }
         else
         {
-            selectedUnitFrame = new UnitBase();
+            SelectUnitFrame(HexGrid.CreateTempUnit(blueprint));
 
-            MoveUpdateStats stats = new MoveUpdateStats();
-            stats.BlueprintName = blueprint.Name;
-
-            stats.UnitParts = new List<MoveUpdateUnitPart>();
-            foreach (BlueprintPart blueprintPart in blueprint.Parts)
+            if (lastSelectedGroundCell != null)
             {
-                MoveUpdateUnitPart moveUpdateUnitPart = new MoveUpdateUnitPart();
-
-                moveUpdateUnitPart.Name = blueprintPart.Name;
-                moveUpdateUnitPart.Exists = true;
-                moveUpdateUnitPart.PartType = blueprintPart.PartType;
-                
-                stats.UnitParts.Add(moveUpdateUnitPart);
+                selectedUnitFrame.CurrentPos = lastSelectedGroundCell.Tile.Pos;
             }
-
-            selectedUnitFrame.MoveUpdateStats = stats;
-
         }
     }
 
@@ -181,7 +208,7 @@ public class GameCanvas : MonoBehaviour
                 HideButton(i);
             }
         }
-        else if (selectedUnitFrame == null)
+        else if (selectedUnitFrame == null || selectedUnitFrame.Temporary)
         {
             SetButtonText(1, "(q) Building");
             SetButtonText(2, "(w) Unit");
@@ -298,9 +325,10 @@ public class GameCanvas : MonoBehaviour
         {
             ShowButton(1);
             SetButtonText(1, selectedUnitFrame.name);
-            HideButton(2);
-            HideButton(3);
-            HideButton(4);
+            for (int i = 2; i <= 12; i++)
+            {
+                HideButton(i);
+            }
         }
     }
 
@@ -328,6 +356,30 @@ public class GameCanvas : MonoBehaviour
             UnselectButton(lowSelectedButton);
         lowSelectedButton = btn;
         SelectButton(btn);
+        UpdateCommandButtons();
+    }
+
+    void OnClickBuild()
+    {
+        // Build the temp. unit
+        GameCommand gameCommand = new GameCommand();
+
+        gameCommand.UnitId = selectedUnitFrame.MoveUpdateStats.BlueprintName;
+        gameCommand.TargetPosition = selectedUnitFrame.CurrentPos;
+        gameCommand.GameCommandType = GameCommandType.Build;
+        gameCommand.PlayerId = 1;
+        HexGrid.GameCommands.Add(gameCommand);
+
+        HexGrid.UnitsInBuild.Add(selectedUnitFrame.CurrentPos, selectedUnitFrame);
+
+        // Turn the temp unit into ghost
+        selectedUnitFrame.Temporary = false;
+        
+        selectedUnitFrame.PutAtCurrentPosition();
+        selectedUnitFrame.Assemble(true);
+        selectedUnitFrame.gameObject.SetActive(true);
+
+        buildButton.gameObject.SetActive(false);
         UpdateCommandButtons();
     }
 
@@ -367,7 +419,7 @@ public class GameCanvas : MonoBehaviour
 
     void OnClickBuild9()
     {
-        SelectLowButton(0);
+        SelectLowButton(9);
     }
     void OnClickBuild10()
     {
@@ -472,8 +524,6 @@ public class GameCanvas : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-
         if (HexGrid != null && HexGrid.MapInfo != null)
         {
             UIMineralText.text = HexGrid.MapInfo.TotalMetal.ToString();
@@ -510,11 +560,7 @@ public class GameCanvas : MonoBehaviour
                 lastSelectedGroundCell.SetSelected(false);
                 lastSelectedGroundCell = null;
             }
-            if (selectedUnitFrame != null)
-            {
-                selectedUnitFrame.SetSelected(false);
-                selectedUnitFrame = null;
-            }
+            UnselectUnitFrame();
             UpdateCommandButtons();
 
             /*
@@ -636,16 +682,16 @@ public class GameCanvas : MonoBehaviour
 
                     if (selectedUnitFrame != hitByMouseClick.UnitFrame)
                     {
-                        if (selectedUnitFrame != null)
-                            selectedUnitFrame.SetSelected(false);
+                        UnselectUnitFrame();
+                        SelectUnitFrame(hitByMouseClick.UnitFrame);
+                        /*
                         if (hitByMouseClick.UnitFrame != null)
                             hitByMouseClick.UnitFrame.SetSelected(true);
+                        selectedUnitFrame = hitByMouseClick.UnitFrame;*/
                     }
-                    selectedUnitFrame = hitByMouseClick.UnitFrame;
 
-                    if (selectedUnitFrame != null || lastSelectedGroundCell != null)
+                    //if (selectedUnitFrame != null || lastSelectedGroundCell != null)
                     {
-                        //SelectedBluePrint = UISelectedObjectsText.text = selectedUnitFrame.MoveUpdateStats.BlueprintName;
                         UpdateCommandButtons();
                     }
                 }
@@ -653,78 +699,131 @@ public class GameCanvas : MonoBehaviour
         }
         if (selectedUnitFrame != null)
         {
-            StringBuilder sb = new StringBuilder();
-
             UnitBase unit = selectedUnitFrame;
 
-            sb.AppendLine("Unit: " + unit.UnitId);
             if (unit.HasBeenDestroyed)
             {
-                sb.AppendLine("Destroyed");
-                selectedUnitFrame = null;
+                UnselectUnitFrame();
             }
             if (unit.MoveUpdateStats == null)
             {
-                sb.AppendLine("No Stats: " + unit.UnitId);
             }
             else
             {
                 if (unit.MoveUpdateStats != null)
                 {
-                    sb.AppendLine("Blueprint: " + unit.MoveUpdateStats.BlueprintName);
-
                     HideAllParts();
 
-                    headerText.text = unit.MoveUpdateStats.BlueprintName;
+                    if (unit.HasBeenDestroyed)
+                    {
+
+                    }
+                    else if (unit.Temporary)
+                    {
+                        headerText.text = unit.MoveUpdateStats.BlueprintName + " preview";
+                    }
+                    else if (unit.UnderConstruction)
+                    {
+                        headerText.text = unit.MoveUpdateStats.BlueprintName + " under construction";
+                    }
+                    else
+                    {
+                        headerText.text = unit.MoveUpdateStats.BlueprintName;
+                    }
+
+                    string state;
 
                     foreach (MoveUpdateUnitPart part in unit.MoveUpdateStats.UnitParts)
                     {
-                        sb.Append("  " + part.Name);
-                        if (part.Exists)
+                        if (!part.Exists && !unit.Temporary)
                         {
-                            if (part.PartType == "Extractor")
-                                panelExtractor.SetActive(true);
-                            if (part.PartType == "Weapon")
-                                panelWeapon.SetActive(true);
-                            if (part.PartType == "Assembler")
-                                panelAssembler.SetActive(true);
-                            if (part.PartType == "Reactor")
-                                panelReactor.SetActive(true);
-                            if (part.PartType == "Armor")
-                                panelArmor.SetActive(true);
-
-                            if (part.PartType== "Engine")
-                                panelEngine.SetActive(true);
-
-                            if (part.PartType == "Container")
-                            {
-                                panelContainer.SetActive(true);
-
-                                sb = new StringBuilder();
-                                if (part.Minerals.HasValue)
-                                    sb.Append("Minerals  " + part.Minerals.Value);
-                                if (part.Capacity.HasValue)
-                                    sb.Append("/" + part.Capacity.Value);
-
-                                panelContainer.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
-                            }
-                            if (part.Minerals.HasValue)
-                                sb.Append("  " + part.Minerals.Value);
-                            if (part.Capacity.HasValue)
-                                sb.Append("/" + part.Capacity.Value);
+                            state = " Missing";
                         }
                         else
                         {
-                            sb.Append("  Missing");
+                            state = "";
                         }
-                        sb.AppendLine();
+                        if (part.PartType == "Extractor")
+                        {
+                            panelExtractor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                            panelExtractor.SetActive(true);
+                        }
+                        if (part.PartType == "Weapon")
+                        {
+                            panelWeapon.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                            panelWeapon.SetActive(true);
+
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append("Ammunition  ");
+                            if (part.Minerals.HasValue)
+                                sb.Append(part.Minerals.Value);
+                            else
+                                sb.Append("0");
+
+                            if (part.Capacity.HasValue)
+                                sb.Append("/" + part.Capacity.Value);
+
+                            panelWeapon.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+                        }
+                        if (part.PartType == "Assembler")
+                        {
+                            panelAssembler.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                            panelAssembler.SetActive(true);
+
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append("Minerals  ");
+                            if (part.Minerals.HasValue)
+                                sb.Append(part.Minerals.Value);
+                            else
+                                sb.Append("0");
+
+                            if (part.Capacity.HasValue)
+                                sb.Append("/" + part.Capacity.Value);
+
+                            panelAssembler.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+
+                        }
+                        if (part.PartType == "Reactor")
+                        {
+                            panelReactor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                            panelReactor.SetActive(true);
+                        }
+                        if (part.PartType == "Armor")
+                        {
+                            panelArmor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                            panelArmor.SetActive(true);
+                        }
+                        if (part.PartType == "Engine")
+                        {
+                            panelEngine.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                            panelEngine.SetActive(true);
+                        }
+                        if (part.PartType == "Container")
+                        {
+                            panelContainer.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                            panelContainer.SetActive(true);
+
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append("Minerals  ");
+                            if (part.Minerals.HasValue)
+                                sb.Append(part.Minerals.Value);
+                            else
+                                sb.Append("0");
+
+                            if (part.Capacity.HasValue)
+                                sb.Append("/" + part.Capacity.Value);
+
+                            panelContainer.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+                        }
                     }
                 }
             }
-            sb.AppendLine("");
 
-            GroundCell gc = HexGrid.GroundCells[unit.CurrentPos];
-            AppendGroundInfo(gc);
+            if (unit.CurrentPos != null)
+            {
+                GroundCell gc = HexGrid.GroundCells[unit.CurrentPos];
+                AppendGroundInfo(gc);
+            }
         }
         else if (lastSelectedGroundCell != null)
         {

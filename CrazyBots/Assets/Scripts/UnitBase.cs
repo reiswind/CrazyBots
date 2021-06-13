@@ -35,6 +35,9 @@ public class UnitBase : MonoBehaviour
     public MoveUpdateStats MoveUpdateStats { get; set; }
 
     private List<UnitBasePart> unitBaseParts;
+    
+    internal bool Temporary { get; set; }
+    internal bool UnderConstruction { get; set; }
     internal bool HasBeenDestroyed { get; set; }
     // Update is called once per frame
     void Update()
@@ -174,19 +177,18 @@ public class UnitBase : MonoBehaviour
             selectionChanged = true;
             IsSelected = selected;
 
-            if (IsSelected)
+            if (!Temporary)
             {
-                selectionLight = HexGrid.CreateSelectionLight(gameObject);
-            }
-            else
-            {
-                Destroy(selectionLight);
+                if (IsSelected)
+                {
+                    selectionLight = HexGrid.CreateSelectionLight(gameObject);
+                }
+                else
+                {
+                    Destroy(selectionLight);
+                }
             }
         }
-        /*
-        Light light = GetComponentInChildren<Light>();
-        if (light != null)
-            light.enabled = selected;*/
     }
 
     internal List<UnitCommand> UnitCommands { get; private set; }
@@ -347,6 +349,7 @@ public class UnitBase : MonoBehaviour
 
     public void Assemble(bool underConstruction)
     {
+        UnderConstruction = underConstruction;
         unitBaseParts.Clear();
 
         Transform engine;
@@ -371,14 +374,14 @@ public class UnitBase : MonoBehaviour
         bool groundFound = false;
         foreach (MoveUpdateUnitPart moveUpdateUnitPart in remainingParts)
         {
-            if (engine != null && moveUpdateUnitPart.Name.StartsWith("Engine"))
+            if (engine != null && moveUpdateUnitPart.PartType == "Engine")
             {
                 ReplacePart(engine, moveUpdateUnitPart.Name, underConstruction);
                 remainingParts.Remove(moveUpdateUnitPart);
                 groundFound = true;
                 break;
             }
-            if (ground != null && moveUpdateUnitPart.Name.StartsWith("ExtractorGround"))
+            else if (ground != null && moveUpdateUnitPart.PartType == "Extractor")
             {
                 ReplacePart(ground, moveUpdateUnitPart.Name, underConstruction); // moveUpdateUnitPart.Name);
                 ground.name = moveUpdateUnitPart.Name;
@@ -427,6 +430,8 @@ public class UnitBase : MonoBehaviour
         Assembler = null;
         Weapon = null;
 
+        bool missingPartFound = false;
+
         foreach (UnitBasePart unitBasePart in unitBaseParts)
         {
             foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
@@ -461,8 +466,14 @@ public class UnitBase : MonoBehaviour
                             weapon.UpdateContent(moveUpdateUnitPart.Minerals > 0);
                         }
                     }
+                    else
+                    {
+                        missingPartFound = true;
+                    }
                 }
             }
         }
+        if (UnderConstruction && missingPartFound == false)
+            UnderConstruction = false;
     }
 }
