@@ -28,7 +28,7 @@ namespace Engine.Master
             Level = level;
             Container = new Container(owner, 1);
             Container.Capacity = 4;
-            Container.Metal = 4;
+            //Container.Metal = 4;
         }
 
         public void ConsumeMetalForUnit(Unit unit)

@@ -262,7 +262,7 @@ public class GameCanvas : MonoBehaviour
                 else if (middleSelectedButton == 6)
                 {
                     SetButtonText(9, "(y) Shield");
-                    SetButtonText(10, "(x) Container3");
+                    SetButtonText(10, "(x) Container3", "Container");
                     HideButton(11);
                     HideButton(12);
                 }

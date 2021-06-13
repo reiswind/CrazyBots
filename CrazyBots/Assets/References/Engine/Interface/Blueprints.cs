@@ -22,15 +22,25 @@ namespace Engine.Interface
             // Outpost
             blueprint = new Blueprint();
             blueprint.Name = "Outpost";
+            blueprint.Layout = "GroundUnit";
             blueprint.Parts.Add(new BlueprintPart("Foundation"));
             blueprint.Parts.Add(new BlueprintPart("Assembler"));
             blueprint.Parts.Add(new BlueprintPart("Container", 24));
             blueprint.Parts.Add(new BlueprintPart("Reactor"));
             Items.Add(blueprint);
 
+            // Container
+            blueprint = new Blueprint();
+            blueprint.Name = "Container";
+            blueprint.Layout = "GroundUnit";
+            blueprint.Parts.Add(new BlueprintPart("Foundation"));
+            blueprint.Parts.Add(new BlueprintPart("Container3", 96));
+            Items.Add(blueprint);
+
             // Worker to collect Minerals
             blueprint = new Blueprint();
             blueprint.Name = "Worker";
+            blueprint.Layout = "MovableUnitBigPart";
             blueprint.Parts.Add(new BlueprintPart("Engine"));
             blueprint.Parts.Add(new BlueprintPart("Extractor"));
             blueprint.Parts.Add(new BlueprintPart("Container"));
@@ -40,6 +50,7 @@ namespace Engine.Interface
             // Fighter
             blueprint = new Blueprint();
             blueprint.Name = "Fighter";
+            blueprint.Layout = "MovableUnitBigPart";
             blueprint.Parts.Add(new BlueprintPart("Engine"));
             blueprint.Parts.Add(new BlueprintPart("Weapon"));
             blueprint.Parts.Add(new BlueprintPart("Extractor"));
@@ -49,6 +60,7 @@ namespace Engine.Interface
             // Assembler (moving)
             blueprint = new Blueprint();
             blueprint.Name = "Assembler";
+            blueprint.Layout = "MovableUnitBigPart";
             blueprint.Parts.Add(new BlueprintPart("Engine"));
             blueprint.Parts.Add(new BlueprintPart("Assembler"));
             blueprint.Parts.Add(new BlueprintPart("Extractor"));

@@ -625,19 +625,7 @@ public class HexGrid : MonoBehaviour
 
 	public UnitBase CreateTempUnit(Blueprint blueprint)
 	{
-		string unitModel;
-
-		if (blueprint.Name.StartsWith("Fighter") ||
-			blueprint.Name.StartsWith("Worker") ||
-			blueprint.Name.StartsWith("Assembler"))
-		{
-			unitModel = "MovableUnitBigPart";
-		}
-		else
-		{
-			unitModel = "GroundUnit";
-		}
-		UnitBase unit = InstantiatePrefab<UnitBase>(unitModel);
+		UnitBase unit = InstantiatePrefab<UnitBase>(blueprint.Layout);
 		unit.name = blueprint.Name;
 		unit.Temporary = true;
 		unit.HexGrid = this;
@@ -667,19 +655,13 @@ public class HexGrid : MonoBehaviour
 
 	void CreateUnit(Move move)
 	{
-		string unitModel;
-
-		if (move.Stats.BlueprintName.StartsWith("Fighter") ||
-			move.Stats.BlueprintName.StartsWith("Worker") ||
-			move.Stats.BlueprintName.StartsWith("Assembler"))
+		Blueprint blueprint = game.Blueprints.FindBlueprint(move.Stats.BlueprintName);
+		if (blueprint == null)
 		{
-			unitModel = "MovableUnitBigPart";
+			return;
 		}
-		else
-        {
-			unitModel = "GroundUnit";
-		}
-		UnitBase unit = InstantiatePrefab<UnitBase>(unitModel);
+
+		UnitBase unit = InstantiatePrefab<UnitBase>(blueprint.Layout);
 
 		unit.HexGrid = this;
 		unit.CurrentPos = move.Positions[0];

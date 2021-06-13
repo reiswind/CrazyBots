@@ -95,8 +95,6 @@ namespace Engine.Ants
 
             if (cntrlUnit.Assembler != null)
             {
-                //cntrlUnit.Assembler.AttachedContainer = containerUnit?.PlayerUnit.Unit.Container;
-
                 if (cntrlUnit.Assembler.CanProduce())
                 {
                     bool upgrading = false;

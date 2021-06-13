@@ -557,39 +557,64 @@ namespace Engine.Master
                 fromTile.Metal--;
 
             }
+            bool didRemove = false;
             if (metalRemoved > 0)
             {
-                /*
-                if (Unit.Metal == 0)
+                if (Unit.Assembler != null && Unit.Assembler.Container != null)
                 {
-                    Unit.Metal = 1;
-                    metalRemoved--;
-                }*/
-                if (metalRemoved > 0)
-                {
-                    if (Unit.Assembler != null && Unit.Assembler.Container != null)
+                    if (Unit.Assembler.Container.Metal + metalRemoved > Unit.Assembler.Container.Capacity)
                     {
-                        Unit.Assembler.Container.Metal += metalRemoved;
-                    }
-                    else if(Unit.Weapon != null && Unit.Weapon.Container != null)
-                    {
-                        Unit.Weapon.Container.Metal += metalRemoved;
+                        metalRemoved -= Unit.Assembler.Container.Capacity - Unit.Assembler.Container.Metal;
+                        Unit.Assembler.Container.Metal = Unit.Assembler.Container.Capacity;
                     }
                     else
                     {
-                        if (Unit.Container == null)
-                        {
-                            fromTile.Metal += metalRemoved;
-                        }
-                        else
-                        {
-                            Unit.Container.Metal += metalRemoved;
-                        }
+                        Unit.Assembler.Container.Metal += metalRemoved;
+                        metalRemoved = 0;
                     }
+                    didRemove = true;
                 }
             }
-
-            return metalRemoved > 0;
+            if (metalRemoved > 0)
+            {
+                if (Unit.Weapon != null && Unit.Weapon.Container != null)
+                {
+                    if (Unit.Weapon.Container.Metal + metalRemoved > Unit.Weapon.Container.Capacity)
+                    {
+                        metalRemoved -= Unit.Weapon.Container.Capacity - Unit.Weapon.Container.Metal;
+                        Unit.Weapon.Container.Metal = Unit.Weapon.Container.Capacity;
+                    }
+                    else
+                    {
+                        Unit.Weapon.Container.Metal += metalRemoved;
+                        metalRemoved = 0;
+                    }
+                    didRemove = true;
+                }
+            }
+            if (metalRemoved > 0)
+            {               
+                if (Unit.Container != null)
+                {
+                    if (Unit.Container.Metal + metalRemoved > Unit.Container.Capacity)
+                    {
+                        metalRemoved -= Unit.Container.Capacity - Unit.Container.Metal;
+                        Unit.Container.Metal = Unit.Container.Capacity;
+                    }
+                    else
+                    {
+                        Unit.Container.Metal += metalRemoved;
+                        metalRemoved = 0;
+                    }
+                    didRemove = true;
+                }                
+            }
+            if (metalRemoved > 0)
+            {
+                fromTile.Metal += metalRemoved;
+                didRemove = true;
+            }
+            return didRemove;
         }
     }
 }

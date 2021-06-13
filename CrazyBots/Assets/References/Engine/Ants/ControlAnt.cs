@@ -21,9 +21,9 @@ namespace Engine.Control
 
         public Dictionary<Position, Ant> CreatedAnts = new Dictionary<Position, Ant>();
 
-        public int MaxWorker = 6;
-        public int MaxFighter = 35;
-        public int MaxAssembler = 2;
+        public int MaxWorker = 1;
+        public int MaxFighter = 0;
+        public int MaxAssembler = 0;
 
         public int NumberOfWorkers;
         public int NumberOfFighter;
@@ -722,13 +722,36 @@ namespace Engine.Control
                                 WorkFound(player, cntrlUnit.Pos);
                             }
                             
+                            if (playerUnit.Unit.Blueprint.Name == "Assembler" ||
+                                playerUnit.Unit.Blueprint.Name == "Fighter" ||
+                                playerUnit.Unit.Blueprint.Name == "Worker")
+                            {
+                                AntWorker antWorker = new AntWorker(this);
+                                antWorker.PlayerUnit = playerUnit;
+                                antWorker.Alive = true;
+
+                                if (playerUnit.Unit.Direction == Direction.C)
+                                {
+                                    playerUnit.Unit.Direction = Direction.SW;
+                                }
+
+                                if (playerUnit.Unit.Blueprint.Name == "Assembler")
+                                    antWorker.AntWorkerType = AntWorkerType.Assembler;
+                                else if (playerUnit.Unit.Blueprint.Name == "Fighter")
+                                    antWorker.AntWorkerType = AntWorkerType.Fighter;
+                                else if (playerUnit.Unit.Blueprint.Name == "Worker")
+                                    antWorker.AntWorkerType = AntWorkerType.Worker;
+                                Ants.Add(cntrlUnit.UnitId, antWorker);
+                            }
+                            
                             // Guess by units preplaced on the map
+                            /*
                             if (playerUnit.Unit.Assembler != null && playerUnit.Unit.Engine == null)
                             {
                                 AntFactory antFactory = new AntFactory(this, playerUnit);
                                 antFactory.Alive = true;
                                 Ants.Add(cntrlUnit.UnitId, antFactory);
-                            }                            
+                            }
                             else if (playerUnit.Unit.Engine != null)
                             {
                                 AntWorker antWorker = new AntWorker(this);
@@ -748,7 +771,7 @@ namespace Engine.Control
                                 antWorker.Alive = true;
                                 antWorker.AntWorkerType = AntWorkerType.None;
                                 Ants.Add(cntrlUnit.UnitId, antWorker);
-                            }
+                            }*/
                         }
                     }
                 }
