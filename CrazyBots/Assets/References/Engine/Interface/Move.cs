@@ -59,10 +59,16 @@ namespace Engine.Interface
         }
         [DataMember(EmitDefaultValue =false)]
         public string BlueprintName { get; set; }
+
         [DataMember(EmitDefaultValue = false)]
         public List<MoveUpdateUnitPart> UnitParts { get; set; }
+
         [DataMember(EmitDefaultValue = false)]
         public MoveUpdateGroundStat MoveUpdateGroundStat { get; set; }
+
+
+        [DataMember]
+        public bool MarkedForExtraction { get; set; }
 
         [DataMember]
         public int EngineLevel { get; set; }

@@ -15,7 +15,8 @@ namespace Engine.Interface
         AttackMove,
         Attack,
         Minerals,
-        Build
+        Build,
+        Extract
     }
 
     public class GameCommand

@@ -271,7 +271,7 @@ namespace Engine.Master
                     
                     if (neighbor.Unit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
                     {
-                        if (Level > 0 && !neighbor.Unit.IsComplete())
+                        if (Level > 0 && !neighbor.Unit.IsComplete() && !neighbor.Unit.ExtractMe)
                         {
                             if ((moveFilter & MoveFilter.Upgrade) > 0)
                             {

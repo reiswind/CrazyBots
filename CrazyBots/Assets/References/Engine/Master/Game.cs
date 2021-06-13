@@ -1316,6 +1316,12 @@ namespace Engine.Master
                 {
                     foreach (GameCommand gameCommand in gameCommands)
                     {
+                        if (gameCommand.GameCommandType == GameCommandType.Extract)
+                        {
+                            Unit unit = Map.Units.FindUnit(gameCommand.UnitId);
+                            if (unit != null)
+                                unit.ExtractMe = true;
+                        }
                         if (gameCommand.GameCommandType == GameCommandType.Build)
                         {
                             Move move = new Move();

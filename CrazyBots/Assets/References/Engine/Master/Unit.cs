@@ -566,6 +566,7 @@ namespace Engine.Master
         {
             MoveUpdateStats stats = new MoveUpdateStats();
             stats.BlueprintName = Blueprint.Name;
+            stats.MarkedForExtraction = ExtractMe;
 
             stats.UnitParts = new List<MoveUpdateUnitPart>();
             foreach (BlueprintPart blueprintPart in Blueprint.Parts)

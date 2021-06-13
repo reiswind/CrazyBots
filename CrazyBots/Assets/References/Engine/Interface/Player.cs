@@ -508,10 +508,14 @@ namespace Engine.Interface
                     if (!this.Units.ContainsKey(to))
                     {
                         Unit unit = Game.Map.Units.GetUnitAt(to);
-                        PlayerUnit playerUnit = new PlayerUnit(unit);
-                        addedUnits.Add(to, playerUnit);
-                        Units.Add(to, playerUnit);
-                        changedUnits.Add(to);
+                        if (unit != null)
+                        {
+                            // How can it be null?
+                            PlayerUnit playerUnit = new PlayerUnit(unit);
+                            addedUnits.Add(to, playerUnit);
+                            Units.Add(to, playerUnit);
+                            changedUnits.Add(to);
+                        }
                     }
                 }
                 if (move.MoveType == MoveType.Move)
