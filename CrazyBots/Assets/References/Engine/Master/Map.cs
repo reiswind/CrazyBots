@@ -243,25 +243,32 @@ namespace Engine.Master
         {
             int minX, minY;
 
-            minX = (zoneCounter % zoneWidth) * 10; // + (zoneCounter % zoneWidth) * 10;
-            minY = (zoneCounter / zoneWidth) * 10;
-
-            while (true)
+            int retryZones = 5;
+            while (retryZones-- > 0)
             {
-                int x = Game.Random.Next(10);
-                int y = Game.Random.Next(10);
+                minX = (zoneCounter % zoneWidth) * 10;
+                minY = (zoneCounter / zoneWidth) * 10;
 
-                Position pos = new Position(minX + x, minY + y);
-                Tile t = GetTile(pos);
-                if (t == null)
-                    continue;
+                zoneCounter++;
+                if (zoneCounter > maxZones)
+                    zoneCounter = 0;
 
-                t.Metal++;
-                break;
+                int retryMinerals = 30;
+                while (retryMinerals-- > 0)
+                {
+                    int x = Game.Random.Next(10);
+                    int y = Game.Random.Next(10);
+
+                    Position pos = new Position(minX + x, minY + y);
+                    Tile t = GetTile(pos);
+                    if (t == null || t.Unit != null || t.Metal >= 20)
+                        continue;
+
+                    t.Metal++;
+                    retryZones = 0;
+                    break;
+                }
             }
-            zoneCounter++;
-            if (zoneCounter > maxZones)
-                zoneCounter = 0;
         }
 
         public Tile GetTile(Position pos)

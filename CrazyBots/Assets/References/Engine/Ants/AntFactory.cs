@@ -25,7 +25,7 @@ namespace Engine.Ants
 
             bool addContainer = false;
             //bool addAssemblerOnGround = false;
-            bool containerFound = false;
+            //bool containerFound = false;
 
             // Do we have a container?
             foreach (Tile n in player.Game.Map.GetTile(cntrlUnit.Pos).Neighbors)
@@ -37,7 +37,7 @@ namespace Engine.Ants
                         if (Control.Ants[n.Unit.UnitId] is AntContainer)
                         {
                             containerUnit = Control.Ants[n.Unit.UnitId] as AntContainer;
-                            containerFound = true;
+                            //containerFound = true;
                         }
                     }
                     else
@@ -50,6 +50,7 @@ namespace Engine.Ants
                     //everyOutTileOccupied = false;
                 }
             }
+            /*
             if (containerFound)
             {
                 // Must be complete empty
@@ -57,7 +58,7 @@ namespace Engine.Ants
                     containerUnit.PlayerUnit.Unit.IsComplete() &&
                     cntrlUnit.Container != null &&
                     cntrlUnit.Container.Metal == 0 
-                    /*&& cntrlUnit.Metal == 0*/)
+                    /*&& cntrlUnit.Metal == 0* /)
                 {
                     // Remove the local container, since the factory is attached to a container.
                     Move move = new Move();
@@ -80,7 +81,7 @@ namespace Engine.Ants
                     //    addContainer = true;
                 }
             }
-
+            */
             bool addWorker = false;
             if (Control.NumberOfWorkers < Control.MaxWorker)
                 addWorker = true;
@@ -228,7 +229,7 @@ namespace Engine.Ants
 
             if (!unitMoved)
             {
-                if (cntrlUnit.Extractor != null && !containerFound)
+                if (cntrlUnit.Extractor != null)
                 {
                     List<Move> possiblemoves = new List<Move>();
                     cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, null, MoveFilter.Extract);

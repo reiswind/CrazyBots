@@ -374,16 +374,16 @@ public class UnitBase : MonoBehaviour
         bool groundFound = false;
         foreach (MoveUpdateUnitPart moveUpdateUnitPart in remainingParts)
         {
-            if (engine != null && moveUpdateUnitPart.PartType == "Engine")
+            if (engine != null && moveUpdateUnitPart.PartType.StartsWith("Engine"))
             {
                 ReplacePart(engine, moveUpdateUnitPart.Name, underConstruction);
                 remainingParts.Remove(moveUpdateUnitPart);
                 groundFound = true;
                 break;
             }
-            else if (ground != null && moveUpdateUnitPart.PartType == "Extractor")
+            else if (ground != null && moveUpdateUnitPart.PartType.StartsWith("Extractor"))
             {
-                ReplacePart(ground, moveUpdateUnitPart.Name, underConstruction); // moveUpdateUnitPart.Name);
+                ReplacePart(ground, moveUpdateUnitPart.Name, underConstruction);
                 ground.name = moveUpdateUnitPart.Name;
 
                 remainingParts.Remove(moveUpdateUnitPart);
@@ -402,20 +402,26 @@ public class UnitBase : MonoBehaviour
         // Place big parts
         foreach (MoveUpdateUnitPart moveUpdateUnitPart in remainingParts)
         {
-            if (moveUpdateUnitPart.Name.StartsWith("Container") ||
-                moveUpdateUnitPart.Name.StartsWith("Weapon") ||
-                moveUpdateUnitPart.Name.StartsWith("Assembler"))
+            if (moveUpdateUnitPart.PartType.StartsWith("Container") ||
+                moveUpdateUnitPart.PartType.StartsWith("Weapon") ||
+                moveUpdateUnitPart.PartType.StartsWith("Reactor") ||
+                moveUpdateUnitPart.PartType.StartsWith("Assembler"))
             {
                 ReplacePart(bigPart, moveUpdateUnitPart.Name, underConstruction);
                 remainingParts.Remove(moveUpdateUnitPart);
                 break;
             }
         }
-        // Place remaining parts
-        foreach (MoveUpdateUnitPart moveUpdateUnitPart in remainingParts)
+        if (sparePart != null)
         {
-            ReplacePart(sparePart, moveUpdateUnitPart.Name, underConstruction);
-            sparePart = part2;
+            // Place remaining parts
+            foreach (MoveUpdateUnitPart moveUpdateUnitPart in remainingParts)
+            {
+                ReplacePart(sparePart, moveUpdateUnitPart.Name, underConstruction);
+                sparePart = part2;
+                if (sparePart == null)
+                    break;
+            }
         }
         UpdateParts();
     }
@@ -423,8 +429,6 @@ public class UnitBase : MonoBehaviour
 
     public void UpdateParts()
     {
-        //return;
-
         Container = null;
         Extractor = null;
         Assembler = null;

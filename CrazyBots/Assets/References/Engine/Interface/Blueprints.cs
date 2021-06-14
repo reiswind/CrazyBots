@@ -32,9 +32,25 @@ namespace Engine.Interface
             // Container
             blueprint = new Blueprint();
             blueprint.Name = "Container";
-            blueprint.Layout = "GroundUnit";
+            blueprint.Layout = "GroundXL";
             blueprint.Parts.Add(new BlueprintPart("Foundation"));
-            blueprint.Parts.Add(new BlueprintPart("Container3", 96));
+            blueprint.Parts.Add(new BlueprintPart("ContainerXL", "Container3", 96));
+            Items.Add(blueprint);
+
+            // Turret
+            blueprint = new Blueprint();
+            blueprint.Name = "Turret";
+            blueprint.Layout = "GroundXL";
+            blueprint.Parts.Add(new BlueprintPart("Foundation"));
+            blueprint.Parts.Add(new BlueprintPart("Weapon3", 6));
+            Items.Add(blueprint);
+
+            // Reactor
+            blueprint = new Blueprint();
+            blueprint.Name = "Reactor";
+            blueprint.Layout = "GroundXL";
+            blueprint.Parts.Add(new BlueprintPart("Foundation"));
+            blueprint.Parts.Add(new BlueprintPart("Reactor", 6));
             Items.Add(blueprint);
 
             // Worker to collect Minerals
@@ -43,7 +59,7 @@ namespace Engine.Interface
             blueprint.Layout = "MovableUnitBigPart";
             blueprint.Parts.Add(new BlueprintPart("Engine"));
             blueprint.Parts.Add(new BlueprintPart("Extractor"));
-            blueprint.Parts.Add(new BlueprintPart("Container"));
+            blueprint.Parts.Add(new BlueprintPart("Container", 12));
             blueprint.Parts.Add(new BlueprintPart("Armor"));
             Items.Add(blueprint);
 
@@ -125,6 +141,13 @@ namespace Engine.Interface
             Name = name;
             Capacity = capacity;
             DetactPartType();
+        }
+
+        public BlueprintPart(string name, string partType, int capacity)
+        {
+            Name = name;
+            Capacity = capacity;
+            PartType = partType;
         }
 
         public string PartType { get; set; }

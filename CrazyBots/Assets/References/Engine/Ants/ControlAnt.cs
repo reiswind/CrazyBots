@@ -742,15 +742,24 @@ namespace Engine.Control
                                 else if (playerUnit.Unit.Blueprint.Name == "Worker")
                                     antWorker.AntWorkerType = AntWorkerType.Worker;
                                 Ants.Add(cntrlUnit.UnitId, antWorker);
-                            }
-                            
-                            // Guess by units preplaced on the map
-                            
-                            if (playerUnit.Unit.Blueprint.Name == "Outpost")
+                            }                         
+                            else if (playerUnit.Unit.Blueprint.Name == "Outpost")
                             {
                                 AntFactory antFactory = new AntFactory(this, playerUnit);
                                 antFactory.Alive = true;
                                 Ants.Add(cntrlUnit.UnitId, antFactory);
+                            }
+                            else if (playerUnit.Unit.Blueprint.Name == "Container")
+                            {
+                                AntContainer antContainer = new AntContainer(this, playerUnit);
+                                antContainer.Alive = true;
+                                Ants.Add(cntrlUnit.UnitId, antContainer);
+                            }
+                            else if (playerUnit.Unit.Blueprint.Name == "Turret")
+                            {
+                                AntTurret antTurret = new AntTurret(this, playerUnit);
+                                antTurret.Alive = true;
+                                Ants.Add(cntrlUnit.UnitId, antTurret);
                             }
                             /*else if (playerUnit.Unit.Engine != null)
                             {
@@ -847,6 +856,15 @@ namespace Engine.Control
                 {
                     ant.HandleGameCommands(player);
 
+                    ant.Move(player, moves);
+                    movableAnts.Remove(ant);
+                }
+            }
+
+            foreach (Ant ant in unmovedAnts)
+            {
+                if (ant is AntTurret)
+                {
                     ant.Move(player, moves);
                     movableAnts.Remove(ant);
                 }

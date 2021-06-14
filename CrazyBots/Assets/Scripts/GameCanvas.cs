@@ -237,6 +237,10 @@ public class GameCanvas : MonoBehaviour
                 HideButton(6);
                 HideButton(7);
                 HideButton(8);
+                HideButton(9);
+                HideButton(10);
+                HideButton(11);
+                HideButton(12);
             }
             else if (topSelectedButton == 1)
             {
@@ -269,7 +273,7 @@ public class GameCanvas : MonoBehaviour
                 else if (middleSelectedButton == 7)
                 {
                     SetButtonText(9, "(y) Shield");
-                    SetButtonText(10, "(x) Reactor3");
+                    SetButtonText(10, "(x) Reactor3", "Reactor");
                     HideButton(11);
                     HideButton(12);
                 }
@@ -316,7 +320,7 @@ public class GameCanvas : MonoBehaviour
             }
             else if (topSelectedButton == 3)
             {
-                SetButtonText(5, "(a) Turret");
+                SetButtonText(5, "(a) Turret", "Turret");
                 HideButton(6);
                 HideButton(7);
                 HideButton(8);
@@ -819,12 +823,12 @@ public class GameCanvas : MonoBehaviour
                         {
                             state = "";
                         }
-                        if (part.PartType == "Extractor")
+                        if (part.PartType.StartsWith("Extractor"))
                         {
                             panelExtractor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                             panelExtractor.SetActive(true);
                         }
-                        if (part.PartType == "Weapon")
+                        if (part.PartType.StartsWith("Weapon"))
                         {
                             panelWeapon.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                             panelWeapon.SetActive(true);
@@ -841,7 +845,7 @@ public class GameCanvas : MonoBehaviour
 
                             panelWeapon.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
                         }
-                        if (part.PartType == "Assembler")
+                        if (part.PartType.StartsWith("Assembler"))
                         {
                             panelAssembler.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                             panelAssembler.SetActive(true);
@@ -859,22 +863,22 @@ public class GameCanvas : MonoBehaviour
                             panelAssembler.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
 
                         }
-                        if (part.PartType == "Reactor")
+                        if (part.PartType.StartsWith("Reactor"))
                         {
                             panelReactor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                             panelReactor.SetActive(true);
                         }
-                        if (part.PartType == "Armor")
+                        if (part.PartType.StartsWith("Armor"))
                         {
                             panelArmor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                             panelArmor.SetActive(true);
                         }
-                        if (part.PartType == "Engine")
+                        if (part.PartType.StartsWith("Engine"))
                         {
                             panelEngine.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                             panelEngine.SetActive(true);
                         }
-                        if (part.PartType == "Container")
+                        if (part.PartType.StartsWith("Container"))
                         {
                             panelContainer.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                             panelContainer.SetActive(true);
