@@ -50,7 +50,7 @@ namespace Engine.Interface
             blueprint.Name = "Reactor";
             blueprint.Layout = "GroundXL";
             blueprint.Parts.Add(new BlueprintPart("Foundation"));
-            blueprint.Parts.Add(new BlueprintPart("Reactor", 6));
+            blueprint.Parts.Add(new BlueprintPart("ReactorXL", "Reactor3", 6));
             Items.Add(blueprint);
 
             // Worker to collect Minerals

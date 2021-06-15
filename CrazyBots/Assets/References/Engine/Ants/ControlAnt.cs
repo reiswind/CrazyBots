@@ -21,7 +21,7 @@ namespace Engine.Control
 
         public Dictionary<Position, Ant> CreatedAnts = new Dictionary<Position, Ant>();
 
-        public int MaxWorker = 1;
+        public int MaxWorker = 0;
         public int MaxFighter = 0;
         public int MaxAssembler = 0;
 
@@ -48,6 +48,10 @@ namespace Engine.Control
                         Ant ant = CreatedAnts[pos];
                         CreatedAnts.Remove(pos);
                         Ants.Add(move.UnitId, ant);
+                    }
+                    else
+                    { 
+                        WorkFound(player, pos);
                     }
                 }
             }
@@ -189,7 +193,7 @@ namespace Engine.Control
             }
             else
             {
-                int id = player.Game.Pheromones.DropPheromones(player, pos, 3, PheromoneType.ToFood, 1, false);
+                int id = player.Game.Pheromones.DropPheromones(player, pos, 3, PheromoneType.Mineral, 1, false);
                 mineralsDeposits.Add(pos, id);
             }
         }
@@ -203,7 +207,7 @@ namespace Engine.Control
             }
             else
             {
-                int id = player.Game.Pheromones.DropPheromones(player, pos, 3, PheromoneType.ToWork, 1, false);
+                int id = player.Game.Pheromones.DropPheromones(player, pos, 3, PheromoneType.Work, 1, false);
                 workDeposits.Add(pos, id);
             }
         }
@@ -231,7 +235,7 @@ namespace Engine.Control
 
                     ant.PheromoneDepositNeedMineralsLevel = ant.PlayerUnit.Unit.Container.Level;
                     int intensity = (ant.PlayerUnit.Unit.Container.Metal * 100 / ant.PlayerUnit.Unit.Container.Capacity) / 100;
-                    ant.PheromoneDepositNeedMinerals = player.Game.Pheromones.DropPheromones(player, ant.PlayerUnit.Unit.Pos, range, PheromoneType.ToHome, 1, true);
+                    ant.PheromoneDepositNeedMinerals = player.Game.Pheromones.DropPheromones(player, ant.PlayerUnit.Unit.Pos, range, PheromoneType.Container, 1, true);
                 }
                 else
                 {
@@ -466,7 +470,7 @@ namespace Engine.Control
                 {
                     // Distance at all
                     double d = pos.GetDistanceTo(ant.PlayerUnit.Unit.Pos);
-                    if (d < 18)
+                    //if (d < 18)
                     {
                         List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, pos, ant.PlayerUnit.Unit);
                         if (positions != null && positions.Count > 2)
@@ -495,7 +499,7 @@ namespace Engine.Control
         }
 
 
-        public Position FindFood(Player player, Ant ant)
+        public Position FindMineral(Player player, AntWorker ant)
         {
             Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.Pos, 3, false, matcher: tile =>
             {
@@ -534,6 +538,28 @@ namespace Engine.Control
                     }
                 }
             }
+            if (bestPositions == null && (ant.AntWorkerType == AntWorkerType.Fighter || ant.AntWorkerType == AntWorkerType.Assembler))
+            {
+                // Look for Container with mineraly to refill
+                foreach (Ant possibleAnt in Ants.Values)
+                {
+                    AntContainer antContainer = possibleAnt as AntContainer;
+                    if (antContainer != null && 
+                        antContainer.PlayerUnit.Unit.Container != null &&
+                        antContainer.PlayerUnit.Unit.Container.Metal > 0)
+                    {
+                        List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, antContainer.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit);
+                        if (positions != null && positions.Count > 2)
+                        {
+                            if (bestPositions == null || bestPositions.Count > positions.Count)
+                            {
+                                bestPositions = positions;
+                            }
+                        }
+                    }
+                }
+            }
+
             if (bestPositions != null && bestPositions.Count > 1)
             {
                 if (bestPositions.Count > 2)
@@ -717,7 +743,8 @@ namespace Engine.Control
                         }
                         else
                         {
-                            if (!cntrlUnit.IsComplete())
+                            
+                            if (!cntrlUnit.IsComplete() && !cntrlUnit.ExtractMe)
                             {
                                 WorkFound(player, cntrlUnit.Pos);
                             }
@@ -760,6 +787,12 @@ namespace Engine.Control
                                 AntTurret antTurret = new AntTurret(this, playerUnit);
                                 antTurret.Alive = true;
                                 Ants.Add(cntrlUnit.UnitId, antTurret);
+                            }
+                            else if (playerUnit.Unit.Blueprint.Name == "Reactor")
+                            {
+                                AntReactor antReactor = new AntReactor(this, playerUnit);
+                                antReactor.Alive = true;
+                                Ants.Add(cntrlUnit.UnitId, antReactor);
                             }
                             /*else if (playerUnit.Unit.Engine != null)
                             {
@@ -818,6 +851,12 @@ namespace Engine.Control
                 {
                     if (ant.PlayerUnit.Unit.IsComplete())
                     {
+                        if (workDeposits.ContainsKey(ant.PlayerUnit.Unit.Pos))
+                        {
+                            player.Game.Pheromones.DeletePheromones(workDeposits[ant.PlayerUnit.Unit.Pos]);
+                            workDeposits.Remove(ant.PlayerUnit.Unit.Pos);
+                        }
+
                         UpdateUnitCounters(ant);
 
                         UpdateContainerDeposits(player, ant);
@@ -878,7 +917,14 @@ namespace Engine.Control
                     movableAnts.Remove(ant);
                 }
             }
-
+            foreach (Ant ant in unmovedAnts)
+            {
+                if (ant is AntReactor)
+                {
+                    ant.Move(player, moves);
+                    movableAnts.Remove(ant);
+                }
+            }
             unmovedAnts.Clear();    
             unmovedAnts.AddRange(movableAnts);
             while (unmovedAnts.Count > 0)

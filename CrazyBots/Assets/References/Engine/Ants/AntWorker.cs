@@ -208,7 +208,7 @@ namespace Engine.Ants
                 {
                     moves.Add(move);
                     if (dropPheromone && !NothingFound)
-                        DropPheromone(player, PheromoneType.ToFood);
+                        DropPheromone(player, PheromoneType.Mineral);
                     return true;
                 }
             }
@@ -326,7 +326,7 @@ namespace Engine.Ants
                 }
                 else if (pheroHere != null)
                 {
-                    AddDestination(possibleTiles, player, tile.Tile, 0.2f, false, PheromoneType.ToFood);
+                    AddDestination(possibleTiles, player, tile.Tile, 0.2f, false, PheromoneType.Mineral);
                     return true;
                 }
                 return false;
@@ -343,7 +343,7 @@ namespace Engine.Ants
                 }
                 if (antDestination.Pheromone != null && 
                     (bestPheromone == null || 
-                    antDestination.Pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.ToFood) > bestPheromone.Pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.ToFood)))
+                    antDestination.Pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Mineral) > bestPheromone.Pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Mineral)))
                 {
                     bestPheromone = antDestination;
                 }
@@ -534,19 +534,19 @@ namespace Engine.Ants
                 // Minerals needed?
                 if (cntrlUnit.Weapon != null && !cntrlUnit.Weapon.WeaponLoaded)
                 {
-                    pheromoneType = PheromoneType.ToFood;
+                    pheromoneType = PheromoneType.Mineral;
                 }
                 else if (AntWorkerType == AntWorkerType.Worker)
                 {
                     if (cntrlUnit.Container != null && cntrlUnit.Container.Metal < cntrlUnit.Container.Capacity)
                     {
                         // Fill up with food!
-                        pheromoneType = PheromoneType.ToFood;
+                        pheromoneType = PheromoneType.Mineral;
                     }
                     else
                     {
                         // Look for a target to unload
-                        pheromoneType = PheromoneType.ToHome;
+                        pheromoneType = PheromoneType.Container;
                     }
                 }
                 else if (AntWorkerType == AntWorkerType.Fighter)
@@ -557,25 +557,25 @@ namespace Engine.Ants
                 {
                     if (cntrlUnit.Assembler != null && cntrlUnit.Assembler.CanProduce())
                     {
-                        pheromoneType = PheromoneType.ToWork;
+                        pheromoneType = PheromoneType.Work;
                     }
                     else
                     {
-                        pheromoneType = PheromoneType.ToFood;
+                        pheromoneType = PheromoneType.Mineral;
                     }
                 }
 
                 List<AntDestination> possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
-                if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.ToFood)
+                if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.Mineral)
                 {
-                    moveToPosition = Control.FindFood(player, this);
+                    moveToPosition = Control.FindMineral(player, this);
                     if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
                     {
                         moveToPosition = null;
                         FollowThisRoute = null;
                     }
                 }
-                if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.ToWork)
+                if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.Work)
                 {
                     moveToPosition = Control.FindWork(player, this);
                     if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
@@ -584,7 +584,7 @@ namespace Engine.Ants
                         FollowThisRoute = null;
                     }
                 }
-                if (AntWorkerType == AntWorkerType.Worker && possibleTiles.Count == 0 && pheromoneType == PheromoneType.ToHome)
+                if (AntWorkerType == AntWorkerType.Worker && possibleTiles.Count == 0 && pheromoneType == PheromoneType.Container)
                 {
                     moveToPosition = Control.FindContainer(player, this);
                     if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
@@ -651,7 +651,7 @@ namespace Engine.Ants
                         //if (pheromoneType == PheromoneType.ToFood)
                         else
                         {
-                            pheromoneType = PheromoneType.ToHome;
+                            pheromoneType = PheromoneType.Container;
                             possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
                             if (possibleTiles.Count == 0)
                             {
@@ -775,7 +775,7 @@ namespace Engine.Ants
             // For now
             //if (player.PlayerModel.Id == 9999)
             {
-                if (pheromoneType == PheromoneType.ToHome)
+                if (pheromoneType == PheromoneType.Container)
                 {
                     Energy -= 3;
                     if (Energy < 0)
@@ -817,12 +817,12 @@ namespace Engine.Ants
                 float intensity;
                 switch (pheromoneType)
                 {
-                    case PheromoneType.ToHome:
+                    case PheromoneType.Container:
                         intensity = (Energy / MaxEnergy) * HomeTrailDepositRate;
                         //pheromone.Deposit(intensity, pheromoneType, false);
                         break;
 
-                    case PheromoneType.ToFood:
+                    case PheromoneType.Mineral:
                         intensity = 0.5f; // (FoodIntensity / MaxFoodIntensity) * FoodTrailDepositRate;
                         player.Game.Pheromones.Deposit(player, cntrlUnit.Pos, pheromoneType, intensity, false);
                         break;

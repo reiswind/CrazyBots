@@ -81,22 +81,8 @@ public class GroundCell : MonoBehaviour
                 meshRenderer = markerToEnemy.GetComponent<MeshRenderer>();
                 meshRenderer.material.color = new Color(0.4f, 0, 0);
             }
+            
             /*
-            if (mapPheromone.IntensityToHome > 0)
-            {
-                Vector3 position = transform.position;
-                position.y += 0.054f + (0.2f * mapPheromone.IntensityToHome);
-                position.x += 0.1f;
-                markerToHome.transform.position = position;
-            }
-            else
-            {
-                Vector3 position = transform.position;
-                position.y -= 1;
-                position.x += 0.1f;
-                markerToHome.transform.position = position;
-            }
-            */
             if (mapPheromone.IntensityToWork > 0)
             {
                 Vector3 position = transform.position;
@@ -110,8 +96,9 @@ public class GroundCell : MonoBehaviour
                 position.y -= 1;
                 position.x += 0.1f;
                 markerToHome.transform.position = position;
-            }
-
+            }*/
+            
+            /*
             if (mapPheromone.IntensityToMineral > 0)
             {
                 Vector3 position = transform.position;
@@ -126,11 +113,12 @@ public class GroundCell : MonoBehaviour
                 position.x += 0.2f;
                 markerToMineral.transform.position = position;
             }
-
-            if (mapPheromone.IntensityToEnemy > 0)
+            */
+            
+            if (mapPheromone.IntensityToWork > 0)
             {
                 Vector3 position = transform.position;
-                position.y += 0.054f + (0.2f * mapPheromone.IntensityToEnemy);
+                position.y += 0.054f + (0.2f * mapPheromone.IntensityToWork);
                 position.x += 0.3f;
                 markerToEnemy.transform.position = position;
             }
@@ -141,7 +129,8 @@ public class GroundCell : MonoBehaviour
                 position.x += 0.3f;
                 markerToEnemy.transform.position = position;
             }
-
+            
+            
             float highestEnergy = -1;
             int highestPlayerId = 0;
 
@@ -170,6 +159,7 @@ public class GroundCell : MonoBehaviour
                 position.y -= 1;
                 markerEnergy.transform.position = position;
             }
+            
         }
     }
 

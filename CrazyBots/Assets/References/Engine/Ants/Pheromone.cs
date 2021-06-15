@@ -10,13 +10,12 @@ namespace Engine.Ants
     public enum PheromoneType
     {
         None,
-        ToHome,
-        ToFood,
+        Container,
+        Mineral,
         Enemy,
         Energy,
-        Assemble,
         AwayFromEnergy,
-        ToWork
+        Work
     }
 
     public class Pheromones
@@ -223,9 +222,9 @@ namespace Engine.Ants
             {
                 if (PheromoneType == PheromoneType.Energy)
                     Intensity -= Intensity * 0.1f;
-                else if (PheromoneType == PheromoneType.ToFood)
+                else if (PheromoneType == PheromoneType.Mineral)
                     Intensity -= Intensity * 0.02f;
-                else if (PheromoneType == PheromoneType.ToHome)
+                else if (PheromoneType == PheromoneType.Container)
                     Intensity -= Intensity * 0.05f; // FOOD_TRAIL_FORGET_RATE
 
                 if (Intensity < 0.01f)

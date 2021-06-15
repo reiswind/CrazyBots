@@ -40,7 +40,7 @@ namespace Engine.Interface
         }
         public Position Pos { get; set; }
         public float IntensityToWork { get; set; }
-        public float IntensityToHome { get; set; }
+        public float IntensityContainer { get; set; }
         public float IntensityToMineral { get; set; }
         public float IntensityToEnemy { get; set; }
         public List<MapPheromoneItem> PheromoneItems { get; private set; }
@@ -65,10 +65,10 @@ namespace Engine.Interface
                 MapPheromone mapPheromone = new MapPheromone();
                 mapPheromone.Pos = pheromone.Pos;
 
-                mapPheromone.IntensityToHome = pheromone.GetIntensityF(0, PheromoneType.ToHome);
-                mapPheromone.IntensityToMineral = pheromone.GetIntensityF(0, PheromoneType.ToFood);
+                mapPheromone.IntensityContainer = pheromone.GetIntensityF(0, PheromoneType.Container);
+                mapPheromone.IntensityToMineral = pheromone.GetIntensityF(0, PheromoneType.Mineral);
                 mapPheromone.IntensityToEnemy = pheromone.GetIntensityF(0, PheromoneType.Enemy);
-                mapPheromone.IntensityToWork = pheromone.GetIntensityF(0, PheromoneType.ToWork);
+                mapPheromone.IntensityToWork = pheromone.GetIntensityF(0, PheromoneType.Work);
                 
 
                 foreach (PheromoneItem pheromoneItem in pheromone.PheromoneItems)

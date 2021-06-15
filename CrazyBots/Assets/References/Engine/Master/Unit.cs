@@ -176,6 +176,12 @@ namespace Engine.Master
 
         private void CreateBlueprintPart(BlueprintPart blueprintPart, bool fillContainer)
         {
+            int level = 1;
+            if (blueprintPart.PartType.EndsWith("2"))
+                level = 2;
+            else if (blueprintPart.PartType.EndsWith("3"))
+                level = 3;
+
             if (blueprintPart.PartType == "Engine")
                 Engine = new Engine(this, 1);
             else if (blueprintPart.PartType == "Engine2")
@@ -224,7 +230,7 @@ namespace Engine.Master
             else if (blueprintPart.PartType == "Extractor3")
                 Extractor = new Extractor(this, 3);
 
-            else if (blueprintPart.PartType == "Container")
+            else if (blueprintPart.PartType == "xContainer")
             {
                 Container = new Container(this, 1);
                 if (blueprintPart.Capacity.HasValue)
@@ -232,7 +238,7 @@ namespace Engine.Master
                 if (fillContainer)
                     Container.Metal = Container.Capacity;
             }
-            else if (blueprintPart.PartType == "Container2")
+            else if (blueprintPart.PartType == "xContainer2")
             {
                 Container = new Container(this, 2);
                 if (blueprintPart.Capacity.HasValue)
@@ -240,7 +246,7 @@ namespace Engine.Master
                 if (fillContainer)
                     Container.Metal = Container.Capacity;
             }
-            else if (blueprintPart.PartType == "Container3")
+            else if (blueprintPart.PartType == "xContainer3")
             {
                 Container = new Container(this, 3);
                 if (blueprintPart.Capacity.HasValue)
@@ -248,13 +254,41 @@ namespace Engine.Master
                 if (fillContainer)
                     Container.Metal = Container.Capacity;
             }
+            else if (blueprintPart.PartType.StartsWith("Container"))
+            {
+                if (Container == null)
+                {
+                    if (fillContainer)
+                    {
+                        Container = new Container(this, level);
+                        Container.Metal = Container.Capacity;
+                    }
+                    else
+                    {
+                        Container = new Container(this, 1);
+                    }
+                }
+                else
+                {
+                    if (level > Container.Level)
+                        Container.Level++;
+                }
+                if (blueprintPart.Capacity.HasValue)
+                    Container.Capacity = blueprintPart.Capacity.Value;
+            }
 
-            else if (blueprintPart.PartType == "Reactor")
-                Reactor = new Reactor(this, 1);
-            else if (blueprintPart.PartType == "Reactor2")
-                Reactor = new Reactor(this, 2);
-            else if (blueprintPart.PartType == "Reactor3")
-                Reactor = new Reactor(this, 3);
+            else if (blueprintPart.PartType.StartsWith("Reactor"))
+            {
+                if (Reactor == null)
+                {
+                    Reactor = new Reactor(this, 1);
+                }
+                else
+                {
+                    if (level > Reactor.Level)
+                        Reactor.Level++;
+                }
+            }
 
             else if (blueprintPart.PartType == "Radar")
                 Radar = new Radar(this, 1);
@@ -579,17 +613,17 @@ namespace Engine.Master
 
                 if (moveUpdateUnitPart.Exists)
                 {
-                    if (blueprintPart.PartType == "Weapon")
+                    if (blueprintPart.PartType.StartsWith( "Weapon"))
                     {
                         moveUpdateUnitPart.Minerals = Weapon.Container.Metal;
                         moveUpdateUnitPart.Capacity = Weapon.Container.Capacity;
                     }
-                    if (blueprintPart.PartType == "Assembler")
+                    if (blueprintPart.PartType.StartsWith("Assembler"))
                     {
                         moveUpdateUnitPart.Minerals = Assembler.Container.Metal;
                         moveUpdateUnitPart.Capacity = Assembler.Container.Capacity;
                     }
-                    if (blueprintPart.PartType == "Container")
+                    if (blueprintPart.PartType.StartsWith("Container"))
                     {
                         moveUpdateUnitPart.Minerals = Container.Metal;
                         moveUpdateUnitPart.Capacity = Container.Capacity;

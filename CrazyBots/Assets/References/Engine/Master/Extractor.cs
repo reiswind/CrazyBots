@@ -164,7 +164,19 @@ namespace Engine.Master
                         {
                             if (t.Unit.Container != null)
                             {
-                                if (Unit.Engine == null || Unit.BuilderWaitForMetal)
+                                if (Unit.Engine == null && 
+                                    Unit.Container != null &&
+                                    Unit.Weapon == null &&
+                                    Unit.Reactor == null &&
+                                    Unit.Assembler == null &&
+                                    Unit.Radar == null)
+                                {
+                                    // Pure Containers do not extract from other units.
+                                    if (t.Unit.Engine == null)
+                                        continue;
+                                }
+
+                                if (Unit.Engine == null || Unit.Weapon != null || Unit.Assembler != null)
                                 {
                                     if (Unit.Container != null)
                                     {

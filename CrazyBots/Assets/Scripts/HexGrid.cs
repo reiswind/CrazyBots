@@ -343,9 +343,9 @@ public class HexGrid : MonoBehaviour
 				WaitForTurn.Set();
 			}
 		}
-		catch (Exception)
+		catch (Exception err)
 		{
-			//throw new Exception("Game move wrecked " + err.Message);
+			throw new Exception("Game move wrecked " + err.Message);
 		}
 	}
 

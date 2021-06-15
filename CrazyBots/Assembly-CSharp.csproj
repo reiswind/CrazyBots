@@ -85,6 +85,7 @@
     <Compile Include="Assets\References\Engine\Master\Container.cs" />
     <Compile Include="Assets\References\Engine\Master\ControlMaster.cs" />
     <Compile Include="Assets\References\Engine\Interface\GameModel.cs" />
+    <Compile Include="Assets\References\Engine\Ants\AntTurret.cs" />
     <Compile Include="Assets\References\Engine\Master\Armor .cs" />
     <Compile Include="Assets\Scripts\Weapon1.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntDestination.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="Assets\References\Engine\Interface\Tile.cs" />
     <Compile Include="Assets\References\Engine\Control\Collect.cs" />
     <Compile Include="Assets\References\Engine\Ants\ControlAnt.cs" />
+    <Compile Include="Assets\References\Engine\Ants\AntReactor.cs" />
     <Compile Include="Assets\Scripts\Assembler1.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntFactory.cs" />
     <Compile Include="Assets\Scripts\HexMapEditor.cs" />
@@ -122,7 +124,6 @@
     <Compile Include="Assets\Scripts\HexGrid.cs" />
     <Compile Include="Assets\References\Engine\Master\Engine.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\PriorityQueueB.cs" />
-    <Compile Include="Assets\References\Engine\Ants\AntTurret.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\References\TerrainQuest.Generator.dll" />
