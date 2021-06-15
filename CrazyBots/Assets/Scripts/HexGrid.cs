@@ -5,6 +5,7 @@ using System;
 //using Engine.Master;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading;
@@ -51,10 +52,10 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -96,11 +97,7 @@ public class HexGrid : MonoBehaviour
 
 	}
 
-
-	internal List<GameObject> smallTrees = new List<GameObject>();
-	internal List<GameObject> smallRocks = new List<GameObject>();
-	internal List<GameObject> obstacles = new List<GameObject>();
-
+	/*
 	public void AddTree(string name, List<GameObject> trees, float scale)
     {
 		GameObject treePrefab = Resources.Load<GameObject>("LowPolyTreePack/Prefabs/" + name);
@@ -126,9 +123,118 @@ public class HexGrid : MonoBehaviour
 
 		rocks.Add(treePrefab);
 	}
+	*/
+	private Dictionary<string, GameObject> terrainResources = new Dictionary<string, GameObject>();
+	private Dictionary<string, GameObject> treeResources = new Dictionary<string, GameObject>();
+	private Dictionary<string, GameObject> rockResources = new Dictionary<string, GameObject>();
+	private Dictionary<string, GameObject> unitResources = new Dictionary<string, GameObject>();
+	private Dictionary<string, GameObject> obstaclesResources = new Dictionary<string, GameObject>();
+	private Dictionary<string, Material> materialResources = new Dictionary<string, Material>();
+	private Dictionary<string, GameObject> particlesResources = new Dictionary<string, GameObject>();
+
+	private void InitMaterials()
+	{
+		UnityEngine.Object[] allResources = Resources.LoadAll("Materials");
+		foreach (UnityEngine.Object resource in allResources)
+		{
+			Material gameObject = resource as Material;
+			if (gameObject != null)
+			{
+				materialResources.Add(gameObject.name, gameObject);
+
+			}
+		}
+	}
+	private void InitParticless()
+	{
+		UnityEngine.Object[] allResources = Resources.LoadAll("Particles");
+		foreach (UnityEngine.Object resource in allResources)
+		{
+			GameObject gameObject = resource as GameObject;
+			if (gameObject != null)
+			{
+				particlesResources.Add(gameObject.name, gameObject);
+
+			}
+		}
+	}
+
+	private void InitResources(Dictionary<string, GameObject> resources, string path)
+	{
+		UnityEngine.Object[] allResources = Resources.LoadAll(path);
+		foreach (UnityEngine.Object resource in allResources)
+		{
+			GameObject gameObject = resource as GameObject;
+			if (gameObject != null)
+			{
+				resources.Add(gameObject.name, gameObject);
+
+			}
+		}
+	}
+
+
+	private void InitResources()
+    {
+		InitMaterials();
+		InitParticless();
+		InitResources (obstaclesResources, "Prefabs/Obstacles");
+		InitResources (terrainResources, "Prefabs/Terrain");
+		InitResources (treeResources, "Prefabs/Trees");
+		InitResources (rockResources, "Prefabs/Rocks");
+		InitResources (unitResources, "Prefabs/Unit");
+	}
+
+	public GameObject GetTerrainResource(string name)
+    {
+		if (terrainResources.ContainsKey(name))
+			return terrainResources[name];
+		return null;
+	}
+	public GameObject GetUnitResource(string name)
+	{
+		if (unitResources.ContainsKey(name))
+			return unitResources[name];
+		return null;
+	}
+	public Material GetMaterial(string name)
+	{
+		if (materialResources.ContainsKey(name))
+			return materialResources[name];
+		return null;
+	}
+
+
+	public GameObject CreateDestructable(Transform transform, Tile tile)
+	{
+		GameObject prefab;
+		if (tile.IsDarkSand() || tile.IsSand())
+		{
+			int idx = game.Random.Next(rockResources.Count);
+			prefab = rockResources.Values.ElementAt(idx);
+		}
+		else
+        {
+			int idx = game.Random.Next(treeResources.Count);
+			prefab = treeResources.Values.ElementAt(idx);
+
+		}
+		GameObject obstacle = Instantiate(prefab, transform, false);
+		return obstacle;
+	}
+
+	public GameObject CreateObstacle(Transform transform)
+	{		
+		int idx = game.Random.Next(obstaclesResources.Count);
+		GameObject prefab = obstaclesResources.Values.ElementAt(idx);
+		GameObject obstacle = Instantiate(prefab, transform, false);
+		return obstacle;
+	}
 
 	public void CreateGame(GameModel gameModel)
 	{
+		InitResources();
+
 		// (int)DateTime.Now.Ticks; -1789305431
 		newMoves = new List<Move>();
 
@@ -147,6 +253,7 @@ public class HexGrid : MonoBehaviour
 		BaseUnits = new Dictionary<string, UnitBase>();
 		UnitsInBuild = new Dictionary<Position, UnitBase>();
 
+		/*
 		AddRock("Rock Type1 01", obstacles, 0.8f);
 		AddRock("Rock Type1 02", obstacles, 0.8f);
 		AddRock("Rock Type5 02", obstacles, 0.3f);
@@ -189,8 +296,8 @@ public class HexGrid : MonoBehaviour
 		AddTree("Tree Type7 02", smallRocks, 0.35f);
 		AddTree("Tree Type7 03", smallRocks, 0.35f);
 		AddTree("Tree Type7 04", smallRocks, 0.35f);
-
-		GameObject cellPrefab = (GameObject)Resources.Load("Prefabs/Terrain/HexCell 2");
+		*/
+		GameObject cellPrefab = GetTerrainResource("HexCell 2");
 
 		// Render ground
 		for (int y = 0; y < game.Map.MapHeight; y++)
@@ -548,26 +655,25 @@ public class HexGrid : MonoBehaviour
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Type Safety", "UNT0014:Invalid type for call to GetComponent", Justification = "<Pending>")]
     public T InstantiatePrefab<T>(string name)
     {
-		GameObject prefab = (GameObject)Resources.Load("Prefabs/Unit/" + name);
+		GameObject prefab = unitResources[name]; 
 		GameObject instance = Instantiate(prefab);
 
 		T script = instance.GetComponent<T>();
 		return script;
 	}
 
+	
 	public GameObject InstantiatePrefab(string name)
 	{
-		GameObject prefab = (GameObject)Resources.Load("Prefabs/Unit/" + name);
+		GameObject prefab = unitResources[name]; 
 		GameObject instance = Instantiate(prefab);
 		return instance;
 	}
 
-	private GameObject prefabSpotlight;
 
 	public Light CreateSelectionLight(GameObject gameObject)
 	{
-		if (prefabSpotlight == null)
-			prefabSpotlight = (GameObject)Resources.Load("Prefabs/Unit/Spot Light");
+		GameObject prefabSpotlight = GetUnitResource("Spot Light");
 		GameObject instance = Instantiate(prefabSpotlight);
 		Vector3 vector3 = gameObject.transform.position;
 		vector3.y += 2.5f;
@@ -577,34 +683,21 @@ public class HexGrid : MonoBehaviour
 		return instance.GetComponent<Light>();
 	}
 
-	private static ParticleSystem extractSourcePrefab;
-	private static ParticleSystem extractBuildPrefab;
-	private static ParticleSystemForceField extractPrefab;
-
 	public ParticleSystem MakeParticleSource(string resource)
     {
-		ParticleSystem extractSource = null;
-		if (resource == "ExtractSource")
-		{
-			if (extractSourcePrefab == null)
-				extractSourcePrefab = Resources.Load<ParticleSystem>("Particles/" + resource);
-			extractSource = Instantiate(extractSourcePrefab);
-		}
-		if (resource == "Build")
-		{
-			if (extractBuildPrefab == null)
-				extractBuildPrefab = Resources.Load<ParticleSystem>("Particles/" + resource);
-			extractSource = Instantiate(extractBuildPrefab);
-		}
+		GameObject gameObject = particlesResources[resource];
+		ParticleSystem extractSourcePrefab = gameObject.GetComponent<ParticleSystem>();
+
+		ParticleSystem extractSource = Instantiate(extractSourcePrefab);
+
 		return extractSource;
 	}
 
 	public ParticleSystemForceField MakeParticleTarget()
 	{
-		if (extractPrefab == null)
-			extractPrefab = Resources.Load<ParticleSystemForceField>("Particles/ExtractTarget");
-		ParticleSystemForceField extract;
-		extract = Instantiate(extractPrefab);
+		GameObject gameObject = particlesResources["ExtractTarget"];
+		ParticleSystemForceField extractPrefab = gameObject.GetComponent<ParticleSystemForceField>();
+		ParticleSystemForceField extract = Instantiate(extractPrefab);
 		return extract;
 	}
 
@@ -760,31 +853,31 @@ public class HexGrid : MonoBehaviour
 		string materialName;
 		if (t.IsSand())
 		{
-			materialName = "Materials/Sand";
+			materialName = "Sand";
 		}
 		else if (t.IsDarkSand())
 		{
-			materialName = "Materials/DarkSand";
+			materialName = "DarkSand";
 		}
 		else if (t.IsDarkWood())
 		{
-			materialName = "Materials/DarkWood";
+			materialName = "DarkWood";
 		}
 		else if (t.IsWood())
 		{
-			materialName = "Materials/Wood";
+			materialName = "Wood";
 		}
 		else if (t.IsLightWood())
 		{
-			materialName = "Materials/LightWood";
+			materialName = "LightWood";
 		}
 		else if (t.IsGrassDark())
 		{
-			materialName = "Materials/GrassDark";
+			materialName = "GrassDark";
 		}
 		else
 		{
-			materialName = "Materials/Grass";
+			materialName = "Grass";
 		}
 
 		//gridPos3.y = tileY / 2;
@@ -792,7 +885,7 @@ public class HexGrid : MonoBehaviour
 		gameObjectCell.transform.localPosition = gridPos3;
 
 		//
-		Material materialResource = Resources.Load<Material>(materialName);
+		Material materialResource = GetMaterial(materialName); 
 
 		MeshRenderer meshRenderer = gameObjectCell.GetComponent<MeshRenderer>();
 		meshRenderer.material = materialResource;

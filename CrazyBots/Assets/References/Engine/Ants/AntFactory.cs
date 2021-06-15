@@ -83,17 +83,20 @@ namespace Engine.Ants
             }
             */
             bool addWorker = false;
-            if (Control.NumberOfWorkers < Control.MaxWorker)
-                addWorker = true;
-
             bool addAssembler = false;
-            if (addWorker == false && Control.NumberOfAssembler < Control.MaxAssembler)
-                addAssembler = true;
-
             bool addFighter = false;
-            if (addWorker == false && Control.NumberOfFighter < Control.MaxFighter)
-                addFighter = true;
 
+            if (player.PlayerModel.Id != 1)
+            {
+                if (Control.NumberOfWorkers < Control.MaxWorker)
+                    addWorker = true;
+
+                if (addWorker == false && Control.NumberOfAssembler < Control.MaxAssembler)
+                    addAssembler = true;
+
+                if (addWorker == false && Control.NumberOfFighter < Control.MaxFighter)
+                    addFighter = true;
+            }
             if (cntrlUnit.Assembler != null)
             {
                 if (cntrlUnit.Assembler.CanProduce())

@@ -184,7 +184,6 @@ namespace Engine.Master
 
             for (int i=0; i < Map.DefaultMinerals; i++)
             {
-                break;
                 Map.DistributeMineral();
             }
         }

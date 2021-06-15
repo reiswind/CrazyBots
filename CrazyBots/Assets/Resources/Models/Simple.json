@@ -32,44 +32,14 @@
       }
     },
 	{
-      "Name": "Colony11",
+      "Name": "Container1",
       "PlayerId": 1,
-	  "Blueprint": "Outpost",
-      "Position": {
-        "X": 8,
-        "Y": 7
-      }
-    },
-	{
-      "Name": "Colony12",
-      "PlayerId": 1,
-	  "Blueprint": "Outpost",
-      "Position": {
-        "X": 5,
-        "Y": 5
-      }
-    },
-	{
-      "Name": "DefenseTower",
-      "PlayerId": 1,
-	  "Blueprint": "Outpost",
-      "Position": {
-        "X": 10,
-        "Y": 9
-      }
-    },
-	{
-      "Name": "DefenseTower",
-      "PlayerId": 1,
-	  "Blueprint": "Outpost",
+	  "Blueprint": "Container",
       "Position": {
         "X": 11,
-        "Y": 7
+        "Y": 8
       }
     },
-	
-	
-	
 	{
       "Name": "Colony2",
       "PlayerId": 2,

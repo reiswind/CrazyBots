@@ -21,8 +21,8 @@ namespace Engine.Control
 
         public Dictionary<Position, Ant> CreatedAnts = new Dictionary<Position, Ant>();
 
-        public int MaxWorker = 0;
-        public int MaxFighter = 0;
+        public int MaxWorker = 5;
+        public int MaxFighter = 35;
         public int MaxAssembler = 0;
 
         public int NumberOfWorkers;
@@ -743,11 +743,11 @@ namespace Engine.Control
                         }
                         else
                         {
-                            
+                            /* Bad. Assembler will drive into fighting zones instead of building at home
                             if (!cntrlUnit.IsComplete() && !cntrlUnit.ExtractMe)
                             {
                                 WorkFound(player, cntrlUnit.Pos);
-                            }
+                            }*/
                             
                             if (playerUnit.Unit.Blueprint.Name == "Assembler" ||
                                 playerUnit.Unit.Blueprint.Name == "Fighter" ||
@@ -980,6 +980,12 @@ namespace Engine.Control
 
             foreach (Ant ant in killedAnts)
             {
+                if (workDeposits.ContainsKey(ant.PlayerUnit.Unit.Pos))
+                {
+                    player.Game.Pheromones.DeletePheromones(workDeposits[ant.PlayerUnit.Unit.Pos]);
+                    workDeposits.Remove(ant.PlayerUnit.Unit.Pos);
+                }
+
                 if (ant.PheromoneDepositEnergy != 0)
                 {
                     player.Game.Pheromones.DeletePheromones(ant.PheromoneDepositEnergy);

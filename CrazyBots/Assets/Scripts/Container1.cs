@@ -9,7 +9,6 @@ public class Container1 : MonoBehaviour
     internal int Level { get; set; }
 
     private List<GameObject> crystals;
-    private static GameObject crystalResource;
     private int filled;
 
     public Container1()
@@ -17,7 +16,7 @@ public class Container1 : MonoBehaviour
         crystals = new List<GameObject>();
     }
 
-    public void UpdateContent(int? minerals, int? capacity)
+    public void UpdateContent(HexGrid hexGrid, int? minerals, int? capacity)
     {
         if (!minerals.HasValue)
             return;
@@ -48,11 +47,8 @@ public class Container1 : MonoBehaviour
                 {
                     unitPos3.y += 0.65f;
                 }
-                if (crystalResource == null)
-                {
-                    crystalResource = Resources.Load<GameObject>("Prefabs/Terrain/Crystal");
-                }
-                GameObject crystal = Instantiate(crystalResource, transform, false);
+
+                GameObject crystal = Instantiate(hexGrid.GetTerrainResource("Crystal"), transform, false);
                 crystal.transform.SetPositionAndRotation(unitPos3, Random.rotation);
                 crystals.Add(crystal);
             }

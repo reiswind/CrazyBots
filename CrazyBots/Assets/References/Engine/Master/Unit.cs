@@ -182,78 +182,85 @@ namespace Engine.Master
             else if (blueprintPart.PartType.EndsWith("3"))
                 level = 3;
 
-            if (blueprintPart.PartType == "Engine")
-                Engine = new Engine(this, 1);
-            else if (blueprintPart.PartType == "Engine2")
-                Engine = new Engine(this, 2);
-            else if (blueprintPart.PartType == "Engine3")
-                Engine = new Engine(this, 3);
-
-            else if (blueprintPart.PartType == "Armor")
-                Armor = new Armor(this, 1);
-            else if (blueprintPart.PartType == "Armor2")
-                Armor = new Armor(this, 2);
-            else if (blueprintPart.PartType == "Armor3")
-                Armor = new Armor(this, 3);
-
-            else if (blueprintPart.PartType == "Weapon")
+            if (blueprintPart.PartType.StartsWith("Engine"))
             {
-                Weapon = new Weapon(this, 1);
-                if (blueprintPart.Capacity.HasValue)
-                    Weapon.Container.Capacity = blueprintPart.Capacity.Value;
-                if (fillContainer)
-                    Weapon.Container.Metal = Weapon.Container.Capacity;
+                if (Engine == null)
+                {
+                    Engine = new Engine(this, 1);
+                }
+                else
+                {
+                    if (level > Engine.Level)
+                        Engine.Level++;
+                }
             }
-            else if (blueprintPart.PartType == "Weapon2")
-                Weapon = new Weapon(this, 2);
-            else if (blueprintPart.PartType == "Weapon3")
-                Weapon = new Weapon(this, 3);
 
-            else if (blueprintPart.PartType == "Assembler")
+            else if (blueprintPart.PartType.StartsWith("Armor"))
             {
-                Assembler = new Assembler(this, 1);
+                if (Armor == null)
+                {
+                    Armor = new Armor(this, 1);
+                }
+                else
+                {
+                    if (level > Armor.Level)
+                        Armor.Level++;
+                }
+            }
+
+
+            else if (blueprintPart.PartType.StartsWith("Extractor"))
+            {
+                if (Extractor == null)
+                {
+                    Extractor = new Extractor(this, 1);
+                }
+                else
+                {
+                    if (level > Extractor.Level)
+                        Extractor.Level++;
+                }
+            }
+
+            else if (blueprintPart.PartType.StartsWith("Assembler"))
+            {
+                if (Assembler == null)
+                {
+                    Assembler = new Assembler(this, 1);
+                    if (fillContainer)
+                    {
+                        Assembler.Container.Metal = Assembler.Container.Capacity;
+                    }
+                }
+                else
+                {
+                    if (level > Assembler.Level)
+                        Assembler.Level++;
+                }
                 if (blueprintPart.Capacity.HasValue)
                     Assembler.Container.Capacity = blueprintPart.Capacity.Value;
-                if (fillContainer)
-                    Assembler.Container.Metal = Assembler.Container.Capacity;
+            }
 
-            }
-            else if (blueprintPart.PartType == "Assembler2")
-                Assembler = new Assembler(this, 2);
-            else if (blueprintPart.PartType == "Assembler3")
-                Assembler = new Assembler(this, 3);
 
-            else if (blueprintPart.PartType == "Extractor")
-                Extractor = new Extractor(this, 1);
-            else if (blueprintPart.PartType == "Extractor2")
-                Extractor = new Extractor(this, 2);
-            else if (blueprintPart.PartType == "Extractor3")
-                Extractor = new Extractor(this, 3);
+            else if (blueprintPart.PartType.StartsWith("Weapon"))
+            {
+                if (Weapon == null)
+                {
+                    Weapon = new Weapon(this, 1);
+                    if (fillContainer)
+                    {
+                        Weapon.Container.Metal = Weapon.Container.Capacity;
+                    }
+                }
+                else
+                {
+                    if (level > Weapon.Level)
+                        Weapon.Level++;
+                }
+                if (blueprintPart.Capacity.HasValue)
+                    Weapon.Container.Capacity = blueprintPart.Capacity.Value;
+            }
 
-            else if (blueprintPart.PartType == "xContainer")
-            {
-                Container = new Container(this, 1);
-                if (blueprintPart.Capacity.HasValue)
-                    Container.Capacity = blueprintPart.Capacity.Value;
-                if (fillContainer)
-                    Container.Metal = Container.Capacity;
-            }
-            else if (blueprintPart.PartType == "xContainer2")
-            {
-                Container = new Container(this, 2);
-                if (blueprintPart.Capacity.HasValue)
-                    Container.Capacity = blueprintPart.Capacity.Value;
-                if (fillContainer)
-                    Container.Metal = Container.Capacity;
-            }
-            else if (blueprintPart.PartType == "xContainer3")
-            {
-                Container = new Container(this, 3);
-                if (blueprintPart.Capacity.HasValue)
-                    Container.Capacity = blueprintPart.Capacity.Value;
-                if (fillContainer)
-                    Container.Metal = Container.Capacity;
-            }
             else if (blueprintPart.PartType.StartsWith("Container"))
             {
                 if (Container == null)
@@ -290,12 +297,18 @@ namespace Engine.Master
                 }
             }
 
-            else if (blueprintPart.PartType == "Radar")
-                Radar = new Radar(this, 1);
-            else if (blueprintPart.PartType == "Radar2")
-                Radar = new Radar(this, 2);
-            else if (blueprintPart.PartType == "Radar3")
-                Radar = new Radar(this, 3);
+            else if (blueprintPart.PartType.StartsWith("Radar"))
+            {
+                if (Radar == null)
+                {
+                    Radar = new Radar(this, 1);
+                }
+                else
+                {
+                    if (level > Radar.Level)
+                        Radar.Level++;
+                }
+            }
         }
 
         public bool IsInstalled(BlueprintPart blueprintPart)

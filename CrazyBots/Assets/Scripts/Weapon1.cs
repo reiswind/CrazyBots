@@ -38,8 +38,7 @@ public class Weapon1 : MonoBehaviour
             ammo.gameObject.SetActive(weaponLoaded);
         }
     }
-    private static GameObject shellprefab;
-
+    
     public void Fire(HexGrid hexGrid, Move move)
     {
         Position FinalDestination = move.Positions[move.Positions.Count - 1];
@@ -79,8 +78,8 @@ public class Weapon1 : MonoBehaviour
         //launchPosition.y += 1f;
 
         //shot = true;
-        if (shellprefab == null)
-            shellprefab = (GameObject)Resources.Load("Prefabs/Unit/Shell");
+        GameObject shellprefab = hexGrid.GetUnitResource("Shell");
+
         GameObject shellObject= Instantiate(shellprefab);
         Shell shell = shellObject.GetComponent<Shell>();
 

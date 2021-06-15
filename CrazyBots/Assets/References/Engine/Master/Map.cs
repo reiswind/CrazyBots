@@ -140,7 +140,7 @@ namespace Engine.Master
         {
             get
             {
-                return maxZones * 40;
+                return maxZones * 20;
             }
         }
 

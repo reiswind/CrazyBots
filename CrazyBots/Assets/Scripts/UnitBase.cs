@@ -140,7 +140,7 @@ public class UnitBase : MonoBehaviour
         if (underConstruction)
             SetMaterialGhost(PlayerId, newPart);
         else
-            SetPlayerColor(PlayerId, newPart);
+            SetPlayerColor(HexGrid, PlayerId, newPart);
 
         /*
         if (part == engine)
@@ -215,9 +215,9 @@ public class UnitBase : MonoBehaviour
                 {
                     GroundCell targetCell = HexGrid.GroundCells[unitCommand.GameCommand.TargetPosition];
 
-                    GameObject waypointPrefab = Resources.Load<GameObject>("Prefabs/Terrain/Waypoint");
+                    GameObject waypointPrefab = HexGrid.GetTerrainResource("Waypoint");
 
-                    unitCommand.GameObject = HexGrid.Instantiate(waypointPrefab, targetCell.transform, false);
+                    unitCommand.GameObject = Instantiate(waypointPrefab, targetCell.transform, false);
                     unitCommand.GameObject.name = "Waypoint";
 
                     //var go = new GameObject();
@@ -274,20 +274,8 @@ public class UnitBase : MonoBehaviour
         }
     }
 
-    internal static Material playerMaterial1;
-    internal static Material playerMaterial2;
-    internal static Material playerMaterial3;
-    internal static Material frameMaterial;
-    internal static Material frameTransparentMaterial;
-    internal static Material playerTransparentMaterial;
-
     internal void SetMaterialGhost(int playerId, GameObject unit)
     {
-        if (frameTransparentMaterial == null)
-            frameTransparentMaterial = Resources.Load<Material>("Materials/TransparentFrame");
-        if (playerTransparentMaterial == null)
-            playerTransparentMaterial = Resources.Load<Material>("Materials/PlayerTransparent");
-
         MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
 
         Material[] newMaterials = new Material[meshRenderer.materials.Length];
@@ -296,27 +284,20 @@ public class UnitBase : MonoBehaviour
             Material material = meshRenderer.materials[i];
             if (material.name.StartsWith("Player"))
             {
-                if (playerId == 1) newMaterials[i] = playerTransparentMaterial;
-                if (playerId == 2) newMaterials[i] = playerTransparentMaterial;
-                if (playerId == 3) newMaterials[i] = playerTransparentMaterial;
+                if (playerId == 1) newMaterials[i] = HexGrid.GetMaterial("PlayerTransparent");
+                if (playerId == 2) newMaterials[i] = HexGrid.GetMaterial("PlayerTransparent");
+                if (playerId == 3) newMaterials[i] = HexGrid.GetMaterial("PlayerTransparent");
             }
             else
             {
-                newMaterials[i] = frameTransparentMaterial;
+                newMaterials[i] = HexGrid.GetMaterial("TransparentFrame");
             }
         }
         meshRenderer.materials = newMaterials;
     }
 
-    internal static void SetPlayerColor(int playerId, GameObject unit)
+    internal static void SetPlayerColor(HexGrid hexGrid, int playerId, GameObject unit)
     {
-        if (playerMaterial1 == null)
-        {
-            playerMaterial1 = Resources.Load<Material>("Materials/Player1");
-            playerMaterial2 = Resources.Load<Material>("Materials/Player2");
-            playerMaterial3 = Resources.Load<Material>("Materials/Player3");
-            frameMaterial = Resources.Load<Material>("Materials/MyFrame");
-        }
         MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
 
         Material[] newMaterials = new Material[meshRenderer.materials.Length];
@@ -325,13 +306,13 @@ public class UnitBase : MonoBehaviour
             Material material = meshRenderer.materials[i];
             if (material.name.StartsWith("Player"))
             {
-                if (playerId == 1) newMaterials[i] = playerMaterial1;
-                if (playerId == 2) newMaterials[i] = playerMaterial2;
-                if (playerId == 3) newMaterials[i] = playerMaterial3;
+                if (playerId == 1) newMaterials[i] = hexGrid.GetMaterial("Player1");
+                if (playerId == 2) newMaterials[i] = hexGrid.GetMaterial("Player2");
+                if (playerId == 3) newMaterials[i] = hexGrid.GetMaterial("Player3");
             }
             else
             {
-                newMaterials[i] = frameMaterial;
+                newMaterials[i] = hexGrid.GetMaterial("MyFrame");
             }
         }
         meshRenderer.materials = newMaterials;
@@ -446,7 +427,7 @@ public class UnitBase : MonoBehaviour
                     {
                         // Change from transparent to reals
                         unitBasePart.IsUnderConstruction = false;
-                        SetPlayerColor(PlayerId, unitBasePart.Part);
+                        SetPlayerColor(HexGrid, PlayerId, unitBasePart.Part);
                     }
                     unitBasePart.Part.SetActive(unitBasePart.IsUnderConstruction || moveUpdateUnitPart.Exists);
                     if (moveUpdateUnitPart.Exists)
@@ -455,7 +436,7 @@ public class UnitBase : MonoBehaviour
                         if (container != null)
                         {
                             Container = container;
-                            container.UpdateContent(moveUpdateUnitPart.Minerals, moveUpdateUnitPart.Capacity);
+                            container.UpdateContent(HexGrid, moveUpdateUnitPart.Minerals, moveUpdateUnitPart.Capacity);
                         }
                         Extractor1 extractor = unitBasePart.Part.GetComponent<Extractor1>();
                         if (extractor != null)

@@ -18,7 +18,6 @@ public class GroundCell : MonoBehaviour
     private List<GameObject> destructables;
     private List<GameObject> obstacles;
 
-    private static GameObject markerPrefab;
     private GameObject markerEnergy;
     private GameObject markerToHome;
     private GameObject markerToMineral;
@@ -61,22 +60,21 @@ public class GroundCell : MonoBehaviour
         {
             if (markerEnergy == null)
             {
-                if (markerPrefab == null)
-                    markerPrefab = Resources.Load<GameObject>("Prefabs/Terrain/Marker");
-                markerEnergy = HexGrid.Instantiate(markerPrefab, transform, false);
+                GameObject markerPrefab = HexGrid.GetTerrainResource("Marker");
+                markerEnergy = Instantiate(markerPrefab, transform, false);
                 markerEnergy.name = name + "-Energy";
 
-                markerToHome = HexGrid.Instantiate(markerPrefab, transform, false);
+                markerToHome = Instantiate(markerPrefab, transform, false);
                 markerToHome.name = name + "-Home";
                 MeshRenderer meshRenderer = markerToHome.GetComponent<MeshRenderer>();
                 meshRenderer.material.color = new Color(0, 0, 0.6f);
 
-                markerToMineral = HexGrid.Instantiate(markerPrefab, transform, false);
+                markerToMineral = Instantiate(markerPrefab, transform, false);
                 markerToMineral.name = name + "-Mineral";
                 meshRenderer = markerToMineral.GetComponent<MeshRenderer>();
                 meshRenderer.material.color = new Color(0, 0.4f, 0);
 
-                markerToEnemy = HexGrid.Instantiate(markerPrefab, transform, false);
+                markerToEnemy = Instantiate(markerPrefab, transform, false);
                 markerToEnemy.name = name + "-Mineral";
                 meshRenderer = markerToEnemy.GetComponent<MeshRenderer>();
                 meshRenderer.material.color = new Color(0.4f, 0, 0);
@@ -151,7 +149,7 @@ public class GroundCell : MonoBehaviour
                 Vector3 position = transform.position;
                 position.y += 0.054f + (0.2f * highestEnergy);
                 markerEnergy.transform.position = position;
-                UnitBase.SetPlayerColor(highestPlayerId, markerEnergy);
+                UnitBase.SetPlayerColor(HexGrid, highestPlayerId, markerEnergy);
             }
             else
             {
@@ -199,16 +197,9 @@ public class GroundCell : MonoBehaviour
             unitPos3.z += (randomPos.y * 0.8f);
 
             GameObject destructable;
-            if (Tile.IsDarkSand() || Tile.IsSand())
-            {
-                int treeIdx = HexGrid.game.Random.Next(HexGrid.smallRocks.Count);
-                destructable = HexGrid.Instantiate(HexGrid.smallRocks[treeIdx], transform, false);
-            }
-            else
-            {
-                int treeIdx = HexGrid.game.Random.Next(HexGrid.smallTrees.Count);
-                destructable = HexGrid.Instantiate(HexGrid.smallTrees[treeIdx], transform, false);
-            }
+
+
+            destructable = HexGrid.CreateDestructable(transform, Tile);
             destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
             destructable.transform.position = unitPos3;
 
@@ -230,8 +221,7 @@ public class GroundCell : MonoBehaviour
 
             GameObject obstacle;
 
-            int treeIdx = HexGrid.game.Random.Next(HexGrid.obstacles.Count);
-            obstacle = HexGrid.Instantiate(HexGrid.obstacles[treeIdx], transform, false);
+            obstacle = HexGrid.CreateObstacle(transform);
 
             obstacle.transform.Rotate(Vector3.up, Random.Range(0, 360));
             obstacle.transform.position = unitPos3;
@@ -272,16 +262,18 @@ public class GroundCell : MonoBehaviour
         {
             if (mineralObstacle == null)
             {
-                Material crystalMaterial = Resources.Load<Material>("Materials/CrystalMat");
-
+                /*
                 int treeIdx = HexGrid.game.Random.Next(HexGrid.obstacles.Count);
                 mineralObstacle = HexGrid.Instantiate(HexGrid.obstacles[treeIdx], transform, false);
+
+
+                Material crystalMaterial = HexGrid.GetMaterial("CrystalMat");
 
                 MeshRenderer meshRenderer = mineralObstacle.GetComponent<MeshRenderer>();
                 meshRenderer.material = crystalMaterial;
                 mineralObstacle.transform.Rotate(Vector3.up, Random.Range(0, 360));
 
-                mineralObstacle.transform.position = transform.position;
+                mineralObstacle.transform.position = transform.position;*/
             }
 
             while (minerals.Count > 0)
@@ -308,8 +300,8 @@ public class GroundCell : MonoBehaviour
                 unitPos3.z += (randomPos.y * 0.8f);
                 unitPos3.y += 0.13f; // 
 
-                GameObject crystalResource = Resources.Load<GameObject>("Prefabs/Terrain/Crystal");
-                GameObject crystal = HexGrid.Instantiate(crystalResource, transform, false);
+                GameObject crystalResource = HexGrid.GetTerrainResource("Crystal");
+                GameObject crystal = Instantiate(crystalResource, transform, false);
 
                 crystal.transform.SetPositionAndRotation(unitPos3, Random.rotation);
 
