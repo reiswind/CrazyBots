@@ -127,8 +127,7 @@ public class GroundCell : MonoBehaviour
                 position.x += 0.3f;
                 markerToEnemy.transform.position = position;
             }
-            
-            
+
             float highestEnergy = -1;
             int highestPlayerId = 0;
 
@@ -143,7 +142,7 @@ public class GroundCell : MonoBehaviour
                     }
                 }
             }
-            //highestEnergy = 0;
+            
             if (highestEnergy > 0)
             {
                 Vector3 position = transform.position;
@@ -262,10 +261,11 @@ public class GroundCell : MonoBehaviour
         {
             if (mineralObstacle == null)
             {
+                mineralObstacle = HexGrid.CreateObstacle(transform);
                 /*
                 int treeIdx = HexGrid.game.Random.Next(HexGrid.obstacles.Count);
                 mineralObstacle = HexGrid.Instantiate(HexGrid.obstacles[treeIdx], transform, false);
-
+                */
 
                 Material crystalMaterial = HexGrid.GetMaterial("CrystalMat");
 
@@ -273,7 +273,7 @@ public class GroundCell : MonoBehaviour
                 meshRenderer.material = crystalMaterial;
                 mineralObstacle.transform.Rotate(Vector3.up, Random.Range(0, 360));
 
-                mineralObstacle.transform.position = transform.position;*/
+                mineralObstacle.transform.position = transform.position;
             }
 
             while (minerals.Count > 0)

@@ -300,6 +300,12 @@ public class UnitBase : MonoBehaviour
     {
         MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
 
+        if (playerId == 1) meshRenderer.material = hexGrid.GetMaterial("Player1");
+        if (playerId == 2) meshRenderer.material = hexGrid.GetMaterial("Player2");
+        if (playerId == 3) meshRenderer.material = hexGrid.GetMaterial("Player3");
+
+        /* Memory leak
+
         Material[] newMaterials = new Material[meshRenderer.materials.Length];
         for (int i = 0; i < meshRenderer.materials.Length; i++)
         {
@@ -316,6 +322,7 @@ public class UnitBase : MonoBehaviour
             }
         }
         meshRenderer.materials = newMaterials;
+        */
     }
 
     public bool IsAssembler()
