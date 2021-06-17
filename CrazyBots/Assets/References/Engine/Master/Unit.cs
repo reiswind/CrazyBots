@@ -227,6 +227,8 @@ namespace Engine.Master
                 if (Assembler == null)
                 {
                     Assembler = new Assembler(this, 1);
+                    if (blueprintPart.Capacity.HasValue)
+                        Assembler.Container.Capacity = blueprintPart.Capacity.Value;
                     if (fillContainer)
                     {
                         Assembler.Container.Metal = Assembler.Container.Capacity;
@@ -237,8 +239,7 @@ namespace Engine.Master
                     if (level > Assembler.Level)
                         Assembler.Level++;
                 }
-                if (blueprintPart.Capacity.HasValue)
-                    Assembler.Container.Capacity = blueprintPart.Capacity.Value;
+
             }
 
 
@@ -249,6 +250,8 @@ namespace Engine.Master
                     Weapon = new Weapon(this, 1);
                     if (fillContainer)
                     {
+                        if (blueprintPart.Capacity.HasValue)
+                            Weapon.Container.Capacity = blueprintPart.Capacity.Value;
                         Weapon.Container.Metal = Weapon.Container.Capacity;
                     }
                 }
@@ -257,8 +260,7 @@ namespace Engine.Master
                     if (level > Weapon.Level)
                         Weapon.Level++;
                 }
-                if (blueprintPart.Capacity.HasValue)
-                    Weapon.Container.Capacity = blueprintPart.Capacity.Value;
+
             }
 
             else if (blueprintPart.PartType.StartsWith("Container"))
@@ -268,6 +270,8 @@ namespace Engine.Master
                     if (fillContainer)
                     {
                         Container = new Container(this, level);
+                        if (blueprintPart.Capacity.HasValue)
+                            Container.Capacity = blueprintPart.Capacity.Value;
                         Container.Metal = Container.Capacity;
                     }
                     else
@@ -280,8 +284,7 @@ namespace Engine.Master
                     if (level > Container.Level)
                         Container.Level++;
                 }
-                if (blueprintPart.Capacity.HasValue)
-                    Container.Capacity = blueprintPart.Capacity.Value;
+
             }
 
             else if (blueprintPart.PartType.StartsWith("Reactor"))
