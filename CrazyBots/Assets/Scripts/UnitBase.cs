@@ -142,18 +142,6 @@ public class UnitBase : MonoBehaviour
         else
             SetPlayerColor(HexGrid, PlayerId, newPart);
 
-        /*
-        if (part == engine)
-            engine = newPart.transform;
-        if (part == ground)
-            ground = newPart.transform;
-        if (part == bigPart)
-            bigPart = newPart.transform;
-        if (part == part1)
-            part1 = newPart.transform;
-        if (part == part2)
-            part2 = newPart.transform;
-        */
         HexGrid.MyDestroy(part.gameObject);
 
         UnitBasePart unitBasePart = new UnitBasePart();
@@ -300,29 +288,33 @@ public class UnitBase : MonoBehaviour
     {
         MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
 
-        if (playerId == 1) meshRenderer.material = hexGrid.GetMaterial("Player1");
-        if (playerId == 2) meshRenderer.material = hexGrid.GetMaterial("Player2");
-        if (playerId == 3) meshRenderer.material = hexGrid.GetMaterial("Player3");
-
-        /* Memory leak
-
-        Material[] newMaterials = new Material[meshRenderer.materials.Length];
-        for (int i = 0; i < meshRenderer.materials.Length; i++)
+        if (meshRenderer.materials.Length == 1)
         {
-            Material material = meshRenderer.materials[i];
-            if (material.name.StartsWith("Player"))
-            {
-                if (playerId == 1) newMaterials[i] = hexGrid.GetMaterial("Player1");
-                if (playerId == 2) newMaterials[i] = hexGrid.GetMaterial("Player2");
-                if (playerId == 3) newMaterials[i] = hexGrid.GetMaterial("Player3");
-            }
-            else
-            {
-                newMaterials[i] = hexGrid.GetMaterial("MyFrame");
-            }
+            if (playerId == 1) meshRenderer.material = hexGrid.GetMaterial("Player1");
+            if (playerId == 2) meshRenderer.material = hexGrid.GetMaterial("Player2");
+            if (playerId == 3) meshRenderer.material = hexGrid.GetMaterial("Player3");
         }
-        meshRenderer.materials = newMaterials;
-        */
+        else
+        {
+            Material[] newMaterials = new Material[meshRenderer.materials.Length];
+            for (int i = 0; i < meshRenderer.materials.Length; i++)
+            {
+                Material material = meshRenderer.materials[i];
+                if (material.name.StartsWith("Player"))
+                {
+                    Destroy(material);
+                    if (playerId == 1) newMaterials[i] = hexGrid.GetMaterial("Player1");
+                    if (playerId == 2) newMaterials[i] = hexGrid.GetMaterial("Player2");
+                    if (playerId == 3) newMaterials[i] = hexGrid.GetMaterial("Player3");
+                }
+                else
+                {
+                    Destroy(material);
+                    newMaterials[i] = hexGrid.GetMaterial("MyFrame");
+                }
+            }
+            meshRenderer.materials = newMaterials;
+        }
     }
 
     public bool IsAssembler()
