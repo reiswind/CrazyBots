@@ -8,52 +8,88 @@ public class Container1 : MonoBehaviour
 {
     internal int Level { get; set; }
 
-    private List<GameObject> crystals;
+    private List<GameObject> mineralCubes;
+    private List<GameObject> containers;
     private int filled;
+    private int max;
 
     public Container1()
     {
-        crystals = new List<GameObject>();
+        mineralCubes = new List<GameObject>();
+        containers = new List<GameObject>();
     }
 
     public void UpdateContent(HexGrid hexGrid, int? minerals, int? capacity)
-    {
+    {        
+        if (mineralCubes.Count == 0)
+        {
+            Transform transformContainer = transform.Find("Container1");
+            if (transformContainer == null)
+            {
+                containers.Add(this.gameObject);
+            }
+            else
+            {
+                containers.Add(transformContainer.gameObject);
+                UnitBase.SetPlayerColor(hexGrid, 1, transformContainer.gameObject);
+
+                transformContainer = transform.Find("Container2");
+                if (transformContainer != null)
+                {
+                    containers.Add(transformContainer.gameObject);
+                    UnitBase.SetPlayerColor(hexGrid, 1, transformContainer.gameObject);
+
+                    transformContainer = transform.Find("Container3");
+                    if (transformContainer != null)
+                    {
+                        containers.Add(transformContainer.gameObject);
+                        UnitBase.SetPlayerColor(hexGrid, 1, transformContainer.gameObject);
+                    }
+                }
+            }
+            foreach (GameObject container in containers)
+            {
+                mineralCubes.Add(container.transform.Find("Mineral1").gameObject);
+                mineralCubes.Add(container.transform.Find("Mineral2").gameObject);
+                mineralCubes.Add(container.transform.Find("Mineral3").gameObject);
+                mineralCubes.Add(container.transform.Find("Mineral4").gameObject);
+                mineralCubes.Add(container.transform.Find("Mineral5").gameObject);
+                mineralCubes.Add(container.transform.Find("Mineral6").gameObject);
+                mineralCubes.Add(container.transform.Find("Mineral7").gameObject);
+                mineralCubes.Add(container.transform.Find("Mineral8").gameObject);
+                mineralCubes.Add(container.transform.Find("Mineral9").gameObject);
+                mineralCubes.Add(container.transform.Find("Mineral10").gameObject);
+                mineralCubes.Add(container.transform.Find("Mineral11").gameObject);
+                mineralCubes.Add(container.transform.Find("Mineral12").gameObject);
+                filled += 12;
+            }
+            max = filled;
+        }
+
         if (!minerals.HasValue)
             return;
 
-        if (minerals != filled)
+        int mins = minerals.Value;
+        if  (mins != max)
         {
-            int numCrystals = minerals.Value;
+            int minPercent = mins * 100 / capacity.Value;
+            mins = minPercent * max / 100;
+        }
 
-            while (crystals.Count > numCrystals)
+        if (mins != filled)
+        {
+            while (filled > mins)
             {
-                GameObject crystal = crystals[crystals.Count - 1];
-                crystals.Remove(crystal);
-                Destroy(crystal);
+                filled--;
+                if (filled < 12)
+                    mineralCubes[filled].SetActive(false);
             }
-            while (crystals.Count < numCrystals)
+            while (filled < mins)
             {
-                Vector2 randomPos = Random.insideUnitCircle;
-
-                Vector3 unitPos3 = transform.position;
-                unitPos3.x += (randomPos.x * 0.01f);
-                unitPos3.z += (randomPos.y * 0.01f);
-                unitPos3.y += 0.05f;
-
-                if (crystals.Count > 10)
-                    unitPos3.y += 0.05f;
-
-                if (Level == 3)
-                {
-                    unitPos3.y += 0.65f;
-                }
-
-                GameObject crystal = Instantiate(hexGrid.GetTerrainResource("Crystal"), transform, false);
-                crystal.transform.SetPositionAndRotation(unitPos3, Random.rotation);
-                crystals.Add(crystal);
+                if (filled < 12)
+                    mineralCubes[filled].SetActive(true);
+                filled++;
             }
-
-            filled = minerals.Value;
         }
     }
 }
