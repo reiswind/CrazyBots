@@ -500,6 +500,11 @@ namespace Engine.Master
                 {
                     if (addedUnit.IsGhost)
                     {
+                        if (addedUnit.Owner.UnitsInBuild.ContainsKey(addedUnit.Pos))
+                        {
+                            // Duplicate build order
+                            addedUnit.Owner.UnitsInBuild.Remove(addedUnit.Pos);
+                        }
                         PlayerUnit playerUnit = new PlayerUnit(addedUnit);
                         addedUnit.Owner.UnitsInBuild.Add(addedUnit.Pos, playerUnit);
                     }
@@ -1329,11 +1334,22 @@ namespace Engine.Master
                         }
                         if (gameCommand.GameCommandType == GameCommandType.Build)
                         {
+                            // Remove duplicate build orders on same pos
+                            foreach (Move move1 in newMoves)
+                            {
+                                if (move1.MoveType == MoveType.Build &&
+                                    move1.PlayerId == gameCommand.PlayerId &&
+                                    move1.Positions[0] == gameCommand.TargetPosition)
+                                {
+                                    newMoves.Remove(move1);
+                                    break;
+                                }
+                            }
+
                             Move move = new Move();
                             move.MoveType = MoveType.Build;
                             move.PlayerId = gameCommand.PlayerId;
                             move.UnitId = gameCommand.UnitId;
-                            //move.OtherUnitId = "Ghost";
                             move.Positions = new List<Position>();
                             move.Positions.Add(gameCommand.TargetPosition);
                             newMoves.Add(move);

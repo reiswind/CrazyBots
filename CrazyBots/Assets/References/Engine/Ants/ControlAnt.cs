@@ -49,6 +49,18 @@ namespace Engine.Control
                         CreatedAnts.Remove(pos);
                         Ants.Add(move.UnitId, ant);
                     }
+                    else if (player.Units.ContainsKey(pos))
+                    {
+                        PlayerUnit playerUnit = player.Units[pos];
+                        AntFactory ant = Ants[playerUnit.Unit.UnitId] as AntFactory;
+                        if (ant != null)
+                        {
+                            player.UnitsInBuild.Remove(pos);
+                            if (ant.UserDefinedNextBlueprint.Count < 5)
+                                ant.UserDefinedNextBlueprint.Add(move.Stats.BlueprintName);
+                        }
+                        move.MoveType = MoveType.Skip;
+                    }
                     else
                     { 
                         WorkFound(player, pos);

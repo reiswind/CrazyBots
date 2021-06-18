@@ -52,10 +52,10 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -647,11 +647,6 @@ public class HexGrid : MonoBehaviour
 		}
 	}
 
-	public void MyDestroy(GameObject x)
-    {
-		Destroy(x);
-    }
-
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Type Safety", "UNT0014:Invalid type for call to GetComponent", Justification = "<Pending>")]
     public T InstantiatePrefab<T>(string name)
     {
@@ -699,21 +694,6 @@ public class HexGrid : MonoBehaviour
 		ParticleSystemForceField extractPrefab = gameObject.GetComponent<ParticleSystemForceField>();
 		ParticleSystemForceField extract = Instantiate(extractPrefab);
 		return extract;
-	}
-
-
-	public void CreateGhost(string blueprintName, Position pos)
-    {
-		Move move = new Move();
-		move.Stats = new MoveUpdateStats();
-		move.Stats.BlueprintName = blueprintName;
-		move.MoveType = MoveType.Build;
-		move.PlayerId = 1;
-		//move.UnitId = unitId;
-		//move.OtherUnitId = "Ghost";
-		move.Positions = new List<Position>();
-		move.Positions.Add(pos);
-		//CreateUnit(move);
 	}
 
 	public UnitBase CreateTempUnit(Blueprint blueprint)

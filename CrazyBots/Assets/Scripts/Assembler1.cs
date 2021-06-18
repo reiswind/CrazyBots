@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Assembler1 : MonoBehaviour
 {
-
+    private MineralContainer mineralContainer = new MineralContainer();
     internal int Level { get; set; }
 
     public void Assemble(HexGrid hexGrid, Move move)
@@ -43,5 +43,10 @@ public class Assembler1 : MonoBehaviour
 
         particleDust.Play();
         HexGrid.Destroy(particleDust, 2.5f);
+    }
+
+    public void UpdateContent(HexGrid hexGrid, int? minerals, int? capacity)
+    {
+        mineralContainer.UpdateContent(hexGrid, this.gameObject, minerals, capacity);
     }
 }

@@ -10,9 +10,11 @@ namespace Engine.Ants
 {
     internal class AntFactory : Ant
     {
+        public List<string> UserDefinedNextBlueprint { get; set; }
+
         public AntFactory(ControlAnt control, PlayerUnit playerUnit) : base(control, playerUnit)
         {
-
+            UserDefinedNextBlueprint = new List<string>();
         }
 
         public override bool Move(Player player, List<Move> moves)
@@ -127,6 +129,7 @@ namespace Engine.Ants
                         {
                             // possiblemoves contains possible output places
                             List<Move> possibleMoves = new List<Move>();
+                            bool breakMoves = false;
 
                             foreach (Move possibleMove in possiblemoves)
                             {
@@ -134,6 +137,23 @@ namespace Engine.Ants
                                 {
                                     continue;
                                 }
+
+                                if (UserDefinedNextBlueprint.Count > 0)
+                                {
+                                    foreach (string bp in UserDefinedNextBlueprint)
+                                    {
+                                        if (possibleMove.UnitId == bp)
+                                        {
+                                            UserDefinedNextBlueprint.Remove(bp);
+                                            possibleMoves.Clear();
+                                            possibleMoves.Add(possibleMove);
+                                            breakMoves = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (breakMoves)
+                                    break;
 
                                 if (addContainer)
                                 {

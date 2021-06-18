@@ -79,7 +79,7 @@ public class CameraController : MonoBehaviour
 
         //Camera rotating on mouse scroll button hold
 
-
+        /*
         if (Input.GetMouseButtonDown(2))
         {
             rotateStartPosition = Input.mousePosition;
@@ -93,7 +93,7 @@ public class CameraController : MonoBehaviour
             Cursor.visible = cursorVisible;
 
             newRotation *= Quaternion.Euler(Vector3.up * Input.GetAxis("Mouse X"));
-        }
+        }*/
 
     }
 
@@ -110,27 +110,28 @@ public class CameraController : MonoBehaviour
             _camMovementSpeed = _camSpeed;
         }
 
-        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow) || Input.mousePosition.y >= Screen.height - _camBorderMovement)
+        if (Input.GetKey(KeyCode.UpArrow) || Input.mousePosition.y >= Screen.height - _camBorderMovement)
         {
             newPosition += (transform.forward * _camMovementSpeed);
         }
 
-        if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow) || Input.mousePosition.y <= _camBorderMovement)
+        if (Input.GetKey(KeyCode.DownArrow) || Input.mousePosition.y <= _camBorderMovement)
         {
             newPosition += (transform.forward * -_camMovementSpeed);
         }
 
-        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow) || Input.mousePosition.x >= Screen.width - _camBorderMovement)
+        if (Input.GetKey(KeyCode.RightArrow) || Input.mousePosition.x >= Screen.width - _camBorderMovement)
         {
             newPosition += (transform.right * _camMovementSpeed);
         }
 
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow) || Input.mousePosition.x <= _camBorderMovement)
+        if (Input.GetKey(KeyCode.LeftArrow) || Input.mousePosition.x <= _camBorderMovement)
         {
             newPosition += (transform.right * -_camMovementSpeed);
         }
 
         //Keyboard setup for camera rotate
+        /*
         if (Input.GetKey(KeyCode.Q))
         {
             newRotation *= Quaternion.Euler(Vector3.up * _camRotationAmount);
@@ -139,9 +140,10 @@ public class CameraController : MonoBehaviour
         if (Input.GetKey(KeyCode.E))
         {
             newRotation *= Quaternion.Euler(Vector3.up * -_camRotationAmount);
-        }
+        }*/
 
         //Keyboard setup for camera zoom
+        /*
         if (Input.GetKey(KeyCode.R))
         {
             newZoom += zoomAmount;
@@ -153,9 +155,10 @@ public class CameraController : MonoBehaviour
 
             }
             
-        }
+        }*/
 
         //Min zoom limit
+        
         if (Input.GetKey(KeyCode.F))
         {
             newZoom -= zoomAmount;

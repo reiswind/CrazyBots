@@ -3,43 +3,51 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-public class Container1 : MonoBehaviour
+public class MineralContainer
 {
-    internal int Level { get; set; }
+
+    public MineralContainer()
+    {
+        mineralCubes = new List<GameObject>();
+        containers = new List<GameObject>();
+    }
 
     private List<GameObject> mineralCubes;
     private List<GameObject> containers;
     private int filled;
     private int max;
 
-    public Container1()
+    private bool AddMineral(GameObject container, int minNum)
     {
-        mineralCubes = new List<GameObject>();
-        containers = new List<GameObject>();
+        Transform transform = container.transform.Find("Mineral" + minNum.ToString());
+        if (transform == null) return false;
+
+        mineralCubes.Add(transform.gameObject);
+        return true;
     }
 
-    public void UpdateContent(HexGrid hexGrid, int? minerals, int? capacity)
-    {        
+
+    public void UpdateContent(HexGrid hexGrid, GameObject gameObject, int? minerals, int? capacity)
+    {
         if (mineralCubes.Count == 0)
         {
-            Transform transformContainer = transform.Find("Container1");
+            Transform transformContainer = gameObject.transform.Find("Container1");
             if (transformContainer == null)
             {
-                containers.Add(this.gameObject);
+                containers.Add(gameObject);
             }
             else
             {
                 containers.Add(transformContainer.gameObject);
                 UnitBase.SetPlayerColor(hexGrid, 1, transformContainer.gameObject);
 
-                transformContainer = transform.Find("Container2");
+                transformContainer = gameObject.transform.Find("Container2");
                 if (transformContainer != null)
                 {
                     containers.Add(transformContainer.gameObject);
                     UnitBase.SetPlayerColor(hexGrid, 1, transformContainer.gameObject);
 
-                    transformContainer = transform.Find("Container3");
+                    transformContainer = gameObject.transform.Find("Container3");
                     if (transformContainer != null)
                     {
                         containers.Add(transformContainer.gameObject);
@@ -49,6 +57,13 @@ public class Container1 : MonoBehaviour
             }
             foreach (GameObject container in containers)
             {
+                int minNum = 1;
+                while (minNum < 99)
+                {
+                    if (!AddMineral(container, minNum++))
+                        break;
+                }
+                /*
                 mineralCubes.Add(container.transform.Find("Mineral1").gameObject);
                 mineralCubes.Add(container.transform.Find("Mineral2").gameObject);
                 mineralCubes.Add(container.transform.Find("Mineral3").gameObject);
@@ -61,8 +76,10 @@ public class Container1 : MonoBehaviour
                 mineralCubes.Add(container.transform.Find("Mineral10").gameObject);
                 mineralCubes.Add(container.transform.Find("Mineral11").gameObject);
                 mineralCubes.Add(container.transform.Find("Mineral12").gameObject);
-                filled += 12;
+                filled += 12;*/
             }
+
+            filled = mineralCubes.Count;
             max = filled;
         }
 
@@ -70,7 +87,11 @@ public class Container1 : MonoBehaviour
             return;
 
         int mins = minerals.Value;
-        if  (mins != max)
+        if (mins == 12)
+        {
+            int x = 0;
+        }
+        //if (mins != max)
         {
             int minPercent = mins * 100 / capacity.Value;
             mins = minPercent * max / 100;
@@ -81,16 +102,32 @@ public class Container1 : MonoBehaviour
             while (filled > mins)
             {
                 filled--;
-                if (filled < 12)
+                if (filled < mineralCubes.Count)
                     mineralCubes[filled].SetActive(false);
             }
             while (filled < mins)
             {
-                if (filled < 12)
+                if (filled < mineralCubes.Count)
                     mineralCubes[filled].SetActive(true);
                 filled++;
             }
         }
+    }
+}
+
+public class Container1 : MonoBehaviour
+{
+    internal int Level { get; set; }
+
+    private MineralContainer mineralContainer = new MineralContainer();
+
+    public Container1()
+    {
+
+    }
+    public void UpdateContent(HexGrid hexGrid, int? minerals, int? capacity)
+    {
+        mineralContainer.UpdateContent(hexGrid, this.gameObject, minerals, capacity);
     }
 }
 

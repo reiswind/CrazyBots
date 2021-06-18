@@ -142,7 +142,7 @@ public class UnitBase : MonoBehaviour
         else
             SetPlayerColor(HexGrid, PlayerId, newPart);
 
-        HexGrid.MyDestroy(part.gameObject);
+        Destroy(part.gameObject);
 
         UnitBasePart unitBasePart = new UnitBasePart();
         unitBasePart.Name = name;
@@ -272,12 +272,14 @@ public class UnitBase : MonoBehaviour
             Material material = meshRenderer.materials[i];
             if (material.name.StartsWith("Player"))
             {
+                Destroy(material);
                 if (playerId == 1) newMaterials[i] = HexGrid.GetMaterial("PlayerTransparent");
                 if (playerId == 2) newMaterials[i] = HexGrid.GetMaterial("PlayerTransparent");
                 if (playerId == 3) newMaterials[i] = HexGrid.GetMaterial("PlayerTransparent");
             }
             else
             {
+                Destroy(material);
                 newMaterials[i] = HexGrid.GetMaterial("TransparentFrame");
             }
         }
@@ -287,15 +289,18 @@ public class UnitBase : MonoBehaviour
     internal static void SetPlayerColor(HexGrid hexGrid, int playerId, GameObject unit)
     {
         MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
-
+        //return;
         if (meshRenderer.materials.Length == 1)
         {
+            Destroy(meshRenderer.material);
             if (playerId == 1) meshRenderer.material = hexGrid.GetMaterial("Player1");
             if (playerId == 2) meshRenderer.material = hexGrid.GetMaterial("Player2");
             if (playerId == 3) meshRenderer.material = hexGrid.GetMaterial("Player3");
         }
         else
         {
+            //return;
+
             Material[] newMaterials = new Material[meshRenderer.materials.Length];
             for (int i = 0; i < meshRenderer.materials.Length; i++)
             {
@@ -326,6 +331,7 @@ public class UnitBase : MonoBehaviour
     private Container1 Container;
     private Extractor1 Extractor;
     private Weapon1 Weapon;
+    private Reactor1 Reactor;
 
     public void Assemble(bool underConstruction)
     {
@@ -413,6 +419,7 @@ public class UnitBase : MonoBehaviour
         Extractor = null;
         Assembler = null;
         Weapon = null;
+        Reactor = null;
 
         bool missingPartFound = false;
 
@@ -442,12 +449,21 @@ public class UnitBase : MonoBehaviour
                             Extractor = extractor;
                         Assembler1 assembler = unitBasePart.Part.GetComponent<Assembler1>();
                         if (assembler != null)
+                        {
                             Assembler = assembler;
+                            assembler.UpdateContent(HexGrid, moveUpdateUnitPart.Minerals, moveUpdateUnitPart.Capacity);
+                        }
                         Weapon1 weapon = unitBasePart.Part.GetComponent<Weapon1>();
                         if (weapon != null)
                         {
                             Weapon = weapon;
                             weapon.UpdateContent(moveUpdateUnitPart.Minerals > 0);
+                        }
+                        Reactor1 reactor = unitBasePart.Part.GetComponent<Reactor1>();
+                        if (reactor != null)
+                        {
+                            Reactor = reactor;
+                            reactor.UpdateContent(HexGrid, moveUpdateUnitPart.Minerals, moveUpdateUnitPart.Capacity);
                         }
                     }
                     else
