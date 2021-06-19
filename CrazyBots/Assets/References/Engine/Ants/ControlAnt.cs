@@ -21,9 +21,9 @@ namespace Engine.Control
 
         public Dictionary<Position, Ant> CreatedAnts = new Dictionary<Position, Ant>();
 
-        public int MaxWorker = 5;
-        public int MaxFighter = 35;
-        public int MaxAssembler = 0;
+        //public int MaxWorker = 5;
+        //public int MaxFighter = 35;
+        //public int MaxAssembler = 0;
 
         public int NumberOfWorkers;
         public int NumberOfFighter;
@@ -708,6 +708,7 @@ namespace Engine.Control
         }
 
         private static int moveNr;
+        public MapPlayerInfo MapPlayerInfo { get; set; }
 
         public List<Move> Turn(Player player)
         {
@@ -717,24 +718,26 @@ namespace Engine.Control
                 int x = 0;
             }
 
-            //player.Game.Pheromones.RemoveAllStaticPheromones(player, PheromoneType.Energy);
 
             player.Game.Pheromones.Evaporate();
 
             // Returned moves
             List<Move> moves = new List<Move>();
 
+            if (!player.Game.GetDebugMapInfo().PlayerInfo.ContainsKey(player.PlayerModel.Id))
+            {
+                // Player is dead, no more units
+                return moves;
+            }
+            if (player.Game.GetDebugMapInfo().PlayerInfo.Count == 1)
+            {
+                // Only one Player left. Won the game.
+            }
+
+            MapPlayerInfo = player.Game.GetDebugMapInfo().PlayerInfo[player.PlayerModel.Id];
+
             // List of all units that can be moved
             List<PlayerUnit> moveableUnits = new List<PlayerUnit>();
-
-            if (player.PlayerModel.ControlLevel != 0 && player.WonThisGame())
-            {
-                // Clean up?
-                //player.Commands.Clear();
-
-                // Add Clean area command
-                //player.Commands.Add();
-            }
 
             // Remove all spotted enemys
             /*

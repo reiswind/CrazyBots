@@ -15,9 +15,11 @@ internal class HitByMouseClick
 public class GameCanvas : MonoBehaviour
 {
     public GameObject MineralText;
+    public GameObject UnitText;
     public HexGrid HexGrid;
 
     private Text UIMineralText;
+    private Text UIUnitText;
 
     internal string SelectedBluePrint { get; set; }
 
@@ -44,6 +46,7 @@ public class GameCanvas : MonoBehaviour
     void Start()
     {
         UIMineralText = MineralText.GetComponent<Text>();
+        UIUnitText = UnitText.GetComponent<Text>();
 
         Transform inGamePanel = transform.Find("InGame");
         Transform gameControlPanel = inGamePanel.Find("GameControl");
@@ -729,7 +732,16 @@ public class GameCanvas : MonoBehaviour
     {
         if (HexGrid != null && HexGrid.MapInfo != null)
         {
-            UIMineralText.text = HexGrid.MapInfo.TotalMetal.ToString();
+            if (HexGrid.MapInfo.PlayerInfo.ContainsKey(1))
+            {
+                MapPlayerInfo mapPlayerInfo = HexGrid.MapInfo.PlayerInfo[1];
+                UIMineralText.text = mapPlayerInfo.TotalMetal + " / " + mapPlayerInfo.TotalCapacity;
+                UIUnitText.text = mapPlayerInfo.TotalUnits.ToString();
+            }
+            else
+            {
+                UIMineralText.text = "Dead";
+            }
         }
 
         bool ctrl = Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);

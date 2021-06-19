@@ -84,19 +84,24 @@ namespace Engine.Ants
                 }
             }
             */
+
+            int totalMetalInPercent = (Control.MapPlayerInfo.TotalMetal * 100) / Control.MapPlayerInfo.TotalCapacity;
+            int workerInPercent = (Control.NumberOfWorkers * 100) / Control.MapPlayerInfo.TotalUnits;
+
+
             bool addWorker = false;
             bool addAssembler = false;
             bool addFighter = false;
 
-            if (player.PlayerModel.Id != 1)
+            //if (player.PlayerModel.Id != 1)
             {
-                if (Control.NumberOfWorkers < Control.MaxWorker)
+                if (workerInPercent < 10)
                     addWorker = true;
 
-                if (addWorker == false && Control.NumberOfAssembler < Control.MaxAssembler)
-                    addAssembler = true;
+                //if (addWorker == false && Control.NumberOfAssembler < Control.MaxAssembler)
+                //    addAssembler = true;
 
-                if (addWorker == false && Control.NumberOfFighter < Control.MaxFighter)
+                if (addWorker == false && totalMetalInPercent > 10)
                     addFighter = true;
             }
             if (cntrlUnit.Assembler != null)

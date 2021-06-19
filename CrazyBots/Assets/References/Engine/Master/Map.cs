@@ -16,6 +16,7 @@ namespace Engine.Interface
 {
     public class MapPlayerInfo
     {
+        public int TotalCapacity { get; set; }
         public int TotalMetal { get; set; }
         public int TotalUnits { get; set; }
     }
@@ -54,6 +55,7 @@ namespace Engine.Interface
             Pheromones = new Dictionary<Position, MapPheromone>();
         }
         public int TotalMetal { get; set; }
+
         public Dictionary<int, MapPlayerInfo> PlayerInfo { get; private set; }
 
         public Dictionary<Position, MapPheromone> Pheromones { get; private set; }
@@ -90,8 +92,7 @@ namespace Engine.Interface
                 TotalMetal += t.Metal;
                 if (t.Unit != null)
                 {
-                    int unitMetal = t.Unit.CountMetal();
-                    TotalMetal += unitMetal;
+                    TotalMetal += t.Unit.CountMetal();
 
                     MapPlayerInfo mapPlayerInfo;
                     if (PlayerInfo.ContainsKey(t.Unit.Owner.PlayerModel.Id))
@@ -103,7 +104,8 @@ namespace Engine.Interface
                         mapPlayerInfo = new MapPlayerInfo();
                         PlayerInfo.Add(t.Unit.Owner.PlayerModel.Id, mapPlayerInfo);
                     }
-                    mapPlayerInfo.TotalMetal += unitMetal;
+                    mapPlayerInfo.TotalCapacity += t.Unit.CountCapacity();
+                    mapPlayerInfo.TotalMetal += t.Unit.CountMineralsInContainer();
                     mapPlayerInfo.TotalUnits++;
                 }
             }

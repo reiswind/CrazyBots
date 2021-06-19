@@ -119,7 +119,11 @@ namespace Engine.Master
         public int CountMetal()
         {
             int metal = 0;
-            if (Container != null) metal += Container.Metal;
+            if (Container != null)
+            {
+                metal += Container.Metal;
+                metal++;
+            }
 
             // Every part is one metal
             if (Engine != null) metal++;
@@ -142,6 +146,44 @@ namespace Engine.Master
             if (Radar != null) metal++;
 
             return metal;
+        }
+
+        public int CountMineralsInContainer()
+        {
+            int metal = 0;
+            if (Container != null) metal += Container.Metal;
+
+            if (Weapon != null)
+            {
+                if (Weapon.Container != null)
+                    metal += Weapon.Container.Metal;
+            }
+            if (Assembler != null)
+            {
+                if (Assembler.Container != null)
+                    metal += Assembler.Container.Metal;
+            }
+
+            return metal;
+        }
+
+        public int CountCapacity()
+        {
+            int capacity = 0;
+            if (Container != null) capacity += Container.Capacity;
+
+            if (Weapon != null)
+            {
+                if (Weapon.Container != null)
+                    capacity += Weapon.Container.Capacity;
+            }
+            if (Assembler != null)
+            {
+                if (Assembler.Container != null)
+                    capacity += Assembler.Container.Capacity;
+            }
+
+            return capacity;
         }
 
         public bool IsComplete()
