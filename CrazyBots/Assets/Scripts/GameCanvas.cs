@@ -163,7 +163,8 @@ public class GameCanvas : MonoBehaviour
         }
         else
         {
-            if (IsAssemblerAt(lastSelectedGroundCell))
+            if (IsAssemblerAt(lastSelectedGroundCell) ||
+                IsContainerAt(lastSelectedGroundCell))
             {
                 selectedBuildBlueprint = null;
 
@@ -201,6 +202,10 @@ public class GameCanvas : MonoBehaviour
         {
             button.name = bluePrintName;
         }
+        else
+        {
+            button.name = "Button" + btn;
+        }
     }
 
     private void HideButton(int btn)
@@ -235,6 +240,20 @@ public class GameCanvas : MonoBehaviour
         if (groundCell.Tile.Unit != null)
         {
             if (groundCell.Tile.Unit.Assembler == null)
+                return false;
+
+            return true;
+
+        }
+        return false;
+    }
+
+    private bool IsContainerAt(GroundCell groundCell)
+    {
+        // Units with assembler can build
+        if (groundCell.Tile.Unit != null)
+        {
+            if (groundCell.Tile.Unit.Container == null)
                 return false;
 
             return true;
@@ -297,7 +316,7 @@ public class GameCanvas : MonoBehaviour
             return;
         }
 
-        if (IsAssemblerAt(lastSelectedGroundCell))
+        if (IsAssemblerAt(lastSelectedGroundCell) || IsContainerAt(lastSelectedGroundCell))
         {
             SetButtonText(1, "(q) Unit");
             SetButtonText(2, "(w) Waypoint");
@@ -335,11 +354,19 @@ public class GameCanvas : MonoBehaviour
         }
         else if (topSelectedButton == 2)
         {
-            if (IsAssemblerAt(lastSelectedGroundCell))
+            if (IsAssemblerAt(lastSelectedGroundCell) || IsContainerAt(lastSelectedGroundCell))
             {
                 SetButtonText(5, "(a) Attack");
-                HideButton(6);
-                HideButton(7);
+                if (IsContainerAt(lastSelectedGroundCell))
+                {
+                    SetButtonText(6, "(s) Minerals");
+                    SetButtonText(7, "(d) Pipeline");
+                }
+                else
+                {
+                    HideButton(6);
+                    HideButton(7);
+                }
                 HideButton(8);
             }
             else
@@ -408,7 +435,7 @@ public class GameCanvas : MonoBehaviour
     }
 
     private UnitBase makeWaypointFromHereToNextClick;
-
+    private GameCommandType nextGameCommandAtClick = GameCommandType.None;
     void OnClickBuild()
     {
         if (IsAssemblerAt(lastSelectedGroundCell))
@@ -425,9 +452,15 @@ public class GameCanvas : MonoBehaviour
             }
             else
             {
-                if (topSelectedButton == 2) // && middleSelectedButton == 5)
+                if (topSelectedButton == 2)
                 {
                     makeWaypointFromHereToNextClick = selectedUnitFrame;
+                    if (middleSelectedButton == 5)
+                        nextGameCommandAtClick = GameCommandType.Attack;
+                    else if (middleSelectedButton == 6)
+                        nextGameCommandAtClick = GameCommandType.Minerals;
+                    else if (middleSelectedButton == 7)
+                        nextGameCommandAtClick = GameCommandType.Pipeline;
                 }
             }
             selectedBuildBlueprint = null;
@@ -475,7 +508,7 @@ public class GameCanvas : MonoBehaviour
         }
         else
         {
-            // Build the temp. unit
+            // Extract the unit
             GameCommand gameCommand = new GameCommand();
 
             gameCommand.UnitId = selectedUnitFrame.UnitId;
@@ -485,7 +518,6 @@ public class GameCanvas : MonoBehaviour
             HexGrid.GameCommands.Add(gameCommand);
 
             selectedUnitFrame.MoveUpdateStats.MarkedForExtraction = true;
-            //buildButton.gameObject.SetActive(false);
         }
         UnselectButtons();
     }
@@ -629,14 +661,14 @@ public class GameCanvas : MonoBehaviour
             headerGroundText.text = sb.ToString();
         }
 
-
+        /*
         if (gc.UnitCommands != null)
         {
             foreach (UnitCommand unitCommand in gc.UnitCommands)
             {
                 sb.AppendLine("Command: " + unitCommand.GameCommand.ToString() + " Owner: " + unitCommand.Owner.UnitId);
             }
-        }
+        }*/
 
     }
 
@@ -889,17 +921,13 @@ public class GameCanvas : MonoBehaviour
 
                     gameCommand.UnitId = makeWaypointFromHereToNextClick.UnitId;
                     gameCommand.TargetPosition = hitByMouseClick.GroundCell.Tile.Pos;
-
-                    //if (hitByMouseClick.GroundCell.Tile.Metal > 0)
-                    //    gameCommand.GameCommandType = GameCommandType.Minerals;
-                    //else
-                        gameCommand.GameCommandType = GameCommandType.Attack;
+                    gameCommand.GameCommandType = nextGameCommandAtClick;
 
                     //gameCommand.Append = ShifKeyIsDown;
                     HexGrid.GameCommands.Add(gameCommand);
 
                     //if (!ShifKeyIsDown)
-                        selectedUnitFrame.ClearWayPoints();
+                        selectedUnitFrame.ClearWayPoints(nextGameCommandAtClick);
 
                     UnitCommand unitCommand = new UnitCommand();
                     unitCommand.GameCommand = gameCommand;

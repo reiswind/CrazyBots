@@ -401,6 +401,10 @@ namespace Engine.Master
                             addedUnits.Add(playerUnit.Unit);
                         }
                     }
+                    else
+                    {
+                        int x = 0;
+                    }
                 }
                 if (move.MoveType == MoveType.Move || move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
                 {

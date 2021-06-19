@@ -162,6 +162,7 @@ namespace Engine.Control
         }
 
         private Dictionary<Position, int> mineralsDeposits = new Dictionary<Position, int>();
+        private Dictionary<Position, int> staticMineralDeposits = new Dictionary<Position, int>();
         private Dictionary<Position, int> workDeposits = new Dictionary<Position, int>();
 
         private Dictionary<Position, int> enemyDeposits = new Dictionary<Position, int>();
@@ -179,7 +180,21 @@ namespace Engine.Control
             }
             player.Game.Pheromones.DeletePheromones(id);
         }
-        public int EnemyFound(Player player, Position pos)
+        public void RemoveMineralsFound(Player player, int id)
+        {
+            foreach (Position pos in staticMineralDeposits.Keys)
+            {
+                if (staticMineralDeposits[pos] == id)
+                {
+                    staticMineralDeposits.Remove(pos);
+                    break;
+                }
+
+            }
+            player.Game.Pheromones.DeletePheromones(id);
+        }
+        
+        public int EnemyFound(Player player, Position pos, bool isStatic)
         {
             int id;
             if (enemyDeposits.ContainsKey(pos))
@@ -187,27 +202,42 @@ namespace Engine.Control
                 id = enemyDeposits[pos];
                 // Update
                 player.Game.Pheromones.UpdatePheromones(id, 0.5f);
+                if (isStatic)
+                    id = 0;
+
             }
             else
             {
-                id = player.Game.Pheromones.DropPheromones(player, pos, 5, PheromoneType.Enemy, 0.5f, false);
+                id = player.Game.Pheromones.DropPheromones(player, pos, 5, PheromoneType.Enemy, 0.5f, isStatic);
                 enemyDeposits.Add(pos, id);
             }
             return id;
         }
 
-        public void MineralsFound(Player player, Position pos)
+        public int MineralsFound(Player player, Position pos, bool isStatic)
         {
-            if (mineralsDeposits.ContainsKey(pos))
+            int id;
+            if (!isStatic && mineralsDeposits.ContainsKey(pos))
             {
-                // Update
-                player.Game.Pheromones.UpdatePheromones(mineralsDeposits[pos], 1);
+                id = mineralsDeposits[pos];                
+                player.Game.Pheromones.UpdatePheromones(id, 1);
+                if (isStatic)
+                    id = 0;
             }
             else
             {
-                int id = player.Game.Pheromones.DropPheromones(player, pos, 3, PheromoneType.Mineral, 1, false);
-                mineralsDeposits.Add(pos, id);
+                if (isStatic)
+                {
+                    id = player.Game.Pheromones.DropPheromones(player, pos, 3, PheromoneType.Mineral, 0.5f, true, 0.5f);
+                    staticMineralDeposits.Add(pos, id);
+                }
+                else
+                {
+                    id = player.Game.Pheromones.DropPheromones(player, pos, 3, PheromoneType.Mineral, 1, false);
+                    mineralsDeposits.Add(pos, id);
+                }
             }
+            return id;
         }
 
         public void WorkFound(Player player, Position pos)
@@ -533,7 +563,8 @@ namespace Engine.Control
             }
             if (bestPositions == null)
             {
-                foreach (Position pos in mineralsDeposits.Keys)
+                // Check Waypoints
+                foreach (Position pos in staticMineralDeposits.Keys)
                 {
                     // Distance at all
                     double d = pos.GetDistanceTo(ant.PlayerUnit.Unit.Pos);
@@ -545,6 +576,26 @@ namespace Engine.Control
                             if (bestPositions == null || bestPositions.Count > positions.Count)
                             {
                                 bestPositions = positions;
+                            }
+                        }
+                    }
+                }
+                if (bestPositions == null)
+                {
+                    // Check own markers
+                    foreach (Position pos in mineralsDeposits.Keys)
+                    {
+                        // Distance at all
+                        double d = pos.GetDistanceTo(ant.PlayerUnit.Unit.Pos);
+                        if (d < 5)
+                        {
+                            List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, pos, ant.PlayerUnit.Unit);
+                            if (positions != null && positions.Count > 2)
+                            {
+                                if (bestPositions == null || bestPositions.Count > positions.Count)
+                                {
+                                    bestPositions = positions;
+                                }
                             }
                         }
                     }
@@ -1013,7 +1064,11 @@ namespace Engine.Control
                     player.Game.Pheromones.DeletePheromones(ant.PheromoneWaypointAttack);
                     ant.PheromoneWaypointAttack = 0;
                 }
-
+                if (ant.PheromoneWaypointMineral != 0)
+                {
+                    player.Game.Pheromones.DeletePheromones(ant.PheromoneWaypointMineral);
+                    ant.PheromoneWaypointMineral = 0;
+                }
                 Ants.Remove(ant.PlayerUnit.Unit.UnitId);
             }            
             return moves;

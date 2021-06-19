@@ -604,10 +604,22 @@ namespace Engine.Ants
                 }
                 if (moveToPosition == null)
                 {
-                    if (possibleTiles.Count == 0 && pheromoneType != PheromoneType.AwayFromEnergy)
+                    if (AntWorkerType == AntWorkerType.Fighter && possibleTiles.Count == 0)
                     {
                         // Fighter may try to move to border until food is found
                         pheromoneType = PheromoneType.AwayFromEnergy;
+                        possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
+                    }
+                    else if (AntWorkerType == AntWorkerType.Assembler && possibleTiles.Count == 0)
+                    {
+                        // Assembler hangs around at home
+                        pheromoneType = PheromoneType.Energy;
+                        possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
+                    }
+                    else if (AntWorkerType == AntWorkerType.Worker && possibleTiles.Count == 0)
+                    {
+                        // Worker hangs around at home
+                        pheromoneType = PheromoneType.Energy;
                         possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
                     }
 
@@ -981,7 +993,7 @@ namespace Engine.Ants
                         Move move = possiblemoves[idx];
                         moves.Add(move);
 
-                        Control.MineralsFound(player, move.Positions[1]);
+                        Control.MineralsFound(player, move.Positions[1], false);
 
                         unitMoved = true;
                         return unitMoved;

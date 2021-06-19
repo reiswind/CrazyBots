@@ -182,17 +182,25 @@ public class UnitBase : MonoBehaviour
     internal List<UnitCommand> UnitCommands { get; private set; }
 
 
-    public void ClearWayPoints()
+    public void ClearWayPoints(GameCommandType gameCommandType)
     {
+        List<UnitCommand> toBeRemoved = new List<UnitCommand>();
         foreach (UnitCommand unitCommand in UnitCommands)
         {
-            if (unitCommand.GameObject != null)
+            if (unitCommand.GameObject != null &&
+                unitCommand.GameCommand.GameCommandType == gameCommandType)
             {
-                HexGrid.Destroy(unitCommand.GameObject);
+                toBeRemoved.Add(unitCommand);
             }
         }
-        UnitCommands.Clear();
+        foreach (UnitCommand unitCommand in toBeRemoved)
+        {
+            UnitCommands.Remove(unitCommand);
+            HexGrid.Destroy(unitCommand.GameObject);            
+        }
+        
     }
+
     public void UpdateWayPoints()
     {
         foreach (UnitCommand unitCommand in UnitCommands)
@@ -210,14 +218,22 @@ public class UnitBase : MonoBehaviour
 
                     //var go = new GameObject();
                     var lr = unitCommand.GameObject.GetComponent<LineRenderer>();
-                    //lr.startWidth = 0.1f;
-                    lr.startColor = Color.red;
 
-                    //lr.endWidth = 0.1f;
-                    lr.endColor = Color.red;
+                    if (unitCommand.GameCommand.GameCommandType == GameCommandType.Attack)
+                    {
+                        //lr.startWidth = 0.1f;
+                        lr.startColor = Color.red;
+                        //lr.endWidth = 0.1f;
+                        lr.endColor = Color.red;
+                    }
 
-                    //var gun = GameObject.Find("Gun");
-                    //var projectile = GameObject.Find("Projectile");
+                    if (unitCommand.GameCommand.GameCommandType == GameCommandType.Minerals)
+                    {
+                        //lr.startWidth = 0.1f;
+                        lr.startColor = Color.green;
+                        //lr.endWidth = 0.1f;
+                        lr.endColor = Color.green;
+                    }
 
                     Vector3 v1 = transform.position;
                     Vector3 v2 = targetCell.transform.position;

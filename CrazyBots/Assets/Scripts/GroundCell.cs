@@ -96,7 +96,7 @@ public class GroundCell : MonoBehaviour
                 markerToHome.transform.position = position;
             }*/
             
-            /*
+            
             if (mapPheromone.IntensityToMineral > 0)
             {
                 Vector3 position = transform.position;
@@ -111,8 +111,8 @@ public class GroundCell : MonoBehaviour
                 position.x += 0.2f;
                 markerToMineral.transform.position = position;
             }
-            */
             
+            /*
             if (mapPheromone.IntensityToWork > 0)
             {
                 Vector3 position = transform.position;
@@ -126,8 +126,8 @@ public class GroundCell : MonoBehaviour
                 position.y -= 1;
                 position.x += 0.3f;
                 markerToEnemy.transform.position = position;
-            }
-
+            }*/
+            /*
             float highestEnergy = -1;
             int highestPlayerId = 0;
 
@@ -156,7 +156,7 @@ public class GroundCell : MonoBehaviour
                 position.y -= 1;
                 markerEnergy.transform.position = position;
             }
-            
+            */
         }
     }
 

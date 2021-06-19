@@ -52,10 +52,10 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -527,9 +527,9 @@ public class HexGrid : MonoBehaviour
 					BaseUnits.Add(unit.UnitId, unit);
 				}
 				else
-                {
+				{
 					CreateUnit(move);
-                }
+				}
 			}
 			/*
 			else if (move.MoveType == MoveType.UpdateStats)
@@ -547,7 +547,7 @@ public class HexGrid : MonoBehaviour
 			else if (move.MoveType == MoveType.Extract ||
 					 move.MoveType == MoveType.Fire ||
 					 move.MoveType == MoveType.Hit ||
-				     move.MoveType == MoveType.UpdateStats)
+					 move.MoveType == MoveType.UpdateStats)
 			{
 				if (BaseUnits.ContainsKey(move.UnitId))
 				{
@@ -555,15 +555,15 @@ public class HexGrid : MonoBehaviour
 					unit.UpdateStats(move.Stats);
 
 					if (move.MoveType == MoveType.Extract)
-                    {
+					{
 						unit.Extract(move);
-                    }
+					}
 					if (move.MoveType == MoveType.Fire)
 					{
 						unit.Fire(move);
 					}
 				}
-				
+
 			}
 			else if (move.MoveType == MoveType.Move)
 			{
@@ -572,30 +572,31 @@ public class HexGrid : MonoBehaviour
 					UnitBase unit = BaseUnits[move.UnitId];
 					unit.MoveTo(move.Positions[1]);
 				}
-				
+
 			}
 			else if (move.MoveType == MoveType.Upgrade)
 			{
-				if (UnitsInBuild.ContainsKey(move.Positions[1]))
-				{
-					// From Ghost to real
-					UnitBase unit = UnitsInBuild[move.Positions[1]];
-					unit.UnderConstruction = false;
-					UnitsInBuild.Remove(move.Positions[1]);
-					BaseUnits.Add(unit.UnitId, unit);
-				}
-
 				if (BaseUnits.ContainsKey(move.OtherUnitId))
 				{
 					// 
 					UnitBase unit = BaseUnits[move.OtherUnitId];
 					unit.Upgrade(move);
 				}
-				else
-                {
-					
-                }
-				
+
+
+				if (UnitsInBuild.ContainsKey(move.Positions[1]))
+				{
+					// From Ghost to real
+					UnitBase unit = UnitsInBuild[move.Positions[1]];
+					if (unit.UnitId != null) // How can it be null?
+					{
+						unit.UnderConstruction = false;
+						UnitsInBuild.Remove(move.Positions[1]);
+						BaseUnits.Add(unit.UnitId, unit);
+					}
+				}
+
+
 			}
 			else if (move.MoveType == MoveType.UpdateGround)
 			{
