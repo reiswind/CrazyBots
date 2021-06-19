@@ -94,6 +94,7 @@ namespace Engine.Ants
             bool addFighter = false;
 
             //if (player.PlayerModel.Id != 1)
+            if (UserDefinedNextBlueprint.Count == 0)
             {
                 if (workerInPercent < 10)
                     addWorker = true;

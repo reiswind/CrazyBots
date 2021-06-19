@@ -175,7 +175,10 @@ namespace Engine.Master
             if (Weapon != null)
             {
                 if (Weapon.Container != null)
-                    capacity += Weapon.Container.Capacity;
+                {
+                    if (Weapon.Container.Capacity > 1)
+                        capacity += Weapon.Container.Capacity;
+                }
             }
             if (Assembler != null)
             {

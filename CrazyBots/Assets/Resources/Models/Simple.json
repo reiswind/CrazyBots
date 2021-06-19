@@ -34,7 +34,7 @@
 	{
       "Name": "Container1",
       "PlayerId": 1,
-	  "Blueprint": "Container",
+	  "Blueprint": "Worker",
       "Position": {
         "X": 11,
         "Y": 8
