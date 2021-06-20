@@ -304,7 +304,7 @@ namespace Engine.Control
                 if (intendedMove.MoveType == MoveType.Upgrade)
                 {
                     if (intendedMove.Positions[intendedMove.Positions.Count - 1] == move.Positions[intendedMove.Positions.Count - 1] &&
-                        intendedMove.OtherUnitId == move.OtherUnitId)
+                        intendedMove.UnitId == move.UnitId)
                     {
                         occupied = true;
                         break;
