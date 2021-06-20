@@ -23,6 +23,7 @@ public class MineralContainer
         if (transform == null) return false;
 
         mineralCubes.Add(transform.gameObject);
+        transform.gameObject.SetActive(false);
         return true;
     }
 
@@ -79,8 +80,8 @@ public class MineralContainer
                 filled += 12;*/
             }
 
-            filled = mineralCubes.Count;
-            max = filled;
+            filled = 0;
+            max = mineralCubes.Count;
         }
 
         if (!minerals.HasValue)

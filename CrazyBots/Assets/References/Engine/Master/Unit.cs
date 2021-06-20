@@ -151,41 +151,45 @@ namespace Engine.Master
         public int CountMineralsInContainer()
         {
             int metal = 0;
-            if (Container != null) metal += Container.Metal;
-
-            if (Weapon != null)
+            if (Engine == null)
             {
-                if (Weapon.Container != null)
-                    metal += Weapon.Container.Metal;
-            }
-            if (Assembler != null)
-            {
-                if (Assembler.Container != null)
-                    metal += Assembler.Container.Metal;
-            }
+                if (Container != null) metal += Container.Metal;
 
+                if (Weapon != null)
+                {
+                    if (Weapon.Container != null)
+                        metal += Weapon.Container.Metal;
+                }
+                if (Assembler != null)
+                {
+                    if (Assembler.Container != null)
+                        metal += Assembler.Container.Metal;
+                }
+            }
             return metal;
         }
 
         public int CountCapacity()
         {
             int capacity = 0;
-            if (Container != null) capacity += Container.Capacity;
-
-            if (Weapon != null)
+            if (Engine == null)
             {
-                if (Weapon.Container != null)
+                if (Container != null) capacity += Container.Capacity;
+
+                if (Weapon != null)
                 {
-                    if (Weapon.Container.Capacity > 1)
-                        capacity += Weapon.Container.Capacity;
+                    if (Weapon.Container != null)
+                    {
+                        if (Weapon.Container.Capacity > 1)
+                            capacity += Weapon.Container.Capacity;
+                    }
+                }
+                if (Assembler != null)
+                {
+                    if (Assembler.Container != null)
+                        capacity += Assembler.Container.Capacity;
                 }
             }
-            if (Assembler != null)
-            {
-                if (Assembler.Container != null)
-                    capacity += Assembler.Container.Capacity;
-            }
-
             return capacity;
         }
 

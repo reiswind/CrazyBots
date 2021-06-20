@@ -991,6 +991,7 @@ namespace Engine.Master
 
                     if (factory != null && newUnit != null)
                     {
+                        // Never called
                         factory.Assembler.ConsumeMetalForUnit(newUnit);
  
                         Move moveUpdate = new Move();
@@ -1002,6 +1003,7 @@ namespace Engine.Master
                         moveUpdate.Stats = factory.CollectStats();
                         lastMoves.Add(moveUpdate);
                     }
+                    
                     if (newUnit != null)
                     {
                         UpdateGroundPlates(lastMoves, newUnit);
@@ -1031,8 +1033,12 @@ namespace Engine.Master
                         moveUpdate.Positions.Add(factory.Pos);
                         moveUpdate.Stats = factory.CollectStats();
                         lastMoves.Add(moveUpdate);
-                        
                     }
+                    else
+                    {
+                        int x = 0;
+                    }
+
                     if (newUnit == null)
                     {
                         if (move.OtherUnitId == "RemoveContainerAndUpgradeAssembler")

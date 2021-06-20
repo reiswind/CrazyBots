@@ -96,7 +96,7 @@ namespace Engine.Ants
             //if (player.PlayerModel.Id != 1)
             if (UserDefinedNextBlueprint.Count == 0)
             {
-                if (workerInPercent < 10)
+                if (workerInPercent < 10 || Control.NumberOfWorkers < 2)
                     addWorker = true;
 
                 //if (addWorker == false && Control.NumberOfAssembler < Control.MaxAssembler)

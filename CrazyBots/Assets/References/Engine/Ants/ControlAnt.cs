@@ -63,7 +63,7 @@ namespace Engine.Control
                     }
                     else
                     { 
-                        WorkFound(player, pos);
+                        //WorkFound(player, pos);
                     }
                 }
             }
@@ -163,7 +163,7 @@ namespace Engine.Control
 
         private Dictionary<Position, int> mineralsDeposits = new Dictionary<Position, int>();
         private Dictionary<Position, int> staticMineralDeposits = new Dictionary<Position, int>();
-        private Dictionary<Position, int> workDeposits = new Dictionary<Position, int>();
+        //private Dictionary<Position, int> workDeposits = new Dictionary<Position, int>();
 
         private Dictionary<Position, int> enemyDeposits = new Dictionary<Position, int>();
 
@@ -240,6 +240,7 @@ namespace Engine.Control
             return id;
         }
 
+        /*
         public void WorkFound(Player player, Position pos)
         {
             if (workDeposits.ContainsKey(pos))
@@ -252,7 +253,7 @@ namespace Engine.Control
                 int id = player.Game.Pheromones.DropPheromones(player, pos, 3, PheromoneType.Work, 1, false);
                 workDeposits.Add(pos, id);
             }
-        }
+        }*/
 
         private void UpdateContainerDeposits(Player player, Ant ant)
         {
@@ -483,6 +484,7 @@ namespace Engine.Control
 
         public Position FindWork(Player player, Ant ant)
         {
+            /*
             Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.Pos, 3, false, matcher: tile =>
             {
                 // Own damaged units
@@ -498,14 +500,31 @@ namespace Engine.Control
             List<Position> bestPositions = null;
 
             foreach (TileWithDistance t in tiles.Values)
+            {*/
+            List<Position> bestPositions = null;
+            foreach (PlayerUnit playerUnit in player.UnitsInBuild.Values)
             {
-                List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, t.Pos, ant.PlayerUnit.Unit);
-                if (positions != null && positions.Count > 2)
+                List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, playerUnit.Unit.Pos, ant.PlayerUnit.Unit);
+                if (bestPositions == null || bestPositions.Count > positions?.Count)
                 {
                     bestPositions = positions;
-                    break;
                 }
             }
+            if (bestPositions == null)
+            {
+                foreach (Ant otherAnt in Ants.Values)
+                {
+                    if (ant.PlayerUnit.Unit.UnderConstruction)
+                    {
+                        List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, otherAnt.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit);
+                        if (bestPositions == null || bestPositions.Count > positions?.Count)
+                        {
+                            bestPositions = positions;
+                        }
+                    }
+                }
+            }
+            /*
             if (bestPositions == null)
             {
                 foreach (Position pos in workDeposits.Keys)
@@ -524,7 +543,7 @@ namespace Engine.Control
                         }
                     }
                 }
-            }
+            }*/
             if (bestPositions != null && bestPositions.Count > 1)
             {
                 if (bestPositions.Count > 2)
@@ -917,11 +936,12 @@ namespace Engine.Control
                 {
                     if (ant.PlayerUnit.Unit.IsComplete())
                     {
+                        /*
                         if (workDeposits.ContainsKey(ant.PlayerUnit.Unit.Pos))
                         {
                             player.Game.Pheromones.DeletePheromones(workDeposits[ant.PlayerUnit.Unit.Pos]);
                             workDeposits.Remove(ant.PlayerUnit.Unit.Pos);
-                        }
+                        }*/
 
                         UpdateUnitCounters(ant);
 
@@ -1046,11 +1066,12 @@ namespace Engine.Control
 
             foreach (Ant ant in killedAnts)
             {
+                /*
                 if (workDeposits.ContainsKey(ant.PlayerUnit.Unit.Pos))
                 {
                     player.Game.Pheromones.DeletePheromones(workDeposits[ant.PlayerUnit.Unit.Pos]);
                     workDeposits.Remove(ant.PlayerUnit.Unit.Pos);
-                }
+                }*/
 
                 if (ant.PheromoneDepositEnergy != 0)
                 {

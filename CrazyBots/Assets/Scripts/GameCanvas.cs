@@ -134,27 +134,11 @@ public class GameCanvas : MonoBehaviour
             selectedUnitFrame = null;
         }
         selectedBuildBlueprint = null;
+        makeWaypointFromHereToNextClick = null;
         buildButton.gameObject.SetActive(false);
     }
 
-    private void SelectUnitFrame(UnitBase unitBase)
-    {
-        if (unitBase != null)
-        {
-            if (unitBase.Temporary)
-            {
-                buildButtonText.text = "Build";
-                buildButton.gameObject.SetActive(true);
-            }
-            else
-            {
-                buildButton.gameObject.SetActive(true);
-                buildButtonText.text = "Extract";
-            }
-            selectedUnitFrame = unitBase;
-            selectedUnitFrame.SetSelected(true);
-        }
-    }
+
 
     private void SelectBlueprint(string bluePrintname)
     {
@@ -240,7 +224,8 @@ public class GameCanvas : MonoBehaviour
     private bool IsAssemblerAt(GroundCell groundCell)
     {
         // Units with assembler can build
-        if (groundCell.Tile.Unit != null)
+        if (groundCell != null &&
+            groundCell.Tile.Unit != null)
         {
             if (groundCell.Tile.Unit.Assembler == null)
                 return false;
@@ -254,7 +239,8 @@ public class GameCanvas : MonoBehaviour
     private bool IsContainerAt(GroundCell groundCell)
     {
         // Units with assembler can build
-        if (groundCell.Tile.Unit != null)
+        if (groundCell != null &&
+            groundCell.Tile.Unit != null)
         {
             if (groundCell.Tile.Unit.Container == null)
                 return false;
@@ -302,6 +288,7 @@ public class GameCanvas : MonoBehaviour
 
     private void UpdateCommandButtons()
     {
+        /*
         if (!CanBuildAt(lastSelectedGroundCell))
         {
             HideButton(1);
@@ -317,7 +304,7 @@ public class GameCanvas : MonoBehaviour
             HideButton(11);
             HideButton(12);
             return;
-        }
+        }*/
 
         if (IsAssemblerAt(lastSelectedGroundCell) || IsContainerAt(lastSelectedGroundCell))
         {
@@ -687,7 +674,7 @@ public class GameCanvas : MonoBehaviour
     }
 
 
-    private void SelectUnitFrame(HitByMouseClick hitByMouseClick)
+    private void SelectMouseClick(HitByMouseClick hitByMouseClick)
     {
         if (hitByMouseClick.UnitFrame != null && hitByMouseClick.GroundCell == null)
         {
@@ -706,6 +693,29 @@ public class GameCanvas : MonoBehaviour
         {
             UnselectUnitFrame();
             SelectUnitFrame(hitByMouseClick.UnitFrame);
+        }
+        //if (selectedUnitFrame == null)
+        {
+            UpdateCommandButtons();
+        }
+    }
+
+    private void SelectUnitFrame(UnitBase unitBase)
+    {
+        if (unitBase != null)
+        {
+            if (unitBase.Temporary)
+            {
+                buildButtonText.text = "Build";
+                buildButton.gameObject.SetActive(true);
+            }
+            else
+            {
+                buildButton.gameObject.SetActive(true);
+                buildButtonText.text = "Extract";
+            }
+            selectedUnitFrame = unitBase;
+            selectedUnitFrame.SetSelected(true);
         }
     }
 
@@ -757,7 +767,7 @@ public class GameCanvas : MonoBehaviour
             {
                 HitByMouseClick hitByMouseClick = new HitByMouseClick();
                 hitByMouseClick.UnitFrame = unitGroup1;
-                SelectUnitFrame(hitByMouseClick);
+                SelectMouseClick(hitByMouseClick);
                 UpdateCommandButtons();
             }
         }
@@ -772,7 +782,7 @@ public class GameCanvas : MonoBehaviour
             {
                 HitByMouseClick hitByMouseClick = new HitByMouseClick();
                 hitByMouseClick.UnitFrame = unitGroup2;
-                SelectUnitFrame(hitByMouseClick);
+                SelectMouseClick(hitByMouseClick);
                 UpdateCommandButtons();
             }
         }
@@ -956,9 +966,11 @@ public class GameCanvas : MonoBehaviour
                 }
                 else
                 {
+                    SelectMouseClick(hitByMouseClick);
+                    /*
                     if (!string.IsNullOrEmpty(SelectedBluePrint))
                     {
-                        /*
+                        
                         // Build something
                         if (selectedUnitFrame == null)
                         {
@@ -974,13 +986,13 @@ public class GameCanvas : MonoBehaviour
 
                             if (!ShifKeyIsDown)
                                 SelectedBluePrint = UISelectedBuildText.text = "";
-                        }*/
+                        }
                         UnselectButtons();
                     }
                     else
                     {
-                        SelectUnitFrame(hitByMouseClick);
-                        /*
+                        SelectMouseClick(hitByMouseClick);
+                        
                         if (lastSelectedGroundCell != hitByMouseClick.GroundCell)
                         {
                             if (lastSelectedGroundCell != null)
@@ -996,10 +1008,10 @@ public class GameCanvas : MonoBehaviour
                             SelectUnitFrame(hitByMouseClick.UnitFrame);
 
                         }
-                        */
-                        UnselectButtons();
+                        
+                        //UnselectButtons();
 
-                    }
+                    }*/
                 }
             }
         }

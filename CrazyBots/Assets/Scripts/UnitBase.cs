@@ -144,6 +144,18 @@ public class UnitBase : MonoBehaviour
 
         Destroy(part.gameObject);
 
+        Rigidbody rigidbody = newPart.GetComponent<Rigidbody>();
+        if (rigidbody != null)
+        {
+            if (underConstruction)
+            {
+                rigidbody.Sleep();
+            }
+            else
+            {
+                rigidbody.WakeUp();
+            }
+        }
         UnitBasePart unitBasePart = new UnitBasePart();
         unitBasePart.Name = name;
         unitBasePart.Part = newPart;

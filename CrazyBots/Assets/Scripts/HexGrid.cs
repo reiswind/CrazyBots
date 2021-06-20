@@ -759,8 +759,12 @@ public class HexGrid : MonoBehaviour
 		}
 		else
         {
+			Rigidbody rigidbody = unit.GetComponent<Rigidbody>();
+			if (rigidbody != null)
+			{
+				rigidbody.Sleep();
+			}
 			UnitsInBuild.Add(move.Positions[move.Positions.Count - 1], unit);
-
 		}
 	}
 
