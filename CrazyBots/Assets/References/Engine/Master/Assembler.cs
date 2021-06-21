@@ -14,6 +14,16 @@ namespace Engine.Master
 
         public Container Container { get; set; }
 
+        public List<string> BuildQueue { get; set; }
+
+        public void Build (string blueprintName)
+        {
+            if (BuildQueue == null)
+                BuildQueue = new List<string>();
+            BuildQueue.Add(blueprintName);
+        }
+
+
         public bool CanProduce()
         {
             if (Container != null && Container.Metal > 0)

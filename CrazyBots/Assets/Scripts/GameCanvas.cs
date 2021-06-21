@@ -150,8 +150,8 @@ public class GameCanvas : MonoBehaviour
         }
         else
         {
-            if (IsAssemblerAt(lastSelectedGroundCell) ||
-                IsContainerAt(lastSelectedGroundCell))
+            if (IsAssemblerAt() ||
+                IsContainerAt())
             {
                 selectedBuildBlueprint = null;
 
@@ -221,9 +221,14 @@ public class GameCanvas : MonoBehaviour
     private int middleSelectedButton;
 
 
-    private bool IsAssemblerAt(GroundCell groundCell)
+    private bool IsAssemblerAt()
     {
+        if (selectedUnitFrame != null &&
+            selectedUnitFrame.IsAssembler())
+            return true;
+
         // Units with assembler can build
+        /*
         if (groundCell != null &&
             groundCell.Tile.Unit != null)
         {
@@ -232,12 +237,33 @@ public class GameCanvas : MonoBehaviour
 
             return true;
 
-        }
+        }*/
         return false;
     }
 
-    private bool IsContainerAt(GroundCell groundCell)
+    private bool IsUnitAt()
     {
+        if (selectedUnitFrame != null)
+            return true;
+
+        // Units with assembler can build
+        /*
+        if (groundCell != null &&
+            groundCell.Tile.Unit != null)
+        {
+            return true;
+
+        }*/
+        return false;
+    }
+
+    private bool IsContainerAt()
+    {
+        if (selectedUnitFrame != null &&
+            selectedUnitFrame.IsContainer())
+            return true;
+
+        /*
         // Units with assembler can build
         if (groundCell != null &&
             groundCell.Tile.Unit != null)
@@ -247,7 +273,7 @@ public class GameCanvas : MonoBehaviour
 
             return true;
 
-        }
+        }*/
         return false;
     }
 
@@ -263,8 +289,9 @@ public class GameCanvas : MonoBehaviour
         // Units with assembler can build
         if (groundCell.Tile.Unit != null)
         {
-            if (groundCell.Tile.Unit.Assembler == null)
-                return false;
+            // MAy go away
+            //if (groundCell.Tile.Unit.Assembler == null)
+            //    return false;
 
             return true;
 
@@ -281,7 +308,7 @@ public class GameCanvas : MonoBehaviour
         {
             if (unitBase.CurrentPos == groundCell.Tile.Pos)
                 return false;
-        }
+        } 
 
         return true;
     }
@@ -306,15 +333,64 @@ public class GameCanvas : MonoBehaviour
             return;
         }*/
 
-        if (IsAssemblerAt(lastSelectedGroundCell) || IsContainerAt(lastSelectedGroundCell))
+        if (IsAssemblerAt())
         {
             SetButtonText(1, "(q) Unit");
             SetButtonText(2, "(w) Waypoint");
             HideButton(3);
+
+            if (selectedUnitFrame.MoveUpdateStats.MarkedForExtraction)
+                HideButton(4);
+            else
+                SetButtonText(4, "(r) Extract");
+        }
+        else if (IsContainerAt())
+        {
+            HideButton(1);
+            SetButtonText(2, "(w) Waypoint");
+            HideButton(3);
+            if (selectedUnitFrame.MoveUpdateStats.MarkedForExtraction)
+                HideButton(4);
+            else
+                SetButtonText(4, "(r) Extract");
+        }
+        else if (IsUnitAt())
+        {
+            HideButton(1);
+            HideButton(2);
+            HideButton(3);
+            if (selectedUnitFrame.MoveUpdateStats.MarkedForExtraction)
+                HideButton(4);
+            else
+                SetButtonText(4, "(r) Extract");
+            HideButton(5);
+            HideButton(6);
+            HideButton(7);
+            HideButton(8);
+            HideButton(9);
+            HideButton(10);
+            HideButton(11);
+            HideButton(12);
+            return;
+        }
+        else if (!CanBuildAt(lastSelectedGroundCell))
+        {
+            HideButton(1);
+            HideButton(2);
+            HideButton(3);
             HideButton(4);
+            HideButton(5);
+            HideButton(6);
+            HideButton(7);
+            HideButton(8);
+            HideButton(9);
+            HideButton(10);
+            HideButton(11);
+            HideButton(12);
+            return;
         }
         else
-        {
+        { 
             SetButtonText(1, "(q) Unit");
             SetButtonText(2, "(w) Building");
             SetButtonText(3, "(e) Defense");
@@ -344,10 +420,10 @@ public class GameCanvas : MonoBehaviour
         }
         else if (topSelectedButton == 2)
         {
-            if (IsAssemblerAt(lastSelectedGroundCell) || IsContainerAt(lastSelectedGroundCell))
+            if (IsAssemblerAt() || IsContainerAt())
             {
                 SetButtonText(5, "(a) Attack");
-                if (IsContainerAt(lastSelectedGroundCell))
+                if (IsContainerAt())
                 {
                     SetButtonText(6, "(s) Minerals");
                     SetButtonText(7, "(d) Pipeline");
@@ -428,14 +504,14 @@ public class GameCanvas : MonoBehaviour
     private GameCommandType nextGameCommandAtClick = GameCommandType.None;
     void OnClickBuild()
     {
-        if (IsAssemblerAt(lastSelectedGroundCell))
+        if (IsAssemblerAt())
         {
             if (selectedBuildBlueprint != null)
             {
                 GameCommand gameCommand = new GameCommand();
 
                 gameCommand.UnitId = selectedBuildBlueprint.Name;
-                gameCommand.TargetPosition = lastSelectedGroundCell.Tile.Pos;
+                gameCommand.TargetPosition = selectedUnitFrame.CurrentPos;
                 gameCommand.GameCommandType = GameCommandType.Build;
                 gameCommand.PlayerId = 1;
                 HexGrid.GameCommands.Add(gameCommand);
@@ -512,6 +588,20 @@ public class GameCanvas : MonoBehaviour
         UnselectButtons();
     }
 
+    void OnClickExtract()
+    {
+        // Extract the unit
+        GameCommand gameCommand = new GameCommand();
+
+        gameCommand.UnitId = selectedUnitFrame.UnitId;
+        gameCommand.TargetPosition = selectedUnitFrame.CurrentPos;
+        gameCommand.GameCommandType = GameCommandType.Extract;
+        gameCommand.PlayerId = 1;
+        HexGrid.GameCommands.Add(gameCommand);
+
+        selectedUnitFrame.MoveUpdateStats.MarkedForExtraction = true;
+    }
+
     void OnClickBuild1()
     {
         SelectTopButton(1);
@@ -529,7 +619,15 @@ public class GameCanvas : MonoBehaviour
     }
     void OnClickBuild4()
     {
-        SelectTopButton(4);
+        if (IsUnitAt())
+        {
+            OnClickExtract();
+        }
+        else
+        {
+
+            SelectTopButton(4);
+        }
         UpdateCommandButtons();
     }
 
@@ -594,10 +692,7 @@ public class GameCanvas : MonoBehaviour
             hitByMouseClick = new HitByMouseClick();
             hitByMouseClick.GroundCell = raycastHit.collider.gameObject.GetComponent<GroundCell>();
             hitByMouseClick.UnitFrame = GetUnitFrameFromRayCast(raycastHit);
-            if (hitByMouseClick.UnitFrame != null && hitByMouseClick.GroundCell == null)
-            {
-                hitByMouseClick.GroundCell = HexGrid.GroundCells[hitByMouseClick.UnitFrame.CurrentPos];
-            }
+
             if (hitByMouseClick.UnitFrame == null && hitByMouseClick.GroundCell != null)
             {
                 foreach (UnitBase unitFrame in HexGrid.BaseUnits.Values)
@@ -605,6 +700,7 @@ public class GameCanvas : MonoBehaviour
                     if (unitFrame.CurrentPos == hitByMouseClick.GroundCell.Tile.Pos)
                     {
                         hitByMouseClick.UnitFrame = unitFrame;
+                        hitByMouseClick.GroundCell = null;
                         break;
                     }
                 }
@@ -635,7 +731,18 @@ public class GameCanvas : MonoBehaviour
             sb.Append(" Minerals: " + gc.Tile.Metal);
         if (selectedUnitFrame == null)
         {
-            headerText.text = "Ground";
+            if (gc.Tile.NumberOfDestructables > 0)
+            {
+                headerText.text = "Destructable";
+            }
+            else if (gc.Tile.NumberOfObstacles > 0)
+            {
+                headerText.text = "Obstacle";
+            }
+            else
+            {
+                headerText.text = "Ground";
+            }
             headerSubText.text = sb.ToString();
 
             sb.Clear();
@@ -678,16 +785,16 @@ public class GameCanvas : MonoBehaviour
     {
         if (hitByMouseClick.UnitFrame != null && hitByMouseClick.GroundCell == null)
         {
-            hitByMouseClick.GroundCell = HexGrid.GroundCells[hitByMouseClick.UnitFrame.CurrentPos];
+            //hitByMouseClick.GroundCell = HexGrid.GroundCells[hitByMouseClick.UnitFrame.CurrentPos];
         }
         if (lastSelectedGroundCell != hitByMouseClick.GroundCell)
         {
             if (lastSelectedGroundCell != null)
                 lastSelectedGroundCell.SetSelected(false);
-            if (hitByMouseClick.GroundCell != null && hitByMouseClick.UnitFrame == null)
+            if (hitByMouseClick.GroundCell != null)
                 hitByMouseClick.GroundCell.SetSelected(true);
+            lastSelectedGroundCell = hitByMouseClick.GroundCell;
         }
-        lastSelectedGroundCell = hitByMouseClick.GroundCell;
 
         if (selectedUnitFrame != hitByMouseClick.UnitFrame)
         {
@@ -802,7 +909,14 @@ public class GameCanvas : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.R))
         {
-            OnClickBuild4();
+            if (IsUnitAt())
+            {
+                OnClickExtract();
+            }
+            else
+            {
+                OnClickBuild4();
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.A))
@@ -942,14 +1056,21 @@ public class GameCanvas : MonoBehaviour
                     GameCommand gameCommand = new GameCommand();
 
                     gameCommand.UnitId = makeWaypointFromHereToNextClick.UnitId;
-                    gameCommand.TargetPosition = hitByMouseClick.GroundCell.Tile.Pos;
-                    gameCommand.GameCommandType = nextGameCommandAtClick;
+                    if (hitByMouseClick.GroundCell != null)
+                    {
+                        //GroundCell groundCell = HexGrid.GroundCells[hitByMouseClick.UnitFrame.CurrentPos];
+                        //groundCell.UnitCommands.Add(unitCommand);
 
-                    //gameCommand.Append = ShifKeyIsDown;
+                        gameCommand.TargetPosition = hitByMouseClick.GroundCell.Tile.Pos;
+                    }
+                    else
+                    {
+                        gameCommand.TargetPosition = selectedUnitFrame.CurrentPos; // Reset
+                    }
+                    gameCommand.GameCommandType = nextGameCommandAtClick;
                     HexGrid.GameCommands.Add(gameCommand);
 
-                    //if (!ShifKeyIsDown)
-                        selectedUnitFrame.ClearWayPoints(nextGameCommandAtClick);
+                    selectedUnitFrame.ClearWayPoints(nextGameCommandAtClick);
 
                     UnitCommand unitCommand = new UnitCommand();
                     unitCommand.GameCommand = gameCommand;
@@ -958,8 +1079,6 @@ public class GameCanvas : MonoBehaviour
 
                     makeWaypointFromHereToNextClick.UnitCommands.Add(unitCommand);
                     makeWaypointFromHereToNextClick.UpdateWayPoints();
-
-                    hitByMouseClick.GroundCell.UnitCommands.Add(unitCommand);
 
                     makeWaypointFromHereToNextClick = null;
 
@@ -1055,6 +1174,7 @@ public class GameCanvas : MonoBehaviour
                     {
                         headerSubText.text = "";
                     }
+                    headerSubText.text += " " + unit.UnitId;
 
                     string state;
 
@@ -1106,6 +1226,17 @@ public class GameCanvas : MonoBehaviour
                                 sb.Append("/" + part.Capacity.Value);
 
                             panelAssembler.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+
+                            sb = new StringBuilder();
+                            if (part.BildQueue != null)
+                            {
+                                foreach (string b in part.BildQueue)
+                                {
+                                    if (sb.Length > 0) sb.Append(" ");
+                                    sb.Append(b);
+                                }
+                            }
+                            panelAssembler.transform.Find("BuildQueue").GetComponent<Text>().text = sb.ToString();
 
                         }
                         if (part.PartType.StartsWith("Reactor"))

@@ -687,6 +687,14 @@ namespace Engine.Master
                     {
                         moveUpdateUnitPart.Minerals = Assembler.Container.Metal;
                         moveUpdateUnitPart.Capacity = Assembler.Container.Capacity;
+
+                        if (Assembler.BuildQueue != null)
+                        {
+                            moveUpdateUnitPart.BildQueue = new List<string>();
+                            moveUpdateUnitPart.BildQueue.AddRange(Assembler.BuildQueue);
+                        }
+
+                        //BildQueue
                     }
                     if (blueprintPart.PartType.StartsWith("Container"))
                     {

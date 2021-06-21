@@ -41,6 +41,8 @@ namespace Engine.Interface
         // Minerals in part
         public int? Minerals { get; set; }
         public int? Capacity { get; set; }
+
+        public List<string> BildQueue { get; set; }
     }
     public class MoveUpdateGroundStat
     {

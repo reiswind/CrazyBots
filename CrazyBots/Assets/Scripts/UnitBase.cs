@@ -352,9 +352,15 @@ public class UnitBase : MonoBehaviour
 
     public bool IsAssembler()
     {
-        return Assembler != null;
+        if (UnderConstruction) return false;
+        return Assembler != null && Engine == null;
     }
-
+    public bool IsContainer()
+    {
+        if (UnderConstruction) return false;
+        return Container != null && Engine == null;
+    }
+    private Engine1 Engine;
     private Assembler1 Assembler;
     private Container1 Container;
     private Extractor1 Extractor;
@@ -448,6 +454,7 @@ public class UnitBase : MonoBehaviour
         Assembler = null;
         Weapon = null;
         Reactor = null;
+        Engine = null;
 
         bool missingPartFound = false;
 
@@ -466,6 +473,11 @@ public class UnitBase : MonoBehaviour
                     unitBasePart.Part.SetActive(unitBasePart.IsUnderConstruction || moveUpdateUnitPart.Exists);
                     if (moveUpdateUnitPart.Exists)
                     {
+                        Engine1 engine = unitBasePart.Part.GetComponent<Engine1>();
+                        if (engine != null)
+                        {
+                            Engine = engine;
+                        }
                         Container1 container = unitBasePart.Part.GetComponent<Container1>();
                         if (container != null)
                         {

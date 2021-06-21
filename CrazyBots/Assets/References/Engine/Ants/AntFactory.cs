@@ -10,11 +10,10 @@ namespace Engine.Ants
 {
     internal class AntFactory : Ant
     {
-        public List<string> UserDefinedNextBlueprint { get; set; }
 
         public AntFactory(ControlAnt control, PlayerUnit playerUnit) : base(control, playerUnit)
         {
-            UserDefinedNextBlueprint = new List<string>();
+            
         }
 
         public override bool Move(Player player, List<Move> moves)
@@ -93,8 +92,7 @@ namespace Engine.Ants
             bool addAssembler = false;
             bool addFighter = false;
 
-            //if (player.PlayerModel.Id != 1)
-            if (UserDefinedNextBlueprint.Count == 0)
+            if (player.PlayerModel.Id != 1 && cntrlUnit.Assembler.BuildQueue == null)
             {
                 if (workerInPercent < 10 || Control.NumberOfWorkers < 2)
                     addWorker = true;
@@ -144,13 +142,15 @@ namespace Engine.Ants
                                     continue;
                                 }
 
-                                if (UserDefinedNextBlueprint.Count > 0)
+                                if (PlayerUnit.Unit.Assembler.BuildQueue != null)
                                 {
-                                    foreach (string bp in UserDefinedNextBlueprint)
+                                    foreach (string bp in PlayerUnit.Unit.Assembler.BuildQueue)
                                     {
                                         if (possibleMove.UnitId == bp)
                                         {
-                                            UserDefinedNextBlueprint.Remove(bp);
+                                            PlayerUnit.Unit.Assembler.BuildQueue.Remove(bp);
+                                            if (PlayerUnit.Unit.Assembler.BuildQueue.Count == 0)
+                                                PlayerUnit.Unit.Assembler.BuildQueue = null;
                                             possibleMoves.Clear();
                                             possibleMoves.Add(possibleMove);
                                             breakMoves = true;

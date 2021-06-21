@@ -671,8 +671,24 @@ namespace Engine.Ants
                                 possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
                                 if (possibleTiles.Count == 0)
                                 {
-                                    cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
-                                    return true;
+                                    // out of reactor range
+                                    moveToPosition = Control.FindReactor(player, this);
+                                    if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
+                                    {
+                                        FollowThisRoute = null;
+                                        cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
+                                        return true;
+                                    }
+                                    else
+                                    {
+                                        // Do not follow the route, cause first moveToPosition would be skippd. Otherwise, 
+                                        if (moveToPosition != null && FollowThisRoute != null && FollowThisRoute.Count > 0)
+                                        {
+                                            FollowThisRoute.Insert(0, moveToPosition);
+                                        }
+                                        cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
+                                        return true;
+                                    }
                                 }
                             }
                             while (possibleTiles.Count > 0 && moveToTile == null)

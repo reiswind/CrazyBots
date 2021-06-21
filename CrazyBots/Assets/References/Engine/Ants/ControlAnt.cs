@@ -56,8 +56,7 @@ namespace Engine.Control
                         if (ant != null)
                         {
                             player.UnitsInBuild.Remove(pos);
-                            if (ant.UserDefinedNextBlueprint.Count < 5)
-                                ant.UserDefinedNextBlueprint.Add(move.Stats.BlueprintName);
+                            ant.PlayerUnit.Unit.Assembler.Build(move.Stats.BlueprintName);
                         }
                         move.MoveType = MoveType.Skip;
                     }
