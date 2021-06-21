@@ -92,7 +92,9 @@ namespace Engine.Ants
             bool addAssembler = false;
             bool addFighter = false;
 
-            if (player.PlayerModel.Id != 1 && cntrlUnit.Assembler.BuildQueue == null)
+            if (player.PlayerModel.Id != 19 &&
+                cntrlUnit.Assembler != null &&
+                cntrlUnit.Assembler.BuildQueue == null)
             {
                 if (workerInPercent < 10 || Control.NumberOfWorkers < 2)
                     addWorker = true;

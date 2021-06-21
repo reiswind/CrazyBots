@@ -1059,21 +1059,6 @@ namespace Engine.Master
                         UpdateGroundPlates(lastMoves, newUnit, remove: true);
                         newUnit.Upgrade(move.UnitId);
 
-                        if (move.UnitId == "Container")
-                        {
-                            if (newUnit.Container.Metal == 0)
-                            {
-                                int metal = 0;
-                                /*
-                                if (factory.Container != null)
-                                {
-                                    if (factory.Container.Metal > 20)
-                                        metal = 20;
-                                }*/
-                                newUnit.Container.Metal += metal;
-                            }
-                        }
-
                         Move moveUpdate = new Move();
                         moveUpdate.PlayerId = newUnit.Owner.PlayerModel.Id;
                         moveUpdate.MoveType = MoveType.UpdateStats;

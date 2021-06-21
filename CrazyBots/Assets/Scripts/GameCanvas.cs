@@ -568,7 +568,7 @@ public class GameCanvas : MonoBehaviour
             // Turn the temp unit into ghost
             selectedUnitFrame.Temporary = false;
 
-            selectedUnitFrame.PutAtCurrentPosition();
+            selectedUnitFrame.PutAtCurrentPosition(false);
             selectedUnitFrame.Assemble(true);
             selectedUnitFrame.gameObject.SetActive(true);
         }

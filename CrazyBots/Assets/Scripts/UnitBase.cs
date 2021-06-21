@@ -25,6 +25,8 @@ public class UnitBase : MonoBehaviour
     {
         UnitCommands = new List<UnitCommand>();
         unitBaseParts = new List<UnitBasePart>();
+
+        AboveGround =0f;
     }
 
     public HexGrid HexGrid { get; set; }
@@ -86,14 +88,23 @@ public class UnitBase : MonoBehaviour
     }
 
     private float AboveGround { get; set; }
-    public void PutAtCurrentPosition()
+    public void PutAtCurrentPosition(bool update)
     {
+        
         GroundCell targetCell = HexGrid.GroundCells[CurrentPos];
         Vector3 unitPos3 = targetCell.transform.localPosition;
-        unitPos3.y += HexGrid.hexCellHeight + AboveGround;
-        transform.position = unitPos3;
 
-        transform.SetParent(HexGrid.transform, false);
+        if (!update)
+        {
+            unitPos3.y += HexGrid.hexCellHeight + AboveGround;
+            transform.position = unitPos3;
+            transform.SetParent(HexGrid.transform, false);
+        }
+        else
+        {
+            unitPos3.y += HexGrid.hexCellHeight + AboveGround;
+            transform.position = unitPos3;
+        }
     }
 
     public void MoveTo(Position pos)

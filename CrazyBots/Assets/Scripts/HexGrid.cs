@@ -15,7 +15,7 @@ using UnityEngine.UI;
 
 public class HexGrid : MonoBehaviour 
 {
-	internal float hexCellHeight = 0.25f;
+	internal float hexCellHeight = 0.18f;
 
 	public int gridWidth = 20;
 	public int gridHeight = 20;
@@ -52,10 +52,10 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -497,7 +497,7 @@ public class HexGrid : MonoBehaviour
 			{
 				unitBase.CurrentPos = unitBase.DestinationPos;
 				unitBase.DestinationPos = null;
-				unitBase.PutAtCurrentPosition();
+				unitBase.PutAtCurrentPosition(true);
 			}
 		}
 
@@ -746,7 +746,7 @@ public class HexGrid : MonoBehaviour
 		unit.gameObject.name = move.UnitId;
 
 		unit.Assemble(move.MoveType == MoveType.Build);
-		unit.PutAtCurrentPosition();
+		unit.PutAtCurrentPosition(false);
 
 		if (move.Positions.Count > 1)
 		{
@@ -866,7 +866,7 @@ public class HexGrid : MonoBehaviour
 		}
 
 		//gridPos3.y = tileY / 2;
-		gridPos3.y = ((float)height * 5);
+		gridPos3.y = ((float)height * 8);
 		gameObjectCell.transform.localPosition = gridPos3;
 
 		//
