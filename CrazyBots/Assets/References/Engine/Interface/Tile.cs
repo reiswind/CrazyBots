@@ -84,6 +84,9 @@ namespace Engine.Interface
         public int NumberOfDestructables { get; set; }
         public int NumberOfObstacles { get; set; }
 
+        public int Owner { get; set; }
+
+        public bool IsBorder { get; set; }
 
         internal Tile(Map map, Position pos)
         {

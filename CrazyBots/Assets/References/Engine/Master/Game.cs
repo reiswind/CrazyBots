@@ -111,6 +111,7 @@ namespace Engine.Master
                 newMoves.Add(move);
 
                 Tile t = Map.GetTile(unitModel.Position);
+                t.Owner = unitModel.PlayerId;
                 t.Metal = 0;
                 t.NumberOfDestructables = 0;
                 t.NumberOfObstacles = 0;
@@ -570,12 +571,16 @@ namespace Engine.Master
                         extracted = unit.Extractor.ExtractInto(fromPos, nextMoves, this);
                         if (extracted)
                         {
+                            if (!changedGroundPositions.ContainsKey(fromPos))
+                                changedGroundPositions.Add(fromPos, null);
+                            /*
                             Move hitmove = new Move();
                             hitmove.MoveType = MoveType.UpdateGround;
                             hitmove.Positions = new List<Position>();
                             hitmove.Positions.Add(fromPos);
                             hitmove.Stats = CollectGroundStats(fromPos);
                             nextMoves.Add(hitmove);
+                            */
 
                             Move moveUpdate = new Move();
 
@@ -651,12 +656,17 @@ namespace Engine.Master
                             unitTile.Metal += 2 + releasedMetal;
                         }
 
+                        if (!changedGroundPositions.ContainsKey(move.Positions[1]))
+                            changedGroundPositions.Add(move.Positions[1], null);
+
+                        /*
                         Move groundMove = new Move();
                         groundMove.MoveType = MoveType.UpdateGround;
                         groundMove.Positions = new List<Position>();
                         groundMove.Positions.Add(move.Positions[1]);
                         groundMove.Stats = CollectGroundStats(move.Positions[1]);
                         nextMoves.Add(groundMove);
+                        */
                     }
                     else
                     {
@@ -666,12 +676,17 @@ namespace Engine.Master
                         if (targetTile.NumberOfDestructables > 0)
                             targetTile.NumberOfDestructables--;
 
+                        if (!changedGroundPositions.ContainsKey(move.Positions[1]))
+                            changedGroundPositions.Add(move.Positions[1], null);
+
+                        /*
                         Move hitmove = new Move();
                         hitmove.MoveType = MoveType.UpdateGround;
                         hitmove.Positions = new List<Position>();
                         hitmove.Positions.Add(move.Positions[1]);
                         hitmove.Stats = CollectGroundStats(move.Positions[1]);
                         nextMoves.Add(hitmove);
+                        */
                     }
                     finishedMoves.Add(move);
                 }
@@ -695,6 +710,8 @@ namespace Engine.Master
             MoveUpdateGroundStat moveUpdateGroundStat = new MoveUpdateGroundStat();
 
             Tile t = Map.GetTile(pos);
+            moveUpdateGroundStat.Owner = t.Owner;
+            moveUpdateGroundStat.IsBorder = t.IsBorder;
             moveUpdateGroundStat.Minerals = t.Metal;
             moveUpdateGroundStat.NumberOfDestructables = t.NumberOfDestructables;
             moveUpdateGroundStat.NumberOfObstacles = t.NumberOfObstacles;
@@ -965,12 +982,15 @@ namespace Engine.Master
 
                         if (moves != null)
                         {
+                            if (!changedGroundPositions.ContainsKey(n.Pos))
+                                changedGroundPositions.Add(n.Pos, null);
+                            /*
                             Move hitmove = new Move();
                             hitmove.MoveType = MoveType.UpdateGround;
                             hitmove.Positions = new List<Position>();
                             hitmove.Positions.Add(n.Pos);
                             hitmove.Stats = CollectGroundStats(n.Pos);
-                            moves.Add(hitmove);
+                            moves.Add(hitmove);*/
                         }
                     }
                 }
@@ -1282,6 +1302,8 @@ namespace Engine.Master
             }
         }
 
+        private Dictionary<Position, Tile> changedGroundPositions = new Dictionary<Position, Tile>();
+
         public List<Move> ProcessMove(int playerId, Move myMove, List<GameCommand> gameCommands)
         {
             List<Move> returnMoves = new List<Move>();
@@ -1297,6 +1319,9 @@ namespace Engine.Master
                 {
 
                 }
+
+                changedGroundPositions.Clear();
+
                 bool first = false;
                 if (!initialized)
                 {
@@ -1432,6 +1457,18 @@ namespace Engine.Master
 
                 mapInfo = new MapInfo();
                 mapInfo.ComputeMapInfo(this);
+                ProcessBorders();
+
+                // Add changed ground info
+                foreach (Position pos in changedGroundPositions.Keys)
+                {
+                    Move hitmove = new Move();
+                    hitmove.MoveType = MoveType.UpdateGround;
+                    hitmove.Positions = new List<Position>();
+                    hitmove.Positions.Add(pos);
+                    hitmove.Stats = CollectGroundStats(pos);
+                    newMoves.Add(hitmove);
+                }
 
                 //CreateAreas();
                 if (playerId == 0)
@@ -1465,6 +1502,84 @@ namespace Engine.Master
         public MapInfo GetDebugMapInfo()
         {
             return mapInfo;
+        }
+
+        private List<Position> updatedPositions = new List<Position>();
+        private void ProcessBorders()
+        {
+            List<Position> newUpdatedPositions = new List<Position>();
+
+            foreach (Position pos in mapInfo.Pheromones.Keys)
+            {
+                newUpdatedPositions.Add(pos);
+                updatedPositions.Remove(pos);
+
+                MapPheromone mapPheromone = mapInfo.Pheromones[pos];
+                float highestEnergy = -1;
+                int highestPlayerId = 0;
+
+                foreach (MapPheromoneItem mapPheromoneItem in mapPheromone.PheromoneItems)
+                {
+                    if (mapPheromoneItem.PheromoneType == Ants.PheromoneType.Energy)
+                    {
+                        if (mapPheromoneItem.Intensity >= highestEnergy)
+                        {
+                            highestEnergy = mapPheromoneItem.Intensity;
+                            highestPlayerId = mapPheromoneItem.PlayerId;
+                        }
+                    }
+                }
+
+                Tile t = Map.GetTile(pos);
+                if (highestEnergy > 0)
+                {
+                    if (t.Owner != highestPlayerId && !changedGroundPositions.ContainsKey(pos))
+                    {
+                        changedGroundPositions.Add(pos, null);
+                        t.Owner = highestPlayerId;
+                    }
+                }
+                else
+                {
+                    if (t.Owner != 0 && !changedGroundPositions.ContainsKey(pos))
+                    {
+                        changedGroundPositions.Add(pos, null);
+                        t.Owner = 0;
+                    }
+                }
+            }
+            foreach (Position pos in updatedPositions)
+            {
+                Tile t = Map.GetTile(pos);
+                if (t.Owner != 0 || t.IsBorder)
+                {
+                    if (!changedGroundPositions.ContainsKey(pos))
+                        changedGroundPositions.Add(pos, null);
+                    t.Owner = 0;
+                    t.IsBorder = false;
+                }
+            }
+            updatedPositions = newUpdatedPositions;
+            
+            foreach (Position pos in newUpdatedPositions)
+            {
+                Tile t = Map.GetTile(pos);
+                bool isBorder = false;
+                foreach (Tile n in t.Neighbors)
+                {
+                    if (n.Owner != t.Owner)
+                    {
+                        isBorder = true;
+                        break;
+                    }
+                }
+                if (t.IsBorder != isBorder)
+                {
+                    t.IsBorder = isBorder;
+                    if (!changedGroundPositions.ContainsKey(pos))
+                        changedGroundPositions.Add(pos, null);
+                }
+            }
         }
 
         public List<Area> Areas { get; private set; }

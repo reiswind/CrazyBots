@@ -729,6 +729,9 @@ public class GameCanvas : MonoBehaviour
         sb.Append("Position: " + gc.Tile.Pos.X + ", " + gc.Tile.Pos.Y);
         if (gc.Tile.Metal > 0)
             sb.Append(" Minerals: " + gc.Tile.Metal);
+
+        sb.Append(" Owner: " + gc.Tile.Owner);
+
         if (selectedUnitFrame == null)
         {
             if (gc.Tile.NumberOfDestructables > 0)

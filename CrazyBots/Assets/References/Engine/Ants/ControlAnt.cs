@@ -956,7 +956,7 @@ namespace Engine.Control
                             else
                             {
                                 //ant.PlayerUnit.Unit.Reactor.Power -= 0.01f;
-                                player.Game.Pheromones.UpdatePheromones(ant.PheromoneDepositEnergy, ant.PlayerUnit.Unit.Reactor.Power, 0.2f);
+                                //player.Game.Pheromones.UpdatePheromones(ant.PheromoneDepositEnergy, ant.PlayerUnit.Unit.Reactor.Power, 0.2f);
                             }
                         }
                         movableAnts.Add(ant);

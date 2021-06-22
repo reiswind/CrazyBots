@@ -136,8 +136,7 @@ namespace Engine.Ants
             int counter = PheromoneStack.pheromoneStackCounter;
             pheromoneStacks.Add(counter, pheromoneStack);
 
-            Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(pos, range, false);
-
+            Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(pos, range, true);
             foreach (TileWithDistance tileWithDistance in tiles.Values)
             {
                 float totaldistance = range - tileWithDistance.Distance;

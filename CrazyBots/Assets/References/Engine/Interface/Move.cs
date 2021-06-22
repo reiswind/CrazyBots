@@ -46,6 +46,11 @@ namespace Engine.Interface
     }
     public class MoveUpdateGroundStat
     {
+        [DataMember]
+        public int Owner { get; set; }
+        [DataMember]
+        public bool IsBorder { get; set; }
+
         [DataMember(EmitDefaultValue = false)]
         public int Minerals { get; set; }
         [DataMember(EmitDefaultValue = false)]

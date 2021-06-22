@@ -33,6 +33,31 @@ public class GroundCell : MonoBehaviour
         ShowPheromones = true;
     }
 
+    private void CreateMarker()
+    {
+        if (markerEnergy == null)
+        {
+            GameObject markerPrefab = HexGrid.GetTerrainResource("Marker");
+            markerEnergy = Instantiate(markerPrefab, transform, false);
+            markerEnergy.name = name + "-Energy";
+
+            markerToHome = Instantiate(markerPrefab, transform, false);
+            markerToHome.name = name + "-Home";
+            MeshRenderer meshRenderer = markerToHome.GetComponent<MeshRenderer>();
+            meshRenderer.material.color = new Color(0, 0, 0.6f);
+
+            markerToMineral = Instantiate(markerPrefab, transform, false);
+            markerToMineral.name = name + "-Mineral";
+            meshRenderer = markerToMineral.GetComponent<MeshRenderer>();
+            meshRenderer.material.color = new Color(0, 0.4f, 0);
+
+            markerToEnemy = Instantiate(markerPrefab, transform, false);
+            markerToEnemy.name = name + "-Mineral";
+            meshRenderer = markerToEnemy.GetComponent<MeshRenderer>();
+            meshRenderer.material.color = new Color(0.4f, 0, 0);
+        }
+    }
+
     internal void UpdatePheromones (MapPheromone mapPheromone)
     {
         if (!ShowPheromones)
@@ -60,24 +85,7 @@ public class GroundCell : MonoBehaviour
         {
             if (markerEnergy == null)
             {
-                GameObject markerPrefab = HexGrid.GetTerrainResource("Marker");
-                markerEnergy = Instantiate(markerPrefab, transform, false);
-                markerEnergy.name = name + "-Energy";
-
-                markerToHome = Instantiate(markerPrefab, transform, false);
-                markerToHome.name = name + "-Home";
-                MeshRenderer meshRenderer = markerToHome.GetComponent<MeshRenderer>();
-                meshRenderer.material.color = new Color(0, 0, 0.6f);
-
-                markerToMineral = Instantiate(markerPrefab, transform, false);
-                markerToMineral.name = name + "-Mineral";
-                meshRenderer = markerToMineral.GetComponent<MeshRenderer>();
-                meshRenderer.material.color = new Color(0, 0.4f, 0);
-
-                markerToEnemy = Instantiate(markerPrefab, transform, false);
-                markerToEnemy.name = name + "-Mineral";
-                meshRenderer = markerToEnemy.GetComponent<MeshRenderer>();
-                meshRenderer.material.color = new Color(0.4f, 0, 0);
+                CreateMarker();
             }
             
             /*
@@ -112,7 +120,7 @@ public class GroundCell : MonoBehaviour
                 markerToMineral.transform.position = position;
             }*/
             
-            
+            /*
             if (mapPheromone.IntensityToWork > 0)
             {
                 Vector3 position = transform.position;
@@ -126,7 +134,7 @@ public class GroundCell : MonoBehaviour
                 position.y -= 1;
                 position.x += 0.3f;
                 markerToEnemy.transform.position = position;
-            }
+            }*/
             /*
             float highestEnergy = -1;
             int highestPlayerId = 0;
@@ -155,8 +163,8 @@ public class GroundCell : MonoBehaviour
                 Vector3 position = transform.position;
                 position.y -= 1;
                 markerEnergy.transform.position = position;
-            }
-            */
+            }*/
+            
         }
     }
 
@@ -172,6 +180,27 @@ public class GroundCell : MonoBehaviour
                     // Currently not in sync. later.
                     int x =0;
                 }
+
+                if (markerEnergy == null)
+                {
+                    CreateMarker();
+                }
+                if (stat.Owner == 0 || !stat.IsBorder)
+                {
+                    Vector3 position = transform.position;
+                    position.y -= 1;
+                    markerEnergy.transform.position = position;
+                }
+                else
+                {
+                    float highestEnergy = 1;
+
+                    Vector3 position = transform.position;
+                    position.y += 0.054f + (0.2f * highestEnergy);
+                    markerEnergy.transform.position = position;
+                    UnitBase.SetPlayerColor(HexGrid, stat.Owner, markerEnergy);
+                }
+
                 Tile.Metal = stat.Minerals;
 
                 Tile.NumberOfDestructables = stat.NumberOfDestructables;
