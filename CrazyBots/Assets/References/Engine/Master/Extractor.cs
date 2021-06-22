@@ -248,6 +248,9 @@ namespace Engine.Master
         {
             get
             {
+                if (Unit.Power == 0)
+                    return false;
+
                 if (Unit.Weapon != null)
                 {
                     if (Unit.Weapon.Container != null && Unit.Weapon.Container.Metal < Unit.Weapon.Container.Capacity)
@@ -365,6 +368,9 @@ namespace Engine.Master
                                 throw new Exception("omg");
                             }
 
+                            if (!game.changedUnits.ContainsKey(fromTile.Unit.Pos))
+                                game.changedUnits.Add(fromTile.Unit.Pos, fromTile.Unit);
+                            /*
                             Move moveUpdate = new Move();
 
                             moveUpdate.MoveType = MoveType.UpdateStats;
@@ -375,6 +381,7 @@ namespace Engine.Master
                             moveUpdate.Stats = fromTile.Unit.CollectStats();
 
                             moves.Add(moveUpdate);
+                            */
                         }
                         else
                         {

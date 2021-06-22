@@ -102,6 +102,7 @@ namespace Engine.Master
 
         public List<GameCommand> GameCommands { get; set; }
         public int Power { get; set; }
+        public int MaxPower { get; set; }
 
         // Unit can be extracted
         public bool ExtractMe { get; set; }
@@ -492,14 +493,10 @@ namespace Engine.Master
                 }
                 else if (startCode == "StartFactory")
                 {
-                    Power = 100;
-                    //Metal = 1;
                     unitCode = "1;0;0;1;1;1;0";
                 }
                 else if (startCode == "StartColony")
                 {
-                    Power = 100;
-                    //Metal = 1;
                     unitCode = "0;0;0;1;1;1;1";
                 }
                 else if (startCode == "StartContainer")
@@ -693,13 +690,15 @@ namespace Engine.Master
                             moveUpdateUnitPart.BildQueue = new List<string>();
                             moveUpdateUnitPart.BildQueue.AddRange(Assembler.BuildQueue);
                         }
-
-                        //BildQueue
                     }
                     if (blueprintPart.PartType.StartsWith("Container"))
                     {
                         moveUpdateUnitPart.Minerals = Container.Metal;
                         moveUpdateUnitPart.Capacity = Container.Capacity;
+                    }
+                    if (blueprintPart.PartType.StartsWith("Reactor"))
+                    {
+                        moveUpdateUnitPart.AvailablePower = Reactor.AvailablePower;
                     }
                 }
                 stats.UnitParts.Add(moveUpdateUnitPart);

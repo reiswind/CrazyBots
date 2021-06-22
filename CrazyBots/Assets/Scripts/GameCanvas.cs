@@ -1179,6 +1179,8 @@ public class GameCanvas : MonoBehaviour
                     }
                     headerSubText.text += " " + unit.UnitId;
 
+                    headerSubText.text += " Power: " + unit.MoveUpdateStats.Power;
+
                     string state;
 
                     foreach (MoveUpdateUnitPart part in unit.MoveUpdateStats.UnitParts)
@@ -1246,6 +1248,15 @@ public class GameCanvas : MonoBehaviour
                         {
                             panelReactor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                             panelReactor.SetActive(true);
+
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append("AvailablePower  ");
+                            if (part.AvailablePower.HasValue)
+                                sb.Append(part.AvailablePower.Value);
+                            else
+                                sb.Append("0");
+                            panelReactor.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+                            
                         }
                         if (part.PartType.StartsWith("Armor"))
                         {

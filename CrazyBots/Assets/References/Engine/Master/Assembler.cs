@@ -26,6 +26,8 @@ namespace Engine.Master
 
         public bool CanProduce()
         {
+            if (Unit.Power == 0)
+                return false;
             if (Container != null && Container.Metal > 0)
                 return true;
             if (Unit.Container != null && Unit.Container.Metal > 0)

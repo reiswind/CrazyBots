@@ -552,6 +552,10 @@ public class HexGrid : MonoBehaviour
 				if (BaseUnits.ContainsKey(move.UnitId))
 				{
 					UnitBase unit = BaseUnits[move.UnitId];
+					if (unit.PlayerId != move.PlayerId)
+                    {
+						unit.ChangePlayer(move.PlayerId);
+                    }
 					unit.UpdateStats(move.Stats);
 
 					if (move.MoveType == MoveType.Extract)

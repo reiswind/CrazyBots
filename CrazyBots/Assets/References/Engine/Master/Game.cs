@@ -452,7 +452,9 @@ namespace Engine.Master
                         if (thisUnit.Container != null && containerNetal.HasValue)
                             thisUnit.Container.Metal = containerNetal.Value;
 
-                        thisUnit.Power = 100;
+                        thisUnit.Power = 20;
+                        thisUnit.MaxPower = 20;
+
                         thisUnit.ExtractMe = markForExtraction;
 
                         if (move.MoveType == MoveType.Add)
@@ -525,6 +527,11 @@ namespace Engine.Master
         
         private void Initialize(List<Move> newMoves)
         {
+            PlayerModel playerModel = new PlayerModel();
+            playerModel.Id = 0;
+            playerModel.Name = "Neutral";
+            NeutralPlayer = new Player(this, playerModel);
+
             //Szenario1(newMoves);
             //SzenarioShowUnits(newMoves);
             StartWithFactory(newMoves);
@@ -582,6 +589,10 @@ namespace Engine.Master
                             nextMoves.Add(hitmove);
                             */
 
+                            if (!changedUnits.ContainsKey(unit.Pos))
+                                changedUnits.Add(unit.Pos, unit);
+
+                            /*
                             Move moveUpdate = new Move();
 
                             moveUpdate.MoveType = MoveType.UpdateStats;
@@ -592,6 +603,7 @@ namespace Engine.Master
                             moveUpdate.Stats = unit.CollectStats();
 
                             nextMoves.Add(moveUpdate);
+                            */
                         }
                         else
                         {
@@ -1013,7 +1025,10 @@ namespace Engine.Master
                     {
                         // Never called
                         factory.Assembler.ConsumeMetalForUnit(newUnit);
- 
+
+                        if (!changedUnits.ContainsKey(factory.Pos))
+                            changedUnits.Add(factory.Pos, factory);
+                        /*
                         Move moveUpdate = new Move();
                         moveUpdate.PlayerId = factory.Owner.PlayerModel.Id;
                         moveUpdate.MoveType = MoveType.UpdateStats;
@@ -1021,7 +1036,7 @@ namespace Engine.Master
                         moveUpdate.Positions = new List<Position>();
                         moveUpdate.Positions.Add(factory.Pos);
                         moveUpdate.Stats = factory.CollectStats();
-                        lastMoves.Add(moveUpdate);
+                        lastMoves.Add(moveUpdate);*/
                     }
                     
                     if (newUnit != null)
@@ -1045,6 +1060,9 @@ namespace Engine.Master
                     {
                         factory.Assembler.ConsumeMetalForUnit(newUnit);
 
+                        if (!changedUnits.ContainsKey(factory.Pos))
+                            changedUnits.Add(factory.Pos, factory);
+                        /*
                         Move moveUpdate = new Move();
                         moveUpdate.PlayerId = factory.Owner.PlayerModel.Id;
                         moveUpdate.MoveType = MoveType.UpdateStats;
@@ -1052,7 +1070,7 @@ namespace Engine.Master
                         moveUpdate.Positions = new List<Position>();
                         moveUpdate.Positions.Add(factory.Pos);
                         moveUpdate.Stats = factory.CollectStats();
-                        lastMoves.Add(moveUpdate);
+                        lastMoves.Add(moveUpdate);*/
                     }
                     else
                     {
@@ -1079,6 +1097,10 @@ namespace Engine.Master
                         UpdateGroundPlates(lastMoves, newUnit, remove: true);
                         newUnit.Upgrade(move.UnitId);
 
+                        if (!changedUnits.ContainsKey(newUnit.Pos))
+                            changedUnits.Add(newUnit.Pos, newUnit);
+
+                        /*
                         Move moveUpdate = new Move();
                         moveUpdate.PlayerId = newUnit.Owner.PlayerModel.Id;
                         moveUpdate.MoveType = MoveType.UpdateStats;
@@ -1087,7 +1109,7 @@ namespace Engine.Master
                         moveUpdate.Positions.Add(newUnit.Pos);
                         moveUpdate.Stats = newUnit.CollectStats();
                         lastMoves.Add(moveUpdate);
-
+                        */
                         UpdateGroundPlates(lastMoves, newUnit);
                     }
                 }
@@ -1126,6 +1148,9 @@ namespace Engine.Master
                             throw new Exception();
                         move.Stats = fireingUnit.CollectStats();
 
+                        if (!changedUnits.ContainsKey(fireingUnit.Pos))
+                            changedUnits.Add(fireingUnit.Pos, fireingUnit);
+                        /*
                         Move moveUpdate = new Move();
 
                         moveUpdate.MoveType = MoveType.UpdateStats;
@@ -1135,7 +1160,7 @@ namespace Engine.Master
                         moveUpdate.Positions.Add(fireingUnit.Pos);
                         moveUpdate.Stats = fireingUnit.CollectStats();
 
-                        lastMoves.Add(moveUpdate);
+                        lastMoves.Add(moveUpdate);*/
                     }
                 }
                 else if (move.MoveType == MoveType.Move)
@@ -1162,22 +1187,93 @@ namespace Engine.Master
             }
         }
 
-        private void ConsumePower(List<Move> newMoves)
+        private void ConsumePower(Player player, List<Move> newMoves)
         {
+            List<Unit> reactors = new List<Unit>();
+            int totalNumberOfUnits = 0;
+
+            // Collect reactors and consume power for every unit
             foreach (Unit unit in Map.Units.List.Values)
             {
+                if (unit.Owner.PlayerModel.Id != player.PlayerModel.Id)
+                    continue;
+
+                // Only own units
+                if (unit.Reactor != null && unit.Engine == null)
+                {
+                    reactors.Add(unit);
+                }
+                
                 if (unit.Power > 0)
                 {
-                    //unit.Power--;
-                    /*
-                    Move hitmove = new Move();
-                    hitmove.MoveType = MoveType.UpdateStats;
-                    hitmove.PlayerId = 0;
-                    hitmove.Positions = new List<Position>();
-                    hitmove.Positions.Add(unit.Pos);
-                    hitmove.UnitId = unit.UnitId;
-                    hitmove.Stats = unit.CollectStats();
-                    newMoves.Add(hitmove);*/
+                    unit.Power--;
+                    totalNumberOfUnits++;
+
+                    if (!changedUnits.ContainsKey(unit.Pos))
+                        changedUnits.Add(unit.Pos, unit);
+                }
+                else
+                {
+                    if (unit.Owner != NeutralPlayer)
+                    {
+                        // Unpowered unit
+                        unit.Owner = NeutralPlayer;
+
+                        if (!changedUnits.ContainsKey(unit.Pos))
+                            changedUnits.Add(unit.Pos, unit);
+                    }
+                }
+            }
+
+            // Collect the total out power of all reactors
+            int totalAvailablePower = 0;
+            foreach (Unit reactor in reactors)
+            {
+                totalAvailablePower += reactor.Reactor.AvailablePower;
+            }
+
+            int totalPowerRemoved = 0;
+
+            // Recharge units
+            bool allUnitsCharged = false;
+            while (totalAvailablePower > 0 && !allUnitsCharged)
+            {
+                allUnitsCharged = true;
+                int maxPowerPerUnit = (totalAvailablePower / totalNumberOfUnits) + 1;
+
+                foreach (Unit unit in Map.Units.List.Values)
+                {
+                    if (unit.Owner.PlayerModel.Id != player.PlayerModel.Id)
+                        continue;
+
+                    // Only own units
+                    if (unit.Power < unit.MaxPower)
+                    {
+                        int chargedPower = maxPowerPerUnit;
+
+                        if (unit.Power + maxPowerPerUnit > unit.MaxPower)
+                        {
+                            chargedPower = unit.MaxPower - unit.Power;
+                        }
+                        unit.Power += chargedPower;
+                        if (unit.Power < unit.MaxPower)
+                        {
+                            allUnitsCharged = false;
+                        }
+                        totalAvailablePower -= chargedPower;
+                        totalPowerRemoved += chargedPower;
+                    }
+                }
+            }
+            int att = 100;
+            while (totalPowerRemoved > 0 && att-- > 0)
+            {
+                // Consume the charged power from the reactors
+                int removePowerFromEachReactor = (totalPowerRemoved / reactors.Count) + 1;
+                foreach (Unit reactor in reactors)
+                {
+                    int powerConsumed = reactor.Reactor.ConsumePower(removePowerFromEachReactor);
+                    totalPowerRemoved -= powerConsumed;
                 }
             }
         }
@@ -1303,6 +1399,8 @@ namespace Engine.Master
         }
 
         private Dictionary<Position, Tile> changedGroundPositions = new Dictionary<Position, Tile>();
+        internal Dictionary<Position, Unit> changedUnits = new Dictionary<Position, Unit>();
+        private Player NeutralPlayer;
 
         public List<Move> ProcessMove(int playerId, Move myMove, List<GameCommand> gameCommands)
         {
@@ -1320,6 +1418,7 @@ namespace Engine.Master
 
                 }
 
+                changedUnits.Clear();
                 changedGroundPositions.Clear();
 
                 bool first = false;
@@ -1422,7 +1521,6 @@ namespace Engine.Master
                         return lastMoves;
                     }
                 }
-                ConsumePower(newMoves);
 
                 LogMoves("Process new Moves " + Seed, MoveNr, newMoves);
 
@@ -1453,11 +1551,25 @@ namespace Engine.Master
                         // This player is dead.
                         player.Commands.Clear();
                     }
+                    ConsumePower(player, lastMoves);
                 }
+
 
                 mapInfo = new MapInfo();
                 mapInfo.ComputeMapInfo(this);
                 ProcessBorders();
+
+                foreach (Unit unit in changedUnits.Values)
+                {
+                    Move moveUpdate = new Move();
+                    moveUpdate.PlayerId = unit.Owner.PlayerModel.Id;
+                    moveUpdate.MoveType = MoveType.UpdateStats;
+                    moveUpdate.UnitId = unit.UnitId;
+                    moveUpdate.Positions = new List<Position>();
+                    moveUpdate.Positions.Add(unit.Pos);
+                    moveUpdate.Stats = unit.CollectStats();
+                    lastMoves.Add(moveUpdate);
+                }
 
                 // Add changed ground info
                 foreach (Position pos in changedGroundPositions.Keys)
@@ -1467,7 +1579,7 @@ namespace Engine.Master
                     hitmove.Positions = new List<Position>();
                     hitmove.Positions.Add(pos);
                     hitmove.Stats = CollectGroundStats(pos);
-                    newMoves.Add(hitmove);
+                    lastMoves.Add(hitmove);
                 }
 
                 //CreateAreas();

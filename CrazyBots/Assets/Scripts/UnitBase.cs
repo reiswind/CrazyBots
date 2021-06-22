@@ -278,6 +278,16 @@ public class UnitBase : MonoBehaviour
         }
     }
 
+    public void ChangePlayer(int newPlayerId)
+    {
+        PlayerId = newPlayerId;
+
+        foreach (UnitBasePart unitBasePart in unitBaseParts)
+        {
+            SetPlayerColor(HexGrid, PlayerId, unitBasePart.Part);
+        }
+    }
+
     public void Extract(Move move)
     {
         if (Extractor != null)
@@ -332,6 +342,9 @@ public class UnitBase : MonoBehaviour
         if (meshRenderer.materials.Length == 1)
         {
             Destroy(meshRenderer.material);
+            if (playerId == 0) 
+                meshRenderer.material = hexGrid.GetMaterial("Player0");
+            if (playerId == 0) meshRenderer.material = hexGrid.GetMaterial("Player0");
             if (playerId == 1) meshRenderer.material = hexGrid.GetMaterial("Player1");
             if (playerId == 2) meshRenderer.material = hexGrid.GetMaterial("Player2");
             if (playerId == 3) meshRenderer.material = hexGrid.GetMaterial("Player3");
@@ -347,6 +360,7 @@ public class UnitBase : MonoBehaviour
                 if (material.name.StartsWith("Player"))
                 {
                     Destroy(material);
+                    if (playerId == 0) newMaterials[i] = hexGrid.GetMaterial("Player0");
                     if (playerId == 1) newMaterials[i] = hexGrid.GetMaterial("Player1");
                     if (playerId == 2) newMaterials[i] = hexGrid.GetMaterial("Player2");
                     if (playerId == 3) newMaterials[i] = hexGrid.GetMaterial("Player3");

@@ -933,7 +933,11 @@ namespace Engine.Control
                 }
                 else
                 {
-                    if (ant.PlayerUnit.Unit.IsComplete())
+                    if (ant.PlayerUnit.Unit.Power == 0)
+                    {
+                        killedAnts.Add(ant);
+                    }
+                    else if (ant.PlayerUnit.Unit.IsComplete())
                     {
                         /*
                         if (workDeposits.ContainsKey(ant.PlayerUnit.Unit.Pos))
@@ -950,8 +954,8 @@ namespace Engine.Control
                         {
                             if (ant.PheromoneDepositEnergy == 0)
                             {
-                                ant.PlayerUnit.Unit.Reactor.Power = 1;
-                                ant.PheromoneDepositEnergy = player.Game.Pheromones.DropPheromones(player, ant.PlayerUnit.Unit.Pos, 12, PheromoneType.Energy, ant.PlayerUnit.Unit.Reactor.Power, true, 0.2f);
+                                //ant.PlayerUnit.Unit.Reactor.Power = 1;
+                                ant.PheromoneDepositEnergy = player.Game.Pheromones.DropPheromones(player, ant.PlayerUnit.Unit.Pos, 12, PheromoneType.Energy, 1, true, 0.2f);
                             }
                             else
                             {
