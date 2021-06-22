@@ -578,6 +578,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MineralText: {fileID: 906138935}
   UnitText: {fileID: 1515047643}
+  PowerText: {fileID: 991802728}
   HexGrid: {fileID: 1571186511}
   SelectedButtonBackground: {fileID: 21300070, guid: c43828ee2396b9e4fa7918551cda2e61, type: 3}
   ButtonBackground: {fileID: 21300000, guid: 57c742ea016997740891d3ad6b1d6a66, type: 3}

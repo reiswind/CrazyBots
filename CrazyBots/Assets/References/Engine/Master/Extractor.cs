@@ -265,6 +265,13 @@ namespace Engine.Master
                         return true;
                     }
                 }
+                if (Unit.Reactor != null)
+                {
+                    if (Unit.Reactor.Container != null && Unit.Reactor.Container.Metal < Unit.Reactor.Container.Capacity)
+                    {
+                        return true;
+                    }
+                }
                 if (Unit.Container != null && Unit.Container.Metal < Unit.Container.Capacity)
                 {
                     return true;
@@ -308,6 +315,10 @@ namespace Engine.Master
                     if (Unit.Assembler != null && Unit.Assembler.Container != null && Unit.Assembler.Container.Metal < Unit.Assembler.Container.Capacity)
                     {
                         targetContainer = Unit.Assembler.Container;
+                    }
+                    if (Unit.Reactor != null && Unit.Reactor.Container != null && Unit.Reactor.Container.Metal < Unit.Reactor.Container.Capacity)
+                    {
+                        targetContainer = Unit.Reactor.Container;
                     }
                     if (Unit.Container != null)
                     {
@@ -589,6 +600,23 @@ namespace Engine.Master
                     else
                     {
                         Unit.Assembler.Container.Metal += metalRemoved;
+                        metalRemoved = 0;
+                    }
+                    didRemove = true;
+                }
+            }
+            if (metalRemoved > 0)
+            {
+                if (Unit.Reactor != null && Unit.Reactor.Container != null)
+                {
+                    if (Unit.Reactor.Container.Metal + metalRemoved > Unit.Reactor.Container.Capacity)
+                    {
+                        metalRemoved -= Unit.Reactor.Container.Capacity - Unit.Reactor.Container.Metal;
+                        Unit.Reactor.Container.Metal = Unit.Reactor.Container.Capacity;
+                    }
+                    else
+                    {
+                        Unit.Reactor.Container.Metal += metalRemoved;
                         metalRemoved = 0;
                     }
                     didRemove = true;

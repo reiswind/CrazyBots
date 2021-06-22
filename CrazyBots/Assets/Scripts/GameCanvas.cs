@@ -16,10 +16,12 @@ public class GameCanvas : MonoBehaviour
 {
     public GameObject MineralText;
     public GameObject UnitText;
+    public GameObject PowerText;
     public HexGrid HexGrid;
 
     private Text UIMineralText;
     private Text UIUnitText;
+    private Text UIPowerText;
 
     internal string SelectedBluePrint { get; set; }
 
@@ -47,6 +49,7 @@ public class GameCanvas : MonoBehaviour
     {
         UIMineralText = MineralText.GetComponent<Text>();
         UIUnitText = UnitText.GetComponent<Text>();
+        UIPowerText = PowerText.GetComponent<Text>();
 
         Transform inGamePanel = transform.Find("InGame");
         Transform gameControlPanel = inGamePanel.Find("GameControl");
@@ -857,6 +860,7 @@ public class GameCanvas : MonoBehaviour
                 MapPlayerInfo mapPlayerInfo = HexGrid.MapInfo.PlayerInfo[1];
                 UIMineralText.text = mapPlayerInfo.TotalMetal + " / " + mapPlayerInfo.TotalCapacity;
                 UIUnitText.text = mapPlayerInfo.TotalUnits.ToString();
+                UIPowerText.text = mapPlayerInfo.TotalPower.ToString();
             }
             else
             {
@@ -1250,7 +1254,16 @@ public class GameCanvas : MonoBehaviour
                             panelReactor.SetActive(true);
 
                             StringBuilder sb = new StringBuilder();
-                            sb.Append("AvailablePower  ");
+                            sb.Append("Minerals  ");
+                            if (part.Minerals.HasValue)
+                                sb.Append(part.Minerals.Value);
+                            else
+                                sb.Append("0");
+
+                            if (part.Capacity.HasValue)
+                                sb.Append("/" + part.Capacity.Value);
+
+                            sb.Append(" Power  ");
                             if (part.AvailablePower.HasValue)
                                 sb.Append(part.AvailablePower.Value);
                             else

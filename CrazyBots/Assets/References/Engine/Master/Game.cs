@@ -1227,9 +1227,11 @@ namespace Engine.Master
 
             // Collect the total out power of all reactors
             int totalAvailablePower = 0;
+            int totalStoredPower = 0;
             foreach (Unit reactor in reactors)
             {
                 totalAvailablePower += reactor.Reactor.AvailablePower;
+                totalStoredPower += reactor.Reactor.StoredPower;
             }
 
             int totalPowerRemoved = 0;
@@ -1275,6 +1277,11 @@ namespace Engine.Master
                     int powerConsumed = reactor.Reactor.ConsumePower(removePowerFromEachReactor);
                     totalPowerRemoved -= powerConsumed;
                 }
+            }
+            if (mapInfo.PlayerInfo.ContainsKey(player.PlayerModel.Id))
+            {
+                MapPlayerInfo mapPlayerInfo = mapInfo.PlayerInfo[player.PlayerModel.Id];
+                mapPlayerInfo.TotalPower = totalStoredPower + totalAvailablePower;
             }
         }
 
@@ -1533,6 +1540,9 @@ namespace Engine.Master
                 
                 ProcessNewMoves();
 
+                mapInfo = new MapInfo();
+                mapInfo.ComputeMapInfo(this);
+
                 foreach (Player player in Players.Values)
                 {
                     if (player.PlayerModel.Id == playerId)
@@ -1555,8 +1565,6 @@ namespace Engine.Master
                 }
 
 
-                mapInfo = new MapInfo();
-                mapInfo.ComputeMapInfo(this);
                 ProcessBorders();
 
                 foreach (Unit unit in changedUnits.Values)

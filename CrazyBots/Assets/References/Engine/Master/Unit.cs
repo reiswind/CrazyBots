@@ -143,7 +143,12 @@ namespace Engine.Master
             }
             if (Extractor != null) metal++;
             if (Container != null) metal++;
-            if (Reactor != null) metal++;
+            if (Reactor != null)
+            {
+                if (Reactor.Container != null)
+                    metal += Reactor.Container.Metal;
+                metal++;
+            }
             if (Radar != null) metal++;
 
             return metal;
@@ -165,6 +170,11 @@ namespace Engine.Master
                 {
                     if (Assembler.Container != null)
                         metal += Assembler.Container.Metal;
+                }
+                if (Reactor != null)
+                {
+                    if (Reactor.Container != null)
+                        metal += Reactor.Container.Metal;
                 }
             }
             return metal;
@@ -189,6 +199,11 @@ namespace Engine.Master
                 {
                     if (Assembler.Container != null)
                         capacity += Assembler.Container.Capacity;
+                }
+                if (Reactor != null)
+                {
+                    if (Reactor.Container != null)
+                        capacity += Reactor.Container.Capacity;
                 }
             }
             return capacity;
@@ -342,6 +357,12 @@ namespace Engine.Master
                 if (Reactor == null)
                 {
                     Reactor = new Reactor(this, 1);
+                    if (blueprintPart.Capacity.HasValue)
+                        Reactor.Container.Capacity = blueprintPart.Capacity.Value;
+                    if (fillContainer)
+                    {
+                        Reactor.Container.Metal = Reactor.Container.Capacity;
+                    }
                 }
                 else
                 {
@@ -699,6 +720,8 @@ namespace Engine.Master
                     if (blueprintPart.PartType.StartsWith("Reactor"))
                     {
                         moveUpdateUnitPart.AvailablePower = Reactor.AvailablePower;
+                        moveUpdateUnitPart.Minerals = Reactor.Container.Metal;
+                        moveUpdateUnitPart.Capacity = Reactor.Container.Capacity;
                     }
                 }
                 stats.UnitParts.Add(moveUpdateUnitPart);

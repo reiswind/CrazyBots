@@ -19,6 +19,7 @@ namespace Engine.Interface
         public int TotalCapacity { get; set; }
         public int TotalMetal { get; set; }
         public int TotalUnits { get; set; }
+        public int TotalPower { get; set; }
     }
 
     public class MapPheromoneItem
@@ -55,6 +56,7 @@ namespace Engine.Interface
             Pheromones = new Dictionary<Position, MapPheromone>();
         }
         public int TotalMetal { get; set; }
+
 
         public Dictionary<int, MapPlayerInfo> PlayerInfo { get; private set; }
 
