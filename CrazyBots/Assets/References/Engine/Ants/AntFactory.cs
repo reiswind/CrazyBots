@@ -102,7 +102,9 @@ namespace Engine.Ants
                 //if (addWorker == false && Control.NumberOfAssembler < Control.MaxAssembler)
                 //    addAssembler = true;
 
-                if (addWorker == false && totalMetalInPercent > 10)
+                int powerPerUnit = Control.MapPlayerInfo.TotalPower / Control.MapPlayerInfo.TotalUnits;
+
+                if (addWorker == false && totalMetalInPercent > 10 && powerPerUnit > 200)
                     addFighter = true;
             }
             if (cntrlUnit.Assembler != null)

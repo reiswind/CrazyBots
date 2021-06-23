@@ -725,6 +725,33 @@ namespace Engine.Control
             }
         }
 
+        private void SacrificeAnt(List<Ant> ants)
+        {
+            // Is already sacified?
+            foreach (Ant ant in ants)
+            {
+                if (ant.PlayerUnit.Unit.Engine != null &&
+                    ant.PlayerUnit.Unit.ExtractMe)
+                {
+                    // This one is on its way hopefully
+                    return;
+                }
+            }
+
+            foreach (Ant ant in ants)
+            {
+                AntWorker antWorker = ant as AntWorker;
+                if (antWorker != null && antWorker.AntWorkerType != AntWorkerType.Worker)
+                {
+                    if (ant.PlayerUnit.Unit.Engine != null)
+                    {
+                        ant.PlayerUnit.Unit.ExtractMe = true;
+                        break;
+                    }
+                }
+            }
+        }
+
         private static int moveNr;
         public MapPlayerInfo MapPlayerInfo { get; set; }
 
@@ -939,13 +966,6 @@ namespace Engine.Control
                     }
                     else if (ant.PlayerUnit.Unit.IsComplete())
                     {
-                        /*
-                        if (workDeposits.ContainsKey(ant.PlayerUnit.Unit.Pos))
-                        {
-                            player.Game.Pheromones.DeletePheromones(workDeposits[ant.PlayerUnit.Unit.Pos]);
-                            workDeposits.Remove(ant.PlayerUnit.Unit.Pos);
-                        }*/
-
                         UpdateUnitCounters(ant);
 
                         UpdateContainerDeposits(player, ant);
@@ -955,7 +975,7 @@ namespace Engine.Control
                             if (ant.PheromoneDepositEnergy == 0)
                             {
                                 //ant.PlayerUnit.Unit.Reactor.Power = 1;
-                                ant.PheromoneDepositEnergy = player.Game.Pheromones.DropPheromones(player, ant.PlayerUnit.Unit.Pos, 12, PheromoneType.Energy, 1, true, 0.2f);
+                                ant.PheromoneDepositEnergy = player.Game.Pheromones.DropPheromones(player, ant.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit.Reactor.Range, PheromoneType.Energy, 1, true, 0.2f);
                             }
                             else
                             {
@@ -972,11 +992,25 @@ namespace Engine.Control
                     }
                     else
                     {
-                        ant.PlayerUnit.Unit.ExtractMe = true;
+                        if (ant.PlayerUnit.Unit.Engine != null)
+                        {
+                            movableAnts.Add(ant);
+                            ant.PlayerUnit.Unit.ExtractMe = true;
+                        }
+                        else
+                        {
+                            ant.PlayerUnit.Unit.ExtractMe = true;
+                        }
                     }
                 }
             }
             unmovedAnts.AddRange(movableAnts);
+
+            if (MapPlayerInfo.TotalPower == 0)
+            {
+                // Sacrifice a unit
+                SacrificeAnt(unmovedAnts);
+            }
 
             foreach (Ant ant in unmovedAnts)
             {
@@ -1022,11 +1056,12 @@ namespace Engine.Control
                 {
                     if (ant is AntWorker)
                     {
+                        /*
                         if (!ant.PlayerUnit.Unit.IsComplete())
                         {
                             movableAnts.Remove(ant);
                             continue;
-                        }
+                        }*/
                         ant.HandleGameCommands(player);
                         
                         /*

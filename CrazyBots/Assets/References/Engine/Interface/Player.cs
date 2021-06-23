@@ -105,7 +105,7 @@ namespace Engine.Interface
             int visibilityRange = 2;
             if (Unit.Reactor != null)
             {
-                visibilityRange = 15;
+                visibilityRange = Unit.Reactor.Range;
             }
 
             CollectVisiblePos(this.Unit.Game, pos, calcPos, visibilityRange);

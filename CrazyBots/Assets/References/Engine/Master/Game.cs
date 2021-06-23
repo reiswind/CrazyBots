@@ -1236,34 +1236,58 @@ namespace Engine.Master
 
             int totalPowerRemoved = 0;
 
-            // Recharge units
-            bool allUnitsCharged = false;
-            while (totalAvailablePower > 0 && !allUnitsCharged)
+            if (mapInfo.PlayerInfo.ContainsKey(player.PlayerModel.Id))
             {
-                allUnitsCharged = true;
-                int maxPowerPerUnit = (totalAvailablePower / totalNumberOfUnits) + 1;
+                MapPlayerInfo mapPlayerInfo = mapInfo.PlayerInfo[player.PlayerModel.Id];
+                mapPlayerInfo.TotalPower = totalStoredPower + totalAvailablePower;
 
-                foreach (Unit unit in Map.Units.List.Values)
+                // Recharge units
+                bool allUnitsCharged = false;
+                while (totalAvailablePower > 0 && !allUnitsCharged)
                 {
-                    if (unit.Owner.PlayerModel.Id != player.PlayerModel.Id)
-                        continue;
+                    allUnitsCharged = true;
+                    int maxPowerPerUnit = (totalAvailablePower / totalNumberOfUnits) + 1;
 
-                    // Only own units
-                    if (unit.Power < unit.MaxPower)
+                    foreach (Unit unit in Map.Units.List.Values)
                     {
-                        int chargedPower = maxPowerPerUnit;
+                        if (unit.Owner.PlayerModel.Id != player.PlayerModel.Id)
+                            continue;
 
-                        if (unit.Power + maxPowerPerUnit > unit.MaxPower)
+                        if (!mapInfo.Pheromones.ContainsKey(unit.Pos))
+                            continue;
+
+                        bool canCharge = false;
+                        MapPheromone mapPheromone = mapInfo.Pheromones[unit.Pos];
+                        foreach (MapPheromoneItem pheromoneItem in mapPheromone.PheromoneItems)
                         {
-                            chargedPower = unit.MaxPower - unit.Power;
+                            if (pheromoneItem.PlayerId == player.PlayerModel.Id &&
+                                pheromoneItem.PheromoneType == PheromoneType.Energy)
+                            {
+                                canCharge = true;
+                                break;
+                            }
+
                         }
-                        unit.Power += chargedPower;
+                        if (!canCharge)
+                            continue;
+
+                        // Only own units
                         if (unit.Power < unit.MaxPower)
                         {
-                            allUnitsCharged = false;
+                            int chargedPower = maxPowerPerUnit;
+
+                            if (unit.Power + maxPowerPerUnit > unit.MaxPower)
+                            {
+                                chargedPower = unit.MaxPower - unit.Power;
+                            }
+                            unit.Power += chargedPower;
+                            if (unit.Power < unit.MaxPower)
+                            {
+                                allUnitsCharged = false;
+                            }
+                            totalAvailablePower -= chargedPower;
+                            totalPowerRemoved += chargedPower;
                         }
-                        totalAvailablePower -= chargedPower;
-                        totalPowerRemoved += chargedPower;
                     }
                 }
             }
@@ -1278,11 +1302,7 @@ namespace Engine.Master
                     totalPowerRemoved -= powerConsumed;
                 }
             }
-            if (mapInfo.PlayerInfo.ContainsKey(player.PlayerModel.Id))
-            {
-                MapPlayerInfo mapPlayerInfo = mapInfo.PlayerInfo[player.PlayerModel.Id];
-                mapPlayerInfo.TotalPower = totalStoredPower + totalAvailablePower;
-            }
+            
         }
 
         private void HandleCollisions(List<Move> newMoves)
@@ -1405,7 +1425,7 @@ namespace Engine.Master
             }
         }
 
-        private Dictionary<Position, Tile> changedGroundPositions = new Dictionary<Position, Tile>();
+        internal Dictionary<Position, Tile> changedGroundPositions = new Dictionary<Position, Tile>();
         internal Dictionary<Position, Unit> changedUnits = new Dictionary<Position, Unit>();
         private Player NeutralPlayer;
 

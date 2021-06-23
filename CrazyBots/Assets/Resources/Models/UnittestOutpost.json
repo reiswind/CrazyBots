@@ -21,15 +21,6 @@
         "X": 10,
         "Y": 12
       }
-    },
-	{
-      "Name": "Container",
-      "PlayerId": 1,
-	  "Blueprint": "Container",
-      "Position": {
-        "X": 12,
-        "Y": 12
-      }
     }
   ]
 }

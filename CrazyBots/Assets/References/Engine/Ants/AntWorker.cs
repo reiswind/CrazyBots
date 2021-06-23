@@ -531,6 +531,12 @@ namespace Engine.Ants
                 List<Tile> tiles = MakeForwardTilesList(player, cntrlUnit);
                 PheromoneType pheromoneType = PheromoneType.AwayFromEnergy;
 
+                if (cntrlUnit.ExtractMe || 
+                    cntrlUnit.Power < cntrlUnit.MaxPower - (cntrlUnit.MaxPower/4))
+                {
+                    pheromoneType = PheromoneType.Energy;
+                }
+
                 // Minerals needed?
                 if (cntrlUnit.Weapon != null && !cntrlUnit.Weapon.WeaponLoaded)
                 {
@@ -538,30 +544,39 @@ namespace Engine.Ants
                 }
                 else if (AntWorkerType == AntWorkerType.Worker)
                 {
-                    if (cntrlUnit.Container != null && cntrlUnit.Container.Metal < cntrlUnit.Container.Capacity)
+                    if (pheromoneType != PheromoneType.Energy)
                     {
-                        // Fill up with food!
-                        pheromoneType = PheromoneType.Mineral;
-                    }
-                    else
-                    {
-                        // Look for a target to unload
-                        pheromoneType = PheromoneType.Container;
+                        if (cntrlUnit.Container != null && cntrlUnit.Container.Metal < cntrlUnit.Container.Capacity)
+                        {
+                            // Fill up with food!
+                            pheromoneType = PheromoneType.Mineral;
+                        }
+                        else
+                        {
+                            // Look for a target to unload
+                            pheromoneType = PheromoneType.Container;
+                        }
                     }
                 }
                 else if (AntWorkerType == AntWorkerType.Fighter)
                 {
-                    pheromoneType = PheromoneType.Enemy;
+                    if (pheromoneType != PheromoneType.Energy)
+                    {
+                        pheromoneType = PheromoneType.Enemy;
+                    }
                 }
                 else if (AntWorkerType == AntWorkerType.Assembler)
                 {
-                    if (cntrlUnit.Assembler != null && cntrlUnit.Assembler.CanProduce())
+                    if (pheromoneType != PheromoneType.Energy)
                     {
-                        pheromoneType = PheromoneType.Work;
-                    }
-                    else
-                    {
-                        pheromoneType = PheromoneType.Mineral;
+                        if (cntrlUnit.Assembler != null && cntrlUnit.Assembler.CanProduce())
+                        {
+                            pheromoneType = PheromoneType.Work;
+                        }
+                        else
+                        {
+                            pheromoneType = PheromoneType.Mineral;
+                        }
                     }
                 }
 
@@ -596,6 +611,15 @@ namespace Engine.Ants
                 if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.Enemy)
                 {
                     moveToPosition = Control.FindEnemy(player, this);
+                    if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
+                    {
+                        moveToPosition = null;
+                        FollowThisRoute = null;
+                    }
+                }
+                if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.Energy)
+                {
+                    moveToPosition = Control.FindReactor(player, this);
                     if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
                     {
                         moveToPosition = null;

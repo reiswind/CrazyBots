@@ -14,12 +14,35 @@ namespace Engine.Master
         {
             get
             {
-                return Container.Metal * 100;
+                int storedPower = 0;
+                if (Unit.Container != null)
+                {
+                    storedPower = Unit.Container.Metal * 100;
+                }
+
+                return storedPower + Container.Metal * 100;
+            }
+        }
+
+        public int Range
+        {
+            get
+            {
+                if (Level == 1) return 4;
+                if (Level == 2) return 8;
+                return 12;
             }
         }
 
         public int Level { get; set; }
-
+        public void BurnIfNeccessary()
+        {
+            if (AvailablePower == 0)
+            {
+                AvailablePower = 100;
+                Unit.Game.Map.DistributeMineral();
+            }
+        }
         public int ConsumePower(int remove)
         {
             int removed;
@@ -36,10 +59,31 @@ namespace Engine.Master
 
             if (AvailablePower == 0)
             {
-                if (Container.Metal > 0)
+                bool burnMineral = false;
+                
+                if (Unit.Container != null && Unit.Container.Metal > 0)
+                {
+                    Unit.Container.Metal--;
+                    burnMineral = true;
+                }
+                else if (Unit.Assembler != null && Unit.Assembler.Container.Metal > 0)
+                {
+                    Unit.Assembler.Container.Metal--;
+                    burnMineral = true;
+                }
+                else if (Unit.Weapon != null && Unit.Weapon.Container.Metal > 0)
+                {
+                    Unit.Weapon.Container.Metal--;
+                    burnMineral = true;
+                }
+                else if (Container.Metal > 0)
                 {
                     Container.Metal--;
-                    AvailablePower = 100;
+                    burnMineral = true;
+                }
+                if (burnMineral)
+                {
+                    BurnIfNeccessary();
                 }
             }
 

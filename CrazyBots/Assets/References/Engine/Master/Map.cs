@@ -268,6 +268,9 @@ namespace Engine.Master
                     if (t == null || t.Unit != null || t.Metal >= 20)
                         continue;
 
+                    if (!Game.changedGroundPositions.ContainsKey(t.Pos))
+                        Game.changedGroundPositions.Add(t.Pos, null);
+
                     t.Metal++;
                     retryZones = 0;
                     break;
