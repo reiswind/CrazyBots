@@ -589,6 +589,12 @@ namespace Engine.Ants
                         moveToPosition = null;
                         FollowThisRoute = null;
                     }
+                    if (moveToPosition == null && cntrlUnit.Container != null && cntrlUnit.Container.Metal > 0)
+                    {
+                        // Return the mins
+                        pheromoneType = PheromoneType.Container;
+                        possibleTiles.Clear();
+                    }
                 }
                 if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.Work)
                 {
@@ -643,7 +649,7 @@ namespace Engine.Ants
                     else if (AntWorkerType == AntWorkerType.Worker && possibleTiles.Count == 0)
                     {
                         // Worker hangs around at home
-                        pheromoneType = PheromoneType.Energy;
+                        pheromoneType = PheromoneType.Energy;                        
                         possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
                     }
 

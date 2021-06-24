@@ -111,7 +111,7 @@ namespace Engine.Master
         public bool IsGhost { get; set; }
 
         public bool BuilderWaitForMetal { get; set; }
-        
+
         public Direction Direction { get; set; }
         public Game Game { get; set; }
 
@@ -594,6 +594,37 @@ namespace Engine.Master
                 UnderConstruction = true; // !IsComplete();
             }
         }
+
+        public bool CanFill()
+        {
+            if (Weapon != null)
+            {
+                if (Weapon.Container != null && Weapon.Container.Metal < Weapon.Container.Capacity)
+                {
+                    return true;
+                }
+            }
+            if (Assembler != null)
+            {
+                if (Assembler.Container != null && Assembler.Container.Metal < Assembler.Container.Capacity)
+                {
+                    return true;
+                }
+            }
+            if (Reactor != null)
+            {
+                if (Reactor.Container != null && Reactor.Container.Metal < Reactor.Container.Capacity)
+                {
+                    return true;
+                }
+            }
+            if (Container != null && Container.Metal < Container.Capacity)
+            {
+                return true;
+            }
+            return false;
+        }
+    
 
         public void Upgrade(string unitCode)
         {

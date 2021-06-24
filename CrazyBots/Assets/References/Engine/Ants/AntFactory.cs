@@ -92,7 +92,7 @@ namespace Engine.Ants
             bool addAssembler = false;
             bool addFighter = false;
 
-            if (player.PlayerModel.Id != 19 &&
+            if (player.PlayerModel.Id != 1 &&
                 cntrlUnit.Assembler != null &&
                 cntrlUnit.Assembler.BuildQueue == null)
             {

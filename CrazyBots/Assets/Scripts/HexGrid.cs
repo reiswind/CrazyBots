@@ -52,10 +52,10 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -419,16 +419,7 @@ public class HexGrid : MonoBehaviour
 
 				Move nextMove = new Move();
 				nextMove.MoveType = MoveType.None;
-				if (newGameCommands != null)
-				{
-					foreach (GameCommand gameCommand in newGameCommands)
-					{
-						if (gameCommand.Append)
-							UnityEngine.Debug.Log("NEW to " + gameCommand.TargetPosition.X + "," + gameCommand.TargetPosition.Y + " SHIFT");
-						else
-							UnityEngine.Debug.Log("NEW to " + gameCommand.TargetPosition.X + "," + gameCommand.TargetPosition.Y);
-					}
-				}
+				
 
 				List<Move> current = game.ProcessMove(id, nextMove, newGameCommands);
 				newGameCommands = null;

@@ -96,7 +96,7 @@ namespace Engine.Master
                 else
                 {
                     // Cannot fire on ourselves
-                    if (n.Unit.Owner != Unit.Owner)
+                    if (n.Unit.Owner.PlayerModel.Id != 0 && n.Unit.Owner != Unit.Owner)
                     {
 
                         Move move = new Move();

@@ -393,12 +393,9 @@ namespace Engine.Control
                 //if (d < 28)
                 {
                     List<Position> positions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, posFactory, antWorker.PlayerUnit.Unit);
-                    if (positions != null && positions.Count > 2)
+                    if (bestPositions == null || bestPositions.Count > positions?.Count)
                     {
-                        if (bestPositions == null || bestPositions.Count > positions.Count)
-                        {
-                            bestPositions = positions;
-                        }
+                        bestPositions = positions;
                     }
                 }
             }
@@ -422,10 +419,9 @@ namespace Engine.Control
             Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(antWorker.PlayerUnit.Unit.Pos, 3, false, matcher: tile =>
             {
                 // If engine is not null, could be a friendly unit that needs refuel.
-                if (tile.Unit != null && 
-                    tile.Unit.Container != null &&
-                    tile.Unit.Engine == null &&
-                    tile.Unit.Container.Metal < tile.Unit.Container.Capacity)
+                if (tile.Unit != null && tile.Unit.IsComplete() &&
+                        tile.Unit.Engine == null &&
+                        tile.Unit.CanFill())
                     return true;
                 return false;
             });
@@ -435,32 +431,37 @@ namespace Engine.Control
             foreach (TileWithDistance t in tiles.Values)
             {
                 List<Position> positions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, t.Pos, antWorker.PlayerUnit.Unit);
-                if (positions != null && positions.Count > 2)
+                if (bestPositions == null || bestPositions.Count > positions?.Count)
                 {
                     bestPositions = positions;
-                    break;
+                    //break;
                 }
             }
             if (bestPositions == null)
             {                
-                foreach (Ant antFactory in Ants.Values)
+                foreach (Ant ant in Ants.Values)
                 {
-                    if (antFactory.PlayerUnit == null) // Ghost
+                    if (ant.PlayerUnit == null) // Ghost
                         continue;
-                    if (!(antFactory is AntFactory)) 
+                    if (ant is AntWorker)
                         continue;
 
-                    // Distance at all
-                    Position posFactory = antFactory.PlayerUnit.Unit.Pos; 
-                    double d = posFactory.GetDistanceTo(antWorker.PlayerUnit.Unit.Pos);
-                    if (d < 18)
+                    if (ant.PlayerUnit.Unit.IsComplete() &&
+                        ant.PlayerUnit.Unit.Engine == null &&
+                        ant.PlayerUnit.Unit.CanFill())
                     {
-                        List<Position> positions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, posFactory, antWorker.PlayerUnit.Unit);
-                        if (positions != null && positions.Count > 2)
+                        // Distance at all
+                        Position posFactory = ant.PlayerUnit.Unit.Pos;
+                        double d = posFactory.GetDistanceTo(antWorker.PlayerUnit.Unit.Pos);
+                        if (d < 18)
                         {
-                            if (bestPositions == null || bestPositions.Count > positions.Count)
+                            List<Position> positions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, posFactory, antWorker.PlayerUnit.Unit);
+                            if (positions != null && positions.Count > 2)
                             {
-                                bestPositions = positions;
+                                if (bestPositions == null || bestPositions.Count > positions?.Count)
+                                {
+                                    bestPositions = positions;
+                                }
                             }
                         }
                     }
@@ -513,7 +514,7 @@ namespace Engine.Control
             {
                 foreach (Ant otherAnt in Ants.Values)
                 {
-                    if (ant.PlayerUnit.Unit.UnderConstruction)
+                    if (otherAnt.PlayerUnit.Unit.UnderConstruction)
                     {
                         List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, otherAnt.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit);
                         if (bestPositions == null || bestPositions.Count > positions?.Count)
@@ -561,22 +562,26 @@ namespace Engine.Control
 
         public Position FindMineral(Player player, AntWorker ant)
         {
+            /*
             Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.Pos, 3, false, matcher: tile =>
             {
                 if (tile.Metal > 0)
                     return true;
                 return false;
             });
-
+            */
             List<Position> bestPositions = null;
 
-            foreach (TileWithDistance t in tiles.Values)
+            foreach (Position pos in player.VisiblePositions) // TileWithDistance t in tiles.Values)
             {
-                List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, t.Pos, ant.PlayerUnit.Unit);
-                if (positions != null && positions.Count > 2)
+                Tile tile = player.Game.Map.GetTile(pos);
+                if (tile.Metal > 0)
                 {
-                    bestPositions = positions;
-                    break;
+                    List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, tile.Pos, ant.PlayerUnit.Unit);
+                    if (bestPositions == null || bestPositions.Count > positions?.Count)
+                    {
+                        bestPositions = positions;
+                    }
                 }
             }
             if (bestPositions == null)
@@ -591,7 +596,7 @@ namespace Engine.Control
                         List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, pos, ant.PlayerUnit.Unit);
                         if (positions != null && positions.Count > 2)
                         {
-                            if (bestPositions == null || bestPositions.Count > positions.Count)
+                            if (bestPositions == null || bestPositions.Count > positions?.Count)
                             {
                                 bestPositions = positions;
                             }
@@ -610,7 +615,7 @@ namespace Engine.Control
                             List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, pos, ant.PlayerUnit.Unit);
                             if (positions != null && positions.Count > 2)
                             {
-                                if (bestPositions == null || bestPositions.Count > positions.Count)
+                                if (bestPositions == null || bestPositions.Count > positions?.Count)
                                 {
                                     bestPositions = positions;
                                 }
@@ -632,7 +637,7 @@ namespace Engine.Control
                         List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, antContainer.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit);
                         if (positions != null && positions.Count > 2)
                         {
-                            if (bestPositions == null || bestPositions.Count > positions.Count)
+                            if (bestPositions == null || bestPositions.Count > positions?.Count)
                             {
                                 bestPositions = positions;
                             }
@@ -671,10 +676,10 @@ namespace Engine.Control
             foreach (TileWithDistance t in tiles.Values)
             {
                 List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, t.Pos, ant.PlayerUnit.Unit);
-                if (positions != null && positions.Count > 2)
+                if (bestPositions == null || bestPositions.Count > positions?.Count)
                 {
                     bestPositions = positions;
-                    break;
+                    //break;
                 }
             }
             if (bestPositions == null)
@@ -688,7 +693,7 @@ namespace Engine.Control
                         List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, pos, ant.PlayerUnit.Unit);
                         if (positions != null && positions.Count > 2)
                         {
-                            if (bestPositions == null || bestPositions.Count > positions.Count)
+                            if (bestPositions == null || bestPositions.Count > positions?.Count)
                             {
                                 bestPositions = positions;
                             }
