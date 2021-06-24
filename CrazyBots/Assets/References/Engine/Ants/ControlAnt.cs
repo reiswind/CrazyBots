@@ -384,7 +384,7 @@ namespace Engine.Control
 
             foreach (Ant ant in Ants.Values)
             {
-                if (ant.PlayerUnit == null || ant.PlayerUnit.Unit.Reactor == null)
+                if (ant.PlayerUnit == null || ant.PlayerUnit.Unit.Reactor == null || ant.PlayerUnit.Unit.Reactor.AvailablePower == 0)
                     continue;
 
                 // Distance at all
@@ -575,7 +575,8 @@ namespace Engine.Control
             foreach (Position pos in player.VisiblePositions) // TileWithDistance t in tiles.Values)
             {
                 Tile tile = player.Game.Map.GetTile(pos);
-                if (tile.Metal > 0)
+                if (tile.Metal > 0 || 
+                    (tile.Unit != null && (tile.Unit.ExtractMe || tile.Unit.Owner.PlayerModel.Id == 0)))
                 {
                     List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, tile.Pos, ant.PlayerUnit.Unit);
                     if (bestPositions == null || bestPositions.Count > positions?.Count)
@@ -886,7 +887,8 @@ namespace Engine.Control
                                     antWorker.AntWorkerType = AntWorkerType.Worker;
                                 Ants.Add(cntrlUnit.UnitId, antWorker);
                             }                         
-                            else if (playerUnit.Unit.Blueprint.Name == "Outpost")
+                            else if (playerUnit.Unit.Blueprint.Name == "Outpost" ||
+                                     playerUnit.Unit.Blueprint.Name == "Factory")
                             {
                                 AntFactory antFactory = new AntFactory(this, playerUnit);
                                 antFactory.Alive = true;
@@ -979,11 +981,18 @@ namespace Engine.Control
                         {
                             if (ant.PheromoneDepositEnergy == 0)
                             {
-                                //ant.PlayerUnit.Unit.Reactor.Power = 1;
-                                ant.PheromoneDepositEnergy = player.Game.Pheromones.DropPheromones(player, ant.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit.Reactor.Range, PheromoneType.Energy, 1, true, 0.2f);
+                                if (ant.PlayerUnit.Unit.Reactor.AvailablePower > 0)
+                                {
+                                    ant.PheromoneDepositEnergy = player.Game.Pheromones.DropPheromones(player, ant.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit.Reactor.Range, PheromoneType.Energy, 1, true, 0.2f);
+                                }
                             }
                             else
                             {
+                                if (ant.PlayerUnit.Unit.Reactor.AvailablePower == 0)
+                                {
+                                    player.Game.Pheromones.DeletePheromones(ant.PheromoneDepositEnergy);
+                                    ant.PheromoneDepositEnergy = 0;
+                                }
                                 //ant.PlayerUnit.Unit.Reactor.Power -= 0.01f;
                                 //player.Game.Pheromones.UpdatePheromones(ant.PheromoneDepositEnergy, ant.PlayerUnit.Unit.Reactor.Power, 0.2f);
                             }

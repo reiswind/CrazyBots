@@ -440,7 +440,7 @@ public class GameCanvas : MonoBehaviour
             }
             else
             {
-                SetButtonText(5, "(a) Assembler");
+                SetButtonText(5, "(a) Factory", "Factory");
                 SetButtonText(6, "(s) Container", "Container");
                 SetButtonText(7, "(d) Reactor", "Reactor");
                 SetButtonText(8, "(f) Radar");

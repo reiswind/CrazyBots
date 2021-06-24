@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 702694093022196801}
   - component: {fileID: 4522090949851149442}
   m_Layer: 0
-  m_Name: Assembler3
+  m_Name: AssemblerXL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

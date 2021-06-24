@@ -451,7 +451,6 @@ public class HexGrid : MonoBehaviour
     {
 		windowClosed = true;
     }
-
 	private List<Position> updatedPositions = new List<Position>();
 
 	private void ProcessNewMoves()

@@ -53,6 +53,14 @@ namespace Engine.Interface
             blueprint.Parts.Add(new BlueprintPart("ReactorXL", "Reactor3", 6));
             Items.Add(blueprint);
 
+            // Factory
+            blueprint = new Blueprint();
+            blueprint.Name = "Factory";
+            blueprint.Layout = "GroundXL";
+            blueprint.Parts.Add(new BlueprintPart("Foundation"));
+            blueprint.Parts.Add(new BlueprintPart("AssemblerXL", "Assembler3", 6));
+            Items.Add(blueprint);
+
             // Worker to collect Minerals
             blueprint = new Blueprint();
             blueprint.Name = "Worker";
