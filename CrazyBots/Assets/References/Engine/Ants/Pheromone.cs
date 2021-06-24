@@ -159,8 +159,18 @@ namespace Engine.Ants
 
                 pheromoneStackItem.Pheromone = pheromone;
                 pheromoneStackItem.Distance = distance;
-                pheromoneStackItem.PheromoneItem = pheromone.Deposit(player.PlayerModel.Id, relativIntensity, pheromoneType, isStatic);
 
+                if (isStatic)
+                {
+                    pheromoneStackItem.PheromoneItem = pheromone.Deposit(player.PlayerModel.Id, relativIntensity, pheromoneType, isStatic);
+                }
+                else
+                {
+                    //if (pheromone.GetIntensityF(player.PlayerModel.Id, pheromoneType) < 0.8f)
+                    {
+                        pheromoneStackItem.PheromoneItem = pheromone.Deposit(player.PlayerModel.Id, relativIntensity, pheromoneType, isStatic);
+                    }
+                }
                 pheromoneStack.PheromoneItems.Add(pheromoneStackItem);
             }
 
@@ -225,7 +235,8 @@ namespace Engine.Ants
                     Intensity -= Intensity * 0.02f;
                 else if (PheromoneType == PheromoneType.Container)
                     Intensity -= Intensity * 0.05f; // FOOD_TRAIL_FORGET_RATE
-
+                else if (PheromoneType == PheromoneType.Enemy)
+                    Intensity -= Intensity * 0.1f;
                 if (Intensity < 0.01f)
                     Intensity = 0;
             }
@@ -355,31 +366,20 @@ GridObjResult Pheromone::Update(float delta_time)
         */
         public bool EvaporateSteps(int age)
         {
-            bool remove = true;
+            List<PheromoneItem> tobeRemoved = new List<PheromoneItem>();
+
             foreach (PheromoneItem pheromoneItem in PheromoneItems)
             {
-                if (!pheromoneItem.Evaporate())
-                    remove = false;
+                if (pheromoneItem.Evaporate())
+                    tobeRemoved.Add(pheromoneItem);
             }
-            /*
-            IntensityHome -= IntensityHome * 0.01f;
-            if (IntensityHome < 0.001f) IntensityHome = 0;
-            
-            // Must be aligend with food trail
-
-            IntensityFood -= IntensityFood * 0.03f; // FOOD_TRAIL_FORGET_RATE
-            if (IntensityFood < 0.001f) IntensityFood = 0;
-
-            return IntensityHome == 0 && IntensityFood == 0;
-            */
-            return remove;
-
+            foreach (PheromoneItem pheromoneItem in tobeRemoved)
+            {
+                PheromoneItems.Remove(pheromoneItem);
+            }
+            return PheromoneItems.Count == 0;
         }
-
-
     }
-
-
 }
 
 

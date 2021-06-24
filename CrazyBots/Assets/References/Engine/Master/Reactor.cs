@@ -28,7 +28,7 @@ namespace Engine.Master
         {
             get
             {
-                if (Level == 1) return 4;
+                if (Level == 1) return 12;
                 if (Level == 2) return 8;
                 return 12;
             }

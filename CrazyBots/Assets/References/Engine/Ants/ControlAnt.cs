@@ -219,7 +219,7 @@ namespace Engine.Control
             if (!isStatic && mineralsDeposits.ContainsKey(pos))
             {
                 id = mineralsDeposits[pos];                
-                player.Game.Pheromones.UpdatePheromones(id, 1);
+                //player.Game.Pheromones.UpdatePheromones(id, 1);
                 if (isStatic)
                     id = 0;
             }
@@ -937,6 +937,7 @@ namespace Engine.Control
                 }
                 else
                 {
+                    player.Game.Pheromones.DropPheromones(player, cntrlUnit.Pos, 15, PheromoneType.Enemy, 0.1f, false);
                     //EnemyFound(player, cntrlUnit.Pos);
                 }
             }
