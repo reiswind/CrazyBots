@@ -935,10 +935,13 @@ namespace Engine.Control
                         }
                     }
                 }
+                else if (cntrlUnit.Owner.PlayerModel.Id == 0)
+                {
+                    // Neutral.
+                }
                 else
                 {
                     player.Game.Pheromones.DropPheromones(player, cntrlUnit.Pos, 15, PheromoneType.Enemy, 0.05f, false);
-                    //EnemyFound(player, cntrlUnit.Pos);
                 }
             }
 

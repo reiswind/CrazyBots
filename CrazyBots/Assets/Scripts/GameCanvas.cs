@@ -1275,6 +1275,18 @@ public class GameCanvas : MonoBehaviour
                         {
                             panelArmor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                             panelArmor.SetActive(true);
+
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append("Power  ");
+                            if (part.ShieldPower.HasValue)
+                                sb.Append(part.ShieldPower.Value);
+                            else
+                                sb.Append("0");
+
+                            if (part.ShieldActive == true)
+                                sb.Append(" Active");
+
+                            panelArmor.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
                         }
                         if (part.PartType.StartsWith("Engine"))
                         {

@@ -38,6 +38,8 @@ namespace Engine.Interface
 
         // True if the part exists
         public bool Exists { get; set; }
+        public bool? ShieldActive { get; set; }
+        public int? ShieldPower { get; set; }
         // Minerals in part
         public int? Minerals { get; set; }
         public int? Capacity { get; set; }

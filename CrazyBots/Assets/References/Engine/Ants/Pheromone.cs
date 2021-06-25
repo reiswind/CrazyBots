@@ -15,6 +15,7 @@ namespace Engine.Ants
         Enemy,
         Energy,
         AwayFromEnergy,
+        AwayFromEnemy,
         Work
     }
 
@@ -297,6 +298,8 @@ namespace Engine.Ants
             PheromoneType lookForThis = pheromoneType;
             if (pheromoneType == PheromoneType.AwayFromEnergy)
                 lookForThis = PheromoneType.Energy;
+            if (pheromoneType == PheromoneType.AwayFromEnemy)
+                lookForThis = PheromoneType.Enemy;
 
             float intensity = 0;
 
@@ -311,7 +314,7 @@ namespace Engine.Ants
             if (intensity > 1)
                 intensity = 1;
 
-            if (pheromoneType == PheromoneType.AwayFromEnergy)
+            if (pheromoneType == PheromoneType.AwayFromEnergy || pheromoneType == PheromoneType.AwayFromEnemy)
             {
                 intensity = 1 - intensity;
                 if (intensity < 0.1f)

@@ -1271,6 +1271,13 @@ namespace Engine.Master
                         if (!canCharge)
                             continue;
 
+                        if (unit.Armor != null)
+                        {
+                            int chargedPower = unit.Armor.LoadShield(totalAvailablePower);
+                            totalAvailablePower -= chargedPower;
+                            totalPowerRemoved += chargedPower;
+                        }
+
                         // Only own units
                         if (unit.Power < unit.MaxPower)
                         {
@@ -1291,6 +1298,21 @@ namespace Engine.Master
                     }
                 }
             }
+
+            // In low power, take the power from the shield
+            foreach (Unit unit in Map.Units.List.Values)
+            {
+                if (unit.Owner.PlayerModel.Id != player.PlayerModel.Id)
+                    continue;
+
+                if (unit.Power < (unit.MaxPower/2) && unit.Armor != null && unit.Armor.ShieldPower > 0)
+                {
+                    unit.Power++;
+                    unit.Armor.ShieldPower--;
+                    unit.Armor.ShieldActive = false;
+                }
+            }
+
             int att = 100;
             while (totalPowerRemoved > 0 && att-- > 0)
             {

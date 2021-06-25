@@ -385,12 +385,16 @@ public class UnitBase : MonoBehaviour
         if (UnderConstruction) return false;
         return Container != null && Engine == null;
     }
+
+    
+
     private Engine1 Engine;
     private Assembler1 Assembler;
     private Container1 Container;
     private Extractor1 Extractor;
     private Weapon1 Weapon;
     private Reactor1 Reactor;
+    private Armor Armor;
 
     public void Assemble(bool underConstruction)
     {
@@ -480,6 +484,7 @@ public class UnitBase : MonoBehaviour
         Weapon = null;
         Reactor = null;
         Engine = null;
+        Armor = null;
 
         bool missingPartFound = false;
 
@@ -529,6 +534,16 @@ public class UnitBase : MonoBehaviour
                         {
                             Reactor = reactor;
                             reactor.UpdateContent(HexGrid, moveUpdateUnitPart.Minerals, moveUpdateUnitPart.Capacity);
+                        }
+                        Armor armor = unitBasePart.Part.GetComponent<Armor>();
+                        if (armor != null)
+                        {
+                            Armor = armor;
+                            Transform shield = transform.Find("Shield");
+                            if (shield != null)
+                            {
+                                shield.gameObject.SetActive(moveUpdateUnitPart.ShieldActive == true);
+                            }
                         }
                     }
                     else

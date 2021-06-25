@@ -234,7 +234,7 @@ namespace Engine.Ants
                         return;
 
                     float intensity = antDestination.Pheromone.GetIntensityF(player.PlayerModel.Id, pheromoneType);
-                    if (pheromoneType == PheromoneType.AwayFromEnergy)
+                    if (pheromoneType == PheromoneType.AwayFromEnergy || pheromoneType == PheromoneType.AwayFromEnemy)
                     {
                         if (intensity == 1)
                             return;
@@ -501,6 +501,12 @@ namespace Engine.Ants
             }
             Unit cntrlUnit = PlayerUnit.Unit;
 
+            if (cntrlUnit.Armor != null && cntrlUnit.Armor.ShieldActive == false)
+            {
+                // Run away?
+                //FollowThisRoute = null;
+            }
+
             // Follow trail if possible.
             Position moveToPosition = null;
             if (FollowThisRoute != null)
@@ -562,7 +568,10 @@ namespace Engine.Ants
                 {
                     if (pheromoneType != PheromoneType.Energy)
                     {
-                        pheromoneType = PheromoneType.Enemy;
+                        if (cntrlUnit.Armor != null && cntrlUnit.Armor.ShieldActive == false)
+                            pheromoneType = PheromoneType.AwayFromEnemy;
+                        else
+                            pheromoneType = PheromoneType.Enemy;
                     }
                 }
                 else if (AntWorkerType == AntWorkerType.Assembler)
@@ -1029,20 +1038,27 @@ namespace Engine.Ants
             }
             else
             {
-                if (cntrlUnit.Extractor != null && cntrlUnit.Extractor.CanExtract)
+                if (cntrlUnit.Armor != null && cntrlUnit.Armor.ShieldActive == false)
                 {
-                    List<Move> possiblemoves = new List<Move>();
-                    cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, null, MoveFilter.Extract);
-                    if (possiblemoves.Count > 0)
+                    // Run away, extract later
+                }
+                else
+                {
+                    if (cntrlUnit.Extractor != null && cntrlUnit.Extractor.CanExtract)
                     {
-                        int idx = player.Game.Random.Next(possiblemoves.Count);
-                        Move move = possiblemoves[idx];
-                        moves.Add(move);
+                        List<Move> possiblemoves = new List<Move>();
+                        cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, null, MoveFilter.Extract);
+                        if (possiblemoves.Count > 0)
+                        {
+                            int idx = player.Game.Random.Next(possiblemoves.Count);
+                            Move move = possiblemoves[idx];
+                            moves.Add(move);
 
-                        Control.MineralsFound(player, move.Positions[1], false);
+                            Control.MineralsFound(player, move.Positions[1], false);
 
-                        unitMoved = true;
-                        return unitMoved;
+                            unitMoved = true;
+                            return unitMoved;
+                        }
                     }
                 }
             }

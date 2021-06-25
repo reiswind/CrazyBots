@@ -313,10 +313,10 @@ namespace Engine.Master
                 if (Weapon == null)
                 {
                     Weapon = new Weapon(this, 1);
+                    if (blueprintPart.Capacity.HasValue)
+                        Weapon.Container.Capacity = blueprintPart.Capacity.Value;
                     if (fillContainer)
                     {
-                        if (blueprintPart.Capacity.HasValue)
-                            Weapon.Container.Capacity = blueprintPart.Capacity.Value;
                         Weapon.Container.Metal = Weapon.Container.Capacity;
                     }
                 }
@@ -332,16 +332,12 @@ namespace Engine.Master
             {
                 if (Container == null)
                 {
+                    Container = new Container(this, 1);
+                    if (blueprintPart.Capacity.HasValue)
+                        Container.Capacity = blueprintPart.Capacity.Value;
                     if (fillContainer)
                     {
-                        Container = new Container(this, level);
-                        if (blueprintPart.Capacity.HasValue)
-                            Container.Capacity = blueprintPart.Capacity.Value;
                         Container.Metal = Container.Capacity;
-                    }
-                    else
-                    {
-                        Container = new Container(this, 1);
                     }
                 }
                 else
@@ -754,6 +750,11 @@ namespace Engine.Master
                         moveUpdateUnitPart.Minerals = Reactor.Container.Metal;
                         moveUpdateUnitPart.Capacity = Reactor.Container.Capacity;
                     }
+                    if (blueprintPart.PartType.StartsWith("Armor"))
+                    {
+                        moveUpdateUnitPart.ShieldActive = Armor.ShieldActive;
+                        moveUpdateUnitPart.ShieldPower = Armor.ShieldPower;
+                    }
                 }
                 stats.UnitParts.Add(moveUpdateUnitPart);
             }
@@ -829,10 +830,17 @@ namespace Engine.Master
 
             if (this.Armor != null)
             {
-                Armor.Level--;
-                if (Armor.Level <= 0)
+                if (Armor.ShieldActive)
                 {
-                    this.Armor = null;
+                    Armor.ShieldHit();
+                }
+                else
+                {
+                    Armor.Level--;
+                    if (Armor.Level <= 0)
+                    {
+                        this.Armor = null;
+                    }
                 }
             }
             else
