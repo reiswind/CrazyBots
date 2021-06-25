@@ -23,48 +23,58 @@
   ],
   "Units": [
     {
-      "Name": "Colony1",
+      "Name": "Container1",
       "PlayerId": 1,
-	  "Blueprint": "Outpost",
+	  "Blueprint": "Container",
       "Position": {
         "X": 10,
         "Y": 8
       }
     },
 	{
-      "Name": "Container1",
+      "Name": "Reactor1",
       "PlayerId": 1,
-	  "Blueprint": "Worker",
+	  "Blueprint": "Reactor",
       "Position": {
-        "X": 11,
-        "Y": 8
+        "X": 9,
+        "Y": 7
       }
     },
 	{
-      "Name": "Colony2",
+      "Name": "Factory1",
+      "PlayerId": 1,
+	  "Blueprint": "Factory",
+      "Position": {
+        "X": 10,
+        "Y": 9
+      }
+    },
+	
+	{
+      "Name": "Container2",
       "PlayerId": 2,
-	  "Blueprint": "Outpost",
+	  "Blueprint": "Container",
       "Position": {
         "X": 10,
         "Y": 29
       }
     },
 	{
-      "Name": "Colony21",
+      "Name": "Reactor2",
       "PlayerId": 2,
-	  "Blueprint": "Outpost",
+	  "Blueprint": "Reactor",
       "Position": {
-        "X": 9,
-        "Y": 24
+        "X": 10,
+        "Y": 28
       }
     },
 	{
-      "Name": "Colony22",
+      "Name": "Factory2",
       "PlayerId": 2,
-	  "Blueprint": "Outpost",
+	  "Blueprint": "Factory",
       "Position": {
-        "X": 7,
-        "Y": 24
+        "X": 11,
+        "Y": 28
       }
     },
 	{

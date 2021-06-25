@@ -987,7 +987,7 @@ namespace Engine.Control
                             {
                                 if (ant.PlayerUnit.Unit.Reactor.AvailablePower > 0)
                                 {
-                                    ant.PheromoneDepositEnergy = player.Game.Pheromones.DropPheromones(player, ant.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit.Reactor.Range, PheromoneType.Energy, 1, true, 0.2f);
+                                    ant.PheromoneDepositEnergy = player.Game.Pheromones.DropPheromones(player, ant.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit.Reactor.Range, PheromoneType.Energy, 1, true); //, 0.2f);
                                 }
                             }
                             else

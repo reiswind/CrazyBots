@@ -645,8 +645,8 @@ namespace Engine.Master
                             int totalMetalAfterUnit = targetUnit.CountMetal();
                             int releasedMetal = totalMetalInUnitBeforeHit - totalMetalAfterUnit;
 
-                            // Bullet + demaged Part + collected metal
-                            unitTile.Metal += 2 + releasedMetal;
+                            // Bullet + damaged Part + collected metal
+                            unitTile.Metal += 1 + releasedMetal;
                         }
                         else
                         {
@@ -664,8 +664,8 @@ namespace Engine.Master
                             int releasedMetal = totalMetalInUnitBeforeHit - totalMetalAfterUnit;
 
                             Tile unitTile = GetTile(targetUnit.Pos);
-                            // Bullet + demage Part
-                            unitTile.Metal += 2 + releasedMetal;
+                            // Bullet + damage Part
+                            unitTile.Metal += 1 + releasedMetal;
                         }
 
                         if (!changedGroundPositions.ContainsKey(move.Positions[1]))

@@ -718,9 +718,11 @@ public class GameCanvas : MonoBehaviour
         UnitBase unitBase = raycastHit.collider.GetComponent<UnitBase>();
         if (unitBase != null) return unitBase;
 
-        unitBase = raycastHit.collider.transform.parent.GetComponent<UnitBase>();
-        if (unitBase != null) return unitBase;
-
+        if (raycastHit.collider.transform.parent != null)
+        {
+            unitBase = raycastHit.collider.transform.parent.GetComponent<UnitBase>();
+            if (unitBase != null) return unitBase;
+        }
         return null;
     }
 
@@ -858,13 +860,14 @@ public class GameCanvas : MonoBehaviour
             if (HexGrid.MapInfo.PlayerInfo.ContainsKey(1))
             {
                 MapPlayerInfo mapPlayerInfo = HexGrid.MapInfo.PlayerInfo[1];
-                UIMineralText.text = mapPlayerInfo.TotalMetal + " / " + mapPlayerInfo.TotalCapacity;
+                //UIMineralText.text = mapPlayerInfo.TotalMetal + " / " + mapPlayerInfo.TotalCapacity;
+                UIMineralText.text = HexGrid.MapInfo.TotalMetal.ToString(); // mapPlayerInfo.TotalMetal + " / " + mapPlayerInfo.TotalCapacity;
                 UIUnitText.text = mapPlayerInfo.TotalUnits.ToString();
                 UIPowerText.text = mapPlayerInfo.TotalPower.ToString();
             }
             else
             {
-                UIMineralText.text = "Dead";
+                UIMineralText.text = "Dead" + HexGrid.MapInfo.TotalMetal.ToString(); ;
             }
         }
 

@@ -253,11 +253,8 @@ namespace Engine.Master
                 {
                     Engine = new Engine(this, 1);
                 }
-                else
-                {
-                    if (level > Engine.Level)
-                        Engine.Level++;
-                }
+                while (level > Engine.Level)
+                    Engine.Level++;
             }
 
             else if (blueprintPart.PartType.StartsWith("Armor"))
@@ -266,11 +263,8 @@ namespace Engine.Master
                 {
                     Armor = new Armor(this, 1);
                 }
-                else
-                {
-                    if (level > Armor.Level)
-                        Armor.Level++;
-                }
+                while (level > Armor.Level)
+                    Armor.Level++;
             }
 
 
@@ -280,11 +274,8 @@ namespace Engine.Master
                 {
                     Extractor = new Extractor(this, 1);
                 }
-                else
-                {
-                    if (level > Extractor.Level)
-                        Extractor.Level++;
-                }
+                while (level > Extractor.Level)
+                    Extractor.Level++;
             }
 
             else if (blueprintPart.PartType.StartsWith("Assembler"))
@@ -299,15 +290,9 @@ namespace Engine.Master
                         Assembler.Container.Metal = Assembler.Container.Capacity;
                     }
                 }
-                else
-                {
-                    if (level > Assembler.Level)
-                        Assembler.Level++;
-                }
-
+                while (level > Assembler.Level)
+                    Assembler.Level++;
             }
-
-
             else if (blueprintPart.PartType.StartsWith("Weapon"))
             {
                 if (Weapon == null)
@@ -320,12 +305,8 @@ namespace Engine.Master
                         Weapon.Container.Metal = Weapon.Container.Capacity;
                     }
                 }
-                else
-                {
-                    if (level > Weapon.Level)
-                        Weapon.Level++;
-                }
-
+                while (level > Weapon.Level)
+                    Weapon.Level++;
             }
 
             else if (blueprintPart.PartType.StartsWith("Container"))
@@ -340,12 +321,8 @@ namespace Engine.Master
                         Container.Metal = Container.Capacity;
                     }
                 }
-                else
-                {
-                    if (level > Container.Level)
-                        Container.Level++;
-                }
-
+                while (level > Container.Level)
+                    Container.Level++;
             }
 
             else if (blueprintPart.PartType.StartsWith("Reactor"))
@@ -360,11 +337,8 @@ namespace Engine.Master
                         Reactor.Container.Metal = Reactor.Container.Capacity;
                     }
                 }
-                else
-                {
-                    if (level > Reactor.Level)
-                        Reactor.Level++;
-                }
+                while (level > Reactor.Level)
+                    Reactor.Level++;
             }
 
             else if (blueprintPart.PartType.StartsWith("Radar"))
@@ -373,11 +347,8 @@ namespace Engine.Master
                 {
                     Radar = new Radar(this, 1);
                 }
-                else
-                {
-                    if (level > Radar.Level)
-                        Radar.Level++;
-                }
+                while (level > Radar.Level)
+                    Radar.Level++;
             }
         }
 

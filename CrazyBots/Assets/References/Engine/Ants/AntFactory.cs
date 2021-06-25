@@ -92,7 +92,7 @@ namespace Engine.Ants
             bool addAssembler = false;
             bool addFighter = false;
 
-            if (player.PlayerModel.Id != 1 &&
+            if (player.PlayerModel.Id != 19 &&
                 cntrlUnit.Assembler != null &&
                 cntrlUnit.Assembler.BuildQueue == null)
             {
@@ -104,7 +104,7 @@ namespace Engine.Ants
 
                 int powerPerUnit = Control.MapPlayerInfo.TotalPower / Control.MapPlayerInfo.TotalUnits;
 
-                if (addWorker == false && totalMetalInPercent > 10 && powerPerUnit > 200)
+                if (addWorker == false && totalMetalInPercent > 10 && powerPerUnit > 50)
                     addFighter = true;
             }
             if (cntrlUnit.Assembler != null)
