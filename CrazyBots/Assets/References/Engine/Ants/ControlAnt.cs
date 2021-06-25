@@ -937,7 +937,7 @@ namespace Engine.Control
                 }
                 else
                 {
-                    player.Game.Pheromones.DropPheromones(player, cntrlUnit.Pos, 15, PheromoneType.Enemy, 0.1f, false);
+                    player.Game.Pheromones.DropPheromones(player, cntrlUnit.Pos, 15, PheromoneType.Enemy, 0.05f, false);
                     //EnemyFound(player, cntrlUnit.Pos);
                 }
             }

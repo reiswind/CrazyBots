@@ -30,7 +30,7 @@ public class GroundCell : MonoBehaviour
         obstacles = new List<GameObject>();
 
         UnitCommands = new List<UnitCommand>();
-        ShowPheromones = true;
+        ShowPheromones = false;
     }
 
     private void CreateMarker()
