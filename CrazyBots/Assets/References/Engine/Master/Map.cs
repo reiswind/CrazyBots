@@ -157,8 +157,8 @@ namespace Engine.Master
             MapWidth = game.GameModel.MapWidth;
             MapHeight = game.GameModel.MapHeight;
 
-            zoneWidth = (MapWidth / 10);
-            maxZones = zoneWidth * (MapHeight / 10) - 1;
+            zoneWidth = (MapWidth / 15);
+            maxZones = zoneWidth * (MapHeight / 15) - 1;
 
             /*
             Matrix = new byte[gameModel.MapWidth, gameModel.MapHeight];
@@ -243,8 +243,32 @@ namespace Engine.Master
 
         private HeightMap terrain;
 
+        private List<Position> mineralDwells;
+        private int overflowMinerals;
+
         public void DistributeMineral()
         {
+            overflowMinerals++;
+
+            int max = mineralDwells.Count;
+            while (max-- > 0 && overflowMinerals > 0)
+            {
+                Position pos = mineralDwells[zoneCounter];
+                if (++zoneCounter >= mineralDwells.Count)
+                    zoneCounter = 0;
+
+                Tile t = GetTile(pos);
+                if (t.Metal < 20)
+                {
+                    if (!Game.changedGroundPositions.ContainsKey(t.Pos))
+                        Game.changedGroundPositions.Add(t.Pos, null);
+
+                    t.Metal++;
+                    overflowMinerals--;
+                }
+            }
+
+            /*
             int minX, minY;
 
             int retryZones = 5;
@@ -275,7 +299,7 @@ namespace Engine.Master
                     retryZones = 0;
                     break;
                 }
-            }
+            }*/
         }
 
         public Tile GetTile(Position pos)
@@ -361,6 +385,27 @@ namespace Engine.Master
                         totalMetal += t.Metal;
                     }
                 }
+
+                mineralDwells = new List<Position>();
+
+                int zone = 0;
+                while (zone < maxZones)
+                {
+                    int minX = (zone % zoneWidth) * 15;
+                    int minY = (zone / zoneWidth) * 15;
+                    zone++;
+
+                    int x = Game.Random.Next(10) + 3;
+                    int y = Game.Random.Next(10) + 3;
+
+                    Position dwell = new Position(minX + x, minY + y);
+                    //Tile t = GetTile(dwell);
+                    //t.Height = 0.5f;
+
+                    mineralDwells.Add(dwell);
+                }
+
+
                 //checkTotalMetal = GetMapInfo().TotalMetal;
             }
             if (Tiles.ContainsKey(pos))

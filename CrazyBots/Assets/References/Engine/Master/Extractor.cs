@@ -173,33 +173,41 @@ namespace Engine.Master
                                 {
                                     // Pure Containers do not extract from other units.
                                     if (t.Unit.Engine == null)
-                                        continue;
-                                }
-
-                                if (Unit.Engine == null || Unit.Weapon != null || Unit.Assembler != null)
-                                {
-                                    if (Unit.Container != null)
                                     {
-                                        // TAKEALL
-                                        if (true || Unit.BuilderWaitForMetal || Unit.Container.Metal + 4 < t.Unit.Container.Metal)
+                                        if (t.Metal > 0)
                                         {
-                                            // Extract from other container if this metal is less than 
                                             Move move = new Move();
 
                                             move.MoveType = MoveType.Extract;
 
                                             move.UnitId = Unit.UnitId;
-                                            move.OtherUnitId = "ContainerLess";
+                                            move.OtherUnitId = "Ground";
                                             move.Positions = new List<Position>();
                                             move.Positions.Add(Unit.Pos);
                                             move.Positions.Add(t.Pos);
 
                                             possibleMoves.Add(move);
                                         }
-                                        else
-                                        {
-                                            // Got enough
-                                        }
+                                        continue;
+                                    }
+                                }
+
+                                if (Unit.Engine == null || Unit.Weapon != null || Unit.Assembler != null)
+                                {
+                                    if (Unit.Container != null)
+                                    {
+                                        // Extract from other container if this metal is less than 
+                                        Move move = new Move();
+
+                                        move.MoveType = MoveType.Extract;
+
+                                        move.UnitId = Unit.UnitId;
+                                        move.OtherUnitId = "ContainerLess";
+                                        move.Positions = new List<Position>();
+                                        move.Positions.Add(Unit.Pos);
+                                        move.Positions.Add(t.Pos);
+
+                                        possibleMoves.Add(move);
                                     }
                                     else
                                     {
@@ -220,6 +228,20 @@ namespace Engine.Master
                                 else
                                 {
                                     // A Unit with a container and a engine should collect metal from the ground, not from other containers
+                                    if (t.Metal > 0)
+                                    {
+                                        Move move = new Move();
+
+                                        move.MoveType = MoveType.Extract;
+
+                                        move.UnitId = Unit.UnitId;
+                                        move.OtherUnitId = "Ground";
+                                        move.Positions = new List<Position>();
+                                        move.Positions.Add(Unit.Pos);
+                                        move.Positions.Add(t.Pos);
+
+                                        possibleMoves.Add(move);
+                                    }
                                 }
                             }
                         }

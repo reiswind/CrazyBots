@@ -183,6 +183,7 @@ namespace Engine.Master
                 }
             }
 
+            Map.GetTile(new Position(0, 0));
             for (int i=0; i < Map.DefaultMinerals; i++)
             {
                 Map.DistributeMineral();
@@ -646,7 +647,8 @@ namespace Engine.Master
                             int releasedMetal = totalMetalInUnitBeforeHit - totalMetalAfterUnit;
 
                             // Bullet + damaged Part + collected metal
-                            unitTile.Metal += 1 + releasedMetal;
+                            unitTile.Metal += releasedMetal;
+                            Map.DistributeMineral(); // Bullet
                         }
                         else
                         {
@@ -665,7 +667,8 @@ namespace Engine.Master
 
                             Tile unitTile = GetTile(targetUnit.Pos);
                             // Bullet + damage Part
-                            unitTile.Metal += 1 + releasedMetal;
+                            unitTile.Metal += releasedMetal;
+                            Map.DistributeMineral(); // Bullet
                         }
 
                         if (!changedGroundPositions.ContainsKey(move.Positions[1]))
@@ -682,9 +685,11 @@ namespace Engine.Master
                     }
                     else
                     {
+                        Map.DistributeMineral(); // Bullet
+
                         // Fired on ground (+Bullet)
                         Tile targetTile = Map.GetTile(move.Positions[1]);
-                        targetTile.Metal++;
+                        //targetTile.Metal++;
                         if (targetTile.NumberOfDestructables > 0)
                             targetTile.NumberOfDestructables--;
 
