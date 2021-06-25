@@ -77,7 +77,9 @@ namespace Engine.Interface
 
 
         [DataMember]
-        public bool MarkedForExtraction { get; set; }
+        public bool MarkedForExtraction { 
+            get; 
+            set; }
 
         [DataMember]
         public int EngineLevel { get; set; }

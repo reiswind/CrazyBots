@@ -144,7 +144,7 @@ namespace Engine.Master
         {
             get
             {
-                return maxZones * 20;
+                return maxZones * 40;
             }
         }
 
@@ -243,7 +243,7 @@ namespace Engine.Master
 
         private HeightMap terrain;
 
-        private List<Position> mineralDwells;
+        private Dictionary<Position,int> mineralDwells;
         private int overflowMinerals;
 
         public void DistributeMineral()
@@ -253,12 +253,20 @@ namespace Engine.Master
             int max = mineralDwells.Count;
             while (max-- > 0 && overflowMinerals > 0)
             {
-                Position pos = mineralDwells[zoneCounter];
+                KeyValuePair<Position, int> zoneItem = mineralDwells.ElementAt(zoneCounter);
+                if (zoneItem.Value > 40)
+                {
+                    break;
+                }
+                Position pos = zoneItem.Key;
                 if (++zoneCounter >= mineralDwells.Count)
                     zoneCounter = 0;
 
-                Tile t = GetTile(pos);
-                if (t.Metal < 20)
+                int x = Game.Random.Next(3) - 1;
+                int y = Game.Random.Next(3) - 1;
+
+                Tile t = GetTile(new Position(pos.X+x, pos.Y+y));
+                if (t != null && t.Metal < 20)
                 {
                     if (!Game.changedGroundPositions.ContainsKey(t.Pos))
                         Game.changedGroundPositions.Add(t.Pos, null);
@@ -386,7 +394,7 @@ namespace Engine.Master
                     }
                 }
 
-                mineralDwells = new List<Position>();
+                mineralDwells = new Dictionary<Position, int>();
 
                 int zone = 0;
                 while (zone < maxZones)
@@ -402,7 +410,7 @@ namespace Engine.Master
                     //Tile t = GetTile(dwell);
                     //t.Height = 0.5f;
 
-                    mineralDwells.Add(dwell);
+                    mineralDwells.Add(dwell, 0);
                 }
 
 

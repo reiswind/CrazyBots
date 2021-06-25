@@ -868,7 +868,8 @@ namespace Engine.Control
                             
                             if (playerUnit.Unit.Blueprint.Name == "Assembler" ||
                                 playerUnit.Unit.Blueprint.Name == "Fighter" ||
-                                playerUnit.Unit.Blueprint.Name == "Worker")
+                                playerUnit.Unit.Blueprint.Name == "Worker" ||
+                                playerUnit.Unit.Blueprint.Name == "Bomber")
                             {
                                 AntWorker antWorker = new AntWorker(this);
                                 antWorker.PlayerUnit = playerUnit;
@@ -881,7 +882,7 @@ namespace Engine.Control
 
                                 if (playerUnit.Unit.Blueprint.Name == "Assembler")
                                     antWorker.AntWorkerType = AntWorkerType.Assembler;
-                                else if (playerUnit.Unit.Blueprint.Name == "Fighter")
+                                else if (playerUnit.Unit.Blueprint.Name == "Fighter" || playerUnit.Unit.Blueprint.Name == "Bomber") 
                                     antWorker.AntWorkerType = AntWorkerType.Fighter;
                                 else if (playerUnit.Unit.Blueprint.Name == "Worker")
                                     antWorker.AntWorkerType = AntWorkerType.Worker;

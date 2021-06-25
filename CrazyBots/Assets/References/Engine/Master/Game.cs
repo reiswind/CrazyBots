@@ -581,30 +581,9 @@ namespace Engine.Master
                         {
                             if (!changedGroundPositions.ContainsKey(fromPos))
                                 changedGroundPositions.Add(fromPos, null);
-                            /*
-                            Move hitmove = new Move();
-                            hitmove.MoveType = MoveType.UpdateGround;
-                            hitmove.Positions = new List<Position>();
-                            hitmove.Positions.Add(fromPos);
-                            hitmove.Stats = CollectGroundStats(fromPos);
-                            nextMoves.Add(hitmove);
-                            */
 
                             if (!changedUnits.ContainsKey(unit.Pos))
                                 changedUnits.Add(unit.Pos, unit);
-
-                            /*
-                            Move moveUpdate = new Move();
-
-                            moveUpdate.MoveType = MoveType.UpdateStats;
-                            moveUpdate.UnitId = unit.UnitId;
-                            moveUpdate.PlayerId = unit.Owner.PlayerModel.Id;
-                            moveUpdate.Positions = new List<Position>();
-                            moveUpdate.Positions.Add(unit.Pos);
-                            moveUpdate.Stats = unit.CollectStats();
-
-                            nextMoves.Add(moveUpdate);
-                            */
                         }
                         else
                         {
@@ -621,90 +600,21 @@ namespace Engine.Master
                 }
                 else if (move.MoveType == MoveType.Fire)
                 {
-                    Unit targetUnit = Map.Units.GetUnitAt(move.Positions[1]);
-                    if (targetUnit != null)
+
+                    HitByBullet(move.Positions[1], nextMoves, true);
+                    /* Might be null because hit
+                    Unit fireingUnit = Map.Units.GetUnitAt(move.Positions[0]);
+                    if (fireingUnit.Weapon.Level == 2)
                     {
-                        int totalMetalInUnitBeforeHit = targetUnit.CountMetal();
+                        Tile tile = Map.GetTile(move.Positions[1]);
 
-                        // Todo: Drop all the metal if container level goes down
-
-                        if (targetUnit.HitBy(null))
+                        for (int i = 0; i < 3; i++)
                         {
-                            // Unit has died!
-                            Move deleteMove = new Move();
-                            deleteMove.PlayerId = targetUnit.Owner.PlayerModel.Id;
-                            deleteMove.MoveType = MoveType.Delete;
-                            deleteMove.Positions = new List<Position>();
-                            deleteMove.Positions.Add(targetUnit.Pos);
-                            deleteMove.UnitId = targetUnit.UnitId;
-                            nextMoves.Add(deleteMove);
-                            
-                            Map.Units.Remove(targetUnit.Pos);
-
-                            Tile unitTile = GetTile(targetUnit.Pos);
-
-                            int totalMetalAfterUnit = targetUnit.CountMetal();
-                            int releasedMetal = totalMetalInUnitBeforeHit - totalMetalAfterUnit;
-
-                            // Bullet + damaged Part + collected metal
-                            unitTile.Metal += releasedMetal;
-                            Map.DistributeMineral(); // Bullet
+                            int idx = Random.Next(tile.Neighbors.Count);
+                            Tile hit = tile.Neighbors[idx];
+                            HitByBullet(hit.Pos, nextMoves, false);
                         }
-                        else
-                        {
-                            // Unit was hit
-                            Move hitmove = new Move();
-                            hitmove.MoveType = MoveType.Hit;
-                            hitmove.PlayerId = targetUnit.Owner.PlayerModel.Id;
-                            hitmove.Positions = new List<Position>();
-                            hitmove.Positions.Add(targetUnit.Pos);
-                            hitmove.UnitId = targetUnit.UnitId;
-                            hitmove.Stats = targetUnit.CollectStats();
-                            nextMoves.Add(hitmove);
-
-                            int totalMetalAfterUnit = targetUnit.CountMetal();
-                            int releasedMetal = totalMetalInUnitBeforeHit - totalMetalAfterUnit;
-
-                            Tile unitTile = GetTile(targetUnit.Pos);
-                            // Bullet + damage Part
-                            unitTile.Metal += releasedMetal;
-                            Map.DistributeMineral(); // Bullet
-                        }
-
-                        if (!changedGroundPositions.ContainsKey(move.Positions[1]))
-                            changedGroundPositions.Add(move.Positions[1], null);
-
-                        /*
-                        Move groundMove = new Move();
-                        groundMove.MoveType = MoveType.UpdateGround;
-                        groundMove.Positions = new List<Position>();
-                        groundMove.Positions.Add(move.Positions[1]);
-                        groundMove.Stats = CollectGroundStats(move.Positions[1]);
-                        nextMoves.Add(groundMove);
-                        */
-                    }
-                    else
-                    {
-                        Map.DistributeMineral(); // Bullet
-
-                        // Fired on ground (+Bullet)
-                        Tile targetTile = Map.GetTile(move.Positions[1]);
-                        //targetTile.Metal++;
-                        if (targetTile.NumberOfDestructables > 0)
-                            targetTile.NumberOfDestructables--;
-
-                        if (!changedGroundPositions.ContainsKey(move.Positions[1]))
-                            changedGroundPositions.Add(move.Positions[1], null);
-
-                        /*
-                        Move hitmove = new Move();
-                        hitmove.MoveType = MoveType.UpdateGround;
-                        hitmove.Positions = new List<Position>();
-                        hitmove.Positions.Add(move.Positions[1]);
-                        hitmove.Stats = CollectGroundStats(move.Positions[1]);
-                        nextMoves.Add(hitmove);
-                        */
-                    }
+                    }*/
                     finishedMoves.Add(move);
                 }
                 else
@@ -721,6 +631,87 @@ namespace Engine.Master
                 lastMoves.Add(move);
             }
         }
+
+        private void HitByBullet(Position pos, List<Move> nextMoves, bool firstHit)
+        {
+            Unit targetUnit = Map.Units.GetUnitAt(pos);
+            if (targetUnit != null)
+            {
+                if (firstHit == false)
+                {
+                    int x = 0;
+                }
+                int totalMetalInUnitBeforeHit = targetUnit.CountMetal();
+                if (targetUnit.HitBy(null))
+                {
+                    // Unit has died!
+                    Move deleteMove = new Move();
+                    deleteMove.PlayerId = targetUnit.Owner.PlayerModel.Id;
+                    deleteMove.MoveType = MoveType.Delete;
+                    deleteMove.Positions = new List<Position>();
+                    deleteMove.Positions.Add(targetUnit.Pos);
+                    deleteMove.UnitId = targetUnit.UnitId;
+                    nextMoves.Add(deleteMove);
+
+                    Map.Units.Remove(targetUnit.Pos);
+
+                    Tile unitTile = GetTile(targetUnit.Pos);
+
+                    int totalMetalAfterUnit = targetUnit.CountMetal();
+                    int releasedMetal = totalMetalInUnitBeforeHit - totalMetalAfterUnit;
+
+                    // damaged Part + collected metal
+                    unitTile.Metal += releasedMetal;
+
+                    if (firstHit)
+                    {
+                        unitTile.Metal++;
+                        //Map.DistributeMineral(); // Bullet
+                    }
+                }
+                else
+                {
+                    // Unit was hit
+                    Move hitmove = new Move();
+                    hitmove.MoveType = MoveType.Hit;
+                    hitmove.PlayerId = targetUnit.Owner.PlayerModel.Id;
+                    hitmove.Positions = new List<Position>();
+                    hitmove.Positions.Add(targetUnit.Pos);
+                    hitmove.UnitId = targetUnit.UnitId;
+                    hitmove.Stats = targetUnit.CollectStats();
+                    nextMoves.Add(hitmove);
+
+                    int totalMetalAfterUnit = targetUnit.CountMetal();
+                    int releasedMetal = totalMetalInUnitBeforeHit - totalMetalAfterUnit;
+
+                    Tile unitTile = GetTile(targetUnit.Pos);
+                    // damage Part
+                    unitTile.Metal += releasedMetal;
+                    if (firstHit)
+                    {
+                        unitTile.Metal++;
+                        //Map.DistributeMineral(); // Bullet
+                    }
+                }
+
+                if (!changedGroundPositions.ContainsKey(pos))
+                    changedGroundPositions.Add(pos, null);
+            }
+            else
+            {
+                if (firstHit)
+                    Map.DistributeMineral(); // Bullet
+
+                Tile targetTile = Map.GetTile(pos);
+                if (targetTile.NumberOfDestructables > 0)
+                    targetTile.NumberOfDestructables--;
+
+                if (!changedGroundPositions.ContainsKey(pos))
+                    changedGroundPositions.Add(pos, null);
+            }
+
+        }
+
 
         private MoveUpdateStats CollectGroundStats(Position pos)
         {

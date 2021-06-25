@@ -1032,7 +1032,7 @@ namespace Engine.Ants
                 }
             }
 
-            if (AntWorkerType == AntWorkerType.Fighter && cntrlUnit.Weapon != null && cntrlUnit.Weapon.WeaponLoaded)
+            if (AntWorkerType == AntWorkerType.Fighter && cntrlUnit.Weapon != null && cntrlUnit.Weapon.Container.Metal >= cntrlUnit.Weapon.Container.Capacity)
             {
                 // Fight, do not extract if can fire
             }

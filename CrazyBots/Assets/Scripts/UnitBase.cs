@@ -472,6 +472,10 @@ public class UnitBase : MonoBehaviour
                     break;
             }
         }
+        if (sparePart != null)
+        {
+            sparePart.gameObject.SetActive(false);
+        }
         UpdateParts();
     }
 

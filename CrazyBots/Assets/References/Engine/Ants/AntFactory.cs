@@ -92,7 +92,7 @@ namespace Engine.Ants
             bool addAssembler = false;
             bool addFighter = false;
 
-            if (player.PlayerModel.Id != 19 &&
+            if (player.PlayerModel.Id != 11 &&
                 cntrlUnit.Assembler != null &&
                 cntrlUnit.Assembler.BuildQueue == null)
             {
@@ -188,8 +188,8 @@ namespace Engine.Ants
                                 }
                                 else if (addFighter)
                                 {
-                                    if (possibleMove.UnitId.StartsWith("Fighter"))
-                                    {
+                                    if (possibleMove.UnitId.StartsWith("Fighter") || possibleMove.UnitId.StartsWith("Bomber"))
+                                        {
                                         possibleMoves.Add(possibleMove);
                                     }
                                 }

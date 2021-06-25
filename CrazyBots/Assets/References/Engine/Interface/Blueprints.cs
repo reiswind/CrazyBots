@@ -81,6 +81,15 @@ namespace Engine.Interface
             blueprint.Parts.Add(new BlueprintPart("Armor"));
             Items.Add(blueprint);
 
+            // Bomber
+            blueprint = new Blueprint();
+            blueprint.Name = "Bomber";
+            blueprint.Layout = "MovableUnitBigPart";
+            blueprint.Parts.Add(new BlueprintPart("Engine"));
+            blueprint.Parts.Add(new BlueprintPart("Weapon2", "Weapon2", 3));
+            blueprint.Parts.Add(new BlueprintPart("Extractor"));
+            Items.Add(blueprint);
+
             // Assembler (moving)
             blueprint = new Blueprint();
             blueprint.Name = "Assembler";

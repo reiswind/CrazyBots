@@ -21,6 +21,15 @@
         "X": 10,
         "Y": 12
       }
+    },
+	{
+      "Name": "Bomber",
+      "PlayerId": 1,
+	  "Blueprint": "Bomber",
+      "Position": {
+        "X": 11,
+        "Y": 12
+      }
     }
   ]
 }

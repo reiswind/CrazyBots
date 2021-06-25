@@ -30,14 +30,17 @@ namespace Engine.Master
             int consumed = 0;
             if (availablePower > 0)
             {
-                if (ShieldPower < 10)
+                for (int i = 0; i < 2; i++)
                 {
-                    ShieldPower++;
-                    consumed++;
-                }
-                if (ShieldPower >= 10)
-                {
-                    ShieldActive = true;
+                    if (ShieldPower < 10)
+                    {
+                        ShieldPower++;
+                        consumed++;
+                    }
+                    if (ShieldPower >= 10)
+                    {
+                        ShieldActive = true;
+                    }
                 }
             }
             return consumed;

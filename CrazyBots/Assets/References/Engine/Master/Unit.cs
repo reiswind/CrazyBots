@@ -105,7 +105,9 @@ namespace Engine.Master
         public int MaxPower { get; set; }
 
         // Unit can be extracted
-        public bool ExtractMe { get; set; }
+        public bool ExtractMe { 
+            get; 
+            set; }
         public bool UnderConstruction { get; set; }
         // Just a plan, not built yet
         public bool IsGhost { get; set; }
