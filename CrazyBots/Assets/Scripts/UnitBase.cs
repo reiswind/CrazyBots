@@ -61,6 +61,8 @@ public class UnitBase : MonoBehaviour
 
             transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
             UpdateDirection(unitPos3);
+
+
         }
     }
 
@@ -110,6 +112,10 @@ public class UnitBase : MonoBehaviour
     public void MoveTo(Position pos)
     {
         DestinationPos = pos;
+        if (Weapon != null)
+        {
+            Weapon.TurnTo(HexGrid, DestinationPos);
+        }
     }
 
     public void UpdateStats(MoveUpdateStats stats)
@@ -313,46 +319,16 @@ public class UnitBase : MonoBehaviour
 
     internal void SetMaterialGhost(int playerId, GameObject unit)
     {
-        MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
-
-        Material[] newMaterials = new Material[meshRenderer.materials.Length];
-        for (int i = 0; i < meshRenderer.materials.Length; i++)
+        for (int i = 0; i < unit.transform.childCount; i++)
         {
-            Material material = meshRenderer.materials[i];
-            if (material.name.StartsWith("Player"))
-            {
-                Destroy(material);
-                if (playerId == 1) newMaterials[i] = HexGrid.GetMaterial("PlayerTransparent");
-                if (playerId == 2) newMaterials[i] = HexGrid.GetMaterial("PlayerTransparent");
-                if (playerId == 3) newMaterials[i] = HexGrid.GetMaterial("PlayerTransparent");
-            }
-            else
-            {
-                Destroy(material);
-                newMaterials[i] = HexGrid.GetMaterial("TransparentFrame");
-            }
+            GameObject child = unit.transform.GetChild(i).gameObject;
+            if (!child.name.StartsWith("Mineral") && !child.name.StartsWith("Ammo"))
+                SetMaterialGhost(playerId, child);
         }
-        meshRenderer.materials = newMaterials;
-    }
 
-    internal static void SetPlayerColor(HexGrid hexGrid, int playerId, GameObject unit)
-    {
         MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
-        //return;
-        if (meshRenderer.materials.Length == 1)
+        if (meshRenderer != null)
         {
-            Destroy(meshRenderer.material);
-            if (playerId == 0) 
-                meshRenderer.material = hexGrid.GetMaterial("Player0");
-            if (playerId == 0) meshRenderer.material = hexGrid.GetMaterial("Player0");
-            if (playerId == 1) meshRenderer.material = hexGrid.GetMaterial("Player1");
-            if (playerId == 2) meshRenderer.material = hexGrid.GetMaterial("Player2");
-            if (playerId == 3) meshRenderer.material = hexGrid.GetMaterial("Player3");
-        }
-        else
-        {
-            //return;
-
             Material[] newMaterials = new Material[meshRenderer.materials.Length];
             for (int i = 0; i < meshRenderer.materials.Length; i++)
             {
@@ -360,18 +336,66 @@ public class UnitBase : MonoBehaviour
                 if (material.name.StartsWith("Player"))
                 {
                     Destroy(material);
-                    if (playerId == 0) newMaterials[i] = hexGrid.GetMaterial("Player0");
-                    if (playerId == 1) newMaterials[i] = hexGrid.GetMaterial("Player1");
-                    if (playerId == 2) newMaterials[i] = hexGrid.GetMaterial("Player2");
-                    if (playerId == 3) newMaterials[i] = hexGrid.GetMaterial("Player3");
+                    if (playerId == 1) newMaterials[i] = HexGrid.GetMaterial("PlayerTransparent");
+                    if (playerId == 2) newMaterials[i] = HexGrid.GetMaterial("PlayerTransparent");
+                    if (playerId == 3) newMaterials[i] = HexGrid.GetMaterial("PlayerTransparent");
                 }
                 else
                 {
                     Destroy(material);
-                    newMaterials[i] = hexGrid.GetMaterial("MyFrame");
+                    newMaterials[i] = HexGrid.GetMaterial("TransparentFrame");
                 }
             }
             meshRenderer.materials = newMaterials;
+        }
+    }
+
+    internal static void SetPlayerColor(HexGrid hexGrid, int playerId, GameObject unit)
+    {
+        for (int i=0; i < unit.transform.childCount; i++)
+        {
+            GameObject child = unit.transform.GetChild(i).gameObject;
+            if (!child.name.StartsWith("Mineral") && !child.name.StartsWith("Ammo"))
+                SetPlayerColor(hexGrid, playerId, child);
+        }
+
+        MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
+        if (meshRenderer != null)
+        {
+            if (meshRenderer.materials.Length == 1)
+            {
+                Destroy(meshRenderer.material);
+                if (playerId == 0)
+                    meshRenderer.material = hexGrid.GetMaterial("Player0");
+                if (playerId == 0) meshRenderer.material = hexGrid.GetMaterial("Player0");
+                if (playerId == 1) meshRenderer.material = hexGrid.GetMaterial("Player1");
+                if (playerId == 2) meshRenderer.material = hexGrid.GetMaterial("Player2");
+                if (playerId == 3) meshRenderer.material = hexGrid.GetMaterial("Player3");
+            }
+            else
+            {
+                //return;
+
+                Material[] newMaterials = new Material[meshRenderer.materials.Length];
+                for (int i = 0; i < meshRenderer.materials.Length; i++)
+                {
+                    Material material = meshRenderer.materials[i];
+                    if (material.name.StartsWith("Player"))
+                    {
+                        Destroy(material);
+                        if (playerId == 0) newMaterials[i] = hexGrid.GetMaterial("Player0");
+                        if (playerId == 1) newMaterials[i] = hexGrid.GetMaterial("Player1");
+                        if (playerId == 2) newMaterials[i] = hexGrid.GetMaterial("Player2");
+                        if (playerId == 3) newMaterials[i] = hexGrid.GetMaterial("Player3");
+                    }
+                    else
+                    {
+                        Destroy(material);
+                        newMaterials[i] = hexGrid.GetMaterial("MyFrame");
+                    }
+                }
+                meshRenderer.materials = newMaterials;
+            }
         }
     }
 
@@ -531,7 +555,7 @@ public class UnitBase : MonoBehaviour
                         if (weapon != null)
                         {
                             Weapon = weapon;
-                            weapon.UpdateContent(moveUpdateUnitPart.Minerals > 0);
+                            weapon.UpdateContent(HexGrid, moveUpdateUnitPart.Minerals, moveUpdateUnitPart.Capacity);
                         }
                         Reactor1 reactor = unitBasePart.Part.GetComponent<Reactor1>();
                         if (reactor != null)

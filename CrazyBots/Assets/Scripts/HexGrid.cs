@@ -746,6 +746,7 @@ public class HexGrid : MonoBehaviour
 		{
 			// Move to targetpos
 			unit.DestinationPos = move.Positions[move.Positions.Count - 1];
+
 		}
 		if (move.MoveType == MoveType.Add)
 		{
@@ -758,7 +759,15 @@ public class HexGrid : MonoBehaviour
 			{
 				rigidbody.Sleep();
 			}
-			UnitsInBuild.Add(move.Positions[move.Positions.Count - 1], unit);
+			Position pos = move.Positions[move.Positions.Count - 1];
+			if (UnitsInBuild.ContainsKey(pos))
+			{
+				// Command to build was slower than the game.
+				UnitBase unitBase = UnitsInBuild[pos];
+				unitBase.Delete();
+				UnitsInBuild.Remove(pos);
+			}
+			UnitsInBuild.Add(pos, unit);
 		}
 	}
 

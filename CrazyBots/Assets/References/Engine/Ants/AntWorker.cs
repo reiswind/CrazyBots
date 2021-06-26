@@ -1038,7 +1038,7 @@ namespace Engine.Ants
             }
             else
             {
-                if (cntrlUnit.Armor != null && cntrlUnit.Armor.ShieldActive == false)
+                if (cntrlUnit.Armor != null && cntrlUnit.Armor.ShieldActive == false && AntWorkerType != AntWorkerType.Worker)
                 {
                     // Run away, extract later
                 }

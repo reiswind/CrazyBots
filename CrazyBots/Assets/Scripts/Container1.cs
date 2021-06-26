@@ -9,77 +9,42 @@ public class MineralContainer
     public MineralContainer()
     {
         mineralCubes = new List<GameObject>();
-        containers = new List<GameObject>();
     }
 
     private List<GameObject> mineralCubes;
-    private List<GameObject> containers;
     private int filled;
     private int max;
 
-    private bool AddMineral(GameObject container, int minNum)
+    private bool AddMinerals(GameObject container)
     {
-        Transform transform = container.transform.Find("Mineral" + minNum.ToString());
-        if (transform == null) return false;
-
-        mineralCubes.Add(transform.gameObject);
-        transform.gameObject.SetActive(false);
+        if (container.name.StartsWith("Mineral"))
+        {
+            mineralCubes.Add(container);
+            container.SetActive(false);
+        }
+        else
+        {
+            for (int i = 0; i < container.transform.childCount; i++)
+            {
+                GameObject child = container.transform.GetChild(i).gameObject;
+                AddMinerals(child);
+            }
+        }
         return true;
     }
 
-
     public void UpdateContent(HexGrid hexGrid, GameObject gameObject, int? minerals, int? capacity)
     {
+        if (capacity.HasValue && capacity <= 0)
+            return;
+
+        if (minerals.HasValue && minerals < 0)
+            minerals = 0;
+
         if (mineralCubes.Count == 0)
         {
-            Transform transformContainer = gameObject.transform.Find("Container1");
-            if (transformContainer == null)
-            {
-                containers.Add(gameObject);
-            }
-            else
-            {
-                containers.Add(transformContainer.gameObject);
-                UnitBase.SetPlayerColor(hexGrid, 1, transformContainer.gameObject);
-
-                transformContainer = gameObject.transform.Find("Container2");
-                if (transformContainer != null)
-                {
-                    containers.Add(transformContainer.gameObject);
-                    UnitBase.SetPlayerColor(hexGrid, 1, transformContainer.gameObject);
-
-                    transformContainer = gameObject.transform.Find("Container3");
-                    if (transformContainer != null)
-                    {
-                        containers.Add(transformContainer.gameObject);
-                        UnitBase.SetPlayerColor(hexGrid, 1, transformContainer.gameObject);
-                    }
-                }
-            }
-            foreach (GameObject container in containers)
-            {
-                int minNum = 1;
-                while (minNum < 99)
-                {
-                    if (!AddMineral(container, minNum++))
-                        break;
-                }
-                /*
-                mineralCubes.Add(container.transform.Find("Mineral1").gameObject);
-                mineralCubes.Add(container.transform.Find("Mineral2").gameObject);
-                mineralCubes.Add(container.transform.Find("Mineral3").gameObject);
-                mineralCubes.Add(container.transform.Find("Mineral4").gameObject);
-                mineralCubes.Add(container.transform.Find("Mineral5").gameObject);
-                mineralCubes.Add(container.transform.Find("Mineral6").gameObject);
-                mineralCubes.Add(container.transform.Find("Mineral7").gameObject);
-                mineralCubes.Add(container.transform.Find("Mineral8").gameObject);
-                mineralCubes.Add(container.transform.Find("Mineral9").gameObject);
-                mineralCubes.Add(container.transform.Find("Mineral10").gameObject);
-                mineralCubes.Add(container.transform.Find("Mineral11").gameObject);
-                mineralCubes.Add(container.transform.Find("Mineral12").gameObject);
-                filled += 12;*/
-            }
-
+            AddMinerals(gameObject);
+            
             filled = 0;
             max = mineralCubes.Count;
         }
@@ -88,15 +53,12 @@ public class MineralContainer
             return;
 
         int mins = minerals.Value;
-        if (mins == 12)
-        {
-            int x = 0;
-        }
-        //if (mins != max)
-        {
-            int minPercent = mins * 100 / capacity.Value;
-            mins = minPercent * max / 100;
-        }
+        
+        int minPercent = mins * 100 / capacity.Value;
+        mins = minPercent * max / 100;
+
+        if (minerals.Value > 0 && mins == 0)
+            mins = 1;
 
         if (mins != filled)
         {
