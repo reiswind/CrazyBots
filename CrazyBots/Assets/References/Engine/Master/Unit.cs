@@ -241,14 +241,8 @@ namespace Engine.Master
             return true;
         }
 
-        private void CreateBlueprintPart(BlueprintPart blueprintPart, bool fillContainer)
+        private void CreateBlueprintPart(BlueprintPart blueprintPart, int level, bool fillContainer)
         {
-            int level = 1;
-            if (blueprintPart.PartType.EndsWith("2"))
-                level = 2;
-            else if (blueprintPart.PartType.EndsWith("3"))
-                level = 3;
-
             if (blueprintPart.PartType.StartsWith("Engine"))
             {
                 if (Engine == null)
@@ -354,63 +348,31 @@ namespace Engine.Master
             }
         }
 
-        public bool IsInstalled(BlueprintPart blueprintPart)
+        public bool IsInstalled(BlueprintPart blueprintPart, int level)
         {
             if (blueprintPart.PartType == "Engine")
-                return Engine != null && Engine.Level == 1;
-            if (blueprintPart.PartType == "Engine2")
-                return Engine != null && Engine.Level == 2;
-            if (blueprintPart.PartType == "Engine3")
-                return Engine != null && Engine.Level == 3;
+                return Engine != null && Engine.Level == level;
 
             if (blueprintPart.PartType == "Armor")
-                return Armor != null && Armor.Level == 1;
-            if (blueprintPart.PartType == "Armor2")
-                return Armor != null && Armor.Level == 2;
-            if (blueprintPart.PartType == "Armor3")
-                return Armor != null && Armor.Level == 3;
+                return Armor != null && Armor.Level == level;
 
             if (blueprintPart.PartType == "Weapon")
-                return Weapon != null && Weapon.Level == 1;
-            if (blueprintPart.PartType == "Weapon2")
-                return Weapon != null && Weapon.Level == 2;
-            if (blueprintPart.PartType == "Weapon3")
-                return Weapon != null && Weapon.Level == 3;
+                return Weapon != null && Weapon.Level == level;
 
             if (blueprintPart.PartType == "Assembler")
-                return Assembler != null && Assembler.Level == 1;
-            if (blueprintPart.PartType == "Assembler2")
-                return Assembler != null && Assembler.Level == 2;
-            if (blueprintPart.PartType == "Assembler3")
-                return Assembler != null && Assembler.Level == 3;
+                return Assembler != null && Assembler.Level == level;
 
             if (blueprintPart.PartType == "Extractor")
-                return Extractor != null && Extractor.Level == 1;
-            if (blueprintPart.PartType == "Extractor2")
-                return Extractor != null && Extractor.Level == 2;
-            if (blueprintPart.PartType == "Extractor3")
-                return Extractor != null && Extractor.Level == 3;
+                return Extractor != null && Extractor.Level == level;
 
             if (blueprintPart.PartType == "Container")
-                return Container != null && Container.Level == 1;
-            if (blueprintPart.PartType == "Container2")
-                return Container != null && Container.Level == 2;
-            if (blueprintPart.PartType == "Container3")
-                return Container != null && Container.Level == 3;
+                return Container != null && Container.Level == level;
 
             if (blueprintPart.PartType == "Reactor")
-                return Reactor != null && Reactor.Level == 1;
-            if (blueprintPart.PartType == "Reactor2")
-                return Reactor != null && Reactor.Level == 2;
-            if (blueprintPart.PartType == "Reactor3")
-                return Reactor != null && Reactor.Level == 3;
+                return Reactor != null && Reactor.Level == level;
 
             if (blueprintPart.PartType == "Radar")
-                return Radar != null && Radar.Level == 1;
-            if (blueprintPart.PartType == "Radar2")
-                return Radar != null && Radar.Level == 2;
-            if (blueprintPart.PartType == "Radar3")
-                return Radar != null && Radar.Level == 3;
+                return Radar != null && Radar.Level == level;
 
             return false;
         }
@@ -419,7 +381,7 @@ namespace Engine.Master
         {
             foreach (BlueprintPart blueprintPart in Blueprint.Parts)
             {
-                CreateBlueprintPart(blueprintPart, true);
+                CreateBlueprintPart(blueprintPart, blueprintPart.Level, true);
             }
             UnderConstruction = false;
         }
@@ -597,11 +559,17 @@ namespace Engine.Master
 
         public void Upgrade(string unitCode)
         {
+            int unitCodeLevel = 1;
+            if (unitCode.EndsWith("2"))
+                unitCodeLevel = 2;
+            if (unitCode.EndsWith("3"))
+                unitCodeLevel = 3;
+
             foreach (BlueprintPart blueprintPart in Blueprint.Parts)
             {
-                if (blueprintPart.Name == unitCode)
+                if (unitCode.StartsWith(blueprintPart.PartType)) // + blueprintPart.Level == unitCode)
                 {
-                    CreateBlueprintPart(blueprintPart, false);
+                    CreateBlueprintPart(blueprintPart, unitCodeLevel, false);
                     break;
                 }
             }
@@ -691,7 +659,7 @@ namespace Engine.Master
                 MoveUpdateUnitPart moveUpdateUnitPart = new MoveUpdateUnitPart();
 
                 moveUpdateUnitPart.Name = blueprintPart.Name;
-                moveUpdateUnitPart.Exists = IsInstalled(blueprintPart);
+                moveUpdateUnitPart.Exists = IsInstalled(blueprintPart, blueprintPart.Level);
                 moveUpdateUnitPart.PartType = blueprintPart.PartType;
 
                 if (moveUpdateUnitPart.Exists)

@@ -146,13 +146,13 @@ public class UnitBase : MonoBehaviour
         return null;
     }*/
 
-    private void ReplacePart(Transform part, string name, bool underConstruction) 
+    private void ReplacePart(Transform part, MoveUpdateUnitPart moveUpdateUnitPart, bool underConstruction) 
     {
         // Replace
-        GameObject newPart = HexGrid.InstantiatePrefab(name);
+        GameObject newPart = HexGrid.InstantiatePrefab(moveUpdateUnitPart.Name);
         newPart.transform.position = part.transform.position;
         newPart.transform.SetParent(transform);
-        newPart.name = name;
+        newPart.name = moveUpdateUnitPart.Name;
 
         if (underConstruction)
             SetMaterialGhost(PlayerId, newPart);
@@ -174,7 +174,7 @@ public class UnitBase : MonoBehaviour
             }
         }
         UnitBasePart unitBasePart = new UnitBasePart();
-        unitBasePart.Name = name;
+        unitBasePart.Name = moveUpdateUnitPart.Name;
         unitBasePart.Part = newPart;
         unitBasePart.IsUnderConstruction = underConstruction;
         unitBaseParts.Add(unitBasePart);
@@ -449,14 +449,14 @@ public class UnitBase : MonoBehaviour
         {
             if (engine != null && moveUpdateUnitPart.PartType.StartsWith("Engine"))
             {
-                ReplacePart(engine, moveUpdateUnitPart.Name, underConstruction);
+                ReplacePart(engine, moveUpdateUnitPart, underConstruction);
                 remainingParts.Remove(moveUpdateUnitPart);
                 groundFound = true;
                 break;
             }
             else if (ground != null && moveUpdateUnitPart.PartType.StartsWith("Extractor"))
             {
-                ReplacePart(ground, moveUpdateUnitPart.Name, underConstruction);
+                ReplacePart(ground, moveUpdateUnitPart, underConstruction);
                 ground.name = moveUpdateUnitPart.Name;
 
                 remainingParts.Remove(moveUpdateUnitPart);
@@ -480,7 +480,7 @@ public class UnitBase : MonoBehaviour
                 moveUpdateUnitPart.PartType.StartsWith("Reactor") ||
                 moveUpdateUnitPart.PartType.StartsWith("Assembler"))
             {
-                ReplacePart(bigPart, moveUpdateUnitPart.Name, underConstruction);
+                ReplacePart(bigPart, moveUpdateUnitPart, underConstruction);
                 remainingParts.Remove(moveUpdateUnitPart);
                 break;
             }
@@ -490,7 +490,7 @@ public class UnitBase : MonoBehaviour
             // Place remaining parts
             foreach (MoveUpdateUnitPart moveUpdateUnitPart in remainingParts)
             {
-                ReplacePart(sparePart, moveUpdateUnitPart.Name, underConstruction);
+                ReplacePart(sparePart, moveUpdateUnitPart, underConstruction);
                 sparePart = part2;
                 if (sparePart == null)
                     break;

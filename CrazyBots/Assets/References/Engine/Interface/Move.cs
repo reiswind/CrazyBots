@@ -35,6 +35,7 @@ namespace Engine.Interface
     {
         public string Name { get; set; }
         public string PartType { get; set; }
+        public int Level { get; set; }
 
         // True if the part exists
         public bool Exists { get; set; }

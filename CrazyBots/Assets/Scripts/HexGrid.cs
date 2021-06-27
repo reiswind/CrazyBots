@@ -52,10 +52,10 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -711,6 +711,7 @@ public class HexGrid : MonoBehaviour
 			moveUpdateUnitPart.Name = blueprintPart.Name;
 			moveUpdateUnitPart.Exists = false;
 			moveUpdateUnitPart.PartType = blueprintPart.PartType;
+			moveUpdateUnitPart.Level = blueprintPart.Level;
 			moveUpdateUnitPart.Capacity = blueprintPart.Capacity;
 
 			stats.UnitParts.Add(moveUpdateUnitPart);
