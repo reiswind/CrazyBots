@@ -170,6 +170,7 @@ namespace Engine.Interface
         public List<Move> LastMoves;
 
         public List<Command> Commands = new List<Command>();
+        public List<GameCommand> GameCommands = new List<GameCommand>();
 
         //public Pheromones Pheromones { get; set; }
 

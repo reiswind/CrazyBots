@@ -30,7 +30,7 @@ public class GroundCell : MonoBehaviour
         obstacles = new List<GameObject>();
 
         UnitCommands = new List<UnitCommand>();
-        ShowPheromones = false;
+        ShowPheromones = true;
     }
 
     private void CreateMarker()
@@ -120,7 +120,7 @@ public class GroundCell : MonoBehaviour
                 markerToMineral.transform.position = position;
             }*/
            
-            
+            /*
             if (mapPheromone.IntensityToEnemy > 0)
             {
                 Vector3 position = transform.position;
@@ -134,8 +134,8 @@ public class GroundCell : MonoBehaviour
                 position.y -= 1;
                 position.x += 0.3f;
                 markerToEnemy.transform.position = position;
-            }
-            /*
+            }*/
+            
             float highestEnergy = -1;
             int highestPlayerId = 0;
 
@@ -155,15 +155,15 @@ public class GroundCell : MonoBehaviour
             {
                 Vector3 position = transform.position;
                 position.y += 0.054f + (0.2f * highestEnergy);
-                markerEnergy.transform.position = position;
-                UnitBase.SetPlayerColor(HexGrid, highestPlayerId, markerEnergy);
+                markerToEnemy.transform.position = position;
+                //UnitBase.SetPlayerColor(HexGrid, highestPlayerId, markerToEnemy);
             }
             else
             {
                 Vector3 position = transform.position;
                 position.y -= 1;
-                markerEnergy.transform.position = position;
-            }*/
+                markerToEnemy.transform.position = position;
+            }
             
         }
     }
@@ -175,12 +175,6 @@ public class GroundCell : MonoBehaviour
             if (NextMove.Stats != null && NextMove.Stats.MoveUpdateGroundStat != null)
             {
                 MoveUpdateGroundStat stat = NextMove.Stats.MoveUpdateGroundStat;
-                if (Tile.Metal != stat.Minerals)
-                {
-                    // Currently not in sync. later.
-                    int x =0;
-                }
-
                 if (markerEnergy == null)
                 {
                     CreateMarker();
@@ -202,7 +196,6 @@ public class GroundCell : MonoBehaviour
                 }
 
                 Tile.Metal = stat.Minerals;
-
                 Tile.NumberOfDestructables = stat.NumberOfDestructables;
                 Tile.NumberOfObstacles = stat.NumberOfObstacles;
                 
@@ -291,11 +284,6 @@ public class GroundCell : MonoBehaviour
             if (mineralObstacle == null)
             {
                 mineralObstacle = HexGrid.CreateObstacle(transform);
-                /*
-                int treeIdx = HexGrid.game.Random.Next(HexGrid.obstacles.Count);
-                mineralObstacle = HexGrid.Instantiate(HexGrid.obstacles[treeIdx], transform, false);
-                */
-
                 Material crystalMaterial = HexGrid.GetMaterial("CrystalMat");
 
                 MeshRenderer meshRenderer = mineralObstacle.GetComponent<MeshRenderer>();

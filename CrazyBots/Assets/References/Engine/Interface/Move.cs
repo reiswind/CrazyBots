@@ -25,6 +25,7 @@ namespace Engine.Interface
         UpdateGround,
         Assemble,
         Extract,
+        CommandComplete,
 
         VisibleTiles,
         HiddenTiles,

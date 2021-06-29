@@ -473,16 +473,19 @@ public class UnitBase : MonoBehaviour
         }
 
         // Place big parts
-        foreach (MoveUpdateUnitPart moveUpdateUnitPart in remainingParts)
+        if (bigPart != null)
         {
-            if (moveUpdateUnitPart.PartType.StartsWith("Container") ||
-                moveUpdateUnitPart.PartType.StartsWith("Weapon") ||
-                moveUpdateUnitPart.PartType.StartsWith("Reactor") ||
-                moveUpdateUnitPart.PartType.StartsWith("Assembler"))
+            foreach (MoveUpdateUnitPart moveUpdateUnitPart in remainingParts)
             {
-                ReplacePart(bigPart, moveUpdateUnitPart, underConstruction);
-                remainingParts.Remove(moveUpdateUnitPart);
-                break;
+                if (moveUpdateUnitPart.PartType.StartsWith("Container") ||
+                    moveUpdateUnitPart.PartType.StartsWith("Weapon") ||
+                    moveUpdateUnitPart.PartType.StartsWith("Reactor") ||
+                    moveUpdateUnitPart.PartType.StartsWith("Assembler"))
+                {
+                    ReplacePart(bigPart, moveUpdateUnitPart, underConstruction);
+                    remainingParts.Remove(moveUpdateUnitPart);
+                    break;
+                }
             }
         }
         if (sparePart != null)

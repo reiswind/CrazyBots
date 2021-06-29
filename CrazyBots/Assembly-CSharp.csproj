@@ -122,6 +122,7 @@
     <Compile Include="Assets\References\Engine\Control\UnitType.cs" />
     <Compile Include="Assets\References\Engine\Control\Scout.cs" />
     <Compile Include="Assets\Scripts\HexGrid.cs" />
+    <Compile Include="Assets\CursorsAndCrosshairs\CursorChanger.cs" />
     <Compile Include="Assets\References\Engine\Master\Engine.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\PriorityQueueB.cs" />
   </ItemGroup>

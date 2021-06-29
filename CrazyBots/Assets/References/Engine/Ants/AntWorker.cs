@@ -20,8 +20,8 @@ namespace Engine.Ants
     {
         public AntWorkerType AntWorkerType { get; set; }
         public bool ReturnHome { get; set; }
-        public bool NothingFound { get; set; }
-        public bool GotLostNoWayHome { get; set; }
+        public bool WaitForEnemy { get; set; }
+        public bool BuildPositionReached { get; set; }
 
         public AntWorker(ControlAnt control) : base(control)
         {
@@ -170,52 +170,6 @@ namespace Engine.Ants
             }
             return t;
         }
-
-        public bool GoHome(Player player, List<Move> moves, bool dropPheromone)
-        {
-            List<Move> possibleMove = new List<Move>();
-
-            int maxSearchHome = 3;
-
-            Unit cntrlUnit = PlayerUnit.Unit;
-            foreach (Ant ant in Control.Ants.Values)
-            {
-                AntFactory antFactory = ant as AntFactory;
-                AntContainer antContainer = ant as AntContainer;
-                if (antFactory != null || antContainer != null)
-                {
-                    if (ant.PlayerUnit.Unit.Container != null &&
-                        ant.PlayerUnit.Unit.Container.Metal < ant.PlayerUnit.Unit.Container.Capacity)
-                    {
-                        Move move = player.Game.MoveTo(cntrlUnit.Pos, ant.PlayerUnit.Unit.Pos, cntrlUnit.Engine);
-                        if (move != null)
-                        {
-                            possibleMove.Add(move);
-                        }
-                    }
-                    if (maxSearchHome-- == 0)
-                        break;
-                }
-            }
-
-            foreach (Move move in possibleMove)
-            {
-                Tile t = player.Game.Map.GetTile(move.Positions[1]);
-                if (CheckHandover(t.Pos, moves))
-                    return true;
-
-                if (!Control.IsOccupied(player, moves, t.Pos))
-                {
-                    moves.Add(move);
-                    if (dropPheromone && !NothingFound)
-                        DropPheromone(player, PheromoneType.Mineral);
-                    return true;
-                }
-            }
-            
-            return false;
-        }
-
 
         public void AddDestination(List<AntDestination> possibleTiles, Player player, Tile t, float phem_d, bool onlyIfMovable, PheromoneType pheromoneType)
         {
@@ -621,10 +575,19 @@ namespace Engine.Ants
                     {
                         moveToPosition = null;
                         FollowThisRoute = null;
-                    }
+                    }                
                 }
+                if (WaitForEnemy && possibleTiles.Count > 0 && pheromoneType == PheromoneType.Enemy)
+                {
+                    WaitForEnemy = false;
+                }
+
                 if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.Enemy)
                 {
+                    if (WaitForEnemy)
+                    {
+                        return true;
+                    }
                     moveToPosition = Control.FindEnemy(player, this);
                     if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
                     {
@@ -853,11 +816,7 @@ namespace Engine.Ants
                 }
                 else
                 {
-                    if (GotLostNoWayHome)
-                    {
-                        // Do not drop phromone to food if not on the way home
-                        return;
-                    }
+
                     FoodIntensity -= 5;
                     if (FoodIntensity < 0)
                     {
@@ -902,97 +861,6 @@ namespace Engine.Ants
             Unit cntrlUnit = PlayerUnit.Unit;
             bool unitMoved = false;
 
-            /*
-            foreach (Move intendedMove in moves)
-            {
-                if (intendedMove.MoveType == MoveType.Extract)
-                {
-                    if (intendedMove.Positions[intendedMove.Positions.Count - 1] == cntrlUnit.Pos)
-                    {
-                        // Unit should not move until empty
-                        return true;
-                    }
-                }
-            }*/
-
-            /*
-            if (!ReturnHome && Energy == 0)
-            {
-                NothingFound = true;
-                ReturnHome = true;
-
-                cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
-            }
-            */
-
-            // Check if reached
-            /*
-            if (ReturnHome)
-            {
-                if (IsCloseToFactory(player, 3))
-                {
-                    if (NothingFound)
-                    {
-                        // Returned home without anything, start search again
-                        GotLostNoWayHome = false;
-                        Energy = MaxEnergy;
-                        FoodIntensity = 0;
-                        NothingFound = false;
-                        ReturnHome = false;
-                    }
-                    else
-                    {
-                        if (cntrlUnit.Container != null)
-                        {
-                            if (cntrlUnit.Container.Metal == 0)
-                            {
-                                // Unit has been emptied, start search again (in opposite direction)
-                                cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
-                                FoodIntensity = 0;
-                                NothingFound = false;
-                                GotLostNoWayHome = false;
-                                Energy = MaxEnergy;
-                                ReturnHome = false;
-                            }
-                            else
-                            {
-                                /*
-                                if (IsCloseToFactory(player, 1))
-                                {
-                                    // Wait for clear
-                                }
-                                else
-                                {
-                                    // Go strait home, ignore pheromones
-                                    //unitMoved = GoHome(player, moves, true);
-                                    //if (unitMoved)
-                                    //    return unitMoved;
-                                } * /
-                            }
-                        }
-                    }
-                }
-            }*/
-
-            /*
-            if (ReturnHome)
-            {
-                //GoHome(player, moves);
-                //return;
-            }
-            else
-            {
-                if (cntrlUnit.Container != null && cntrlUnit.Container.Metal >= cntrlUnit.Container.Capacity)
-                {
-                    // Ant full, return home
-                    FoodIntensity = MaxFoodIntensity;
-                    Energy = MaxEnergy;
-                    ReturnHome = true;
-                    cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
-                }
-            }
-            */
-
             if (cntrlUnit.Weapon != null)
             {
                 List<Move> possiblemoves = new List<Move>();
@@ -1000,7 +868,7 @@ namespace Engine.Ants
                 if (possiblemoves.Count > 0)
                 {
                     int idx = player.Game.Random.Next(possiblemoves.Count);
-                    if (cntrlUnit.Engine == null)
+                    if (cntrlUnit.Engine == null || CurrentGameCommand != null || WaitForEnemy)
                     {
                         // Do not fire at trees
                         while (possiblemoves.Count > 0 && possiblemoves[idx].OtherUnitId == "Destructable")
@@ -1011,6 +879,8 @@ namespace Engine.Ants
                     }
                     if (possiblemoves.Count > 0)
                     {
+                        FollowThisRoute = null;
+
                         moves.Add(possiblemoves[idx]);
                         unitMoved = true;
                         return unitMoved;
@@ -1023,13 +893,80 @@ namespace Engine.Ants
                 cntrlUnit.Assembler.ComputePossibleMoves(possiblemoves, null, MoveFilter.Upgrade);
                 if (possiblemoves.Count > 0)
                 {
-                    int idx = player.Game.Random.Next(possiblemoves.Count);
-                    Move move = possiblemoves[idx];
-                    moves.Add(move);
+                    Move move = null;
+                    if (CurrentGameCommand != null)
+                    {
+                        // Build only what is asked for
+                        foreach (Move move1 in possiblemoves)
+                        {
+                            if (move1.Positions[1] == CurrentGameCommand.TargetPosition)
+                            {
+                                move = move1;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        int idx = player.Game.Random.Next(possiblemoves.Count);
+                        move = possiblemoves[idx];
+                    }
+                    if (move != null)
+                    {
+                        moves.Add(move);
+
+                        if (BuildPositionReached)
+                        {
+                            // Build complete
+                            if (cntrlUnit.Assembler.Container.Metal <= 1)
+                            {
+                                // Command complete
+                                Move commandMove = new Move();
+                                commandMove.MoveType = MoveType.CommandComplete;
+                                commandMove.UnitId = cntrlUnit.UnitId;
+                                commandMove.PlayerId = player.PlayerModel.Id;
+                                commandMove.Positions = new List<Position>();
+                                commandMove.Positions.Add(CurrentGameCommand.TargetPosition);
+                                moves.Add(commandMove);
+                                CurrentGameCommand = null;
+
+                                // Extract the unit
+                                cntrlUnit.ExtractMe = true;
+                            }
+                        }
+                        FollowThisRoute = null;
+
+                        unitMoved = true;
+                        return unitMoved;
+                    }
+                }
+            }
+
+            // Assembler reached target, build order
+            if (BuildPositionReached && AntWorkerType == AntWorkerType.Assembler && cntrlUnit.Assembler != null && cntrlUnit.Assembler.CanProduce())
+            {
+                List<Move> possiblemoves = new List<Move>();
+                cntrlUnit.Assembler.ComputePossibleMoves(possiblemoves, null, MoveFilter.Assemble);
+                if (possiblemoves.Count > 0)
+                {
+                    foreach (Move move1 in possiblemoves)
+                    {
+                        if (move1.Positions[1] == CurrentGameCommand.TargetPosition && move1.UnitId == CurrentGameCommand.UnitId)
+                        {
+                            moves.Add(move1);
+                            break;
+                        }
+                    }
+                    FollowThisRoute = null;
 
                     unitMoved = true;
                     return unitMoved;
                 }
+            }
+
+            if (AntWorkerType == AntWorkerType.Assembler)
+            {
+                int x = 0;
             }
 
             if (AntWorkerType == AntWorkerType.Fighter && cntrlUnit.Weapon != null && cntrlUnit.Weapon.Container.Metal >= cntrlUnit.Weapon.Container.Capacity)
@@ -1038,9 +975,10 @@ namespace Engine.Ants
             }
             else
             {
-                if (cntrlUnit.Armor != null && cntrlUnit.Armor.ShieldActive == false && AntWorkerType != AntWorkerType.Worker)
+                // only if enemy is close...
+                if (false && cntrlUnit.Armor != null && cntrlUnit.Armor.ShieldActive == false && AntWorkerType != AntWorkerType.Worker)
                 {
-                    // Run away, extract later
+                    // Run away, extract later 
                 }
                 else
                 {
@@ -1054,7 +992,8 @@ namespace Engine.Ants
                             Move move = possiblemoves[idx];
                             moves.Add(move);
 
-                            Control.MineralsFound(player, move.Positions[1], false);
+                            //Control.MineralsFound(player, move.Positions[1], false);
+                            FollowThisRoute = null;
 
                             unitMoved = true;
                             return unitMoved;
@@ -1064,6 +1003,82 @@ namespace Engine.Ants
             }
             if (cntrlUnit.Engine != null && cntrlUnit.UnderConstruction == false)
             {
+                if (CurrentGameCommand != null)
+                {
+                    bool loadFirst = false;
+                    // only if filled!
+                    if (cntrlUnit.Weapon != null && cntrlUnit.Weapon.Container.Metal < cntrlUnit.Weapon.Container.Capacity)
+                        loadFirst = true;
+                    if (cntrlUnit.Assembler != null && cntrlUnit.Assembler.Container.Metal < cntrlUnit.Assembler.Container.Capacity)
+                        loadFirst = true;
+
+                    if (!loadFirst)
+                    {
+                        if (cntrlUnit.Pos == CurrentGameCommand.TargetPosition)
+                        {
+                            if (AntWorkerType == AntWorkerType.Worker)
+                            {
+                                Move move = new Move();
+                                move.MoveType = MoveType.CommandComplete;
+                                move.UnitId = cntrlUnit.UnitId;
+                                move.PlayerId = player.PlayerModel.Id;
+                                move.Positions = new List<Position>();
+                                move.Positions.Add(CurrentGameCommand.TargetPosition);
+                                moves.Add(move);
+
+                                // Collect from here and do anythind
+                                CurrentGameCommand = null;
+                            }
+                            if (AntWorkerType == AntWorkerType.Fighter)
+                            {
+                                // Command complete (Remove or keep?)
+                                Move move = new Move();
+                                move.MoveType = MoveType.CommandComplete;
+                                move.UnitId = cntrlUnit.UnitId;
+                                move.PlayerId = player.PlayerModel.Id;
+                                move.Positions = new List<Position>();
+                                move.Positions.Add(CurrentGameCommand.TargetPosition);
+                                moves.Add(move);
+
+                                // Stay until enemy
+                                WaitForEnemy = true;
+                                // ...
+
+                                // Position reached, return to normal mode
+                                CurrentGameCommand = null;
+                            }
+
+                            return true;
+                        }
+                        if (FollowThisRoute == null || FollowThisRoute.Count == 0)
+                        {
+                            // Compute route to target
+                            List<Position> positions = player.Game.FindPath(cntrlUnit.Pos, CurrentGameCommand.TargetPosition, cntrlUnit);
+                            if (positions != null)
+                            {
+                                if (AntWorkerType == AntWorkerType.Assembler)
+                                {
+                                    if (positions.Count <= 2)
+                                    {
+                                        BuildPositionReached = true;
+                                        return true;
+                                    }
+                                    else
+                                    {
+                                        // Move only next to target       
+                                        positions.RemoveAt(positions.Count - 1);
+                                    }
+                                }
+                                FollowThisRoute = new List<Position>();
+                                for (int i = 1; i < positions.Count; i++)
+                                {
+                                    FollowThisRoute.Add(positions[i]);
+                                }
+                            }
+                        }
+                    }
+                }                
+
                 if (MoveUnit(player, moves))
                     unitMoved = true;
                 

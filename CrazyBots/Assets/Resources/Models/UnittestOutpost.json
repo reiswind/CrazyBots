@@ -12,11 +12,28 @@
     }
   ],
   "Units": [
-    
-	{
-      "Name": "Outpost",
+    {
+      "Name": "Container1",
       "PlayerId": 1,
-	  "Blueprint": "Outpost",
+	  "Blueprint": "Container",
+      "Position": {
+        "X": 10,
+        "Y": 11
+      }
+    },
+	{
+      "Name": "Reactor1",
+      "PlayerId": 1,
+	  "Blueprint": "Reactor",
+      "Position": {
+        "X": 10,
+        "Y": 10
+      }
+    },
+	{
+      "Name": "Factory",
+      "PlayerId": 1,
+	  "Blueprint": "Factory",
       "Position": {
         "X": 10,
         "Y": 12

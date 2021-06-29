@@ -473,14 +473,24 @@ public class HexGrid : MonoBehaviour
 				GroundCell hexCell = GroundCells[pos];
 				hexCell.UpdatePheromones(null);
 			}
-			updatedPositions = newUpdatedPositions;
+			updatedPositions = newUpdatedPositions;		
 
 			// 
 			foreach (MapPlayerInfo mapPlayerInfo in MapInfo.PlayerInfo.Values)
 			{
 			}
+
+			/* Update all
+			foreach (Position pos in GroundCells.Keys)
+			{
+				MapPheromone mapPheromone = null;
+				if (MapInfo.Pheromones.ContainsKey(pos))
+					mapPheromone = MapInfo.Pheromones[pos];
+
+				GroundCell hexCell = GroundCells[pos];
+				hexCell.UpdatePheromones(mapPheromone);
+			}*/
 		}
-		
 		foreach (UnitBase unitBase in BaseUnits.Values)
 		{
 			if (unitBase.DestinationPos != null)
@@ -507,6 +517,7 @@ public class HexGrid : MonoBehaviour
 			}
 			else if (move.MoveType == MoveType.Build)
 			{
+				/*
 				if (move.Positions.Count == 1 &&
 					UnitsInBuild.ContainsKey(move.Positions[0]))
 				{
@@ -517,9 +528,9 @@ public class HexGrid : MonoBehaviour
 					BaseUnits.Add(unit.UnitId, unit);
 				}
 				else
-				{
+				{*/
 					CreateUnit(move);
-				}
+				//}
 			}
 			/*
 			else if (move.MoveType == MoveType.UpdateStats)
@@ -568,6 +579,16 @@ public class HexGrid : MonoBehaviour
 				}
 
 			}
+			else if (move.MoveType == MoveType.CommandComplete)
+            {
+				if (UnitsInBuild.ContainsKey(move.Positions[0]))
+				{
+					// Remove Ghost from command
+					UnitBase unit = UnitsInBuild[move.Positions[0]];
+					unit.Delete();
+					UnitsInBuild.Remove(move.Positions[0]);
+				}
+			}
 			else if (move.MoveType == MoveType.Upgrade)
 			{
 				if (BaseUnits.ContainsKey(move.OtherUnitId))
@@ -577,7 +598,7 @@ public class HexGrid : MonoBehaviour
 					unit.Upgrade(move);
 				}
 
-
+				/*
 				if (UnitsInBuild.ContainsKey(move.Positions[1]))
 				{
 					// From Ghost to real
@@ -588,7 +609,7 @@ public class HexGrid : MonoBehaviour
 						UnitsInBuild.Remove(move.Positions[1]);
 						BaseUnits.Add(unit.UnitId, unit);
 					}
-				}
+				}*/
 
 
 			}
@@ -760,6 +781,8 @@ public class HexGrid : MonoBehaviour
 			{
 				rigidbody.Sleep();
 			}
+			BaseUnits.Add(move.UnitId, unit);
+			/*
 			Position pos = move.Positions[move.Positions.Count - 1];
 			if (UnitsInBuild.ContainsKey(pos))
 			{
@@ -768,7 +791,7 @@ public class HexGrid : MonoBehaviour
 				unitBase.Delete();
 				UnitsInBuild.Remove(pos);
 			}
-			UnitsInBuild.Add(pos, unit);
+			UnitsInBuild.Add(pos, unit);*/
 		}
 	}
 

@@ -16,78 +16,24 @@ namespace Engine.Ants
             
         }
 
+        private GameCommand SelectNearestBuildCommand(Player player)
+        {
+            if (player.GameCommands.Count > 0)
+            {
+                return player.GameCommands[0];
+            }
+            return null;
+        }
+
         public override bool Move(Player player, List<Move> moves)
         {
             bool unitMoved = false;
 
             Unit cntrlUnit = PlayerUnit.Unit;
-            AntContainer containerUnit = null;
-            //bool everyOutTileOccupied = true;
-
-            bool addContainer = false;
-            //bool addAssemblerOnGround = false;
-            //bool containerFound = false;
-
-            // Do we have a container?
-            foreach (Tile n in player.Game.Map.GetTile(cntrlUnit.Pos).Neighbors)
-            {
-                if (n.Unit != null && n.Unit.Owner.PlayerModel.Id == player.PlayerModel.Id)
-                {
-                    if (Control.Ants.ContainsKey(n.Unit.UnitId))
-                    {
-                        if (Control.Ants[n.Unit.UnitId] is AntContainer)
-                        {
-                            containerUnit = Control.Ants[n.Unit.UnitId] as AntContainer;
-                            //containerFound = true;
-                        }
-                    }
-                    else
-                    {
-                        //everyOutTileOccupied = false;
-                    }
-                }
-                else
-                {
-                    //everyOutTileOccupied = false;
-                }
-            }
-            /*
-            if (containerFound)
-            {
-                // Must be complete empty
-                if (containerUnit != null && 
-                    containerUnit.PlayerUnit.Unit.IsComplete() &&
-                    cntrlUnit.Container != null &&
-                    cntrlUnit.Container.Metal == 0 
-                    /*&& cntrlUnit.Metal == 0* /)
-                {
-                    // Remove the local container, since the factory is attached to a container.
-                    Move move = new Move();
-                    move.MoveType = MoveType.Upgrade;
-                    move.Positions = new List<Position>();
-                    move.Positions.Add(cntrlUnit.Pos);
-                    move.UnitId = cntrlUnit.UnitId;
-                    move.OtherUnitId = "RemoveContainerAndUpgradeAssembler";
-                    moves.Add(move);
-
-                    return true;
-                }
-            }
-            else
-            {
-                //addAssembler = false;
-                if (cntrlUnit.Container != null && cntrlUnit.Container.Metal >= cntrlUnit.Container.Capacity)
-                {
-                    //if (player.PlayerModel.Id > 1)
-                    //    addContainer = true;
-                }
-            }
-            */
+            bool addContainer = false;           
 
             int totalMetalInPercent = (Control.MapPlayerInfo.TotalMetal * 100) / Control.MapPlayerInfo.TotalCapacity;
             int workerInPercent = (Control.NumberOfWorkers * 100) / Control.MapPlayerInfo.TotalUnits;
-
-
             bool addWorker = false;
             bool addAssembler = false;
             bool addFighter = false;
@@ -132,12 +78,17 @@ namespace Engine.Ants
 
                     if (!upgrading)
                     {
+                        GameCommand gameCommand = SelectNearestBuildCommand(player);
+                        Blueprint commandBluePrint = null;
+                        if (gameCommand != null)
+                        {
+                            commandBluePrint = player.Game.Blueprints.FindBlueprint(gameCommand.UnitId);
+                        }
                         PlayerUnit.Unit.Assembler.ComputePossibleMoves(possiblemoves, null, MoveFilter.Assemble);
                         if (possiblemoves.Count > 0)
                         {
                             // possiblemoves contains possible output places
                             List<Move> possibleMoves = new List<Move>();
-                            bool breakMoves = false;
 
                             foreach (Move possibleMove in possiblemoves)
                             {
@@ -146,6 +97,35 @@ namespace Engine.Ants
                                     continue;
                                 }
 
+                                if (commandBluePrint != null)
+                                {
+                                    bool engineFound = false;
+                                    foreach (BlueprintPart blueprintPart in commandBluePrint.Parts)
+                                    {
+                                        if (blueprintPart.PartType == "Engine")
+                                        {
+                                            engineFound = true;
+                                            break;
+                                        }
+                                    }
+                                    if (engineFound)
+                                    {
+                                        // Build this unit, it will move to the target
+                                        if (commandBluePrint.Name == possibleMove.UnitId)
+                                        {
+                                            possibleMoves.Add(possibleMove);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Build an assembler to move there
+                                        if ("Assembler" == possibleMove.UnitId)
+                                        {
+                                            possibleMoves.Add(possibleMove);
+                                        }
+                                    }
+                                }
+                                /*
                                 if (PlayerUnit.Unit.Assembler.BuildQueue != null)
                                 {
                                     foreach (string bp in PlayerUnit.Unit.Assembler.BuildQueue)
@@ -164,7 +144,7 @@ namespace Engine.Ants
                                 }
                                 if (breakMoves)
                                     break;
-
+                                */
                                 if (addContainer)
                                 {
                                     if (possibleMove.UnitId == "Extractor")
@@ -218,7 +198,7 @@ namespace Engine.Ants
                                     antWorker.AntWorkerType = AntWorkerType.Worker;
                                     Control.NumberOfWorkers++;
                                     Control.CreatedAnts.Add(move.Positions[1], antWorker);
-
+                                    /*
                                     if (cntrlUnit.GameCommands != null && cntrlUnit.GameCommands.Count > 0)
                                     {
                                         GameCommand gameCommand = cntrlUnit.GameCommands[0];
@@ -230,7 +210,7 @@ namespace Engine.Ants
 
                                             antWorker.CurrentGameCommand = attackMove;
                                         }
-                                    }
+                                    }*/
                                 }
                                 else if (addFighter)
                                 {
@@ -238,7 +218,7 @@ namespace Engine.Ants
                                     antWorker.AntWorkerType = AntWorkerType.Fighter;
                                     Control.NumberOfFighter++;
                                     Control.CreatedAnts.Add(move.Positions[1], antWorker);
-
+                                    /*
                                     if (cntrlUnit.GameCommands != null && cntrlUnit.GameCommands.Count > 0)
                                     {
                                         GameCommand gameCommand = cntrlUnit.GameCommands[0];
@@ -250,7 +230,16 @@ namespace Engine.Ants
 
                                             antWorker.CurrentGameCommand = attackMove;
                                         }
-                                    }
+                                    }*/
+                                }
+                                else
+                                {
+                                    AntWorker antWorker = new AntWorker(Control);
+                                    antWorker.AntWorkerType = AntWorkerType.None;
+                                    antWorker.CurrentGameCommand = gameCommand;
+                                    Control.CreatedAnts.Add(move.Positions[1], antWorker);
+
+                                    player.GameCommands.Remove(gameCommand);
                                 }
 
                                 unitMoved = true;

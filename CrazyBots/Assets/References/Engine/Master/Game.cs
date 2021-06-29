@@ -555,6 +555,7 @@ namespace Engine.Master
                     move.MoveType == MoveType.UpdateGround ||
                     move.MoveType == MoveType.Skip ||
                     move.MoveType == MoveType.UpdateStats ||
+                    move.MoveType == MoveType.CommandComplete ||
                     move.MoveType == MoveType.VisibleTiles ||
                     move.MoveType == MoveType.HiddenTiles)
                 {
@@ -1504,14 +1505,29 @@ namespace Engine.Master
                 {
                     foreach (GameCommand gameCommand in gameCommands)
                     {
+                        Player player = Players[gameCommand.PlayerId];
+                        player.GameCommands.Add(gameCommand);
+
                         if (gameCommand.GameCommandType == GameCommandType.Extract)
                         {
+                            /*
+                            Move move = new Move();
+                            move.MoveType = MoveType.Delete;
+                            move.PlayerId = gameCommand.PlayerId;
+                            move.UnitId = gameCommand.UnitId;
+                            move.Positions = new List<Position>();
+                            move.Positions.Add(gameCommand.TargetPosition);
+                            newMoves.Add(move);
+                            
                             Unit unit = Map.Units.FindUnit(gameCommand.UnitId);
                             if (unit != null)
                                 unit.ExtractMe = true;
+                            */
                         }
                         if (gameCommand.GameCommandType == GameCommandType.Build)
                         {
+
+                            /*
                             // Remove duplicate build orders on same pos
                             foreach (Move move1 in newMoves)
                             {
@@ -1531,8 +1547,9 @@ namespace Engine.Master
                             move.Positions = new List<Position>();
                             move.Positions.Add(gameCommand.TargetPosition);
                             newMoves.Add(move);
+                            */
                         }
-
+                        /* Waypoints
                         if (gameCommand.GameCommandType == GameCommandType.Minerals ||
                             gameCommand.GameCommandType == GameCommandType.Attack)
                         { 
@@ -1553,7 +1570,7 @@ namespace Engine.Master
                                 }
                                 unit.GameCommands.Add(gameCommand);
                             }
-                        }
+                        }*/
                     }
                 }
 
@@ -1678,7 +1695,7 @@ namespace Engine.Master
 
                 foreach (MapPheromoneItem mapPheromoneItem in mapPheromone.PheromoneItems)
                 {
-                    if (mapPheromoneItem.PheromoneType == Ants.PheromoneType.Energy)
+                    if (mapPheromoneItem.PheromoneType == PheromoneType.Energy)
                     {
                         if (mapPheromoneItem.Intensity >= highestEnergy)
                         {
