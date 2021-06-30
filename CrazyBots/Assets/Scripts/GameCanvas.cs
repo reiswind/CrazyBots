@@ -405,7 +405,8 @@ public class GameCanvas : MonoBehaviour
         
         if (canvasMode == CanvasMode.Select)
         {
-            HideButton(1);
+            SetButtonText(1, "(q) Unit");
+            //HideButton(1);
             HideButton(2);
             HideButton(3);
             HideButton(4);
@@ -417,6 +418,32 @@ public class GameCanvas : MonoBehaviour
             HideButton(10);
             HideButton(11);
             HideButton(12);
+
+            if (topSelectedButton == 0)
+            {
+                HideButton(5);
+                HideButton(6);
+                HideButton(7);
+                HideButton(8);
+                HideButton(9);
+                HideButton(10);
+                HideButton(11);
+                HideButton(12);
+            }
+            else if (topSelectedButton == 1)
+            {
+                SetButtonText(5, "(a) Attack");
+                SetButtonText(6, "(s) Defend");
+                SetButtonText(7, "(d) Scout");
+                HideButton(8);
+                HideButton(9);
+                HideButton(10);
+                HideButton(11);
+                HideButton(12);
+
+                if (middleSelectedButton != 0)
+                    SelectButton(middleSelectedButton);
+            }
             return;
         }
         /*

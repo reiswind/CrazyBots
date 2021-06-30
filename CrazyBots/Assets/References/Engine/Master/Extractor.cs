@@ -160,74 +160,19 @@ namespace Engine.Master
                                 }
                             }
                         }
-                        else
+                        else if (t.Unit.Container != null)
+
                         {
-                            if (t.Unit.Container != null)
+                            if (Unit.Engine == null &&
+                                Unit.Container != null &&
+                                Unit.Weapon == null &&
+                                Unit.Reactor == null &&
+                                Unit.Assembler == null &&
+                                Unit.Radar == null)
                             {
-                                if (Unit.Engine == null && 
-                                    Unit.Container != null &&
-                                    Unit.Weapon == null &&
-                                    Unit.Reactor == null &&
-                                    Unit.Assembler == null &&
-                                    Unit.Radar == null)
+                                // Pure Containers do not extract from other units.
+                                if (t.Unit.Engine == null)
                                 {
-                                    // Pure Containers do not extract from other units.
-                                    if (t.Unit.Engine == null)
-                                    {
-                                        if (t.Metal > 0)
-                                        {
-                                            Move move = new Move();
-
-                                            move.MoveType = MoveType.Extract;
-
-                                            move.UnitId = Unit.UnitId;
-                                            move.OtherUnitId = "Ground";
-                                            move.Positions = new List<Position>();
-                                            move.Positions.Add(Unit.Pos);
-                                            move.Positions.Add(t.Pos);
-
-                                            possibleMoves.Add(move);
-                                        }
-                                        continue;
-                                    }
-                                }
-
-                                if (Unit.Engine == null || Unit.Weapon != null || Unit.Assembler != null)
-                                {
-                                    if (Unit.Container != null)
-                                    {
-                                        // Extract from other container if this metal is less than 
-                                        Move move = new Move();
-
-                                        move.MoveType = MoveType.Extract;
-
-                                        move.UnitId = Unit.UnitId;
-                                        move.OtherUnitId = "ContainerLess";
-                                        move.Positions = new List<Position>();
-                                        move.Positions.Add(Unit.Pos);
-                                        move.Positions.Add(t.Pos);
-
-                                        possibleMoves.Add(move);
-                                    }
-                                    else
-                                    {
-                                        // Extract from other container
-                                        Move move = new Move();
-
-                                        move.MoveType = MoveType.Extract;
-
-                                        move.UnitId = Unit.UnitId;
-                                        move.OtherUnitId = "Container";
-                                        move.Positions = new List<Position>();
-                                        move.Positions.Add(Unit.Pos);
-                                        move.Positions.Add(t.Pos);
-
-                                        possibleMoves.Add(move);
-                                    }
-                                }
-                                else
-                                {
-                                    // A Unit with a container and a engine should collect metal from the ground, not from other containers
                                     if (t.Metal > 0)
                                     {
                                         Move move = new Move();
@@ -242,9 +187,81 @@ namespace Engine.Master
 
                                         possibleMoves.Add(move);
                                     }
+                                    continue;
+                                }
+                            }
+
+                            if (Unit.Engine == null || Unit.Weapon != null || Unit.Assembler != null)
+                            {
+                                if (Unit.Container != null)
+                                {
+                                    // Extract from other container if this metal is less than 
+                                    Move move = new Move();
+
+                                    move.MoveType = MoveType.Extract;
+
+                                    move.UnitId = Unit.UnitId;
+                                    move.OtherUnitId = "ContainerLess";
+                                    move.Positions = new List<Position>();
+                                    move.Positions.Add(Unit.Pos);
+                                    move.Positions.Add(t.Pos);
+
+                                    possibleMoves.Add(move);
+                                }
+                                else
+                                {
+                                    // Extract from other container
+                                    Move move = new Move();
+
+                                    move.MoveType = MoveType.Extract;
+
+                                    move.UnitId = Unit.UnitId;
+                                    move.OtherUnitId = "Container";
+                                    move.Positions = new List<Position>();
+                                    move.Positions.Add(Unit.Pos);
+                                    move.Positions.Add(t.Pos);
+
+                                    possibleMoves.Add(move);
+                                }
+                            }
+                            else
+                            {
+                                // A Unit with a container and a engine should collect metal from the ground, not from other containers
+                                if (t.Metal > 0)
+                                {
+                                    Move move = new Move();
+
+                                    move.MoveType = MoveType.Extract;
+
+                                    move.UnitId = Unit.UnitId;
+                                    move.OtherUnitId = "Ground";
+                                    move.Positions = new List<Position>();
+                                    move.Positions.Add(Unit.Pos);
+                                    move.Positions.Add(t.Pos);
+
+                                    possibleMoves.Add(move);
                                 }
                             }
                         }
+                        else
+                        {
+                            if (t.Metal > 0)
+                            {
+                                // Metal beyond a unit
+                                Move move = new Move();
+
+                                move.MoveType = MoveType.Extract;
+
+                                move.UnitId = Unit.UnitId;
+                                move.OtherUnitId = "Ground";
+                                move.Positions = new List<Position>();
+                                move.Positions.Add(Unit.Pos);
+                                move.Positions.Add(t.Pos);
+
+                                possibleMoves.Add(move);
+                            }
+                        }
+                        
                     }
                     else
                     {

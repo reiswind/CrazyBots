@@ -661,6 +661,14 @@ namespace Engine.Control
                 if (bestPositions == null)
                     bestPositions = FindMineralDeposit(player, ant);
             }
+            else if (ant.AntWorkerType == AntWorkerType.Fighter)
+            {
+                bestPositions = FindMineralOnMap(player, ant);
+                if (bestPositions == null)
+                    bestPositions = FindMineralDeposit(player, ant);
+                if (bestPositions == null)
+                    bestPositions = FindMineralContainer(player, ant);
+            }
             else
             {
                 bestPositions = FindMineralContainer(player, ant);
