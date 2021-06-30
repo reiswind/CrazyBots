@@ -82,8 +82,14 @@ namespace Engine.Ants
                         Blueprint commandBluePrint = null;
                         if (gameCommand != null)
                         {
-                            commandBluePrint = player.Game.Blueprints.FindBlueprint(gameCommand.UnitId);
+                            if (gameCommand.GameCommandType == GameCommandType.Build)
+                                commandBluePrint = player.Game.Blueprints.FindBlueprint(gameCommand.UnitId);
+                            if (gameCommand.GameCommandType == GameCommandType.Attack)
+                                addFighter = true;
+                            if (gameCommand.GameCommandType == GameCommandType.Minerals)
+                                addWorker = true;
                         }
+
                         PlayerUnit.Unit.Assembler.ComputePossibleMoves(possiblemoves, null, MoveFilter.Assemble);
                         if (possiblemoves.Count > 0)
                         {

@@ -15,6 +15,7 @@ namespace Engine.Interface
         Move,
         AttackMove,
         Attack,
+        Cancel,
         Minerals,
         Build,
         Extract,

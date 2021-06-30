@@ -277,6 +277,18 @@ public class GroundCell : MonoBehaviour
         }
     }
 
+    public bool IsAttack { get; private set; }
+    internal void SetAttack(bool selected)
+    {
+        if (IsAttack != selected)
+        {
+            IsAttack = selected;
+
+            transform.Find("Marker").gameObject.SetActive(IsAttack);
+        }
+    }
+
+
     internal void CreateMinerals()
     {
         if (Tile.Metal >= 20)

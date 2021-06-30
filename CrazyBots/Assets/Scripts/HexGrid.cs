@@ -585,7 +585,10 @@ public class HexGrid : MonoBehaviour
 				{
 					// Remove Ghost from command
 					UnitBase unit = UnitsInBuild[move.Positions[0]];
-					unit.Delete();
+					if (unit != null)
+						unit.Delete();
+					GroundCell hexCell = GroundCells[move.Positions[0]];
+					hexCell.SetAttack(false);
 					UnitsInBuild.Remove(move.Positions[0]);
 				}
 			}

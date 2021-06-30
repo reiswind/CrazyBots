@@ -951,7 +951,9 @@ namespace Engine.Ants
                 {
                     foreach (Move move1 in possiblemoves)
                     {
-                        if (move1.Positions[1] == CurrentGameCommand.TargetPosition && move1.UnitId == CurrentGameCommand.UnitId)
+                        if (CurrentGameCommand != null &&
+                            move1.Positions[1] == CurrentGameCommand.TargetPosition && 
+                            move1.UnitId == CurrentGameCommand.UnitId)
                         {
                             moves.Add(move1);
                             break;
@@ -1026,26 +1028,27 @@ namespace Engine.Ants
                                 move.Positions.Add(CurrentGameCommand.TargetPosition);
                                 moves.Add(move);
 
-                                // Collect from here and do anythind
+                                // Collect from here and do anything
                                 CurrentGameCommand = null;
                             }
                             if (AntWorkerType == AntWorkerType.Fighter)
                             {
                                 // Command complete (Remove or keep?)
+                                /*
                                 Move move = new Move();
                                 move.MoveType = MoveType.CommandComplete;
                                 move.UnitId = cntrlUnit.UnitId;
                                 move.PlayerId = player.PlayerModel.Id;
                                 move.Positions = new List<Position>();
                                 move.Positions.Add(CurrentGameCommand.TargetPosition);
-                                moves.Add(move);
+                                moves.Add(move);*/
 
                                 // Stay until enemy
                                 WaitForEnemy = true;
                                 // ...
 
                                 // Position reached, return to normal mode
-                                CurrentGameCommand = null;
+                                //CurrentGameCommand = null;
                             }
 
                             return true;

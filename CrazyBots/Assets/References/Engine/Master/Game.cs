@@ -1508,6 +1508,19 @@ namespace Engine.Master
                         Player player = Players[gameCommand.PlayerId];
                         player.GameCommands.Add(gameCommand);
 
+                        /*
+                        if (gameCommand.GameCommandType == GameCommandType.Cancel)
+                        {
+                            foreach (GameCommand gameCommand1 in player.GameCommands)
+                            {
+                                if (gameCommand.TargetPosition == gameCommand1.TargetPosition)
+                                {
+                                    player.GameCommands.Remove(gameCommand1);
+                                    break;
+                                }
+                            }
+                        }*/
+
                         if (gameCommand.GameCommandType == GameCommandType.Extract)
                         {
                             /*

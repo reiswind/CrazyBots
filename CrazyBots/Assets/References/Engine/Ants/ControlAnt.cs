@@ -564,9 +564,9 @@ namespace Engine.Control
             return null;
         }
 
-        private List<Position> FindMineralOnMap(Player player, AntWorker ant)
+        private List<Position> FindMineralOnMap(Player player, AntWorker ant, List<Position> bestPositions)
         {
-            List<Position> bestPositions = null;
+            //List<Position> bestPositions = null;
             foreach (Position pos in player.VisiblePositions) // TileWithDistance t in tiles.Values)
             {
                 Tile tile = player.Game.Map.GetTile(pos);
@@ -583,9 +583,9 @@ namespace Engine.Control
             return bestPositions;
         }
 
-        private List<Position> FindMineralDeposit(Player player, AntWorker ant)
+        private List<Position> FindMineralDeposit(Player player, AntWorker ant, List<Position> bestPositions)
         {
-            List<Position> bestPositions = null;
+            //List<Position> bestPositions = null;
 
             foreach (Position pos in staticMineralDeposits.Keys)
             {
@@ -626,9 +626,9 @@ namespace Engine.Control
             return bestPositions;
         }
 
-        private List<Position> FindMineralContainer(Player player, AntWorker ant)
+        private List<Position> FindMineralContainer(Player player, AntWorker ant, List<Position> bestPositions)
         {
-            List<Position> bestPositions = null;
+            //List<Position> bestPositions = null;
 
             // Look for Container with mineraly to refill
             foreach (Ant possibleAnt in Ants.Values)
@@ -651,31 +651,31 @@ namespace Engine.Control
             return bestPositions;
         }
 
-            public Position FindMineral(Player player, AntWorker ant)
+        public Position FindMineral(Player player, AntWorker ant)
         {
-            List<Position> bestPositions;
+            List<Position> bestPositions = null;
 
             if (ant.AntWorkerType == AntWorkerType.Worker)
             {
-                bestPositions = FindMineralOnMap(player, ant);
-                if (bestPositions == null)
-                    bestPositions = FindMineralDeposit(player, ant);
+                bestPositions = FindMineralOnMap(player, ant, bestPositions);
+                //if (bestPositions == null)
+                    bestPositions = FindMineralDeposit(player, ant, bestPositions);
             }
             else if (ant.AntWorkerType == AntWorkerType.Fighter)
             {
-                bestPositions = FindMineralOnMap(player, ant);
-                if (bestPositions == null)
-                    bestPositions = FindMineralDeposit(player, ant);
-                if (bestPositions == null)
-                    bestPositions = FindMineralContainer(player, ant);
+                bestPositions = FindMineralOnMap(player, ant, bestPositions);
+                //if (bestPositions == null)
+                    bestPositions = FindMineralDeposit(player, ant, bestPositions);
+                //if (bestPositions == null)
+                    bestPositions = FindMineralContainer(player, ant, bestPositions);
             }
             else
             {
-                bestPositions = FindMineralContainer(player, ant);
-                if (bestPositions == null)
-                    bestPositions = FindMineralOnMap(player, ant);
-                if (bestPositions == null)                
-                    bestPositions = FindMineralDeposit(player, ant);
+                bestPositions = FindMineralContainer(player, ant, bestPositions);
+                //if (bestPositions == null)
+                    bestPositions = FindMineralOnMap(player, ant, bestPositions);
+                //if (bestPositions == null)                
+                    bestPositions = FindMineralDeposit(player, ant, bestPositions);
             }
 
             if (bestPositions != null && bestPositions.Count > 1)
@@ -788,6 +788,81 @@ namespace Engine.Control
                 }
             }
         }
+
+        private void AttachGamecommands(Player player, List<Ant> unmovedAnts)
+        {
+            List<GameCommand> assignedCommands = new List<GameCommand>();
+
+            foreach (GameCommand gameCommand in player.GameCommands)
+            {
+                if (gameCommand.GameCommandType == GameCommandType.Cancel)
+                {
+                    foreach (Ant ant in unmovedAnts)
+                    {
+                        AntWorker antWorker = ant as AntWorker;
+                        if (antWorker != null && antWorker.CurrentGameCommand != null)
+                        {
+                            if (antWorker.CurrentGameCommand.TargetPosition == gameCommand.TargetPosition)
+                            {
+                                antWorker.CurrentGameCommand = null;
+                            }
+                        }
+                    }
+                    assignedCommands.Add(gameCommand);
+                }
+            }
+
+            // Attach gamecommands to idle units
+            foreach (GameCommand gameCommand in player.GameCommands)
+            {
+                if (gameCommand.GameCommandType == GameCommandType.Attack || gameCommand.GameCommandType == GameCommandType.Minerals)
+                {
+                    Ant bestAnt = null;
+                    double bestDistance = 0;
+
+                    foreach (Ant ant in unmovedAnts)
+                    {
+                        AntWorker antWorker = ant as AntWorker;
+                        if (antWorker != null)
+                        {
+                            if (gameCommand.GameCommandType == GameCommandType.Attack && antWorker.AntWorkerType == AntWorkerType.Fighter ||
+                                gameCommand.GameCommandType == GameCommandType.Minerals && antWorker.AntWorkerType == AntWorkerType.Worker)
+                            {
+                                if (antWorker.CurrentGameCommand == null &&
+                                    !ant.PlayerUnit.Unit.UnderConstruction &&
+                                    !ant.PlayerUnit.Unit.ExtractMe)
+                                {
+                                    if (antWorker.PlayerUnit.Unit.Pos == gameCommand.TargetPosition)
+                                    {
+                                        bestAnt = antWorker;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        double distance = antWorker.PlayerUnit.Unit.Pos.GetDistanceTo(gameCommand.TargetPosition);
+                                        if (bestAnt == null || distance < bestDistance)
+                                        {
+                                            bestDistance = distance;
+                                            bestAnt = ant;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (bestAnt != null)
+                    {
+                        assignedCommands.Add(gameCommand);
+                        bestAnt.CurrentGameCommand = gameCommand;
+                    }
+                }
+            }
+            foreach (GameCommand gameCommand in assignedCommands)
+            {
+                player.GameCommands.Remove(gameCommand);
+            }
+        }
+
 
         private static int moveNr;
         public MapPlayerInfo MapPlayerInfo { get; set; }
@@ -1065,6 +1140,13 @@ namespace Engine.Control
                     }
                     else
                     {
+                        // Another ant has to take this task
+                        if (ant.CurrentGameCommand != null)
+                        {
+                            player.GameCommands.Add(ant.CurrentGameCommand);
+                            ant.CurrentGameCommand = null;
+                        }
+
                         if (ant.PlayerUnit.Unit.Engine != null)
                         {
                             movableAnts.Add(ant);
@@ -1085,11 +1167,13 @@ namespace Engine.Control
                 SacrificeAnt(unmovedAnts);
             }
 
+            AttachGamecommands(player, unmovedAnts);
+
             foreach (Ant ant in unmovedAnts)
             {
                 if (ant is AntFactory)
                 {
-                    ant.HandleGameCommands(player);
+                    //ant.HandleGameCommands(player);
 
                     ant.Move(player, moves);
                     movableAnts.Remove(ant);
@@ -1135,7 +1219,7 @@ namespace Engine.Control
                             movableAnts.Remove(ant);
                             continue;
                         }*/
-                        ant.HandleGameCommands(player);
+                        //ant.HandleGameCommands(player);
                         
                         /*
                         if (ant.CurrentGameCommand == null && ant.HoldPosition)
@@ -1203,6 +1287,12 @@ namespace Engine.Control
                 {
                     player.Game.Pheromones.DeletePheromones(ant.PheromoneWaypointMineral);
                     ant.PheromoneWaypointMineral = 0;
+                }
+                // Another ant has to take this task
+                if (ant.CurrentGameCommand != null)
+                {
+                    player.GameCommands.Add(ant.CurrentGameCommand);
+                    ant.CurrentGameCommand = null;
                 }
                 Ants.Remove(ant.PlayerUnit.Unit.UnitId);
             }            
