@@ -58,6 +58,14 @@ namespace Engine.Interface
             }
         }
 
+        public int ZoneId
+        {
+            get
+            {
+                return tile.ZoneId;
+            }
+        }
+
         public override string ToString()
         {
             if (this.Unit != null)
@@ -78,7 +86,16 @@ namespace Engine.Interface
         private List<Tile> neighbors;
 
         public double Height { get; set; }
-        public int Metal { get; set; }
+
+        private int minerals;
+        public int Metal 
+        {  
+            get
+            {
+                return minerals;
+            }
+        }
+        public int ZoneId { get; set; }
         public int Plates { get; set; }
 
         public int NumberOfDestructables { get; set; }
@@ -87,6 +104,13 @@ namespace Engine.Interface
         public int Owner { get; set; }
 
         public bool IsBorder { get; set; }
+
+        public void AddMinerals(int mins)
+        {
+            Map.Zones[ZoneId].TotalMinerals += mins;
+            minerals += mins;
+
+        }
 
         internal Tile(Map map, Position pos)
         {

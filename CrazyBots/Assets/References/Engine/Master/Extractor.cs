@@ -320,10 +320,14 @@ namespace Engine.Master
         }
 
 
-        public bool ExtractInto(Position from, List<Move> moves, Game game)
+        public bool ExtractInto(Position from, List<Move> moves, Game game, bool fromGround)
         {
             Tile fromTile = Unit.Game.Map.GetTile(from);
             
+            if (fromGround)
+            {
+                int x = 0;
+            }
             /*
             bool canExtract = false;
 
@@ -341,7 +345,7 @@ namespace Engine.Master
                 return false;
             int metalRemoved = 0;
 
-            if (fromTile.Unit != null)
+            if (fromGround == false && fromTile.Unit != null)
             {
                 // friendly unit
                 if (fromTile.Unit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
@@ -666,7 +670,7 @@ namespace Engine.Master
             {
                 // Extract from ground
                 metalRemoved = 1;
-                fromTile.Metal--;
+                fromTile.AddMinerals(-1);
 
             }
             bool didRemove = false;
@@ -741,7 +745,8 @@ namespace Engine.Master
             }
             if (metalRemoved > 0)
             {
-                fromTile.Metal += metalRemoved;
+                //fromTile.Metal += metalRemoved;
+                fromTile.AddMinerals(metalRemoved);
                 didRemove = true;
             }
             return didRemove;

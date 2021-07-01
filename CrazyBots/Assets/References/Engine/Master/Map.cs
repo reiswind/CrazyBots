@@ -125,8 +125,19 @@ namespace Engine.Interface
 }
 namespace Engine.Master
 {
+    public class MapZone
+    {
+        public int ZoneId { get; set; }
+        public int TotalMinerals { get; set; }
+        public int MaxMinerals { get; set; }
+
+        public Dictionary<Position, TileWithDistance> Tiles { get; set; }
+
+    }
+
     public class Map
     {
+        public Dictionary<int, MapZone> Zones = new Dictionary<int, MapZone>();
         public Dictionary<Position, Tile> Tiles = new Dictionary<Position, Tile>();
         public Units Units { get; private set; }
 
@@ -178,6 +189,115 @@ namespace Engine.Master
                 }
             }*/
         }
+
+        public void CreateZones()
+        {
+            MapZone mapDefaultZone = new MapZone();
+            mapDefaultZone.ZoneId = 0;
+            mapDefaultZone.MaxMinerals = -1;
+            Zones.Add(mapDefaultZone.ZoneId, mapDefaultZone);
+
+            AddZone(new Position(10, 10));
+            AddZone(new Position(10, 30));
+            AddZone(new Position(30, 30));
+
+            mapDefaultZone.Tiles = new Dictionary<Position, TileWithDistance>(); 
+            foreach (Tile t in Tiles.Values)
+            {
+                mapDefaultZone.Tiles.Add(t.Pos, new TileWithDistance(t,0));
+            }
+        }
+
+        private void AddZone(Position pos)
+        {
+            int zoneId = Zones.Count + 1;
+
+            MapZone mapZone = new MapZone();
+            mapZone.ZoneId = zoneId;
+            mapZone.MaxMinerals = 40;
+
+            mapZone.Tiles = EnumerateTiles(pos, 3, true);
+            foreach (TileWithDistance t in mapZone.Tiles.Values)
+            {
+                t.Tile.ZoneId = zoneId;
+            }
+            Zones.Add(mapZone.ZoneId, mapZone);
+        }
+
+        //private Dictionary<Position, int> mineralDwells;
+        private int overflowMinerals;
+
+        public void DistributeMineral()
+        {
+            overflowMinerals++;
+
+            int max = Zones.Count;
+            while (max-- > 0 && overflowMinerals > 0)
+            {
+                KeyValuePair<int, MapZone> zoneItem = Zones.ElementAt(zoneCounter);
+                MapZone mapZone = zoneItem.Value;
+
+                if (++zoneCounter >= Zones.Count)
+                    zoneCounter = 1;
+
+                if (mapZone.MaxMinerals == -1 || mapZone.TotalMinerals < mapZone.MaxMinerals)
+                {
+                    int idx = Game.Random.Next(mapZone.Tiles.Count);
+
+                    TileWithDistance t = mapZone.Tiles.ElementAt(idx).Value;
+                    if (t != null && t.Metal < 20)
+                    {
+                        if (t.Unit != null && t.Unit.Engine == null)
+                        {
+                            // Dont drop on buildings
+                        }
+                        else
+                        {
+                            if (!Game.changedGroundPositions.ContainsKey(t.Pos))
+                                Game.changedGroundPositions.Add(t.Pos, null);
+
+                            t.Tile.AddMinerals(1);
+                            //t.Metal++;
+                            overflowMinerals--;
+                        }
+                    }
+                }
+            }
+
+            /*
+            int minX, minY;
+
+            int retryZones = 5;
+            while (retryZones-- > 0)
+            {
+                minX = (zoneCounter % zoneWidth) * 10;
+                minY = (zoneCounter / zoneWidth) * 10;
+
+                zoneCounter++;
+                if (zoneCounter > maxZones)
+                    zoneCounter = 0;
+
+                int retryMinerals = 30;
+                while (retryMinerals-- > 0)
+                {
+                    int x = Game.Random.Next(10);
+                    int y = Game.Random.Next(10);
+
+                    Position pos = new Position(minX + x, minY + y);
+                    Tile t = GetTile(pos);
+                    if (t == null || t.Unit != null || t.Metal >= 20)
+                        continue;
+
+                    if (!Game.changedGroundPositions.ContainsKey(t.Pos))
+                        Game.changedGroundPositions.Add(t.Pos, null);
+
+                    t.Metal++;
+                    retryZones = 0;
+                    break;
+                }
+            }*/
+        }
+
 
         public Dictionary<Position, TileWithDistance> EnumerateTiles(Position startPos, int range, bool includeStartPos = true, Func<TileWithDistance, bool> stopper = null, Func<TileWithDistance, bool> matcher = null)
         {
@@ -243,72 +363,6 @@ namespace Engine.Master
 
         private HeightMap terrain;
 
-        private Dictionary<Position,int> mineralDwells;
-        private int overflowMinerals;
-
-        public void DistributeMineral()
-        {
-            overflowMinerals++;
-
-            int max = mineralDwells.Count;
-            while (max-- > 0 && overflowMinerals > 0)
-            {
-                KeyValuePair<Position, int> zoneItem = mineralDwells.ElementAt(zoneCounter);
-                if (zoneItem.Value > 40)
-                {
-                    break;
-                }
-                Position pos = zoneItem.Key;
-                if (++zoneCounter >= mineralDwells.Count)
-                    zoneCounter = 0;
-
-                int x = Game.Random.Next(3) - 1;
-                int y = Game.Random.Next(3) - 1;
-
-                Tile t = GetTile(new Position(pos.X+x, pos.Y+y));
-                if (t != null && t.Metal < 20)
-                {
-                    if (!Game.changedGroundPositions.ContainsKey(t.Pos))
-                        Game.changedGroundPositions.Add(t.Pos, null);
-
-                    t.Metal++;
-                    overflowMinerals--;
-                }
-            }
-
-            /*
-            int minX, minY;
-
-            int retryZones = 5;
-            while (retryZones-- > 0)
-            {
-                minX = (zoneCounter % zoneWidth) * 10;
-                minY = (zoneCounter / zoneWidth) * 10;
-
-                zoneCounter++;
-                if (zoneCounter > maxZones)
-                    zoneCounter = 0;
-
-                int retryMinerals = 30;
-                while (retryMinerals-- > 0)
-                {
-                    int x = Game.Random.Next(10);
-                    int y = Game.Random.Next(10);
-
-                    Position pos = new Position(minX + x, minY + y);
-                    Tile t = GetTile(pos);
-                    if (t == null || t.Unit != null || t.Metal >= 20)
-                        continue;
-
-                    if (!Game.changedGroundPositions.ContainsKey(t.Pos))
-                        Game.changedGroundPositions.Add(t.Pos, null);
-
-                    t.Metal++;
-                    retryZones = 0;
-                    break;
-                }
-            }*/
-        }
 
         public Tile GetTile(Position pos)
         {
@@ -393,7 +447,7 @@ namespace Engine.Master
                         totalMetal += t.Metal;
                     }
                 }
-
+                /*
                 mineralDwells = new Dictionary<Position, int>();
 
                 int zone = 0;
@@ -411,7 +465,7 @@ namespace Engine.Master
                     //t.Height = 0.5f;
 
                     mineralDwells.Add(dwell, 0);
-                }
+                }*/
 
 
                 //checkTotalMetal = GetMapInfo().TotalMetal;

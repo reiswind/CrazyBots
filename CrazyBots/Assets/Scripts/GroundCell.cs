@@ -194,8 +194,8 @@ public class GroundCell : MonoBehaviour
                     markerEnergy.transform.position = position;
                     UnitBase.SetPlayerColor(HexGrid, stat.Owner, markerEnergy);
                 }
-
-                Tile.Metal = stat.Minerals;
+                // This is for Web
+                //Tile.Metal = stat.Minerals;
                 Tile.NumberOfDestructables = stat.NumberOfDestructables;
                 Tile.NumberOfObstacles = stat.NumberOfObstacles;
                 

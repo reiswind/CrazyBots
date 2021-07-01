@@ -895,8 +895,14 @@ public class HexGrid : MonoBehaviour
 			materialName = "Grass";
 		}
 
-		//gridPos3.y = tileY / 2;
-		gridPos3.y = ((float)height * 8);
+		if (t.ZoneId != 0)
+		{
+			gridPos3.y += 1;
+		}
+		else
+		{
+			gridPos3.y += ((float)height);
+		}
 		gameObjectCell.transform.localPosition = gridPos3;
 
 		//

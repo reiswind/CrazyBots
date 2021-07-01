@@ -608,12 +608,13 @@ public class GameCanvas : MonoBehaviour
     }
 
 
-    private GameCommandType nextGameCommandAtClick = GameCommandType.None;
+    //private GameCommandType nextGameCommandAtClick = GameCommandType.None;
     void OnClickExtract()
     {
         if (HexGrid.UnitsInBuild.ContainsKey(selectedUnitFrame.CurrentPos))
         {
-            HexGrid.UnitsInBuild[selectedUnitFrame.CurrentPos].Delete();
+            if (HexGrid.UnitsInBuild[selectedUnitFrame.CurrentPos] != null)
+                HexGrid.UnitsInBuild[selectedUnitFrame.CurrentPos].Delete();
             HexGrid.UnitsInBuild.Remove(selectedUnitFrame.CurrentPos);
         }
 

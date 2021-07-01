@@ -112,7 +112,7 @@ namespace Engine.Master
 
                 Tile t = Map.GetTile(unitModel.Position);
                 t.Owner = unitModel.PlayerId;
-                t.Metal = 0;
+                //t.Metal = 0;
                 t.NumberOfDestructables = 0;
                 t.NumberOfObstacles = 0;
 
@@ -182,6 +182,8 @@ namespace Engine.Master
                     Players.Add(playerModel.Id, p);
                 }
             }
+
+            Map.CreateZones();
 
             Map.GetTile(new Position(0, 0));
             for (int i=0; i < Map.DefaultMinerals; i++)
@@ -403,10 +405,6 @@ namespace Engine.Master
                             addedUnits.Add(playerUnit.Unit);
                         }
                     }
-                    else
-                    {
-                        int x = 0;
-                    }
                 }
                 if (move.MoveType == MoveType.Move || move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
                 {
@@ -577,7 +575,7 @@ namespace Engine.Master
                         bool extracted = false;
 
                         Position fromPos = move.Positions[move.Positions.Count - 1];
-                        extracted = unit.Extractor.ExtractInto(fromPos, nextMoves, this);
+                        extracted = unit.Extractor.ExtractInto(fromPos, nextMoves, this, move.OtherUnitId == "Ground");
                         if (extracted)
                         {
                             if (!changedGroundPositions.ContainsKey(fromPos))
@@ -638,10 +636,6 @@ namespace Engine.Master
             Unit targetUnit = Map.Units.GetUnitAt(pos);
             if (targetUnit != null)
             {
-                if (firstHit == false)
-                {
-                    int x = 0;
-                }
                 int totalMetalInUnitBeforeHit = targetUnit.CountMetal();
                 if (targetUnit.HitBy(null))
                 {
@@ -662,12 +656,13 @@ namespace Engine.Master
                     int releasedMetal = totalMetalInUnitBeforeHit - totalMetalAfterUnit;
 
                     // damaged Part + collected metal
-                    unitTile.Metal += releasedMetal;
+                    //unitTile.Metal += releasedMetal;
+                    unitTile.AddMinerals(releasedMetal);
 
                     if (firstHit)
                     {
-                        unitTile.Metal++;
-                        //Map.DistributeMineral(); // Bullet
+                        //unitTile.Metal++;
+                        unitTile.AddMinerals(1);
                     }
                 }
                 else
@@ -687,10 +682,12 @@ namespace Engine.Master
 
                     Tile unitTile = GetTile(targetUnit.Pos);
                     // damage Part
-                    unitTile.Metal += releasedMetal;
+                    //unitTile.Metal += releasedMetal;
+                    unitTile.AddMinerals(releasedMetal);
                     if (firstHit)
                     {
-                        unitTile.Metal++;
+                        //unitTile.Metal++;
+                        unitTile.AddMinerals(1);
                         //Map.DistributeMineral(); // Bullet
                     }
                 }
@@ -724,7 +721,7 @@ namespace Engine.Master
             moveUpdateGroundStat.Minerals = t.Metal;
             moveUpdateGroundStat.NumberOfDestructables = t.NumberOfDestructables;
             moveUpdateGroundStat.NumberOfObstacles = t.NumberOfObstacles;
-            MoveUpdateStats moveUpdateStats = null;
+            MoveUpdateStats moveUpdateStats;
             moveUpdateStats = new MoveUpdateStats();
             moveUpdateStats.MoveUpdateGroundStat = moveUpdateGroundStat;
             return moveUpdateStats;
@@ -1072,7 +1069,6 @@ namespace Engine.Master
                     else
                     {
                         // happend
-                        int x = 0;
                     }
 
                     if (newUnit == null)

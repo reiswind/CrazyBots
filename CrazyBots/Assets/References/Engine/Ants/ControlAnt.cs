@@ -872,7 +872,7 @@ namespace Engine.Control
             moveNr++;
             if (moveNr > 28)
             {
-                int x = 0;
+
             }
 
 

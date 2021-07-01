@@ -17,7 +17,7 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float _camMovementSpeed = 1f;
     [SerializeField] private float _camSmoothness = 10f;
 
-    [SerializeField] private float _camRotationAmount = 1f;
+    //[SerializeField] private float _camRotationAmount = 1f;
     [SerializeField] private float _camBorderMovement = 5f;
 
     [SerializeField] private float _maxCamZoom = 30f;
@@ -28,7 +28,7 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float _minXCamMovement = 100f;
     [SerializeField] private float _maxXCamMovement = 900f;
 
-    [SerializeField] private bool cursorVisible = true;
+    //[SerializeField] private bool cursorVisible = true;
 
     public Vector3 zoomAmount;
 

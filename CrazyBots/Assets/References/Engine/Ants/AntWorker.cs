@@ -743,18 +743,20 @@ namespace Engine.Ants
                 }
                 if (myPosFound == false)
                 {
-                    int x = 0;
+                    // Should not happen
+                    //throw new Exception("not found");
                 }
-
-                move = new Move();
-                move.MoveType = MoveType.Move;
-                move.UnitId = cntrlUnit.UnitId;
-                move.PlayerId = player.PlayerModel.Id;
-                move.Positions = new List<Position>();
-                move.Positions.Add(cntrlUnit.Pos);
-                move.Positions.Add(moveToPosition);
-                moves.Add(move);
-
+                else
+                {
+                    move = new Move();
+                    move.MoveType = MoveType.Move;
+                    move.UnitId = cntrlUnit.UnitId;
+                    move.PlayerId = player.PlayerModel.Id;
+                    move.Positions = new List<Position>();
+                    move.Positions.Add(cntrlUnit.Pos);
+                    move.Positions.Add(moveToPosition);
+                    moves.Add(move);
+                }
                 /*
                 if (dropPheromone && !NothingFound)
                 {
@@ -964,11 +966,6 @@ namespace Engine.Ants
                     unitMoved = true;
                     return unitMoved;
                 }
-            }
-
-            if (AntWorkerType == AntWorkerType.Assembler)
-            {
-                int x = 0;
             }
 
             if (AntWorkerType == AntWorkerType.Fighter && cntrlUnit.Weapon != null && cntrlUnit.Weapon.Container.Metal >= cntrlUnit.Weapon.Container.Capacity)
