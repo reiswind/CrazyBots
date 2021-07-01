@@ -98,19 +98,20 @@ public class GameCanvas : MonoBehaviour
 
         actions = new Button[12];
         actionText = new Text[12];
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 4; i++)
         {
             actions[i] = panelSelected.Find("Action" + (i + 1).ToString()).GetComponent<Button>();
             actionText[i] = actions[i].transform.Find("Text").GetComponent<Text>();
             actions[i].name = "Action" + (i + 1).ToString();
         }
 
+        Transform panelFrame = panelSelected.Find("PanelFrame");
 
         buttons = new Button[12];
         buttonText = new Text[12];
         for (int i = 0; i < 12; i++)
         {
-            buttons[i] = panelSelected.Find("Button" + (i + 1).ToString()).GetComponent<Button>();
+            buttons[i] = panelFrame.Find("Button" + (i + 1).ToString()).GetComponent<Button>();
             buttonText[i] = buttons[i].transform.Find("Text").GetComponent<Text>();
             buttons[i].name = "Button" + (i + 1).ToString();
         }
@@ -130,6 +131,12 @@ public class GameCanvas : MonoBehaviour
         actions[0].onClick.AddListener(OnClickAction1);
         actions[1].onClick.AddListener(OnClickAction2);
         actions[2].onClick.AddListener(OnClickAction3);
+        actions[3].onClick.AddListener(OnClickAction4);
+
+        SetActionText(1, "(t) Select");
+        SetActionText(2, "(g) Attack");
+        SetActionText(3, "(b) Minerals");
+        SetActionText(4, "(b) Build");
 
         UpdateCommandButtons();
 
@@ -142,66 +149,99 @@ public class GameCanvas : MonoBehaviour
         if (canvasMode != newCanvasMode)
         {
             canvasMode = newCanvasMode;
+
+            UpdateCommandButtons();
+            UnSelectTopButton();
+
             if (canvasMode == CanvasMode.Select)
             {
-                SetActionText(1, "(t) Attack");
-                SetActionText(2, "(g) Minerals");
-                HideAction(3);
+                SelectAction(1);
+                UnselectAction(2);
+                UnselectAction(3);
+                UnselectAction(4);
+
                 Cursor.SetCursor(NormalCursor, new Vector2(0, 0), CursorMode.Auto);
+
+                if (topSelectedSelectButton == 0)
+                    topSelectedSelectButton = 1;
+                UnselectButton(1);
             }
+
+            if (canvasMode == CanvasMode.Attack)
+            {
+                UnselectAction(1);
+                SelectAction(2);
+                UnselectAction(3);
+                UnselectAction(4);
+
+                Cursor.SetCursor(AttackCursor, new Vector2(0, 0), CursorMode.Auto);
+
+                if (topSelectedAttackButton == 0)
+                    topSelectedAttackButton = 1;
+                SelectTopButton(topSelectedAttackButton);
+            }
+
+            if (canvasMode == CanvasMode.Mineral)
+            {
+                UnselectAction(1);
+                UnselectAction(2);
+                SelectAction(3);
+                UnselectAction(4);
+
+                Cursor.SetCursor(AttackCursor, new Vector2(0, 0), CursorMode.Auto);
+
+                if (topSelectedMineralsButton == 0)
+                    topSelectedMineralsButton = 1;
+                SelectTopButton(topSelectedMineralsButton);
+            }
+
             if (canvasMode == CanvasMode.Build)
             {
-                SetActionText(1, "(t) Select");
-                HideAction(2);
-                HideAction(3);
+                UnselectAction(1);
+                UnselectAction(2);
+                UnselectAction(3);
+                SelectAction(4);
+
                 Cursor.SetCursor(BuildCursor, new Vector2(0, 0), CursorMode.Auto);
+
+                if (topSelectedBuildButton == 0)
+                    topSelectedBuildButton = 1;
+                SelectTopButton(topSelectedBuildButton);
             }
-            if (canvasMode == CanvasMode.Attack || canvasMode == CanvasMode.Mineral)
-            {
-                SetActionText(1, "(t) Select");
-                HideAction(2);
-                HideAction(3);
-                Cursor.SetCursor(AttackCursor, new Vector2(0, 0), CursorMode.Auto);
-            }
-            UpdateCommandButtons();
         }
         leftMouseButtonDown = false;
 
     }
 
-    void OnClickAction1()
-    {
-        if (canvasMode == CanvasMode.Attack)
-        {
-            SetMode(CanvasMode.Select);
-        }
-        else if (canvasMode == CanvasMode.Select)
-        {
-            SetMode(CanvasMode.Attack);
-        }
-    }
-
     void OnClickAction2()
     {
-        if (canvasMode == CanvasMode.Mineral)
-        {
-            SetMode(CanvasMode.Select);
-        }
-        else if (canvasMode == CanvasMode.Select)
-        {
-            SetMode(CanvasMode.Mineral);
+        if (canvasMode != CanvasMode.Attack)
+        {            
+            SetMode(CanvasMode.Attack);
         }
     }
 
     void OnClickAction3()
     {
-        if (canvasMode == CanvasMode.Build)
+        if (canvasMode != CanvasMode.Mineral)
         {
-            SetMode(CanvasMode.Select);
+            SetMode(CanvasMode.Mineral);
         }
-        else if (canvasMode == CanvasMode.Select)
+    }
+
+    void OnClickAction4()
+    {
+        if (canvasMode != CanvasMode.Build)
         {
             SetMode(CanvasMode.Build);
+        }
+    }
+
+    void OnClickAction1()
+    {
+        if (canvasMode != CanvasMode.Select)
+        {
+            SetMode(CanvasMode.Select);
         }
     }
 
@@ -319,6 +359,17 @@ public class GameCanvas : MonoBehaviour
     {
         GetAction(btn).gameObject.SetActive(false);
     }
+
+    private void SelectAction(int btn)
+    {
+        Button button = GetAction(btn);
+        button.image.sprite = SelectedButtonBackground;
+    }
+    private void UnselectAction(int btn)
+    {
+        GetAction(btn).image.sprite = ButtonBackground;
+    }
+
     private void SelectButton(int btn)
     {
         Button button = GetButton(btn);
@@ -340,7 +391,10 @@ public class GameCanvas : MonoBehaviour
         GetButton(btn).gameObject.SetActive(true);
     }
 
-    private int topSelectedButton;
+    private int topSelectedSelectButton;
+    private int topSelectedAttackButton;
+    private int topSelectedMineralsButton;
+    private int topSelectedBuildButton;
     private int middleSelectedButton;
 
 
@@ -413,10 +467,9 @@ public class GameCanvas : MonoBehaviour
 
     private void UpdateCommandButtons()
     {
-
-        if (canvasMode != CanvasMode.Select)
+        if (canvasMode == CanvasMode.Select)
         {
-            HideButton(1);
+            SetButtonText(1, "(q) Extract");
             HideButton(2);
             HideButton(3);
             HideButton(4);
@@ -428,33 +481,38 @@ public class GameCanvas : MonoBehaviour
             HideButton(10);
             HideButton(11);
             HideButton(12);
+        }
 
-            if (topSelectedButton == 0)
-            {
-                HideButton(5);
-                HideButton(6);
-                HideButton(7);
-                HideButton(8);
-                HideButton(9);
-                HideButton(10);
-                HideButton(11);
-                HideButton(12);
-            }
-            else if (topSelectedButton == 1)
-            {
-                HideButton(5);
-                HideButton(6);
-                HideButton(7);
-                HideButton(8);
-                HideButton(9);
-                HideButton(10);
-                HideButton(11);
-                HideButton(12);
+        if (canvasMode == CanvasMode.Attack)
+        {
+            SetButtonText(1, "(q) Attack");
+            SetButtonText(2, "(w) Defend");
+            SetButtonText(3, "(e) Scout");
+            HideButton(4);
+            HideButton(5);
+            HideButton(6);
+            HideButton(7);
+            HideButton(8);
+            HideButton(9);
+            HideButton(10);
+            HideButton(11);
+            HideButton(12);
+        }
 
-                if (middleSelectedButton != 0)
-                    SelectButton(middleSelectedButton);
-            }
-            return;
+        if (canvasMode == CanvasMode.Mineral)
+        {
+            SetButtonText(1, "(q) Collect");
+            HideButton(2);
+            HideButton(3);
+            HideButton(4);
+            HideButton(5);
+            HideButton(6);
+            HideButton(7);
+            HideButton(8);
+            HideButton(9);
+            HideButton(10);
+            HideButton(11);
+            HideButton(12);
         }
         /*
         if (IsAssemblerAt())
@@ -516,66 +574,93 @@ public class GameCanvas : MonoBehaviour
         else
         { 
         */
-        SetButtonText(1, "(q) Building");
-        SetButtonText(2, "(w) Defense");
-        SetButtonText(3, "(e) Special");
-        HideButton(4);
-
-        if (topSelectedButton == 0)
+        if (canvasMode == CanvasMode.Build)
         {
-            HideButton(5);
-            HideButton(6);
-            HideButton(7);
-            HideButton(8);
-            HideButton(9);
-            HideButton(10);
-            HideButton(11);
-            HideButton(12);
+            SetButtonText(1, "(q) Building");
+            SetButtonText(2, "(w) Defense");
+            SetButtonText(3, "(e) Special");
+            HideButton(4);
+
+            if (topSelectedBuildButton == 0)
+            {
+                HideButton(5);
+                HideButton(6);
+                HideButton(7);
+                HideButton(8);
+                HideButton(9);
+                HideButton(10);
+                HideButton(11);
+                HideButton(12);
+            }
+            else if (topSelectedBuildButton == 1)
+            {
+                SetButtonText(5, "(a) Factory", "Factory");
+                SetButtonText(6, "(s) Container", "Container");
+                SetButtonText(7, "(d) Reactor", "Reactor");
+                SetButtonText(8, "(f) Radar");
+
+                HideButton(9);
+                HideButton(10);
+                HideButton(11);
+                HideButton(12);
+
+                if (middleSelectedButton != 0)
+                    SelectButton(middleSelectedButton);
+            }
+            else if (topSelectedBuildButton == 2)
+            {
+                SetButtonText(5, "(a) Turret", "Turret");
+                HideButton(6);
+                HideButton(7);
+                HideButton(8);
+
+                HideButton(9);
+                HideButton(10);
+                HideButton(11);
+                HideButton(12);
+
+                if (middleSelectedButton != 0)
+                    SelectButton(middleSelectedButton);
+            }
+            else if (topSelectedBuildButton == 3)
+            {
+                SetButtonText(5, "(a) Outpost", "Outpost");
+                HideButton(6);
+                HideButton(7);
+                HideButton(8);
+
+                HideButton(9);
+                HideButton(10);
+                HideButton(11);
+                HideButton(12);
+
+                if (middleSelectedButton != 0)
+                    SelectButton(middleSelectedButton);
+            }
         }
-        else if (topSelectedButton == 1)
+    }
+
+    void UnSelectTopButton()
+    {
+        if (topSelectedSelectButton != 0)
         {
-            SetButtonText(5, "(a) Factory", "Factory");
-            SetButtonText(6, "(s) Container", "Container");
-            SetButtonText(7, "(d) Reactor", "Reactor");
-            SetButtonText(8, "(f) Radar");
-
-            HideButton(9);
-            HideButton(10);
-            HideButton(11);
-            HideButton(12);
-
-            if (middleSelectedButton != 0)
-                SelectButton(middleSelectedButton);
+            UnselectButton(topSelectedSelectButton);
+            //topSelectedSelectButton = 0;
         }
-        else if (topSelectedButton == 2)
+        if (topSelectedAttackButton != 0)
         {
-            SetButtonText(5, "(a) Turret", "Turret");
-            HideButton(6);
-            HideButton(7);
-            HideButton(8);
-
-            HideButton(9);
-            HideButton(10);
-            HideButton(11);
-            HideButton(12);
-
-            if (middleSelectedButton != 0)
-                SelectButton(middleSelectedButton);
+            UnselectButton(topSelectedAttackButton);
+            //topSelectedAttackButton = 0;
         }
-        else if (topSelectedButton == 3)
+        if (topSelectedMineralsButton != 0)
         {
-            SetButtonText(5, "(a) Outpost", "Outpost");
-            HideButton(6);
-            HideButton(7);
-            HideButton(8);
-
-            HideButton(9);
-            HideButton(10);
-            HideButton(11);
-            HideButton(12);
-
-            if (middleSelectedButton != 0)
-                SelectButton(middleSelectedButton);
+            UnselectButton(topSelectedMineralsButton);
+            //topSelectedMineralsButton = 0;
+        }
+        if (topSelectedBuildButton != 0)
+        {
+            UnselectButton(topSelectedBuildButton);
+            //topSelectedBuildButton = 0;
         }
     }
 
@@ -584,9 +669,8 @@ public class GameCanvas : MonoBehaviour
         if (!GetButton(btn).IsActive())
             return;
 
-        if (topSelectedButton != 0 && topSelectedButton != btn)
-            UnselectButton(topSelectedButton);
-        topSelectedButton = btn;
+        UnSelectTopButton();
+
         if (middleSelectedButton != 0)
         {
             UnselectButton(middleSelectedButton);
@@ -594,6 +678,15 @@ public class GameCanvas : MonoBehaviour
         }
         UnselectUnitFrame();
         SelectButton(btn);
+
+        if (canvasMode == CanvasMode.Select)
+            topSelectedSelectButton = btn;
+        if (canvasMode == CanvasMode.Attack)
+            topSelectedAttackButton = btn;
+        if (canvasMode == CanvasMode.Mineral)
+            topSelectedMineralsButton = btn;
+        if (canvasMode == CanvasMode.Build)
+            topSelectedBuildButton = btn;
     }
 
     void SelectMiddleButton(int btn)
@@ -843,21 +936,16 @@ public class GameCanvas : MonoBehaviour
             }
             selectedUnitFrame = unitBase;
             selectedUnitFrame.SetSelected(true);
-
-            SetActionText(3, "Build");
-        }
-        else
-        {
-            HideAction(3);
         }
     }
 
+    /*
     private void UnselectButtons()
     {
-        if (topSelectedButton != 0)
+        if (topSelectedAttackButton != 0)
         {
-            UnselectButton(topSelectedButton);
-            topSelectedButton = 0;
+            UnselectButton(topSelectedAttackButton);
+            topSelectedAttackButton = 0;
         }
         if (middleSelectedButton != 0)
         {
@@ -865,7 +953,7 @@ public class GameCanvas : MonoBehaviour
             middleSelectedButton = 0;
         }
         UpdateCommandButtons();
-    }
+    }*/
 
     private UnitBase unitGroup1;
     private UnitBase unitGroup2;
@@ -1207,12 +1295,6 @@ public class GameCanvas : MonoBehaviour
                 lastSelectedGroundCell = null;
             }
             UnselectUnitFrame();
-            if (topSelectedButton != 0)
-            {
-                UnselectButton(topSelectedButton);
-                topSelectedButton = 0;
-                UpdateCommandButtons();
-            }
         }
 
         if (Input.GetMouseButtonDown(0))
