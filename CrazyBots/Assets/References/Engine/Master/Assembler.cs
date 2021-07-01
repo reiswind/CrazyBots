@@ -28,9 +28,9 @@ namespace Engine.Master
         {
             if (Unit.Power == 0)
                 return false;
-            if (Container != null && Container.Metal > 0)
+            if (Container != null && Container.Mineral > 0)
                 return true;
-            if (Unit.Container != null && Unit.Container.Metal > 0)
+            if (Unit.Container != null && Unit.Container.Mineral > 0)
                 return true;
             return false;
         }
@@ -45,15 +45,15 @@ namespace Engine.Master
 
         public void ConsumeMetalForUnit(Unit unit)
         {
-            if (Unit.Container != null && Unit.Container.Metal > 0)
+            if (Unit.Container != null && Unit.Container.Mineral > 0)
             {
-                Unit.Container.Metal--;
+                Unit.Container.Mineral--;
             }
             else
             {
-                if (Container != null && Container.Metal > 0)
+                if (Container != null && Container.Mineral > 0)
                 {
-                    Container.Metal--;
+                    Container.Mineral--;
                 }
                 else
                 {

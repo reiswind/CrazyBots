@@ -17,10 +17,10 @@ namespace Engine.Master
                 int storedPower = 0;
                 if (Unit.Container != null)
                 {
-                    storedPower = Unit.Container.Metal * 100;
+                    storedPower = Unit.Container.Mineral * 100;
                 }
 
-                return storedPower + Container.Metal * 100;
+                return storedPower + Container.Mineral * 100;
             }
         }
 
@@ -61,24 +61,24 @@ namespace Engine.Master
             {
                 bool burnMineral = false;
                 
-                if (Unit.Container != null && Unit.Container.Metal > 0)
+                if (Unit.Container != null && Unit.Container.Mineral > 0)
                 {
-                    Unit.Container.Metal--;
+                    Unit.Container.Mineral--;
                     burnMineral = true;
                 }
-                else if (Unit.Assembler != null && Unit.Assembler.Container.Metal > 0)
+                else if (Unit.Assembler != null && Unit.Assembler.Container.Mineral > 0)
                 {
-                    Unit.Assembler.Container.Metal--;
+                    Unit.Assembler.Container.Mineral--;
                     burnMineral = true;
                 }
-                else if (Unit.Weapon != null && Unit.Weapon.Container.Metal > 0)
+                else if (Unit.Weapon != null && Unit.Weapon.Container.Mineral > 0)
                 {
-                    Unit.Weapon.Container.Metal--;
+                    Unit.Weapon.Container.Mineral--;
                     burnMineral = true;
                 }
-                else if (Container.Metal > 0)
+                else if (Container.Mineral > 0)
                 {
-                    Container.Metal--;
+                    Container.Mineral--;
                     burnMineral = true;
                 }
                 if (burnMineral)

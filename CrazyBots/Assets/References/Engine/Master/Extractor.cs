@@ -49,7 +49,7 @@ namespace Engine.Master
                         // Extract from enemy- Yeah!
                         return true;
                     }
-                    if (tile.Unit.Container != null && tile.Unit.Container.Metal > 0)
+                    if (tile.Unit.Container != null && tile.Unit.Container.Mineral > 0)
                     {
                         // Extract from a friendly container
                         return true;
@@ -97,28 +97,25 @@ namespace Engine.Master
 
             foreach (TileWithDistance t in resultList.Values)
             {
-                if (t.Unit == null)
+                if (t.Metal > 0)
                 {
-                    if (t.Metal > 0)
-                    {
-                        Move move = new Move();
+                    Move move = new Move();
 
-                        move.MoveType = MoveType.Extract;
+                    move.MoveType = MoveType.Extract;
 
-                        move.UnitId = Unit.UnitId;
-                        move.OtherUnitId = "Ground";
-                        move.Positions = new List<Position>();
-                        move.Positions.Add(Unit.Pos);
-                        move.Positions.Add(t.Pos);
+                    move.UnitId = Unit.UnitId;
+                    move.OtherUnitId = "Ground";
+                    move.Positions = new List<Position>();
+                    move.Positions.Add(Unit.Pos);
+                    move.Positions.Add(t.Pos);
 
-                        possibleMoves.Add(move);
-                    }
+                    possibleMoves.Add(move);
                 }
                 else if (t.Pos == Unit.Pos)
                 {
                     // Extract from ourselves? Not.
                 }
-                else
+                else if (t.Unit != null)
                 {
                     // Extract from tile with unit?
                     if (Unit.Owner.PlayerModel.Id == t.Unit.Owner.PlayerModel.Id)
@@ -161,56 +158,12 @@ namespace Engine.Master
                             }
                         }
                         else if (t.Unit.Container != null)
-
                         {
-                            if (Unit.Engine == null &&
-                                Unit.Container != null &&
-                                Unit.Weapon == null &&
-                                Unit.Reactor == null &&
-                                Unit.Assembler == null &&
-                                Unit.Radar == null)
+                            if (Unit.Engine == null)                                
                             {
-                                // Pure Containers do not extract from other units.
-                                if (t.Unit.Engine == null)
+                                // Container extracting from worker
+                                if (t.Unit.Engine != null)
                                 {
-                                    if (t.Metal > 0)
-                                    {
-                                        Move move = new Move();
-
-                                        move.MoveType = MoveType.Extract;
-
-                                        move.UnitId = Unit.UnitId;
-                                        move.OtherUnitId = "Ground";
-                                        move.Positions = new List<Position>();
-                                        move.Positions.Add(Unit.Pos);
-                                        move.Positions.Add(t.Pos);
-
-                                        possibleMoves.Add(move);
-                                    }
-                                    continue;
-                                }
-                            }
-
-                            if (Unit.Engine == null || Unit.Weapon != null || Unit.Assembler != null)
-                            {
-                                if (Unit.Container != null)
-                                {
-                                    // Extract from other container if this metal is less than 
-                                    Move move = new Move();
-
-                                    move.MoveType = MoveType.Extract;
-
-                                    move.UnitId = Unit.UnitId;
-                                    move.OtherUnitId = "ContainerLess";
-                                    move.Positions = new List<Position>();
-                                    move.Positions.Add(Unit.Pos);
-                                    move.Positions.Add(t.Pos);
-
-                                    possibleMoves.Add(move);
-                                }
-                                else
-                                {
-                                    // Extract from other container
                                     Move move = new Move();
 
                                     move.MoveType = MoveType.Extract;
@@ -226,15 +179,15 @@ namespace Engine.Master
                             }
                             else
                             {
-                                // A Unit with a container and a engine should collect metal from the ground, not from other containers
-                                if (t.Metal > 0)
+                                if (Unit.Weapon != null || Unit.Assembler != null)
                                 {
+                                    // Fighter or assembler extract from container
                                     Move move = new Move();
 
                                     move.MoveType = MoveType.Extract;
 
                                     move.UnitId = Unit.UnitId;
-                                    move.OtherUnitId = "Ground";
+                                    move.OtherUnitId = "Container";
                                     move.Positions = new List<Position>();
                                     move.Positions.Add(Unit.Pos);
                                     move.Positions.Add(t.Pos);
@@ -242,41 +195,26 @@ namespace Engine.Master
                                     possibleMoves.Add(move);
                                 }
                             }
-                        }
-                        else
-                        {
-                            if (t.Metal > 0)
-                            {
-                                // Metal beyond a unit
-                                Move move = new Move();
-
-                                move.MoveType = MoveType.Extract;
-
-                                move.UnitId = Unit.UnitId;
-                                move.OtherUnitId = "Ground";
-                                move.Positions = new List<Position>();
-                                move.Positions.Add(Unit.Pos);
-                                move.Positions.Add(t.Pos);
-
-                                possibleMoves.Add(move);
-                            }
-                        }
-                        
+                        }                        
                     }
                     else
                     {
-                        // Extract from enemy? Always an option
-                        Move move = new Move();
+                        // Cannot extract if shield is up
+                        if (t.Unit.Armor == null || !t.Unit.Armor.ShieldActive)
+                        {
+                            // Extract from enemy? Always an option
+                            Move move = new Move();
 
-                        move.MoveType = MoveType.Extract;
+                            move.MoveType = MoveType.Extract;
 
-                        move.UnitId = Unit.UnitId;
-                        move.OtherUnitId = "Enemy";
-                        move.Positions = new List<Position>();
-                        move.Positions.Add(Unit.Pos);
-                        move.Positions.Add(t.Pos);
+                            move.UnitId = Unit.UnitId;
+                            move.OtherUnitId = "Enemy";
+                            move.Positions = new List<Position>();
+                            move.Positions.Add(Unit.Pos);
+                            move.Positions.Add(t.Pos);
 
-                        possibleMoves.Add(move);
+                            possibleMoves.Add(move);
+                        }
                     }
                 }
             }
@@ -292,26 +230,26 @@ namespace Engine.Master
 
                 if (Unit.Weapon != null)
                 {
-                    if (Unit.Weapon.Container != null && Unit.Weapon.Container.Metal < Unit.Weapon.Container.Capacity)
+                    if (Unit.Weapon.Container != null && Unit.Weapon.Container.Mineral < Unit.Weapon.Container.Capacity)
                     {
                         return true;
                     }
                 }
                 if (Unit.Assembler != null)
                 {
-                    if (Unit.Assembler.Container != null && Unit.Assembler.Container.Metal < Unit.Assembler.Container.Capacity)
+                    if (Unit.Assembler.Container != null && Unit.Assembler.Container.Mineral < Unit.Assembler.Container.Capacity)
                     {
                         return true;
                     }
                 }
                 if (Unit.Reactor != null)
                 {
-                    if (Unit.Reactor.Container != null && Unit.Reactor.Container.Metal < Unit.Reactor.Container.Capacity)
+                    if (Unit.Reactor.Container != null && Unit.Reactor.Container.Mineral < Unit.Reactor.Container.Capacity)
                     {
                         return true;
                     }
                 }
-                if (Unit.Container != null && Unit.Container.Metal < Unit.Container.Capacity)
+                if (Unit.Container != null && Unit.Container.Mineral < Unit.Container.Capacity)
                 {
                     return true;
                 }                
@@ -371,18 +309,18 @@ namespace Engine.Master
                     bool canExtractMore = true;
 
                     Container sourceContainer = null;
-                    if (fromTile.Unit.Container != null && fromTile.Unit.Container.Metal > 0)
+                    if (fromTile.Unit.Container != null && fromTile.Unit.Container.Mineral > 0)
                     {
                         sourceContainer = fromTile.Unit.Container;
                     }
-                    if (sourceContainer != null && sourceContainer.Metal > 0)
+                    if (sourceContainer != null && sourceContainer.Mineral > 0)
                     {
                         int totalMetal = 0;
 
                         if (fromTile.Unit.Engine != null)
                         {
                             // Take all
-                            totalMetal = sourceContainer.Metal;
+                            totalMetal = sourceContainer.Mineral;
                         }
                         else
                         {
@@ -393,13 +331,13 @@ namespace Engine.Master
                             else
                             {
                                 // Take all
-                                totalMetal = sourceContainer.Metal;
+                                totalMetal = sourceContainer.Mineral;
                             }
                         }
 
-                        if (totalMetal > 0 && Unit.Weapon != null && Unit.Weapon.Container != null && Unit.Weapon.Container.Metal < Unit.Weapon.Container.Capacity)
+                        if (totalMetal > 0 && Unit.Weapon != null && Unit.Weapon.Container != null && Unit.Weapon.Container.Mineral < Unit.Weapon.Container.Capacity)
                         {
-                            int mins = Unit.Weapon.Container.Capacity - Unit.Weapon.Container.Metal;
+                            int mins = Unit.Weapon.Container.Capacity - Unit.Weapon.Container.Mineral;
                             if (mins > totalMetal)
                             {
                                 metalRemoved += totalMetal;
@@ -411,9 +349,9 @@ namespace Engine.Master
                                 totalMetal -= mins;
                             }
                         }
-                        if (totalMetal > 0 && Unit.Assembler != null && Unit.Assembler.Container != null && Unit.Assembler.Container.Metal < Unit.Assembler.Container.Capacity)
+                        if (totalMetal > 0 && Unit.Assembler != null && Unit.Assembler.Container != null && Unit.Assembler.Container.Mineral < Unit.Assembler.Container.Capacity)
                         {
-                            int mins = Unit.Assembler.Container.Capacity - Unit.Assembler.Container.Metal;
+                            int mins = Unit.Assembler.Container.Capacity - Unit.Assembler.Container.Mineral;
                             if (mins > totalMetal)
                             {
                                 metalRemoved += totalMetal;
@@ -425,9 +363,9 @@ namespace Engine.Master
                                 totalMetal -= mins;
                             }
                         }
-                        if (totalMetal > 0 && Unit.Reactor != null && Unit.Reactor.Container != null && Unit.Reactor.Container.Metal < Unit.Reactor.Container.Capacity)
+                        if (totalMetal > 0 && Unit.Reactor != null && Unit.Reactor.Container != null && Unit.Reactor.Container.Mineral < Unit.Reactor.Container.Capacity)
                         {
-                            int mins = Unit.Reactor.Container.Capacity - Unit.Reactor.Container.Metal;
+                            int mins = Unit.Reactor.Container.Capacity - Unit.Reactor.Container.Mineral;
                             if (mins > totalMetal)
                             {
                                 metalRemoved += totalMetal;
@@ -439,9 +377,9 @@ namespace Engine.Master
                                 totalMetal -= mins;
                             }
                         }
-                        if (totalMetal > 0 && Unit.Container != null && Unit.Container.Metal < Unit.Container.Capacity)
+                        if (totalMetal > 0 && Unit.Container != null && Unit.Container.Mineral < Unit.Container.Capacity)
                         {
-                            int mins = Unit.Container.Capacity - Unit.Container.Metal;
+                            int mins = Unit.Container.Capacity - Unit.Container.Mineral;
                             if (mins > totalMetal)
                             {
                                 metalRemoved += totalMetal;
@@ -459,7 +397,7 @@ namespace Engine.Master
                             canExtractMore = true;
                             //break;
                         }
-                        sourceContainer.Metal -= metalRemoved;
+                        sourceContainer.Mineral -= metalRemoved;
                         /*
                         if (targetContainer.Metal + totalMetal > targetContainer.Capacity)
                         {
@@ -678,14 +616,14 @@ namespace Engine.Master
             {
                 if (Unit.Reactor != null && Unit.Reactor.Container != null)
                 {
-                    if (Unit.Reactor.Container.Metal + metalRemoved > Unit.Reactor.Container.Capacity)
+                    if (Unit.Reactor.Container.Mineral + metalRemoved > Unit.Reactor.Container.Capacity)
                     {
-                        metalRemoved -= Unit.Reactor.Container.Capacity - Unit.Reactor.Container.Metal;
-                        Unit.Reactor.Container.Metal = Unit.Reactor.Container.Capacity;
+                        metalRemoved -= Unit.Reactor.Container.Capacity - Unit.Reactor.Container.Mineral;
+                        Unit.Reactor.Container.Mineral = Unit.Reactor.Container.Capacity;
                     }
                     else
                     {
-                        Unit.Reactor.Container.Metal += metalRemoved;
+                        Unit.Reactor.Container.Mineral += metalRemoved;
                         metalRemoved = 0;
                     }
                     Unit.Reactor.BurnIfNeccessary();
@@ -696,14 +634,14 @@ namespace Engine.Master
             {
                 if (Unit.Assembler != null && Unit.Assembler.Container != null)
                 {
-                    if (Unit.Assembler.Container.Metal + metalRemoved > Unit.Assembler.Container.Capacity)
+                    if (Unit.Assembler.Container.Mineral + metalRemoved > Unit.Assembler.Container.Capacity)
                     {
-                        metalRemoved -= Unit.Assembler.Container.Capacity - Unit.Assembler.Container.Metal;
-                        Unit.Assembler.Container.Metal = Unit.Assembler.Container.Capacity;
+                        metalRemoved -= Unit.Assembler.Container.Capacity - Unit.Assembler.Container.Mineral;
+                        Unit.Assembler.Container.Mineral = Unit.Assembler.Container.Capacity;
                     }
                     else
                     {
-                        Unit.Assembler.Container.Metal += metalRemoved;
+                        Unit.Assembler.Container.Mineral += metalRemoved;
                         metalRemoved = 0;
                     }
                     didRemove = true;
@@ -713,14 +651,14 @@ namespace Engine.Master
             {
                 if (Unit.Weapon != null && Unit.Weapon.Container != null)
                 {
-                    if (Unit.Weapon.Container.Metal + metalRemoved > Unit.Weapon.Container.Capacity)
+                    if (Unit.Weapon.Container.Mineral + metalRemoved > Unit.Weapon.Container.Capacity)
                     {
-                        metalRemoved -= Unit.Weapon.Container.Capacity - Unit.Weapon.Container.Metal;
-                        Unit.Weapon.Container.Metal = Unit.Weapon.Container.Capacity;
+                        metalRemoved -= Unit.Weapon.Container.Capacity - Unit.Weapon.Container.Mineral;
+                        Unit.Weapon.Container.Mineral = Unit.Weapon.Container.Capacity;
                     }
                     else
                     {
-                        Unit.Weapon.Container.Metal += metalRemoved;
+                        Unit.Weapon.Container.Mineral += metalRemoved;
                         metalRemoved = 0;
                     }
                     didRemove = true;
@@ -730,14 +668,14 @@ namespace Engine.Master
             {               
                 if (Unit.Container != null)
                 {
-                    if (Unit.Container.Metal + metalRemoved > Unit.Container.Capacity)
+                    if (Unit.Container.Mineral + metalRemoved > Unit.Container.Capacity)
                     {
-                        metalRemoved -= Unit.Container.Capacity - Unit.Container.Metal;
-                        Unit.Container.Metal = Unit.Container.Capacity;
+                        metalRemoved -= Unit.Container.Capacity - Unit.Container.Mineral;
+                        Unit.Container.Mineral = Unit.Container.Capacity;
                     }
                     else
                     {
-                        Unit.Container.Metal += metalRemoved;
+                        Unit.Container.Mineral += metalRemoved;
                         metalRemoved = 0;
                     }
                     didRemove = true;

@@ -124,7 +124,7 @@ namespace Engine.Master
             int metal = 0;
             if (Container != null)
             {
-                metal += Container.Metal;
+                metal += Container.Mineral;
                 metal++;
             }
 
@@ -134,13 +134,13 @@ namespace Engine.Master
             if (Weapon != null)
             {
                 if (Weapon.Container != null)
-                    metal += Weapon.Container.Metal;
+                    metal += Weapon.Container.Mineral;
                 metal++;
             }
             if (Assembler != null)
             {
                 if (Assembler.Container != null)
-                    metal += Assembler.Container.Metal;
+                    metal += Assembler.Container.Mineral;
                 metal++;
             }
             if (Extractor != null) metal++;
@@ -148,7 +148,7 @@ namespace Engine.Master
             if (Reactor != null)
             {
                 if (Reactor.Container != null)
-                    metal += Reactor.Container.Metal;
+                    metal += Reactor.Container.Mineral;
                 metal++;
             }
             if (Radar != null) metal++;
@@ -161,22 +161,22 @@ namespace Engine.Master
             int metal = 0;
             if (Engine == null)
             {
-                if (Container != null) metal += Container.Metal;
+                if (Container != null) metal += Container.Mineral;
 
                 if (Weapon != null)
                 {
                     if (Weapon.Container != null)
-                        metal += Weapon.Container.Metal;
+                        metal += Weapon.Container.Mineral;
                 }
                 if (Assembler != null)
                 {
                     if (Assembler.Container != null)
-                        metal += Assembler.Container.Metal;
+                        metal += Assembler.Container.Mineral;
                 }
                 if (Reactor != null)
                 {
                     if (Reactor.Container != null)
-                        metal += Reactor.Container.Metal;
+                        metal += Reactor.Container.Mineral;
                 }
             }
             return metal;
@@ -283,7 +283,7 @@ namespace Engine.Master
                         Assembler.Container.Capacity = blueprintPart.Capacity.Value;
                     if (fillContainer)
                     {
-                        Assembler.Container.Metal = Assembler.Container.Capacity;
+                        Assembler.Container.Mineral = Assembler.Container.Capacity;
                     }
                 }
                 while (level > Assembler.Level)
@@ -298,7 +298,7 @@ namespace Engine.Master
                         Weapon.Container.Capacity = blueprintPart.Capacity.Value;
                     if (fillContainer)
                     {
-                        Weapon.Container.Metal = Weapon.Container.Capacity;
+                        Weapon.Container.Mineral = Weapon.Container.Capacity;
                     }
                 }
                 while (level > Weapon.Level)
@@ -314,7 +314,7 @@ namespace Engine.Master
                         Container.Capacity = blueprintPart.Capacity.Value;
                     if (fillContainer)
                     {
-                        Container.Metal = Container.Capacity;
+                        Container.Mineral = Container.Capacity;
                     }
                 }
                 while (level > Container.Level)
@@ -330,7 +330,7 @@ namespace Engine.Master
                         Reactor.Container.Capacity = blueprintPart.Capacity.Value;
                     if (fillContainer)
                     {
-                        Reactor.Container.Metal = Reactor.Container.Capacity;
+                        Reactor.Container.Mineral = Reactor.Container.Capacity;
                     }
                 }
                 while (level > Reactor.Level)
@@ -505,7 +505,7 @@ namespace Engine.Master
                         //if (startCode == "StartFactory" || startCode == "StartColony")
                         if (parts[5].StartsWith("F"))
                         {
-                            Container.Metal = Container.Capacity;
+                            Container.Mineral = Container.Capacity;
                             //Container.Capacity = 100000;
                         }
                     }
@@ -530,26 +530,26 @@ namespace Engine.Master
         {
             if (Weapon != null)
             {
-                if (Weapon.Container != null && Weapon.Container.Metal < Weapon.Container.Capacity)
+                if (Weapon.Container != null && Weapon.Container.Mineral < Weapon.Container.Capacity)
                 {
                     return true;
                 }
             }
             if (Assembler != null)
             {
-                if (Assembler.Container != null && Assembler.Container.Metal < Assembler.Container.Capacity)
+                if (Assembler.Container != null && Assembler.Container.Mineral < Assembler.Container.Capacity)
                 {
                     return true;
                 }
             }
             if (Reactor != null)
             {
-                if (Reactor.Container != null && Reactor.Container.Metal < Reactor.Container.Capacity)
+                if (Reactor.Container != null && Reactor.Container.Mineral < Reactor.Container.Capacity)
                 {
                     return true;
                 }
             }
-            if (Container != null && Container.Metal < Container.Capacity)
+            if (Container != null && Container.Mineral < Container.Capacity)
             {
                 return true;
             }
@@ -666,12 +666,12 @@ namespace Engine.Master
                 {
                     if (blueprintPart.PartType.StartsWith( "Weapon"))
                     {
-                        moveUpdateUnitPart.Minerals = Weapon.Container.Metal;
+                        moveUpdateUnitPart.Minerals = Weapon.Container.Mineral;
                         moveUpdateUnitPart.Capacity = Weapon.Container.Capacity;
                     }
                     if (blueprintPart.PartType.StartsWith("Assembler"))
                     {
-                        moveUpdateUnitPart.Minerals = Assembler.Container.Metal;
+                        moveUpdateUnitPart.Minerals = Assembler.Container.Mineral;
                         moveUpdateUnitPart.Capacity = Assembler.Container.Capacity;
 
                         if (Assembler.BuildQueue != null)
@@ -682,13 +682,13 @@ namespace Engine.Master
                     }
                     if (blueprintPart.PartType.StartsWith("Container"))
                     {
-                        moveUpdateUnitPart.Minerals = Container.Metal;
+                        moveUpdateUnitPart.Minerals = Container.Mineral;
                         moveUpdateUnitPart.Capacity = Container.Capacity;
                     }
                     if (blueprintPart.PartType.StartsWith("Reactor"))
                     {
                         moveUpdateUnitPart.AvailablePower = Reactor.AvailablePower;
-                        moveUpdateUnitPart.Minerals = Reactor.Container.Metal;
+                        moveUpdateUnitPart.Minerals = Reactor.Container.Mineral;
                         moveUpdateUnitPart.Capacity = Reactor.Container.Capacity;
                     }
                     if (blueprintPart.PartType.StartsWith("Armor"))
@@ -722,7 +722,7 @@ namespace Engine.Master
             if (Container != null)
             {
                 stats.ContainerLevel = Container.Level;
-                stats.ContainerFull = (Container.Metal *100) / Container.Capacity;
+                stats.ContainerFull = (Container.Mineral *100) / Container.Capacity;
                 if (stats.ContainerFull > 100)
                 {
                     // Extract bug..

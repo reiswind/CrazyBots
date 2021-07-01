@@ -263,7 +263,7 @@ namespace Engine.Control
         {
             if (ant.PlayerUnit.Unit.Container != null &&
                 ant.PlayerUnit.Unit.Engine == null &&
-                ant.PlayerUnit.Unit.Container.Metal < ant.PlayerUnit.Unit.Container.Capacity)
+                ant.PlayerUnit.Unit.Container.Mineral < ant.PlayerUnit.Unit.Container.Capacity)
             {
                 // Standing containers
                 if (ant.PheromoneDepositNeedMinerals != 0 &&
@@ -281,17 +281,17 @@ namespace Engine.Control
                         range = 4;
 
                     ant.PheromoneDepositNeedMineralsLevel = ant.PlayerUnit.Unit.Container.Level;
-                    int intensity = (ant.PlayerUnit.Unit.Container.Metal * 100 / ant.PlayerUnit.Unit.Container.Capacity) / 100;
+                    int intensity = (ant.PlayerUnit.Unit.Container.Mineral * 100 / ant.PlayerUnit.Unit.Container.Capacity) / 100;
                     ant.PheromoneDepositNeedMinerals = player.Game.Pheromones.DropPheromones(player, ant.PlayerUnit.Unit.Pos, range, PheromoneType.Container, 1, true);
                 }
                 else
                 {
-                    int intensity = (ant.PlayerUnit.Unit.Container.Metal * 100 / ant.PlayerUnit.Unit.Container.Capacity) / 100;
+                    int intensity = (ant.PlayerUnit.Unit.Container.Mineral * 100 / ant.PlayerUnit.Unit.Container.Capacity) / 100;
                     player.Game.Pheromones.UpdatePheromones(ant.PheromoneDepositNeedMinerals, 1);
                 }
             }
             if (ant.PheromoneDepositNeedMinerals != 0 &&
-                (ant.PlayerUnit.Unit.Container == null || ant.PlayerUnit.Unit.Container.Metal >= ant.PlayerUnit.Unit.Container.Capacity))
+                (ant.PlayerUnit.Unit.Container == null || ant.PlayerUnit.Unit.Container.Mineral >= ant.PlayerUnit.Unit.Container.Capacity))
             {
                 // Exits no longer. Remove deposit.
                 player.Game.Pheromones.DeletePheromones(ant.PheromoneDepositNeedMinerals);
@@ -636,7 +636,7 @@ namespace Engine.Control
                 AntContainer antContainer = possibleAnt as AntContainer;
                 if (antContainer != null &&
                     antContainer.PlayerUnit.Unit.Container != null &&
-                    antContainer.PlayerUnit.Unit.Container.Metal > 0)
+                    antContainer.PlayerUnit.Unit.Container.Mineral > 0)
                 {
                     List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, antContainer.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit);
                     if (positions != null && positions.Count > 2)
@@ -1191,20 +1191,22 @@ namespace Engine.Control
 
             foreach (Ant ant in unmovedAnts)
             {
-                if (ant is AntContainer)
-                {
-                    ant.Move(player, moves);
-                    movableAnts.Remove(ant);
-                }
-            }
-            foreach (Ant ant in unmovedAnts)
-            {
                 if (ant is AntReactor)
                 {
                     ant.Move(player, moves);
                     movableAnts.Remove(ant);
                 }
             }
+
+            foreach (Ant ant in unmovedAnts)
+            {
+                if (ant is AntContainer)
+                {
+                    ant.Move(player, moves);
+                    movableAnts.Remove(ant);
+                }
+            }
+
             unmovedAnts.Clear();    
             unmovedAnts.AddRange(movableAnts);
             while (unmovedAnts.Count > 0)

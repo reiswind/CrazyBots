@@ -506,7 +506,7 @@ namespace Engine.Ants
                 {
                     if (pheromoneType != PheromoneType.Energy)
                     {
-                        if (cntrlUnit.Container != null && cntrlUnit.Container.Metal < cntrlUnit.Container.Capacity)
+                        if (cntrlUnit.Container != null && cntrlUnit.Container.Mineral < cntrlUnit.Container.Capacity)
                         {
                             // Fill up with food!
                             pheromoneType = PheromoneType.Mineral;
@@ -552,7 +552,7 @@ namespace Engine.Ants
                         moveToPosition = null;
                         FollowThisRoute = null;
                     }
-                    if (moveToPosition == null && cntrlUnit.Container != null && cntrlUnit.Container.Metal > 0)
+                    if (moveToPosition == null && cntrlUnit.Container != null && cntrlUnit.Container.Mineral > 0)
                     {
                         // Return the mins
                         pheromoneType = PheromoneType.Container;
@@ -661,8 +661,11 @@ namespace Engine.Ants
                                 return true;
                             }
                         }
-                        // cannot reach anything cause to crowded?
-                        //if (pheromoneType == PheromoneType.ToFood)
+                        else if (pheromoneType == PheromoneType.Container)
+                        {
+                            cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
+                            return true;
+                        }
                         else
                         {
                             pheromoneType = PheromoneType.Container;
@@ -920,7 +923,7 @@ namespace Engine.Ants
                         if (BuildPositionReached)
                         {
                             // Build complete
-                            if (cntrlUnit.Assembler.Container.Metal <= 1)
+                            if (cntrlUnit.Assembler.Container.Mineral <= 1)
                             {
                                 // Command complete
                                 Move commandMove = new Move();
@@ -968,7 +971,7 @@ namespace Engine.Ants
                 }
             }
 
-            if (AntWorkerType == AntWorkerType.Fighter && cntrlUnit.Weapon != null && cntrlUnit.Weapon.Container.Metal >= cntrlUnit.Weapon.Container.Capacity)
+            if (AntWorkerType == AntWorkerType.Fighter && cntrlUnit.Weapon != null && cntrlUnit.Weapon.Container.Mineral >= cntrlUnit.Weapon.Container.Capacity)
             {
                 // Fight, do not extract if can fire
             }
@@ -1006,9 +1009,9 @@ namespace Engine.Ants
                 {
                     bool loadFirst = false;
                     // only if filled!
-                    if (cntrlUnit.Weapon != null && cntrlUnit.Weapon.Container.Metal < cntrlUnit.Weapon.Container.Capacity)
+                    if (cntrlUnit.Weapon != null && cntrlUnit.Weapon.Container.Mineral < cntrlUnit.Weapon.Container.Capacity)
                         loadFirst = true;
-                    if (cntrlUnit.Assembler != null && cntrlUnit.Assembler.Container.Metal < cntrlUnit.Assembler.Container.Capacity)
+                    if (cntrlUnit.Assembler != null && cntrlUnit.Assembler.Container.Mineral < cntrlUnit.Assembler.Container.Capacity)
                         loadFirst = true;
 
                     if (!loadFirst)

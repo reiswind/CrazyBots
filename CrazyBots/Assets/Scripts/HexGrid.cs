@@ -52,10 +52,10 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -547,6 +547,7 @@ public class HexGrid : MonoBehaviour
 			}*/
 			else if (move.MoveType == MoveType.Extract ||
 					 move.MoveType == MoveType.Fire ||
+					 move.MoveType == MoveType.Transport ||
 					 move.MoveType == MoveType.Hit ||
 					 move.MoveType == MoveType.UpdateStats)
 			{
@@ -566,6 +567,10 @@ public class HexGrid : MonoBehaviour
 					if (move.MoveType == MoveType.Fire)
 					{
 						unit.Fire(move);
+					}
+					if (move.MoveType == MoveType.Transport)
+					{
+						unit.Transport(move);
 					}
 				}
 
@@ -895,7 +900,7 @@ public class HexGrid : MonoBehaviour
 			materialName = "Grass";
 		}
 
-		if (t.ZoneId != 0)
+		if (false && t.ZoneId != 0)
 		{
 			gridPos3.y += 1;
 		}

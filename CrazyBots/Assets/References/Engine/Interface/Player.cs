@@ -753,6 +753,11 @@ namespace Engine.Interface
                     if (this.VisiblePositions.Contains(move.Positions[0]))
                         LastMoves.Add(move);
                 }
+                else if (move.MoveType == MoveType.Transport)
+                {
+                    if (this.VisiblePositions.Contains(move.Positions[0]))
+                        LastMoves.Add(move);
+                }
             }
 
             List<Unit> invisibleUnits = new List<Unit>();

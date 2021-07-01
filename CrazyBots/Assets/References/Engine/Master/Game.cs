@@ -440,7 +440,7 @@ namespace Engine.Master
                             }
                             else if (move.UnitId.EndsWith("Container"))
                             {
-                                containerNetal = thisUnit.Container.Metal;
+                                containerNetal = thisUnit.Container.Mineral;
                                 thisUnit.Container = null;
                             }
                             else
@@ -449,7 +449,7 @@ namespace Engine.Master
                         }
                         thisUnit = new Unit(this, move.UnitId);
                         if (thisUnit.Container != null && containerNetal.HasValue)
-                            thisUnit.Container.Metal = containerNetal.Value;
+                            thisUnit.Container.Mineral = containerNetal.Value;
 
                         thisUnit.Power = 20;
                         thisUnit.MaxPower = 20;
@@ -594,6 +594,44 @@ namespace Engine.Master
                     {
                         // move failed
                         //move.MoveType = MoveType.None;
+                    }
+                    finishedMoves.Add(move);
+                }
+                else if (move.MoveType == MoveType.Transport)
+                {
+                    Position transportTargetPos = move.Positions[move.Positions.Count - 1];
+                    Unit unit = Map.Units.GetUnitAt(transportTargetPos);
+
+                    bool dropOnGround = false;
+
+                    if (unit == null)
+                    {
+                        dropOnGround = true;
+                    }
+                    else
+                    {
+                        if (unit.Reactor != null && unit.Reactor.Container.Mineral < unit.Reactor.Container.Capacity)
+                            unit.Reactor.Container.Mineral++;
+                        else if (unit.Assembler != null && unit.Assembler.Container.Mineral < unit.Assembler.Container.Capacity)
+                            unit.Assembler.Container.Mineral++;
+                        else if (unit.Weapon != null && unit.Weapon.Container.Mineral < unit.Weapon.Container.Capacity)
+                            unit.Weapon.Container.Mineral++;
+                        else if (unit.Container != null && unit.Container.Mineral < unit.Container.Capacity)
+                            unit.Container.Mineral++;
+                        else                        
+                            dropOnGround = true;
+
+                        if (!changedUnits.ContainsKey(unit.Pos))
+                            changedUnits.Add(unit.Pos, unit);
+                    }
+                    if (dropOnGround)
+                    {
+                        // Target died, transport to ground
+                        Tile unitTile = GetTile(transportTargetPos);
+                        unitTile.AddMinerals(1);
+
+                        if (!changedGroundPositions.ContainsKey(transportTargetPos))
+                            changedGroundPositions.Add(transportTargetPos, null);
                     }
                     finishedMoves.Add(move);
                 }
@@ -823,6 +861,13 @@ namespace Engine.Master
                                 Unit unit = Map.Units.GetUnitAt(move.Positions[0]);
 
                                 if (unit.Weapon == null)
+                                    throw new Exception("Cheater");
+                            }
+                            else if (move.MoveType == MoveType.Transport)
+                            {
+                                Unit unit = Map.Units.GetUnitAt(move.Positions[0]);
+
+                                if (unit.Container == null)
                                     throw new Exception("Cheater");
                             }
                             else if (move.MoveType == MoveType.UpdateStats)
@@ -1129,13 +1174,13 @@ namespace Engine.Master
                     Unit fireingUnit = Map.Units.GetUnitAt(move.Positions[0]);
                     if (fireingUnit != null && fireingUnit.Weapon != null)
                     {
-                        if (fireingUnit.Weapon.Container != null && fireingUnit.Weapon.Container.Metal > 0)
+                        if (fireingUnit.Weapon.Container != null && fireingUnit.Weapon.Container.Mineral > 0)
                         {
-                            fireingUnit.Weapon.Container.Metal--;
+                            fireingUnit.Weapon.Container.Mineral--;
                         }
-                        else if (fireingUnit.Container != null && fireingUnit.Container.Metal > 0)
+                        else if (fireingUnit.Container != null && fireingUnit.Container.Mineral > 0)
                         {
-                            fireingUnit.Container.Metal--;
+                            fireingUnit.Container.Mineral--;
                         }
                         else
                             throw new Exception();
@@ -1143,17 +1188,23 @@ namespace Engine.Master
 
                         if (!changedUnits.ContainsKey(fireingUnit.Pos))
                             changedUnits.Add(fireingUnit.Pos, fireingUnit);
-                        /*
-                        Move moveUpdate = new Move();
+                    }
+                }
+                else if (move.MoveType == MoveType.Transport)
+                {
+                    Unit sendingUnit = Map.Units.GetUnitAt(move.Positions[0]);
+                    if (sendingUnit != null && sendingUnit.Container != null)
+                    {
+                        if (sendingUnit.Container != null && sendingUnit.Container.Mineral > 0)
+                        {
+                            sendingUnit.Container.Mineral--;
+                        }
+                        else
+                            throw new Exception();
+                        move.Stats = sendingUnit.CollectStats();
 
-                        moveUpdate.MoveType = MoveType.UpdateStats;
-                        moveUpdate.UnitId = fireingUnit.UnitId;
-                        moveUpdate.PlayerId = fireingUnit.Owner.PlayerModel.Id;
-                        moveUpdate.Positions = new List<Position>();
-                        moveUpdate.Positions.Add(fireingUnit.Pos);
-                        moveUpdate.Stats = fireingUnit.CollectStats();
-
-                        lastMoves.Add(moveUpdate);*/
+                        if (!changedUnits.ContainsKey(sendingUnit.Pos))
+                            changedUnits.Add(sendingUnit.Pos, sendingUnit);
                     }
                 }
                 else if (move.MoveType == MoveType.Move)

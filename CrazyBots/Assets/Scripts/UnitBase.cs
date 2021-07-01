@@ -317,6 +317,16 @@ public class UnitBase : MonoBehaviour
         }
     }
 
+    public void Transport(Move move)
+    {
+        if (Container != null)
+        {
+            Container.Transport(HexGrid, move);
+        }
+    }
+
+    
+
     internal void SetMaterialGhost(int playerId, GameObject unit)
     {
         for (int i = 0; i < unit.transform.childCount; i++)

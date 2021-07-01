@@ -32,9 +32,9 @@ namespace Engine.Master
             {
                 if (Unit.Power == 0)
                     return false;
-                if (Container != null && Container.Metal > 0)
+                if (Container != null && Container.Mineral > 0)
                     return true;
-                if (Unit.Container != null && Unit.Container.Metal > 0)
+                if (Unit.Container != null && Unit.Container.Mineral > 0)
                     return true;
                 return false;
             }

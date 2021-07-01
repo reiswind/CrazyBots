@@ -1062,7 +1062,7 @@ public class GameCanvas : MonoBehaviour
                     gameCommand.PlayerId = 1;
                     HexGrid.GameCommands.Add(gameCommand);
 
-                    HexGrid.UnitsInBuild.Add(pos, null);
+                    HexGrid.UnitsInBuild.Add(pos, selectedUnitFrame);
 
                     // Turn the temp unit into ghost
                     selectedUnitFrame.Temporary = false;

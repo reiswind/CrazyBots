@@ -125,6 +125,7 @@
     <Compile Include="Assets\CursorsAndCrosshairs\CursorChanger.cs" />
     <Compile Include="Assets\References\Engine\Master\Engine.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\PriorityQueueB.cs" />
+    <Compile Include="Assets\Scripts\Transport.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\References\TerrainQuest.Generator.dll" />

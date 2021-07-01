@@ -39,6 +39,7 @@ namespace Engine.Interface
         Assemble = 0x0004,
         Upgrade = 0x0008,
         Extract = 0x0020,
+        Transport = 0x0040,
         All = Fire | Move | Assemble  | Extract
     }
 

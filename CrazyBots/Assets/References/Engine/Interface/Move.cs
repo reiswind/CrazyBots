@@ -19,6 +19,7 @@ namespace Engine.Interface
         Upgrade,
         Move,
         Fire,
+        Transport,
         Hit,
         UpdateStats,
         Delete,
