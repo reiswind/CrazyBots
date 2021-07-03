@@ -82,43 +82,8 @@ namespace Engine.Interface
         [DataMember]
         public bool MarkedForExtraction { 
             get; 
-            set; }
-
-        [DataMember]
-        public int EngineLevel { get; set; }
-
-
-        [DataMember]
-        public int ArmorLevel { get; set; }
-
-
-        [DataMember]
-        public int WeaponLevel { get; set; }
-
-
-        [DataMember]
-        public bool WeaponLoaded { get; set; }
-
-
-        [DataMember]
-        public int ProductionLevel { get; set; }
-
-
-        [DataMember]
-        public bool CanProduce { get; set; }
-
-        [DataMember]
-        public int ExtractorLevel { get; set; }
-        [DataMember]
-        public int ContainerLevel { get; set; }
-        [DataMember]
-        public int ContainerFull { get; set; }
-
-
-        [DataMember]
-        public int RadarLevel { get; set; }
-        [DataMember]
-        public int ReactorLevel { get; set; }
+            set; 
+        }
 
         public int Power { get; set; }
 

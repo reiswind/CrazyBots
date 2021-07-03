@@ -96,27 +96,30 @@ namespace Engine.Master
                 }
                 //break;
             }
-            foreach (UnitModel unitModel in GameModel.Units)
+            if (GameModel.Units != null)
             {
-                Move move = new Move();
-                move.MoveType = MoveType.Add;
-                move.PlayerId = unitModel.PlayerId;
-                if (string.IsNullOrEmpty(unitModel.Blueprint))
-                    move.UnitId = unitModel.Parts;
-                else
-                    move.UnitId = unitModel.Blueprint;
-                move.OtherUnitId = unitModel.Blueprint;
-                move.Positions = new List<Position>();
-                move.Positions.Add(unitModel.Position);
-                newMoves.Add(move);
+                foreach (UnitModel unitModel in GameModel.Units)
+                {
+                    Move move = new Move();
+                    move.MoveType = MoveType.Add;
+                    move.PlayerId = unitModel.PlayerId;
+                    if (string.IsNullOrEmpty(unitModel.Blueprint))
+                        move.UnitId = unitModel.Parts;
+                    else
+                        move.UnitId = unitModel.Blueprint;
+                    move.OtherUnitId = unitModel.Blueprint;
+                    move.Positions = new List<Position>();
+                    move.Positions.Add(unitModel.Position);
+                    newMoves.Add(move);
 
-                Tile t = Map.GetTile(unitModel.Position);
-                t.Owner = unitModel.PlayerId;
-                //t.Metal = 0;
-                t.NumberOfDestructables = 0;
-                t.NumberOfObstacles = 0;
+                    Tile t = Map.GetTile(unitModel.Position);
+                    t.Owner = unitModel.PlayerId;
+                    //t.Metal = 0;
+                    t.NumberOfDestructables = 0;
+                    t.NumberOfObstacles = 0;
 
-                // Turn into direction missing
+                    // Turn into direction missing
+                }
             }
         }
 
@@ -435,8 +438,6 @@ namespace Engine.Master
                             {
                                 markForExtraction = true;
                                 thisUnit.Engine = null;
-
-                                UpdateGroundPlates(null, thisUnit);
                             }
                             else if (move.UnitId.EndsWith("Container"))
                             {
@@ -797,34 +798,6 @@ namespace Engine.Master
             return move;
         }
 
-        private void AutoFire()
-        {
-            foreach (Unit unit in Map.Units.List.Values)
-            {
-                if (unit.Weapon != null)
-                {
-                    bool found = false;
-                    foreach (Move move in lastMoves)
-                    {
-                        if (move.UnitId == unit.UnitId)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found)
-                    {
-                        List<Move> possibleMoves = new List<Move>();
-                        unit.Weapon.ComputePossibleMoves(possibleMoves, null, MoveFilter.Fire);
-                        if (possibleMoves.Count > 0)
-                        {
-                            lastMoves.Add(possibleMoves.ElementAt(0));
-                        }
-                    }
-                }
-            }
-        }
-
         private bool CollectNewMoves(Move myMove)
         {
             bool allPlayersMoved = true;
@@ -996,58 +969,6 @@ namespace Engine.Master
             }
         }
 
-        public void UpdateGroundPlates(List<Move> moves, Unit unit, bool remove = false)
-        {
-            return;
-            if (unit.Engine == null)
-            {
-                int range = 0;
-
-                if (unit.Assembler != null && unit.Assembler.Level == 1) range = 1;
-                if (unit.Assembler != null && unit.Assembler.Level == 2) range = 1;
-                if (unit.Assembler != null && unit.Assembler.Level == 3) range = 1;
-
-                //if (unit.Reactor != null && unit.Reactor.Level == 2) range = 2;
-                //if (unit.Reactor != null && unit.Reactor.Level == 2) range = 2;
-                //if (unit.Reactor != null && unit.Reactor.Level == 3) range = 3;
-
-                //if (unit.Container != null && unit.Container.Level == 2) range = 2;
-                //if (unit.Container != null && unit.Container.Level == 2) range = 2;
-                //if (unit.Container != null && unit.Container.Level == 3) range = 3;
-
-                //if (unit.Radar != null && unit.Radar.Level == 2) range = 2;
-                //if (unit.Radar != null && unit.Radar.Level == 2) range = 2;
-                //if (unit.Radar != null && unit.Radar.Level == 3) range = 3;
-
-                
-
-                Dictionary<Position, TileWithDistance> tiles = Map.EnumerateTiles(unit.Pos, range);
-                if (tiles != null)
-                {
-                    foreach (TileWithDistance n in tiles.Values)
-                    {
-                        if (remove)
-                            n.Tile.Plates--;
-                        else
-                            n.Tile.Plates++;
-
-                        if (moves != null)
-                        {
-                            if (!changedGroundPositions.ContainsKey(n.Pos))
-                                changedGroundPositions.Add(n.Pos, null);
-                            /*
-                            Move hitmove = new Move();
-                            hitmove.MoveType = MoveType.UpdateGround;
-                            hitmove.Positions = new List<Position>();
-                            hitmove.Positions.Add(n.Pos);
-                            hitmove.Stats = CollectGroundStats(n.Pos);
-                            moves.Add(hitmove);*/
-                        }
-                    }
-                }
-            }
-        }
-
         private void ProcessNewMoves()
         {
             lastMoves.Clear();
@@ -1067,25 +988,6 @@ namespace Engine.Master
 
                         if (!changedUnits.ContainsKey(factory.Pos))
                             changedUnits.Add(factory.Pos, factory);
-                        /*
-                        Move moveUpdate = new Move();
-                        moveUpdate.PlayerId = factory.Owner.PlayerModel.Id;
-                        moveUpdate.MoveType = MoveType.UpdateStats;
-                        moveUpdate.UnitId = factory.UnitId;
-                        moveUpdate.Positions = new List<Position>();
-                        moveUpdate.Positions.Add(factory.Pos);
-                        moveUpdate.Stats = factory.CollectStats();
-                        lastMoves.Add(moveUpdate);*/
-                    }
-                    
-                    if (newUnit != null)
-                    {
-                        UpdateGroundPlates(lastMoves, newUnit);
-                    }
-                    else
-                    {
-                        // Startunit
-                        UpdateGroundPlates(lastMoves, factory);
                     }
                 }
                 else if (move.MoveType == MoveType.Upgrade)
@@ -1101,15 +1003,6 @@ namespace Engine.Master
 
                         if (!changedUnits.ContainsKey(factory.Pos))
                             changedUnits.Add(factory.Pos, factory);
-                        /*
-                        Move moveUpdate = new Move();
-                        moveUpdate.PlayerId = factory.Owner.PlayerModel.Id;
-                        moveUpdate.MoveType = MoveType.UpdateStats;
-                        moveUpdate.UnitId = factory.UnitId;
-                        moveUpdate.Positions = new List<Position>();
-                        moveUpdate.Positions.Add(factory.Pos);
-                        moveUpdate.Stats = factory.CollectStats();
-                        lastMoves.Add(moveUpdate);*/
                     }
                     else
                     {
@@ -1132,42 +1025,15 @@ namespace Engine.Master
                     }
                     else
                     {
-                        UpdateGroundPlates(lastMoves, newUnit, remove: true);
                         newUnit.Upgrade(move.UnitId);
 
                         if (!changedUnits.ContainsKey(newUnit.Pos))
                             changedUnits.Add(newUnit.Pos, newUnit);
-
-                        /*
-                        Move moveUpdate = new Move();
-                        moveUpdate.PlayerId = newUnit.Owner.PlayerModel.Id;
-                        moveUpdate.MoveType = MoveType.UpdateStats;
-                        moveUpdate.UnitId = newUnit.UnitId;
-                        moveUpdate.Positions = new List<Position>();
-                        moveUpdate.Positions.Add(newUnit.Pos);
-                        moveUpdate.Stats = newUnit.CollectStats();
-                        lastMoves.Add(moveUpdate);
-                        */
-                        UpdateGroundPlates(lastMoves, newUnit);
                     }
                 }
                 else if (move.MoveType == MoveType.Extract)
                 {
-                    /*
-                    Unit fireingUnit = Map.Units.GetUnitAt(move.Positions[0]);
 
-                    Move moveUpdate = new Move();
-
-                    moveUpdate.MoveType = MoveType.UpdateStats;
-                    moveUpdate.UnitId = fireingUnit.UnitId;
-                    moveUpdate.PlayerId = fireingUnit.Owner.PlayerModel.Id;
-                    moveUpdate.Positions = new List<Position>();
-                    moveUpdate.Positions.Add(fireingUnit.Pos);
-                    moveUpdate.Stats = fireingUnit.CollectStats();
-
-                    moveUpdate.Stats.WeaponLoaded = true;
-
-                    lastMoves.Add(moveUpdate);*/
                 }
                 else if (move.MoveType == MoveType.Fire)
                 {

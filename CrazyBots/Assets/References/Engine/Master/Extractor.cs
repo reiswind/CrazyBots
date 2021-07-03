@@ -262,10 +262,6 @@ namespace Engine.Master
         {
             Tile fromTile = Unit.Game.Map.GetTile(from);
             
-            if (fromGround)
-            {
-                int x = 0;
-            }
             /*
             bool canExtract = false;
 
@@ -460,8 +456,6 @@ namespace Engine.Master
                             // Extract own, useless unit
                             if (targetUnit.HitBy(null))
                             {
-                                game.UpdateGroundPlates(moves, targetUnit, remove: true);
-
                                 // Unit extracted remove unit
                                 Move deleteMove = new Move();
                                 deleteMove.PlayerId = targetUnit.Owner.PlayerModel.Id;

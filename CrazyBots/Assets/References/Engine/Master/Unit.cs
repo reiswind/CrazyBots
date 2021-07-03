@@ -666,11 +666,13 @@ namespace Engine.Master
                 {
                     if (blueprintPart.PartType.StartsWith( "Weapon"))
                     {
+                        moveUpdateUnitPart.Level = Weapon.Level;
                         moveUpdateUnitPart.Minerals = Weapon.Container.Mineral;
                         moveUpdateUnitPart.Capacity = Weapon.Container.Capacity;
                     }
                     if (blueprintPart.PartType.StartsWith("Assembler"))
                     {
+                        moveUpdateUnitPart.Level = Assembler.Level;
                         moveUpdateUnitPart.Minerals = Assembler.Container.Mineral;
                         moveUpdateUnitPart.Capacity = Assembler.Container.Capacity;
 
@@ -682,17 +684,20 @@ namespace Engine.Master
                     }
                     if (blueprintPart.PartType.StartsWith("Container"))
                     {
+                        moveUpdateUnitPart.Level = Container.Level;
                         moveUpdateUnitPart.Minerals = Container.Mineral;
                         moveUpdateUnitPart.Capacity = Container.Capacity;
                     }
                     if (blueprintPart.PartType.StartsWith("Reactor"))
                     {
+                        moveUpdateUnitPart.Level = Reactor.Level;
                         moveUpdateUnitPart.AvailablePower = Reactor.AvailablePower;
                         moveUpdateUnitPart.Minerals = Reactor.Container.Mineral;
                         moveUpdateUnitPart.Capacity = Reactor.Container.Capacity;
                     }
                     if (blueprintPart.PartType.StartsWith("Armor"))
                     {
+                        moveUpdateUnitPart.Level = Armor.Level;
                         moveUpdateUnitPart.ShieldActive = Armor.ShieldActive;
                         moveUpdateUnitPart.ShieldPower = Armor.ShieldPower;
                     }
@@ -700,43 +705,6 @@ namespace Engine.Master
                 stats.UnitParts.Add(moveUpdateUnitPart);
             }
 
-            // OLD Code
-            if (Engine != null)
-                stats.EngineLevel = Engine.Level;
-            if (Armor != null)
-                stats.ArmorLevel = Armor.Level;
-            if (Weapon != null)
-            {
-                stats.WeaponLevel = Weapon.Level;
-                stats.WeaponLoaded = Weapon.WeaponLoaded;
-            }
-            if (Assembler != null)
-            {
-                stats.ProductionLevel = Assembler.Level;
-                stats.CanProduce = Assembler.CanProduce();
-            }
-            if (Extractor != null)
-            {
-                stats.ExtractorLevel = Extractor.Level;
-            }
-            if (Container != null)
-            {
-                stats.ContainerLevel = Container.Level;
-                stats.ContainerFull = (Container.Mineral *100) / Container.Capacity;
-                if (stats.ContainerFull > 100)
-                {
-                    // Extract bug..
-                    stats.ContainerFull = 100;                    
-                }
-            }
-            if (Reactor != null)
-            {
-                stats.ReactorLevel = Reactor.Level;
-            }
-            if (Radar != null)
-            {
-                stats.RadarLevel = Radar.Level;
-            }
             stats.Power = Power;
 
             return stats;
