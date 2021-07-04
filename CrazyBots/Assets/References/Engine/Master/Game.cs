@@ -100,24 +100,28 @@ namespace Engine.Master
             {
                 foreach (UnitModel unitModel in GameModel.Units)
                 {
-                    Move move = new Move();
-                    move.MoveType = MoveType.Add;
-                    move.PlayerId = unitModel.PlayerId;
-                    if (string.IsNullOrEmpty(unitModel.Blueprint))
-                        move.UnitId = unitModel.Parts;
-                    else
-                        move.UnitId = unitModel.Blueprint;
-                    move.OtherUnitId = unitModel.Blueprint;
-                    move.Positions = new List<Position>();
-                    move.Positions.Add(unitModel.Position);
-                    newMoves.Add(move);
 
                     Tile t = Map.GetTile(unitModel.Position);
-                    t.Owner = unitModel.PlayerId;
-                    //t.Metal = 0;
-                    t.NumberOfDestructables = 0;
-                    t.NumberOfObstacles = 0;
+                    if (t != null)
+                    {
+                        Move move = new Move();
+                        move.MoveType = MoveType.Add;
+                        move.PlayerId = unitModel.PlayerId;
+                        if (string.IsNullOrEmpty(unitModel.Blueprint))
+                            move.UnitId = unitModel.Parts;
+                        else
+                            move.UnitId = unitModel.Blueprint;
+                        move.OtherUnitId = unitModel.Blueprint;
+                        move.Positions = new List<Position>();
+                        move.Positions.Add(unitModel.Position);
+                        newMoves.Add(move);
 
+
+                        t.Owner = unitModel.PlayerId;
+                        //t.Metal = 0;
+                        t.NumberOfDestructables = 0;
+                        t.NumberOfObstacles = 0;
+                    }
                     // Turn into direction missing
                 }
             }

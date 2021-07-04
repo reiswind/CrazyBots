@@ -1161,7 +1161,7 @@ public class GameCanvas : MonoBehaviour
                     // Prepare next
                     if (selectedBuildBlueprint == null)
                     {
-                        int x = 0;
+                        
                     }
                     else
                     {

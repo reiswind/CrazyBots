@@ -52,10 +52,10 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -77,8 +77,8 @@ public class HexGrid : MonoBehaviour
 		else
 		{
 			gameModel = new GameModel();
-			gameModel.MapHeight = gridWidth;
-			gameModel.MapWidth = gridHeight;
+			gameModel.MapHeight = gridHeight;
+			gameModel.MapWidth = gridWidth;
 
 			if (gridWidth > 10)
 			{
@@ -300,17 +300,25 @@ public class HexGrid : MonoBehaviour
 		GameObject cellPrefab = GetTerrainResource("HexCell 2");
 
 		// Render ground
+		foreach (Tile t in game.Map.Tiles.Values)
+        {
+			GroundCell hexCell = CreateCell(t, cellPrefab);
+			GroundCells.Add(t.Pos, hexCell);
+		}
+		/*
 		for (int y = 0; y < game.Map.MapHeight; y++)
 		{
 			for (int x = 0; x < game.Map.MapWidth; x++)
 			{
 				Position pos = new Position(x, y);
 				Tile t = game.Map.GetTile(pos);
-				GroundCell hexCell = CreateCell(t, cellPrefab);
-
-				GroundCells.Add(pos, hexCell);
+				if (t != null)
+				{
+					GroundCell hexCell = CreateCell(t, cellPrefab);
+					GroundCells.Add(pos, hexCell);
+				}
 			}
-		}
+		}*/
 
 		if (Application.platform == RuntimePlatform.WebGLPlayer)
 		{
@@ -852,6 +860,10 @@ public class HexGrid : MonoBehaviour
 
 	private GroundCell CreateCell(Tile t, GameObject cellPrefabx)
 	{
+		if (t.Height == 0.1f)
+        {
+			int xxx = 0;
+        }
 		int x = t.Pos.X;
 		int y = t.Pos.Y;
 
@@ -871,7 +883,15 @@ public class HexGrid : MonoBehaviour
 		double height = t.Height;
 
 		string materialName;
-		if (t.IsSand())
+		if (t.IsHill())
+		{
+			materialName = "Hill";
+		}
+		else if (t.IsRock())
+		{
+			materialName = "Rock";
+		}
+		else if (t.IsSand())
 		{
 			materialName = "Sand";
 		}
@@ -895,18 +915,25 @@ public class HexGrid : MonoBehaviour
 		{
 			materialName = "GrassDark";
 		}
-		else
+		else if (t.IsGras())
 		{
 			materialName = "Grass";
 		}
-
+		else if (t.IsWater())
+		{
+			materialName = "Water";
+		}
+		else
+        {
+			materialName = "";
+		}
 		if (false && t.ZoneId != 0)
 		{
 			gridPos3.y += 1;
 		}
 		else
 		{
-			gridPos3.y += ((float)height);
+			gridPos3.y += ((float)height) + 0.3f;
 		}
 		gameObjectCell.transform.localPosition = gridPos3;
 

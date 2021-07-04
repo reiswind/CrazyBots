@@ -86,6 +86,7 @@ namespace Engine.Interface
         private List<Tile> neighbors;
 
         public double Height { get; set; }
+        public int TerrainTypeIndex { get; set; }
 
         private int minerals;
         public int Metal 
@@ -134,43 +135,56 @@ namespace Engine.Interface
                 return Map.Units.GetUnitAt(Pos);
             }
         }
+        public bool IsHill()
+        {
+            return Height > 0.8 && Height <= 0.9;
+        }
+        public bool IsRock()
+        {
+            return Height > 0.7 && Height <= 0.8;
+        }
 
         public bool IsDarkWood()
         {
-            return Height > 0.48 && Height <= 0.53;
+            return Height > 0.6 && Height <= 0.7;
         }
 
         public bool IsWood()
         {
-            return ((Height > 0.41 && Height <= 0.48) || (Height > 0.53 && Height <= 0.60));
+            return Height > 0.5 && Height <= 0.6;
         }
 
         public bool IsLightWood()
         {
-            return ((Height > 0.34 && Height <= 0.41) || (Height > 0.60 && Height <= 0.67));
+            return Height > 0.4 && Height <= 0.5;
             //return Height >= 0.40 && Height <= 0.47;
         }
         public bool IsGrassDark()
         {
-            return ((Height > 0.27 && Height <= 0.34) || (Height > 0.67 && Height <= 0.74));
+            return Height > 0.3 && Height <= 0.4;
             //return Height >= 0.35 && Height <= 0.40;
         }
         public bool IsGras()
         {
-            return ((Height > 0.20 && Height <= 0.27) || (Height > 0.74 && Height <= 0.81));
+            return Height > 0.20 && Height <= 0.3;
             //return Height >= 0.26 && Height <= 0.32;
         }
         public bool IsDarkSand()
         {
-            return ((Height > 0.13 && Height <= 0.20) || (Height > 0.81 && Height <= 0.88));
+            return Height > 0.1 && Height <= 0.20;
             //return Height >= 0.26 && Height <= 0.32;
         }
         public bool IsSand()
         {
-            return ((Height > 0.0 && Height <= 0.13) || (Height > 0.88 && Height <= 1));
+            return Height > 0.0 && Height <= 0.1;
             //return Height > 0.27 && Height < 0.33;
         }
-        
+        public bool IsWater()
+        {
+            return Height <= 0;
+            //return Height > 0.27 && Height < 0.33;
+        }
+
 
         public bool CanMoveTo()
         {
@@ -178,7 +192,9 @@ namespace Engine.Interface
             {
                 return false;
             }
-            
+            if (IsWater())
+                return false;
+
             if (Metal >= 20)
             {
                 return false;

@@ -159,6 +159,7 @@ namespace Engine.Master
             }
         }
 
+        private MapGenerator.HexMapGenerator mapGenerator;
 
         public Map(Game game, int seed)
         {
@@ -171,6 +172,9 @@ namespace Engine.Master
             zoneWidth = (MapWidth / 15);
             maxZones = zoneWidth * (MapHeight / 15) - 1;
 
+            mapGenerator = new MapGenerator.HexMapGenerator();
+            mapGenerator.Random = game.Random;
+            mapGenerator.GenerateMap(MapWidth, MapHeight, false);
             /*
             Matrix = new byte[gameModel.MapWidth, gameModel.MapHeight];
             for (int y = 0; y < Matrix.GetUpperBound(1); y++)
@@ -197,9 +201,9 @@ namespace Engine.Master
             mapDefaultZone.MaxMinerals = -1;
             Zones.Add(mapDefaultZone.ZoneId, mapDefaultZone);
 
-            AddZone(new Position(10, 10));
-            AddZone(new Position(10, 30));
-            AddZone(new Position(30, 30));
+            //AddZone(new Position(10, 10));
+            //AddZone(new Position(10, 30));
+            //AddZone(new Position(30, 30));
 
             mapDefaultZone.Tiles = new Dictionary<Position, TileWithDistance>(); 
             foreach (Tile t in Tiles.Values)
@@ -229,6 +233,9 @@ namespace Engine.Master
 
         public void DistributeMineral()
         {
+            if (Zones.Count <= 1)
+                return;
+
             overflowMinerals++;
 
             int max = Zones.Count;
@@ -361,92 +368,60 @@ namespace Engine.Master
             return resultList;
         }
 
-        private HeightMap terrain;
+        //private HeightMap terrain;
 
 
         public Tile GetTile(Position pos)
         {
+
+
             if (Tiles.ContainsKey(pos))
                 return Tiles[pos];
 
-            if (terrain == null)
+            //if (terrain == null)
+            if (Tiles.Count == 0)
             {
-                int totalMetal;
-
-                totalMetal = 0;
-                Tiles.Clear();
-                terrain = GenerateTerrain(seed);
-
-                for (int x = 0; x < Game.GameModel.MapWidth; x++)
+                for (int z = 0, i = 0; z < mapGenerator.cellCountZ; z++)
                 {
-                    for (int y = 0; y < Game.GameModel.MapHeight; y++)
+                    for (int x = 0; x < mapGenerator.cellCountX; x++)
                     {
-                        Position p = new Position(x, y);
-                        Tile t = new Tile(this, p);
-                        Tiles.Add(p, t);
+                        MapGenerator.HexCell hexCell = mapGenerator.GetCell(i++);
+                        //hexCell.coordinates.
 
-                        t.Height = terrain.Data[x, y];
-
-                        if (t.IsDarkWood())
+                        Tile t = new Tile(this, new Position(x, z));
+                        t.Height = hexCell.Elevation;
+                        if (hexCell.Elevation == 1)
                         {
-                            if (Game.Random.Next(8) == 1)
-                            {
-                                t.NumberOfDestructables = 1;
-                                //t.Metal = 1;
-                            }
+                            int xx = 0;
                         }
-                        else if (t.IsWood())
+                        t.TerrainTypeIndex = hexCell.TerrainTypeIndex;
+                        t.Height /= 10;
+                        if (hexCell.IsUnderwater)
                         {
-                            if (Game.Random.Next(14) == 0)
-                            {
-                                t.NumberOfDestructables = 3;
-                                //t.Metal = 1;
-                            }
+                            //t.Height = 0; // hexCell.Elevation; //.TerrainTypeIndex;
                         }
-                        else if (t.IsLightWood())
-                        {
-                            if (Game.Random.Next(25) == 0)
-                            {
-                                t.NumberOfDestructables = 4;
-                                //t.Metal = 1;
-                            }
-                        }
-                        else if (t.IsDarkSand())
-                        {
-                            if (Game.Random.Next(25) == 0)
-                            {
-                                t.NumberOfDestructables = 4;
-                                //t.Metal = 4;
-                            }
-                        }
-                        else if (t.IsSand())
-                        {
-                            if (Game.Random.Next(30) == 0)
-                            {
-                                t.NumberOfDestructables = 3;
-                                //t.Metal = 3;
-                            }
-                            else if (Game.Random.Next(20) == 0)
-                            {
-                                t.NumberOfObstacles = 2;
-                                //t.Metal = 2;
-                            }
-                        }
-                        else if (t.IsGrassDark())
-                        {
-                            //if (Game.Random.Next(30) == 0)
-                            //    t.Metal = 20;
-                        }
-                        else if (t.IsGras())
-                        {
-                            //if (Game.Random.Next(20) == 0)
-                            //    t.Metal = 20;
-                        }
-
-                        
-                        totalMetal += t.Metal;
+                        Tiles.Add(t.Pos, t);
                     }
                 }
+
+                //MapSektor mapSektor = new MapSektor();
+                //mapSektor.GenerateTiles(this, new Position(0, 0), 0.1);
+                /*
+                mapSektor.GenerateTiles(this, new Position(1, 0), 0.2);
+                mapSektor.GenerateTiles(this, new Position(2, 0), 0.3);
+
+                mapSektor.GenerateTiles(this, new Position(0, 1), 0.4);
+                mapSektor.GenerateTiles(this, new Position(1, 1), 0.5);
+                mapSektor.GenerateTiles(this, new Position(2, 1), 0.6);
+
+                mapSektor.GenerateTiles(this, new Position(0, 2), 0.12);
+                mapSektor.GenerateTiles(this, new Position(1, 2), 0.15);
+                mapSektor.GenerateTiles(this, new Position(2, 2), 0.13);*/
+
+                //Tiles.Clear();
+                //terrain = GenerateTerrain(seed);
+
+
                 /*
                 mineralDwells = new Dictionary<Position, int>();
 
@@ -469,6 +444,7 @@ namespace Engine.Master
 
 
                 //checkTotalMetal = GetMapInfo().TotalMetal;
+
             }
             if (Tiles.ContainsKey(pos))
                 return Tiles[pos];
