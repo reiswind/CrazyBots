@@ -65,7 +65,6 @@
     <Compile Include="Assets\Scripts\Extractor1.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\HighResolutionTime.cs" />
     <Compile Include="Assets\References\Engine\Master\Map.cs" />
-    <Compile Include="Assets\unPopular Games\Scripts\CameraController.cs" />
     <Compile Include="Assets\References\Engine\Map\HexEdgeType.cs" />
     <Compile Include="Assets\References\Engine\Ants\Ant.cs" />
     <Compile Include="Assets\References\Engine\Interface\Area.cs" />
@@ -75,7 +74,6 @@
     <Compile Include="Assets\Scripts\Armor.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\PathFinderFast.cs" />
     <Compile Include="Assets\References\Engine\Map\ListPool.cs" />
-    <Compile Include="Assets\StrategyCameraLite\Example\Scripts\HelpUI.cs" />
     <Compile Include="Assets\Scripts\Reactor1.cs" />
     <Compile Include="Assets\Scripts\CameraControllerx.cs" />
     <Compile Include="Assets\References\Engine\Map\HexCell.cs" />
@@ -114,7 +112,6 @@
     <Compile Include="Assets\Scripts\Shell.cs" />
     <Compile Include="Assets\References\Engine\Master\Units.cs" />
     <Compile Include="Assets\Scripts\Frame.cs" />
-    <Compile Include="Assets\StrategyCameraLite\Example\Scripts\DemoUI.cs" />
     <Compile Include="Assets\References\Engine\Master\Unit.cs" />
     <Compile Include="Assets\Scripts\UnitBase.cs" />
     <Compile Include="Assets\References\Engine\Map\HexHash.cs" />

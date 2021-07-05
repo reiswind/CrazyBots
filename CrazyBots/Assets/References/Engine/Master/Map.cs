@@ -133,6 +133,7 @@ namespace Engine.Master
         public int ZoneId { get; set; }
         public int TotalMinerals { get; set; }
         public int MaxMinerals { get; set; }
+        public Position Center { get; set; }
 
         public Dictionary<Position, TileWithDistance> Tiles { get; set; }
 
@@ -243,6 +244,7 @@ namespace Engine.Master
 
                     Position sectorPos = new Position(x, z);
                     MapSector mapSector = new MapSector();
+                    mapSector.Center = new Position(sectorPos.X * sectorSize, sectorPos.Y * sectorSize);
                     Sectors.Add(sectorPos, mapSector);
 
                     //MapGenerator.HexCell hexCellE = hexCell.GetNeighbor(MapGenerator.HexDirection.E);
@@ -407,6 +409,20 @@ namespace Engine.Master
             mapDefaultZone.MaxMinerals = -1;
             Zones.Add(mapDefaultZone.ZoneId, mapDefaultZone);
 
+            // Create startup zone for player
+            foreach (MapSector mapSector in Sectors.Values)
+            {
+                if (mapSector.Center.X < 8 || mapSector.Center.Y < 8)
+                    continue;
+
+                if (mapSector.IsPossibleStart())
+                {
+                    AddZone(mapSector.Center);
+                    break;
+                }
+            }
+
+
             //AddZone(new Position(10, 10));
             //AddZone(new Position(10, 30));
             //AddZone(new Position(30, 30));
@@ -421,11 +437,12 @@ namespace Engine.Master
 
         private void AddZone(Position pos)
         {
-            int zoneId = Zones.Count + 1;
+            int zoneId = Zones.Count;
 
             MapZone mapZone = new MapZone();
             mapZone.ZoneId = zoneId;
             mapZone.MaxMinerals = 40;
+            mapZone.Center = pos;
 
             mapZone.Tiles = EnumerateTiles(pos, 3, true);
             foreach (TileWithDistance t in mapZone.Tiles.Values)
@@ -444,6 +461,9 @@ namespace Engine.Master
                 return;
 
             overflowMinerals++;
+
+            if (zoneCounter == 0)
+                zoneCounter = 1;
 
             int max = Zones.Count;
             while (max-- > 0 && overflowMinerals > 0)

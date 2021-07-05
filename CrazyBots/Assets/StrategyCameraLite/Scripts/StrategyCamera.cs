@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using Engine.Interface;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class StrategyCamera : MonoBehaviour
 {
@@ -40,8 +42,6 @@ public class StrategyCamera : MonoBehaviour
 	public Vector3 MinPosition;
 	public Vector3 MaxPosition;
 
-
-
 	[Header("Zooming Input settings")]
 	public string InputAxisZoom = "Mouse ScrollWheel";
 	public bool InvertZooming = false;
@@ -71,10 +71,32 @@ public class StrategyCamera : MonoBehaviour
 	private float targetZoom;
 	private float currentZoom;
 
+	private Camera MiniMapCamera;
+
 	// Start is called before the first frame update
 	void Awake()
 	{
 		cam = GetComponentInChildren<Camera>();
+
+		Scene scene = SceneManager.GetActiveScene();
+		foreach (GameObject gameObject in scene.GetRootGameObjects())
+        {
+			if (gameObject.name == "MiniMapCamera")
+				MiniMapCamera = gameObject.GetComponentInChildren<Camera>();
+		}
+	}
+
+	public void JumpTo(HexGrid hexGrid, Position pos)
+    {
+		GroundCell groundCell = hexGrid.GroundCells[pos];
+		if (groundCell != null)
+		{
+			Vector3 vector3 = transform.position;
+			vector3.x = groundCell.transform.position.x;
+			vector3.z = groundCell.transform.position.z;
+
+			targetPosition = vector3;
+		}
 	}
 
 	private void OnEnable()
@@ -115,6 +137,25 @@ public class StrategyCamera : MonoBehaviour
 		Zoom(minZoom);
 
 		transform.SetPositionAndRotation(targetPosition, targetRotation);
+
+		if (MiniMapCamera != null)
+		{
+			Vector3 miniMapPosition = targetPosition;
+			miniMapPosition.y = 100;
+			MiniMapCamera.transform.position = miniMapPosition;
+
+			miniMapPosition.y = 0;
+
+			RaycastHit raycastHit;
+			if (Physics.Raycast(MiniMapCamera.ScreenPointToRay(miniMapPosition), out raycastHit, Mathf.Infinity))
+			{
+				GroundCell groundCell = raycastHit.collider.gameObject.GetComponent<GroundCell>();
+				if (groundCell != null)
+                {
+					int x = 0;
+                }
+			}
+		}
 	}
 
 	private void Movement()

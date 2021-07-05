@@ -17,8 +17,8 @@
       "PlayerId": 1,
 	  "Blueprint": "Container",
       "Position": {
-        "X": 10,
-        "Y": 11
+        "X": 0,
+        "Y": 1
       }
     },
 	{
@@ -26,8 +26,8 @@
       "PlayerId": 1,
 	  "Blueprint": "Reactor",
       "Position": {
-        "X": 12,
-        "Y": 12
+        "X": 2,
+        "Y": 2
       }
     },
 	{
@@ -35,8 +35,8 @@
       "PlayerId": 1,
 	  "Blueprint": "Factory",
       "Position": {
-        "X": 9,
-        "Y": 12
+        "X": 1,
+        "Y": 2
       }
     }
   ]

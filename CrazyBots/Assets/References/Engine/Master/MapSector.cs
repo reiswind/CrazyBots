@@ -11,6 +11,7 @@ namespace Engine.Interface
     {
         public Dictionary<Position, Tile> Tiles = new Dictionary<Position, Tile>();
 
+        public Position Center { get; set; }
         public bool InsideHexagon(float x, float y)
         {
             // Check length (squared) against inner and outer radius
@@ -27,6 +28,16 @@ namespace Engine.Interface
 
             if (px - py > 1.0f || px - py < -1.0f) return false;
 
+            return true;
+        }
+
+        public bool IsPossibleStart()
+        {
+            foreach (Tile tile in Tiles.Values)
+            {
+                if (tile.IsUnderwater)
+                    return false;
+            }
             return true;
         }
 

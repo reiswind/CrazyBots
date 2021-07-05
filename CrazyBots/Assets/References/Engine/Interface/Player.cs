@@ -165,6 +165,9 @@ namespace Engine.Interface
     public class Player
     {
         public Game Game { get; set; }
+
+        public MapZone StartZone { get; set; }
+
         public IControl Control { get; set; }
         public PlayerModel PlayerModel { get; set; }
         public List<Move> LastMoves;

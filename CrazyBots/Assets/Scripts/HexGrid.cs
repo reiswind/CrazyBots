@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class HexGrid : MonoBehaviour 
@@ -92,6 +93,17 @@ public class HexGrid : MonoBehaviour
 			}
 		}
 		CreateGame(gameModel);
+
+        UnityEngine.SceneManagement.Scene scene = SceneManager.GetActiveScene();
+		foreach (GameObject gameObject in scene.GetRootGameObjects())
+		{
+			if (gameObject.name == "Strategy Camera")
+			{
+				StrategyCamera strategyCamera = gameObject.GetComponentInChildren<StrategyCamera>();
+
+				strategyCamera.JumpTo(this, game.Players[1].StartZone.Center);
+			}
+		}
 
 		InvokeRepeating(nameof(invoke), 0.5f, GameSpeed);
 

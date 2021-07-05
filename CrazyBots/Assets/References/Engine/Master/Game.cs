@@ -100,8 +100,11 @@ namespace Engine.Master
             {
                 foreach (UnitModel unitModel in GameModel.Units)
                 {
+                    Player player = Players[unitModel.PlayerId];
 
-                    Tile t = Map.GetTile(unitModel.Position);
+                    Position posOnMap = new Position(player.StartZone.Center.X + unitModel.Position.X, player.StartZone.Center.Y + unitModel.Position.Y);
+
+                    Tile t = Map.GetTile(posOnMap);
                     if (t != null)
                     {
                         Move move = new Move();
@@ -113,7 +116,7 @@ namespace Engine.Master
                             move.UnitId = unitModel.Blueprint;
                         move.OtherUnitId = unitModel.Blueprint;
                         move.Positions = new List<Position>();
-                        move.Positions.Add(unitModel.Position);
+                        move.Positions.Add(posOnMap);
                         newMoves.Add(move);
 
 
@@ -181,16 +184,21 @@ namespace Engine.Master
 
             if (!string.IsNullOrEmpty(logFile))
                 File.Delete(logFile);
+
+            Map.CreateZones();
+
             if (gameModel?.Players != null)
             {
                 foreach (PlayerModel playerModel in gameModel.Players)
                 {
                     Player p = new Player(this, playerModel);
+
+                    p.StartZone = Map.Zones[1];
+
                     Players.Add(playerModel.Id, p);
                 }
             }
 
-            Map.CreateZones();
 
             Map.GetTile(new Position(0, 0));
             for (int i=0; i < Map.DefaultMinerals; i++)
