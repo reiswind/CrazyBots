@@ -94,7 +94,7 @@
     <Compile Include="Assets\References\Engine\Map\HexCoordinates.cs" />
     <Compile Include="Assets\References\Engine\Master\Armor .cs" />
     <Compile Include="Assets\Scripts\Weapon1.cs" />
-    <Compile Include="Assets\References\Engine\Master\MapSektor.cs" />
+    <Compile Include="Assets\References\Engine\Master\MapSector.cs" />
     <Compile Include="Assets\Scripts\Transport.cs" />
     <Compile Include="Assets\References\Engine\Map\HexCellPriorityQueue.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntDestination.cs" />

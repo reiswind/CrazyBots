@@ -89,26 +89,29 @@ namespace Engine.Interface
                 Pheromones.Add(mapPheromone.Pos, mapPheromone);
             }
 
-            foreach (Tile t in game.Map.Tiles.Values)
+            foreach (MapSector mapSector in game.Map.Sectors.Values)
             {
-                TotalMetal += t.Metal;
-                if (t.Unit != null)
+                foreach (Tile t in mapSector.Tiles.Values)
                 {
-                    TotalMetal += t.Unit.CountMetal();
+                    TotalMetal += t.Metal;
+                    if (t.Unit != null)
+                    {
+                        TotalMetal += t.Unit.CountMetal();
 
-                    MapPlayerInfo mapPlayerInfo;
-                    if (PlayerInfo.ContainsKey(t.Unit.Owner.PlayerModel.Id))
-                    {
-                        mapPlayerInfo = PlayerInfo[t.Unit.Owner.PlayerModel.Id];
+                        MapPlayerInfo mapPlayerInfo;
+                        if (PlayerInfo.ContainsKey(t.Unit.Owner.PlayerModel.Id))
+                        {
+                            mapPlayerInfo = PlayerInfo[t.Unit.Owner.PlayerModel.Id];
+                        }
+                        else
+                        {
+                            mapPlayerInfo = new MapPlayerInfo();
+                            PlayerInfo.Add(t.Unit.Owner.PlayerModel.Id, mapPlayerInfo);
+                        }
+                        mapPlayerInfo.TotalCapacity += t.Unit.CountCapacity();
+                        mapPlayerInfo.TotalMetal += t.Unit.CountMineralsInContainer();
+                        mapPlayerInfo.TotalUnits++;
                     }
-                    else
-                    {
-                        mapPlayerInfo = new MapPlayerInfo();
-                        PlayerInfo.Add(t.Unit.Owner.PlayerModel.Id, mapPlayerInfo);
-                    }
-                    mapPlayerInfo.TotalCapacity += t.Unit.CountCapacity();
-                    mapPlayerInfo.TotalMetal += t.Unit.CountMineralsInContainer();
-                    mapPlayerInfo.TotalUnits++;
                 }
             }
 
@@ -138,7 +141,8 @@ namespace Engine.Master
     public class Map
     {
         public Dictionary<int, MapZone> Zones = new Dictionary<int, MapZone>();
-        public Dictionary<Position, Tile> Tiles = new Dictionary<Position, Tile>();
+        public Dictionary<Position, MapSector> Sectors = new Dictionary<Position, MapSector>();
+
         public Units Units { get; private set; }
 
         private int seed;
@@ -175,6 +179,8 @@ namespace Engine.Master
             mapGenerator = new MapGenerator.HexMapGenerator();
             mapGenerator.Random = game.Random;
             mapGenerator.GenerateMap(MapWidth, MapHeight, false);
+            GenerateTiles();
+
             /*
             Matrix = new byte[gameModel.MapWidth, gameModel.MapHeight];
             for (int y = 0; y < Matrix.GetUpperBound(1); y++)
@@ -194,6 +200,206 @@ namespace Engine.Master
             }*/
         }
 
+        private int sectorSize = 8;
+
+        public Tile GetTile(Position pos)
+        {
+            MapSector mapSector = GetSector(pos);
+
+            if (mapSector != null && mapSector.Tiles.ContainsKey(pos))
+                return mapSector.Tiles[pos];
+
+            return null;
+        }
+
+        public MapSector GetSector(Position pos)
+        {
+            int sectorX = pos.X / sectorSize;
+            int sectorY = pos.Y / sectorSize;
+            Position sectorPos = new Position(sectorX, sectorY);
+
+            MapSector mapSector = null;
+            if (Sectors.ContainsKey(sectorPos))
+                mapSector = Sectors[sectorPos];
+
+            return mapSector;
+        }
+
+        private void CopyValues(MapGenerator.HexCell hexCell, Tile t)
+        {
+            t.Height = hexCell.Elevation;
+            t.TerrainTypeIndex = hexCell.TerrainTypeIndex;
+            t.IsUnderwater = hexCell.IsUnderwater;
+            t.PlantLevel = hexCell.PlantLevel;
+        }
+
+        public void GenerateTiles()
+        {
+            for (int z = 0, i = 0; z < mapGenerator.cellCountZ; z++)
+            {
+                for (int x = 0; x < mapGenerator.cellCountX; x++)
+                {
+                    MapGenerator.HexCell hexCell = mapGenerator.GetCell(i++);
+
+                    Position sectorPos = new Position(x, z);
+                    MapSector mapSector = new MapSector();
+                    Sectors.Add(sectorPos, mapSector);
+
+                    //MapGenerator.HexCell hexCellE = hexCell.GetNeighbor(MapGenerator.HexDirection.E);
+                    MapGenerator.HexCell hexCellW = hexCell.GetNeighbor(MapGenerator.HexDirection.W);
+
+                    MapGenerator.HexCell hexCellSW = hexCell.GetNeighbor(MapGenerator.HexDirection.SW);
+                    MapGenerator.HexCell hexCellSE = hexCell.GetNeighbor(MapGenerator.HexDirection.SE);
+
+                    //MapGenerator.HexCell hexCellNE = hexCell.GetNeighbor(MapGenerator.HexDirection.NE);
+                    //MapGenerator.HexCell hexCellSE = hexCell.GetNeighbor(MapGenerator.HexDirection.SE);
+
+                    for (int sectorX = sectorPos.X * sectorSize; sectorX < sectorPos.X* sectorSize + sectorSize; sectorX++)
+                    {
+                        for (int sectorY = sectorPos.Y* sectorSize; sectorY < sectorPos.Y* sectorSize + sectorSize; sectorY++)
+                        {
+                            Position sectorTilePos = new Position(sectorX, sectorY);
+
+                            Tile t = new Tile(this, sectorTilePos);
+                            CopyValues(hexCell, t);
+
+                            int borderWidth = 3;
+
+                            // Senkrechte kante
+                            
+                            if (hexCellW != null && sectorX < sectorPos.X * sectorSize + 1)
+                            {
+                                if (Game.Random.Next(2) == 0)
+                                {
+                                    CopyValues(hexCellW, t);
+                                    t.Height = (hexCell.Elevation + hexCellW.Elevation) / 2;
+                                }
+                            }
+                            
+                            // Corner
+                            if (hexCellSW != null && sectorX < sectorPos.X * sectorSize + borderWidth && sectorY < sectorPos.Y * sectorSize + borderWidth)
+                            {
+                                if (Game.Random.Next(2) == 0)
+                                {
+                                    CopyValues(hexCellSW, t);
+                                }
+                            }
+
+                            /* Not working
+                            if (hexCellNW != null && sectorX < sectorPos.X * sectorSize + borderWidth && sectorY < sectorPos.Y * sectorSize + sectorSize - borderWidth)
+                            {
+                                if (Game.Random.Next(2) == 0)
+                                {
+                                    CopyValues(hexCellNW, t);
+                                }
+                            }*/
+
+                            // Corner
+                            if (hexCellSE != null && sectorX > sectorPos.X * sectorSize + sectorSize - borderWidth && sectorY < sectorPos.Y * sectorSize + borderWidth)
+                            {
+                                if (Game.Random.Next(2) == 0)
+                                {
+                                    CopyValues(hexCellSE, t);
+                                }
+                            }
+
+                            /*
+                            if (hexCellSE != null && sectorX > sectorPos.X * sectorSize + sectorSize - borderWidth && sectorY < sectorPos.Y * sectorSize + sectorSize - borderWidth)
+                            {
+                                if (Game.Random.Next(2) == 0)
+                                {
+                                    CopyValues(hexCellSE, t);
+                                }
+                            }                           
+                            if (hexCellE != null && sectorX > sectorPos.X * sectorSize + sectorSize - borderWidth)
+                            {
+                                if (Game.Random.Next(2) == 0)
+                                {
+                                    CopyValues(hexCellE, t);
+                                }
+                            }
+                            */
+                            if (!t.IsUnderwater)
+                            {
+                                if (hexCell.TerrainTypeIndex == 0)
+                                {
+                                    t.NumberOfDestructables = hexCell.PlantLevel;
+                                    if (Game.Random.Next(6) == 0)
+                                        t.NumberOfDestructables++;
+                                }
+                                if (hexCell.TerrainTypeIndex == 1)
+                                {
+                                    if (Game.Random.Next(12) == 0)
+                                        t.NumberOfDestructables = hexCell.PlantLevel;
+                                }
+
+                                if (hexCell.TerrainTypeIndex == 3)
+                                {
+                                    t.NumberOfDestructables = hexCell.PlantLevel;
+                                    if (Game.Random.Next(6) == 0)
+                                        t.NumberOfDestructables++;
+                                }
+
+                                if (hexCell.TerrainTypeIndex >= 4)
+                                {
+                                    t.Height += 3;
+                                }
+                            }
+                            t.Height /= Game.Random.Next(5, 7);
+                            if (t.Height < 0.1f)
+                                t.Height = 0.1f;
+
+                            mapSector.Tiles.Add(sectorTilePos, t);
+                        }
+                    }
+                }
+            }
+
+
+
+            //MapSektor mapSektor = new MapSektor();
+            //mapSektor.GenerateTiles(this, new Position(0, 0), 0.1);
+            /*
+            mapSektor.GenerateTiles(this, new Position(1, 0), 0.2);
+            mapSektor.GenerateTiles(this, new Position(2, 0), 0.3);
+
+            mapSektor.GenerateTiles(this, new Position(0, 1), 0.4);
+            mapSektor.GenerateTiles(this, new Position(1, 1), 0.5);
+            mapSektor.GenerateTiles(this, new Position(2, 1), 0.6);
+
+            mapSektor.GenerateTiles(this, new Position(0, 2), 0.12);
+            mapSektor.GenerateTiles(this, new Position(1, 2), 0.15);
+            mapSektor.GenerateTiles(this, new Position(2, 2), 0.13);*/
+
+            //Tiles.Clear();
+            //terrain = GenerateTerrain(seed);
+
+
+            /*
+            mineralDwells = new Dictionary<Position, int>();
+
+            int zone = 0;
+            while (zone < maxZones)
+            {
+                int minX = (zone % zoneWidth) * 15;
+                int minY = (zone / zoneWidth) * 15;
+                zone++;
+
+                int x = Game.Random.Next(10) + 3;
+                int y = Game.Random.Next(10) + 3;
+
+                Position dwell = new Position(minX + x, minY + y);
+                //Tile t = GetTile(dwell);
+                //t.Height = 0.5f;
+
+                mineralDwells.Add(dwell, 0);
+            }*/
+
+
+            //checkTotalMetal = GetMapInfo().TotalMetal;
+
+        }
+
         public void CreateZones()
         {
             MapZone mapDefaultZone = new MapZone();
@@ -205,11 +411,12 @@ namespace Engine.Master
             //AddZone(new Position(10, 30));
             //AddZone(new Position(30, 30));
 
+            /*
             mapDefaultZone.Tiles = new Dictionary<Position, TileWithDistance>(); 
             foreach (Tile t in Tiles.Values)
             {
                 mapDefaultZone.Tiles.Add(t.Pos, new TileWithDistance(t,0));
-            }
+            }*/
         }
 
         private void AddZone(Position pos)
@@ -371,92 +578,7 @@ namespace Engine.Master
         //private HeightMap terrain;
 
 
-        public Tile GetTile(Position pos)
-        {
 
-
-            if (Tiles.ContainsKey(pos))
-                return Tiles[pos];
-
-            //if (terrain == null)
-            if (Tiles.Count == 0)
-            {
-                for (int z = 0, i = 0; z < mapGenerator.cellCountZ; z++)
-                {
-                    for (int x = 0; x < mapGenerator.cellCountX; x++)
-                    {
-                        MapGenerator.HexCell hexCell = mapGenerator.GetCell(i++);
-                        //hexCell.coordinates.
-
-                        Tile t = new Tile(this, new Position(x, z));
-                        t.Height = hexCell.Elevation;
-                        if (hexCell.Elevation == 1)
-                        {
-                            int xx = 0;
-                        }
-                        t.TerrainTypeIndex = hexCell.TerrainTypeIndex;
-                        t.Height /= 10;
-                        if (hexCell.IsUnderwater)
-                        {
-                            //t.Height = 0; // hexCell.Elevation; //.TerrainTypeIndex;
-                        }
-                        Tiles.Add(t.Pos, t);
-                    }
-                }
-
-                //MapSektor mapSektor = new MapSektor();
-                //mapSektor.GenerateTiles(this, new Position(0, 0), 0.1);
-                /*
-                mapSektor.GenerateTiles(this, new Position(1, 0), 0.2);
-                mapSektor.GenerateTiles(this, new Position(2, 0), 0.3);
-
-                mapSektor.GenerateTiles(this, new Position(0, 1), 0.4);
-                mapSektor.GenerateTiles(this, new Position(1, 1), 0.5);
-                mapSektor.GenerateTiles(this, new Position(2, 1), 0.6);
-
-                mapSektor.GenerateTiles(this, new Position(0, 2), 0.12);
-                mapSektor.GenerateTiles(this, new Position(1, 2), 0.15);
-                mapSektor.GenerateTiles(this, new Position(2, 2), 0.13);*/
-
-                //Tiles.Clear();
-                //terrain = GenerateTerrain(seed);
-
-
-                /*
-                mineralDwells = new Dictionary<Position, int>();
-
-                int zone = 0;
-                while (zone < maxZones)
-                {
-                    int minX = (zone % zoneWidth) * 15;
-                    int minY = (zone / zoneWidth) * 15;
-                    zone++;
-
-                    int x = Game.Random.Next(10) + 3;
-                    int y = Game.Random.Next(10) + 3;
-
-                    Position dwell = new Position(minX + x, minY + y);
-                    //Tile t = GetTile(dwell);
-                    //t.Height = 0.5f;
-
-                    mineralDwells.Add(dwell, 0);
-                }*/
-
-
-                //checkTotalMetal = GetMapInfo().TotalMetal;
-
-            }
-            if (Tiles.ContainsKey(pos))
-                return Tiles[pos];
-
-            return null;
-            /* Dynamically expand. Not now
-            Tile tile = new Tile(this, pos);
-            Tiles.Add(pos, tile);
-
-            return tile;
-            */
-        }
 
         private HeightMap GenerateTerrain(int? seed = null)
         {

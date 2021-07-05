@@ -299,12 +299,35 @@ public class HexGrid : MonoBehaviour
 		*/
 		GameObject cellPrefab = GetTerrainResource("HexCell 2");
 
-		// Render ground
-		foreach (Tile t in game.Map.Tiles.Values)
-        {
-			GroundCell hexCell = CreateCell(t, cellPrefab);
-			GroundCells.Add(t.Pos, hexCell);
+		foreach (MapSector mapSector in game.Map.Sectors.Values)
+
+		//MapSector mapSector = game.Map.Sectors.ElementAt(100).Value;
+		{
+			foreach (Tile t in mapSector.Tiles.Values)
+			{
+				GroundCell hexCell = CreateCell(t, cellPrefab);
+				if (GroundCells.ContainsKey(t.Pos))
+				{
+					int xxx = 0;
+				}
+				else
+				{
+					GroundCells.Add(t.Pos, hexCell);
+				}
+			}
 		}
+		/*
+		mapSector = game.Map.Sectors.ElementAt(101).Value;
+		{
+			foreach (Tile t in mapSector.Tiles.Values)
+			{
+				GroundCell hexCell = CreateCell(t, cellPrefab);
+				if (!GroundCells.ContainsKey(t.Pos))
+					GroundCells.Add(t.Pos, hexCell);
+			}
+		}*/
+
+
 		/*
 		for (int y = 0; y < game.Map.MapHeight; y++)
 		{
@@ -883,49 +906,52 @@ public class HexGrid : MonoBehaviour
 		double height = t.Height;
 
 		string materialName;
-		if (t.IsHill())
-		{
-			materialName = "Hill";
-		}
-		else if (t.IsRock())
-		{
-			materialName = "Rock";
-		}
-		else if (t.IsSand())
-		{
-			materialName = "Sand";
-		}
-		else if (t.IsDarkSand())
-		{
-			materialName = "DarkSand";
-		}
-		else if (t.IsDarkWood())
-		{
-			materialName = "DarkWood";
-		}
-		else if (t.IsWood())
-		{
-			materialName = "Wood";
-		}
-		else if (t.IsLightWood())
-		{
-			materialName = "LightWood";
-		}
-		else if (t.IsGrassDark())
-		{
-			materialName = "GrassDark";
-		}
-		else if (t.IsGras())
-		{
-			materialName = "Grass";
-		}
-		else if (t.IsWater())
+		if (t.IsUnderwater)
 		{
 			materialName = "Water";
 		}
 		else
-        {
-			materialName = "";
+		{
+			if (t.IsHill())
+			{
+				materialName = "Hill";
+			}
+			else if (t.IsRock())
+			{
+				materialName = "Rock";
+			}
+			else if (t.IsSand())
+			{
+				materialName = "Sand";
+			}
+			else if (t.IsDarkSand())
+			{
+				materialName = "DarkSand";
+			}
+			else if (t.IsDarkWood())
+			{
+				materialName = "DarkWood";
+			}
+			else if (t.IsWood())
+			{
+				materialName = "Wood";
+			}
+			else if (t.IsLightWood())
+			{
+				materialName = "LightWood";
+			}
+			else if (t.IsGrassDark())
+			{
+				materialName = "GrassDark";
+			}
+			else if (t.IsGras())
+			{
+				materialName = "Grass";
+			}
+			else
+			{
+				materialName = "";
+			}
 		}
 		if (false && t.ZoneId != 0)
 		{

@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 
 namespace Engine.Interface
 {
-    class MapSektor
+    public class MapSector
     {
+        public Dictionary<Position, Tile> Tiles = new Dictionary<Position, Tile>();
+
         public bool InsideHexagon(float x, float y)
         {
             // Check length (squared) against inner and outer radius
@@ -62,11 +64,11 @@ namespace Engine.Interface
                         {
                             //continue;
                         }
-                        if (map.Tiles.ContainsKey(p))
+                        if (Tiles.ContainsKey(p))
                             continue;
 
                         Tile t = new Tile(map, p);
-                        map.Tiles.Add(p, t);
+                        Tiles.Add(p, t);
 
                         t.Height = height; // terrain.Data[x, y];
 

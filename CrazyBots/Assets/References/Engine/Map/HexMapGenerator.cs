@@ -119,10 +119,10 @@ namespace Engine.MapGenerator
 		public float sinkProbability = 0.2f;
 
 		//[Range(5, 95)]
-		public int landPercentage = 50;
+		public int landPercentage = 70;
 
 		//[Range(1, 5)]
-		public int waterLevel = 2;
+		public int waterLevel = 1;
 
 		//[Range(-4, 0)]
 		public int elevationMinimum = -2;
@@ -979,13 +979,12 @@ namespace Engine.MapGenerator
 				latitude = 1f - latitude;
 			}
 
-			float temperature = 0;
-				//Mathf.LerpUnclamped(lowTemperature, highTemperature, latitude);
+			float temperature = UnityEngine.Mathf.LerpUnclamped(lowTemperature, highTemperature, latitude);
 
 			temperature *= 1f - (cell.ViewElevation - waterLevel) /
 				(elevationMaximum - waterLevel + 1f);
 
-			float jitter = 0; 				//HexMetrics.SampleNoise(cell.Position * 0.1f)[temperatureJitterChannel];
+			float jitter = (float)Random.Next(); // HexMetrics.SampleNoise(cell.Position * 0.1f)[temperatureJitterChannel];
 
 			temperature += (jitter * 2f - 1f) * temperatureJitter;
 

@@ -87,6 +87,7 @@ namespace Engine.Interface
 
         public double Height { get; set; }
         public int TerrainTypeIndex { get; set; }
+        public int PlantLevel { get; set; }
 
         private int minerals;
         public int Metal 
@@ -98,6 +99,7 @@ namespace Engine.Interface
         }
         public int ZoneId { get; set; }
         public int Plates { get; set; }
+        public bool IsUnderwater { get; set; }
 
         public int NumberOfDestructables { get; set; }
         public int NumberOfObstacles { get; set; }
@@ -137,52 +139,51 @@ namespace Engine.Interface
         }
         public bool IsHill()
         {
-            return Height > 0.8 && Height <= 0.9;
+            return TerrainTypeIndex >= 4;
+            //return Height > 0.8 && Height <= 0.9;
         }
         public bool IsRock()
         {
-            return Height > 0.7 && Height <= 0.8;
+
+            return TerrainTypeIndex >= 4;
+            //return Height > 0.7 && Height <= 0.8;
         }
 
         public bool IsDarkWood()
         {
-            return Height > 0.6 && Height <= 0.7;
+            return PlantLevel <= 4 && TerrainTypeIndex == 3;
+            //return Height > 0.6 && Height <= 0.7;
         }
 
         public bool IsWood()
         {
-            return Height > 0.5 && Height <= 0.6;
+            return PlantLevel == 2 && TerrainTypeIndex == 3;
+            //return Height > 0.5 && Height <= 0.6;
         }
 
         public bool IsLightWood()
         {
-            return Height > 0.4 && Height <= 0.5;
-            //return Height >= 0.40 && Height <= 0.47;
+            return PlantLevel <= 1 && TerrainTypeIndex == 3;
+            //return Height > 0.4 && Height <= 0.5;
         }
         public bool IsGrassDark()
         {
-            return Height > 0.3 && Height <= 0.4;
-            //return Height >= 0.35 && Height <= 0.40;
+            return PlantLevel > 1 && TerrainTypeIndex == 1;
+            //return Height > 0.3 && Height <= 0.4;
         }
         public bool IsGras()
         {
-            return Height > 0.20 && Height <= 0.3;
-            //return Height >= 0.26 && Height <= 0.32;
+            return PlantLevel <= 1 && TerrainTypeIndex == 1;
+            //return Height > 0.20 && Height <= 0.3;
         }
         public bool IsDarkSand()
         {
-            return Height > 0.1 && Height <= 0.20;
-            //return Height >= 0.26 && Height <= 0.32;
+            return PlantLevel > 1 && TerrainTypeIndex == 0;
+            //return Height > 0.1 && Height <= 0.20;
         }
         public bool IsSand()
         {
-            return Height > 0.0 && Height <= 0.1;
-            //return Height > 0.27 && Height < 0.33;
-        }
-        public bool IsWater()
-        {
-            return Height <= 0;
-            //return Height > 0.27 && Height < 0.33;
+            return PlantLevel <= 1 && TerrainTypeIndex == 0;
         }
 
 
@@ -192,7 +193,7 @@ namespace Engine.Interface
             {
                 return false;
             }
-            if (IsWater())
+            if (IsUnderwater)
                 return false;
 
             if (Metal >= 20)
