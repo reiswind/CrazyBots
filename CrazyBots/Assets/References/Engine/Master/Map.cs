@@ -154,14 +154,14 @@ namespace Engine.Master
         public int MapHeight { get; private set; }
 
         private int zoneCounter;
-        private int zoneWidth;
-        private int maxZones;
+        //private int zoneWidth;
+        //private int maxZones;
 
         public int DefaultMinerals
         {
             get
             {
-                return maxZones * 40;
+                return Zones.Count * 40;
             }
         }
 
@@ -175,15 +175,16 @@ namespace Engine.Master
             MapWidth = game.GameModel.MapWidth;
             MapHeight = game.GameModel.MapHeight;
 
-            zoneWidth = (MapWidth / 15);
-            maxZones = zoneWidth * (MapHeight / 15) - 1;
+            //zoneWidth = (MapWidth / 15);
+            //maxZones = zoneWidth * (MapHeight / 15) - 1;
+
 
             mapGenerator = new MapGenerator.HexMapGenerator();
             mapGenerator.Random = game.Random;
             mapGenerator.GenerateMap(MapWidth, MapHeight, false);
             GenerateTiles();
 
-            int xx = 0;
+
             /*
             Matrix = new byte[gameModel.MapWidth, gameModel.MapHeight];
             for (int y = 0; y < Matrix.GetUpperBound(1); y++)
@@ -434,6 +435,7 @@ namespace Engine.Master
             Zones.Add(mapDefaultZone.ZoneId, mapDefaultZone);
 
             // Create startup zone for player
+            Position startPosition = null;
             foreach (MapSector mapSector in Sectors.Values)
             {
                 if (mapSector.Center.X < 8 || mapSector.Center.Y < 8)
@@ -442,10 +444,27 @@ namespace Engine.Master
                 if (mapSector.IsPossibleStart(this))
                 {
                     AddZone(mapSector.Center);
+                    startPosition = mapSector.Center;
                     break;
                 }
             }
 
+            if (startPosition != null)
+            {
+                // Any other zones with minerals?
+                foreach (MapSector mapSector in Sectors.Values)
+                {
+                    if (this.Game.Random.Next(4) == 0)
+                    {
+                        if (mapSector.Center != startPosition &&
+                            mapSector.IsPossibleStart(this))
+                        {
+                            //if (!Zones.con)
+                            AddZone(mapSector.Center);
+                        }
+                    }
+                }
+            }
 
             //AddZone(new Position(10, 10));
             //AddZone(new Position(10, 30));

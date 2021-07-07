@@ -810,6 +810,12 @@ namespace Engine.Control
                     }
                     assignedCommands.Add(gameCommand);
                 }
+                if (gameCommand.GameCommandType == GameCommandType.Extract)
+                {
+                    // TODO
+
+                    assignedCommands.Add(gameCommand);
+                }
             }
 
             // Attach gamecommands to idle units

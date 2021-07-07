@@ -16,15 +16,6 @@ namespace Engine.Ants
             
         }
 
-        private GameCommand SelectNearestBuildCommand(Player player)
-        {
-            if (player.GameCommands.Count > 0)
-            {
-                return player.GameCommands[0];
-            }
-            return null;
-        }
-
         public override bool Move(Player player, List<Move> moves)
         {
             bool unitMoved = false;
@@ -78,16 +69,37 @@ namespace Engine.Ants
 
                     if (!upgrading)
                     {
-                        GameCommand gameCommand = SelectNearestBuildCommand(player);
                         Blueprint commandBluePrint = null;
-                        if (gameCommand != null)
+                        GameCommand selectedGameCommand = null;
+                        if (player.GameCommands.Count > 0)
                         {
-                            if (gameCommand.GameCommandType == GameCommandType.Build)
-                                commandBluePrint = player.Game.Blueprints.FindBlueprint(gameCommand.UnitId);
-                            if (gameCommand.GameCommandType == GameCommandType.Attack)
-                                addFighter = true;
-                            if (gameCommand.GameCommandType == GameCommandType.Minerals)
-                                addWorker = true;
+                            double bestDistance = 0;
+                            GameCommand bestGameCommand = null;
+
+                            foreach (GameCommand gameCommand in player.GameCommands)
+                            {
+                                double d = cntrlUnit.Pos.GetDistanceTo(gameCommand.TargetPosition);
+                                if (bestGameCommand == null || d < bestDistance)
+                                {
+                                    bestDistance = d;
+                                    selectedGameCommand = gameCommand;
+                                }
+                            }
+                            if (selectedGameCommand != null)
+                            {
+                                if (selectedGameCommand.GameCommandType == GameCommandType.Build)
+                                {
+                                    commandBluePrint = player.Game.Blueprints.FindBlueprint(selectedGameCommand.UnitId);
+                                }
+                                else if (selectedGameCommand.GameCommandType == GameCommandType.Attack)
+                                {
+                                    addFighter = true;
+                                }
+                                else if (selectedGameCommand.GameCommandType == GameCommandType.Minerals)
+                                {
+                                    addWorker = true;
+                                }
+                            }
                         }
 
                         PlayerUnit.Unit.Assembler.ComputePossibleMoves(possiblemoves, null, MoveFilter.Assemble);
@@ -242,10 +254,11 @@ namespace Engine.Ants
                                 {
                                     AntWorker antWorker = new AntWorker(Control);
                                     antWorker.AntWorkerType = AntWorkerType.None;
-                                    antWorker.CurrentGameCommand = gameCommand;
+                                    antWorker.CurrentGameCommand = selectedGameCommand;
                                     Control.CreatedAnts.Add(move.Positions[1], antWorker);
 
-                                    player.GameCommands.Remove(gameCommand);
+                                    if (selectedGameCommand != null)
+                                        player.GameCommands.Remove(selectedGameCommand);
                                 }
 
                                 unitMoved = true;

@@ -136,6 +136,7 @@ public class GroundCell : MonoBehaviour
                 markerToEnemy.transform.position = position;
             }*/
             
+            /*
             float highestEnergy = -1;
             int highestPlayerId = 0;
 
@@ -164,7 +165,7 @@ public class GroundCell : MonoBehaviour
                 position.y -= 1;
                 markerToEnemy.transform.position = position;
             }
-            
+            */
         }
     }
 
@@ -179,7 +180,7 @@ public class GroundCell : MonoBehaviour
                 {
                     CreateMarker();
                 }
-                if (stat.Owner == 0 || !stat.IsBorder)
+                if (stat.Owner == 0 || !stat.IsBorder || Tile.IsUnderwater)
                 {
                     Vector3 position = transform.position;
                     position.y -= 1;
