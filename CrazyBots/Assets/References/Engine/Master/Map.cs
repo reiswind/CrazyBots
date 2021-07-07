@@ -89,9 +89,9 @@ namespace Engine.Interface
                 Pheromones.Add(mapPheromone.Pos, mapPheromone);
             }
 
-            foreach (MapSector mapSector in game.Map.Sectors.Values)
+            //foreach (MapSector mapSector in game.Map.Sectors.Values)
             {
-                foreach (Tile t in mapSector.Tiles.Values)
+                foreach (Tile t in game.Map.Tiles.Values)
                 {
                     TotalMetal += t.Metal;
                     if (t.Unit != null)
@@ -143,6 +143,7 @@ namespace Engine.Master
     {
         public Dictionary<int, MapZone> Zones = new Dictionary<int, MapZone>();
         public Dictionary<Position, MapSector> Sectors = new Dictionary<Position, MapSector>();
+        public Dictionary<Position, Tile> Tiles = new Dictionary<Position, Tile>();
 
         public Units Units { get; private set; }
 
@@ -182,6 +183,7 @@ namespace Engine.Master
             mapGenerator.GenerateMap(MapWidth, MapHeight, false);
             GenerateTiles();
 
+            int xx = 0;
             /*
             Matrix = new byte[gameModel.MapWidth, gameModel.MapHeight];
             for (int y = 0; y < Matrix.GetUpperBound(1); y++)
@@ -205,14 +207,12 @@ namespace Engine.Master
 
         public Tile GetTile(Position pos)
         {
-            MapSector mapSector = GetSector(pos);
-
-            if (mapSector != null && mapSector.Tiles.ContainsKey(pos))
-                return mapSector.Tiles[pos];
+            if (Tiles.ContainsKey(pos))
+                return Tiles[pos];
 
             return null;
         }
-
+        /*
         public MapSector GetSector(Position pos)
         {
             int sectorX = pos.X / sectorSize;
@@ -224,7 +224,7 @@ namespace Engine.Master
                 mapSector = Sectors[sectorPos];
 
             return mapSector;
-        }
+        }*/
 
         private void CopyValues(MapGenerator.HexCell hexCell, Tile t)
         {
@@ -245,6 +245,7 @@ namespace Engine.Master
                     Position sectorPos = new Position(x, z);
                     MapSector mapSector = new MapSector();
                     mapSector.Center = new Position(sectorPos.X * sectorSize, sectorPos.Y * sectorSize);
+                    mapSector.HexCell = hexCell;
                     Sectors.Add(sectorPos, mapSector);
 
                     //MapGenerator.HexCell hexCellE = hexCell.GetNeighbor(MapGenerator.HexDirection.E);
@@ -256,13 +257,37 @@ namespace Engine.Master
                     //MapGenerator.HexCell hexCellNE = hexCell.GetNeighbor(MapGenerator.HexDirection.NE);
                     //MapGenerator.HexCell hexCellSE = hexCell.GetNeighbor(MapGenerator.HexDirection.SE);
 
-                    for (int sectorX = sectorPos.X * sectorSize; sectorX < sectorPos.X* sectorSize + sectorSize; sectorX++)
+                    int startx = sectorPos.X * sectorSize - 2;
+                    int starty = sectorPos.Y * sectorSize - 2;
+                    int widthx = sectorPos.X * sectorSize + sectorSize + 4;
+                    int widthy = sectorPos.Y * sectorSize + sectorSize + 4;
+
+                    if ((x % 2) == 0)
                     {
-                        for (int sectorY = sectorPos.Y* sectorSize; sectorY < sectorPos.Y* sectorSize + sectorSize; sectorY++)
+                        starty -= 1; // sectorSize / 2;
+                        widthy -= 1; // sectorSize / 2;
+                    }
+                    if ((z % 2) == 0)
+                    {
+                        startx -= 1; // sectorSize / 2;
+                        widthx -= 1; // sectorSize / 2;
+                    }
+                    for (int sectorX = startx; sectorX < widthx; sectorX++)
+                    {
+                        for (int sectorY = starty; sectorY < widthy; sectorY++)
                         {
                             Position sectorTilePos = new Position(sectorX, sectorY);
 
-                            Tile t = new Tile(this, sectorTilePos);
+                            Tile t = null;
+                            if (Tiles.ContainsKey(sectorTilePos))
+                            {
+                                t = Tiles[sectorTilePos];
+                            }
+                            else
+                            {
+                                t = new Tile(this, sectorTilePos);
+                                Tiles.Add(sectorTilePos, t);
+                            }
                             CopyValues(hexCell, t);
 
                             int borderWidth = 3;
@@ -351,7 +376,6 @@ namespace Engine.Master
                             if (t.Height < 0.1f)
                                 t.Height = 0.1f;
 
-                            mapSector.Tiles.Add(sectorTilePos, t);
                         }
                     }
                 }
@@ -415,7 +439,7 @@ namespace Engine.Master
                 if (mapSector.Center.X < 8 || mapSector.Center.Y < 8)
                     continue;
 
-                if (mapSector.IsPossibleStart())
+                if (mapSector.IsPossibleStart(this))
                 {
                     AddZone(mapSector.Center);
                     break;

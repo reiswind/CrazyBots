@@ -1,4 +1,5 @@
-﻿using Engine.Master;
+﻿using Engine.MapGenerator;
+using Engine.Master;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,7 @@ namespace Engine.Interface
 {
     public class MapSector
     {
-        public Dictionary<Position, Tile> Tiles = new Dictionary<Position, Tile>();
-
+        public HexCell HexCell { get; set; }
         public Position Center { get; set; }
         public bool InsideHexagon(float x, float y)
         {
@@ -31,15 +31,24 @@ namespace Engine.Interface
             return true;
         }
 
-        public bool IsPossibleStart()
+        public bool IsPossibleStart(Map map)
         {
-            foreach (Tile tile in Tiles.Values)
+            if (HexCell.IsUnderwater)
+                return false;
+
+            for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
             {
-                if (tile.IsUnderwater)
+                HexCell neighbor = HexCell.GetNeighbor(d);
+                if (neighbor == null)
+                {
+                    continue;
+                }
+                if (neighbor.IsUnderwater)
                     return false;
             }
             return true;
         }
+        /*
 
         public void GenerateTiles(Map map, Position pos, double height)
         {
@@ -144,6 +153,6 @@ namespace Engine.Interface
                     }
                 }
             }
-        }
+        }*/
     }
 }

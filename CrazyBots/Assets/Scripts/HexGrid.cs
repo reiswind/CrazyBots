@@ -311,11 +311,11 @@ public class HexGrid : MonoBehaviour
 		*/
 		GameObject cellPrefab = GetTerrainResource("HexCell 2");
 
-		foreach (MapSector mapSector in game.Map.Sectors.Values)
+		//foreach (MapSector mapSector in game.Map.Sectors.Values)
 
 		//MapSector mapSector = game.Map.Sectors.ElementAt(100).Value;
 		{
-			foreach (Tile t in mapSector.Tiles.Values)
+			foreach (Tile t in game.Map.Tiles.Values)
 			{
 				GroundCell hexCell = CreateCell(t, cellPrefab);
 				if (GroundCells.ContainsKey(t.Pos))
