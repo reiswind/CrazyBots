@@ -347,7 +347,8 @@ namespace Engine.Master
                                 }
                             }
                             */
-                            if (!t.IsUnderwater)
+                            //if (!t.IsUnderwater)
+                            if (t.Height > 0)
                             {
                                 if (hexCell.TerrainTypeIndex == 0)
                                 {
