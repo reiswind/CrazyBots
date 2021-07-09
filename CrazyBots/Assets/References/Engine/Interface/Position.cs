@@ -134,15 +134,23 @@ namespace Engine.Interface
             Z = p.Z;
         }
 
+        private CubePosition cube;
         public CubePosition GetCubePosition()
         {
-            CubePosition cube;
-            cube = new CubePosition();
-            cube.q = X;
-            cube.s = Y - (X - (X & 1)) / 2;
-            cube.r = -cube.q - cube.s;
+                //if (cube == null)
+                {
+                    cube = new CubePosition();
+                    cube.q = X;
+                    cube.s = Y - (X - (X & 1)) / 2;
+                    cube.r = -cube.q - cube.s;
+                }
 
-            return cube;
+                //q = x;
+                //r = y - (x - (x & 1)) / 2;
+                //s = -q - r;
+
+                return cube;
+            
         }
 
         public double GetDistanceTo(Position pos)
@@ -225,6 +233,7 @@ namespace Engine.Interface
             set
             {
                 x = value;
+                cube = null;
             }
         }
 
@@ -238,6 +247,7 @@ namespace Engine.Interface
             set
             {
                 y = value;
+                cube = null;
             }
         }
         private int z;
@@ -250,6 +260,7 @@ namespace Engine.Interface
             set
             {
                 z = value;
+                cube = null;
             }
         }
 

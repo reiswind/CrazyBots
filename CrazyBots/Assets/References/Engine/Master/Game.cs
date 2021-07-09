@@ -769,6 +769,9 @@ namespace Engine.Master
             Tile t = Map.GetTile(pos);
             moveUpdateGroundStat.Owner = t.Owner;
             moveUpdateGroundStat.IsBorder = t.IsBorder;
+            moveUpdateGroundStat.PlantLevel = t.PlantLevel;
+            moveUpdateGroundStat.TerrainTypeIndex = t.TerrainTypeIndex;
+            moveUpdateGroundStat.IsUnderwater = t.IsUnderwater;
             moveUpdateGroundStat.Minerals = t.Metal;
             moveUpdateGroundStat.NumberOfDestructables = t.NumberOfDestructables;
             moveUpdateGroundStat.NumberOfObstacles = t.NumberOfObstacles;
