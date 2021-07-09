@@ -60,7 +60,7 @@ namespace Engine.MapGenerator
 
 		public const float hashGridScale = 0.25f;
 
-		static HexHash[] hashGrid;
+		//static HexHash[] hashGrid;
 
 		/*
 		static Vector3[] corners = {
@@ -113,7 +113,7 @@ namespace Engine.MapGenerator
 				return wrapSize > 0;
 			}
 		}
-
+		/*
 		public static void InitializeHashGrid(int seed)
 		{
 			hashGrid = new HexHash[hashGridSize * hashGridSize];
@@ -124,7 +124,7 @@ namespace Engine.MapGenerator
 				hashGrid[i] = HexHash.Create();
 			}
 			//Random.state = currentState;
-		}
+		}*/
 		/*
 		public static HexHash SampleHashGrid(Vector3 position)
 		{

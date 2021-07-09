@@ -979,8 +979,10 @@ namespace Engine.MapGenerator
 				latitude = 1f - latitude;
 			}
 
-			float temperature = UnityEngine.Mathf.LerpUnclamped(lowTemperature, highTemperature, latitude);
-
+			float temperature = 0;
+#if !NOUNITY
+			temperature = UnityEngine.Mathf.LerpUnclamped(lowTemperature, highTemperature, latitude);
+#endif
 			temperature *= 1f - (cell.ViewElevation - waterLevel) /
 				(elevationMaximum - waterLevel + 1f);
 
