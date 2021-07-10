@@ -360,6 +360,23 @@ public class UnitBase : MonoBehaviour
         }
     }
 
+    internal static GameObject FindChildNyName(GameObject unit, string name)
+    {
+        if (unit.name.StartsWith(name))
+            return unit;
+        for (int i = 0; i < unit.transform.childCount; i++)
+        {
+            GameObject child = unit.transform.GetChild(i).gameObject;
+            if (child.name.StartsWith(name))
+                return child;
+
+            child = FindChildNyName(child, name);
+            if (child != null)
+                return child;
+        }
+        return null;
+    }
+
     internal static void SetPlayerColor(HexGrid hexGrid, int playerId, GameObject unit)
     {
         for (int i=0; i < unit.transform.childCount; i++)

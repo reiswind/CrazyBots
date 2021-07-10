@@ -46,8 +46,8 @@ public class GameCanvas : MonoBehaviour
     private Text[] actionText;
     private Button[] buttons;
     private Button[] actions;
-    private Button buildButton;
-    private Text buildButtonText;
+    //private Button buildButton;
+    //private Text buildButtonText;
 
     private GameObject panelEngine;
     private GameObject panelExtractor;
@@ -79,11 +79,12 @@ public class GameCanvas : MonoBehaviour
         headerSubText.text = "";
         headerGroundText.text = "";
 
+        /*
         buildButton = panelItem.Find("BuildButton").GetComponent<Button>();
         buildButton.gameObject.SetActive(false);
         buildButton.onClick.AddListener(OnClickExtract);
         buildButtonText = buildButton.transform.Find("Text").GetComponent<Text>();
-
+        */
         Transform panelParts = panelItem.Find("PanelParts");
 
         panelEngine = panelParts.Find("PanelEngine").gameObject;
@@ -204,9 +205,9 @@ public class GameCanvas : MonoBehaviour
 
                 Cursor.SetCursor(BuildCursor, new Vector2(0, 0), CursorMode.Auto);
 
-                if (topSelectedBuildButton == 0)
-                    topSelectedBuildButton = 1;
-                SelectTopButton(topSelectedBuildButton);
+                //if (topSelectedBuildButton == 0)
+                //    topSelectedBuildButton = 1;
+                //SelectTopButton(topSelectedBuildButton);
             }
         }
         leftMouseButtonDown = false;
@@ -289,7 +290,7 @@ public class GameCanvas : MonoBehaviour
             selectedUnitFrame = null;
         }
         selectedBuildBlueprint = null;
-        buildButton.gameObject.SetActive(false);
+        //buildButton.gameObject.SetActive(false);
     }
 
 
@@ -397,6 +398,8 @@ public class GameCanvas : MonoBehaviour
     private int topSelectedBuildButton;
     private int middleSelectedButton;
 
+    private int selectedBuildButton;
+
 
     private bool IsAssemblerAt()
     {
@@ -458,10 +461,13 @@ public class GameCanvas : MonoBehaviour
     {
         if (groundCell == null ||
             groundCell.Tile.NumberOfDestructables > 0 ||
-            groundCell.Tile.NumberOfObstacles > 0)
+            groundCell.Tile.NumberOfObstacles > 0 ||
+            groundCell.Tile.Unit != null)
         {
             return false;
         }
+
+
         return true;
     }
 
@@ -576,67 +582,27 @@ public class GameCanvas : MonoBehaviour
         */
         if (canvasMode == CanvasMode.Build)
         {
-            SetButtonText(1, "(q) Building");
-            SetButtonText(2, "(w) Defense");
-            SetButtonText(3, "(e) Special");
-            HideButton(4);
+            SetButtonText(1, "(q) Factory", "Factory");
+            SetButtonText(2, "(w) Container", "Container");
+            SetButtonText(3, "(e) Reactor", "Reactor");
+            SetButtonText(4, "(e) Turret", "Turret");
 
-            if (topSelectedBuildButton == 0)
+            SetButtonText(5, "(a) Outpost", "Outpost");
+
+            HideButton(6);
+            HideButton(7);
+            HideButton(8);
+            HideButton(9);
+            HideButton(10);
+            HideButton(11);
+            HideButton(12);
+
+            if (selectedBuildButton != 0)
             {
-                HideButton(5);
-                HideButton(6);
-                HideButton(7);
-                HideButton(8);
-                HideButton(9);
-                HideButton(10);
-                HideButton(11);
-                HideButton(12);
+                UnselectButton(selectedBuildButton);
+                selectedBuildButton = 0;
             }
-            else if (topSelectedBuildButton == 1)
-            {
-                SetButtonText(5, "(a) Factory", "Factory");
-                SetButtonText(6, "(s) Container", "Container");
-                SetButtonText(7, "(d) Reactor", "Reactor");
-                SetButtonText(8, "(f) Radar");
-
-                HideButton(9);
-                HideButton(10);
-                HideButton(11);
-                HideButton(12);
-
-                if (middleSelectedButton != 0)
-                    SelectButton(middleSelectedButton);
-            }
-            else if (topSelectedBuildButton == 2)
-            {
-                SetButtonText(5, "(a) Turret", "Turret");
-                HideButton(6);
-                HideButton(7);
-                HideButton(8);
-
-                HideButton(9);
-                HideButton(10);
-                HideButton(11);
-                HideButton(12);
-
-                if (middleSelectedButton != 0)
-                    SelectButton(middleSelectedButton);
-            }
-            else if (topSelectedBuildButton == 3)
-            {
-                SetButtonText(5, "(a) Outpost", "Outpost");
-                HideButton(6);
-                HideButton(7);
-                HideButton(8);
-
-                HideButton(9);
-                HideButton(10);
-                HideButton(11);
-                HideButton(12);
-
-                if (middleSelectedButton != 0)
-                    SelectButton(middleSelectedButton);
-            }
+            selectedBuildButton = 0;
         }
     }
 
@@ -723,31 +689,51 @@ public class GameCanvas : MonoBehaviour
         selectedUnitFrame.MoveUpdateStats.MarkedForExtraction = true;
     }
 
+    void SelectBuildUnit(int btn)
+    {
+        if (selectedBuildButton != btn)
+        {
+            if (selectedBuildButton != 0)
+                UnselectButton(selectedBuildButton);
+
+            selectedBuildButton = btn;
+            SelectButton(btn);
+        }
+        SelectBlueprint(GetButton(btn).name);
+
+        //selectedUnitFrame.Temporary = false;
+        selectedUnitFrame.Assemble(true);        
+    }
+
     void OnClickBuild1()
     {
-        SelectTopButton(1);
-        UpdateCommandButtons();
+        if (canvasMode == CanvasMode.Build)
+            SelectBuildUnit(1);
+        //SelectTopButton(1);
+        //UpdateCommandButtons();
     }
     void OnClickBuild2()
     {
-        SelectTopButton(2);
-        UpdateCommandButtons();
+        if (canvasMode == CanvasMode.Build)
+            SelectBuildUnit(2);
     }
     void OnClickBuild3()
     {
-        SelectTopButton(3);
-        UpdateCommandButtons();
+        if (canvasMode == CanvasMode.Build)
+            SelectBuildUnit(3);
     }
     void OnClickBuild4()
     {
-        SelectTopButton(4);
-        UpdateCommandButtons();
+        if (canvasMode == CanvasMode.Build)
+            SelectBuildUnit(4);
     }
 
     void OnClickBuild5()
     {
-        SelectMiddleButton(5);
-        UpdateCommandButtons();
+        if (canvasMode == CanvasMode.Build)
+            SelectBuildUnit(5);
+        //SelectMiddleButton(5);
+        //UpdateCommandButtons();
     }
     void OnClickBuild6()
     {
@@ -826,10 +812,15 @@ public class GameCanvas : MonoBehaviour
         UnitBase unitBase = raycastHit.collider.GetComponent<UnitBase>();
         if (unitBase != null) return unitBase;
 
-        if (raycastHit.collider.transform.parent != null)
+        Transform transform = raycastHit.collider.transform;
+
+        while (transform.parent != null)
         {
-            unitBase = raycastHit.collider.transform.parent.GetComponent<UnitBase>();
+            unitBase = transform.parent.GetComponent<UnitBase>();
             if (unitBase != null) return unitBase;
+            if (transform.parent == null)
+                break;
+            transform = transform.parent;
         }
         return null;
     }
@@ -926,6 +917,7 @@ public class GameCanvas : MonoBehaviour
     {
         if (unitBase != null)
         {
+            /*
             if (unitBase.Temporary)
             {
                 buildButton.gameObject.SetActive(false);
@@ -933,7 +925,7 @@ public class GameCanvas : MonoBehaviour
             else
             {
                 buildButton.gameObject.SetActive(true);
-            }
+            }*/
             selectedUnitFrame = unitBase;
             selectedUnitFrame.SetSelected(true);
         }
@@ -1073,8 +1065,13 @@ public class GameCanvas : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(1))
         {
-            SetMode(CanvasMode.Select);
-
+            if (selectedBuildButton != 0)
+            {
+                UnselectButton(selectedBuildButton);
+                selectedBuildButton = 0;
+            }
+            //SetMode(CanvasMode.Select);
+            UnselectUnitFrame();
             if (lastSelectedGroundCell != null)
             {
                 lastSelectedGroundCell.SetSelected(false);
@@ -1104,6 +1101,29 @@ public class GameCanvas : MonoBehaviour
             if (lastSelectedGroundCell != null)
                 lastSelectedGroundCell.SetSelected(false);
             lastSelectedGroundCell = selectGroundCell;
+
+            if (!leftMouseButtonDown)
+            {
+                // Preview
+                if (lastSelectedGroundCell == null || !CanBuildAt(lastSelectedGroundCell))
+                { 
+                    if (selectedUnitFrame != null && selectedUnitFrame.CurrentPos != null)
+                    {
+                        selectedUnitFrame.CurrentPos = null;
+                        selectedUnitFrame.gameObject.SetActive(false);
+                    }
+                }
+                else
+                {
+                    if (selectedUnitFrame != null &&
+                        selectedUnitFrame.CurrentPos != lastSelectedGroundCell.Tile.Pos)
+                    {
+                        selectedUnitFrame.CurrentPos = lastSelectedGroundCell.Tile.Pos;
+                        selectedUnitFrame.PutAtCurrentPosition(true);
+                        selectedUnitFrame.gameObject.SetActive(true);
+                    }
+                }
+            }
 
             if (leftMouseButtonDown &&
                 selectedUnitFrame != null &&
@@ -1159,6 +1179,8 @@ public class GameCanvas : MonoBehaviour
                     selectedUnitFrame.gameObject.SetActive(true);
 
                     // Prepare next
+                    SelectBuildUnit(selectedBuildButton);
+                    /*
                     if (selectedBuildBlueprint == null)
                     {
                         
@@ -1166,10 +1188,14 @@ public class GameCanvas : MonoBehaviour
                     else
                     {
                         selectedUnitFrame = HexGrid.CreateTempUnit(selectedBuildBlueprint);
-                    }
+                    }*/
                 }
             }
 
+        }
+        if (selectedUnitFrame != null)
+        {
+            DisplaySelectedUnitframe();
         }
     }
 
@@ -1251,7 +1277,7 @@ public class GameCanvas : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             if (ctrl)
-            {            
+            {
                 if (selectedUnitFrame != null)
                     unitGroup1 = selectedUnitFrame;
             }
@@ -1337,182 +1363,7 @@ public class GameCanvas : MonoBehaviour
         }
         if (selectedUnitFrame != null)
         {
-            UnitBase unit = selectedUnitFrame;
-
-            if (unit.HasBeenDestroyed)
-            {
-                UnselectUnitFrame();
-            }
-            if (unit.MoveUpdateStats == null)
-            {
-            }
-            else
-            {
-                if (unit.MoveUpdateStats != null)
-                {
-                    HideAllParts();
-
-                    headerText.text = unit.MoveUpdateStats.BlueprintName;
-
-                    if (unit.HasBeenDestroyed)
-                    {
-                        headerSubText.text = "Destroyed";
-                    }
-                    else if (unit.Temporary)
-                    {
-                        headerSubText.text = "Preview";
-                    }
-                    else if (unit.UnderConstruction)
-                    {
-                        headerSubText.text = "Under construction";
-                    }
-                    else if (unit.MoveUpdateStats.MarkedForExtraction)
-                    {
-                        headerSubText.text = "MarkedForExtraction";
-                    }
-
-                    else
-                    {
-                        headerSubText.text = "";
-                    }
-                    headerSubText.text += " " + unit.UnitId;
-
-                    headerSubText.text += " Power: " + unit.MoveUpdateStats.Power;
-
-                    string state;
-
-                    foreach (MoveUpdateUnitPart part in unit.MoveUpdateStats.UnitParts)
-                    {
-                        if (!part.Exists && !unit.Temporary)
-                        {
-                            state = " Missing";
-                        }
-                        else
-                        {
-                            state = "";
-                        }
-                        if (part.PartType.StartsWith("Extractor"))
-                        {
-                            panelExtractor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
-                            panelExtractor.SetActive(true);
-                        }
-                        if (part.PartType.StartsWith("Weapon"))
-                        {
-                            panelWeapon.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
-                            panelWeapon.SetActive(true);
-
-                            StringBuilder sb = new StringBuilder();
-                            sb.Append("Ammunition  ");
-                            if (part.Minerals.HasValue)
-                                sb.Append(part.Minerals.Value);
-                            else
-                                sb.Append("0");
-
-                            if (part.Capacity.HasValue)
-                                sb.Append("/" + part.Capacity.Value);
-
-                            panelWeapon.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
-                        }
-                        if (part.PartType.StartsWith("Assembler"))
-                        {
-                            panelAssembler.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
-                            panelAssembler.SetActive(true);
-
-                            StringBuilder sb = new StringBuilder();
-                            sb.Append("Minerals  ");
-                            if (part.Minerals.HasValue)
-                                sb.Append(part.Minerals.Value);
-                            else
-                                sb.Append("0");
-
-                            if (part.Capacity.HasValue)
-                                sb.Append("/" + part.Capacity.Value);
-
-                            panelAssembler.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
-
-                            sb = new StringBuilder();
-                            if (part.BildQueue != null)
-                            {
-                                foreach (string b in part.BildQueue)
-                                {
-                                    if (sb.Length > 0) sb.Append(" ");
-                                    sb.Append(b);
-                                }
-                            }
-                            panelAssembler.transform.Find("BuildQueue").GetComponent<Text>().text = sb.ToString();
-
-                        }
-                        if (part.PartType.StartsWith("Reactor"))
-                        {
-                            panelReactor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
-                            panelReactor.SetActive(true);
-
-                            StringBuilder sb = new StringBuilder();
-                            sb.Append("Minerals  ");
-                            if (part.Minerals.HasValue)
-                                sb.Append(part.Minerals.Value);
-                            else
-                                sb.Append("0");
-
-                            if (part.Capacity.HasValue)
-                                sb.Append("/" + part.Capacity.Value);
-
-                            sb.Append(" Power  ");
-                            if (part.AvailablePower.HasValue)
-                                sb.Append(part.AvailablePower.Value);
-                            else
-                                sb.Append("0");
-                            panelReactor.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
-                            
-                        }
-                        if (part.PartType.StartsWith("Armor"))
-                        {
-                            panelArmor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
-                            panelArmor.SetActive(true);
-
-                            StringBuilder sb = new StringBuilder();
-                            sb.Append("Power  ");
-                            if (part.ShieldPower.HasValue)
-                                sb.Append(part.ShieldPower.Value);
-                            else
-                                sb.Append("0");
-
-                            if (part.ShieldActive == true)
-                                sb.Append(" Active");
-
-                            panelArmor.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
-                        }
-                        if (part.PartType.StartsWith("Engine"))
-                        {
-                            panelEngine.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
-                            panelEngine.SetActive(true);
-                        }
-                        if (part.PartType.StartsWith("Container"))
-                        {
-                            panelContainer.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
-                            panelContainer.SetActive(true);
-
-                            StringBuilder sb = new StringBuilder();
-                            sb.Append("Minerals  ");
-                            if (part.Minerals.HasValue)
-                                sb.Append(part.Minerals.Value);
-                            else
-                                sb.Append("0");
-
-                            if (part.Capacity.HasValue)
-                                sb.Append("/" + part.Capacity.Value);
-
-                            panelContainer.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
-                        }
-                    }
-                }
-            }
-
-            if (unit.CurrentPos != null)
-            {
-                GroundCell gc = HexGrid.GroundCells[unit.CurrentPos];
-                AppendGroundInfo(gc);
-            }
+            DisplaySelectedUnitframe();
         }
         else if (lastSelectedGroundCell != null)
         {
@@ -1531,6 +1382,184 @@ public class GameCanvas : MonoBehaviour
             headerSubText.text = "";
             HideAllParts();
         }
+    }
+    private void DisplaySelectedUnitframe()
+    {
+        UnitBase unit = selectedUnitFrame;
 
+        if (unit.HasBeenDestroyed)
+        {
+            UnselectUnitFrame();
+        }
+        if (unit.MoveUpdateStats == null)
+        {
+        }
+        else
+        {
+            if (unit.MoveUpdateStats != null)
+            {
+                HideAllParts();
+
+                headerText.text = unit.MoveUpdateStats.BlueprintName;
+
+                if (unit.HasBeenDestroyed)
+                {
+                    headerSubText.text = "Destroyed";
+                }
+                else if (unit.Temporary)
+                {
+                    headerSubText.text = "Preview";
+                }
+                else if (unit.UnderConstruction)
+                {
+                    headerSubText.text = "Under construction";
+                }
+                else if (unit.MoveUpdateStats.MarkedForExtraction)
+                {
+                    headerSubText.text = "MarkedForExtraction";
+                }
+
+                else
+                {
+                    headerSubText.text = "";
+                }
+                headerSubText.text += " " + unit.UnitId;
+
+                headerSubText.text += " Power: " + unit.MoveUpdateStats.Power;
+
+                string state;
+
+                foreach (MoveUpdateUnitPart part in unit.MoveUpdateStats.UnitParts)
+                {
+                    if (!part.Exists && !unit.Temporary)
+                    {
+                        state = " Missing";
+                    }
+                    else
+                    {
+                        state = "";
+                    }
+                    if (part.PartType.StartsWith("Extractor"))
+                    {
+                        panelExtractor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                        panelExtractor.SetActive(true);
+                    }
+                    if (part.PartType.StartsWith("Weapon"))
+                    {
+                        panelWeapon.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                        panelWeapon.SetActive(true);
+
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append("Ammunition  ");
+                        if (part.Minerals.HasValue)
+                            sb.Append(part.Minerals.Value);
+                        else
+                            sb.Append("0");
+
+                        if (part.Capacity.HasValue)
+                            sb.Append("/" + part.Capacity.Value);
+
+                        panelWeapon.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+                    }
+                    if (part.PartType.StartsWith("Assembler"))
+                    {
+                        panelAssembler.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                        panelAssembler.SetActive(true);
+
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append("Minerals  ");
+                        if (part.Minerals.HasValue)
+                            sb.Append(part.Minerals.Value);
+                        else
+                            sb.Append("0");
+
+                        if (part.Capacity.HasValue)
+                            sb.Append("/" + part.Capacity.Value);
+
+                        panelAssembler.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+
+                        sb = new StringBuilder();
+                        if (part.BildQueue != null)
+                        {
+                            foreach (string b in part.BildQueue)
+                            {
+                                if (sb.Length > 0) sb.Append(" ");
+                                sb.Append(b);
+                            }
+                        }
+                        panelAssembler.transform.Find("BuildQueue").GetComponent<Text>().text = sb.ToString();
+
+                    }
+                    if (part.PartType.StartsWith("Reactor"))
+                    {
+                        panelReactor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                        panelReactor.SetActive(true);
+
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append("Minerals  ");
+                        if (part.Minerals.HasValue)
+                            sb.Append(part.Minerals.Value);
+                        else
+                            sb.Append("0");
+
+                        if (part.Capacity.HasValue)
+                            sb.Append("/" + part.Capacity.Value);
+
+                        sb.Append(" Power  ");
+                        if (part.AvailablePower.HasValue)
+                            sb.Append(part.AvailablePower.Value);
+                        else
+                            sb.Append("0");
+                        panelReactor.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+
+                    }
+                    if (part.PartType.StartsWith("Armor"))
+                    {
+                        panelArmor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                        panelArmor.SetActive(true);
+
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append("Power  ");
+                        if (part.ShieldPower.HasValue)
+                            sb.Append(part.ShieldPower.Value);
+                        else
+                            sb.Append("0");
+
+                        if (part.ShieldActive == true)
+                            sb.Append(" Active");
+
+                        panelArmor.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+                    }
+                    if (part.PartType.StartsWith("Engine"))
+                    {
+                        panelEngine.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                        panelEngine.SetActive(true);
+                    }
+                    if (part.PartType.StartsWith("Container"))
+                    {
+                        panelContainer.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                        panelContainer.SetActive(true);
+
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append("Minerals  ");
+                        if (part.Minerals.HasValue)
+                            sb.Append(part.Minerals.Value);
+                        else
+                            sb.Append("0");
+
+                        if (part.Capacity.HasValue)
+                            sb.Append("/" + part.Capacity.Value);
+
+                        panelContainer.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+                    }
+                }
+            }
+        }
+
+        if (unit.CurrentPos != null)
+        {
+            GroundCell gc = HexGrid.GroundCells[unit.CurrentPos];
+            AppendGroundInfo(gc);
+        }
     }
 }

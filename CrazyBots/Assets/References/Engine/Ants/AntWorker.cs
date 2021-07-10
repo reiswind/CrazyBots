@@ -561,12 +561,16 @@ namespace Engine.Ants
                 }
                 if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.Work)
                 {
+                    // Builders are directed directly to their position. This is a lost builder
+                    cntrlUnit.ExtractMe = true;
+                    pheromoneType = PheromoneType.Energy;
+                    /*
                     moveToPosition = Control.FindWork(player, this);
                     if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
                     {
                         moveToPosition = null;
                         FollowThisRoute = null;
-                    }
+                    }*/
                 }
                 if (AntWorkerType == AntWorkerType.Worker && possibleTiles.Count == 0 && pheromoneType == PheromoneType.Container)
                 {

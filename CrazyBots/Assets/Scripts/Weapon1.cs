@@ -31,13 +31,14 @@ public class Weapon1 : MonoBehaviour
     {
         mineralContainer.UpdateContent(hexGrid, this.gameObject, minerals-1, capacity-1);
 
-        Transform weapon = transform.Find("Weapon");
-        if (weapon == null) weapon = transform;
-
-        Transform ammo = weapon.Find("Ammo");
-        if (ammo != null)
+        GameObject weapon = UnitBase.FindChildNyName(this.gameObject, "Weapon");
+        if (weapon != null)
         {
-            ammo.gameObject.SetActive(minerals > 0);
+            GameObject ammo = UnitBase.FindChildNyName(weapon, "Ammo");
+            if (ammo != null)
+            {
+                ammo.SetActive(minerals > 0);
+            }
         }
     }
 
@@ -46,14 +47,10 @@ public class Weapon1 : MonoBehaviour
     {
         if (turnWeaponIntoDirection != Vector3.zero)
         {
-            Transform weaponPosition = transform.Find("Weapon");
-            if (weaponPosition != null)
+            GameObject weapon = UnitBase.FindChildNyName(this.gameObject, "Weapon");
+            if (weapon != null)
             {
-                UpdateDirection(weaponPosition.transform);
-            }
-            else
-            {
-                UpdateDirection(transform);
+                UpdateDirection(weapon.transform);
             }
         }
     }
@@ -103,21 +100,25 @@ public class Weapon1 : MonoBehaviour
             if (weaponTargetCell != null)
             {
                 angle = 25;
-                Transform launchPosition;
-                Transform weaponPosition = transform.Find("Weapon");
-                if (weaponPosition != null)
-                {
-                    angle = 2;
-                    launchPosition = weaponPosition.transform.Find("Ammo");
-                }
-                else
-                {
-                    launchPosition = transform.Find("Ammo");
-                }
 
-                if (launchPosition == null)
+                GameObject weapon = UnitBase.FindChildNyName(this.gameObject, "Weapon");
+
+                Transform launchPosition = null;
+                if (weapon != null)
                 {
-                    Debug.LogError("Missing Ammo");
+                    GameObject ammo = UnitBase.FindChildNyName(weapon, "Ammo");
+                    if (ammo == null)
+                    {
+                        Debug.LogError("Missing Ammo");
+                        return;
+                    }
+
+                    //angle = 2;
+                    launchPosition = ammo.transform;
+                }
+                if (weapon == null)
+                {
+                    Debug.LogError("Missing weapon");
                     return;
                 }
                 launchPosition.gameObject.SetActive(false);
