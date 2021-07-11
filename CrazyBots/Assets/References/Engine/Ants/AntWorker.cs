@@ -561,9 +561,16 @@ namespace Engine.Ants
                 }
                 if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.Work)
                 {
-                    // Builders are directed directly to their position. This is a lost builder
-                    cntrlUnit.ExtractMe = true;
-                    pheromoneType = PheromoneType.Energy;
+                    if (this.CurrentGameCommand != null)
+                    {
+                        moveToPosition = Control.FindCommandTarget(player, this);
+                        // Builders are directed directly to their position. This is a lost builder
+                        //cntrlUnit.ExtractMe = true;
+                    }
+                    else
+                    {
+                        pheromoneType = PheromoneType.Energy;
+                    }
                     /*
                     moveToPosition = Control.FindWork(player, this);
                     if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
@@ -624,13 +631,21 @@ namespace Engine.Ants
                     }
                     else if (AntWorkerType == AntWorkerType.Worker && possibleTiles.Count == 0)
                     {
-                        // Worker hangs around at home
-                        pheromoneType = PheromoneType.Energy;                        
-                        possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
+                        if (CurrentGameCommand != null)
+                        {
+                            // Worker hangs around at command target
+                            moveToPosition = Control.FindCommandTarget(player, this);
+                        }
+                        else
+                        {
+                            // Worker hangs around at home
+                            pheromoneType = PheromoneType.Energy;
+                            possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
+                        }
                     }
 
                     AntDestination moveToTile = null;
-                    while (possibleTiles.Count > 0 && moveToTile == null)
+                    while (possibleTiles.Count > 0 && moveToTile == null && moveToPosition == null)
                     {
                         moveToTile = FindBest(player, possibleTiles);
                         if (moveToTile == null)
@@ -643,7 +658,7 @@ namespace Engine.Ants
                         }
                     }
 
-                    if (moveToTile == null)
+                    if (moveToTile == null && moveToPosition == null)
                     {
                         if (pheromoneType == PheromoneType.AwayFromEnergy)
                         {
@@ -877,7 +892,7 @@ namespace Engine.Ants
                 if (possiblemoves.Count > 0)
                 {
                     int idx = player.Game.Random.Next(possiblemoves.Count);
-                    if (cntrlUnit.Engine == null || CurrentGameCommand != null || WaitForEnemy)
+                    if (cntrlUnit.Engine == null || WaitForEnemy)
                     {
                         // Do not fire at trees
                         while (possiblemoves.Count > 0 && possiblemoves[idx].OtherUnitId == "Destructable")
@@ -1020,8 +1035,24 @@ namespace Engine.Ants
 
                     if (!loadFirst)
                     {
+                        if (CurrentGameCommand.GameCommandType == GameCommandType.Build)
+                        {
+                            Tile t = player.Game.Map.GetTile(cntrlUnit.Pos);
+                            foreach (Tile n in t.Neighbors)
+                            {
+                                if (n.Pos == CurrentGameCommand.TargetPosition)
+                                {
+                                    // Next to build target
+                                    FollowThisRoute = null;
+                                    BuildPositionReached = true;
+                                    return true;
+                                }
+                            }
+                        }
+
                         if (cntrlUnit.Pos == CurrentGameCommand.TargetPosition)
                         {
+                            /*
                             if (AntWorkerType == AntWorkerType.Worker)
                             {
                                 Move move = new Move();
@@ -1034,8 +1065,9 @@ namespace Engine.Ants
 
                                 // Collect from here and do anything
                                 CurrentGameCommand = null;
-                            }
-                            if (AntWorkerType == AntWorkerType.Fighter)
+                            }*/
+
+                            if (CurrentGameCommand.GameCommandType == GameCommandType.Defend) // AntWorkerType == AntWorkerType.Fighter)
                             {
                                 // Command complete (Remove or keep?)
                                 /*
@@ -1048,15 +1080,14 @@ namespace Engine.Ants
                                 moves.Add(move);*/
 
                                 // Stay until enemy
-                                WaitForEnemy = true;
+                                //WaitForEnemy = true;
                                 // ...
 
                                 // Position reached, return to normal mode
                                 //CurrentGameCommand = null;
                             }
-
-                            return true;
                         }
+                        /*
                         if (FollowThisRoute == null || FollowThisRoute.Count == 0)
                         {
                             // Compute route to target
@@ -1082,7 +1113,7 @@ namespace Engine.Ants
                                     FollowThisRoute.Add(positions[i]);
                                 }
                             }
-                        }
+                        }*/
                     }
                 }                
 

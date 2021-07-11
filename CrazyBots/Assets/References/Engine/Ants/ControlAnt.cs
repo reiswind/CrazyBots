@@ -35,7 +35,7 @@ namespace Engine.Control
             PlayerModel = playerModel;
             GameModel = gameModel;
         }
-        
+
         public void ProcessMoves(Player player, List<Move> moves)
         {
             foreach (Move move in moves)
@@ -66,13 +66,13 @@ namespace Engine.Control
                         move.MoveType = MoveType.Skip;
                     }
                     else
-                    { 
+                    {
                         //WorkFound(player, pos);
                     }
                 }
             }
         }
-        
+
 
         public static bool HasMoved(List<Move> moves, Unit unit)
         {
@@ -145,7 +145,7 @@ namespace Engine.Control
                     }
                 }
             }
-            
+
             return extractable;
         }
 
@@ -197,7 +197,7 @@ namespace Engine.Control
             }
             player.Game.Pheromones.DeletePheromones(id);
         }
-        
+
         public int EnemyFound(Player player, Position pos, bool isStatic)
         {
             int id;
@@ -223,7 +223,7 @@ namespace Engine.Control
             int id;
             if (!isStatic && mineralsDeposits.ContainsKey(pos))
             {
-                id = mineralsDeposits[pos];                
+                id = mineralsDeposits[pos];
                 //player.Game.Pheromones.UpdatePheromones(id, 1);
                 if (isStatic)
                     id = 0;
@@ -335,7 +335,7 @@ namespace Engine.Control
                         // Our own unit, that has engine may move away
                         foreach (Move intendedMove in moves)
                         {
-                            if ( (intendedMove.MoveType == MoveType.Move || intendedMove.MoveType == MoveType.Add || intendedMove.MoveType == MoveType.Build) &&
+                            if ((intendedMove.MoveType == MoveType.Move || intendedMove.MoveType == MoveType.Add || intendedMove.MoveType == MoveType.Build) &&
                                 currentUnit.Unit.UnitId == intendedMove.UnitId)
                             {
                                 if (intendedMove.Positions[0] == destination)
@@ -372,7 +372,7 @@ namespace Engine.Control
                         intendedMove.MoveType == MoveType.Add ||
                         intendedMove.MoveType == MoveType.Build)
                     {
-                        if (intendedMove.Positions[intendedMove.Positions.Count-1] == destination)
+                        if (intendedMove.Positions[intendedMove.Positions.Count - 1] == destination)
                         {
                             occupied = true;
                             break;
@@ -404,20 +404,28 @@ namespace Engine.Control
                     }
                 }
             }
-            if (bestPositions != null && bestPositions.Count > 1)
-            {
-                if (bestPositions.Count > 2)
-                {
-                    antWorker.FollowThisRoute = new List<Position>();
-                    for (int i = 2; i < 7 && i < bestPositions.Count-1; i++)
-                    {
-                        antWorker.FollowThisRoute.Add(bestPositions[i]);
-                    }
-                }
-                return bestPositions[1];
-            }
-            return null;
+            return MakePathFromPositions(bestPositions, antWorker);
         }
+
+        public Position FindCommandTarget(Player player, AntWorker antWorker)
+        {
+            // Compute route to target
+            List<Position> bestPositions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, antWorker.CurrentGameCommand.TargetPosition, antWorker.PlayerUnit.Unit);
+            if (bestPositions != null && antWorker.AntWorkerType == AntWorkerType.Assembler)
+            {
+                if (bestPositions.Count <= 2)
+                {
+                    return null;
+                }
+                else
+                {
+                    // Move only next to target       
+                    bestPositions.RemoveAt(bestPositions.Count - 1);
+                }
+            }            
+            return MakePathFromPositions(bestPositions, antWorker);
+        }
+    
 
         public Position FindContainer(Player player, Ant antWorker)
         {
@@ -472,19 +480,7 @@ namespace Engine.Control
                     }
                 }
             }
-            if (bestPositions != null && bestPositions.Count > 1)
-            {
-                if (bestPositions.Count > 2)
-                {
-                    antWorker.FollowThisRoute = new List<Position>();
-                    for (int i = 2; i < 7 && i < bestPositions.Count - 1; i++)
-                    {
-                        antWorker.FollowThisRoute.Add(bestPositions[i]);
-                    }
-                }
-                return bestPositions[1];
-            }
-            return null;
+            return MakePathFromPositions(bestPositions, antWorker);
         }
 
         public Position FindWork(Player player, Ant ant)
@@ -549,19 +545,27 @@ namespace Engine.Control
                     }
                 }
             }*/
-            if (bestPositions != null && bestPositions.Count > 1)
+            return MakePathFromPositions(bestPositions, ant);
+        }
+        
+
+        private List<Position> FindMineralForCommand(Player player, AntWorker ant, List<Position> bestPositions)
+        {
+            Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.CurrentGameCommand.TargetPosition, 3, false, matcher: tile =>
             {
-                if (bestPositions.Count > 2)
+                if (tile.Metal > 0 ||
+                    (tile.Unit != null && (tile.Unit.ExtractMe || tile.Unit.Owner.PlayerModel.Id == 0)))
                 {
-                    ant.FollowThisRoute = new List<Position>();
-                    for (int i = 2; i < 7 && i < bestPositions.Count - 1; i++)
+                    List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, tile.Pos, ant.PlayerUnit.Unit);
+                    if (bestPositions == null || bestPositions.Count > positions?.Count)
                     {
-                        ant.FollowThisRoute.Add(bestPositions[i]);
+                        bestPositions = positions;
                     }
                 }
-                return bestPositions[1];
-            }
-            return null;
+                return false;
+            });
+
+            return bestPositions;
         }
 
         private List<Position> FindMineralOnMap(Player player, AntWorker ant, List<Position> bestPositions)
@@ -651,15 +655,47 @@ namespace Engine.Control
             return bestPositions;
         }
 
+        private Position MakePathFromPositions(List<Position> bestPositions, Ant ant)
+        {
+            ant.FollowThisRoute = null;
+
+            if (bestPositions != null)
+            {
+                if (bestPositions.Count > 1)
+                {
+                    if (bestPositions.Count > 2)
+                    {
+                        ant.FollowThisRoute = new List<Position>();
+                        for (int i = 2; i < bestPositions.Count - 1; i++)
+                        {
+                            ant.FollowThisRoute.Add(bestPositions[i]);
+                        }
+                    }
+                    return bestPositions[1];
+                }
+                else if (bestPositions.Count == 1)
+                {
+                    return bestPositions[0];
+                }
+            }
+            return null;
+        }
+
         public Position FindMineral(Player player, AntWorker ant)
         {
             List<Position> bestPositions = null;
 
             if (ant.AntWorkerType == AntWorkerType.Worker)
             {
-                bestPositions = FindMineralOnMap(player, ant, bestPositions);
-                //if (bestPositions == null)
+                if (ant.CurrentGameCommand != null)
+                {
+                    bestPositions = FindMineralForCommand(player, ant, bestPositions);
+                }
+                else
+                {
+                    bestPositions = FindMineralOnMap(player, ant, bestPositions);
                     bestPositions = FindMineralDeposit(player, ant, bestPositions);
+                }
             }
             else if (ant.AntWorkerType == AntWorkerType.Fighter)
             {
@@ -677,20 +713,7 @@ namespace Engine.Control
                 //if (bestPositions == null)                
                     bestPositions = FindMineralDeposit(player, ant, bestPositions);
             }
-
-            if (bestPositions != null && bestPositions.Count > 1)
-            {
-                if (bestPositions.Count > 2)
-                {
-                    ant.FollowThisRoute = new List<Position>();
-                    for (int i=2; i < 7 && i < bestPositions.Count - 1; i++)
-                    {
-                        ant.FollowThisRoute.Add(bestPositions[i]);
-                    }
-                }
-                return bestPositions[1];
-            }
-            return null;
+            return MakePathFromPositions(bestPositions, ant);
         }
 
         public Position FindEnemy(Player player, Ant ant)
@@ -733,19 +756,7 @@ namespace Engine.Control
                     }
                 }
             }
-            if (bestPositions != null && bestPositions.Count > 1)
-            {
-                if (bestPositions.Count > 2)
-                {
-                    ant.FollowThisRoute = new List<Position>();
-                    for (int i = 2; i < 7 && i < bestPositions.Count - 1; i++)
-                    {
-                        ant.FollowThisRoute.Add(bestPositions[i]);
-                    }
-                }
-                return bestPositions[1];
-            }
-            return null;
+            return MakePathFromPositions(bestPositions, ant);
         }
 
         internal void UpdateUnitCounters(Ant ant)
@@ -821,7 +832,10 @@ namespace Engine.Control
             // Attach gamecommands to idle units
             foreach (GameCommand gameCommand in player.GameCommands)
             {
-                if (gameCommand.GameCommandType == GameCommandType.Attack || gameCommand.GameCommandType == GameCommandType.Minerals)
+                if (gameCommand.GameCommandType == GameCommandType.Attack ||
+                    gameCommand.GameCommandType == GameCommandType.Defend ||
+                    gameCommand.GameCommandType == GameCommandType.Scout ||
+                    gameCommand.GameCommandType == GameCommandType.Collect)
                 {
                     Ant bestAnt = null;
                     double bestDistance = 0;
@@ -832,7 +846,9 @@ namespace Engine.Control
                         if (antWorker != null)
                         {
                             if (gameCommand.GameCommandType == GameCommandType.Attack && antWorker.AntWorkerType == AntWorkerType.Fighter ||
-                                gameCommand.GameCommandType == GameCommandType.Minerals && antWorker.AntWorkerType == AntWorkerType.Worker)
+                                gameCommand.GameCommandType == GameCommandType.Defend && antWorker.AntWorkerType == AntWorkerType.Fighter ||
+                                gameCommand.GameCommandType == GameCommandType.Scout && antWorker.AntWorkerType == AntWorkerType.Fighter ||
+                                gameCommand.GameCommandType == GameCommandType.Collect && antWorker.AntWorkerType == AntWorkerType.Worker)
                             {
                                 if (antWorker.CurrentGameCommand == null &&
                                     !ant.PlayerUnit.Unit.UnderConstruction &&

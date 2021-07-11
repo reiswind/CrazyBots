@@ -256,7 +256,7 @@ public class UnitBase : MonoBehaviour
                         lr.endColor = Color.red;
                     }
 
-                    if (unitCommand.GameCommand.GameCommandType == GameCommandType.Minerals)
+                    if (unitCommand.GameCommand.GameCommandType == GameCommandType.Collect)
                     {
                         //lr.startWidth = 0.1f;
                         lr.startColor = Color.green;

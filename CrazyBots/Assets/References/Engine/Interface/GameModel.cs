@@ -12,11 +12,13 @@ namespace Engine.Interface
     public enum GameCommandType
     {
         None,
-        Move,
-        AttackMove,
+        //Move,
+        //AttackMove,
         Attack,
+        Defend,
+        Scout,
         Cancel,
-        Minerals,
+        Collect,
         Build,
         Extract,
         Pipeline

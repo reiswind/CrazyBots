@@ -91,11 +91,13 @@ namespace Engine.Ants
                                 {
                                     commandBluePrint = player.Game.Blueprints.FindBlueprint(selectedGameCommand.UnitId);
                                 }
-                                else if (selectedGameCommand.GameCommandType == GameCommandType.Attack)
+                                else if (selectedGameCommand.GameCommandType == GameCommandType.Attack ||
+                                         selectedGameCommand.GameCommandType == GameCommandType.Defend ||
+                                         selectedGameCommand.GameCommandType == GameCommandType.Scout)
                                 {
                                     addFighter = true;
                                 }
-                                else if (selectedGameCommand.GameCommandType == GameCommandType.Minerals)
+                                else if (selectedGameCommand.GameCommandType == GameCommandType.Collect)
                                 {
                                     addWorker = true;
                                 }
@@ -202,6 +204,12 @@ namespace Engine.Ants
                                 {
                                     AntContainer antContainer = new AntContainer(Control);
                                     Control.CreatedAnts.Add(move.Positions[1], antContainer);
+
+                                    if (selectedGameCommand != null)
+                                    {
+                                        antContainer.CurrentGameCommand = selectedGameCommand;
+                                        player.GameCommands.Remove(selectedGameCommand);
+                                    }
                                 }
                                 else if (addAssembler)
                                 {
@@ -209,6 +217,12 @@ namespace Engine.Ants
                                     antWorker.AntWorkerType = AntWorkerType.Assembler;
                                     Control.NumberOfAssembler++;
                                     Control.CreatedAnts.Add(move.Positions[1], antWorker);
+
+                                    if (selectedGameCommand != null)
+                                    {
+                                        antWorker.CurrentGameCommand = selectedGameCommand;
+                                        player.GameCommands.Remove(selectedGameCommand);
+                                    }
                                 }
                                 else if (addWorker)
                                 {
@@ -216,6 +230,12 @@ namespace Engine.Ants
                                     antWorker.AntWorkerType = AntWorkerType.Worker;
                                     Control.NumberOfWorkers++;
                                     Control.CreatedAnts.Add(move.Positions[1], antWorker);
+
+                                    if (selectedGameCommand != null)
+                                    {
+                                        antWorker.CurrentGameCommand = selectedGameCommand;
+                                        player.GameCommands.Remove(selectedGameCommand);
+                                    }
                                     /*
                                     if (cntrlUnit.GameCommands != null && cntrlUnit.GameCommands.Count > 0)
                                     {
@@ -236,6 +256,14 @@ namespace Engine.Ants
                                     antWorker.AntWorkerType = AntWorkerType.Fighter;
                                     Control.NumberOfFighter++;
                                     Control.CreatedAnts.Add(move.Positions[1], antWorker);
+
+                                    if (selectedGameCommand != null)
+                                    {
+                                        if (selectedGameCommand.GameCommandType == GameCommandType.Defend)
+                                            antWorker.WaitForEnemy = true;
+                                        antWorker.CurrentGameCommand = selectedGameCommand;
+                                        player.GameCommands.Remove(selectedGameCommand);
+                                    }
                                     /*
                                     if (cntrlUnit.GameCommands != null && cntrlUnit.GameCommands.Count > 0)
                                     {
@@ -254,11 +282,13 @@ namespace Engine.Ants
                                 {
                                     AntWorker antWorker = new AntWorker(Control);
                                     antWorker.AntWorkerType = AntWorkerType.None;
-                                    antWorker.CurrentGameCommand = selectedGameCommand;
                                     Control.CreatedAnts.Add(move.Positions[1], antWorker);
 
                                     if (selectedGameCommand != null)
+                                    {
+                                        antWorker.CurrentGameCommand = selectedGameCommand;
                                         player.GameCommands.Remove(selectedGameCommand);
+                                    }
                                 }
 
                                 unitMoved = true;

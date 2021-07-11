@@ -27,8 +27,10 @@ public class HexGrid : MonoBehaviour
 	internal Dictionary<string, UnitBase> BaseUnits { get; private set; }
 	internal Dictionary<Position, UnitBase> UnitsInBuild { get; private set; }
 
+
 	// Filled in UI Thread
-	internal List<GameCommand> GameCommands { get; private set; }
+	internal Dictionary<Position, GameCommand> GameCommands { get; private set; }
+	internal Dictionary<Position, GameCommand> ActiveGameCommands { get; private set; }
 
 	// Shared with backgound thread
 	internal IGameController game;
@@ -140,6 +142,7 @@ public class HexGrid : MonoBehaviour
 	private Dictionary<string, GameObject> treeResources = new Dictionary<string, GameObject>();
 	private Dictionary<string, GameObject> rockResources = new Dictionary<string, GameObject>();
 	private Dictionary<string, GameObject> unitResources = new Dictionary<string, GameObject>();
+	private Dictionary<string, GameObject> bushResources = new Dictionary<string, GameObject>();
 	private Dictionary<string, GameObject> obstaclesResources = new Dictionary<string, GameObject>();
 	private Dictionary<string, Material> materialResources = new Dictionary<string, Material>();
 	private Dictionary<string, GameObject> particlesResources = new Dictionary<string, GameObject>();
@@ -195,6 +198,7 @@ public class HexGrid : MonoBehaviour
 		InitResources (treeResources, "Prefabs/Trees");
 		InitResources (rockResources, "Prefabs/Rocks");
 		InitResources (unitResources, "Prefabs/Unit");
+		InitResources (bushResources, "Prefabs/Bushes");
 	}
 
 	public GameObject GetTerrainResource(string name)
@@ -225,13 +229,28 @@ public class HexGrid : MonoBehaviour
 			int idx = game.Random.Next(rockResources.Count);
 			prefab = rockResources.Values.ElementAt(idx);
 		}
+		else if (tile.IsGrassDark() || tile.IsGras())
+        {
+			int idx = game.Random.Next(bushResources.Count);
+			prefab = bushResources.Values.ElementAt(idx);
+		}
 		else
         {
 			int idx = game.Random.Next(treeResources.Count);
 			prefab = treeResources.Values.ElementAt(idx);
 
 		}
+		float y = prefab.transform.position.y;
+
 		GameObject obstacle = Instantiate(prefab, transform, false);
+
+		Vector2 randomPos = UnityEngine.Random.insideUnitCircle;
+		Vector3 unitPos3 = transform.position;
+		unitPos3.x += (randomPos.x * 0.5f);
+		unitPos3.z += (randomPos.y * 0.7f);
+		unitPos3.y += y;
+		obstacle.transform.position = unitPos3;
+
 		return obstacle;
 	}
 
@@ -260,7 +279,8 @@ public class HexGrid : MonoBehaviour
 			gameModel.Seed = game.Seed;
 		}
 
-		GameCommands = new List<GameCommand>();
+		GameCommands = new Dictionary<Position, GameCommand>();
+		ActiveGameCommands = new Dictionary<Position, GameCommand>();
 		GroundCells = new Dictionary<Position, GroundCell>();
 		BaseUnits = new Dictionary<string, UnitBase>();
 		UnitsInBuild = new Dictionary<Position, UnitBase>();
@@ -705,8 +725,16 @@ public class HexGrid : MonoBehaviour
 		{
 			if (WaitForTurn.WaitOne(10))
 			{
-				newGameCommands = GameCommands;
-				GameCommands = new List<GameCommand>();
+				if (newGameCommands == null)
+					newGameCommands = new List<GameCommand>();
+				newGameCommands.Clear();
+				newGameCommands.AddRange(GameCommands.Values);
+
+				foreach (KeyValuePair<Position, GameCommand> kv in GameCommands)
+				{
+					ActiveGameCommands.Add(kv.Key, kv.Value);
+				}
+				GameCommands.Clear();
 
 				ProcessNewMoves();
 				WaitForDraw.Set();

@@ -212,18 +212,12 @@ public class GroundCell : MonoBehaviour
     {
         while (destructables.Count < Tile.NumberOfDestructables)
         {
-            Vector2 randomPos = Random.insideUnitCircle;
-
-            Vector3 unitPos3 = transform.position;
-            unitPos3.x += (randomPos.x * 0.7f);
-            unitPos3.z += (randomPos.y * 0.8f);
 
             GameObject destructable;
 
-
             destructable = HexGrid.CreateDestructable(transform, Tile);
             destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
-            destructable.transform.position = unitPos3;
+            //destructable.transform.position = unitPos3;
 
             destructables.Add(destructable);
         }
