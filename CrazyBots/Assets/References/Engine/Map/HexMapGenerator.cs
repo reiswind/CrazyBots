@@ -980,7 +980,10 @@ namespace Engine.MapGenerator
 			}
 
 			float temperature = 0;
-#if !NOUNITY
+#if NOUNITY
+			if (temperature + 0.1f < highTemperature)
+				temperature += 0.1f;
+#else
 			temperature = UnityEngine.Mathf.LerpUnclamped(lowTemperature, highTemperature, latitude);
 #endif
 			temperature *= 1f - (cell.ViewElevation - waterLevel) /
