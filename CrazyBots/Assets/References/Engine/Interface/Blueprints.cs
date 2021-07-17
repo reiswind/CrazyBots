@@ -24,7 +24,7 @@ namespace Engine.Interface
             blueprint.Name = "Outpost";
             blueprint.Layout = "GroundUnit";
             blueprint.Parts.Add(new BlueprintPart("Foundation"));
-            blueprint.Parts.Add(new BlueprintPart("Assembler3", "Assembler", 3, 6));
+            blueprint.Parts.Add(new BlueprintPart("Assembler3", "Assembler", 1, 4));
             blueprint.Parts.Add(new BlueprintPart("Container", 24));
             blueprint.Parts.Add(new BlueprintPart("Reactor"));
             Items.Add(blueprint);

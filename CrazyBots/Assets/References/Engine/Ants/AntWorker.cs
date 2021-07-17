@@ -1087,13 +1087,14 @@ namespace Engine.Ants
                                 //CurrentGameCommand = null;
                             }
                         }
-                        /*
-                        if (FollowThisRoute == null || FollowThisRoute.Count == 0)
+                        
+                        else if (FollowThisRoute == null || FollowThisRoute.Count == 0)
                         {
                             // Compute route to target
                             List<Position> positions = player.Game.FindPath(cntrlUnit.Pos, CurrentGameCommand.TargetPosition, cntrlUnit);
                             if (positions != null)
                             {
+                                /*
                                 if (AntWorkerType == AntWorkerType.Assembler)
                                 {
                                     if (positions.Count <= 2)
@@ -1106,14 +1107,14 @@ namespace Engine.Ants
                                         // Move only next to target       
                                         positions.RemoveAt(positions.Count - 1);
                                     }
-                                }
+                                }*/
                                 FollowThisRoute = new List<Position>();
                                 for (int i = 1; i < positions.Count; i++)
                                 {
                                     FollowThisRoute.Add(positions[i]);
                                 }
                             }
-                        }*/
+                        }
                     }
                 }                
 

@@ -1401,7 +1401,12 @@ namespace Engine.Master
                     first = true;
                     Initialize(newMoves);
 
-                    //CheckCollisions(newMoves);
+                    if (playerId == 0)
+                    {
+                        // Return complete Map
+                        //foreach (Position pos in Map.Tiles.Keys)
+                        //    changedGroundPositions.Add(pos, null);
+                    }
                 }
                 else
                 {
@@ -1459,11 +1464,11 @@ namespace Engine.Master
                             move.Positions = new List<Position>();
                             move.Positions.Add(gameCommand.TargetPosition);
                             newMoves.Add(move);
-                            
+                            */
                             Unit unit = Map.Units.FindUnit(gameCommand.UnitId);
                             if (unit != null)
                                 unit.ExtractMe = true;
-                            */
+                            
                         }
                         if (gameCommand.GameCommandType == GameCommandType.Build)
                         {
@@ -1513,6 +1518,7 @@ namespace Engine.Master
                             }
                         }*/
                     }
+                    
                 }
 
                 if (!first && lastMoves.Count == 0)

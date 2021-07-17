@@ -732,7 +732,13 @@ public class HexGrid : MonoBehaviour
 
 				foreach (KeyValuePair<Position, GameCommand> kv in GameCommands)
 				{
-					ActiveGameCommands.Add(kv.Key, kv.Value);
+					if (kv.Value.GameCommandType == GameCommandType.Attack ||
+						kv.Value.GameCommandType == GameCommandType.Defend ||
+						kv.Value.GameCommandType == GameCommandType.Collect ||
+						kv.Value.GameCommandType == GameCommandType.Scout)
+					{
+						ActiveGameCommands.Add(kv.Key, kv.Value);
+					}
 				}
 				GameCommands.Clear();
 
