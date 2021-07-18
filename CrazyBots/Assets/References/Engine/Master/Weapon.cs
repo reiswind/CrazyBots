@@ -32,6 +32,12 @@ namespace Engine.Master
             {
                 if (Unit.Power == 0)
                     return false;
+                if (Container != null && Container.Dirt > 0)
+                    return true;
+                if (Unit.Container != null && Unit.Container.Dirt > 0)
+                    return true;
+
+
                 if (Container != null && Container.Mineral > 0)
                     return true;
                 if (Unit.Container != null && Unit.Container.Mineral > 0)
@@ -68,8 +74,6 @@ namespace Engine.Master
             });
 
 
-            //List<Tile> resultList = new List<Tile>();
-            //ListHitableTiles(resultList, includedPositions);
             foreach (TileWithDistance n in tiles.Values)
             {
                 // Cannot fire on ground
@@ -77,6 +81,8 @@ namespace Engine.Master
                 {
                     if (n.Tile.NumberOfDestructables > 0)
                     {
+                        /* No longer fire at destrucables. They are extracted now */
+                        /*
                         Move move = new Move();
                         move.MoveType = MoveType.Fire;
                         move.UnitId = Unit.UnitId;
@@ -86,7 +92,7 @@ namespace Engine.Master
                         move.Positions.Add(n.Tile.Pos);
 
                         possibleMoves.Add(move);
-
+                        */
                     }
                     else
                     {

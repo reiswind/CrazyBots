@@ -42,6 +42,7 @@ namespace Engine.Interface
         Upgrade = 0x0008,
         Extract = 0x0020,
         Transport = 0x0040,
+        ExtractDirt = 0x0080,
         All = Fire | Move | Assemble  | Extract
     }
 

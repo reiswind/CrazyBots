@@ -102,7 +102,7 @@ namespace Engine.Interface
         {
             List<Position> calcPos = new List<Position>();
 
-            int visibilityRange = 2;
+            int visibilityRange = 5;
             if (Unit.Reactor != null)
             {
                 visibilityRange = Unit.Reactor.Range;

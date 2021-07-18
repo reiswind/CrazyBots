@@ -588,7 +588,7 @@ namespace Engine.Master
                         bool extracted = false;
 
                         Position fromPos = move.Positions[move.Positions.Count - 1];
-                        extracted = unit.Extractor.ExtractInto(fromPos, nextMoves, this, move.OtherUnitId == "Ground");
+                        extracted = unit.Extractor.ExtractInto(fromPos, nextMoves, this, move.OtherUnitId);
                         if (extracted)
                         {
                             if (!changedGroundPositions.ContainsKey(fromPos))
@@ -733,12 +733,17 @@ namespace Engine.Master
 
                     Tile unitTile = GetTile(targetUnit.Pos);
                     // damage Part
-                    //unitTile.Metal += releasedMetal;
                     unitTile.AddMinerals(releasedMetal);
                     if (firstHit)
                     {
+
+                        if (!changedGroundPositions.ContainsKey(unitTile.Pos))
+                            changedGroundPositions.Add(unitTile.Pos, null);
+
+                        // Assume dirt
+                        unitTile.Height += 0.1f;
                         //unitTile.Metal++;
-                        unitTile.AddMinerals(1);
+                        //unitTile.AddMinerals(1);
                         //Map.DistributeMineral(); // Bullet
                     }
                 }
@@ -748,13 +753,20 @@ namespace Engine.Master
             }
             else
             {
+                /* NOW: Dirt
                 if (firstHit)
                     Map.DistributeMineral(); // Bullet
-
+                */
                 Tile targetTile = Map.GetTile(pos);
                 if (targetTile.NumberOfDestructables > 0)
-                    targetTile.NumberOfDestructables--;
-
+                {
+                    targetTile.Height += 0.1f;
+                    //targetTile.NumberOfDestructables--;
+                }
+                else
+                {
+                    targetTile.Height += 0.1f;
+                }
                 if (!changedGroundPositions.ContainsKey(pos))
                     changedGroundPositions.Add(pos, null);
             }
@@ -1055,13 +1067,23 @@ namespace Engine.Master
                     Unit fireingUnit = Map.Units.GetUnitAt(move.Positions[0]);
                     if (fireingUnit != null && fireingUnit.Weapon != null)
                     {
-                        if (fireingUnit.Weapon.Container != null && fireingUnit.Weapon.Container.Mineral > 0)
+                        if (fireingUnit.Weapon.Container != null && fireingUnit.Weapon.Container.Dirt > 0)
+                        {
+                            fireingUnit.Weapon.Container.Dirt--;
+                        }
+                        else if (fireingUnit.Container != null && fireingUnit.Container.Dirt > 0)
+                        {
+                            fireingUnit.Container.Dirt--;
+                        }
+                        else if (fireingUnit.Weapon.Container != null && fireingUnit.Weapon.Container.Mineral > 0)
                         {
                             fireingUnit.Weapon.Container.Mineral--;
+                            Map.DistributeMineral(); 
                         }
                         else if (fireingUnit.Container != null && fireingUnit.Container.Mineral > 0)
                         {
                             fireingUnit.Container.Mineral--;
+                            Map.DistributeMineral();
                         }
                         else
                             throw new Exception();

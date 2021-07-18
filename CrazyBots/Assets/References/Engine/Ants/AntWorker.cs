@@ -506,7 +506,7 @@ namespace Engine.Ants
                 {
                     if (pheromoneType != PheromoneType.Energy)
                     {
-                        if (cntrlUnit.Container != null && cntrlUnit.Container.Mineral < cntrlUnit.Container.Capacity)
+                        if (cntrlUnit.Container != null && cntrlUnit.Container.IsFreeSpace)
                         {
                             // Fill up with food!
                             pheromoneType = PheromoneType.Mineral;
@@ -990,7 +990,8 @@ namespace Engine.Ants
                 }
             }
 
-            if (AntWorkerType == AntWorkerType.Fighter && cntrlUnit.Weapon != null && cntrlUnit.Weapon.Container.Mineral >= cntrlUnit.Weapon.Container.Capacity)
+            if (AntWorkerType == AntWorkerType.Fighter && cntrlUnit.Weapon != null && 
+                cntrlUnit.Weapon.Container.Dirt >= cntrlUnit.Weapon.Container.Capacity)
             {
                 // Fight, do not extract if can fire
             }

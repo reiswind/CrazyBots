@@ -181,7 +181,7 @@ namespace Engine.Control
                 {
                     foreach (PlayerUnit playerUnit in commandSource.Child.AssigendPlayerUnits)
                     {
-                        if (playerUnit.Unit.Engine == null && playerUnit.Unit.Extractor != null && playerUnit.Unit.Extractor.CanExtract)
+                        if (playerUnit.Unit.Engine == null && playerUnit.Unit.Extractor != null && playerUnit.Unit.Extractor.CanExtractMinerals)
                         {
                             // Reassign this unit, but only if this unit is still assigend (avoid duplicates)
                             return commandSource.Child;

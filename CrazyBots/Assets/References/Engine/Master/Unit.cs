@@ -296,10 +296,10 @@ namespace Engine.Master
                     Weapon = new Weapon(this, 1);
                     if (blueprintPart.Capacity.HasValue)
                         Weapon.Container.Capacity = blueprintPart.Capacity.Value;
-                    if (fillContainer)
+                    /*if (fillContainer)
                     {
                         Weapon.Container.Mineral = Weapon.Container.Capacity;
-                    }
+                    }*/
                 }
                 while (level > Weapon.Level)
                     Weapon.Level++;
@@ -667,7 +667,7 @@ namespace Engine.Master
                     if (blueprintPart.PartType.StartsWith( "Weapon"))
                     {
                         moveUpdateUnitPart.Level = Weapon.Level;
-                        moveUpdateUnitPart.Minerals = Weapon.Container.Mineral;
+                        moveUpdateUnitPart.Minerals = Weapon.Container.Dirt + Weapon.Container.Mineral;
                         moveUpdateUnitPart.Capacity = Weapon.Container.Capacity;
                     }
                     if (blueprintPart.PartType.StartsWith("Assembler"))

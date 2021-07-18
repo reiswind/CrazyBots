@@ -73,7 +73,7 @@ namespace Engine.Control
                         {
                             if (playerUnit.Unit.IsComplete())
                             {
-                                if (playerUnit.Unit.Extractor.CanExtract)
+                                if (playerUnit.Unit.Extractor.CanExtractMinerals)
                                 {
                                     TileWithDistance nextTile = null;
                                     if (nextTile == null || nextTile.Metal == 0)

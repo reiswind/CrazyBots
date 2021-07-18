@@ -11,8 +11,17 @@ namespace Engine.Master
     {
         public int Level { get; set; }
         public int Mineral { get; set; }
+        public int Dirt { get; set; }
 
         private int extraCapacity;
+
+        public bool IsFreeSpace
+        {
+            get
+            {
+                return Mineral + Dirt < Capacity;
+            }
+        }
         public int Capacity
         {
             get

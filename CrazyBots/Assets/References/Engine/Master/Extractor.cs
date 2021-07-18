@@ -86,7 +86,43 @@ namespace Engine.Master
             if ((moveFilter & MoveFilter.Extract) == 0)
                 return;
 
-            if (!CanExtract)
+            if (CanExtractDirt)
+            {
+                Tile t = Unit.Game.Map.GetTile(Unit.Pos);
+                foreach (Tile n in t.Neighbors)
+                {
+                    bool possible = false;
+                    if (n.Unit == null &&
+                        !n.IsUnderwater &&
+                        n.Height >= 0.2f &&
+                        n.Height > t.Height)
+                    {
+                        possible = true;
+                    }
+                    if (!possible)
+                    {
+                        if (n.NumberOfDestructables > 0)
+                            possible = true;
+                    }
+
+                    if (possible)
+                    { 
+                        Move move = new Move();
+
+                        move.MoveType = MoveType.Extract;
+
+                        move.UnitId = Unit.UnitId;
+                        move.OtherUnitId = "Dirt";
+                        move.Positions = new List<Position>();
+                        move.Positions.Add(Unit.Pos);
+                        move.Positions.Add(n.Pos);
+
+                        possibleMoves.Add(move);
+                    }
+                }
+            }
+
+            if (!CanExtractMinerals)
                 // Unit full Not possible to extract
                 return;
 
@@ -104,7 +140,7 @@ namespace Engine.Master
                     move.MoveType = MoveType.Extract;
 
                     move.UnitId = Unit.UnitId;
-                    move.OtherUnitId = "Ground";
+                    move.OtherUnitId = "Mineral";
                     move.Positions = new List<Position>();
                     move.Positions.Add(Unit.Pos);
                     move.Positions.Add(t.Pos);
@@ -220,8 +256,15 @@ namespace Engine.Master
             }
 
         }
-
         public bool CanExtract
+        {
+            get
+            {
+                return CanExtractMinerals || CanExtractDirt;
+            }
+        }
+
+        public bool CanExtractDirt
         {
             get
             {
@@ -230,11 +273,23 @@ namespace Engine.Master
 
                 if (Unit.Weapon != null)
                 {
-                    if (Unit.Weapon.Container != null && Unit.Weapon.Container.Mineral < Unit.Weapon.Container.Capacity)
+                    // Dirt
+                    if (Unit.Weapon.Container != null && Unit.Weapon.Container.Dirt < Unit.Weapon.Container.Capacity)
                     {
                         return true;
                     }
                 }
+                return false;
+            }
+        }
+
+        public bool CanExtractMinerals
+        {
+            get
+            {
+                if (Unit.Power == 0)
+                    return false;
+
                 if (Unit.Assembler != null)
                 {
                     if (Unit.Assembler.Container != null && Unit.Assembler.Container.Mineral < Unit.Assembler.Container.Capacity)
@@ -258,28 +313,32 @@ namespace Engine.Master
         }
 
 
-        public bool ExtractInto(Position from, List<Move> moves, Game game, bool fromGround)
+        public bool ExtractInto(Position from, List<Move> moves, Game game, string groundType)
         {
             Tile fromTile = Unit.Game.Map.GetTile(from);
-            
-            /*
-            bool canExtract = false;
 
-            if (Unit.Metal == 0)
+
+            if (groundType == "Dirt")
             {
-                canExtract = true;
+                if (Unit.Weapon == null || Unit.Weapon.Container == null)
+                    return false;
+                if (!CanExtractDirt)
+                    return false;
+
+                if (fromTile.NumberOfDestructables > 0)
+                    fromTile.NumberOfDestructables--;
+                else
+                    fromTile.Height -= 0.1f;
+                Unit.Weapon.Container.Dirt++;
+
+                return true;
             }
-            else
-            {
-                if (Unit.Container != null && Unit.Container.Metal < Unit.Container.Capacity)
-                    canExtract = true;
-            }
-            */
-            if (!CanExtract)
+
+            if (!CanExtractMinerals)
                 return false;
             int metalRemoved = 0;
 
-            if (fromGround == false && fromTile.Unit != null)
+            if (groundType != "Mineral" && fromTile.Unit != null)
             {
                 // friendly unit
                 if (fromTile.Unit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)

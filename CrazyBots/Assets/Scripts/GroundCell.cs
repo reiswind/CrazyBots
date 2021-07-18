@@ -176,18 +176,22 @@ public class GroundCell : MonoBehaviour
             if (NextMove.Stats != null && NextMove.Stats.MoveUpdateGroundStat != null)
             {
                 MoveUpdateGroundStat stat = NextMove.Stats.MoveUpdateGroundStat;
-                if (markerEnergy == null)
-                {
-                    CreateMarker();
-                }
+               
                 if (stat.Owner == 0 || !stat.IsBorder || Tile.IsUnderwater)
                 {
-                    Vector3 position = transform.position;
-                    position.y -= 1;
-                    markerEnergy.transform.position = position;
+                    if (markerEnergy != null)
+                    {
+                        Vector3 position = transform.position;
+                        position.y -= 1;
+                        markerEnergy.transform.position = position;
+                    }
                 }
                 else
                 {
+                    if (markerEnergy == null)
+                    {
+                        CreateMarker();
+                    }
                     float highestEnergy = 1;
 
                     Vector3 position = transform.position;
@@ -195,6 +199,11 @@ public class GroundCell : MonoBehaviour
                     markerEnergy.transform.position = position;
                     UnitBase.SetPlayerColor(HexGrid, stat.Owner, markerEnergy);
                 }
+
+                Vector3 vector3 = transform.localPosition;
+                vector3.y = ((float)Tile.Height)+ 0.3f;
+                transform.localPosition = vector3;
+
                 // This is for Web
                 //Tile.Metal = stat.Minerals;
                 Tile.NumberOfDestructables = stat.NumberOfDestructables;

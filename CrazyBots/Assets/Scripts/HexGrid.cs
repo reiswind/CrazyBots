@@ -55,10 +55,10 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -933,10 +933,6 @@ public class HexGrid : MonoBehaviour
 
 	private GroundCell CreateCell(Tile t, GameObject cellPrefabx)
 	{
-		if (t.Height == 0.1f)
-        {
-			int xxx = 0;
-        }
 		int x = t.Pos.X;
 		int y = t.Pos.Y;
 
