@@ -31,7 +31,7 @@ Transform:
   m_LocalPosition: {x: -0.01, y: -0, z: -0.01}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 6012626788208768495}
+  - {fileID: 8232410241766022714}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -110,7 +110,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4b59aa4d5d42a64496d4291a3283626, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1001 &6123661052389560836
+--- !u!1001 &8481927374764325329
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -127,7 +127,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 65749b2fbf92bdf469fdde1df565007c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.024
+      value: -0.05
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 65749b2fbf92bdf469fdde1df565007c, type: 3}
       propertyPath: m_LocalPosition.z
@@ -161,13 +161,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -7511558181221131132, guid: 65749b2fbf92bdf469fdde1df565007c, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 65749b2fbf92bdf469fdde1df565007c, type: 3}
       propertyPath: m_Name
-      value: Marker
+      value: Attack
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 65749b2fbf92bdf469fdde1df565007c, type: 3}
       propertyPath: m_IsActive
@@ -175,8 +171,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 65749b2fbf92bdf469fdde1df565007c, type: 3}
---- !u!4 &6012626788208768495 stripped
+--- !u!4 &8232410241766022714 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 65749b2fbf92bdf469fdde1df565007c, type: 3}
-  m_PrefabInstance: {fileID: 6123661052389560836}
+  m_PrefabInstance: {fileID: 8481927374764325329}
   m_PrefabAsset: {fileID: 0}

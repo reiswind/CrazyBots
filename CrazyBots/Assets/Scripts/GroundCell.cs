@@ -373,7 +373,7 @@ public class GroundCell : MonoBehaviour
         {
             IsAttack = selected;
 
-            transform.Find("Marker").gameObject.SetActive(IsAttack);
+            transform.Find("Attack").gameObject.SetActive(IsAttack);
         }
     }
 
