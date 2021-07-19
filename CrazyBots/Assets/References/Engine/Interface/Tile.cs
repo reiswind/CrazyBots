@@ -185,10 +185,17 @@ namespace Engine.Interface
         {
             return PlantLevel <= 1 && TerrainTypeIndex == 0;
         }
-
-
-        public bool CanMoveTo()
+        public bool CanMoveTo(Position from)
         {
+            return CanMoveTo(Map.GetTile(from));            
+        }
+
+        public bool CanMoveTo(Tile from)
+        {
+            if (from.Pos != Pos && from.Height + 0.4f < Height )
+            {
+                return false;
+            }
             if (NumberOfObstacles > 0 || NumberOfDestructables > 0)
             {
                 return false;

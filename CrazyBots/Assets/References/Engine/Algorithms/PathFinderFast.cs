@@ -254,9 +254,14 @@ namespace Engine.Algorithms
                 mCalcGrid[mLocation].PY        = start.Y;
                 mCalcGrid[mLocation].Status    = mOpenNodeValue;
 
+                int maxDepth = 1000;
+
                 mOpen.Push(mLocation);
                 while(mOpen.Count > 0 && !mStop)
                 {
+                    if (maxDepth-- < 0) 
+                        return null;
+
                     mLocation = mOpen.Pop();
 
                     //Is it in closed list? means this node was already processed
@@ -321,7 +326,7 @@ namespace Engine.Algorithms
                             }
                         }
 
-                        if (n.Pos != end && !n.CanMoveTo())
+                        if (n.Pos != end && !n.CanMoveTo(t))
                         {
                             continue;
                         }

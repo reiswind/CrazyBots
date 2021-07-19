@@ -1344,6 +1344,7 @@ namespace Engine.Master
                     if (move.MoveType == MoveType.Upgrade)
                         continue;
 
+                    Position from = move.Positions[0];
                     Position destination = move.Positions[move.Positions.Count - 1];
                     Tile t = Map.GetTile(destination);
                     if (t == null)
@@ -1351,7 +1352,7 @@ namespace Engine.Master
                         // Moved outside?
                         throw new Exception("bah");
                     }
-                    else if (!t.CanMoveTo())
+                    else if (!t.CanMoveTo(from))
                     {
                         // Move to invalid pos
                         // Happend with bad startup pos
@@ -1744,8 +1745,8 @@ namespace Engine.Master
                     area.Range = unit.Radar.Level * 4;
 
                     Tile tile = Map.GetTile(unit.Pos);
-                    if (tile.CanMoveTo())
-                        openList.Add(new TileWithDistance(tile, 0));
+                    //if (tile.CanMoveTo())
+                    //    openList.Add(new TileWithDistance(tile, 0));
 
                     area.PlayerId = tile.Unit.Owner.PlayerModel.Id;
                     area.Units.Add(new PlayerUnit(unit));
@@ -1777,8 +1778,8 @@ namespace Engine.Master
                     //if (!VisiblePositions.Contains(n.Pos))
                     //    continue;
 
-                    if (!n.CanMoveTo())
-                        continue;
+                    //if (!n.CanMoveTo())
+                    //    continue;
 
                     TileWithDistance neighborsTile = new TileWithDistance(GetTile(n.Pos), tile.Distance + 1);
                     if (neighborsTile.Distance > startArea.Range)

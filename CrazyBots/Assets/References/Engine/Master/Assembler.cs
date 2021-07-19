@@ -268,7 +268,7 @@ namespace Engine.Master
             }
             foreach (TileWithDistance neighbor in neighbors.Values)
             {
-                if (!neighbor.Tile.CanMoveTo())
+                if (!neighbor.Tile.CanMoveTo(Unit.Pos))
                     continue;
 
                 if (includedPositions != null)

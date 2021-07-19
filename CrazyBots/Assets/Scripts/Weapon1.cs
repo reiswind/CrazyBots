@@ -99,7 +99,7 @@ public class Weapon1 : MonoBehaviour
         {
             if (weaponTargetCell != null)
             {
-                angle = 25;
+                angle = 45;
 
                 GameObject weapon = UnitBase.FindChildNyName(this.gameObject, "Weapon");
 

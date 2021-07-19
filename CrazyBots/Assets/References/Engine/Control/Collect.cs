@@ -115,7 +115,7 @@ namespace Engine.Control
                                         {
                                             foreach (TileWithDistance possibleTile in tiles.Values)
                                             {
-                                                if (possibleTile.Tile.CanMoveTo()) // && */possibleTile.Unit == null)
+                                                if (possibleTile.Tile.CanMoveTo(possibleTile.Tile)) // && */possibleTile.Unit == null)
                                                 {
                                                     nextTile = possibleTile;
                                                     break;
@@ -125,7 +125,7 @@ namespace Engine.Control
                                                     // If cannot move on tile, move next to it
                                                     foreach (Tile tx in possibleTile.Neighbors)
                                                     {
-                                                        if (tx.CanMoveTo())
+                                                        if (tx.CanMoveTo(possibleTile.Tile))
                                                         {
                                                             nextTile = new TileWithDistance(tx, 0);
                                                             break;

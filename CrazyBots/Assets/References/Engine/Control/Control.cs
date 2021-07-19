@@ -419,7 +419,7 @@ namespace Engine.Control
                                 destination = commandSource.Path[i + 1];
 
                                 Tile t = GameController.GetTile(destination);
-                                if (!t.CanMoveTo() || t.Unit != null)
+                                if (!t.CanMoveTo(pos) || t.Unit != null)
                                 {
                                     requestMove.Command.StuckCounter++;
                                     if (requestMove.Command.StuckCounter > 2)

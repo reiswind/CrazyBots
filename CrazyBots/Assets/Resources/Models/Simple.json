@@ -78,6 +78,33 @@
       }
     },
 	{
+      "Name": "Container2",
+      "PlayerId": 2,
+	  "Blueprint": "Container",
+      "Position": {
+        "X": 15,
+        "Y": 29
+      }
+    },
+	{
+      "Name": "Reactor2",
+      "PlayerId": 2,
+	  "Blueprint": "Reactor",
+      "Position": {
+        "X": 15,
+        "Y": 28
+      }
+    },
+	{
+      "Name": "Factory2",
+      "PlayerId": 2,
+	  "Blueprint": "Factory",
+      "Position": {
+        "X": 16,
+        "Y": 28
+      }
+    },
+	{
       "Name": "Colony3",
       "PlayerId": 3,
 	  "Blueprint": "Outpost",

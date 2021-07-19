@@ -158,7 +158,7 @@ namespace Engine.Ants
             if (next != null)
             {
                 t = player.Game.Map.GetTile(next);
-                if (t != null && !t.CanMoveTo())
+                if (t != null && !t.CanMoveTo(pos))
                 {
                     t = null;
                 }
@@ -175,7 +175,7 @@ namespace Engine.Ants
         {
             if (t != null)
             {
-                if (onlyIfMovable && !t.CanMoveTo())
+                if (onlyIfMovable && !t.CanMoveTo(PlayerUnit.Unit.Pos))
                     return;
 
                 AntDestination antDestination = new AntDestination();
