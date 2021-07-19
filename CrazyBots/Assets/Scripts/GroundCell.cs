@@ -169,6 +169,91 @@ public class GroundCell : MonoBehaviour
         }
     }
 
+    internal void SetGroundMaterial()
+    {
+        /*
+        for (int i = 0; i < unit.transform.childCount; i++)
+        {
+            GameObject child = unit.transform.GetChild(i).gameObject;
+            if (!child.name.StartsWith("Mineral") && !child.name.StartsWith("Ammo"))
+                SetPlayerColor(hexGrid, playerId, child);
+        }*/
+
+        string materialName;
+        if (Tile.IsUnderwater)
+        {
+            materialName = "Water";
+        }
+        else
+        {
+            if (Tile.IsHill())
+            {
+                materialName = "Hill";
+            }
+            else if (Tile.IsRock())
+            {
+                materialName = "Rock";
+            }
+            else if (Tile.IsSand())
+            {
+                materialName = "Sand";
+            }
+            else if (Tile.IsDarkSand())
+            {
+                materialName = "DarkSand";
+            }
+            else if (Tile.IsDarkWood())
+            {
+                materialName = "DarkWood";
+            }
+            else if (Tile.IsWood())
+            {
+                materialName = "Wood";
+            }
+            else if (Tile.IsLightWood())
+            {
+                materialName = "LightWood";
+            }
+            else if (Tile.IsGrassDark())
+            {
+                materialName = "GrassDark";
+            }
+            else if (Tile.IsGras())
+            {
+                materialName = "Grass";
+            }
+            else
+            {
+                materialName = "";
+            }
+        }
+
+        MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
+        if (meshRenderer != null)
+        {
+
+
+            Material[] newMaterials = new Material[meshRenderer.materials.Length];
+            for (int i = 0; i < meshRenderer.materials.Length; i++)
+            {
+                Material material = meshRenderer.materials[i];
+                if (material.name.StartsWith("MaterialTerrain"))
+                {
+                    Destroy(material);
+                    newMaterials[i] = HexGrid.GetMaterial(materialName);
+                }
+                else
+                {
+                    newMaterials[i] = meshRenderer.materials[i];
+                    //Destroy(material);
+                    //newMaterials[i] = HexGrid.GetMaterial("GroundMat");
+                }
+            }
+            meshRenderer.materials = newMaterials;
+        }
+    }
+    
+
     internal void UpdateGround()
     {
         if (NextMove != null)

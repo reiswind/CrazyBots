@@ -951,54 +951,7 @@ public class HexGrid : MonoBehaviour
 
 		double height = t.Height;
 
-		string materialName;
-		if (t.IsUnderwater)
-		{
-			materialName = "Water";
-		}
-		else
-		{
-			if (t.IsHill())
-			{
-				materialName = "Hill";
-			}
-			else if (t.IsRock())
-			{
-				materialName = "Rock";
-			}
-			else if (t.IsSand())
-			{
-				materialName = "Sand";
-			}
-			else if (t.IsDarkSand())
-			{
-				materialName = "DarkSand";
-			}
-			else if (t.IsDarkWood())
-			{
-				materialName = "DarkWood";
-			}
-			else if (t.IsWood())
-			{
-				materialName = "Wood";
-			}
-			else if (t.IsLightWood())
-			{
-				materialName = "LightWood";
-			}
-			else if (t.IsGrassDark())
-			{
-				materialName = "GrassDark";
-			}
-			else if (t.IsGras())
-			{
-				materialName = "Grass";
-			}
-			else
-			{
-				materialName = "";
-			}
-		}
+		
 		if (false && t.ZoneId != 0)
 		{
 			gridPos3.y += 1;
@@ -1010,11 +963,10 @@ public class HexGrid : MonoBehaviour
 		gameObjectCell.transform.localPosition = gridPos3;
 
 		//
-		Material materialResource = GetMaterial(materialName); 
-
-		MeshRenderer meshRenderer = gameObjectCell.GetComponent<MeshRenderer>();
-		meshRenderer.material = materialResource;
-
+		//Material materialResource = GetMaterial(materialName); 
+		//MeshRenderer meshRenderer = gameObjectCell.GetComponent<MeshRenderer>();
+		//meshRenderer.material = materialResource;
+		groundCell.SetGroundMaterial();
 		groundCell.CreateMinerals();
 		groundCell.CreateDestructables();
 		groundCell.CreateObstacles();
