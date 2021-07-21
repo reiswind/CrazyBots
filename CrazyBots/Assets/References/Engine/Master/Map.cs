@@ -642,7 +642,24 @@ namespace Engine.Master
         //private HeightMap terrain;
 
 
+        public MoveUpdateStats CollectGroundStats(Position pos)
+        {
+            MoveUpdateGroundStat moveUpdateGroundStat = new MoveUpdateGroundStat();
 
+            Tile t = GetTile(pos);
+            moveUpdateGroundStat.Owner = t.Owner;
+            moveUpdateGroundStat.IsBorder = t.IsBorder;
+            moveUpdateGroundStat.PlantLevel = t.PlantLevel;
+            moveUpdateGroundStat.TerrainTypeIndex = t.TerrainTypeIndex;
+            moveUpdateGroundStat.IsUnderwater = t.IsUnderwater;
+            moveUpdateGroundStat.Minerals = t.Metal;
+            moveUpdateGroundStat.NumberOfDestructables = t.NumberOfDestructables;
+            moveUpdateGroundStat.NumberOfObstacles = t.NumberOfObstacles;
+            MoveUpdateStats moveUpdateStats;
+            moveUpdateStats = new MoveUpdateStats();
+            moveUpdateStats.MoveUpdateGroundStat = moveUpdateGroundStat;
+            return moveUpdateStats;
+        }
 
         private HeightMap GenerateTerrain(int? seed = null)
         {

@@ -114,8 +114,14 @@ namespace Engine.Interface
         {
             return PlantLevel <= 1 && TerrainTypeIndex == 0;
         }
-
     }
+
+    public class MoveUpdateStatsCommand
+    {
+        public Position TargetPosition { get; set; }
+        public GameCommandType GameCommandType { get; set; }
+    }
+
     public class MoveUpdateStats
     {
         public MoveUpdateStats()
@@ -130,6 +136,8 @@ namespace Engine.Interface
 
         [DataMember(EmitDefaultValue = false)]
         public MoveUpdateGroundStat MoveUpdateGroundStat { get; set; }
+
+        public MoveUpdateStatsCommand MoveUpdateStatsCommand { get; set; }
 
 
         [DataMember]

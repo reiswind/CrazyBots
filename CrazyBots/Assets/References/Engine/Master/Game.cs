@@ -121,14 +121,36 @@ namespace Engine.Master
 
 
                         t.Owner = unitModel.PlayerId;
-                        //t.Metal = 0;
-                        t.NumberOfDestructables = 0;
-                        t.NumberOfObstacles = 0;
+                        ResetTile(t);
+                        foreach (Tile n in t.Neighbors)
+                            ResetTile(n);
                     }
                     // Turn into direction missing
                 }
             }
         }
+
+        private void ResetTile(Tile t)
+        {
+            bool changed = false;
+
+            if (t.NumberOfDestructables != 0)
+            {
+                changed = true;
+                t.NumberOfDestructables = 0;
+            }
+            if (t.NumberOfObstacles != 0)
+            {
+                changed = true;
+                t.NumberOfObstacles = 0;
+            }
+            if (changed)
+            {
+                if (!changedGroundPositions.ContainsKey(t.Pos))
+                    changedGroundPositions.Add(t.Pos, null);
+            }
+        }
+
 
         private int unitCntr;
         public string GetNextUnitId(string unitModelName)
@@ -773,25 +795,6 @@ namespace Engine.Master
 
         }
 
-
-        private MoveUpdateStats CollectGroundStats(Position pos)
-        {
-            MoveUpdateGroundStat moveUpdateGroundStat = new MoveUpdateGroundStat();
-
-            Tile t = Map.GetTile(pos);
-            moveUpdateGroundStat.Owner = t.Owner;
-            moveUpdateGroundStat.IsBorder = t.IsBorder;
-            moveUpdateGroundStat.PlantLevel = t.PlantLevel;
-            moveUpdateGroundStat.TerrainTypeIndex = t.TerrainTypeIndex;
-            moveUpdateGroundStat.IsUnderwater = t.IsUnderwater;
-            moveUpdateGroundStat.Minerals = t.Metal;
-            moveUpdateGroundStat.NumberOfDestructables = t.NumberOfDestructables;
-            moveUpdateGroundStat.NumberOfObstacles = t.NumberOfObstacles;
-            MoveUpdateStats moveUpdateStats;
-            moveUpdateStats = new MoveUpdateStats();
-            moveUpdateStats.MoveUpdateGroundStat = moveUpdateGroundStat;
-            return moveUpdateStats;
-        }
         private void LogMoves(string header, int moveNr, List<Move> moves)
         {
             if (string.IsNullOrEmpty(logFile))
@@ -1423,13 +1426,6 @@ namespace Engine.Master
                 {
                     first = true;
                     Initialize(newMoves);
-
-                    if (playerId == 0)
-                    {
-                        // Return complete Map
-                        //foreach (Position pos in Map.Tiles.Keys)
-                        //    changedGroundPositions.Add(pos, null);
-                    }
                 }
                 else
                 {
@@ -1611,7 +1607,7 @@ namespace Engine.Master
                     hitmove.MoveType = MoveType.UpdateGround;
                     hitmove.Positions = new List<Position>();
                     hitmove.Positions.Add(pos);
-                    hitmove.Stats = CollectGroundStats(pos);
+                    hitmove.Stats = Map.CollectGroundStats(pos);
                     lastMoves.Add(hitmove);
                 }
 

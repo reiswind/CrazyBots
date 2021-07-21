@@ -1481,7 +1481,16 @@ public class GameCanvas : MonoBehaviour
 
                 else
                 {
-                    headerSubText.text = "";
+                    if (unit.MoveUpdateStats.MoveUpdateStatsCommand == null)
+                    {
+                        headerSubText.text = "";
+                    }
+                    else
+                    {
+                        MoveUpdateStatsCommand cmd = unit.MoveUpdateStats.MoveUpdateStatsCommand;
+
+                        headerSubText.text = cmd.GameCommandType.ToString() + " at " + cmd.TargetPosition.X + "," + cmd.TargetPosition.Y;
+                    }
                 }
                 headerSubText.text += " " + unit.UnitId;
 

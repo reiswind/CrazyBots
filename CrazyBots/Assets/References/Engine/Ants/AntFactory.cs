@@ -207,7 +207,7 @@ namespace Engine.Ants
 
                                     if (selectedGameCommand != null)
                                     {
-                                        antContainer.CurrentGameCommand = selectedGameCommand;
+                                        antContainer.GameCommandDuringCreation = selectedGameCommand;
                                         player.GameCommands.Remove(selectedGameCommand);
                                     }
                                 }
@@ -220,7 +220,7 @@ namespace Engine.Ants
 
                                     if (selectedGameCommand != null)
                                     {
-                                        antWorker.CurrentGameCommand = selectedGameCommand;
+                                        antWorker.GameCommandDuringCreation = selectedGameCommand;
                                         player.GameCommands.Remove(selectedGameCommand);
                                     }
                                 }
@@ -233,7 +233,7 @@ namespace Engine.Ants
 
                                     if (selectedGameCommand != null)
                                     {
-                                        antWorker.CurrentGameCommand = selectedGameCommand;
+                                        antWorker.GameCommandDuringCreation = selectedGameCommand;
                                         player.GameCommands.Remove(selectedGameCommand);
                                     }
                                     /*
@@ -259,9 +259,7 @@ namespace Engine.Ants
 
                                     if (selectedGameCommand != null)
                                     {
-                                        if (selectedGameCommand.GameCommandType == GameCommandType.Defend)
-                                            antWorker.WaitForEnemy = true;
-                                        antWorker.CurrentGameCommand = selectedGameCommand;
+                                        antWorker.GameCommandDuringCreation = selectedGameCommand;
                                         player.GameCommands.Remove(selectedGameCommand);
                                     }
                                     /*
@@ -286,7 +284,7 @@ namespace Engine.Ants
 
                                     if (selectedGameCommand != null)
                                     {
-                                        antWorker.CurrentGameCommand = selectedGameCommand;
+                                        antWorker.PlayerUnit.Unit.CurrentGameCommand = selectedGameCommand;
                                         player.GameCommands.Remove(selectedGameCommand);
                                     }
                                 }

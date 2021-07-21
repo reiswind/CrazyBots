@@ -51,6 +51,6 @@ namespace Engine.Ants
             return true;
         }
 
-        internal GameCommand CurrentGameCommand;
+        internal GameCommand GameCommandDuringCreation;
     }
 }

@@ -20,7 +20,7 @@ namespace Engine.Ants
     {
         public AntWorkerType AntWorkerType { get; set; }
         public bool ReturnHome { get; set; }
-        public bool WaitForEnemy { get; set; }
+
         public bool BuildPositionReached { get; set; }
 
         public AntWorker(ControlAnt control) : base(control)
@@ -561,7 +561,7 @@ namespace Engine.Ants
                 }
                 if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.Work)
                 {
-                    if (this.CurrentGameCommand != null)
+                    if (PlayerUnit.Unit.CurrentGameCommand != null)
                     {
                         moveToPosition = Control.FindCommandTarget(player, this);
                         // Builders are directed directly to their position. This is a lost builder
@@ -588,15 +588,13 @@ namespace Engine.Ants
                         FollowThisRoute = null;
                     }                
                 }
-                if (WaitForEnemy && possibleTiles.Count > 0 && pheromoneType == PheromoneType.Enemy)
-                {
-                    WaitForEnemy = false;
-                }
 
                 if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.Enemy)
                 {
-                    if (WaitForEnemy)
+                    if (PlayerUnit.Unit.CurrentGameCommand != null &&
+                        PlayerUnit.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Attack)
                     {
+                        // Stay
                         return true;
                     }
                     moveToPosition = Control.FindEnemy(player, this);
@@ -631,7 +629,7 @@ namespace Engine.Ants
                     }
                     else if (AntWorkerType == AntWorkerType.Worker && possibleTiles.Count == 0)
                     {
-                        if (CurrentGameCommand != null)
+                        if (PlayerUnit.Unit.CurrentGameCommand != null)
                         {
                             // Worker hangs around at command target
                             moveToPosition = Control.FindCommandTarget(player, this);
@@ -892,7 +890,7 @@ namespace Engine.Ants
                 if (possiblemoves.Count > 0)
                 {
                     int idx = player.Game.Random.Next(possiblemoves.Count);
-                    if (cntrlUnit.Engine == null || WaitForEnemy)
+                    if (cntrlUnit.Engine == null)
                     {
                         // Do not fire at trees
                         while (possiblemoves.Count > 0 && possiblemoves[idx].OtherUnitId == "Destructable")
@@ -918,12 +916,12 @@ namespace Engine.Ants
                 if (possiblemoves.Count > 0)
                 {
                     Move move = null;
-                    if (CurrentGameCommand != null)
+                    if (PlayerUnit.Unit.CurrentGameCommand != null)
                     {
                         // Build only what is asked for
                         foreach (Move move1 in possiblemoves)
                         {
-                            if (move1.Positions[1] == CurrentGameCommand.TargetPosition)
+                            if (move1.Positions[1] == PlayerUnit.Unit.CurrentGameCommand.TargetPosition)
                             {
                                 move = move1;
                                 break;
@@ -950,9 +948,9 @@ namespace Engine.Ants
                                 commandMove.UnitId = cntrlUnit.UnitId;
                                 commandMove.PlayerId = player.PlayerModel.Id;
                                 commandMove.Positions = new List<Position>();
-                                commandMove.Positions.Add(CurrentGameCommand.TargetPosition);
+                                commandMove.Positions.Add(PlayerUnit.Unit.CurrentGameCommand.TargetPosition);
                                 moves.Add(commandMove);
-                                CurrentGameCommand = null;
+                                PlayerUnit.Unit.CurrentGameCommand = null;
 
                                 // Extract the unit
                                 cntrlUnit.ExtractMe = true;
@@ -975,9 +973,9 @@ namespace Engine.Ants
                 {
                     foreach (Move move1 in possiblemoves)
                     {
-                        if (CurrentGameCommand != null &&
-                            move1.Positions[1] == CurrentGameCommand.TargetPosition && 
-                            move1.UnitId == CurrentGameCommand.UnitId)
+                        if (PlayerUnit.Unit.CurrentGameCommand != null &&
+                            move1.Positions[1] == PlayerUnit.Unit.CurrentGameCommand.TargetPosition && 
+                            move1.UnitId == PlayerUnit.Unit.CurrentGameCommand.UnitId)
                         {
                             moves.Add(move1);
                             break;
@@ -1025,23 +1023,24 @@ namespace Engine.Ants
             }
             if (cntrlUnit.Engine != null && cntrlUnit.UnderConstruction == false)
             {
-                if (CurrentGameCommand != null)
+                if (PlayerUnit.Unit.CurrentGameCommand != null)
                 {
-                    bool loadFirst = false;
+                    //bool loadFirst = false;
                     // only if filled!
+                    /*
                     if (cntrlUnit.Weapon != null && cntrlUnit.Weapon.Container.Mineral < cntrlUnit.Weapon.Container.Capacity)
                         loadFirst = true;
                     if (cntrlUnit.Assembler != null && cntrlUnit.Assembler.Container.Mineral < cntrlUnit.Assembler.Container.Capacity)
                         loadFirst = true;
-
-                    if (!loadFirst)
-                    {
-                        if (CurrentGameCommand.GameCommandType == GameCommandType.Build)
+                    */
+                    //if (!loadFirst)
+                    
+                        if (PlayerUnit.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build)
                         {
                             Tile t = player.Game.Map.GetTile(cntrlUnit.Pos);
                             foreach (Tile n in t.Neighbors)
                             {
-                                if (n.Pos == CurrentGameCommand.TargetPosition)
+                                if (n.Pos == PlayerUnit.Unit.CurrentGameCommand.TargetPosition)
                                 {
                                     // Next to build target
                                     FollowThisRoute = null;
@@ -1051,77 +1050,79 @@ namespace Engine.Ants
                             }
                         }
 
-                        if (cntrlUnit.Pos == CurrentGameCommand.TargetPosition)
+                    if (cntrlUnit.Pos == PlayerUnit.Unit.CurrentGameCommand.TargetPosition)
+                    {
+                        /*
+                        if (AntWorkerType == AntWorkerType.Worker)
+                        {
+                            Move move = new Move();
+                            move.MoveType = MoveType.CommandComplete;
+                            move.UnitId = cntrlUnit.UnitId;
+                            move.PlayerId = player.PlayerModel.Id;
+                            move.Positions = new List<Position>();
+                            move.Positions.Add(CurrentGameCommand.TargetPosition);
+                            moves.Add(move);
+
+                            // Collect from here and do anything
+                            CurrentGameCommand = null;
+                        }*/
+
+                        if (PlayerUnit.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Defend) // AntWorkerType == AntWorkerType.Fighter)
+                        {
+                            // Command complete (Remove or keep?)
+                            /*
+                            Move move = new Move();
+                            move.MoveType = MoveType.CommandComplete;
+                            move.UnitId = cntrlUnit.UnitId;
+                            move.PlayerId = player.PlayerModel.Id;
+                            move.Positions = new List<Position>();
+                            move.Positions.Add(CurrentGameCommand.TargetPosition);
+                            moves.Add(move);*/
+
+                            // Stay until enemy
+                            //WaitForEnemy = true;
+                            // ...
+
+                            // Position reached, return to normal mode
+                            //CurrentGameCommand = null;
+                        }
+                    }
+
+                    else if (FollowThisRoute == null || FollowThisRoute.Count == 0)
+                    {
+                        // Compute route to target
+                        List<Position> positions = player.Game.FindPath(cntrlUnit.Pos, PlayerUnit.Unit.CurrentGameCommand.TargetPosition, cntrlUnit);
+                        if (positions != null)
                         {
                             /*
-                            if (AntWorkerType == AntWorkerType.Worker)
+                            if (AntWorkerType == AntWorkerType.Assembler)
                             {
-                                Move move = new Move();
-                                move.MoveType = MoveType.CommandComplete;
-                                move.UnitId = cntrlUnit.UnitId;
-                                move.PlayerId = player.PlayerModel.Id;
-                                move.Positions = new List<Position>();
-                                move.Positions.Add(CurrentGameCommand.TargetPosition);
-                                moves.Add(move);
-
-                                // Collect from here and do anything
-                                CurrentGameCommand = null;
-                            }*/
-
-                            if (CurrentGameCommand.GameCommandType == GameCommandType.Defend) // AntWorkerType == AntWorkerType.Fighter)
-                            {
-                                // Command complete (Remove or keep?)
-                                /*
-                                Move move = new Move();
-                                move.MoveType = MoveType.CommandComplete;
-                                move.UnitId = cntrlUnit.UnitId;
-                                move.PlayerId = player.PlayerModel.Id;
-                                move.Positions = new List<Position>();
-                                move.Positions.Add(CurrentGameCommand.TargetPosition);
-                                moves.Add(move);*/
-
-                                // Stay until enemy
-                                //WaitForEnemy = true;
-                                // ...
-
-                                // Position reached, return to normal mode
-                                //CurrentGameCommand = null;
-                            }
-                        }
-                        
-                        else if (FollowThisRoute == null || FollowThisRoute.Count == 0)
-                        {
-                            // Compute route to target
-                            List<Position> positions = player.Game.FindPath(cntrlUnit.Pos, CurrentGameCommand.TargetPosition, cntrlUnit);
-                            if (positions != null)
-                            {
-                                /*
-                                if (AntWorkerType == AntWorkerType.Assembler)
+                                if (positions.Count <= 2)
                                 {
-                                    if (positions.Count <= 2)
-                                    {
-                                        BuildPositionReached = true;
-                                        return true;
-                                    }
-                                    else
-                                    {
-                                        // Move only next to target       
-                                        positions.RemoveAt(positions.Count - 1);
-                                    }
-                                }*/
-                                FollowThisRoute = new List<Position>();
-                                for (int i = 1; i < positions.Count; i++)
-                                {
-                                    FollowThisRoute.Add(positions[i]);
+                                    BuildPositionReached = true;
+                                    return true;
                                 }
+                                else
+                                {
+                                    // Move only next to target       
+                                    positions.RemoveAt(positions.Count - 1);
+                                }
+                            }*/
+                            FollowThisRoute = new List<Position>();
+                            for (int i = 1; i < positions.Count; i++)
+                            {
+                                FollowThisRoute.Add(positions[i]);
                             }
                         }
                     }
-                }                
-
-                if (MoveUnit(player, moves))
-                    unitMoved = true;
-                
+                    if (MoveUnit(player, moves))
+                        unitMoved = true;
+                }
+                else
+                {
+                    if (MoveUnit(player, moves))
+                        unitMoved = true;
+                }
             }
             return unitMoved;
         }

@@ -33,7 +33,7 @@
 	{
       "Name": "Factory",
       "PlayerId": 1,
-	  "Blueprint": "Fighter",
+	  "Blueprint": "Factory",
       "Position": {
         "X": 1,
         "Y": 2

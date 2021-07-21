@@ -100,7 +100,8 @@ namespace Engine.Master
         [DataMember]
         public string UnitId { get; set; }
 
-        public List<GameCommand> GameCommands { get; set; }
+        public GameCommand CurrentGameCommand { get; set; }
+
         public int Power { get; set; }
         public int MaxPower { get; set; }
 
@@ -706,6 +707,13 @@ namespace Engine.Master
             }
 
             stats.Power = Power;
+
+            if (CurrentGameCommand != null)
+            {
+                stats.MoveUpdateStatsCommand = new MoveUpdateStatsCommand();
+                stats.MoveUpdateStatsCommand.GameCommandType = CurrentGameCommand.GameCommandType;
+                stats.MoveUpdateStatsCommand.TargetPosition = CurrentGameCommand.TargetPosition;
+            }
 
             return stats;
         }

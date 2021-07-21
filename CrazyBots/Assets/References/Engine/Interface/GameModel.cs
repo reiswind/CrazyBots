@@ -28,7 +28,6 @@ namespace Engine.Interface
     {
         public int PlayerId { get; set; }
         public string UnitId { get; set; }
-        //public Position UnitPosition { get; set; }
         public Position TargetPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
         public bool Append { get; set; }
