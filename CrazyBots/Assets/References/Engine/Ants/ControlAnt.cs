@@ -716,6 +716,71 @@ namespace Engine.Control
             return MakePathFromPositions(bestPositions, ant);
         }
 
+        public Position LevelGround(List<Move> moves, Player player, Ant ant)
+        {
+            double totalHeight = 0;
+            Dictionary<Position, TileWithDistance> tilesx = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.CurrentGameCommand.TargetPosition, 3, false, matcher: tile =>
+            {
+                totalHeight += tile.Tile.Height;
+                return true;
+            });
+            totalHeight /= tilesx.Count;
+
+
+            if (ant.PlayerUnit.Unit.Extractor != null &&
+                ant.PlayerUnit.Unit.Extractor.CanExtractDirt)
+            {
+                Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.Pos, 1, false, matcher: tile =>
+                {
+                    foreach (Tile n in tile.Neighbors)
+                    {
+                        if (n.Unit != null)
+                            return false;
+
+                        if ((n.Height - 0.1f) > totalHeight || n.NumberOfDestructables > 0)
+                            return true;
+                    }
+                    return false;
+                });
+                foreach (TileWithDistance tileWithDistance in tiles.Values)
+                {
+                    return tileWithDistance.Tile.Pos;
+                }
+            }
+            if (ant.PlayerUnit.Unit.Weapon != null &&
+                ant.PlayerUnit.Unit.Weapon.WeaponLoaded)
+            {
+                Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.Pos, 2, false, matcher: tile =>
+                {
+                    if (tile.Unit != null)
+                    return false;
+
+                    if ((tile.Tile.Height + 0.1f) < totalHeight || tile.Tile.NumberOfDestructables > 0)
+                        return true;
+                    return false;
+                });
+                foreach (TileWithDistance tileWithDistance in tiles.Values)
+                {
+                    Move move = new Move();
+                    move.MoveType = MoveType.Fire;
+                    move.UnitId = ant.PlayerUnit.Unit.UnitId;
+                    if (tileWithDistance.Tile.NumberOfDestructables > 0)
+                        move.OtherUnitId = "Destructable";
+                    else
+                        move.OtherUnitId = "Dirt";
+
+                    move.Positions = new List<Position>();
+                    move.Positions.Add(ant.PlayerUnit.Unit.Pos);
+                    move.Positions.Add(tileWithDistance.Tile.Pos);
+
+                    moves.Add(move);
+
+                    break;
+                }
+            }
+
+            return null;
+        }
         public Position FindEnemy(Player player, Ant ant)
         {
             Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.Pos, 3, false, matcher: tile =>
@@ -816,6 +881,13 @@ namespace Engine.Control
                             if (antWorker.PlayerUnit.Unit.CurrentGameCommand.TargetPosition == gameCommand.TargetPosition)
                             {
                                 antWorker.PlayerUnit.Unit.CurrentGameCommand = null;
+                            }
+                        }
+                        if (antWorker != null && antWorker.GameCommandDuringCreation != null)
+                        {
+                            if (antWorker.GameCommandDuringCreation.TargetPosition == gameCommand.TargetPosition)
+                            {
+                                antWorker.GameCommandDuringCreation = null;
                             }
                         }
                     }

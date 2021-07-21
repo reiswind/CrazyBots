@@ -318,7 +318,7 @@ namespace Engine.Master
             Tile fromTile = Unit.Game.Map.GetTile(from);
 
 
-            if (groundType == "Dirt")
+            if (groundType == "Dirt" || groundType == "Destructable")
             {
                 if (Unit.Weapon == null || Unit.Weapon.Container == null)
                     return false;

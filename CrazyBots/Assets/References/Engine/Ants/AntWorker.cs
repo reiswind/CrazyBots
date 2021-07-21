@@ -500,7 +500,8 @@ namespace Engine.Ants
                 // Minerals needed?
                 if (cntrlUnit.Weapon != null && !cntrlUnit.Weapon.WeaponLoaded)
                 {
-                    pheromoneType = PheromoneType.Mineral;
+                    //pheromoneType = PheromoneType.Mineral;
+                    pheromoneType = PheromoneType.Enemy;
                 }
                 else if (AntWorkerType == AntWorkerType.Worker)
                 {
@@ -595,7 +596,9 @@ namespace Engine.Ants
                         PlayerUnit.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Attack)
                     {
                         // Stay
-                        return true;
+                        moveToPosition = Control.LevelGround(moves, player, this);
+                        if (moveToPosition == null)
+                            return true;
                     }
                     moveToPosition = Control.FindEnemy(player, this);
                     if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))

@@ -782,8 +782,8 @@ namespace Engine.Master
                 Tile targetTile = Map.GetTile(pos);
                 if (targetTile.NumberOfDestructables > 0)
                 {
-                    targetTile.Height += 0.1f;
-                    //targetTile.NumberOfDestructables--;
+                    //targetTile.Height += 0.1f;
+                    targetTile.NumberOfDestructables--;
                 }
                 else
                 {
