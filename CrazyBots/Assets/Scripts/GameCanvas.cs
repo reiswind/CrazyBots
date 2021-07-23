@@ -474,6 +474,12 @@ public class GameCanvas : MonoBehaviour
         {
             return false;
         }
+        if (groundCell.Tile.Unit != null &&
+            groundCell.Tile.Unit.Engine == null)
+        {
+            // Not on buildings
+            return false;
+        }
 
 
         return true;

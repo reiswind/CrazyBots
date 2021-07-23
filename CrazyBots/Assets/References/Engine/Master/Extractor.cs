@@ -88,6 +88,7 @@ namespace Engine.Master
 
             if (CanExtractDirt)
             {
+                Tile highest = null;
                 Tile t = Unit.Game.Map.GetTile(Unit.Pos);
                 foreach (Tile n in t.Neighbors)
                 {
@@ -95,7 +96,7 @@ namespace Engine.Master
                     if (n.Unit == null &&
                         !n.IsUnderwater &&
                         n.Height >= 0.2f &&
-                        n.Height > t.Height)
+                        n.Height -0.1f > t.Height)
                     {
                         possible = true;
                     }
@@ -106,19 +107,30 @@ namespace Engine.Master
                     }
 
                     if (possible)
-                    { 
-                        Move move = new Move();
-
-                        move.MoveType = MoveType.Extract;
-
-                        move.UnitId = Unit.UnitId;
-                        move.OtherUnitId = "Dirt";
-                        move.Positions = new List<Position>();
-                        move.Positions.Add(Unit.Pos);
-                        move.Positions.Add(n.Pos);
-
-                        possibleMoves.Add(move);
+                    {
+                        if (highest == null)
+                            highest = n;
+                        else
+                        {
+                            if (n.Height > highest.Height)
+                                highest = n;
+                        }
                     }
+                }
+                if (highest != null)
+                {
+                    Move move = new Move();
+
+                    move.MoveType = MoveType.Extract;
+
+                    move.UnitId = Unit.UnitId;
+                    move.OtherUnitId = "Dirt";
+                    move.Positions = new List<Position>();
+                    move.Positions.Add(Unit.Pos);
+                    move.Positions.Add(highest.Pos);
+
+                    possibleMoves.Add(move);
+
                 }
             }
 

@@ -718,6 +718,21 @@ namespace Engine.Control
 
         public Position LevelGround(List<Move> moves, Player player, Ant ant)
         {
+            Tile cliff = null;
+            Tile tile = player.Game.Map.GetTile(ant.PlayerUnit.Unit.Pos);
+            foreach (Tile n in tile.Neighbors)
+            {
+                if (!n.CanMoveTo(tile))
+                {
+                    // Cliff found.
+                    cliff = n;
+                    break;
+                }
+            }
+
+            if (cliff != null)
+            {
+                /*
             double totalHeight = 0;
             Dictionary<Position, TileWithDistance> tilesx = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.CurrentGameCommand.TargetPosition, 3, false, matcher: tile =>
             {
@@ -725,60 +740,83 @@ namespace Engine.Control
                 return true;
             });
             totalHeight /= tilesx.Count;
+                */
 
-
-            if (ant.PlayerUnit.Unit.Extractor != null &&
-                ant.PlayerUnit.Unit.Extractor.CanExtractDirt)
-            {
-                Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.Pos, 1, false, matcher: tile =>
+                if (ant.PlayerUnit.Unit.Extractor != null &&
+                    ant.PlayerUnit.Unit.Extractor.CanExtractDirt)
                 {
-                    foreach (Tile n in tile.Neighbors)
+                    /*
+                    Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.Pos, 1, false, matcher: tile =>
                     {
-                        if (n.Unit != null)
+                        foreach (Tile n in tile.Neighbors)
+                        {
+                            if (n.Unit != null)
+                                return false;
+
+                            if ((n.Height - 0.2f) > totalHeight || n.NumberOfDestructables > 0)
+                                return true;
+                        }
+                        return false;
+                    });
+                    foreach (TileWithDistance tileWithDistance in tiles.Values)
+                    {
+                        return tileWithDistance.Tile.Pos;
+                    }*/
+                }
+                else if (ant.PlayerUnit.Unit.Weapon != null &&
+                    ant.PlayerUnit.Unit.Weapon.WeaponLoaded)
+                {
+                    // Can't extract. Shot somewhere
+                    Dictionary<Position, TileWithDistance> tiles = ant.PlayerUnit.Unit.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit.Weapon.Range, false, matcher: tile =>
+                    {
+                        if (tile.Unit != null)
                             return false;
 
-                        if ((n.Height - 0.1f) > totalHeight || n.NumberOfDestructables > 0)
-                            return true;
-                    }
-                    return false;
-                });
-                foreach (TileWithDistance tileWithDistance in tiles.Values)
-                {
-                    return tileWithDistance.Tile.Pos;
-                }
-            }
-            if (ant.PlayerUnit.Unit.Weapon != null &&
-                ant.PlayerUnit.Unit.Weapon.WeaponLoaded)
-            {
-                Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.Pos, 2, false, matcher: tile =>
-                {
-                    if (tile.Unit != null)
-                    return false;
-
-                    if ((tile.Tile.Height + 0.1f) < totalHeight || tile.Tile.NumberOfDestructables > 0)
                         return true;
-                    return false;
-                });
-                foreach (TileWithDistance tileWithDistance in tiles.Values)
-                {
-                    Move move = new Move();
-                    move.MoveType = MoveType.Fire;
-                    move.UnitId = ant.PlayerUnit.Unit.UnitId;
-                    if (tileWithDistance.Tile.NumberOfDestructables > 0)
-                        move.OtherUnitId = "Destructable";
-                    else
-                        move.OtherUnitId = "Dirt";
+                    });
 
-                    move.Positions = new List<Position>();
-                    move.Positions.Add(ant.PlayerUnit.Unit.Pos);
-                    move.Positions.Add(tileWithDistance.Tile.Pos);
+                    /*
+                    Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.Pos, 2, false, matcher: tile =>
+                    {
+                        if (tile.Unit != null)
+                            return false;
 
-                    moves.Add(move);
+                        if ((tile.Tile.Height + 0.1f) < totalHeight || tile.Tile.NumberOfDestructables > 0)
+                            return true;
+                        return false;
+                    });*/
+                    TileWithDistance lowestTile = null;
 
-                    break;
+                    foreach (TileWithDistance tileWithDistance in tiles.Values)
+                    {
+                        if (lowestTile == null)
+                        {
+                            lowestTile = tileWithDistance;
+                        }
+                        else if (lowestTile.Tile.Height > tileWithDistance.Tile.Height)
+                        {
+                            lowestTile = tileWithDistance;
+                        }
+
+                    }
+                    if (lowestTile != null)
+                    { 
+                        Move move = new Move();
+                        move.MoveType = MoveType.Fire;
+                        move.UnitId = ant.PlayerUnit.Unit.UnitId;
+                        if (lowestTile.Tile.NumberOfDestructables > 0)
+                            move.OtherUnitId = "Destructable";
+                        else
+                            move.OtherUnitId = "Dirt";
+
+                        move.Positions = new List<Position>();
+                        move.Positions.Add(ant.PlayerUnit.Unit.Pos);
+                        move.Positions.Add(lowestTile.Tile.Pos);
+
+                        moves.Add(move);
+                    }
                 }
             }
-
             return null;
         }
         public Position FindEnemy(Player player, Ant ant)

@@ -592,19 +592,22 @@ namespace Engine.Ants
 
                 if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.Enemy)
                 {
-                    if (PlayerUnit.Unit.CurrentGameCommand != null &&
-                        PlayerUnit.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Attack)
+                    //if (PlayerUnit.Unit.CurrentGameCommand != null &&
+                    //    PlayerUnit.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Attack)
                     {
-                        // Stay
+                        int movesCount = moves.Count;
                         moveToPosition = Control.LevelGround(moves, player, this);
-                        if (moveToPosition == null)
+                        if (movesCount != moves.Count)
                             return true;
                     }
-                    moveToPosition = Control.FindEnemy(player, this);
-                    if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
+                    if (moveToPosition == null)
                     {
-                        moveToPosition = null;
-                        FollowThisRoute = null;
+                        moveToPosition = Control.FindEnemy(player, this);
+                        if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
+                        {
+                            moveToPosition = null;
+                            FollowThisRoute = null;
+                        }
                     }
                 }
                 if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.Energy)
