@@ -205,7 +205,7 @@ GameObject:
   - component: {fileID: 3226997383084630963}
   - component: {fileID: 4453180288523751950}
   m_Layer: 0
-  m_Name: Reactor
+  m_Name: ReactorPart
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -305,7 +305,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 122
+  m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!65 &4453180288523751950
 BoxCollider:

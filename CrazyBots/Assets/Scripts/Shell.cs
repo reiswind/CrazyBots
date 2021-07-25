@@ -7,25 +7,55 @@ public class Shell : MonoBehaviour
     public ParticleSystem m_ExplosionParticles;
 
     internal string TargetUnitId { get; set; }
+    internal HexGrid HexGrid { get; set; }
+
+    private UnitBase GetUnitFrameFromCollider(Collider other)
+    {
+        UnitBase unitBase = other.GetComponent<UnitBase>();
+        if (unitBase != null) return unitBase;
+
+        Transform transform = other.transform;
+
+        while (transform.parent != null)
+        {
+            unitBase = transform.parent.GetComponent<UnitBase>();
+            if (unitBase != null) return unitBase;
+            if (transform.parent == null)
+                break;
+            transform = transform.parent;
+        }
+        return null;
+    }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other == null || string.IsNullOrEmpty(other.name))
             return;
 
+        Rigidbody otherRigid = other.GetComponent<Rigidbody>();
+        if (otherRigid != null)
+        {
+            Vector3 velo = otherRigid.velocity;
+        }
+
+
+        UnitBase hitUnit = GetUnitFrameFromCollider(other);
+    
+
         bool targetHit = false;
         if (other.name.StartsWith("Ground"))
         {
             targetHit = true;
             Destroy(gameObject);
-        }
-        else if (other.name.StartsWith(TargetUnitId))
-        {
-            Rigidbody otherRigid = other.GetComponent<Rigidbody>();
-            Vector3 velo = otherRigid.velocity;
-            velo.y = 1.5f + (Random.value*3);
-            otherRigid.velocity = velo;
 
+            if (TargetUnitId != "Dirt" || TargetUnitId != "Destructable")
+            {
+                if (HexGrid.BaseUnits.ContainsKey(TargetUnitId))
+                    hitUnit = HexGrid.BaseUnits[TargetUnitId];
+            }
+        }
+        else if (hitUnit != null && hitUnit.UnitId == TargetUnitId)
+        {
             targetHit = true;
             Destroy(gameObject);
         }
@@ -34,6 +64,10 @@ public class Shell : MonoBehaviour
         }
         if (targetHit)
         {
+            if (hitUnit != null)
+            {
+                hitUnit.HitByShell();
+            }
             m_ExplosionParticles.transform.parent = null;
 
             // Play the particle system.

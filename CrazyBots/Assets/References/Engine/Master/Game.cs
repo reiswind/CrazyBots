@@ -673,7 +673,7 @@ namespace Engine.Master
                 else if (move.MoveType == MoveType.Fire)
                 {
 
-                    HitByBullet(move.Positions[1], nextMoves, true);
+                    //HitByBullet(move.Positions[1], nextMoves, true);
                     /* Might be null because hit
                     Unit fireingUnit = Map.Units.GetUnitAt(move.Positions[0]);
                     if (fireingUnit.Weapon.Level == 2)
@@ -710,7 +710,10 @@ namespace Engine.Master
             if (targetUnit != null)
             {
                 int totalMetalInUnitBeforeHit = targetUnit.CountMetal();
-                if (targetUnit.HitBy(null))
+
+                string hitPart = targetUnit.HitBy(null);
+
+                if (false)
                 {
                     // Unit has died!
                     Move deleteMove = new Move();
@@ -747,7 +750,8 @@ namespace Engine.Master
                     hitmove.Positions = new List<Position>();
                     hitmove.Positions.Add(targetUnit.Pos);
                     hitmove.UnitId = targetUnit.UnitId;
-                    hitmove.Stats = targetUnit.CollectStats();
+                    hitmove.OtherUnitId = hitPart;
+                    //hitmove.Stats = targetUnit.CollectStats();
                     nextMoves.Add(hitmove);
 
                     int totalMetalAfterUnit = targetUnit.CountMetal();
@@ -762,8 +766,10 @@ namespace Engine.Master
                         if (!changedGroundPositions.ContainsKey(unitTile.Pos))
                             changedGroundPositions.Add(unitTile.Pos, null);
 
+                        // Where to put the Ammo?
+
                         // Assume dirt
-                        unitTile.Height += 0.1f;
+                        //unitTile.Height += 0.1f;
                         //unitTile.Metal++;
                         //unitTile.AddMinerals(1);
                         //Map.DistributeMineral(); // Bullet
@@ -1095,6 +1101,8 @@ namespace Engine.Master
                         if (!changedUnits.ContainsKey(fireingUnit.Pos))
                             changedUnits.Add(fireingUnit.Pos, fireingUnit);
                     }
+                    HitByBullet(move.Positions[1], lastMoves, true);
+
                 }
                 else if (move.MoveType == MoveType.Transport)
                 {
@@ -1460,84 +1468,15 @@ namespace Engine.Master
                         Player player = Players[gameCommand.PlayerId];
                         player.GameCommands.Add(gameCommand);
 
-                        /*
-                        if (gameCommand.GameCommandType == GameCommandType.Cancel)
-                        {
-                            foreach (GameCommand gameCommand1 in player.GameCommands)
-                            {
-                                if (gameCommand.TargetPosition == gameCommand1.TargetPosition)
-                                {
-                                    player.GameCommands.Remove(gameCommand1);
-                                    break;
-                                }
-                            }
-                        }*/
 
                         if (gameCommand.GameCommandType == GameCommandType.Extract)
                         {
-                            /*
-                            Move move = new Move();
-                            move.MoveType = MoveType.Delete;
-                            move.PlayerId = gameCommand.PlayerId;
-                            move.UnitId = gameCommand.UnitId;
-                            move.Positions = new List<Position>();
-                            move.Positions.Add(gameCommand.TargetPosition);
-                            newMoves.Add(move);
-                            */
+
                             Unit unit = Map.Units.FindUnit(gameCommand.UnitId);
                             if (unit != null)
                                 unit.ExtractMe = true;
-                            
                         }
-                        if (gameCommand.GameCommandType == GameCommandType.Build)
-                        {
-
-                            /*
-                            // Remove duplicate build orders on same pos
-                            foreach (Move move1 in newMoves)
-                            {
-                                if (move1.MoveType == MoveType.Build &&
-                                    move1.PlayerId == gameCommand.PlayerId &&
-                                    move1.Positions[0] == gameCommand.TargetPosition)
-                                {
-                                    newMoves.Remove(move1);
-                                    break;
-                                }
-                            }
-
-                            Move move = new Move();
-                            move.MoveType = MoveType.Build;
-                            move.PlayerId = gameCommand.PlayerId;
-                            move.UnitId = gameCommand.UnitId;
-                            move.Positions = new List<Position>();
-                            move.Positions.Add(gameCommand.TargetPosition);
-                            newMoves.Add(move);
-                            */
-                        }
-                        /* Waypoints
-                        if (gameCommand.GameCommandType == GameCommandType.Minerals ||
-                            gameCommand.GameCommandType == GameCommandType.Attack)
-                        { 
-                            Unit unit = Map.Units.FindUnit(gameCommand.UnitId);
-                            if (unit != null)
-                            {
-                                if (unit.UnitId != gameCommand.UnitId)
-                                {
-                                    throw new Exception("bah!");
-                                }
-                                if (unit.GameCommands == null)
-                                    unit.GameCommands = new List<GameCommand>();
-
-                                // No shift? Everything before is garbage
-                                if (!gameCommand.Append)
-                                {
-                                    unit.GameCommands.Clear();
-                                }
-                                unit.GameCommands.Add(gameCommand);
-                            }
-                        }*/
                     }
-                    
                 }
 
                 if (!first && lastMoves.Count == 0)

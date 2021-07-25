@@ -738,18 +738,16 @@ namespace Engine.Master
             }
         }
 
-        public virtual bool HitBy(Unit otherUnit)
+        public string HitBy(Unit otherUnit)
         {
-            // No collisions? No shots also if false
-            //return false;
-
-            bool dead = false;
+            string partHit = null;
 
             if (this.Armor != null)
             {
                 if (Armor.ShieldActive)
                 {
                     Armor.ShieldHit();
+                    partHit = "Shield";
                 }
                 else
                 {
@@ -758,6 +756,7 @@ namespace Engine.Master
                     {
                         this.Armor = null;
                     }
+                    partHit = "Armor";
                 }
             }
             else
@@ -766,99 +765,121 @@ namespace Engine.Master
 
                 while (damageDone == false)
                 {
-                    int damageType = Game.Random.Next(7);
-                    if (damageType == 0)
+                    if (Armor != null || Weapon != null || Assembler != null || Container != null || Reactor != null || Radar != null)
                     {
-                        if (Weapon != null && Weapon.Level > 0)
+                        int damageType = Game.Random.Next(5);
+                        if (damageType == 0)
                         {
-                            Weapon.Level--;
-                            if (Weapon.Level == 0)
+                            if (Weapon != null && Weapon.Level > 0)
                             {
-                                Weapon = null;
+                                Weapon.Level--;
+                                if (Weapon.Level == 0)
+                                {
+                                    Weapon = null;
+                                }
+                                damageDone = true;
+                                partHit = "Weapon";
                             }
-                            damageDone = true;
+                        }
+                        else if (damageType == 1)
+                        {
+                            if (Assembler != null && Assembler.Level > 0)
+                            {
+                                Assembler.Level--;
+                                if (Assembler.Level == 0)
+                                {
+                                    Assembler = null;
+                                }
+                                damageDone = true;
+                                partHit = "Assembler";
+                            }
+                        }
+                        else if (damageType == 2)
+                        {
+                            if (Container != null && Container.Level > 0)
+                            {
+                                Container.Level--;
+                                if (Container.Level == 0)
+                                {
+                                    Container = null;
+                                }
+                                damageDone = true;
+                                partHit = "Container";
+                            }
+                        }
+                        else if (damageType == 3)
+                        {
+                            if (Reactor != null && Reactor.Level > 0)
+                            {
+                                Reactor.Level--;
+                                if (Reactor.Level == 0)
+                                {
+                                    Reactor = null;
+                                }
+                                damageDone = true;
+                                partHit = "Reactor";
+                            }
+                        }
+                        else if (damageType == 4)
+                        {
+                            if (Radar != null && Radar.Level > 0)
+                            {
+                                Radar.Level--;
+                                if (Radar.Level == 0)
+                                {
+                                    Radar = null;
+                                }
+                                damageDone = true;
+                                partHit = "Radar";
+                            }
+                        }
+                        if (!damageDone)
+                            continue;
+                    }
+                    if (!damageDone)
+                    {
+                        int damageType = Game.Random.Next(2);
+                        if (damageType == 0)
+                        {
+                            if (Engine != null && Engine.Level > 0)
+                            {
+                                Engine.Level--;
+                                if (Engine.Level == 0)
+                                {
+                                    Engine = null;
+                                }
+                                damageDone = true;
+                                partHit = "Engine";
+                            }
+                        }
+                        else if (damageType == 1)
+                        {
+                            if (Extractor != null && Extractor.Level > 0)
+                            {
+                                Extractor.Level--;
+                                if (Extractor.Level == 0)
+                                {
+                                    Extractor = null;
+                                }
+                                damageDone = true;
+                                partHit = "Extractor";
+                            }
                         }
                     }
-                    else if (damageType == 1)
-                    {
-                        if (Engine != null && Engine.Level > 0)
-                        {
-                            Engine.Level--;
-                            if (Engine.Level == 0)
-                            {
-                                Engine = null;
-                            }
-                            damageDone = true;
-                        }
-                    }
-                    else if (damageType == 2)
-                    {
-                        if (Assembler != null && Assembler.Level > 0)
-                        {
-                            Assembler.Level--;
-                            if (Assembler.Level == 0)
-                            {
-                                Assembler = null;
-                            }
-                            damageDone = true;
-                        }
-                    }
-                    else if (damageType == 3)
-                    {
-                        if (Extractor != null && Extractor.Level > 0)
-                        {
-                            Extractor.Level--;
-                            if (Extractor.Level == 0)
-                            {
-                                Extractor = null;
-                            }
-                            damageDone = true;
-                        }
-                    }
-                    else if (damageType == 4)
-                    {
-                        if (Container != null && Container.Level > 0)
-                        {
-                            Container.Level--;
-                            if (Container.Level == 0)
-                            {
-                                Container = null;
-                            }
-                            damageDone = true;
-                        }
-                    }
-                    else if (damageType == 5)
-                    {
-                        if (Reactor != null && Reactor.Level > 0)
-                        {
-                            Reactor.Level--;
-                            if (Reactor.Level == 0)
-                            {
-                                Reactor = null;
-                            }
-                            damageDone = true;
-                        }
-                    }
-                    else if (damageType == 6)
-                    {
-                        if (Radar != null && Radar.Level > 0)
-                        {
-                            Radar.Level--;
-                            if (Radar.Level == 0)
-                            {
-                                Radar = null;
-                            }
-                            damageDone = true;
-                        }
-                    }
+
                 }
             }
 
+            return partHit;
+        }
+
+        public bool IsDead()
+        {
             if (Armor == null && Weapon == null && Engine == null && Assembler == null && Container == null && Reactor == null && Radar == null)
             {
-                dead = true;
+                return true;
             }
-            return dead;
+            return false;
         }
 
         public override string ToString()

@@ -22,7 +22,7 @@ namespace Engine.Interface
             // Outpost
             blueprint = new Blueprint();
             blueprint.Name = "Outpost";
-            blueprint.Layout = "GroundUnit";
+            blueprint.Layout = "Ground";
             blueprint.Parts.Add(new BlueprintPart("Foundation"));
             blueprint.Parts.Add(new BlueprintPart("Assembler3", "Assembler", 1, 4));
             blueprint.Parts.Add(new BlueprintPart("Container", 24));
@@ -32,7 +32,7 @@ namespace Engine.Interface
             // Container
             blueprint = new Blueprint();
             blueprint.Name = "Container";
-            blueprint.Layout = "GroundXL";
+            blueprint.Layout = "Ground";
             blueprint.Parts.Add(new BlueprintPart("Foundation"));
             blueprint.Parts.Add(new BlueprintPart("ContainerXL", "Container", 3, 96));
             Items.Add(blueprint);
@@ -40,7 +40,7 @@ namespace Engine.Interface
             // Turret
             blueprint = new Blueprint();
             blueprint.Name = "Turret";
-            blueprint.Layout = "GroundXL";
+            blueprint.Layout = "Ground";
             blueprint.Parts.Add(new BlueprintPart("Foundation"));
             blueprint.Parts.Add(new BlueprintPart("Weapon3", "Weapon", 3, 6));
             Items.Add(blueprint);
@@ -48,7 +48,7 @@ namespace Engine.Interface
             // Reactor
             blueprint = new Blueprint();
             blueprint.Name = "Reactor";
-            blueprint.Layout = "GroundXL";
+            blueprint.Layout = "Ground";
             blueprint.Parts.Add(new BlueprintPart("Foundation"));
             blueprint.Parts.Add(new BlueprintPart("ReactorXL", "Reactor", 3, 6));
             Items.Add(blueprint);
@@ -56,7 +56,7 @@ namespace Engine.Interface
             // Factory
             blueprint = new Blueprint();
             blueprint.Name = "Factory";
-            blueprint.Layout = "GroundXL";
+            blueprint.Layout = "Ground";
             blueprint.Parts.Add(new BlueprintPart("Foundation"));
             blueprint.Parts.Add(new BlueprintPart("AssemblerXL", "Assembler", 3, 6));
             Items.Add(blueprint);

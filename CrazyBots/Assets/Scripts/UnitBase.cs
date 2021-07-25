@@ -14,6 +14,8 @@ public class UnitCommand
 public class UnitBasePart
 {
     public string Name { get; set; }
+    public string PartType { get; set; }
+    public int Level { get; set; }
     public bool IsUnderConstruction { get; set; }
     public GameObject Part { get; set; }
 
@@ -26,6 +28,7 @@ public class UnitBase : MonoBehaviour
         UnitCommands = new List<UnitCommand>();
         unitBaseParts = new List<UnitBasePart>();
 
+        Container = new List<Container1>();
         AboveGround =0f;
     }
 
@@ -37,7 +40,9 @@ public class UnitBase : MonoBehaviour
     public MoveUpdateStats MoveUpdateStats { get; set; }
 
     private List<UnitBasePart> unitBaseParts;
-    
+
+    public List<string> PartsThatHaveBeenHit { get; set; }
+
     internal bool Temporary { get; set; }
     internal bool UnderConstruction { get; set; }
     internal bool HasBeenDestroyed { get; set; }
@@ -175,10 +180,14 @@ public class UnitBase : MonoBehaviour
         }
         UnitBasePart unitBasePart = new UnitBasePart();
         unitBasePart.Name = moveUpdateUnitPart.Name;
+        unitBasePart.PartType = moveUpdateUnitPart.PartType;
         unitBasePart.Part = newPart;
+        unitBasePart.Level = moveUpdateUnitPart.Level;
         unitBasePart.IsUnderConstruction = underConstruction;
         unitBaseParts.Add(unitBasePart);
     }
+
+
     public void Delete()
     {
         HasBeenDestroyed = true;
@@ -319,9 +328,9 @@ public class UnitBase : MonoBehaviour
 
     public void Transport(Move move)
     {
-        if (Container != null)
+        if (Container.Count > 0)
         {
-            Container.Transport(HexGrid, move);
+            Container[0].Transport(HexGrid, move);
         }
     }
 
@@ -441,16 +450,220 @@ public class UnitBase : MonoBehaviour
 
     private Engine1 Engine;
     private Assembler1 Assembler;
-    private Container1 Container;
+    private List<Container1> Container;
     private Extractor1 Extractor;
     private Weapon1 Weapon;
     private Reactor1 Reactor;
     private Armor Armor;
 
+    private GameObject AddPart(GameObject foundation, string name, bool underConstruction)
+    {
+        float y = 0.01f;
+        if (foundation != null)
+        {
+            Renderer rend = foundation.GetComponent<Renderer>();
+            y += foundation.transform.position.y + rend.bounds.size.y;
+        }
+        // Replace
+        GameObject newPart = HexGrid.InstantiatePrefab(name);
+        Vector3 vector3 = transform.position;
+        vector3.y = y;
+        newPart.transform.position = vector3;
+        newPart.transform.SetParent(transform);
+        newPart.name = name;
+
+        if (underConstruction)
+            SetMaterialGhost(PlayerId, newPart);
+        else
+            SetPlayerColor(HexGrid, PlayerId, newPart);
+
+        Rigidbody rigidbody = newPart.GetComponent<Rigidbody>();
+        if (rigidbody != null)
+        {
+            if (underConstruction)
+            {
+                rigidbody.Sleep();
+            }
+            else
+            {
+                rigidbody.WakeUp();
+            }
+        }
+
+        return newPart;
+    }
+
+    public void AssembleBuilding()
+    {
+        if (MoveUpdateStats.UnitParts == null)
+            return;
+
+        GameObject lastObject = null;
+
+        foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
+        {
+            if (moveUpdateUnitPart.PartType.StartsWith("Extractor"))
+            {
+                lastObject = AddPart(lastObject, "Foundation", UnderConstruction);
+                AddBasePart(moveUpdateUnitPart, lastObject);
+            }
+            else if (moveUpdateUnitPart.PartType.StartsWith("Container"))
+            {
+                lastObject = AddPart(lastObject, "ContainerPart", UnderConstruction);
+                AddBasePart(moveUpdateUnitPart, lastObject);
+
+                if (moveUpdateUnitPart.Level > 1)
+                {
+                    lastObject = AddPart(lastObject, "ContainerPart", UnderConstruction);
+                    AddBasePart(moveUpdateUnitPart, lastObject);
+                }
+                if (moveUpdateUnitPart.Level > 2)
+                {
+                    lastObject = AddPart(lastObject, "ContainerPart", UnderConstruction);
+                    AddBasePart(moveUpdateUnitPart, lastObject);
+                }
+            }
+            else if (moveUpdateUnitPart.PartType.StartsWith("Reactor"))
+            {
+                if (moveUpdateUnitPart.Level == 1)
+                {
+                    lastObject = AddPart(lastObject, "ReactorPart", UnderConstruction);
+                    AddBasePart(moveUpdateUnitPart, lastObject);
+                }
+                if (moveUpdateUnitPart.Level == 2)
+                {
+                    lastObject = AddPart(lastObject, "ReactorPart", UnderConstruction);
+                    AddBasePart(moveUpdateUnitPart, lastObject);
+                }
+                if (moveUpdateUnitPart.Level == 3)
+                {
+                    lastObject = AddPart(lastObject, "ReactorPart", UnderConstruction);
+                    AddBasePart(moveUpdateUnitPart, lastObject);
+
+                    lastObject = AddPart(lastObject, "ReactorPart", UnderConstruction);
+                    AddBasePart(moveUpdateUnitPart, lastObject);
+
+                    lastObject = AddPart(lastObject, "ReactorPart", UnderConstruction);
+                    AddBasePart(moveUpdateUnitPart, lastObject);
+                }
+            }
+            else if (moveUpdateUnitPart.PartType.StartsWith("Assembler"))
+            {
+                if (moveUpdateUnitPart.Level == 1)
+                {
+                    lastObject = AddPart(lastObject, "AssemblerPart", UnderConstruction);
+                    AddBasePart(moveUpdateUnitPart, lastObject);
+                }
+                if (moveUpdateUnitPart.Level == 2)
+                {
+                    lastObject = AddPart(lastObject, "AssemblerPart", UnderConstruction);
+                    AddBasePart(moveUpdateUnitPart, lastObject);
+
+                    lastObject = AddPart(lastObject, "Socket1", UnderConstruction);
+                    AddBasePart(moveUpdateUnitPart, lastObject);
+                }
+                if (moveUpdateUnitPart.Level == 3)
+                {
+                    lastObject = AddPart(lastObject, "AssemblerPart", UnderConstruction);
+                    AddBasePart(moveUpdateUnitPart, lastObject);
+
+                    lastObject = AddPart(lastObject, "Socket1", UnderConstruction);
+                    AddBasePart(moveUpdateUnitPart, lastObject);
+
+                    lastObject = AddPart(lastObject, "Socket1", UnderConstruction);
+                    AddBasePart(moveUpdateUnitPart, lastObject);
+
+                }
+            }
+
+        }
+        UpdateParts();
+    }
+
+    private void AddBasePart(MoveUpdateUnitPart moveUpdateUnitPart, GameObject gameObject)
+    {
+        UnitBasePart unitBasePart = new UnitBasePart();
+        unitBasePart.Name = moveUpdateUnitPart.Name;
+        unitBasePart.PartType = moveUpdateUnitPart.PartType;
+        unitBasePart.Part = gameObject;
+        unitBasePart.Level = moveUpdateUnitPart.Level;
+        unitBasePart.IsUnderConstruction = UnderConstruction;
+        unitBaseParts.Add(unitBasePart);
+    }
+
+
+    public void HitByShell()
+    {
+        if (PartsThatHaveBeenHit == null)
+        {
+            return;
+        }
+        string hitPart = PartsThatHaveBeenHit[0];
+        PartsThatHaveBeenHit.Remove(hitPart);
+        if (PartsThatHaveBeenHit.Count == 0)
+            PartsThatHaveBeenHit = null;
+
+        for (int i=unitBaseParts.Count-1; i >= 0; i--)
+        {
+            UnitBasePart unitBasePart = unitBaseParts[i];
+        //foreach (UnitBasePart unitBasePart in unitBaseParts)
+        //{
+            if (unitBasePart.PartType == hitPart)
+            {
+                Rigidbody otherRigid = unitBasePart.Part.GetComponent<Rigidbody>();
+                if (otherRigid != null)
+                {
+                    otherRigid.isKinematic = false;
+
+                    Vector3 vector3 = new Vector3();
+                    vector3.y = Random.value * 6;
+                    vector3.x = Random.value * 3;
+                    vector3.z = Random.value * 3;
+
+                    otherRigid.rotation = Random.rotation;
+                    otherRigid.velocity = vector3;
+                }
+
+                ParticleSystem particleSource;
+
+                particleSource = HexGrid.MakeParticleSource("TankExplosion");
+                particleSource.transform.SetParent(unitBasePart.Part.transform, false);
+                particleSource.Play();
+                HexGrid.Destroy(particleSource, 2f);
+
+                SetPlayerColor(HexGrid, 0, unitBasePart.Part);                
+                Destroy(unitBasePart.Part, 3);
+                unitBaseParts.Remove(unitBasePart);
+                break;
+            }
+        }
+    }
+
+
+    private bool IsBuilding()
+    {
+        if (MoveUpdateStats.UnitParts != null)
+        {
+            foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
+            {
+                if (moveUpdateUnitPart.PartType.StartsWith("Engine"))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
     public void Assemble(bool underConstruction)
     {
-        UnderConstruction = underConstruction;
         unitBaseParts.Clear();
+        UnderConstruction = underConstruction;
+        if (IsBuilding())
+        {
+            AssembleBuilding();
+        }
 
         Transform engine;
         Transform ground;
@@ -536,7 +749,7 @@ public class UnitBase : MonoBehaviour
 
     public void UpdateParts()
     {
-        Container = null;
+        Container.Clear();
         Extractor = null;
         Assembler = null;
         Weapon = null;
@@ -545,6 +758,8 @@ public class UnitBase : MonoBehaviour
         Armor = null;
 
         bool missingPartFound = false;
+        int? totalMinerals = null;
+        int? totalCapacity = null;
 
         foreach (UnitBasePart unitBasePart in unitBaseParts)
         {
@@ -558,7 +773,13 @@ public class UnitBase : MonoBehaviour
                         unitBasePart.IsUnderConstruction = false;
                         SetPlayerColor(HexGrid, PlayerId, unitBasePart.Part);
                     }
-                    unitBasePart.Part.SetActive(unitBasePart.IsUnderConstruction || moveUpdateUnitPart.Exists);
+
+                    if (unitBasePart.Level != moveUpdateUnitPart.Level)
+                    {
+                        int xx = 0;
+                    }
+
+                    //unitBasePart.Part.SetActive(unitBasePart.IsUnderConstruction || moveUpdateUnitPart.Exists);
                     if (moveUpdateUnitPart.Exists)
                     {
                         Engine1 engine = unitBasePart.Part.GetComponent<Engine1>();
@@ -569,8 +790,12 @@ public class UnitBase : MonoBehaviour
                         Container1 container = unitBasePart.Part.GetComponent<Container1>();
                         if (container != null)
                         {
-                            Container = container;
-                            container.UpdateContent(HexGrid, moveUpdateUnitPart.Minerals, moveUpdateUnitPart.Capacity);
+                            totalMinerals = moveUpdateUnitPart.Minerals;
+                            totalCapacity = moveUpdateUnitPart.Capacity;
+
+                            Container.Add(container);
+
+                            //container.UpdateContent(HexGrid, moveUpdateUnitPart.Minerals, moveUpdateUnitPart.Capacity);
                         }
                         Extractor1 extractor = unitBasePart.Part.GetComponent<Extractor1>();
                         if (extractor != null)
@@ -609,6 +834,17 @@ public class UnitBase : MonoBehaviour
                         missingPartFound = true;
                     }
                 }
+            }
+        }
+
+        if (Container.Count > 0)
+        {
+            int partMinerals = totalMinerals.Value / Container.Count;
+            int partCapacity = totalCapacity.Value / Container.Count;
+
+            foreach (Container1 container1 in Container)
+            {
+                container1.UpdateContent(HexGrid, partMinerals, partCapacity);
             }
         }
         if (UnderConstruction && missingPartFound == false)

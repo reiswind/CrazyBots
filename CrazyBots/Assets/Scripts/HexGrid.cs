@@ -16,7 +16,7 @@ using UnityEngine.UI;
 
 public class HexGrid : MonoBehaviour 
 {
-	internal float hexCellHeight = 0.18f;
+	internal float hexCellHeight = 0.0f;
 
 	public int gridWidth = 20;
 	public int gridHeight = 20;
@@ -193,12 +193,13 @@ public class HexGrid : MonoBehaviour
     {
 		InitMaterials();
 		InitParticless();
-		InitResources (obstaclesResources, "Prefabs/Obstacles");
-		InitResources (terrainResources, "Prefabs/Terrain");
-		InitResources (treeResources, "Prefabs/Trees");
-		InitResources (rockResources, "Prefabs/Rocks");
-		InitResources (unitResources, "Prefabs/Unit");
-		InitResources (bushResources, "Prefabs/Bushes");
+		InitResources(obstaclesResources, "Prefabs/Obstacles");
+		InitResources(terrainResources, "Prefabs/Terrain");
+		InitResources(treeResources, "Prefabs/Trees");
+		InitResources(rockResources, "Prefabs/Rocks");
+		InitResources(unitResources, "Prefabs/Unit");
+		InitResources(unitResources, "Prefabs/Buildings");
+		InitResources(bushResources, "Prefabs/Bushes");
 	}
 
 	public GameObject GetTerrainResource(string name)
@@ -592,7 +593,7 @@ public class HexGrid : MonoBehaviour
 				}
 				else
 				{*/
-					CreateUnit(move);
+				CreateUnit(move);
 				//}
 			}
 			/*
@@ -608,28 +609,42 @@ public class HexGrid : MonoBehaviour
 					// Happend in player view
 				}
 			}*/
+			else if (move.MoveType == MoveType.Hit)
+			{
+				if (BaseUnits.ContainsKey(move.UnitId))
+				{
+					UnitBase unit = BaseUnits[move.UnitId];
+					if (unit.PartsThatHaveBeenHit == null)
+						unit.PartsThatHaveBeenHit = new List<string>();
+					unit.PartsThatHaveBeenHit.Add(move.OtherUnitId);
+
+				}
+			}
+			else if (move.MoveType == MoveType.Fire)
+			{
+				if (BaseUnits.ContainsKey(move.UnitId))
+				{
+					UnitBase unit = BaseUnits[move.UnitId];
+					unit.UpdateStats(move.Stats);
+					unit.Fire(move);
+				}
+			}
 			else if (move.MoveType == MoveType.Extract ||
-					 move.MoveType == MoveType.Fire ||
-					 move.MoveType == MoveType.Transport ||
-					 move.MoveType == MoveType.Hit ||
-					 move.MoveType == MoveType.UpdateStats)
+					move.MoveType == MoveType.Transport ||
+					move.MoveType == MoveType.UpdateStats)
 			{
 				if (BaseUnits.ContainsKey(move.UnitId))
 				{
 					UnitBase unit = BaseUnits[move.UnitId];
 					if (unit.PlayerId != move.PlayerId)
-                    {
+					{
 						unit.ChangePlayer(move.PlayerId);
-                    }
+					}
 					unit.UpdateStats(move.Stats);
 
 					if (move.MoveType == MoveType.Extract)
 					{
 						unit.Extract(move);
-					}
-					if (move.MoveType == MoveType.Fire)
-					{
-						unit.Fire(move);
 					}
 					if (move.MoveType == MoveType.Transport)
 					{
@@ -648,7 +663,7 @@ public class HexGrid : MonoBehaviour
 
 			}
 			else if (move.MoveType == MoveType.CommandComplete)
-            {
+			{
 				if (UnitsInBuild.ContainsKey(move.Positions[0]))
 				{
 					// Remove Ghost from command

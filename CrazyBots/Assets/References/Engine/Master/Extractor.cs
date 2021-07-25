@@ -525,7 +525,8 @@ namespace Engine.Master
                             int totalMetalInUnitBeforeHit = targetUnit.CountMetal();
 
                             // Extract own, useless unit
-                            if (targetUnit.HitBy(null))
+                            string partHit = targetUnit.HitBy(null);
+                            if (false) //Unit.IsDead())
                             {
                                 // Unit extracted remove unit
                                 Move deleteMove = new Move();
@@ -564,7 +565,7 @@ namespace Engine.Master
                                 hitmove.Positions = new List<Position>();
                                 hitmove.Positions.Add(targetUnit.Pos);
                                 hitmove.UnitId = targetUnit.UnitId;
-                                hitmove.Stats = targetUnit.CollectStats();
+                                hitmove.OtherUnitId = partHit;
                                 moves.Add(hitmove);
 
                                 int totalMetalAfterUnit = targetUnit.CountMetal();
@@ -605,7 +606,8 @@ namespace Engine.Master
                         int totalMetalInUnitBeforeHit = targetUnit.CountMetal();
 
                         // Extract own, useless unit
-                        if (targetUnit.HitBy(null))
+                        string hitPart = targetUnit.HitBy(null);
+                        if (false)
                         {
                             // Unit extracted remove unit
                             Move deleteMove = new Move();
@@ -644,7 +646,8 @@ namespace Engine.Master
                             hitmove.Positions = new List<Position>();
                             hitmove.Positions.Add(targetUnit.Pos);
                             hitmove.UnitId = targetUnit.UnitId;
-                            hitmove.Stats = targetUnit.CollectStats();
+                            hitmove.OtherUnitId = hitPart;
+                            //hitmove.Stats = targetUnit.CollectStats();
                             moves.Add(hitmove);
 
                             int totalMetalAfterUnit = targetUnit.CountMetal();

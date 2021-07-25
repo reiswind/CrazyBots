@@ -132,9 +132,11 @@ public class Weapon1 : MonoBehaviour
                 shell.transform.SetPositionAndRotation(launchPosition.position, launchPosition.rotation);
 
                 shell.TargetUnitId = move.OtherUnitId;
+                shell.HexGrid = hexGrid;
 
                 Rigidbody rigidbody = shell.GetComponent<Rigidbody>();
                 rigidbody.velocity = calcBallisticVelocityVector(launchPosition.position, weaponTargetCell.transform.position, angle);
+                rigidbody.rotation = Random.rotation;
 
                 Destroy(shellObject, 2.6f);
 
