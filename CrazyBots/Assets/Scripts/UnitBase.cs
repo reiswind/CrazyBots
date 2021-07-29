@@ -17,6 +17,7 @@ public class UnitBasePart
     public string PartType { get; set; }
     public int Level { get; set; }
     public bool IsUnderConstruction { get; set; }
+    public bool Destroyed { get; set; }
     public GameObject Part { get; set; }
 
 }
@@ -66,8 +67,6 @@ public class UnitBase : MonoBehaviour
 
             transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
             UpdateDirection(unitPos3);
-
-
         }
     }
 
@@ -303,11 +302,11 @@ public class UnitBase : MonoBehaviour
         }
     }
 
-    public void Extract(Move move)
+    public void Extract(Move move, UnitBase otherUnit)
     {
         if (Extractor != null)
         {
-            Extractor.Extract(HexGrid, move);
+            Extractor.Extract(HexGrid, move, otherUnit);
         }
     }
 
@@ -456,13 +455,13 @@ public class UnitBase : MonoBehaviour
     private Reactor1 Reactor;
     private Armor Armor;
 
-    private GameObject AddPart(GameObject foundation, string name, bool underConstruction)
+    private GameObject AddPart(GameObject foundation, GameObject parent, string name, bool underConstruction)
     {
         float y = 0.01f;
-        if (foundation != null)
+        if (parent != null)
         {
-            Renderer rend = foundation.GetComponent<Renderer>();
-            y += foundation.transform.position.y + rend.bounds.size.y;
+            Renderer rend = parent.GetComponent<Renderer>();
+            y += parent.transform.position.y + rend.bounds.size.y; // + 0.1f;
         }
         // Replace
         GameObject newPart = HexGrid.InstantiatePrefab(name);
@@ -476,6 +475,21 @@ public class UnitBase : MonoBehaviour
             SetMaterialGhost(PlayerId, newPart);
         else
             SetPlayerColor(HexGrid, PlayerId, newPart);
+
+        if (foundation != null)
+        {
+            /*
+            SpringJoint springJoint = newPart.AddComponent<SpringJoint>();
+            Rigidbody rigidbodyx = foundation.GetComponent<Rigidbody>();
+            springJoint.connectedBody = rigidbodyx;
+            springJoint.maxDistance = 2;
+            //springJoint.minDistance = 0.5f;
+            springJoint.enableCollision = true;
+            springJoint.breakForce = 5000f;
+            //springJoint.spring = 5000;
+            //springJoint.breakTorque = 0.0001f;,0
+            springJoint.autoConfigureConnectedAnchor = true;*/
+        }
 
         Rigidbody rigidbody = newPart.GetComponent<Rigidbody>();
         if (rigidbody != null)
@@ -500,26 +514,30 @@ public class UnitBase : MonoBehaviour
 
         GameObject lastObject = null;
 
+
+        GameObject foundation = null;
+
         foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
         {
             if (moveUpdateUnitPart.PartType.StartsWith("Extractor"))
             {
-                lastObject = AddPart(lastObject, "Foundation", UnderConstruction);
+                lastObject = AddPart(foundation, lastObject, "Foundation", UnderConstruction);
+                foundation = lastObject;
                 AddBasePart(moveUpdateUnitPart, lastObject);
             }
             else if (moveUpdateUnitPart.PartType.StartsWith("Container"))
             {
-                lastObject = AddPart(lastObject, "ContainerPart", UnderConstruction);
+                lastObject = AddPart(foundation, lastObject, "ContainerPart", UnderConstruction);
                 AddBasePart(moveUpdateUnitPart, lastObject);
 
                 if (moveUpdateUnitPart.Level > 1)
                 {
-                    lastObject = AddPart(lastObject, "ContainerPart", UnderConstruction);
+                    lastObject = AddPart(foundation, lastObject, "ContainerPart", UnderConstruction);
                     AddBasePart(moveUpdateUnitPart, lastObject);
                 }
                 if (moveUpdateUnitPart.Level > 2)
                 {
-                    lastObject = AddPart(lastObject, "ContainerPart", UnderConstruction);
+                    lastObject = AddPart(foundation, lastObject, "ContainerPart", UnderConstruction);
                     AddBasePart(moveUpdateUnitPart, lastObject);
                 }
             }
@@ -527,23 +545,23 @@ public class UnitBase : MonoBehaviour
             {
                 if (moveUpdateUnitPart.Level == 1)
                 {
-                    lastObject = AddPart(lastObject, "ReactorPart", UnderConstruction);
+                    lastObject = AddPart(foundation, lastObject, "ReactorPart", UnderConstruction);
                     AddBasePart(moveUpdateUnitPart, lastObject);
                 }
                 if (moveUpdateUnitPart.Level == 2)
                 {
-                    lastObject = AddPart(lastObject, "ReactorPart", UnderConstruction);
+                    lastObject = AddPart(foundation, lastObject, "ReactorPart", UnderConstruction);
                     AddBasePart(moveUpdateUnitPart, lastObject);
                 }
                 if (moveUpdateUnitPart.Level == 3)
                 {
-                    lastObject = AddPart(lastObject, "ReactorPart", UnderConstruction);
+                    lastObject = AddPart(foundation, lastObject, "ReactorPart", UnderConstruction);
                     AddBasePart(moveUpdateUnitPart, lastObject);
 
-                    lastObject = AddPart(lastObject, "ReactorPart", UnderConstruction);
+                    lastObject = AddPart(foundation, lastObject, "ReactorPart", UnderConstruction);
                     AddBasePart(moveUpdateUnitPart, lastObject);
 
-                    lastObject = AddPart(lastObject, "ReactorPart", UnderConstruction);
+                    lastObject = AddPart(foundation, lastObject, "ReactorPart", UnderConstruction);
                     AddBasePart(moveUpdateUnitPart, lastObject);
                 }
             }
@@ -551,26 +569,26 @@ public class UnitBase : MonoBehaviour
             {
                 if (moveUpdateUnitPart.Level == 1)
                 {
-                    lastObject = AddPart(lastObject, "AssemblerPart", UnderConstruction);
+                    lastObject = AddPart(foundation, lastObject, "AssemblerPart", UnderConstruction);
                     AddBasePart(moveUpdateUnitPart, lastObject);
                 }
                 if (moveUpdateUnitPart.Level == 2)
                 {
-                    lastObject = AddPart(lastObject, "AssemblerPart", UnderConstruction);
+                    lastObject = AddPart(foundation, lastObject, "AssemblerPart", UnderConstruction);
                     AddBasePart(moveUpdateUnitPart, lastObject);
 
-                    lastObject = AddPart(lastObject, "Socket1", UnderConstruction);
+                    lastObject = AddPart(foundation, lastObject, "Socket1", UnderConstruction);
                     AddBasePart(moveUpdateUnitPart, lastObject);
                 }
                 if (moveUpdateUnitPart.Level == 3)
                 {
-                    lastObject = AddPart(lastObject, "AssemblerPart", UnderConstruction);
+                    lastObject = AddPart(foundation, lastObject, "AssemblerPart", UnderConstruction);
                     AddBasePart(moveUpdateUnitPart, lastObject);
 
-                    lastObject = AddPart(lastObject, "Socket1", UnderConstruction);
+                    lastObject = AddPart(foundation, lastObject, "Socket1", UnderConstruction);
                     AddBasePart(moveUpdateUnitPart, lastObject);
 
-                    lastObject = AddPart(lastObject, "Socket1", UnderConstruction);
+                    lastObject = AddPart(foundation, lastObject, "Socket1", UnderConstruction);
                     AddBasePart(moveUpdateUnitPart, lastObject);
 
                 }
@@ -591,34 +609,41 @@ public class UnitBase : MonoBehaviour
         unitBaseParts.Add(unitBasePart);
     }
 
-
-    public void HitByShell()
+    private string GetPartThatHasBeenHit()
     {
         if (PartsThatHaveBeenHit == null)
         {
-            return;
+            return null;
         }
         string hitPart = PartsThatHaveBeenHit[0];
         PartsThatHaveBeenHit.Remove(hitPart);
         if (PartsThatHaveBeenHit.Count == 0)
             PartsThatHaveBeenHit = null;
+        return hitPart;
+    }
 
-        for (int i=unitBaseParts.Count-1; i >= 0; i--)
+    public void PartExtracted()
+    {
+        string hitPart = GetPartThatHasBeenHit();
+        if (hitPart == null)
+            return;
+
+        for (int i = unitBaseParts.Count - 1; i >= 0; i--)
         {
             UnitBasePart unitBasePart = unitBaseParts[i];
-        //foreach (UnitBasePart unitBasePart in unitBaseParts)
-        //{
             if (unitBasePart.PartType == hitPart)
             {
                 Rigidbody otherRigid = unitBasePart.Part.GetComponent<Rigidbody>();
+
                 if (otherRigid != null)
                 {
                     otherRigid.isKinematic = false;
-
+                    
                     Vector3 vector3 = new Vector3();
                     vector3.y = Random.value * 6;
                     vector3.x = Random.value * 3;
                     vector3.z = Random.value * 3;
+                    
 
                     otherRigid.rotation = Random.rotation;
                     otherRigid.velocity = vector3;
@@ -631,6 +656,57 @@ public class UnitBase : MonoBehaviour
                 particleSource.Play();
                 HexGrid.Destroy(particleSource, 2f);
 
+                unitBasePart.Destroyed = true;
+                SetPlayerColor(HexGrid, 0, unitBasePart.Part);
+                Destroy(unitBasePart.Part, 3);
+                unitBaseParts.Remove(unitBasePart);
+                break;
+            }
+        }
+    }
+
+    public void HitByShell(Collision collision)
+    {
+        string hitPart = GetPartThatHasBeenHit();
+        if (hitPart == null)
+            return;
+
+        for (int i=unitBaseParts.Count-1; i >= 0; i--)
+        {
+            UnitBasePart unitBasePart = unitBaseParts[i];
+        //foreach (UnitBasePart unitBasePart in unitBaseParts)
+        //{
+            if (unitBasePart.PartType == hitPart)
+            {
+                /*
+                SpringJoint springJoint = unitBasePart.Part.GetComponent<SpringJoint>();
+                springJoint.breakForce = 0;
+                springJoint.spring = 0;
+                */
+                Rigidbody otherRigid = unitBasePart.Part.GetComponent<Rigidbody>();
+                
+                if (otherRigid != null)
+                {
+                    otherRigid.isKinematic = false;
+                    /*
+                    Vector3 vector3 = new Vector3();
+                    vector3.y = Random.value * 6;
+                    vector3.x = Random.value * 3;
+                    vector3.z = Random.value * 3;
+                    */
+                    
+                    otherRigid.rotation = Random.rotation;
+                    otherRigid.velocity = collision.relativeVelocity;
+                }
+
+                ParticleSystem particleSource;
+
+                particleSource = HexGrid.MakeParticleSource("TankExplosion");
+                particleSource.transform.SetParent(unitBasePart.Part.transform, false);
+                particleSource.Play();
+                HexGrid.Destroy(particleSource, 2f);
+
+                unitBasePart.Destroyed = true;
                 SetPlayerColor(HexGrid, 0, unitBasePart.Part);                
                 Destroy(unitBasePart.Part, 3);
                 unitBaseParts.Remove(unitBasePart);

@@ -128,14 +128,20 @@ public class Weapon1 : MonoBehaviour
                 GameObject shellObject = Instantiate(shellprefab);
                 Shell shell = shellObject.GetComponent<Shell>();
 
+                Vector3 launchPos = launchPosition.position;
+                launchPos.y += 0.5f;
+
                 shell.gameObject.hideFlags = HideFlags.HideAndDontSave;
-                shell.transform.SetPositionAndRotation(launchPosition.position, launchPosition.rotation);
+                shell.transform.SetPositionAndRotation(launchPos, launchPosition.rotation);
 
                 shell.TargetUnitId = move.OtherUnitId;
                 shell.HexGrid = hexGrid;
 
+                Vector3 targetPos = weaponTargetCell.transform.position;
+                targetPos.y += 0.5f;
+
                 Rigidbody rigidbody = shell.GetComponent<Rigidbody>();
-                rigidbody.velocity = calcBallisticVelocityVector(launchPosition.position, weaponTargetCell.transform.position, angle);
+                rigidbody.velocity = calcBallisticVelocityVector(launchPos, targetPos, angle);
                 rigidbody.rotation = Random.rotation;
 
                 Destroy(shellObject, 2.6f);

@@ -55,10 +55,10 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -341,7 +341,7 @@ public class HexGrid : MonoBehaviour
 				GroundCell hexCell = CreateCell(t, cellPrefab);
 				if (GroundCells.ContainsKey(t.Pos))
 				{
-					int xxx = 0;
+
 				}
 				else
 				{
@@ -564,6 +564,7 @@ public class HexGrid : MonoBehaviour
 				unitBase.PutAtCurrentPosition(true);
 			}
 		}
+		List<UnitBase> deletedUnits = new List<UnitBase>();
 
 
 		foreach (Move move in newMoves)
@@ -644,7 +645,30 @@ public class HexGrid : MonoBehaviour
 
 					if (move.MoveType == MoveType.Extract)
 					{
-						unit.Extract(move);
+						UnitBase otherUnit = null;
+						if (move.OtherUnitId == "Enemy")
+						{
+							foreach (UnitBase allUnits in BaseUnits.Values)
+							{
+								if (allUnits.CurrentPos == move.Positions[1])
+								{
+									otherUnit = allUnits;
+									break;
+								}
+							}
+							if (otherUnit == null)
+							{
+								foreach (UnitBase allUnits in deletedUnits)
+								{
+									if (allUnits.CurrentPos == move.Positions[1])
+									{
+										otherUnit = allUnits;
+										break;
+									}
+								}
+							}
+						}
+						unit.Extract(move, otherUnit);
 					}
 					if (move.MoveType == MoveType.Transport)
 					{
@@ -710,7 +734,8 @@ public class HexGrid : MonoBehaviour
 				if (BaseUnits.ContainsKey(move.UnitId))
 				{
 					UnitBase unit = BaseUnits[move.UnitId];
-					unit.Delete();
+					//unit.Delete();
+					deletedUnits.Add(unit);
 					BaseUnits.Remove(move.UnitId);
 				}
 				/*

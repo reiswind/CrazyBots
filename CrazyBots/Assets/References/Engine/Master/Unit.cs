@@ -120,41 +120,40 @@ namespace Engine.Master
 
         public Blueprint Blueprint { get; set; }
 
-        public int CountMetal()
+        public int CountMineral()
         {
-            int metal = 0;
+            int mineral = 0;
             if (Container != null)
             {
-                metal += Container.Mineral;
-                metal++;
+                mineral += Container.Mineral;
+                mineral++;
             }
 
             // Every part is one metal
-            if (Engine != null) metal++;
-            if (Armor != null) metal++;
+            if (Engine != null) mineral++;
+            if (Armor != null) mineral++;
             if (Weapon != null)
             {
                 if (Weapon.Container != null)
-                    metal += Weapon.Container.Mineral;
-                metal++;
+                    mineral += Weapon.Container.Mineral;
+                mineral++;
             }
             if (Assembler != null)
             {
                 if (Assembler.Container != null)
-                    metal += Assembler.Container.Mineral;
-                metal++;
+                    mineral += Assembler.Container.Mineral;
+                mineral++;
             }
-            if (Extractor != null) metal++;
-            if (Container != null) metal++;
+            if (Extractor != null) mineral++;
             if (Reactor != null)
             {
                 if (Reactor.Container != null)
-                    metal += Reactor.Container.Mineral;
-                metal++;
+                    mineral += Reactor.Container.Mineral;
+                mineral++;
             }
-            if (Radar != null) metal++;
+            if (Radar != null) mineral++;
 
-            return metal;
+            return mineral;
         }
 
         public int CountMineralsInContainer()
@@ -297,10 +296,10 @@ namespace Engine.Master
                     Weapon = new Weapon(this, 1);
                     if (blueprintPart.Capacity.HasValue)
                         Weapon.Container.Capacity = blueprintPart.Capacity.Value;
-                    /*if (fillContainer)
+                    if (fillContainer)
                     {
                         Weapon.Container.Mineral = Weapon.Container.Capacity;
-                    }*/
+                    }
                 }
                 while (level > Weapon.Level)
                     Weapon.Level++;
@@ -315,7 +314,8 @@ namespace Engine.Master
                         Container.Capacity = blueprintPart.Capacity.Value;
                     if (fillContainer)
                     {
-                        Container.Mineral = Container.Capacity;
+                        // TESTEXTRACT
+                        //Container.Mineral = Container.Capacity;
                     }
                 }
                 while (level > Container.Level)
@@ -738,8 +738,12 @@ namespace Engine.Master
             }
         }
 
-        public string HitBy(Unit otherUnit)
+        public string HitBy()
         {
+            if (IsDead())
+            {
+                throw new Exception("Dead unit hit...");
+            }
             string partHit = null;
 
             if (this.Armor != null)
@@ -799,6 +803,7 @@ namespace Engine.Master
                             if (Container != null && Container.Level > 0)
                             {
                                 Container.Level--;
+                                Container.ResetExtraCapacity();
                                 if (Container.Level == 0)
                                 {
                                     Container = null;
@@ -873,9 +878,149 @@ namespace Engine.Master
             return partHit;
         }
 
+        public int RemoveMinerals(int totalMetal)
+        {
+            int metalRemoved = 0;
+            if (totalMetal > 0 && Weapon != null && Weapon.Container != null) // && Weapon.Container.Mineral < Weapon.Container.Capacity)
+            {
+                int mins = Weapon.Container.Mineral;
+                if (mins > totalMetal)
+                {
+                    Weapon.Container.Mineral -= totalMetal;
+                    metalRemoved += totalMetal;
+                    totalMetal = 0;
+                }
+                else
+                {
+                    Weapon.Container.Mineral = 0;
+                    metalRemoved += mins;
+                    totalMetal -= mins;
+                }
+            }
+            if (totalMetal > 0 && Assembler != null && Assembler.Container != null) // && Assembler.Container.Mineral < Assembler.Container.Capacity)
+            {
+                int mins = Assembler.Container.Mineral;
+                if (mins > totalMetal)
+                {
+                    Assembler.Container.Mineral -= totalMetal;
+                    metalRemoved += totalMetal;
+                    totalMetal = 0;
+                }
+                else
+                {
+                    Assembler.Container.Mineral = 0;
+                    metalRemoved += mins;
+                    totalMetal -= mins;
+                }
+            }
+            if (totalMetal > 0 && Reactor != null && Reactor.Container != null) // && Reactor.Container.Mineral < Reactor.Container.Capacity)
+            {
+                int mins = Reactor.Container.Mineral;
+                if (mins > totalMetal)
+                {
+                    Reactor.Container.Mineral -= totalMetal;
+                    metalRemoved += totalMetal;
+                    totalMetal = 0;
+                }
+                else
+                {
+                    Reactor.Container.Mineral = 0;
+                    metalRemoved += mins;
+                    totalMetal -= mins;
+                }
+            }
+            if (totalMetal > 0 && Container != null) // && Container.Mineral < Container.Capacity)
+            {
+                int mins = Container.Mineral;
+                if (mins > totalMetal)
+                {
+                    metalRemoved += totalMetal;
+                    Container.Mineral -= totalMetal;
+                    totalMetal = 0;
+                }
+                else
+                {
+                    metalRemoved += mins;
+                    totalMetal -= mins;
+                    Container.Mineral = 0;
+                }
+            }
+            return metalRemoved;
+        }
+
+        public int AddMinerals(int minerals)
+        {
+            if (minerals > 0)
+            {
+                if (Reactor != null && Reactor.Container != null)
+                {
+                    if (Reactor.Container.Mineral + minerals > Reactor.Container.Capacity)
+                    {
+                        minerals -= Reactor.Container.Capacity - Reactor.Container.Mineral;
+                        Reactor.Container.Mineral = Reactor.Container.Capacity;
+                    }
+                    else
+                    {
+                        Reactor.Container.Mineral += minerals;
+                        minerals = 0;
+                    }
+                    Reactor.BurnIfNeccessary();
+                }
+            }
+            if (minerals > 0)
+            {
+                if (Assembler != null && Assembler.Container != null)
+                {
+                    if (Assembler.Container.Mineral + minerals > Assembler.Container.Capacity)
+                    {
+                        minerals -= Assembler.Container.Capacity - Assembler.Container.Mineral;
+                        Assembler.Container.Mineral = Assembler.Container.Capacity;
+                    }
+                    else
+                    {
+                        Assembler.Container.Mineral += minerals;
+                        minerals = 0;
+                    }
+                }
+            }
+            if (minerals > 0)
+            {
+                if (Weapon != null && Weapon.Container != null)
+                {
+                    if (Weapon.Container.Mineral + minerals > Weapon.Container.Capacity)
+                    {
+                        minerals -= Weapon.Container.Capacity - Weapon.Container.Mineral;
+                        Weapon.Container.Mineral = Weapon.Container.Capacity;
+                    }
+                    else
+                    {
+                        Weapon.Container.Mineral += minerals;
+                        minerals = 0;
+                    }
+                }
+            }
+            if (minerals > 0)
+            {
+                if (Container != null)
+                {
+                    if (Container.Mineral + minerals > Container.Capacity)
+                    {
+                        minerals -= Container.Capacity - Container.Mineral;
+                        Container.Mineral = Container.Capacity;
+                    }
+                    else
+                    {
+                        Container.Mineral += minerals;
+                        minerals = 0;
+                    }
+                }
+            }
+            return minerals;
+        }
+
         public bool IsDead()
         {
-            if (Armor == null && Weapon == null && Engine == null && Assembler == null && Container == null && Reactor == null && Radar == null)
+            if (Extractor == null && Armor == null && Weapon == null && Engine == null && Assembler == null && Container == null && Reactor == null && Radar == null)
             {
                 return true;
             }

@@ -223,10 +223,13 @@ namespace Engine.Master
 
 
             Map.GetTile(new Position(0, 0));
+
+            // TESTEXTRACT
+            /*
             for (int i=0; i < Map.DefaultMinerals; i++)
             {
                 Map.DistributeMineral();
-            }
+            }*/
         }
 
         public void ComputePossibleMoves(Position pos, List<Move> possibleMoves, List<Position> includedPositions, MoveFilter moveFilter)
@@ -604,32 +607,7 @@ namespace Engine.Master
                 }
                 else if (move.MoveType == MoveType.Extract)
                 {
-                    Unit unit = Map.Units.GetUnitAt(move.Positions[0]);
-                    if (unit != null && unit.Extractor != null)
-                    {
-                        bool extracted = false;
-
-                        Position fromPos = move.Positions[move.Positions.Count - 1];
-                        extracted = unit.Extractor.ExtractInto(fromPos, nextMoves, this, move.OtherUnitId);
-                        if (extracted)
-                        {
-                            if (!changedGroundPositions.ContainsKey(fromPos))
-                                changedGroundPositions.Add(fromPos, null);
-
-                            if (!changedUnits.ContainsKey(unit.Pos))
-                                changedUnits.Add(unit.Pos, unit);
-                        }
-                        else
-                        {
-                            // cloud not extract, ignore move
-                            //move.MoveType = MoveType.None;
-                        }
-                    }
-                    else
-                    {
-                        // move failed
-                        //move.MoveType = MoveType.None;
-                    }
+                    
                     finishedMoves.Add(move);
                 }
                 else if (move.MoveType == MoveType.Transport)
@@ -704,42 +682,18 @@ namespace Engine.Master
             }
         }
 
-        private void HitByBullet(Position pos, List<Move> nextMoves, bool firstHit)
+        internal void HitByBullet(Position pos, List<Move> nextMoves)
         {
             Unit targetUnit = Map.Units.GetUnitAt(pos);
             if (targetUnit != null)
             {
-                int totalMetalInUnitBeforeHit = targetUnit.CountMetal();
+                int totalMetalInUnitBeforeHit = targetUnit.CountMineral();
 
-                string hitPart = targetUnit.HitBy(null);
-
-                if (false)
+                string hitPart = targetUnit.HitBy();
+                if (hitPart == "Shield")
                 {
-                    // Unit has died!
-                    Move deleteMove = new Move();
-                    deleteMove.PlayerId = targetUnit.Owner.PlayerModel.Id;
-                    deleteMove.MoveType = MoveType.Delete;
-                    deleteMove.Positions = new List<Position>();
-                    deleteMove.Positions.Add(targetUnit.Pos);
-                    deleteMove.UnitId = targetUnit.UnitId;
-                    nextMoves.Add(deleteMove);
-
-                    Map.Units.Remove(targetUnit.Pos);
-
-                    Tile unitTile = GetTile(targetUnit.Pos);
-
-                    int totalMetalAfterUnit = targetUnit.CountMetal();
-                    int releasedMetal = totalMetalInUnitBeforeHit - totalMetalAfterUnit;
-
-                    // damaged Part + collected metal
-                    //unitTile.Metal += releasedMetal;
-                    unitTile.AddMinerals(releasedMetal);
-
-                    if (firstHit)
-                    {
-                        //unitTile.Metal++;
-                        unitTile.AddMinerals(1);
-                    }
+                    if (!changedUnits.ContainsKey(pos))
+                        changedUnits.Add(pos, targetUnit);
                 }
                 else
                 {
@@ -754,28 +708,48 @@ namespace Engine.Master
                     //hitmove.Stats = targetUnit.CollectStats();
                     nextMoves.Add(hitmove);
 
-                    int totalMetalAfterUnit = targetUnit.CountMetal();
+                    int totalMetalAfterUnit = targetUnit.CountMineral();
+                    int totalCapacityAfterHit = targetUnit.CountCapacity();
+                    if (totalMetalAfterUnit > totalCapacityAfterHit)
+                    {
+                        totalMetalAfterUnit -= totalMetalInUnitBeforeHit - totalCapacityAfterHit;
+                    }
                     int releasedMetal = totalMetalInUnitBeforeHit - totalMetalAfterUnit;
 
                     Tile unitTile = GetTile(targetUnit.Pos);
-                    // damage Part
                     unitTile.AddMinerals(releasedMetal);
-                    if (firstHit)
+
+                    if (releasedMetal > 1)
                     {
+                        targetUnit.RemoveMinerals(releasedMetal - 1);
+                    }
 
-                        if (!changedGroundPositions.ContainsKey(unitTile.Pos))
-                            changedGroundPositions.Add(unitTile.Pos, null);
 
-                        // Where to put the Ammo?
+                    if (!changedGroundPositions.ContainsKey(unitTile.Pos))
+                        changedGroundPositions.Add(unitTile.Pos, null);
 
-                        // Assume dirt
-                        //unitTile.Height += 0.1f;
-                        //unitTile.Metal++;
-                        //unitTile.AddMinerals(1);
-                        //Map.DistributeMineral(); // Bullet
+                    // Where to put the Ammo?
+
+                    // Assume dirt
+                    //unitTile.Height += 0.1f;
+                    //unitTile.Metal++;
+                    //unitTile.AddMinerals(1);
+                    //Map.DistributeMineral(); // Bullet
+
+                    if (targetUnit.IsDead())
+                    {
+                        // Unit has died!
+                        Move deleteMove = new Move();
+                        deleteMove.PlayerId = targetUnit.Owner.PlayerModel.Id;
+                        deleteMove.MoveType = MoveType.Delete;
+                        deleteMove.Positions = new List<Position>();
+                        deleteMove.Positions.Add(targetUnit.Pos);
+                        deleteMove.UnitId = targetUnit.UnitId;
+                        nextMoves.Add(deleteMove);
+
+                        Map.Units.Remove(targetUnit.Pos);
                     }
                 }
-
                 if (!changedGroundPositions.ContainsKey(pos))
                     changedGroundPositions.Add(pos, null);
             }
@@ -1025,6 +999,7 @@ namespace Engine.Master
                         if (!changedUnits.ContainsKey(factory.Pos))
                             changedUnits.Add(factory.Pos, factory);
                     }
+                    lastMoves.Add(move);
                 }
                 else if (move.MoveType == MoveType.Upgrade)
                 {
@@ -1066,10 +1041,39 @@ namespace Engine.Master
                         if (!changedUnits.ContainsKey(newUnit.Pos))
                             changedUnits.Add(newUnit.Pos, newUnit);
                     }
+                    lastMoves.Add(move);
+
                 }
                 else if (move.MoveType == MoveType.Extract)
                 {
+                    Unit unit = Map.Units.GetUnitAt(move.Positions[0]);
+                    if (unit != null && unit.Extractor != null)
+                    {
+                        bool extracted = false;
 
+                        Position fromPos = move.Positions[move.Positions.Count - 1];
+                        extracted = unit.Extractor.ExtractInto(fromPos, lastMoves, this, move.OtherUnitId);
+                        if (extracted)
+                        {
+                            if (!changedGroundPositions.ContainsKey(fromPos))
+                                changedGroundPositions.Add(fromPos, null);
+
+                            if (!changedUnits.ContainsKey(unit.Pos))
+                                changedUnits.Add(unit.Pos, unit);
+                        }
+                        else
+                        {
+                            // cloud not extract, ignore move
+                            //move.MoveType = MoveType.None;
+                        }
+                    }
+                    else
+                    {
+                        // move failed
+                        //move.MoveType = MoveType.None;
+                    }
+                    // First than hit, than delete, extract
+                    lastMoves.Add(move);
                 }
                 else if (move.MoveType == MoveType.Fire)
                 {
@@ -1101,8 +1105,9 @@ namespace Engine.Master
                         if (!changedUnits.ContainsKey(fireingUnit.Pos))
                             changedUnits.Add(fireingUnit.Pos, fireingUnit);
                     }
-                    HitByBullet(move.Positions[1], lastMoves, true);
-
+                    // First hit, than delete, than fire?
+                    HitByBullet(move.Positions[1], lastMoves);
+                    lastMoves.Add(move);
                 }
                 else if (move.MoveType == MoveType.Transport)
                 {
@@ -1120,16 +1125,18 @@ namespace Engine.Master
                         if (!changedUnits.ContainsKey(sendingUnit.Pos))
                             changedUnits.Add(sendingUnit.Pos, sendingUnit);
                     }
+                    lastMoves.Add(move);
                 }
                 else if (move.MoveType == MoveType.Move)
                 {
-
+                    lastMoves.Add(move);
                 }
+                /*
                 if (move.MoveType != MoveType.None &&
                     move.MoveType != MoveType.Skip)
                 {
                     lastMoves.Add(move);
-                }
+                }*/
             }
             newMoves.Clear();
         }

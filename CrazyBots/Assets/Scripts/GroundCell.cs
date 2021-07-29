@@ -231,8 +231,6 @@ public class GroundCell : MonoBehaviour
         MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
         if (meshRenderer != null)
         {
-
-
             Material[] newMaterials = new Material[meshRenderer.materials.Length];
             for (int i = 0; i < meshRenderer.materials.Length; i++)
             {
@@ -304,6 +302,13 @@ public class GroundCell : MonoBehaviour
 
     internal void CreateDestructables()
     {
+        int numberOfDestructables;
+        if (NextMove != null && NextMove.Stats.MoveUpdateGroundStat != null)
+            numberOfDestructables = NextMove.Stats.MoveUpdateGroundStat.NumberOfDestructables;
+        else
+            numberOfDestructables = Tile.NumberOfDestructables;
+
+
         while (destructables.Count < Tile.NumberOfDestructables)
         {
 
@@ -315,7 +320,7 @@ public class GroundCell : MonoBehaviour
 
             destructables.Add(destructable);
         }
-        while (destructables.Count > Tile.NumberOfDestructables)
+        while (destructables.Count > numberOfDestructables)
         {
             GameObject destructable = destructables[0];
             HexGrid.Destroy(destructable);
@@ -325,7 +330,13 @@ public class GroundCell : MonoBehaviour
 
     internal void CreateObstacles()
     {
-        while (obstacles.Count < Tile.NumberOfObstacles)
+        int numberOfObstacles;
+        if (NextMove != null && NextMove.Stats.MoveUpdateGroundStat != null)
+            numberOfObstacles = NextMove.Stats.MoveUpdateGroundStat.NumberOfObstacles;
+        else
+            numberOfObstacles = Tile.NumberOfObstacles;
+
+        while (obstacles.Count < numberOfObstacles)
         {
             Vector3 unitPos3 = transform.position;
 
@@ -338,7 +349,7 @@ public class GroundCell : MonoBehaviour
 
             obstacles.Add(obstacle);
         }
-        while (obstacles.Count > Tile.NumberOfObstacles)
+        while (obstacles.Count > numberOfObstacles)
         {
             GameObject obstacle = obstacles[0];
             HexGrid.Destroy(obstacle);
@@ -380,7 +391,13 @@ public class GroundCell : MonoBehaviour
 
     internal void CreateMinerals()
     {
-        if (Tile.Metal >= 20)
+        int numberOfMinerals;
+        if (NextMove!= null && NextMove.Stats.MoveUpdateGroundStat != null)
+            numberOfMinerals = NextMove.Stats.MoveUpdateGroundStat.Minerals;
+        else
+            numberOfMinerals = Tile.Metal;
+
+        if (numberOfMinerals >= 20)
         {
             if (mineralObstacle == null)
             {
@@ -403,13 +420,13 @@ public class GroundCell : MonoBehaviour
         }
         else
         {
-            if (Tile.Metal < 20 && mineralObstacle != null)
+            if (numberOfMinerals < 20 && mineralObstacle != null)
             {
                 HexGrid.Destroy(mineralObstacle);
                 mineralObstacle = null;
             }
 
-            while (minerals.Count < Tile.Metal)
+            while (minerals.Count < numberOfMinerals)
             {
                 Vector2 randomPos = Random.insideUnitCircle;
 
@@ -425,7 +442,7 @@ public class GroundCell : MonoBehaviour
 
                 minerals.Add(crystal);
             }
-            while (minerals.Count > Tile.Metal)
+            while (minerals.Count > numberOfMinerals)
             {
                 GameObject crystal = minerals[0];
 

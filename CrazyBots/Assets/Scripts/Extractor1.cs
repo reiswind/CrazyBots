@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Extractor1 : MonoBehaviour
 {
-    public void Extract(HexGrid hexGrid, Move move)
+    public void Extract(HexGrid hexGrid, Move move, UnitBase otherUnit)
     {
         ParticleSystem particleSource;
 
@@ -28,6 +28,10 @@ public class Extractor1 : MonoBehaviour
         particleSource.externalForces.SetInfluence(0, particleTarget);
         HexGrid.Destroy(particleTarget, 2.5f);
 
+        if (otherUnit != null)
+        {
+            otherUnit.PartExtracted();
+        }
         particleSource.Play();
     }
 }

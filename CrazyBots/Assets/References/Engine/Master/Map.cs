@@ -96,7 +96,7 @@ namespace Engine.Interface
                     TotalMetal += t.Metal;
                     if (t.Unit != null)
                     {
-                        TotalMetal += t.Unit.CountMetal();
+                        TotalMetal += t.Unit.CountMineral();
 
                         MapPlayerInfo mapPlayerInfo;
                         if (PlayerInfo.ContainsKey(t.Unit.Owner.PlayerModel.Id))

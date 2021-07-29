@@ -14,7 +14,10 @@ namespace Engine.Master
         public int Dirt { get; set; }
 
         private int extraCapacity;
-
+        public void ResetExtraCapacity()
+        {
+            extraCapacity = 0;
+        }
         public bool IsFreeSpace
         {
             get

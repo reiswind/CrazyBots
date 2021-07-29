@@ -767,9 +767,9 @@ namespace Engine.Control
                     ant.PlayerUnit.Unit.Weapon.WeaponLoaded)
                 {
                     // Can't extract. Shot somewhere
-                    Dictionary<Position, TileWithDistance> tiles = ant.PlayerUnit.Unit.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit.Weapon.Range, false, matcher: tile =>
+                    Dictionary<Position, TileWithDistance> tiles = ant.PlayerUnit.Unit.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit.Weapon.Range, false, matcher: tilex =>
                     {
-                        if (tile.Unit != null)
+                        if (tilex.Unit != null)
                             return false;
 
                         return true;

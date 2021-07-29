@@ -152,7 +152,7 @@ public class StrategyCamera : MonoBehaviour
 				GroundCell groundCell = raycastHit.collider.gameObject.GetComponent<GroundCell>();
 				if (groundCell != null)
                 {
-					int x = 0;
+					//int x = 0;
                 }
 			}
 		}

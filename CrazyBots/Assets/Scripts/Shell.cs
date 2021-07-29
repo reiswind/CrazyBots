@@ -27,8 +27,58 @@ public class Shell : MonoBehaviour
         return null;
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision collision)
     {
+        Collider other = collision.collider;
+        if (other == null || string.IsNullOrEmpty(other.name))
+            return;
+
+        Rigidbody otherRigid = other.GetComponent<Rigidbody>();
+        if (otherRigid != null)
+        {
+            Vector3 velo = otherRigid.velocity;
+        }
+
+
+        UnitBase hitUnit = GetUnitFrameFromCollider(other);
+
+        bool targetHit = false;
+        if (other.name.StartsWith("Ground"))
+        {
+            targetHit = true;
+            Destroy(gameObject);
+
+            if (TargetUnitId != "Dirt" || TargetUnitId != "Destructable")
+            {
+                if (HexGrid.BaseUnits.ContainsKey(TargetUnitId))
+                    hitUnit = HexGrid.BaseUnits[TargetUnitId];
+            }
+        }
+        else if (hitUnit != null && hitUnit.UnitId == TargetUnitId)
+        {
+            targetHit = true;
+            Destroy(gameObject);
+        }
+        else
+        {
+        }
+        if (targetHit)
+        {
+            if (hitUnit != null)
+            {
+                hitUnit.HitByShell(collision);
+            }
+            m_ExplosionParticles.transform.parent = null;
+
+            // Play the particle system.
+            m_ExplosionParticles.Play();
+            Destroy(m_ExplosionParticles.gameObject, m_ExplosionParticles.main.duration);
+        }
+    }
+
+    //private void OnTriggerEnter(Collider other)
+    //{
+        /*
         if (other == null || string.IsNullOrEmpty(other.name))
             return;
 
@@ -87,8 +137,8 @@ public class Shell : MonoBehaviour
             particleTarget.Play();
             */
 
-        }
-    }
+        //}
+    //}
 
     // Update is called once per frame
     void Update()
