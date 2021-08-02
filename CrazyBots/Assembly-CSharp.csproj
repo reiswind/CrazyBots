@@ -114,7 +114,6 @@
     <Compile Include="Assets\Scripts\Frame.cs" />
     <Compile Include="Assets\References\Engine\Master\Unit.cs" />
     <Compile Include="Assets\Scripts\UnitBase.cs" />
-    <Compile Include="Assets\References\Engine\Map\HexHash.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\AuthorAttribute.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\IPathFinder.cs" />
     <Compile Include="Assets\References\Engine\Control\ControlNothing.cs" />
