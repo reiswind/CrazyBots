@@ -411,7 +411,7 @@ public class HexGrid : MonoBehaviour
 		{
 			yield return www.SendWebRequest();
 
-			if (www.result != UnityWebRequest.Result.Success)
+			if (www.isHttpError)
 			{
 				Debug.Log(www.error);
 			}
@@ -436,7 +436,7 @@ public class HexGrid : MonoBehaviour
 			{
 				yield return www.SendWebRequest();
 
-				if (www.result != UnityWebRequest.Result.Success)
+				if (www.isHttpError)
 				{
 					Debug.Log(www.error);
 				}
