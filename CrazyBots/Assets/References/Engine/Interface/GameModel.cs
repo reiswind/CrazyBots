@@ -76,6 +76,8 @@ namespace Engine.Interface
         [DataMember]
         public string Name { get; set; }
         [DataMember]
+        public string MapType { get; set; }
+        [DataMember]
         public List<PlayerModel> Players { get; set;  }
         [DataMember]
         public int MapWidth { get; set; }

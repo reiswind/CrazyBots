@@ -4,6 +4,7 @@ using Engine.Interface;
 using Engine.Master;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -40,6 +41,51 @@ namespace Engine.Control
         {
             foreach (Move move in moves)
             {
+                if (move.MoveType == MoveType.UpdateGround)
+                {
+                    Position pos = move.Positions[0];
+                    Tile tile = player.Game.Map.GetTile(pos);
+
+                    MineralDeposit mineralDeposit;
+                    if (tile.Metal == 0)
+                    {
+                        if (mineralsDeposits.ContainsKey(pos))
+                        {
+                            mineralDeposit = mineralsDeposits[pos];
+                            player.Game.Pheromones.DeletePheromones(mineralDeposit.DepositId);
+
+                            mineralsDeposits.Remove(pos);
+                        }
+                    }
+                    else
+                    {
+                        float intensity = 1f * ((float)tile.Metal / 12);
+                        if (intensity > 1) intensity = 1;
+
+                        if (mineralsDeposits.ContainsKey(pos))
+                        {
+                            mineralDeposit = mineralsDeposits[pos];
+                            if (mineralDeposit.Minerals != tile.Metal)
+                            {
+                                mineralDeposit.Minerals = tile.Metal;
+
+                                player.Game.Pheromones.DeletePheromones(mineralDeposit.DepositId);
+                                mineralDeposit.DepositId = player.Game.Pheromones.DropPheromones(player, pos, 5, PheromoneType.Mineral, intensity, true);
+                            }
+                        }
+                        else
+                        {
+                            mineralDeposit = new MineralDeposit();
+
+                            mineralDeposit.Minerals = tile.Metal;
+                            mineralDeposit.Pos = pos;
+                            mineralDeposit.DepositId = player.Game.Pheromones.DropPheromones(player, pos, 5, PheromoneType.Mineral, intensity, true);
+
+                            mineralsDeposits.Add(pos, mineralDeposit);
+                        }
+                    }
+                }
+
                 if (move.MoveType == MoveType.Extract)
                 {
                     Position pos = move.Positions[move.Positions.Count - 1];
@@ -165,7 +211,7 @@ namespace Engine.Control
             return false;
         }
 
-        private Dictionary<Position, int> mineralsDeposits = new Dictionary<Position, int>();
+        private Dictionary<Position, MineralDeposit> mineralsDeposits = new Dictionary<Position, MineralDeposit>();
         private Dictionary<Position, int> staticMineralDeposits = new Dictionary<Position, int>();
         //private Dictionary<Position, int> workDeposits = new Dictionary<Position, int>();
 
@@ -217,7 +263,7 @@ namespace Engine.Control
             }
             return id;
         }
-
+        /*
         public int MineralsFound(Player player, Position pos, bool isStatic)
         {
             int id;
@@ -242,7 +288,7 @@ namespace Engine.Control
                 }
             }
             return id;
-        }
+        }*/
 
         /*
         public void WorkFound(Player player, Position pos)
@@ -261,37 +307,53 @@ namespace Engine.Control
 
         private void UpdateContainerDeposits(Player player, Ant ant)
         {
+            int range = 0;
+            float intensity = 0;
+
+            // Reactor demands Minerals
+            if (ant.PlayerUnit.Unit.Reactor != null &&
+                ant.PlayerUnit.Unit.Engine == null &&
+                ant.PlayerUnit.Unit.Reactor.Container.Mineral < ant.PlayerUnit.Unit.Reactor.Container.Capacity)
+            {
+
+                intensity = 1;
+                intensity -= (float)ant.PlayerUnit.Unit.Reactor.Container.Mineral / ant.PlayerUnit.Unit.Reactor.Container.Capacity;
+                range = 5;
+            }
+
+            // Container depends on neighbors
             if (ant.PlayerUnit.Unit.Container != null &&
                 ant.PlayerUnit.Unit.Engine == null &&
                 ant.PlayerUnit.Unit.Container.Mineral < ant.PlayerUnit.Unit.Container.Capacity)
             {
+                range = 2;
+                if (ant.PlayerUnit.Unit.Container.Level == 2)
+                    range = 3;
+                else if (ant.PlayerUnit.Unit.Container.Level == 3)
+                    range = 4;
+            }
+
+            if (range != 0)
+            { 
                 // Standing containers
-                if (ant.PheromoneDepositNeedMinerals != 0 &&
-                    ant.PheromoneDepositNeedMineralsLevel != ant.PlayerUnit.Unit.Container.Level)
+                if (ant.PheromoneDepositNeedMinerals != 0)
                 {
                     player.Game.Pheromones.DeletePheromones(ant.PheromoneDepositNeedMinerals);
                     ant.PheromoneDepositNeedMinerals = 0;
                 }
                 if (ant.PheromoneDepositNeedMinerals == 0)
                 {
-                    int range = 2;
-                    if (ant.PlayerUnit.Unit.Container.Level == 2)
-                        range = 3;
-                    else if (ant.PlayerUnit.Unit.Container.Level == 3)
-                        range = 4;
-
-                    ant.PheromoneDepositNeedMineralsLevel = ant.PlayerUnit.Unit.Container.Level;
-                    int intensity = (ant.PlayerUnit.Unit.Container.Mineral * 100 / ant.PlayerUnit.Unit.Container.Capacity) / 100;
-                    ant.PheromoneDepositNeedMinerals = player.Game.Pheromones.DropPheromones(player, ant.PlayerUnit.Unit.Pos, range, PheromoneType.Container, 1, true);
+                    //ant.PheromoneDepositNeedMineralsLevel = ant.PlayerUnit.Unit.Container.Level;
+                    //int intensity = (ant.PlayerUnit.Unit.Container.Mineral * 100 / ant.PlayerUnit.Unit.Container.Capacity) / 100;
+                    ant.PheromoneDepositNeedMinerals = player.Game.Pheromones.DropPheromones(player, ant.PlayerUnit.Unit.Pos, range, PheromoneType.Container, intensity, true);
                 }
                 else
                 {
-                    int intensity = (ant.PlayerUnit.Unit.Container.Mineral * 100 / ant.PlayerUnit.Unit.Container.Capacity) / 100;
-                    player.Game.Pheromones.UpdatePheromones(ant.PheromoneDepositNeedMinerals, 1);
+                    //int intensity = (ant.PlayerUnit.Unit.Container.Mineral * 100 / ant.PlayerUnit.Unit.Container.Capacity) / 100;
+                    player.Game.Pheromones.UpdatePheromones(ant.PheromoneDepositNeedMinerals, intensity);
                 }
             }
-            if (ant.PheromoneDepositNeedMinerals != 0 &&
-                (ant.PlayerUnit.Unit.Container == null || ant.PlayerUnit.Unit.Container.Mineral >= ant.PlayerUnit.Unit.Container.Capacity))
+            if (ant.PheromoneDepositNeedMinerals != 0 && range == 0)
             {
                 // Exits no longer. Remove deposit.
                 player.Game.Pheromones.DeletePheromones(ant.PheromoneDepositNeedMinerals);
@@ -632,8 +694,6 @@ namespace Engine.Control
 
         private List<Position> FindMineralContainer(Player player, AntWorker ant, List<Position> bestPositions)
         {
-            //List<Position> bestPositions = null;
-
             // Look for Container with mineraly to refill
             foreach (Ant possibleAnt in Ants.Values)
             {
@@ -1028,30 +1088,6 @@ namespace Engine.Control
             // List of all units that can be moved
             List<PlayerUnit> moveableUnits = new List<PlayerUnit>();
 
-            // Remove all spotted enemys
-            /*
-            foreach (int id in enemyDeposits.Values)
-            {
-                player.Game.Pheromones.DeletePheromones(id);
-            }
-            enemyDeposits.Clear();*/
-
-            // Update spotted minerals
-            List<Position> removeSpottedMinerals = new List<Position>();
-            foreach (Position pos in mineralsDeposits.Keys)
-            {
-                Tile t = player.Game.Map.GetTile(pos);
-                if (t.Metal == 0)
-                {
-                    removeSpottedMinerals.Add(pos);
-                }
-            }
-            foreach (Position pos in removeSpottedMinerals)
-            {
-                player.Game.Pheromones.DeletePheromones(mineralsDeposits[pos]);
-                mineralsDeposits.Remove(pos);
-            }
-
             foreach (Ant ant in Ants.Values)
             {
                 ant.MoveAttempts = 0;
@@ -1102,34 +1138,17 @@ namespace Engine.Control
                     {
                         if (CreatedAnts.ContainsKey(cntrlUnit.Pos))
                         {
-                            // Attach unit
+                            // Attach unit build by factories
                             Ant ant = CreatedAnts[cntrlUnit.Pos];
                             ant.Alive = true;
                             ant.PlayerUnit = playerUnit;
                             ant.PlayerUnit.Unit.CurrentGameCommand = ant.GameCommandDuringCreation;
                             ant.GameCommandDuringCreation = null;
                             Ants.Add(cntrlUnit.UnitId, ant);
-
-                            /*
-                            if (ant.CurrentGameCommand != null)
-                            {
-                                ant.CurrentGameCommand.UnitId = cntrlUnit.UnitId;
-                                if (ant.PlayerUnit.Unit.GameCommands == null)
-                                    ant.PlayerUnit.Unit.GameCommands = new List<GameCommand>();
-                                ant.PlayerUnit.Unit.GameCommands.Add(ant.CurrentGameCommand);
-                                ant.CurrentGameCommand = null;
-
-                                ant.HandleGameCommands(player);
-                            }*/
                         }
                         else
                         {
-                            /* Bad. Assembler will drive into fighting zones instead of building at home
-                            if (!cntrlUnit.IsComplete() && !cntrlUnit.ExtractMe)
-                            {
-                                WorkFound(player, cntrlUnit.Pos);
-                            }*/
-                            
+                            // Create unit from model
                             if (playerUnit.Unit.Blueprint.Name == "Assembler" ||
                                 playerUnit.Unit.Blueprint.Name == "Fighter" ||
                                 playerUnit.Unit.Blueprint.Name == "Worker" ||
@@ -1244,7 +1263,7 @@ namespace Engine.Control
                     {
                         UpdateUnitCounters(ant);
 
-                        UpdateContainerDeposits(player, ant);
+                        ant.UpdateContainerDeposits(player);
 
                         if (ant.PlayerUnit.Unit.Reactor != null)
                         {
@@ -1437,7 +1456,7 @@ namespace Engine.Control
                     player.GameCommands.Add(ant.GameCommandDuringCreation);
                     ant.GameCommandDuringCreation = null;
                 }
-
+                ant.OnDestroy(player);
                 Ants.Remove(ant.PlayerUnit.Unit.UnitId);
             }            
             return moves;

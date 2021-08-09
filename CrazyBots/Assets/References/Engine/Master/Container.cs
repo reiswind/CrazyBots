@@ -18,6 +18,15 @@ namespace Engine.Master
         {
             extraCapacity = 0;
         }
+
+        public int Loaded
+        {
+            get
+            {
+                return Mineral + Dirt;
+            }
+        }
+
         public bool IsFreeSpace
         {
             get

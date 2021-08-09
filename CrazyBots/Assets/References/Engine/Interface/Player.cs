@@ -860,10 +860,20 @@ namespace Engine.Interface
                 Units.Remove(unit.Pos);
             }
 
-            //CreateAreas();
+            foreach (Move move in moves)
+            {
+                if (move.MoveType == MoveType.UpdateGround)
+                {
+                    if (VisiblePositions.Contains(move.Positions[0]))
+                    {
+                        LastMoves.Add(move);
+                    }
+                }
+            }
+                //CreateAreas();
 
 #if DEBUG
-            CheckUnits();
+                CheckUnits();
 #endif
         }
 

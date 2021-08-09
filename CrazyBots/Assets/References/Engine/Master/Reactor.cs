@@ -39,28 +39,8 @@ namespace Engine.Master
         {
             if (AvailablePower == 0)
             {
-                AvailablePower = 100;
-                Unit.Game.Map.DistributeMineral();
-            }
-        }
-        public int ConsumePower(int remove)
-        {
-            int removed;
-            if (remove > AvailablePower)
-            {
-                removed = AvailablePower;
-                AvailablePower = 0;                
-            }    
-            else
-            {
-                AvailablePower -= remove;
-                removed = remove;
-            }
-
-            if (AvailablePower == 0)
-            {
                 bool burnMineral = false;
-                
+
                 if (Unit.Container != null && Unit.Container.Mineral > 0)
                 {
                     Unit.Container.Mineral--;
@@ -83,8 +63,30 @@ namespace Engine.Master
                 }
                 if (burnMineral)
                 {
-                    BurnIfNeccessary();
+                    AvailablePower = 100;
+                    Unit.Game.Map.DistributeMineral();
                 }
+            }
+        }
+        public int ConsumePower(int remove)
+        {
+            //remove *= 20;
+
+            int removed;
+            if (remove > AvailablePower)
+            {
+                removed = AvailablePower;
+                AvailablePower = 0;                
+            }    
+            else
+            {
+                AvailablePower -= remove;
+                removed = remove;
+            }
+
+            if (AvailablePower == 0)
+            {
+                BurnIfNeccessary();
             }
 
             return removed;

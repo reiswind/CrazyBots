@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -53,9 +53,6 @@
     <UnityVersion>2019.4.29f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Assets\CursorsAndCrosshairs\CursorChanger.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\AuthorAttribute.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\Bresehnham.cs" />
@@ -71,6 +68,7 @@
     <Compile Include="Assets\References\Engine\Ants\AntTurret.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntWorker.cs" />
     <Compile Include="Assets\References\Engine\Ants\ControlAnt.cs" />
+    <Compile Include="Assets\References\Engine\Ants\MineralDeposit.cs" />
     <Compile Include="Assets\References\Engine\Ants\Pheromone.cs" />
     <Compile Include="Assets\References\Engine\Control\Assemble.cs" />
     <Compile Include="Assets\References\Engine\Control\Attack.cs" />
@@ -322,11 +320,11 @@
     <Reference Include="UnityEditor">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2019.4.29f1\Editor\Data\Managed\UnityEditor.dll</HintPath>
     </Reference>
-    <Reference Include="TerrainQuest.Generator">
-      <HintPath>Assets\References\TerrainQuest.Generator.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>Assets\References\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="TerrainQuest.Generator">
+      <HintPath>Assets\References\TerrainQuest.Generator.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2019.4.29f1\Editor\Data\NetStandard\ref\2.0.0\netstandard.dll</HintPath>
@@ -679,14 +677,14 @@
     <Reference Include="Unity.VSCode.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.VSCode.Editor.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.CollabProxy.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.CollabProxy.Editor.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Timeline">
       <HintPath>Library\ScriptAssemblies\Unity.Timeline.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.CollabProxy.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.CollabProxy.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VisualStudio.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.VisualStudio.Editor.dll</HintPath>

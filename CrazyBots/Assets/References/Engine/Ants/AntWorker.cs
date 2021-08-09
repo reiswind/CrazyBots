@@ -3,6 +3,7 @@ using Engine.Interface;
 using Engine.Master;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -505,8 +506,50 @@ namespace Engine.Ants
                 }
                 else if (AntWorkerType == AntWorkerType.Worker)
                 {
-                    if (pheromoneType != PheromoneType.Energy)
+                    if (pheromoneType != PheromoneType.Energy && cntrlUnit.Container != null)
                     {
+                        if (cntrlUnit.Container.Loaded == 0)
+                        {
+                            pheromoneType = PheromoneType.Mineral;
+                            Debug.WriteLine("Empty load");
+                        }
+                        else if (!cntrlUnit.Container.IsFreeSpace)
+                        {
+                            pheromoneType = PheromoneType.Container;
+                            Debug.WriteLine("Full go Home");
+                        }
+                        else
+                        {
+                            Pheromone pheromone = player.Game.Pheromones.FindAt(cntrlUnit.Pos);
+                            if (pheromone == null)
+                            {
+                                // Find more?
+                                pheromoneType = PheromoneType.Mineral;
+                                Debug.WriteLine("No Info Goto Mineral");
+                            }
+                            else
+                            {
+                                float intensityContainer = pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Container);
+                                float intensityMineral = pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Mineral);
+
+                                float loaded = ((float)cntrlUnit.Container.Loaded / cntrlUnit.Container.Capacity);
+                                intensityContainer *= loaded;
+
+                                if (intensityContainer > intensityMineral)
+                                {
+                                    // More urgent to return stuff
+                                    pheromoneType = PheromoneType.Container;
+
+                                    Debug.WriteLine("Goto Container " + intensityContainer + " > " + intensityMineral + " Loaded: " + loaded);
+                                }
+                                else
+                                {
+                                    pheromoneType = PheromoneType.Mineral;
+                                    Debug.WriteLine("Goto Mineral");
+                                }
+                            }
+                        }
+                        /*
                         if (cntrlUnit.Container != null && cntrlUnit.Container.IsFreeSpace)
                         {
                             // Fill up with food!
@@ -516,7 +559,7 @@ namespace Engine.Ants
                         {
                             // Look for a target to unload
                             pheromoneType = PheromoneType.Container;
-                        }
+                        }*/
                     }
                 }
                 else if (AntWorkerType == AntWorkerType.Fighter)

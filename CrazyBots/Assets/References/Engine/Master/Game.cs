@@ -207,8 +207,15 @@ namespace Engine.Master
             if (!string.IsNullOrEmpty(logFile))
                 File.Delete(logFile);
 
+            if (gameModel.MapType == "2")
+            {
+                Map.CreateFlat();
+            }
+            else
+            {
+                Map.CreateTerrain(this);
+            }
             Map.CreateZones();
-
             if (gameModel?.Players != null)
             {
                 foreach (PlayerModel playerModel in gameModel.Players)
@@ -225,11 +232,11 @@ namespace Engine.Master
             Map.GetTile(new Position(0, 0));
 
             // TESTEXTRACT
-            /*
+            
             for (int i=0; i < Map.DefaultMinerals; i++)
             {
                 Map.DistributeMineral();
-            }*/
+            }
         }
 
         public void ComputePossibleMoves(Position pos, List<Move> possibleMoves, List<Position> includedPositions, MoveFilter moveFilter)
@@ -624,14 +631,17 @@ namespace Engine.Master
                     else
                     {
                         if (unit.Reactor != null && unit.Reactor.Container.Mineral < unit.Reactor.Container.Capacity)
+                        {
                             unit.Reactor.Container.Mineral++;
+                            unit.Reactor.BurnIfNeccessary();
+                        }
                         else if (unit.Assembler != null && unit.Assembler.Container.Mineral < unit.Assembler.Container.Capacity)
                             unit.Assembler.Container.Mineral++;
                         else if (unit.Weapon != null && unit.Weapon.Container.Mineral < unit.Weapon.Container.Capacity)
                             unit.Weapon.Container.Mineral++;
                         else if (unit.Container != null && unit.Container.Mineral < unit.Container.Capacity)
                             unit.Container.Mineral++;
-                        else                        
+                        else
                             dropOnGround = true;
 
                         if (!changedUnits.ContainsKey(unit.Pos))
@@ -1064,13 +1074,13 @@ namespace Engine.Master
                         else
                         {
                             // cloud not extract, ignore move
-                            //move.MoveType = MoveType.None;
+                            move.MoveType = MoveType.Skip;
                         }
                     }
                     else
                     {
                         // move failed
-                        //move.MoveType = MoveType.None;
+                        move.MoveType = MoveType.Skip;
                     }
                     // First than hit, than delete, extract
                     lastMoves.Add(move);
@@ -1279,6 +1289,7 @@ namespace Engine.Master
             }
 
             int att = 100;
+
             while (totalPowerRemoved > 0 && att-- > 0)
             {
                 // Consume the charged power from the reactors
@@ -1512,6 +1523,7 @@ namespace Engine.Master
 
                 foreach (Player player in Players.Values)
                 {
+                    /*
                     if (player.PlayerModel.Id == playerId)
                     {
                         player.ProcessMoves(lastMoves);
@@ -1520,6 +1532,7 @@ namespace Engine.Master
                     else
                     {
                         player.ProcessMoves(lastMoves);
+                        
                         if (player.Control != null)
                             player.Control.ProcessMoves(player, player.LastMoves);
                     }
@@ -1527,7 +1540,7 @@ namespace Engine.Master
                     {
                         // This player is dead.
                         player.Commands.Clear();
-                    }
+                    }*/
                     ConsumePower(player, lastMoves);
                 }
 
@@ -1555,6 +1568,27 @@ namespace Engine.Master
                     hitmove.Positions.Add(pos);
                     hitmove.Stats = Map.CollectGroundStats(pos);
                     lastMoves.Add(hitmove);
+                }
+
+                foreach (Player player in Players.Values)
+                {
+                    if (player.PlayerModel.Id == playerId)
+                    {
+                        player.ProcessMoves(lastMoves);
+                        returnMoves = player.LastMoves;
+                    }
+                    else
+                    {
+                        player.ProcessMoves(lastMoves);
+
+                        if (player.Control != null)
+                            player.Control.ProcessMoves(player, player.LastMoves);
+                    }
+                    if (player.NumberOfUnits == 0 && player.Commands.Count > 0)
+                    {
+                        // This player is dead.
+                        player.Commands.Clear();
+                    }
                 }
 
                 //CreateAreas();

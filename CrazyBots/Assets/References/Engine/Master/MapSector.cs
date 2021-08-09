@@ -33,6 +33,9 @@ namespace Engine.Interface
 
         public bool IsPossibleStart(Map map)
         {
+            if (HexCell == null)
+                return true;
+
             if (HexCell.IsUnderwater)
                 return false;
 

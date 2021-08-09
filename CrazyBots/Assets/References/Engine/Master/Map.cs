@@ -152,7 +152,7 @@ namespace Engine.Master
 
         public int MapWidth { get; private set; }
         public int MapHeight { get; private set; }
-
+        public string MapType { get; set; }
         private int zoneCounter;
         //private int zoneWidth;
         //private int maxZones;
@@ -174,15 +174,13 @@ namespace Engine.Master
             Units = new Units(this);
             MapWidth = game.GameModel.MapWidth;
             MapHeight = game.GameModel.MapHeight;
+            MapType = game.GameModel.MapType;
 
             //zoneWidth = (MapWidth / 15);
             //maxZones = zoneWidth * (MapHeight / 15) - 1;
 
 
-            mapGenerator = new MapGenerator.HexMapGenerator();
-            mapGenerator.Random = game.Random;
-            mapGenerator.GenerateMap(MapWidth, MapHeight, false);
-            GenerateTiles();
+
 
 
             /*
@@ -428,6 +426,30 @@ namespace Engine.Master
 
         }
 
+        public void CreateFlat()
+        {
+            for (int y = 0; y < MapHeight; y++)
+            {
+                for (int x = 0; x < MapWidth; x++)
+                {
+                    Position sectorTilePos = new Position(x, y);
+                    Tile t = new Tile(this, sectorTilePos);
+                    Tiles.Add(sectorTilePos, t);
+                }
+            }
+            MapSector mapSector = new MapSector();
+            mapSector.Center = new Position(MapWidth / 2, MapHeight / 2);
+            //mapSector.HexCell = hexCell;
+            Sectors.Add(mapSector.Center, mapSector);
+        }
+
+        public void CreateTerrain(Game game)
+        {
+            mapGenerator = new MapGenerator.HexMapGenerator();
+            mapGenerator.Random = game.Random;
+            mapGenerator.GenerateMap(MapWidth, MapHeight, false);
+            GenerateTiles();
+        }
         public void CreateZones()
         {
             MapZone mapDefaultZone = new MapZone();
@@ -439,9 +461,11 @@ namespace Engine.Master
             Position startPosition = null;
             foreach (MapSector mapSector in Sectors.Values)
             {
-                if (mapSector.Center.X < 8 || mapSector.Center.Y < 8)
-                    continue;
-
+                if (MapType != "2")
+                {
+                    if (mapSector.Center.X < 8 || mapSector.Center.Y < 8)
+                        continue;
+                }
                 if (mapSector.IsPossibleStart(this))
                 {
                     AddZone(mapSector.Center);

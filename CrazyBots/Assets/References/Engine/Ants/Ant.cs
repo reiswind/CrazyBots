@@ -39,7 +39,7 @@ namespace Engine.Ants
 
         public int PheromoneDepositEnergy { get; set; }
         public int PheromoneDepositNeedMinerals { get; set; }
-        public int PheromoneDepositNeedMineralsLevel { get; set; }
+        ///public int PheromoneDepositNeedMineralsLevel { get; set; }
 
 
         public int PheromoneWaypointMineral { get; set; }
@@ -49,6 +49,12 @@ namespace Engine.Ants
         public virtual bool Move(Player player, List<Move> moves)
         {
             return true;
+        }
+        public virtual void UpdateContainerDeposits(Player player)
+        {
+        }
+        public virtual void OnDestroy(Player player)
+        {
         }
 
         internal GameCommand GameCommandDuringCreation;

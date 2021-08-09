@@ -9,49 +9,54 @@ using System.Threading.Tasks;
 
 namespace Engine.Master
 {
+    // Rectangle
     // 0 Points in Engine: Cannot move
     // 1 Points in Engine: Move slow
     // 2 Points in Engine: Move fast
     // 3 Points in Engine: Move very fast
 
+    // Halfcircle?
     // 0 Points in Armor: None
     // 1 Points in Armor: Armor 1
     // 2 Points in Armor: Armor 2
     // 3 Points in Armor: Armor 3
 
+    // Rectangle + Gun
     // 0 Points in Weapon: Cannot fire
     // 1 Points in Weapon: Damage 1
     // 2 Points in Weapon: Damage 2
     // 3 Points in Weapon: Damage 3
 
+    // Hex
     // 0 Points in Assembler: None
     // 1 Points in Assembler: Produce Level 1 Items
     // 2 Points in Assembler: Produce Level 1 Items + Upgrade
     // 3 Points in Assembler: Produce Level 1 Items + Upgrade + Faster
 
+    // Triangle on moving units, Hex on Ground on buildings
     // Extract from Enemy if Next, Ground with Range, from own Unit to destroy
     // 0 Points in Extractor: None
     // 1 Points in Extractor: Range 1
     // 2 Points in Extractor: Range 2
     // 3 Points in Extractor: Range 3
 
-    // Contains Metal
+    // Circle (12 corners)
     // 0 Points in Container: None
     // 1 Points in Container: Storage 1
     // 2 Points in Container: Storage 2
     // 3 Points in Container: Storage 3
 
-    // Produce Energy consuming Metal
+    // Square
     // 0 Points in Reactor: None
     // 1 Points in Reactor: Range 1 Efficiency
     // 2 Points in Reactor: Range 2
     // 3 Points in Reactor: Range 3
 
-    // Dispatch & Radar
-    // 0 Points in Dispatcher: None
-    // 1 Points in Dispatcher: Range 1
-    // 2 Points in Dispatcher: Range 2
-    // 3 Points in Dispatcher: Range 3
+    // Turning rectangle
+    // 0 Points in Radar: None
+    // 1 Points in Radar: Range 1
+    // 2 Points in Radar: Range 2
+    // 3 Points in Radar: Range 3
 
 
     public enum Direction
@@ -315,7 +320,11 @@ namespace Engine.Master
                     if (fillContainer)
                     {
                         // TESTEXTRACT
-                        //Container.Mineral = Container.Capacity;
+                        
+                        if (Container.Capacity < 20)
+                            Container.Mineral = Container.Capacity;
+                        else
+                            Container.Mineral = 20;
                     }
                 }
                 while (level > Container.Level)

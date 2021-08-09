@@ -104,7 +104,10 @@ namespace Engine.Ants
             foreach (PheromoneStackItem pheromoneStackItem in pheromoneStack.PheromoneItems)
             {
                 Pheromone pheromone = pheromoneStackItem.Pheromone;
-                pheromone.PheromoneItems.Remove(pheromoneStackItem.PheromoneItem);
+                if (!pheromone.PheromoneItems.Remove(pheromoneStackItem.PheromoneItem))
+                {
+                    int x = 0;
+                }
                 if (pheromone.PheromoneItems.Count == 0)
                 {
                     Items.Remove(pheromone.Pos);
@@ -118,11 +121,16 @@ namespace Engine.Ants
             PheromoneStack pheromoneStack = pheromoneStacks[id];
             foreach (PheromoneStackItem pheromoneStackItem in pheromoneStack.PheromoneItems)
             {
-                float relativIntensity = pheromoneStackItem.Distance * intensity;
+                float relativIntensity;
+
+                relativIntensity = pheromoneStackItem.Distance * intensity;
+
                 if (relativIntensity > 1)
                     relativIntensity = 1;
+
                 if (relativIntensity < 0)
                     relativIntensity = 0;
+
                 if (relativIntensity < minIntensity)
                     relativIntensity = minIntensity;
                 pheromoneStackItem.PheromoneItem.Intensity = relativIntensity;
@@ -143,9 +151,18 @@ namespace Engine.Ants
                 float totaldistance = range - tileWithDistance.Distance;
                 float distance = (totaldistance * 100) / range / 100;
 
-                float relativIntensity = distance * intensity;
+                if (distance == 0)
+                    continue;
+
+                float relativIntensity;
+                relativIntensity = distance * intensity;
                 if (relativIntensity < minIntensity)
                     relativIntensity = minIntensity;
+
+                if (relativIntensity == 0)
+                {
+                    continue;
+                }
 
                 PheromoneStackItem pheromoneStackItem = new PheromoneStackItem();
 

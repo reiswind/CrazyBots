@@ -53,17 +53,7 @@
         "Y": 1
       }
     }
-	,
 	
-	{
-      "Name": "Outpost",
-      "PlayerId": 2,
-	  "Blueprint": "Container",
-      "Position": {
-        "X": 1,
-        "Y": 0
-      }
-    }
 	
   ]
 }

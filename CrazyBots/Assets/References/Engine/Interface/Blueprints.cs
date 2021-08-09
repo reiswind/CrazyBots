@@ -66,8 +66,8 @@ namespace Engine.Interface
             blueprint.Name = "Worker";
             blueprint.Layout = "MovableUnitBigPart";
             blueprint.Parts.Add(new BlueprintPart("Engine"));
-            blueprint.Parts.Add(new BlueprintPart("Extractor"));
             blueprint.Parts.Add(new BlueprintPart("Container", 12));
+            blueprint.Parts.Add(new BlueprintPart("Extractor"));
             blueprint.Parts.Add(new BlueprintPart("Armor"));
             Items.Add(blueprint);
 
