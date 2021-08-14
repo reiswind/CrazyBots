@@ -526,8 +526,8 @@ namespace Engine.Control
         public List<PlayerUnit> CollectUnitsAlreadyInArea(Player player, int range)
         {
             EnemyUnits.Clear();
-
             List<PlayerUnit> unitsAlreadyInArea = new List<PlayerUnit>();
+            /*
             PosititionsInArea = Map.EnumerateTiles(Center, Range);
 
             foreach (TileWithDistance t in PosititionsInArea.Values)
@@ -545,7 +545,7 @@ namespace Engine.Control
                         EnemyUnits.Add(unit);
                     }
                 }
-            }
+            }*/
             return unitsAlreadyInArea;
         }
 

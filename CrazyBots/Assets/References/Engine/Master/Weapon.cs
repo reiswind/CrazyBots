@@ -37,11 +37,11 @@ namespace Engine.Master
                 if (Unit.Container != null && Unit.Container.Dirt > 0)
                     return true;
 
-
+                /*
                 if (Container != null && Container.Mineral > 0)
                     return true;
                 if (Unit.Container != null && Unit.Container.Mineral > 0)
-                    return true;
+                    return true;*/
                 return false;
             }
         }

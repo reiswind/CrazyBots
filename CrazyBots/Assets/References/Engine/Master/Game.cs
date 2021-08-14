@@ -443,11 +443,11 @@ namespace Engine.Master
                     {
                         Player player = Players[move.PlayerId];
 
-                        if (player.UnitsInBuild.ContainsKey(move.Positions[1]))
+                        if (player.UnitsInBuild.ContainsKey(move.UnitId)) //move.Positions[1]))
                         {
                             // From under construction to real unit
-                            PlayerUnit playerUnit = player.UnitsInBuild[move.Positions[1]];
-                            player.UnitsInBuild.Remove(move.Positions[1]);
+                            PlayerUnit playerUnit = player.UnitsInBuild[move.UnitId];
+                            //player.UnitsInBuild.Remove(move.UnitId);
                             playerUnit.Unit.IsGhost = false;
                             addedUnits.Add(playerUnit.Unit);
                         }
@@ -551,13 +551,13 @@ namespace Engine.Master
                 {
                     if (addedUnit.IsGhost)
                     {
-                        if (addedUnit.Owner.UnitsInBuild.ContainsKey(addedUnit.Pos))
+                        if (addedUnit.Owner.UnitsInBuild.ContainsKey(addedUnit.UnitId))
                         {
                             // Duplicate build order
-                            addedUnit.Owner.UnitsInBuild.Remove(addedUnit.Pos);
+                            addedUnit.Owner.UnitsInBuild.Remove(addedUnit.UnitId);
                         }
                         PlayerUnit playerUnit = new PlayerUnit(addedUnit);
-                        addedUnit.Owner.UnitsInBuild.Add(addedUnit.Pos, playerUnit);
+                        addedUnit.Owner.UnitsInBuild.Add(addedUnit.UnitId, playerUnit);
                     }
                     else
                     {
@@ -660,21 +660,6 @@ namespace Engine.Master
                 }
                 else if (move.MoveType == MoveType.Fire)
                 {
-
-                    //HitByBullet(move.Positions[1], nextMoves, true);
-                    /* Might be null because hit
-                    Unit fireingUnit = Map.Units.GetUnitAt(move.Positions[0]);
-                    if (fireingUnit.Weapon.Level == 2)
-                    {
-                        Tile tile = Map.GetTile(move.Positions[1]);
-
-                        for (int i = 0; i < 3; i++)
-                        {
-                            int idx = Random.Next(tile.Neighbors.Count);
-                            Tile hit = tile.Neighbors[idx];
-                            HitByBullet(hit.Pos, nextMoves, false);
-                        }
-                    }*/
                     finishedMoves.Add(move);
                 }
                 else
@@ -720,7 +705,8 @@ namespace Engine.Master
 
                     int totalMetalAfterUnit = targetUnit.CountMineral();
                     int totalCapacityAfterHit = targetUnit.CountCapacity();
-                    if (totalMetalAfterUnit > totalCapacityAfterHit)
+
+                    if (totalMetalAfterUnit - targetUnit.CountParts() > totalCapacityAfterHit)
                     {
                         totalMetalAfterUnit -= totalMetalInUnitBeforeHit - totalCapacityAfterHit;
                     }
@@ -876,11 +862,14 @@ namespace Engine.Master
                                 if (unit.Extractor == null)
                                     throw new Exception("Cheater");
                             }
-                            if (move.UnitId.StartsWith("unit"))
+                            else if (move.MoveType != MoveType.Upgrade)
                             {
-                                if (unitsThatMoved.ContainsKey(move.UnitId))
-                                    throw new Exception("Cheater");
-                                unitsThatMoved.Add(move.UnitId, move);
+                                if (move.UnitId.StartsWith("unit"))
+                                {
+                                    if (unitsThatMoved.ContainsKey(move.UnitId))
+                                        throw new Exception("Cheater");
+                                    unitsThatMoved.Add(move.UnitId, move);
+                                }
                             }
                         }
                         move.PlayerId = player.PlayerModel.Id;
@@ -898,23 +887,26 @@ namespace Engine.Master
                 foreach (PlayerUnit playerUnit in player.Units.Values)
                 {
                     Unit unit = playerUnit.Unit;
-                    Tile tile = Map.GetTile(unit.Pos);
-                    Unit mapUnit = Map.Units.GetUnitAt(unit.Pos);
-                    if (mapUnit == null)
+                    if (!unit.IsGhost)
                     {
-                        throw new Exception("player has unit that does not exists");
-                    }
-                    if (tile.Unit != mapUnit)
-                    {
-                        throw new Exception("player has unit that does not exists1");
-                    }
-                    if (unit.UnitId != mapUnit.UnitId)
-                    {
-                        throw new Exception("wrong unit moved");
-                    }
-                    if (unit.Owner.PlayerModel.Id != mapUnit.Owner.PlayerModel.Id)
-                    {
-                        throw new Exception("wrong player");
+                        Tile tile = Map.GetTile(unit.Pos);
+                        Unit mapUnit = Map.Units.GetUnitAt(unit.Pos);
+                        if (mapUnit == null)
+                        {
+                            throw new Exception("player has unit that does not exists");
+                        }
+                        if (tile.Unit != mapUnit)
+                        {
+                            throw new Exception("player has unit that does not exists1");
+                        }
+                        if (unit.UnitId != mapUnit.UnitId)
+                        {
+                            throw new Exception("wrong unit moved");
+                        }
+                        if (unit.Owner.PlayerModel.Id != mapUnit.Owner.PlayerModel.Id)
+                        {
+                            throw new Exception("wrong player");
+                        }
                     }
                 }
             }
@@ -962,15 +954,19 @@ namespace Engine.Master
                         Unit unit = Map.Units.GetUnitAt(p);
                         if (unit == null)
                         {
-                            throw new Exception("unit not moved there");
+                            /// must not, can be killed after moving there
+                            //throw new Exception("unit not moved there");
                         }
-                        if (unit.UnitId != move.UnitId)
+                        else
                         {
-                            throw new Exception("wrong unit moved");
-                        }
-                        if (unit.Owner.PlayerModel.Id != move.PlayerId)
-                        {
-                            throw new Exception("wrong player");
+                            if (unit.UnitId != move.UnitId)
+                            {
+                                throw new Exception("wrong unit moved");
+                            }
+                            if (unit.Owner.PlayerModel.Id != move.PlayerId)
+                            {
+                                throw new Exception("wrong player");
+                            }
                         }
                     }
                 }
@@ -989,9 +985,24 @@ namespace Engine.Master
             }
         }
 
+
+        /// <summary>
+        /// All units have been put at their final destination after the moves.
+        /// </summary>
+
         private void ProcessNewMoves()
         {
             lastMoves.Clear();
+
+            // Move all units to their new location
+            foreach (Move move in newMoves)
+            {
+                if (move.MoveType == MoveType.Move)
+                {
+                    lastMoves.Add(move);
+                }
+            }
+
             foreach (Move move in newMoves)
             {
                 if (move.MoveType == MoveType.Build || move.MoveType == MoveType.Add)
@@ -1004,7 +1015,7 @@ namespace Engine.Master
                     if (factory != null && newUnit != null)
                     {
                         // Never called
-                        factory.Assembler.ConsumeMetalForUnit(newUnit);
+                        factory.Assembler.ConsumeMetalForUnit();
 
                         if (!changedUnits.ContainsKey(factory.Pos))
                             changedUnits.Add(factory.Pos, factory);
@@ -1018,9 +1029,10 @@ namespace Engine.Master
                     if (move.Positions.Count > 1)
                         newUnit = Map.Units.GetUnitAt(move.Positions[1]);
 
-                    if (factory != null && newUnit != null)
+                    if (factory != null && factory.Assembler != null && newUnit != null)
                     {
-                        factory.Assembler.ConsumeMetalForUnit(newUnit);
+                        // May have no metal.. what than? Unit has been upgraded.
+                        factory.Assembler.ConsumeMetalForUnit();
 
                         if (!changedUnits.ContainsKey(factory.Pos))
                             changedUnits.Add(factory.Pos, factory);
@@ -1046,13 +1058,12 @@ namespace Engine.Master
                     }
                     else
                     {
-                        newUnit.Upgrade(move.UnitId);
+                        newUnit.Upgrade(move.OtherUnitId);
 
                         if (!changedUnits.ContainsKey(newUnit.Pos))
                             changedUnits.Add(newUnit.Pos, newUnit);
                     }
                     lastMoves.Add(move);
-
                 }
                 else if (move.MoveType == MoveType.Extract)
                 {
@@ -1063,6 +1074,7 @@ namespace Engine.Master
 
                         Position fromPos = move.Positions[move.Positions.Count - 1];
                         extracted = unit.Extractor.ExtractInto(fromPos, lastMoves, this, move.OtherUnitId);
+
                         if (extracted)
                         {
                             if (!changedGroundPositions.ContainsKey(fromPos))
@@ -1139,7 +1151,29 @@ namespace Engine.Master
                 }
                 else if (move.MoveType == MoveType.Move)
                 {
-                    lastMoves.Add(move);
+                    //lastMoves.Add(move);
+                    /*
+                    Unit toUnit = Map.Units.GetUnitAt(move.Positions[1]);
+                    if (toUnit == null)
+                    {
+                        foreach (Move checkMove in lastMoves)
+                        {
+                            if (checkMove.MoveType == MoveType.Delete &&
+                                checkMove.UnitId == move.UnitId)
+                            {
+                                // Unit wanted to move, but was killed on its way
+                                int x = 0;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (toUnit.UnitId != move.UnitId)
+                        {
+                            throw new Exception("Wrong move");
+                        }
+                        lastMoves.Add(move);
+                    }*/
                 }
                 /*
                 if (move.MoveType != MoveType.None &&
@@ -1324,7 +1358,7 @@ namespace Engine.Master
                 {
                     // Any position that is currently being upgraded or a unit turns from ghost into real
                     // cannot be stepped on
-                    if (move.MoveType == MoveType.Upgrade)
+                    if (move.MoveType == MoveType.Upgrade || move.MoveType == MoveType.Build)
                     {
                         Position destination = move.Positions[move.Positions.Count - 1];
                         if (moveToTargets.ContainsKey(destination))
@@ -1370,7 +1404,7 @@ namespace Engine.Master
 
                 foreach (Move move in moveToTargets.Values)
                 {
-                    if (move.MoveType == MoveType.Upgrade)
+                    if (move.MoveType == MoveType.Upgrade || move.MoveType == MoveType.Build)
                         continue;
 
                     Position from = move.Positions[0];
@@ -1439,13 +1473,21 @@ namespace Engine.Master
                     return returnMoves;
                 }
 
-                if (MoveNr == 31)
+                if (MoveNr == 73)
                 {
-
+                    int xxxx = 0;
                 }
 
                 changedUnits.Clear();
                 changedGroundPositions.Clear();
+
+                MapInfo mapInfo1 = new MapInfo();
+                mapInfo1.ComputeMapInfo(this);
+
+                if (mapInfo != null && mapInfo1.TotalMetal != mapInfo.TotalMetal)
+                {
+                    int xx = 0;
+                }
 
                 bool first = false;
                 if (!initialized)
@@ -1455,6 +1497,7 @@ namespace Engine.Master
                 }
                 else
                 {
+
 #if DEBUG
                     Validate(lastMoves);
 #endif
@@ -1515,8 +1558,13 @@ namespace Engine.Master
                 LogMoves("New Moves after Collisions", MoveNr, newMoves);                
 
                 UpdateUnitPositions(newMoves);
-                
+
+                mapInfo = new MapInfo();
+                mapInfo.ComputeMapInfo(this);
+
                 ProcessNewMoves();
+
+
 
                 mapInfo = new MapInfo();
                 mapInfo.ComputeMapInfo(this);
@@ -1598,6 +1646,15 @@ namespace Engine.Master
 #if DEBUG
                     Validate(returnMoves);
 #endif
+                }
+
+
+                MapInfo mapInfo2 = new MapInfo();
+                mapInfo2.ComputeMapInfo(this);
+
+                if (mapInfo1.TotalMetal != mapInfo2.TotalMetal)
+                {
+                    int x = 0;
                 }
             }
             if (lastMoves.Count >= 0)

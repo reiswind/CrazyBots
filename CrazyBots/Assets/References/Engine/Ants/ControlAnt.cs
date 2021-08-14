@@ -100,13 +100,13 @@ namespace Engine.Control
                         CreatedAnts.Remove(pos);
                         Ants.Add(move.UnitId, ant);
                     }
-                    else if (player.Units.ContainsKey(pos))
+                    else if (player.Units.ContainsKey(move.UnitId))
                     {
-                        PlayerUnit playerUnit = player.Units[pos];
+                        PlayerUnit playerUnit = player.Units[move.UnitId];
                         AntFactory ant = Ants[playerUnit.Unit.UnitId] as AntFactory;
                         if (ant != null)
                         {
-                            player.UnitsInBuild.Remove(pos);
+                            player.UnitsInBuild.Remove(playerUnit.Unit.UnitId);
                             ant.PlayerUnit.Unit.Assembler.Build(move.Stats.BlueprintName);
                         }
                         move.MoveType = MoveType.Skip;

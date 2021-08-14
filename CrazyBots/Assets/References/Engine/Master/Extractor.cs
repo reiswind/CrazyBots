@@ -201,7 +201,7 @@ namespace Engine.Master
                                     move.MoveType = MoveType.Extract;
 
                                     move.UnitId = Unit.UnitId;
-                                    move.OtherUnitId = "Enemy";
+                                    move.OtherUnitId = t.Unit.UnitId;
                                     move.Positions = new List<Position>();
                                     move.Positions.Add(Unit.Pos);
                                     move.Positions.Add(t.Pos);
@@ -261,7 +261,7 @@ namespace Engine.Master
                             move.MoveType = MoveType.Extract;
 
                             move.UnitId = Unit.UnitId;
-                            move.OtherUnitId = "Enemy";
+                            move.OtherUnitId = t.Unit.UnitId;
                             move.Positions = new List<Position>();
                             move.Positions.Add(Unit.Pos);
                             move.Positions.Add(t.Pos);
@@ -468,111 +468,11 @@ namespace Engine.Master
                     if (fromTile.Unit.ExtractMe && canExtractMore)
                     {
                         game.HitByBullet(fromTile.Pos, moves);
-                        /*
-                        Unit targetUnit = fromTile.Unit;
-
-                        // Remove parts
-                        int totalMetalInUnitBeforeHit = targetUnit.CountMineral();
-
-                        // Extract own, useless unit
-                        string partHit = targetUnit.HitBy(null);
-
-                        Move hitmove = new Move();
-                        hitmove.MoveType = MoveType.Hit;
-                        hitmove.PlayerId = targetUnit.Owner.PlayerModel.Id;
-                        hitmove.Positions = new List<Position>();
-                        hitmove.Positions.Add(targetUnit.Pos);
-                        hitmove.UnitId = targetUnit.UnitId;
-                        hitmove.OtherUnitId = partHit;
-                        moves.Add(hitmove);
-
-                        int totalMetalAfterUnit = targetUnit.CountMineral();
-                        metalRemoved += totalMetalInUnitBeforeHit - totalMetalAfterUnit;
-
-                        // Bullet + demage Part
-                        if (metalRemoved > 1)
-                        {
-                            if (Unit.Container != null)
-                            {
-                                //Unit.Container.Metal += releasedMetal;
-                            }
-                            else
-                            {
-                                // TODO: Extracted from a container?
-                                //throw new Exception("TODO");
-                                // Killed container
-                            }
-                        }
-
-                        if (Unit.IsDead())
-                        {
-                            // Unit extracted remove unit
-                            Move deleteMove = new Move();
-                            deleteMove.PlayerId = targetUnit.Owner.PlayerModel.Id;
-                            deleteMove.MoveType = MoveType.Delete;
-                            deleteMove.Positions = new List<Position>();
-                            deleteMove.Positions.Add(targetUnit.Pos);
-                            deleteMove.UnitId = targetUnit.UnitId;
-                            moves.Add(deleteMove);
-
-                            game.Map.Units.Remove(targetUnit.Pos);
-                        }*/
                     }
                 }
                 else
                 {
                     game.HitByBullet(fromTile.Pos, moves);
-
-                    // Enemy unit!
-                    /*
-                    Unit targetUnit = fromTile.Unit;
-
-                    int totalMetalInUnitBeforeHit = targetUnit.CountMineral();
-
-                    // Extract own, useless unit
-                    string hitPart = targetUnit.HitBy(null);
-
-                    // Unit remains
-                    Move hitmove = new Move();
-                    hitmove.MoveType = MoveType.Hit;
-                    hitmove.PlayerId = targetUnit.Owner.PlayerModel.Id;
-                    hitmove.Positions = new List<Position>();
-                    hitmove.Positions.Add(targetUnit.Pos);
-                    hitmove.UnitId = targetUnit.UnitId;
-                    hitmove.OtherUnitId = hitPart;
-                    //hitmove.Stats = targetUnit.CollectStats();
-                    moves.Add(hitmove);
-
-                    int totalMetalAfterUnit = targetUnit.CountMineral();
-                    metalRemoved += totalMetalInUnitBeforeHit - totalMetalAfterUnit;
-
-                    // Bullet + demage Part
-                    if (metalRemoved > 1)
-                    {
-                        if (Unit.Container != null)
-                        {
-                            //Unit.Container.Metal += releasedMetal;
-                        }
-                        else
-                        {
-                            // TODO: Extracted from a container?
-                            //throw new Exception("TODO");
-                            // Killed container
-                        }
-                    }
-                    if (targetUnit.IsDead())
-                    {
-                        // Unit extracted remove unit
-                        Move deleteMove = new Move();
-                        deleteMove.PlayerId = targetUnit.Owner.PlayerModel.Id;
-                        deleteMove.MoveType = MoveType.Delete;
-                        deleteMove.Positions = new List<Position>();
-                        deleteMove.Positions.Add(targetUnit.Pos);
-                        deleteMove.UnitId = targetUnit.UnitId;
-                        moves.Add(deleteMove);
-
-                        game.Map.Units.Remove(targetUnit.Pos);
-                    }*/
                 }
             }
 

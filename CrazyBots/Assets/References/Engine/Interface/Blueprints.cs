@@ -68,7 +68,7 @@ namespace Engine.Interface
             blueprint.Parts.Add(new BlueprintPart("Engine"));
             blueprint.Parts.Add(new BlueprintPart("Container", 12));
             blueprint.Parts.Add(new BlueprintPart("Extractor"));
-            blueprint.Parts.Add(new BlueprintPart("Armor"));
+            blueprint.Parts.Add(new BlueprintPart("Radar"));
             Items.Add(blueprint);
 
             // Fighter
@@ -151,6 +151,8 @@ namespace Engine.Interface
                 PartType = "Weapon";
             if (Name.Contains("Reactor"))
                 PartType = "Reactor";
+            if (Name.Contains("Radar"))
+                PartType = "Radar";
             Level = 1;
         }
 

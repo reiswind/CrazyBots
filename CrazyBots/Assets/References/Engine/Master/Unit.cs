@@ -131,32 +131,33 @@ namespace Engine.Master
             if (Container != null)
             {
                 mineral += Container.Mineral;
-                mineral++;
+                mineral += Container.Level;
             }
 
             // Every part is one metal
-            if (Engine != null) mineral++;
-            if (Armor != null) mineral++;
+            if (Engine != null) mineral += Engine.Level;
+            if (Armor != null) mineral += Armor.Level;
             if (Weapon != null)
             {
                 if (Weapon.Container != null)
                     mineral += Weapon.Container.Mineral;
-                mineral++;
+                mineral += Weapon.Level;
             }
             if (Assembler != null)
             {
                 if (Assembler.Container != null)
                     mineral += Assembler.Container.Mineral;
-                mineral++;
+                mineral += Assembler.Level;
             }
             if (Extractor != null) mineral++;
             if (Reactor != null)
             {
                 if (Reactor.Container != null)
                     mineral += Reactor.Container.Mineral;
-                mineral++;
+                mineral+= Reactor.Level;
             }
-            if (Radar != null) mineral++;
+            if (Radar != null)
+                mineral+= Radar.Level;
 
             return mineral;
         }
@@ -190,33 +191,29 @@ namespace Engine.Master
         public int CountCapacity()
         {
             int capacity = 0;
-            if (Engine == null)
-            {
-                if (Container != null) capacity += Container.Capacity;
+            if (Container != null) 
+                capacity += Container.Capacity;
 
-                if (Weapon != null)
-                {
-                    if (Weapon.Container != null)
-                    {
-                        if (Weapon.Container.Capacity > 1)
-                            capacity += Weapon.Container.Capacity;
-                    }
-                }
-                if (Assembler != null)
-                {
-                    if (Assembler.Container != null)
-                        capacity += Assembler.Container.Capacity;
-                }
-                if (Reactor != null)
-                {
-                    if (Reactor.Container != null)
-                        capacity += Reactor.Container.Capacity;
-                }
+            if (Weapon != null)
+            {
+                if (Weapon.Container != null)
+                    capacity += Weapon.Container.Capacity;
             }
+            if (Assembler != null)
+            {
+                if (Assembler.Container != null)
+                    capacity += Assembler.Container.Capacity;
+            }
+            if (Reactor != null)
+            {
+                if (Reactor.Container != null)
+                    capacity += Reactor.Container.Capacity;
+            }
+            
             return capacity;
         }
 
-        public bool IsComplete()
+        public int CountParts()
         {
             int parts = 0;
 
@@ -229,7 +226,12 @@ namespace Engine.Master
             if (Reactor != null) parts += Reactor.Level;
             if (Radar != null) parts += Radar.Level;
 
-            return parts >= 4;
+            return parts;
+        }
+
+        public bool IsComplete()
+        {
+            return CountParts() >= 4;
         }
 
         public bool HasParts()

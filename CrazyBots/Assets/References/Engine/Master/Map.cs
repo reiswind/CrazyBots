@@ -161,7 +161,7 @@ namespace Engine.Master
         {
             get
             {
-                return Zones.Count * 40;
+                return (Zones.Count-1) * 40;
             }
         }
 
@@ -565,7 +565,10 @@ namespace Engine.Master
                     }
                 }
             }
-
+            if (overflowMinerals > 0)
+            {
+                int xxx = 0;
+            }
             /*
             int minX, minY;
 

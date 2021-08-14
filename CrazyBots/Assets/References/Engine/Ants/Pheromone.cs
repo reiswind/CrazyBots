@@ -106,7 +106,7 @@ namespace Engine.Ants
                 Pheromone pheromone = pheromoneStackItem.Pheromone;
                 if (!pheromone.PheromoneItems.Remove(pheromoneStackItem.PheromoneItem))
                 {
-                    int x = 0;
+
                 }
                 if (pheromone.PheromoneItems.Count == 0)
                 {

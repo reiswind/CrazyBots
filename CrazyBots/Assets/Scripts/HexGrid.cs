@@ -55,10 +55,10 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-		UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
 
 		GameModel gameModel;
 
@@ -286,50 +286,7 @@ public class HexGrid : MonoBehaviour
 		BaseUnits = new Dictionary<string, UnitBase>();
 		UnitsInBuild = new Dictionary<Position, UnitBase>();
 
-		/*
-		AddRock("Rock Type1 01", obstacles, 0.8f);
-		AddRock("Rock Type1 02", obstacles, 0.8f);
-		AddRock("Rock Type5 02", obstacles, 0.3f);
-		AddRock("Rock Type3 02", obstacles, 0.8f);
-		AddRock("Rock Type6 04", obstacles, 0.8f);
-
-		AddTree("Tree Type0 03", smallTrees, 0.2f);
-		AddTree("Tree Type2 05", smallTrees, 0.2f);
-		AddTree("Tree Type2 02", smallTrees, 0.2f);
-		AddTree("Tree Type4 04", smallTrees, 0.2f);
-		AddTree("Tree Type4 05", smallTrees, 0.2f);
-		AddTree("Tree Type0 02", smallTrees, 0.2f);
-
-		AddRock("Rock Type1 01", smallRocks, 0.3f);
-		AddRock("Rock Type1 02", smallRocks, 0.3f);
-		AddRock("Rock Type1 03", smallRocks, 0.3f);
-		AddRock("Rock Type1 04", smallRocks, 0.3f);
-
-		AddRock("Rock Type2 01", smallRocks, 0.3f);
-		AddRock("Rock Type2 02", smallRocks, 0.3f);
-		AddRock("Rock Type2 03", smallRocks, 0.3f);
-		AddRock("Rock Type2 04", smallRocks, 0.3f);
-
-		AddRock("Rock Type3 01", smallRocks, 0.3f);
-		AddRock("Rock Type3 02", smallRocks, 0.3f);
-		AddRock("Rock Type3 03", smallRocks, 0.3f);
-		AddRock("Rock Type3 04", smallRocks, 0.3f);
-
-		AddRock("Rock Type4 01", smallRocks, 0.3f);
-		AddRock("Rock Type4 02", smallRocks, 0.3f);
-		AddRock("Rock Type4 03", smallRocks, 0.3f);
-		AddRock("Rock Type4 04", smallRocks, 0.3f);
-
-		AddRock("Rock Type3 01", smallRocks, 0.3f);
-		AddRock("Rock Type3 02", smallRocks, 0.3f);
-		AddRock("Rock Type3 03", smallRocks, 0.3f);
-		AddRock("Rock Type3 04", smallRocks, 0.3f);
-
-		AddTree("Tree Type7 01", smallRocks, 0.35f);
-		AddTree("Tree Type7 02", smallRocks, 0.35f);
-		AddTree("Tree Type7 03", smallRocks, 0.35f);
-		AddTree("Tree Type7 04", smallRocks, 0.35f);
-		*/
+		
 		GameObject cellPrefab = GetTerrainResource("HexCell 2");
 
 		//foreach (MapSector mapSector in game.Map.Sectors.Values)
@@ -701,10 +658,10 @@ public class HexGrid : MonoBehaviour
 			}
 			else if (move.MoveType == MoveType.Upgrade)
 			{
-				if (BaseUnits.ContainsKey(move.OtherUnitId))
+				if (BaseUnits.ContainsKey(move.UnitId))
 				{
 					// 
-					UnitBase unit = BaseUnits[move.OtherUnitId];
+					UnitBase unit = BaseUnits[move.UnitId];
 					unit.Upgrade(move);
 				}
 

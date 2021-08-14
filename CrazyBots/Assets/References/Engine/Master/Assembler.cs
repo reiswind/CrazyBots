@@ -43,7 +43,7 @@ namespace Engine.Master
             //Container.Metal = 4;
         }
 
-        public void ConsumeMetalForUnit(Unit unit)
+        public void ConsumeMetalForUnit()
         {
             if (Unit.Container != null && Unit.Container.Mineral > 0)
             {
@@ -102,8 +102,8 @@ namespace Engine.Master
             move.Positions.Add(Unit.Pos);
             move.Positions.Add(pos);
             move.PlayerId = Unit.Owner.PlayerModel.Id;
-            move.UnitId = blueprintPart.PartType + level;
-            move.OtherUnitId = Unit.UnitId;
+            move.UnitId = upgradedUnit.UnitId;
+            move.OtherUnitId = blueprintPart.PartType + level;
 
             return move;
         }
@@ -239,12 +239,22 @@ namespace Engine.Master
 
             foreach (TileWithDistance neighbor in neighbors.Values)
             {
-                if (Unit.Owner.UnitsInBuild.ContainsKey(neighbor.Tile.Pos))
-                    /*
-                    neighbor.Tile.UnitInBuild != null &&
-                    neighbor.Tile.UnitInBuild.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)*/
+                PlayerUnit playerUnitNeighbor = null;
+                foreach (PlayerUnit playerUnit1 in Unit.Owner.UnitsInBuild.Values)
                 {
-                    PlayerUnit playerUnit = Unit.Owner.UnitsInBuild[neighbor.Tile.Pos];
+                    if (playerUnit1.Unit.Pos == neighbor.Tile.Pos)
+                    {
+                        playerUnitNeighbor = playerUnit1;
+                        break;
+                    }
+                }
+
+                if (playerUnitNeighbor != null)
+                /*
+                neighbor.Tile.UnitInBuild != null &&
+                neighbor.Tile.UnitInBuild.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)*/
+                {
+                    PlayerUnit playerUnit = Unit.Owner.UnitsInBuild[playerUnitNeighbor.Unit.UnitId];
                     if (playerUnit.Unit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
                     {
                         if ((moveFilter & MoveFilter.Assemble) > 0)
@@ -258,7 +268,7 @@ namespace Engine.Master
                             {
                                 if (!playerUnit.Unit.IsInstalled(blueprintPart, blueprintPart.Level))
                                 {
-                                    possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, neighbor.Unit, blueprintPart));
+                                    possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, playerUnit.Unit, blueprintPart));
                                     return;
                                 }
                             }
