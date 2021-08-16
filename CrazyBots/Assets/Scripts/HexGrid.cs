@@ -55,10 +55,11 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 		GameModel gameModel;
 
@@ -72,10 +73,6 @@ public class HexGrid : MonoBehaviour
 
 			MemoryStream mem = new MemoryStream(Encoding.UTF8.GetBytes(gameModelContent.ToString()));
 			gameModel = (GameModel)serializer.ReadObject(mem);
-
-			gameModel.MapHeight = gridWidth;
-			gameModel.MapWidth = gridHeight;
-
 		}
 		else
 		{
@@ -106,9 +103,7 @@ public class HexGrid : MonoBehaviour
 				strategyCamera.JumpTo(this, game.Players[1].StartZone.Center);
 			}
 		}
-
 		InvokeRepeating(nameof(invoke), 0.5f, GameSpeed);
-
 	}
 
 	/*
@@ -603,16 +598,18 @@ public class HexGrid : MonoBehaviour
 					if (move.MoveType == MoveType.Extract)
 					{
 						UnitBase otherUnit = null;
-						if (move.OtherUnitId == "Enemy")
+						if (move.OtherUnitId.StartsWith("unit")) 
 						{
 							foreach (UnitBase allUnits in BaseUnits.Values)
 							{
-								if (allUnits.CurrentPos == move.Positions[1])
+								//if (allUnits.CurrentPos == move.Positions[1])
+								if (allUnits.UnitId == move.OtherUnitId)
 								{
 									otherUnit = allUnits;
 									break;
 								}
 							}
+							/*
 							if (otherUnit == null)
 							{
 								foreach (UnitBase allUnits in deletedUnits)
@@ -623,7 +620,7 @@ public class HexGrid : MonoBehaviour
 										break;
 									}
 								}
-							}
+							}*/
 						}
 						unit.Extract(move, otherUnit);
 					}
@@ -691,7 +688,7 @@ public class HexGrid : MonoBehaviour
 				if (BaseUnits.ContainsKey(move.UnitId))
 				{
 					UnitBase unit = BaseUnits[move.UnitId];
-					//unit.Delete();
+					unit.Delete();
 					deletedUnits.Add(unit);
 					BaseUnits.Remove(move.UnitId);
 				}

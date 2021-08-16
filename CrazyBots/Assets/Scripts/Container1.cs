@@ -35,7 +35,7 @@ public class MineralContainer
 
     public void UpdateContent(HexGrid hexGrid, GameObject gameObject, int? minerals, int? capacity)
     {
-        if (capacity.HasValue && capacity <= 0)
+        if (capacity.HasValue && capacity <= 0) 
             return;
 
         if (minerals.HasValue && minerals < 0)

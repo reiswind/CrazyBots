@@ -633,6 +633,10 @@ public class UnitBase : MonoBehaviour
             UnitBasePart unitBasePart = unitBaseParts[i];
             if (unitBasePart.PartType == hitPart)
             {
+                GroundCell currentCell = HexGrid.GroundCells[CurrentPos];
+                unitBasePart.Part.transform.SetParent(currentCell.transform, true);
+
+
                 Rigidbody otherRigid = unitBasePart.Part.GetComponent<Rigidbody>();
 
                 if (otherRigid != null)
@@ -640,13 +644,13 @@ public class UnitBase : MonoBehaviour
                     otherRigid.isKinematic = false;
                     
                     Vector3 vector3 = new Vector3();
-                    vector3.y = Random.value * 6;
-                    vector3.x = Random.value * 3;
-                    vector3.z = Random.value * 3;
-                    
+                    vector3.y = 5;
+                    vector3.x = Random.value;
+                    vector3.z = Random.value;
 
-                    otherRigid.rotation = Random.rotation;
+
                     otherRigid.velocity = vector3;
+                    otherRigid.rotation = Random.rotation;
                 }
 
                 ParticleSystem particleSource;
@@ -656,9 +660,15 @@ public class UnitBase : MonoBehaviour
                 particleSource.Play();
                 HexGrid.Destroy(particleSource, 2f);
 
+                Container1 container = unitBasePart.Part.GetComponent<Container1>();
+                if (container != null)
+                {
+                    container.UpdateContent(HexGrid, 0, 1);
+                }
+
                 unitBasePart.Destroyed = true;
                 SetPlayerColor(HexGrid, 0, unitBasePart.Part);
-                Destroy(unitBasePart.Part, 3);
+                Destroy(unitBasePart.Part, 8);
                 unitBaseParts.Remove(unitBasePart);
                 break;
             }
@@ -866,12 +876,12 @@ public class UnitBase : MonoBehaviour
                         Container1 container = unitBasePart.Part.GetComponent<Container1>();
                         if (container != null)
                         {
-                            totalMinerals = moveUpdateUnitPart.Minerals;
-                            totalCapacity = moveUpdateUnitPart.Capacity;
-
+                            if (!unitBasePart.Destroyed)
+                            {
+                                totalMinerals = moveUpdateUnitPart.Minerals;
+                                totalCapacity = moveUpdateUnitPart.Capacity;
+                            }
                             Container.Add(container);
-
-                            //container.UpdateContent(HexGrid, moveUpdateUnitPart.Minerals, moveUpdateUnitPart.Capacity);
                         }
                         Extractor1 extractor = unitBasePart.Part.GetComponent<Extractor1>();
                         if (extractor != null)
