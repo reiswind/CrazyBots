@@ -992,13 +992,16 @@ namespace Engine.Ants
                             if (cntrlUnit.Assembler.Container.Mineral <= 1)
                             {
                                 // Command complete
-                                Move commandMove = new Move();
-                                commandMove.MoveType = MoveType.CommandComplete;
-                                commandMove.UnitId = cntrlUnit.UnitId;
-                                commandMove.PlayerId = player.PlayerModel.Id;
-                                commandMove.Positions = new List<Position>();
-                                commandMove.Positions.Add(PlayerUnit.Unit.CurrentGameCommand.TargetPosition);
-                                moves.Add(commandMove);
+                                if (PlayerUnit.Unit.CurrentGameCommand != null)
+                                {
+                                    Move commandMove = new Move();
+                                    commandMove.MoveType = MoveType.CommandComplete;
+                                    commandMove.UnitId = cntrlUnit.UnitId;
+                                    commandMove.PlayerId = player.PlayerModel.Id;
+                                    commandMove.Positions = new List<Position>();
+                                    commandMove.Positions.Add(PlayerUnit.Unit.CurrentGameCommand.TargetPosition);
+                                    moves.Add(commandMove);
+                                }
                                 PlayerUnit.Unit.CurrentGameCommand = null;
 
                                 // Extract the unit

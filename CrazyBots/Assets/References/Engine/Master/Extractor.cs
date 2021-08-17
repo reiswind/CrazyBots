@@ -34,12 +34,10 @@ namespace Engine.Master
         public Dictionary<Position, TileWithDistance> CollectExtractionTiles()
         {
             return Unit.Game.Map.EnumerateTiles(Unit.Pos, MetalCollectionRange, false);
-
         }
 
         public Dictionary<Position, TileWithDistance> CollectTilesWithMetal()
         {
-
             return Unit.Game.Map.EnumerateTiles(Unit.Pos, MetalCollectionRange, false, matcher: tile => 
             {
                 if (tile.Unit != null)
@@ -66,7 +64,6 @@ namespace Engine.Master
                 return false;
 
             });
-
         }
 
         public int CountAvailableMetal()
@@ -337,7 +334,7 @@ namespace Engine.Master
         }
 
 
-        public bool ExtractInto(Position from, List<Move> moves, Game game, string groundType)
+        public bool ExtractInto(Position from, List<Bullet> hitByBullet, Game game, string groundType)
         {
             Tile fromTile = Unit.Game.Map.GetTile(from);
 
@@ -467,12 +464,18 @@ namespace Engine.Master
 
                     if (fromTile.Unit.ExtractMe && canExtractMore)
                     {
-                        game.HitByBullet(fromTile.Pos, moves);
+                        Bullet bullet = new Bullet();
+                        bullet.Target = fromTile.Pos;
+                        bullet.BulletType = "Extract";
+                        hitByBullet.Add(bullet);
                     }
                 }
                 else
                 {
-                    game.HitByBullet(fromTile.Pos, moves);
+                    Bullet bullet = new Bullet();
+                    bullet.Target = fromTile.Pos;
+                    bullet.BulletType = "Extract";
+                    hitByBullet.Add(bullet);
                 }
             }
 

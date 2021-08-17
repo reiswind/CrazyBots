@@ -88,49 +88,10 @@ namespace Engine.Ants
                     }
                 }
             }
-
-            if (cntrlUnit.Container != null)
-            {
-                List<Move> possiblemoves = new List<Move>();
-                cntrlUnit.Container.ComputePossibleMoves(possiblemoves, null, MoveFilter.Transport);
-                if (possiblemoves.Count > 0)
-                {
-                    foreach (Move possibleMove in possiblemoves)
-                    {
-                        bool skipMove = false;
-
-                        foreach (Move intendedMove in moves)
-                        {
-                            if (intendedMove.MoveType == MoveType.Extract)
-                            {
-                                if (intendedMove.Positions[0] == possibleMove.Positions[1])
-                                {
-                                    // Unit is currently extracting, no need to fill it
-                                    skipMove = true;
-                                    break;
-                                }
-                            }
-                            if (intendedMove.MoveType == MoveType.Transport)
-                            {
-                                if (intendedMove.Positions[1] == possibleMove.Positions[1])
-                                {
-                                    // Unit is filled by transport
-                                    skipMove = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (skipMove)
-                            continue;
-
-                        moves.Add(possibleMove);
-                        return true;
-                    }
-                }
-            }
-
             return unitMoved;
         }
+
+        
     }
 
 }

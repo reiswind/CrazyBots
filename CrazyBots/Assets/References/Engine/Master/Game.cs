@@ -438,18 +438,36 @@ namespace Engine.Master
             {
                 if (move.MoveType == MoveType.Upgrade)
                 {
-                    Unit newUnit = Map.Units.GetUnitAt(move.Positions[1]);
-                    if (newUnit == null)
+                    Unit factory = Map.Units.GetUnitAt(move.Positions[0]);
+                    if (factory == null || factory.Assembler == null)
                     {
-                        Player player = Players[move.PlayerId];
+                        move.MoveType = MoveType.Skip;
+                    }
+                    else
+                    {
+                        Unit newUnit = Map.Units.GetUnitAt(move.Positions[1]);
 
-                        if (player.UnitsInBuild.ContainsKey(move.UnitId)) //move.Positions[1]))
+                        if (newUnit == null)
                         {
-                            // From under construction to real unit
-                            PlayerUnit playerUnit = player.UnitsInBuild[move.UnitId];
-                            //player.UnitsInBuild.Remove(move.UnitId);
-                            playerUnit.Unit.IsGhost = false;
-                            addedUnits.Add(playerUnit.Unit);
+                            Player player = Players[move.PlayerId];
+
+                            if (player.UnitsInBuild.ContainsKey(move.UnitId)) //move.Positions[1]))
+                            {
+                                // From under construction to real unit
+                                PlayerUnit playerUnit = player.UnitsInBuild[move.UnitId];
+                                newUnit = playerUnit.Unit;
+                                playerUnit.Unit.IsGhost = false;
+                                addedUnits.Add(playerUnit.Unit);
+                            }
+                        }
+                        if (newUnit != null)
+                        {
+                            factory.Assembler.ConsumeMetalForUnit();
+
+                            newUnit.Upgrade(move.OtherUnitId);
+
+                            if (!changedUnits.ContainsKey(newUnit.Pos))
+                                changedUnits.Add(newUnit.Pos, newUnit);
                         }
                     }
                 }
@@ -469,6 +487,16 @@ namespace Engine.Master
 
                     if (move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
                     {
+                        if (move.MoveType == MoveType.Build)
+                        {
+                            Unit factory = Map.Units.GetUnitAt(move.Positions[0]);
+                            if (factory == null || factory.Assembler == null)
+                            {
+                                move.MoveType = MoveType.Skip;
+                                continue;
+                            }
+                        }
+
                         // New units will be added here
                         int? containerNetal = null;
                         bool markForExtraction = false;
@@ -677,9 +705,30 @@ namespace Engine.Master
             }
         }
 
-        internal void HitByBullet(Position pos, List<Move> nextMoves)
+        internal void HitByBullet(Bullet bullet, List<Move> nextMoves)
         {
-            Unit targetUnit = Map.Units.GetUnitAt(pos);
+            Position pos = bullet.Target;
+
+            Tile targetTile = GetTile(pos);
+            if (targetTile.NumberOfDestructables > 0)
+            {
+                //targetTile.Height += 0.1f;
+                targetTile.NumberOfDestructables--;
+            }          
+            
+            if (bullet.BulletType == "Mineral")
+            {
+                targetTile.AddMinerals(1);
+            }
+            else
+            {
+                targetTile.Height += 0.1f;
+            }
+            
+            if (!changedGroundPositions.ContainsKey(pos))
+                changedGroundPositions.Add(pos, null);
+
+            Unit targetUnit = targetTile.Unit;
             if (targetUnit != null)
             {
                 int totalMetalInUnitBeforeHit = targetUnit.CountMineral();
@@ -712,25 +761,12 @@ namespace Engine.Master
                     }
                     int releasedMetal = totalMetalInUnitBeforeHit - totalMetalAfterUnit;
 
-                    Tile unitTile = GetTile(targetUnit.Pos);
-                    unitTile.AddMinerals(releasedMetal);
+                    targetTile.AddMinerals(releasedMetal);
 
                     if (releasedMetal > 1)
                     {
                         targetUnit.RemoveMinerals(releasedMetal - 1);
                     }
-
-
-                    if (!changedGroundPositions.ContainsKey(unitTile.Pos))
-                        changedGroundPositions.Add(unitTile.Pos, null);
-
-                    // Where to put the Ammo?
-
-                    // Assume dirt
-                    //unitTile.Height += 0.1f;
-                    //unitTile.Metal++;
-                    //unitTile.AddMinerals(1);
-                    //Map.DistributeMineral(); // Bullet
 
                     if (targetUnit.IsDead())
                     {
@@ -746,29 +782,7 @@ namespace Engine.Master
                         Map.Units.Remove(targetUnit.Pos);
                     }
                 }
-                if (!changedGroundPositions.ContainsKey(pos))
-                    changedGroundPositions.Add(pos, null);
             }
-            else
-            {
-                /* NOW: Dirt
-                if (firstHit)
-                    Map.DistributeMineral(); // Bullet
-                */
-                Tile targetTile = Map.GetTile(pos);
-                if (targetTile.NumberOfDestructables > 0)
-                {
-                    //targetTile.Height += 0.1f;
-                    targetTile.NumberOfDestructables--;
-                }
-                else
-                {
-                    targetTile.Height += 0.1f;
-                }
-                if (!changedGroundPositions.ContainsKey(pos))
-                    changedGroundPositions.Add(pos, null);
-            }
-
         }
 
         private void LogMoves(string header, int moveNr, List<Move> moves)
@@ -1007,65 +1021,20 @@ namespace Engine.Master
             {
                 if (move.MoveType == MoveType.Build || move.MoveType == MoveType.Add)
                 {
-                    Unit factory = Map.Units.GetUnitAt(move.Positions[0]);
-                    Unit newUnit = null;
-                    if (move.Positions.Count > 1)
-                        newUnit = Map.Units.GetUnitAt(move.Positions[1]);
-
-                    if (factory != null && newUnit != null)
-                    {
-                        // Never called
-                        factory.Assembler.ConsumeMetalForUnit();
-
-                        if (!changedUnits.ContainsKey(factory.Pos))
-                            changedUnits.Add(factory.Pos, factory);
-                    }
                     lastMoves.Add(move);
                 }
                 else if (move.MoveType == MoveType.Upgrade)
                 {
-                    Unit factory = Map.Units.GetUnitAt(move.Positions[0]);
-                    Unit newUnit = null;
-                    if (move.Positions.Count > 1)
-                        newUnit = Map.Units.GetUnitAt(move.Positions[1]);
-
-                    if (factory != null && factory.Assembler != null && newUnit != null)
-                    {
-                        // May have no metal.. what than? Unit has been upgraded.
-                        factory.Assembler.ConsumeMetalForUnit();
-
-                        if (!changedUnits.ContainsKey(factory.Pos))
-                            changedUnits.Add(factory.Pos, factory);
-                    }
-                    else
-                    {
-                        // happend
-                    }
-
-                    if (newUnit == null)
-                    {
-                        if (move.OtherUnitId == "RemoveContainerAndUpgradeAssembler")
-                        {
-                            if (factory.Assembler != null)
-                            {
-                                factory.Assembler.Level++;
-                                factory.Container = null;
-
-                                move.Stats = factory.CollectStats();
-                                move.OtherUnitId = move.UnitId;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        newUnit.Upgrade(move.OtherUnitId);
-
-                        if (!changedUnits.ContainsKey(newUnit.Pos))
-                            changedUnits.Add(newUnit.Pos, newUnit);
-                    }
                     lastMoves.Add(move);
                 }
-                else if (move.MoveType == MoveType.Extract)
+                
+            }
+
+            List<Bullet> hitByBullet = new List<Bullet>();
+
+            foreach (Move move in newMoves)
+            {
+                if (move.MoveType == MoveType.Extract)
                 {
                     Unit unit = Map.Units.GetUnitAt(move.Positions[0]);
                     if (unit != null && unit.Extractor != null)
@@ -1073,7 +1042,7 @@ namespace Engine.Master
                         bool extracted = false;
 
                         Position fromPos = move.Positions[move.Positions.Count - 1];
-                        extracted = unit.Extractor.ExtractInto(fromPos, lastMoves, this, move.OtherUnitId);
+                        extracted = unit.Extractor.ExtractInto(fromPos, hitByBullet, this, move.OtherUnitId);
 
                         if (extracted)
                         {
@@ -1102,23 +1071,28 @@ namespace Engine.Master
                     Unit fireingUnit = Map.Units.GetUnitAt(move.Positions[0]);
                     if (fireingUnit != null && fireingUnit.Weapon != null)
                     {
+                        Bullet bullet = new Bullet();
+                        bullet.Target = move.Positions[1];
+
                         if (fireingUnit.Weapon.Container != null && fireingUnit.Weapon.Container.Dirt > 0)
                         {
+                            bullet.BulletType = "Dirt";
                             fireingUnit.Weapon.Container.Dirt--;
                         }
                         else if (fireingUnit.Container != null && fireingUnit.Container.Dirt > 0)
                         {
+                            bullet.BulletType = "Dirt";
                             fireingUnit.Container.Dirt--;
                         }
                         else if (fireingUnit.Weapon.Container != null && fireingUnit.Weapon.Container.Mineral > 0)
                         {
+                            bullet.BulletType = "Mineral";
                             fireingUnit.Weapon.Container.Mineral--;
-                            Map.DistributeMineral(); 
                         }
                         else if (fireingUnit.Container != null && fireingUnit.Container.Mineral > 0)
                         {
+                            bullet.BulletType = "Mineral";
                             fireingUnit.Container.Mineral--;
-                            Map.DistributeMineral();
                         }
                         else
                             throw new Exception();
@@ -1126,10 +1100,12 @@ namespace Engine.Master
 
                         if (!changedUnits.ContainsKey(fireingUnit.Pos))
                             changedUnits.Add(fireingUnit.Pos, fireingUnit);
+
+                        hitByBullet.Add(bullet);
+
+                        move.OtherUnitId = bullet.BulletType;
+                        lastMoves.Add(move);
                     }
-                    // First hit, than delete, than fire?
-                    HitByBullet(move.Positions[1], lastMoves);
-                    lastMoves.Add(move);
                 }
                 else if (move.MoveType == MoveType.Transport)
                 {
@@ -1139,49 +1115,25 @@ namespace Engine.Master
                         if (sendingUnit.Container != null && sendingUnit.Container.Mineral > 0)
                         {
                             sendingUnit.Container.Mineral--;
+                            move.Stats = sendingUnit.CollectStats();
                         }
                         else
-                            throw new Exception();
-                        move.Stats = sendingUnit.CollectStats();
+                        {
+                            move.MoveType = MoveType.Skip;
+                        }
 
                         if (!changedUnits.ContainsKey(sendingUnit.Pos))
                             changedUnits.Add(sendingUnit.Pos, sendingUnit);
                     }
                     lastMoves.Add(move);
                 }
-                else if (move.MoveType == MoveType.Move)
-                {
-                    //lastMoves.Add(move);
-                    /*
-                    Unit toUnit = Map.Units.GetUnitAt(move.Positions[1]);
-                    if (toUnit == null)
-                    {
-                        foreach (Move checkMove in lastMoves)
-                        {
-                            if (checkMove.MoveType == MoveType.Delete &&
-                                checkMove.UnitId == move.UnitId)
-                            {
-                                // Unit wanted to move, but was killed on its way
-                                int x = 0;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (toUnit.UnitId != move.UnitId)
-                        {
-                            throw new Exception("Wrong move");
-                        }
-                        lastMoves.Add(move);
-                    }*/
-                }
-                /*
-                if (move.MoveType != MoveType.None &&
-                    move.MoveType != MoveType.Skip)
-                {
-                    lastMoves.Add(move);
-                }*/
             }
+
+            foreach (Bullet bullet in hitByBullet)
+            {
+                HitByBullet(bullet, lastMoves);
+            }
+
             newMoves.Clear();
         }
 

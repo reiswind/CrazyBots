@@ -9,6 +9,12 @@ using System.Threading.Tasks;
 
 namespace Engine.Interface
 {
+    public class Bullet
+    {
+        public string BulletType { get; set; }
+        public Position Target { get; set; }
+    }
+
     public class AbilityBullet : Ability
     {
         //public  AbilityBulletModel Model;

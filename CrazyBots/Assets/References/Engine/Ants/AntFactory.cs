@@ -21,9 +21,11 @@ namespace Engine.Ants
             bool unitMoved = false;
 
             Unit cntrlUnit = PlayerUnit.Unit;
-            bool addContainer = false;           
+            bool addContainer = false;
 
-            int totalMetalInPercent = (Control.MapPlayerInfo.TotalMetal * 100) / Control.MapPlayerInfo.TotalCapacity;
+            int totalMetalInPercent = 0;
+            if (Control.MapPlayerInfo.TotalCapacity > 0)
+                totalMetalInPercent = (Control.MapPlayerInfo.TotalMetal * 100) / Control.MapPlayerInfo.TotalCapacity;
             int workerInPercent = (Control.NumberOfWorkers * 100) / Control.MapPlayerInfo.TotalUnits;
             bool addWorker = false;
             bool addAssembler = false;
@@ -33,7 +35,7 @@ namespace Engine.Ants
                 cntrlUnit.Assembler != null &&
                 cntrlUnit.Assembler.BuildQueue == null)
             {
-                if (workerInPercent < 10 || Control.NumberOfWorkers < 5)
+                if (workerInPercent < 10 || Control.NumberOfWorkers < (Control.NumberOfAssembler * 2))
                     addWorker = true;
 
                 //if (addWorker == false && Control.NumberOfAssembler < Control.MaxAssembler)
@@ -41,7 +43,7 @@ namespace Engine.Ants
 
                 int powerPerUnit = Control.MapPlayerInfo.TotalPower / Control.MapPlayerInfo.TotalUnits;
 
-                if (addWorker == false && totalMetalInPercent > 10 && powerPerUnit > 30)
+                if (addWorker == false && totalMetalInPercent > 10 && powerPerUnit > 50 && Control.NumberOfFighter <= 10)
                     addFighter = true;
             }
             if (cntrlUnit.Assembler != null)
@@ -138,6 +140,10 @@ namespace Engine.Ants
                                     }
                                     else
                                     {
+                                        // hmmmm
+                                        addFighter = false;
+                                        addWorker = false;
+
                                         // Build an assembler to move there
                                         if ("Assembler" == possibleMove.UnitId)
                                         {
@@ -200,6 +206,19 @@ namespace Engine.Ants
                                 Move move = possibleMoves[idx];
                                 moves.Add(move);
 
+                                if (move.UnitId == "Assembler")
+                                {
+                                    AntWorker antWorker = new AntWorker(Control);
+                                    antWorker.AntWorkerType = AntWorkerType.Assembler;
+                                    Control.CreatedAnts.Add(move.Positions[1], antWorker);
+
+                                    if (selectedGameCommand != null && selectedGameCommand.GameCommandType == GameCommandType.Build)
+                                    {
+                                        antWorker.GameCommandDuringCreation = selectedGameCommand;
+                                        player.GameCommands.Remove(selectedGameCommand);
+                                    }
+                                }
+                                /*
                                 if (addContainer)
                                 {
                                     AntContainer antContainer = new AntContainer(Control);
@@ -211,7 +230,8 @@ namespace Engine.Ants
                                         player.GameCommands.Remove(selectedGameCommand);
                                     }
                                 }
-                                else if (addAssembler)
+                                else
+                                if (addAssembler)
                                 {
                                     AntWorker antWorker = new AntWorker(Control);
                                     antWorker.AntWorkerType = AntWorkerType.Assembler;
@@ -223,15 +243,15 @@ namespace Engine.Ants
                                         antWorker.GameCommandDuringCreation = selectedGameCommand;
                                         player.GameCommands.Remove(selectedGameCommand);
                                     }
-                                }
-                                else if (addWorker)
+                                }*/
+                                else if (move.UnitId == "Worker")
                                 {
                                     AntWorker antWorker = new AntWorker(Control);
                                     antWorker.AntWorkerType = AntWorkerType.Worker;
                                     Control.NumberOfWorkers++;
                                     Control.CreatedAnts.Add(move.Positions[1], antWorker);
 
-                                    if (selectedGameCommand != null)
+                                    if (selectedGameCommand != null && selectedGameCommand.GameCommandType == GameCommandType.Collect)
                                     {
                                         antWorker.GameCommandDuringCreation = selectedGameCommand;
                                         player.GameCommands.Remove(selectedGameCommand);
@@ -250,14 +270,14 @@ namespace Engine.Ants
                                         }
                                     }*/
                                 }
-                                else if (addFighter)
+                                else if (move.UnitId == "Fighter" || move.UnitId.StartsWith("Bomber"))
                                 {
                                     AntWorker antWorker = new AntWorker(Control);
                                     antWorker.AntWorkerType = AntWorkerType.Fighter;
                                     Control.NumberOfFighter++;
                                     Control.CreatedAnts.Add(move.Positions[1], antWorker);
 
-                                    if (selectedGameCommand != null)
+                                    if (selectedGameCommand != null && selectedGameCommand.GameCommandType == GameCommandType.Attack)
                                     {
                                         antWorker.GameCommandDuringCreation = selectedGameCommand;
                                         player.GameCommands.Remove(selectedGameCommand);
@@ -278,15 +298,16 @@ namespace Engine.Ants
                                 }
                                 else
                                 {
+                                    /*
                                     AntWorker antWorker = new AntWorker(Control);
                                     antWorker.AntWorkerType = AntWorkerType.None;
                                     Control.CreatedAnts.Add(move.Positions[1], antWorker);
 
                                     if (selectedGameCommand != null)
                                     {
-                                        antWorker.PlayerUnit.Unit.CurrentGameCommand = selectedGameCommand;
+                                        antWorker.GameCommandDuringCreation = selectedGameCommand;
                                         player.GameCommands.Remove(selectedGameCommand);
-                                    }
+                                    }*/
                                 }
 
                                 unitMoved = true;

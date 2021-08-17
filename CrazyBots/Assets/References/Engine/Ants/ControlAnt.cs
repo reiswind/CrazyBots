@@ -29,6 +29,7 @@ namespace Engine.Control
         public int NumberOfWorkers;
         public int NumberOfFighter;
         public int NumberOfAssembler;
+        public int NumberOfReactors;
 
         public ControlAnt(IGameController gameController, PlayerModel playerModel, GameModel gameModel)
         {
@@ -884,7 +885,8 @@ namespace Engine.Control
             Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.Pos, 3, false, matcher: tile =>
             {
                 if (tile.Unit != null &&
-                    tile.Unit.Owner.PlayerModel.Id != player.PlayerModel.Id)
+                    tile.Unit.Owner.PlayerModel.Id != player.PlayerModel.Id &&
+                    tile.Unit.IsComplete())
                     return true;
                 return false;
             });
@@ -933,6 +935,13 @@ namespace Engine.Control
                     NumberOfFighter++;
                 if (antWorker.AntWorkerType == AntWorkerType.Assembler)
                     NumberOfAssembler++;
+            }
+            if (ant.PlayerUnit != null)
+            {
+                if (ant.PlayerUnit.Unit.Reactor != null)
+                {
+                    NumberOfReactors++;
+                }
             }
         }
 
@@ -1055,6 +1064,91 @@ namespace Engine.Control
             }
         }
 
+        private void BuildReactor(Player player)
+        {
+            List<Tile> possiblePositions = new List<Tile>();
+
+            // Find all reactors
+            foreach (Ant ant in Ants.Values)
+            {
+                if (ant.PlayerUnit != null && ant.PlayerUnit.Unit.Reactor != null)
+                {
+                    // Find build location
+                    Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.Pos, 6, false);
+                    foreach (TileWithDistance tileWithDistance in tiles.Values)
+                    {
+                        if (tileWithDistance.Distance < 6)
+                            continue;
+                        if (tileWithDistance.Tile.CanMoveTo(ant.PlayerUnit.Unit.Pos))
+                        {
+                            possiblePositions.Add(tileWithDistance.Tile);
+                        }
+                    }
+                }
+            }
+            if (possiblePositions.Count > 0)
+            {
+                int idx = player.Game.Random.Next(possiblePositions.Count);
+                Tile t = possiblePositions[idx];
+
+                GameCommand gameCommand = new GameCommand();
+                gameCommand.GameCommandType = GameCommandType.Build;
+                gameCommand.TargetPosition = t.Pos;
+                gameCommand.UnitId = "Outpost";
+
+                player.GameCommands.Add(gameCommand);
+
+            }
+        }
+
+
+        public bool CheckTransportMove(Ant ant, List<Move> moves)
+        {
+            bool unitMoved = false;
+            Unit cntrlUnit = ant.PlayerUnit.Unit;
+
+            if (cntrlUnit.Engine == null && cntrlUnit.Container != null)
+            {
+                List<Move> possiblemoves = new List<Move>();
+                cntrlUnit.Container.ComputePossibleMoves(possiblemoves, null, MoveFilter.Transport);
+                if (possiblemoves.Count > 0)
+                {
+                    foreach (Move possibleMove in possiblemoves)
+                    {
+                        bool skipMove = false;
+
+                        foreach (Move intendedMove in moves)
+                        {
+                            if (intendedMove.MoveType == MoveType.Extract)
+                            {
+                                if (intendedMove.Positions[0] == possibleMove.Positions[1])
+                                {
+                                    // Unit is currently extracting, no need to fill it
+                                    skipMove = true;
+                                    break;
+                                }
+                            }
+                            if (intendedMove.MoveType == MoveType.Transport)
+                            {
+                                if (intendedMove.Positions[1] == possibleMove.Positions[1])
+                                {
+                                    // Unit is filled by transport
+                                    skipMove = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (skipMove)
+                            continue;
+
+                        moves.Add(possibleMove);
+                        return true;
+                    }
+                }
+            }
+
+            return unitMoved;
+        }
 
         private static int moveNr;
         public MapPlayerInfo MapPlayerInfo { get; set; }
@@ -1235,6 +1329,8 @@ namespace Engine.Control
             NumberOfFighter = 0;
             NumberOfAssembler = 0;
 
+            NumberOfReactors = 0;
+
             List<Ant> movableAnts = new List<Ant>();
             List<Ant> killedAnts = new List<Ant>();
             List<Ant> unmovedAnts = new List<Ant>();
@@ -1277,13 +1373,10 @@ namespace Engine.Control
                             else
                             {
                                 if (ant.PlayerUnit.Unit.Reactor.AvailablePower == 0)
-                                //if (player.Game.Random.Next(2) == 0)
                                 {
                                     player.Game.Pheromones.DeletePheromones(ant.PheromoneDepositEnergy);
                                     ant.PheromoneDepositEnergy = 0;
                                 }
-                                //ant.PlayerUnit.Unit.Reactor.Power -= 0.01f;
-                                //player.Game.Pheromones.UpdatePheromones(ant.PheromoneDepositEnergy, ant.PlayerUnit.Unit.Reactor.Power, 0.2f);
                             }
                         }
                         movableAnts.Add(ant);
@@ -1322,6 +1415,35 @@ namespace Engine.Control
                 SacrificeAnt(unmovedAnts);
             }
 
+            if (NumberOfReactors <= 2 && NumberOfWorkers >= 2)
+            {
+                bool alreadyInProgress = false;
+                foreach (GameCommand gameCommand in player.GameCommands)
+                {
+                    if (gameCommand.GameCommandType == GameCommandType.Build &&
+                        gameCommand.UnitId.StartsWith("Outpost"))
+                    {
+                        alreadyInProgress = true;
+                        break;
+                    }
+                }
+                foreach (Ant ant in Ants.Values)
+                {
+                    if (ant.GameCommandDuringCreation != null &&
+                        ant.GameCommandDuringCreation.GameCommandType == GameCommandType.Build &&
+                        ant.GameCommandDuringCreation.UnitId.StartsWith("Outpost"))
+                    {
+                        alreadyInProgress = true;
+                        break;
+                    }
+                }
+                if (!alreadyInProgress)
+                {
+                    // Need more reactors
+                    BuildReactor(player);
+                }
+            }
+
             AttachGamecommands(player, unmovedAnts);
 
             foreach (Ant ant in unmovedAnts)
@@ -1358,6 +1480,10 @@ namespace Engine.Control
                 if (ant is AntContainer)
                 {
                     ant.Move(player, moves);
+                    movableAnts.Remove(ant);
+                }
+                if (CheckTransportMove(ant, moves))
+                {
                     movableAnts.Remove(ant);
                 }
             }
