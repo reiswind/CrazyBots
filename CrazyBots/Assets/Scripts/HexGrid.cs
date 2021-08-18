@@ -55,11 +55,11 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
-		UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 		GameModel gameModel;
 
@@ -567,9 +567,11 @@ public class HexGrid : MonoBehaviour
 				if (BaseUnits.ContainsKey(move.UnitId))
 				{
 					UnitBase unit = BaseUnits[move.UnitId];
+					/*
 					if (unit.PartsThatHaveBeenHit == null)
 						unit.PartsThatHaveBeenHit = new List<string>();
-					unit.PartsThatHaveBeenHit.Add(move.OtherUnitId);
+					unit.PartsThatHaveBeenHit.Add(move.OtherUnitId);*/
+					unit.PartExtracted(move.OtherUnitId);
 
 				}
 			}

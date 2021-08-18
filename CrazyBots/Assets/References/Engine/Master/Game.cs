@@ -703,6 +703,19 @@ namespace Engine.Master
             {
                 lastMoves.Add(move);
             }
+            // Compute the damage of the fire shots in the last round
+            foreach (Bullet bullet in hitByBullet)
+            {
+                HitByBullet(bullet, lastMoves);
+
+                /* Hit area
+                Tile targetTile = GetTile(bullet.Target);
+                foreach (Tile n in targetTile.Neighbors)
+                {
+                    bullet.Target = n.Pos;
+                    HitByBullet(bullet, lastMoves);
+                }*/
+            }
         }
 
         internal void HitByBullet(Bullet bullet, List<Move> nextMoves)
@@ -716,7 +729,11 @@ namespace Engine.Master
                 targetTile.NumberOfDestructables--;
             }          
             
-            if (bullet.BulletType == "Mineral")
+            if (bullet.BulletType == "Extract")
+            {
+                // Nothing
+            }
+            else if (bullet.BulletType == "Mineral")
             {
                 targetTile.AddMinerals(1);
             }
@@ -999,7 +1016,7 @@ namespace Engine.Master
             }
         }
 
-
+        private List<Bullet> hitByBullet = new List<Bullet>();
         /// <summary>
         /// All units have been put at their final destination after the moves.
         /// </summary>
@@ -1011,6 +1028,14 @@ namespace Engine.Master
             // Move all units to their new location
             foreach (Move move in newMoves)
             {
+                if (move.MoveType == MoveType.Hit)
+                {
+                    lastMoves.Add(move);
+                }
+                if (move.MoveType == MoveType.Delete)
+                {
+                    lastMoves.Add(move);
+                }
                 if (move.MoveType == MoveType.Move)
                 {
                     lastMoves.Add(move);
@@ -1030,7 +1055,8 @@ namespace Engine.Master
                 
             }
 
-            List<Bullet> hitByBullet = new List<Bullet>();
+            //List<Bullet> hitByBullet = new List<Bullet>();
+            hitByBullet.Clear();
 
             foreach (Move move in newMoves)
             {
@@ -1051,20 +1077,21 @@ namespace Engine.Master
 
                             if (!changedUnits.ContainsKey(unit.Pos))
                                 changedUnits.Add(unit.Pos, unit);
+
+                            lastMoves.Add(move);
                         }
                         else
                         {
                             // cloud not extract, ignore move
-                            move.MoveType = MoveType.Skip;
+                            //move.MoveType = MoveType.Skip;
                         }
                     }
                     else
                     {
                         // move failed
-                        move.MoveType = MoveType.Skip;
+                        //move.MoveType = MoveType.Skip;
                     }
-                    // First than hit, than delete, extract
-                    lastMoves.Add(move);
+
                 }
                 else if (move.MoveType == MoveType.Fire)
                 {
@@ -1125,15 +1152,16 @@ namespace Engine.Master
                         if (!changedUnits.ContainsKey(sendingUnit.Pos))
                             changedUnits.Add(sendingUnit.Pos, sendingUnit);
                     }
-                    lastMoves.Add(move);
+                    if (move.MoveType != MoveType.Skip)
+                        lastMoves.Add(move);
                 }
             }
-
+/*
             foreach (Bullet bullet in hitByBullet)
             {
                 HitByBullet(bullet, lastMoves);
             }
-
+*/
             newMoves.Clear();
         }
 

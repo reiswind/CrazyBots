@@ -29,6 +29,8 @@ public class Shell : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        Destroy(gameObject);
+
         Collider other = collision.collider;
         if (other == null || string.IsNullOrEmpty(other.name))
             return;
@@ -46,28 +48,28 @@ public class Shell : MonoBehaviour
         if (other.name.StartsWith("Ground"))
         {
             targetHit = true;
-            Destroy(gameObject);
 
             if (TargetUnitId != "Dirt" || TargetUnitId != "Destructable")
             {
-                if (HexGrid.BaseUnits.ContainsKey(TargetUnitId))
-                    hitUnit = HexGrid.BaseUnits[TargetUnitId];
+                //if (HexGrid.BaseUnits.ContainsKey(TargetUnitId))
+                //    hitUnit = HexGrid.BaseUnits[TargetUnitId];
             }
         }
         else if (hitUnit != null && hitUnit.UnitId == TargetUnitId)
         {
             targetHit = true;
-            Destroy(gameObject);
         }
         else
         {
+            targetHit = true;
         }
         if (targetHit)
         {
+            /*
             if (hitUnit != null)
             {
                 hitUnit.HitByShell(collision);
-            }
+            }*/
             m_ExplosionParticles.transform.parent = null;
 
             // Play the particle system.
@@ -76,17 +78,17 @@ public class Shell : MonoBehaviour
         }
     }
 
-    //private void OnTriggerEnter(Collider other)
-    //{
-        /*
+    private void OnTriggerEnter(Collider other)
+    {
+        
         if (other == null || string.IsNullOrEmpty(other.name))
             return;
-
+        /*
         Rigidbody otherRigid = other.GetComponent<Rigidbody>();
         if (otherRigid != null)
         {
             Vector3 velo = otherRigid.velocity;
-        }
+        }*/
 
 
         UnitBase hitUnit = GetUnitFrameFromCollider(other);
@@ -100,7 +102,8 @@ public class Shell : MonoBehaviour
 
             if (TargetUnitId != "Dirt" || TargetUnitId != "Destructable")
             {
-                if (HexGrid.BaseUnits.ContainsKey(TargetUnitId))
+                if (HexGrid.BaseUnits != null &&
+                    HexGrid.BaseUnits.ContainsKey(TargetUnitId))
                     hitUnit = HexGrid.BaseUnits[TargetUnitId];
             }
         }
@@ -114,6 +117,7 @@ public class Shell : MonoBehaviour
         }
         if (targetHit)
         {
+            
             if (hitUnit != null)
             {
                 hitUnit.HitByShell();
@@ -137,8 +141,8 @@ public class Shell : MonoBehaviour
             particleTarget.Play();
             */
 
-        //}
-    //}
+        }
+    }
 
     // Update is called once per frame
     void Update()

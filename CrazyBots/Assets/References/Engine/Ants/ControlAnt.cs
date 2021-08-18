@@ -1440,7 +1440,7 @@ namespace Engine.Control
                 if (!alreadyInProgress)
                 {
                     // Need more reactors
-                    BuildReactor(player);
+                    //BuildReactor(player);
                 }
             }
 

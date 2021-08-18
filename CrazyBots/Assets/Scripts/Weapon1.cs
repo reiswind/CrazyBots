@@ -15,8 +15,12 @@ public class Weapon1 : MonoBehaviour
         toPos.y = 0;
         var r = toPos.magnitude;
 
-        var g = -Physics.gravity.y;
+        float rpercent = r * 10; // / 100;
+        angle = 70 * rpercent / 100;
+        //if (r > 5)
+        //    angle = 30;
 
+        var g = -Physics.gravity.y;
         var a = Mathf.Deg2Rad * angle;
 
         var vI = Mathf.Sqrt(((Mathf.Pow(r, 2f) * g)) / (r * Mathf.Sin(2f * a) + 2f * h * Mathf.Pow(Mathf.Cos(a), 2f)));
@@ -144,7 +148,7 @@ public class Weapon1 : MonoBehaviour
                 rigidbody.velocity = calcBallisticVelocityVector(launchPos, targetPos, angle);
                 rigidbody.rotation = Random.rotation;
 
-                Destroy(shellObject, 2.6f);
+                //Destroy(shellObject, 2.6f);
 
                 turnWeaponIntoDirection = Vector3.zero;
                 weaponTargetCell = null;

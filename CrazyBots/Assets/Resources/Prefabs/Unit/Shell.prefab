@@ -59,7 +59,6 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -84,7 +83,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!54 &371340356431461886
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -109,7 +107,7 @@ CapsuleCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 713307927649952013}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   m_Radius: 0.060584523
   m_Height: 0.18053915
@@ -191,11 +189,13 @@ PrefabInstance:
   m_SourcePrefab: {fileID: 100100000, guid: bec1ace8aa287384d9e2629822eec685, type: 3}
 --- !u!4 &7725219893194882216 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 486730, guid: bec1ace8aa287384d9e2629822eec685, type: 3}
+  m_CorrespondingSourceObject: {fileID: 486730, guid: bec1ace8aa287384d9e2629822eec685,
+    type: 3}
   m_PrefabInstance: {fileID: 7725219893195182562}
   m_PrefabAsset: {fileID: 0}
 --- !u!198 &7725219893175397620 stripped
 ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 19807510, guid: bec1ace8aa287384d9e2629822eec685, type: 3}
+  m_CorrespondingSourceObject: {fileID: 19807510, guid: bec1ace8aa287384d9e2629822eec685,
+    type: 3}
   m_PrefabInstance: {fileID: 7725219893195182562}
   m_PrefabAsset: {fileID: 0}

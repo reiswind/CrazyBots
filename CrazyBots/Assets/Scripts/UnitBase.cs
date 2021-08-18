@@ -609,6 +609,7 @@ public class UnitBase : MonoBehaviour
         unitBaseParts.Add(unitBasePart);
     }
 
+    /*
     private string GetPartThatHasBeenHit()
     {
         if (PartsThatHaveBeenHit == null)
@@ -620,11 +621,16 @@ public class UnitBase : MonoBehaviour
         if (PartsThatHaveBeenHit.Count == 0)
             PartsThatHaveBeenHit = null;
         return hitPart;
-    }
+    }*/
 
-    public void PartExtracted()
+    public void PartExtracted(string hitPart)
     {
-        string hitPart = GetPartThatHasBeenHit();
+        if (!shellHit)
+        {
+            int x = 0;
+        }
+        shellHit = false;
+        //string hitPart = GetPartThatHasBeenHit();
         if (hitPart == null)
             return;
 
@@ -635,7 +641,6 @@ public class UnitBase : MonoBehaviour
             {
                 GroundCell currentCell = HexGrid.GroundCells[CurrentPos];
                 unitBasePart.Part.transform.SetParent(currentCell.transform, true);
-
 
                 Rigidbody otherRigid = unitBasePart.Part.GetComponent<Rigidbody>();
 
@@ -653,13 +658,6 @@ public class UnitBase : MonoBehaviour
                     otherRigid.rotation = Random.rotation;
                 }
 
-                ParticleSystem particleSource;
-
-                particleSource = HexGrid.MakeParticleSource("TankExplosion");
-                particleSource.transform.SetParent(unitBasePart.Part.transform, false);
-                particleSource.Play();
-                HexGrid.Destroy(particleSource, 2f);
-
                 Container1 container = unitBasePart.Part.GetComponent<Container1>();
                 if (container != null)
                 {
@@ -675,58 +673,63 @@ public class UnitBase : MonoBehaviour
         }
     }
 
-    public void HitByShell(Collision collision)
+    private bool shellHit;
+
+    public void HitByShell()
     {
-        string hitPart = GetPartThatHasBeenHit();
-        if (hitPart == null)
-            return;
+        shellHit = true;
 
-        for (int i=unitBaseParts.Count-1; i >= 0; i--)
-        {
-            UnitBasePart unitBasePart = unitBaseParts[i];
-        //foreach (UnitBasePart unitBasePart in unitBaseParts)
-        //{
-            if (unitBasePart.PartType == hitPart)
-            {
-                /*
-                SpringJoint springJoint = unitBasePart.Part.GetComponent<SpringJoint>();
-                springJoint.breakForce = 0;
-                springJoint.spring = 0;
-                */
-                Rigidbody otherRigid = unitBasePart.Part.GetComponent<Rigidbody>();
-                
-                if (otherRigid != null)
-                {
-                    otherRigid.isKinematic = false;
-                    /*
-                    Vector3 vector3 = new Vector3();
-                    vector3.y = Random.value * 6;
-                    vector3.x = Random.value * 3;
-                    vector3.z = Random.value * 3;
-                    */
-                    
-                    otherRigid.rotation = Random.rotation;
-                    otherRigid.velocity = collision.relativeVelocity;
-                }
+        ParticleSystem particleSource;
 
-                ParticleSystem particleSource;
-
-                particleSource = HexGrid.MakeParticleSource("TankExplosion");
-                particleSource.transform.SetParent(unitBasePart.Part.transform, false);
-                particleSource.Play();
-                HexGrid.Destroy(particleSource, 2f);
-
-                unitBasePart.Destroyed = true;
-                SetPlayerColor(HexGrid, 0, unitBasePart.Part);                
-                Destroy(unitBasePart.Part, 3);
-                unitBaseParts.Remove(unitBasePart);
-                break;
-            }
-        }
+        particleSource = HexGrid.MakeParticleSource("TankExplosion");
+        particleSource.transform.SetParent(transform, false);
+        particleSource.Play();
+        HexGrid.Destroy(particleSource, 2f);
     }
+        /*
+        public void HitByShell(Collision collision)
+        {
+            string hitPart = GetPartThatHasBeenHit();
+            if (hitPart == null)
+                return;
+
+            for (int i=unitBaseParts.Count-1; i >= 0; i--)
+            {
+                UnitBasePart unitBasePart = unitBaseParts[i];
+            //foreach (UnitBasePart unitBasePart in unitBaseParts)
+            //{
+                if (unitBasePart.PartType == hitPart)
+                {
+
+                    Rigidbody otherRigid = unitBasePart.Part.GetComponent<Rigidbody>();
+
+                    if (otherRigid != null)
+                    {
+                        otherRigid.isKinematic = false;
 
 
-    private bool IsBuilding()
+                        otherRigid.rotation = Random.rotation;
+                        otherRigid.velocity = collision.relativeVelocity;
+                    }
+
+                    ParticleSystem particleSource;
+
+                    particleSource = HexGrid.MakeParticleSource("TankExplosion");
+                    particleSource.transform.SetParent(unitBasePart.Part.transform, false);
+                    particleSource.Play();
+                    HexGrid.Destroy(particleSource, 2f);
+
+                    unitBasePart.Destroyed = true;
+                    SetPlayerColor(HexGrid, 0, unitBasePart.Part);                
+                    Destroy(unitBasePart.Part, 3);
+                    unitBaseParts.Remove(unitBasePart);
+                    break;
+                }
+            }
+        }*/
+
+
+        private bool IsBuilding()
     {
         if (MoveUpdateStats.UnitParts != null)
         {

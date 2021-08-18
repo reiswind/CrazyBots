@@ -48,6 +48,9 @@ namespace Engine.Master
         {
             get
             {
+                if (Level == 1) return 2;
+                if (Level == 2) return 3;
+                if (Level == 3) return 4;
                 return Level * 3;
             }
         }
