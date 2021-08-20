@@ -99,7 +99,7 @@ namespace Engine.Master
                     }
                     if (!possible)
                     {
-                        if (n.NumberOfDestructables > 0)
+                        if (n.TileObjects.Count > 0)
                             possible = true;
                     }
 
@@ -346,8 +346,15 @@ namespace Engine.Master
                 if (!CanExtractDirt)
                     return false;
 
-                if (fromTile.NumberOfDestructables > 0)
-                    fromTile.NumberOfDestructables--;
+                if (fromTile.TileObjects.Count > 0)
+                {
+                    TileObject tileObject = fromTile.TileObjects[fromTile.TileObjects.Count - 1];
+                    fromTile.TileObjects.Remove(tileObject);
+                    if (fromTile.TileObjects.Count == 0)
+                    {
+                        game.Map.AddTerrainTile(fromTile);
+                    }
+                }
                 else
                     fromTile.Height -= 0.1f;
                 Unit.Weapon.Container.Dirt++;

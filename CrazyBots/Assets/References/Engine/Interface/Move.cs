@@ -49,6 +49,7 @@ namespace Engine.Interface
         public int? AvailablePower { get; set; }
         public List<string> BildQueue { get; set; }
     }
+
     public class MoveUpdateGroundStat
     {
         [DataMember]
@@ -61,11 +62,14 @@ namespace Engine.Interface
 
         [DataMember(EmitDefaultValue = false)]
         public int Minerals { get; set; }
-        [DataMember(EmitDefaultValue = false)]
-        public int NumberOfDestructables { get; set; }
+        //[DataMember(EmitDefaultValue = false)]
+        //public int NumberOfDestructables { get; set; }
         [DataMember(EmitDefaultValue = false)]
         public int NumberOfObstacles { get; set; }
 
+        [DataMember(EmitDefaultValue = false)]
+        public List<TileObject> TileObjects { get; set; }
+        /*
         public bool IsHill()
         {
             return TerrainTypeIndex >= 4;
@@ -113,7 +117,7 @@ namespace Engine.Interface
         public bool IsSand()
         {
             return PlantLevel <= 1 && TerrainTypeIndex == 0;
-        }
+        }*/
     }
 
     public class MoveUpdateStatsCommand

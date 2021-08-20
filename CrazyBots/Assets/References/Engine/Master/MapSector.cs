@@ -12,6 +12,7 @@ namespace Engine.Interface
     {
         public HexCell HexCell { get; set; }
         public Position Center { get; set; }
+
         public bool InsideHexagon(float x, float y)
         {
             // Check length (squared) against inner and outer radius

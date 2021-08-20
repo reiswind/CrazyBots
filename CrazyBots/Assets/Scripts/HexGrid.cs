@@ -55,11 +55,11 @@ public class HexGrid : MonoBehaviour
 
 		//gridCanvas = GetComponentInChildren<Canvas>();
 
-		UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+		//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
 		//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
-		//UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+		UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 		GameModel gameModel;
 
@@ -220,6 +220,7 @@ public class HexGrid : MonoBehaviour
 	public GameObject CreateDestructable(Transform transform, Tile tile)
 	{
 		GameObject prefab;
+		/*
 		if (tile.IsDarkSand() || tile.IsSand())
 		{
 			int idx = game.Random.Next(rockResources.Count);
@@ -231,11 +232,11 @@ public class HexGrid : MonoBehaviour
 			prefab = bushResources.Values.ElementAt(idx);
 		}
 		else
-        {
+        {*/
 			int idx = game.Random.Next(treeResources.Count);
 			prefab = treeResources.Values.ElementAt(idx);
 
-		}
+		//}
 		float y = prefab.transform.position.y;
 
 		GameObject obstacle = Instantiate(prefab, transform, false);

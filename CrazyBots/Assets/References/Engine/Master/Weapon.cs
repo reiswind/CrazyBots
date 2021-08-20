@@ -80,7 +80,7 @@ namespace Engine.Master
                 // Cannot fire on ground
                 if (n.Unit == null)
                 {
-                    if (n.Tile.NumberOfDestructables > 0)
+                    if (n.Tile.TileObjects.Count > 0)
                     {
                         /* No longer fire at destrucables. They are extracted now */
                         /*

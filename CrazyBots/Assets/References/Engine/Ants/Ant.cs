@@ -45,6 +45,13 @@ namespace Engine.Ants
         public int PheromoneWaypointMineral { get; set; }
         public int PheromoneWaypointAttack { get; set; }
 
+        public void AbendonUnit(Player player)
+        {
+            OnDestroy(player);
+            if (PlayerUnit != null)
+                PlayerUnit.Unit.ExtractUnit();
+        }
+
         public List<Position> FollowThisRoute { get; set; }
         public virtual bool Move(Player player, List<Move> moves)
         {
@@ -55,6 +62,37 @@ namespace Engine.Ants
         }
         public virtual void OnDestroy(Player player)
         {
+            if (PheromoneDepositEnergy != 0)
+            {
+                player.Game.Pheromones.DeletePheromones(PheromoneDepositEnergy);
+                PheromoneDepositEnergy = 0;
+            }
+            if (PheromoneDepositNeedMinerals != 0)
+            {
+                player.Game.Pheromones.DeletePheromones(PheromoneDepositNeedMinerals);
+                PheromoneDepositNeedMinerals = 0;
+            }
+            if (PheromoneWaypointAttack != 0)
+            {
+                player.Game.Pheromones.DeletePheromones(PheromoneWaypointAttack);
+                PheromoneWaypointAttack = 0;
+            }
+            if (PheromoneWaypointMineral != 0)
+            {
+                player.Game.Pheromones.DeletePheromones(PheromoneWaypointMineral);
+                PheromoneWaypointMineral = 0;
+            }
+            // Another ant has to take this task
+            if (PlayerUnit.Unit.CurrentGameCommand != null)
+            {
+                player.GameCommands.Add(PlayerUnit.Unit.CurrentGameCommand);
+                PlayerUnit.Unit.CurrentGameCommand = null;
+            }
+            if (GameCommandDuringCreation != null)
+            {
+                player.GameCommands.Add(GameCommandDuringCreation);
+                GameCommandDuringCreation = null;
+            }
         }
 
         internal GameCommand GameCommandDuringCreation;

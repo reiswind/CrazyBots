@@ -60,7 +60,7 @@ namespace Engine.Master
         {
             get
             {
-                return 6; // Level * 3;
+                return 7; // Level * 3;
             }
         }
         public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position> includedPositions, MoveFilter moveFilter)

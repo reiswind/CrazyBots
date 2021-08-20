@@ -137,7 +137,7 @@ namespace Engine.Control
                                     }
                                     if (nextTile != null)
                                     {
-                                        playerUnit.Unit.ExtractMe = false;
+                                        playerUnit.Unit.ExtractUnit();
                                         UnitReachedCommandDoNotFollowPath = true;
                                         if (nextTile.Pos != playerUnit.Unit.Pos)
                                             dispatcher.MoveUnit(this, playerUnit, nextTile.Pos);
@@ -147,7 +147,7 @@ namespace Engine.Control
                                     else
                                     {
                                         // Release container. No more metal to collect. The stray collector should catch this
-                                        playerUnit.Unit.ExtractMe = true;
+                                        playerUnit.Unit.ExtractUnit();
                                         nomoreMetalFound = true;
 
                                         foreach (CommandSource commandSource in CommandSources)
@@ -160,7 +160,7 @@ namespace Engine.Control
                                 else
                                 {
                                     // Container full. Release it
-                                    playerUnit.Unit.ExtractMe = true;
+                                    playerUnit.Unit.ExtractUnit();
 
                                     foreach (CommandSource commandSource in CommandSources)
                                     {
@@ -181,7 +181,7 @@ namespace Engine.Control
                                     // Otherwise: Has arrived, was collecting and is now damaged. Unassign and mark for extraction
                                     if (!playerUnit.Unit.UnderConstruction)
                                     {
-                                        playerUnit.Unit.ExtractMe = true;
+                                        playerUnit.Unit.ExtractUnit();
 
                                         foreach (CommandSource commandSource in CommandSources)
                                         {

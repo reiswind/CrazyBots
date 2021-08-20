@@ -1,7 +1,7 @@
 {
   "Name": "Test",
-  "MapWidth": 30,
-  "MapHeight": 25,
+  "MapWidth": 2,
+  "MapHeight": 2,
   "xSeed": 1,
   "MapType": "2",
   "Players": [
@@ -28,70 +28,41 @@
   ],
   "Units": [
     {
-      "Name": "Container1",
+      "Name": "Outpost",
+      "PlayerId": 1,
+      "Blueprint": "Outpost",
+      "Position": {
+        "X": 0,
+        "Y": 0
+      }
+    },
+    {
+      "Name": "Outpost",
+      "PlayerId": 2,
+      "Blueprint": "Outpost",
+      "Position": {
+        "X": 0,
+        "Y": 0
+      }
+    },
+    {
+      "Name": "Outpost",
+      "PlayerId": 3,
+      "Blueprint": "Outpost",
+      "Position": {
+        "X": 0,
+        "Y": 0
+      }
+    },
+    {
+      "Name": "Outpost",
       "PlayerId": 4,
       "Blueprint": "Outpost",
       "Position": {
         "X": 0,
-        "Y": 7
-      }
-    },
-    {
-      "Name": "Container1",
-      "PlayerId": 4,
-      "Blueprint": "Outpost",
-      "Position": {
-        "X": 1,
-        "Y": 7
-      }
-    },
-    {
-      "Name": "Container1",
-      "PlayerId": 3,
-      "Blueprint": "Outpost",
-      "Position": {
-        "X": -8,
-        "Y": 1
-      }
-    },
-    {
-      "Name": "Worker1",
-      "PlayerId": 3,
-      "Blueprint": "Worker",
-      "Position": {
-        "X": -8,
         "Y": 0
-      }
-    },
-    {
-      "Name": "Reactor1",
-      "PlayerId": 3,
-      "Blueprint": "Reactor",
-      "Position": {
-        "X": -7,
-        "Y": 0
-      }
-    },
-    {
-      "Name": "Reactor1",
-      "PlayerId": 2,
-      "Blueprint": "Outpost",
-      "Position": {
-        "X": 8,
-        "Y": 0
-      }
-    },
-    {
-      "Name": "Worker1",
-      "PlayerId": 2,
-      "Blueprint": "Worker",
-      "Position": {
-        "X": 8,
-        "Y": 1
       }
     }
-
-
 
   ]
 }

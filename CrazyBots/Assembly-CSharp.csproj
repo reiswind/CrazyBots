@@ -92,6 +92,7 @@
     <Compile Include="Assets\References\Engine\Interface\Player.cs" />
     <Compile Include="Assets\References\Engine\Interface\Position.cs" />
     <Compile Include="Assets\References\Engine\Interface\Tile.cs" />
+    <Compile Include="Assets\References\Engine\Interface\TileObject.cs" />
     <Compile Include="Assets\References\Engine\Map\HexCell.cs" />
     <Compile Include="Assets\References\Engine\Map\HexCellPriorityQueue.cs" />
     <Compile Include="Assets\References\Engine\Map\HexCoordinates.cs" />

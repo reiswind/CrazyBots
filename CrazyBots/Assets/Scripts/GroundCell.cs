@@ -169,6 +169,8 @@ public class GroundCell : MonoBehaviour
         }
     }
 
+    private string currentMaterialName;
+
     internal void SetGroundMaterial()
     {
         /*
@@ -186,68 +188,99 @@ public class GroundCell : MonoBehaviour
         }
         else
         {
-            if (Tile.IsHill())
-            {
-                materialName = "Hill";
-            }
-            else if (Tile.IsRock())
-            {
-                materialName = "Rock";
-            }
-            else if (Tile.IsSand())
-            {
-                materialName = "Sand";
-            }
-            else if (Tile.IsDarkSand())
-            {
-                materialName = "DarkSand";
-            }
-            else if (Tile.IsDarkWood())
-            {
-                materialName = "DarkWood";
-            }
-            else if (Tile.IsWood())
-            {
-                materialName = "Wood";
-            }
-            else if (Tile.IsLightWood())
-            {
-                materialName = "LightWood";
-            }
-            else if (Tile.IsGrassDark())
-            {
-                materialName = "GrassDark";
-            }
-            else if (Tile.IsGras())
-            {
-                materialName = "Grass";
-            }
-            else
-            {
-                materialName = "";
-            }
-        }
+            materialName = "Rock";
 
-        MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
-        if (meshRenderer != null)
-        {
-            Material[] newMaterials = new Material[meshRenderer.materials.Length];
-            for (int i = 0; i < meshRenderer.materials.Length; i++)
+            if (NextMove != null && NextMove.Stats != null && NextMove.Stats.MoveUpdateGroundStat != null)
             {
-                Material material = meshRenderer.materials[i];
-                if (material.name.StartsWith("MaterialTerrain"))
+                if (NextMove.Stats.MoveUpdateGroundStat.TileObjects.Count > 0)
                 {
-                    Destroy(material);
-                    newMaterials[i] = HexGrid.GetMaterial(materialName);
+                    TileObject tileObject = NextMove.Stats.MoveUpdateGroundStat.TileObjects[0];
+                    if (tileObject.Direction == Direction.C)
+                    {
+                        if (tileObject.TileObjectType == TileObjectType.Gras)
+                        {
+                            materialName = "Grass";
+                        }
+                        else if (tileObject.TileObjectType == TileObjectType.Bush)
+                        {
+                            materialName = "GrassDark";
+                        }
+                        else if (tileObject.TileObjectType == TileObjectType.Tree)
+                        {
+                            materialName = "Wood";
+                        }
+                    }
+                }
+            }
+                /*
+                if (Tile.IsHill())
+                {
+                    materialName = "Hill";
+                }
+                else if (Tile.IsRock())
+                {
+                    materialName = "Rock";
+                }
+                else if (Tile.IsSand())
+                {
+                    materialName = "Sand";
+                }
+                else if (Tile.IsDarkSand())
+                {
+                    materialName = "DarkSand";
+                }
+                else if (Tile.IsDarkWood())
+                {
+                    materialName = "DarkWood";
+                }
+                else if (Tile.IsWood())
+                {
+                    materialName = "Wood";
+                }
+                else if (Tile.IsLightWood())
+                {
+                    materialName = "LightWood";
+                }
+                else if (Tile.IsGrassDark())
+                {
+                    materialName = "GrassDark";
+                }
+                else if (Tile.IsGras())
+                {
+                    materialName = "Grass";
                 }
                 else
                 {
-                    newMaterials[i] = meshRenderer.materials[i];
-                    //Destroy(material);
-                    //newMaterials[i] = HexGrid.GetMaterial("GroundMat");
+                    materialName = "";
+                }*/
+                
+        }
+
+        if (currentMaterialName == null || currentMaterialName != materialName)
+        {
+            currentMaterialName = materialName;
+
+            MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
+            if (meshRenderer != null)
+            {
+                Material[] newMaterials = new Material[meshRenderer.materials.Length];
+                for (int i = 0; i < meshRenderer.materials.Length; i++)
+                {
+                    Material material = meshRenderer.materials[i];
+                    if (!material.name.StartsWith("Normal"))
+                    {
+                        Destroy(material);
+                        newMaterials[i] = HexGrid.GetMaterial(materialName);
+                    }
+                    else
+                    {
+                        newMaterials[i] = meshRenderer.materials[i];
+                        //Destroy(material);
+                        //newMaterials[i] = HexGrid.GetMaterial("GroundMat");
+                    }
                 }
+                meshRenderer.materials = newMaterials;
             }
-            meshRenderer.materials = newMaterials;
         }
     }
     
@@ -288,11 +321,12 @@ public class GroundCell : MonoBehaviour
                 transform.localPosition = vector3;
 
                 // This is for Web
-                //Tile.Metal = stat.Minerals;
-                Tile.NumberOfDestructables = stat.NumberOfDestructables;
+                //Tile.Metal = stat.Minerals;                
+                //Tile.NumberOfDestructables = stat.NumberOfDestructables;
                 Tile.NumberOfObstacles = stat.NumberOfObstacles;
                 
             }
+            SetGroundMaterial();
             CreateObstacles();
             CreateDestructables();
             CreateMinerals();
@@ -302,14 +336,57 @@ public class GroundCell : MonoBehaviour
 
     internal void CreateDestructables()
     {
-        int numberOfDestructables;
         if (NextMove != null && NextMove.Stats.MoveUpdateGroundStat != null)
-            numberOfDestructables = NextMove.Stats.MoveUpdateGroundStat.NumberOfDestructables;
+        {
+            
+            List<GameObject> allTileObjects = new List<GameObject>();
+            
+            allTileObjects.AddRange(destructables);
+            
+
+            foreach (TileObject tileObject in NextMove.Stats.MoveUpdateGroundStat.TileObjects)
+            {
+                if (tileObject.Direction == Direction.C)
+                {
+
+                }
+                else
+                {
+                    bool found = false;
+                    foreach (GameObject destructable in allTileObjects)
+                    {
+                        if (destructable.name == tileObject.TileObjectType.ToString())
+                        {
+                            found = true;
+                            allTileObjects.Remove(destructable);
+                            break;
+                        }
+                    }
+                    if (!found)
+                    {
+                        GameObject destructable;
+
+                        destructable = HexGrid.CreateDestructable(transform, Tile);
+                        destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
+                        destructable.name = tileObject.TileObjectType.ToString();
+
+                        destructables.Add(destructable);
+                    }
+                }
+            }
+            foreach (GameObject destructable in allTileObjects)
+            {
+                HexGrid.Destroy(destructable);
+                destructables.Remove(destructable);
+            }
+        }
+        /*
+            numberOfDestructables = NextMove.Stats.MoveUpdateGroundStat.TileObjects.Count;
         else
-            numberOfDestructables = Tile.NumberOfDestructables;
+            numberOfDestructables = Tile.TileObjects.Count;
 
 
-        while (destructables.Count < Tile.NumberOfDestructables)
+        while (destructables.Count < numberOfDestructables)
         {
 
             GameObject destructable;
@@ -325,7 +402,7 @@ public class GroundCell : MonoBehaviour
             GameObject destructable = destructables[0];
             HexGrid.Destroy(destructable);
             destructables.Remove(destructable);
-        }
+        }*/
     }
 
     internal void CreateObstacles()

@@ -455,7 +455,7 @@ public class GameCanvas : MonoBehaviour
     private bool CanBuildAt(GroundCell groundCell)
     {
         if (groundCell == null ||
-            groundCell.Tile.NumberOfDestructables > 0 ||
+            groundCell.Tile.TileObjects.Count > 0 ||
             groundCell.Tile.NumberOfObstacles > 0 ||
             groundCell.Tile.Unit != null)
         {
@@ -469,7 +469,7 @@ public class GameCanvas : MonoBehaviour
     private bool CanCommandAt(GroundCell groundCell)
     {
         if (groundCell == null ||
-            groundCell.Tile.NumberOfDestructables > 0 ||
+            groundCell.Tile.TileObjects.Count > 0 ||
             groundCell.Tile.NumberOfObstacles > 0)
         {
             return false;
@@ -928,7 +928,7 @@ public class GameCanvas : MonoBehaviour
             }
             else
             {
-                if (gc.Tile.NumberOfDestructables > 0)
+                if (gc.Tile.TileObjects.Count > 0)
                 {
                     headerText.text = "Destructable";
                 }
@@ -944,8 +944,8 @@ public class GameCanvas : MonoBehaviour
             headerSubText.text = sb.ToString();
 
             sb.Clear();
-            if (gc.Tile.NumberOfDestructables > 0)
-                sb.Append("Items: " + gc.Tile.NumberOfDestructables);
+            if (gc.Tile.TileObjects.Count > 0)
+                sb.Append("Items: " + gc.Tile.TileObjects.Count);
             if (gc.Tile.NumberOfObstacles > 0)
                 sb.Append("Obstacles: " + gc.Tile.NumberOfObstacles);
 

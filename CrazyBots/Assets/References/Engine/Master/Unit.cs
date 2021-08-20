@@ -59,16 +59,7 @@ namespace Engine.Master
     // 3 Points in Radar: Range 3
 
 
-    public enum Direction
-    {
-        C,
-        N,
-        S,
-        NE,
-        NW,
-        SE,
-        SW
-    }
+
 
     // Total Points: 4 increase with xp
 
@@ -112,8 +103,15 @@ namespace Engine.Master
 
         // Unit can be extracted
         public bool ExtractMe { 
-            get; 
-            set; }
+            get; private set;
+            }
+
+        public void ExtractUnit()
+        {
+            CurrentGameCommand = null;
+            ExtractMe = true;
+        }
+
         public bool UnderConstruction { get; set; }
         // Just a plan, not built yet
         public bool IsGhost { get; set; }

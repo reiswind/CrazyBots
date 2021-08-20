@@ -78,9 +78,149 @@ namespace Engine.Interface
         public int Distance { get; set; }
     }
 
+    internal class TileFit
+    {
+        public int Score { get; set; }
+        public List<TileObject> TileObjects { get; set; }
+    }
+
     public class Tile
     {
-        internal Map Map;
+        internal Tile(Map map, Position pos)
+        {
+            Map = map;
+            Pos = pos;
+
+            TileObjects = new List<TileObject>();
+        }
+
+        public List<TileObject> TileObjects { get; set; }
+
+        private Direction TurnAround(Direction direction)
+        {
+            if (direction == Direction.N) return Direction.S;
+            if (direction == Direction.NE) return Direction.SW;
+            if (direction == Direction.SE) return Direction.NW;
+            if (direction == Direction.S) return Direction.N;
+            if (direction == Direction.SW) return Direction.NE;
+            if (direction == Direction.NW) return Direction.SE;
+            return Direction.C;
+        }
+        private Direction TurnLeft(Direction direction)
+        {
+            if (direction == Direction.N) return Direction.NW;
+            if (direction == Direction.NW) return Direction.SW;
+            if (direction == Direction.SW) return Direction.S;
+            if (direction == Direction.S) return Direction.SE;
+            if (direction == Direction.SE) return Direction.NE;
+            if (direction == Direction.NE) return Direction.N;
+            return Direction.C;
+        }
+        private Direction TurnRight(Direction direction)
+        {
+            if (direction == Direction.N) return Direction.NE;
+            if (direction == Direction.NE) return Direction.SE;
+            if (direction == Direction.SE) return Direction.S;
+            if (direction == Direction.S) return Direction.SW;
+            if (direction == Direction.SW) return Direction.NW;
+            if (direction == Direction.NW) return Direction.N;
+            return Direction.C;
+        }
+
+        internal TileFit CalcFit(List<TileObject> tileObjects)
+        {
+            TileFit tileFit = new TileFit();
+            tileFit.Score = -1;
+
+            List<TileObject> rotatedTileObjects = tileObjects;
+
+            for (int i=0; i < 6; i++)
+            {
+                int score = CalcFitObj(rotatedTileObjects);
+                if (score > tileFit.Score)
+                {
+                    tileFit.Score = score;
+                    tileFit.TileObjects = rotatedTileObjects;
+                }
+                rotatedTileObjects = Rotate(rotatedTileObjects);
+            }
+            return tileFit;
+        }
+
+        internal static List<TileObject> Rotate(List<TileObject> tileObjects)
+        {
+            List<TileObject> rotatedTileObjects = new List<TileObject>();
+            foreach (TileObject tileObject in tileObjects)
+            {
+                TileObject rotatedTileObject = new TileObject();
+                rotatedTileObject.TileObjectType = tileObject.TileObjectType;
+
+                if (tileObject.Direction == Direction.N) rotatedTileObject.Direction = Direction.NW;
+                else if (tileObject.Direction == Direction.NW) rotatedTileObject.Direction = Direction.SW;
+                else if (tileObject.Direction == Direction.SW) rotatedTileObject.Direction = Direction.S;
+                else if (tileObject.Direction == Direction.S) rotatedTileObject.Direction = Direction.SE;
+                else if (tileObject.Direction == Direction.SE) rotatedTileObject.Direction = Direction.NW;
+                else if (tileObject.Direction == Direction.NW) rotatedTileObject.Direction = Direction.N;
+
+                rotatedTileObjects.Add(rotatedTileObject);
+            }
+            return rotatedTileObjects;
+        }
+
+        internal int CalcFitObj(List<TileObject> tileObjects)
+        {
+            int score = 0;
+            foreach (TileObject tileObject in this.TileObjects)
+            {
+                foreach (TileObject fitTileObject in tileObjects)
+                {
+                    int bonus = 0;
+                    if (tileObject.TileObjectType == fitTileObject.TileObjectType)
+                    {
+                        bonus = 2;
+                    }
+                    else if (tileObject.TileObjectType == TileObjectType.Tree &&
+                             fitTileObject.TileObjectType == TileObjectType.Bush)
+                    {
+                        bonus = 3;
+                    }
+                    else if (tileObject.TileObjectType == TileObjectType.Bush &&
+                             fitTileObject.TileObjectType == TileObjectType.Tree)
+                    {
+                        bonus = 3;
+                    }
+                    else if (tileObject.TileObjectType == TileObjectType.Gras &&
+                            fitTileObject.TileObjectType == TileObjectType.Bush)
+                    {
+                        bonus = 3;
+                    }
+                    else if (tileObject.TileObjectType == TileObjectType.Bush &&
+                             fitTileObject.TileObjectType == TileObjectType.Gras)
+                    {
+                        bonus = 3;
+                    }
+                    if (bonus > 0)
+                    { 
+                        if (tileObject.Direction == TurnAround(fitTileObject.Direction))
+                        {
+                            score += bonus;
+                        }
+                        else if (tileObject.Direction == TurnLeft(TurnAround(fitTileObject.Direction)))
+                        {
+                            score += bonus/2;
+                        }
+                        else if (tileObject.Direction == TurnRight(TurnAround(fitTileObject.Direction)))
+                        {
+                            score += bonus/2;
+                        }
+                    }
+                }
+            }
+            return score;
+        }
+
+
+        internal Map Map { get; set; }
 
         public Position Pos { get; set; }
         private List<Tile> neighbors;
@@ -98,10 +238,10 @@ namespace Engine.Interface
             }
         }
         public int ZoneId { get; set; }
-        public int Plates { get; set; }
+        
         public bool IsUnderwater { get; set; }
 
-        public int NumberOfDestructables { get; set; }
+        //public int NumberOfDestructables { get; set; }
         public int NumberOfObstacles { get; set; }
 
         public int Owner { get; set; }
@@ -112,23 +252,8 @@ namespace Engine.Interface
         {
             Map.Zones[ZoneId].TotalMinerals += mins;
             minerals += mins;
-
         }
 
-        internal Tile(Map map, Position pos)
-        {
-            Map = map;
-            Pos = pos;
-        }
-
-        /*
-        internal Unit UnitInBuild
-        {
-            get
-            {
-                return Map.UnitsInBuild.GetUnitAt(Pos);
-            }
-        }*/
 
         internal Unit Unit
         {
@@ -137,54 +262,7 @@ namespace Engine.Interface
                 return Map.Units.GetUnitAt(Pos);
             }
         }
-        public bool IsHill()
-        {
-            return TerrainTypeIndex >= 4;
-            //return Height > 0.8 && Height <= 0.9;
-        }
-        public bool IsRock()
-        {
-
-            return TerrainTypeIndex >= 4;
-            //return Height > 0.7 && Height <= 0.8;
-        }
-
-        public bool IsDarkWood()
-        {
-            return PlantLevel <= 4 && TerrainTypeIndex == 3;
-            //return Height > 0.6 && Height <= 0.7;
-        }
-
-        public bool IsWood()
-        {
-            return PlantLevel == 2 && TerrainTypeIndex == 3;
-            //return Height > 0.5 && Height <= 0.6;
-        }
-
-        public bool IsLightWood()
-        {
-            return PlantLevel <= 1 && TerrainTypeIndex == 3;
-            //return Height > 0.4 && Height <= 0.5;
-        }
-        public bool IsGrassDark()
-        {
-            return PlantLevel > 1 && TerrainTypeIndex == 1;
-            //return Height > 0.3 && Height <= 0.4;
-        }
-        public bool IsGras()
-        {
-            return PlantLevel <= 1 && TerrainTypeIndex == 1;
-            //return Height > 0.20 && Height <= 0.3;
-        }
-        public bool IsDarkSand()
-        {
-            return PlantLevel > 1 && TerrainTypeIndex == 0;
-            //return Height > 0.1 && Height <= 0.20;
-        }
-        public bool IsSand()
-        {
-            return PlantLevel <= 1 && TerrainTypeIndex == 0;
-        }
+        
         public bool CanMoveTo(Position from)
         {
             return CanMoveTo(Map.GetTile(from));            
@@ -196,10 +274,19 @@ namespace Engine.Interface
             {
                 return false;
             }
-            if (NumberOfObstacles > 0 || NumberOfDestructables > 0)
+            if (NumberOfObstacles > 0)
             {
                 return false;
             }
+            if (TileObjects.Count > 0)
+            {
+                foreach (TileObject tileObject in TileObjects)
+                {
+                    if (tileObject.Direction != Direction.C)
+                        return false;
+                }
+            }
+
             if (IsUnderwater)
                 return false;
 
@@ -232,7 +319,7 @@ namespace Engine.Interface
                     neighbors.Add(t);
             }
         }
-
+        /*
         public Tile TileBelow
         {
             get
@@ -259,7 +346,7 @@ namespace Engine.Interface
                 }
                 return null;
             }
-        }
+        }*/
 
         public List<Tile> Neighbors
         {

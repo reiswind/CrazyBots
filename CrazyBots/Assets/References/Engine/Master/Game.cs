@@ -14,19 +14,6 @@ using System.Threading.Tasks;
 
 namespace Engine.Master
 {
-    [DataContract]
-    internal class UnitCollision
-    {
-        [DataMember]
-        public Unit Unit1 { get; set; }
-        [DataMember]
-        public Move Move1 { get; set; }
-        [DataMember]
-        public Unit Unit2 { get; set; }
-        [DataMember]
-        public Move Move2 { get; set; }
-    }
-
     public class Game : IGameController
     {
         private static string logFile = null; // = @"c:\Temp\moves.json";
@@ -34,7 +21,68 @@ namespace Engine.Master
         public Blueprints Blueprints { get; set; }
         public Map Map { get; private set; }
 
-        
+        private void Init(GameModel gameModel, int initSeed)
+        {
+            Blueprints = new Blueprints();
+            Pheromones = new Pheromones();
+
+            seed = initSeed;
+            Random = new Random(seed);
+            MoveNr = 0;
+            GameModel = gameModel;
+            Map = new Map(this, initSeed);
+            Players = new Dictionary<int, Player>();
+
+            if (!string.IsNullOrEmpty(logFile))
+                File.Delete(logFile);
+
+            if (gameModel.MapType == "2")
+            {
+                Map.CreateFlat();
+            }
+            else
+            {
+                Map.CreateTerrain(this);
+            }
+            Map.CreateZones();
+            if (gameModel?.Players != null)
+            {
+                int zoneCntr = 1;
+                foreach (PlayerModel playerModel in gameModel.Players)
+                {
+                    Player p = new Player(this, playerModel);
+
+                    p.StartZone = Map.Zones[zoneCntr++];
+
+                    Players.Add(playerModel.Id, p);
+                }
+            }
+
+
+            Map.GetTile(new Position(0, 0));
+
+            // TESTEXTRACT
+
+            for (int i = 0; i < Map.DefaultMinerals; i++)
+            {
+                Map.DistributeMineral();
+            }
+        }
+
+        private void Initialize(List<Move> newMoves)
+        {
+            PlayerModel playerModel = new PlayerModel();
+            playerModel.Id = 0;
+            playerModel.Name = "Neutral";
+            NeutralPlayer = new Player(this, playerModel);
+
+            //Szenario1(newMoves);
+            //SzenarioShowUnits(newMoves);
+            StartWithFactory(newMoves);
+
+            initialized = true;
+        }
+
         private void StartWithFactory(List<Move> newMoves)
         {
 
@@ -134,10 +182,10 @@ namespace Engine.Master
         {
             bool changed = false;
 
-            if (t.NumberOfDestructables != 0)
+            if (t.TileObjects.Count != 0)
             {
                 changed = true;
-                t.NumberOfDestructables = 0;
+                t.TileObjects.Clear();
             }
             if (t.NumberOfObstacles != 0)
             {
@@ -192,53 +240,7 @@ namespace Engine.Master
 
         public Pheromones Pheromones { get; set; }
 
-        private void Init(GameModel gameModel, int initSeed)
-        {
-            Blueprints = new Blueprints();
-            Pheromones = new Pheromones();
-
-            seed = initSeed;
-            Random = new Random(seed);
-            MoveNr = 0;
-            GameModel = gameModel;
-            Map = new Map(this, initSeed);
-            Players = new Dictionary<int, Player>();
-
-            if (!string.IsNullOrEmpty(logFile))
-                File.Delete(logFile);
-
-            if (gameModel.MapType == "2")
-            {
-                Map.CreateFlat();
-            }
-            else
-            {
-                Map.CreateTerrain(this);
-            }
-            Map.CreateZones();
-            if (gameModel?.Players != null)
-            {
-                foreach (PlayerModel playerModel in gameModel.Players)
-                {
-                    Player p = new Player(this, playerModel);
-
-                    p.StartZone = Map.Zones[1];
-
-                    Players.Add(playerModel.Id, p);
-                }
-            }
-
-
-            Map.GetTile(new Position(0, 0));
-
-            // TESTEXTRACT
-            
-            for (int i=0; i < Map.DefaultMinerals; i++)
-            {
-                Map.DistributeMineral();
-            }
-        }
-
+        
         public void ComputePossibleMoves(Position pos, List<Move> possibleMoves, List<Position> includedPositions, MoveFilter moveFilter)
         {
             Tile t = Map.GetTile(pos);
@@ -499,10 +501,11 @@ namespace Engine.Master
 
                         // New units will be added here
                         int? containerNetal = null;
-                        bool markForExtraction = false;
 
+                        /*
                         if (move.UnitId.Contains(":Remove"))
                         {
+                            bool markForExtraction = false;
                             // 
                             if (move.UnitId.EndsWith("Reactor"))
                                 thisUnit.Reactor = null;
@@ -519,7 +522,8 @@ namespace Engine.Master
                             else
                                 throw new Exception();
                             move.UnitId = move.UnitId.Replace("Remove", "");
-                        }
+                            thisUnit.ExtractMe = markForExtraction;
+                        }*/
                         thisUnit = new Unit(this, move.UnitId);
                         if (thisUnit.Container != null && containerNetal.HasValue)
                             thisUnit.Container.Mineral = containerNetal.Value;
@@ -527,7 +531,7 @@ namespace Engine.Master
                         thisUnit.Power = 20;
                         thisUnit.MaxPower = 20;
 
-                        thisUnit.ExtractMe = markForExtraction;
+                        
 
                         if (move.MoveType == MoveType.Add)
                         {
@@ -597,19 +601,7 @@ namespace Engine.Master
         }
 
         
-        private void Initialize(List<Move> newMoves)
-        {
-            PlayerModel playerModel = new PlayerModel();
-            playerModel.Id = 0;
-            playerModel.Name = "Neutral";
-            NeutralPlayer = new Player(this, playerModel);
 
-            //Szenario1(newMoves);
-            //SzenarioShowUnits(newMoves);
-            StartWithFactory(newMoves);
-
-            initialized = true;
-        }
 
         private void ProcessLastMoves()
         {
@@ -723,15 +715,11 @@ namespace Engine.Master
             Position pos = bullet.Target;
 
             Tile targetTile = GetTile(pos);
-            if (targetTile.NumberOfDestructables > 0)
-            {
-                //targetTile.Height += 0.1f;
-                targetTile.NumberOfDestructables--;
-            }          
+            
             
             if (bullet.BulletType == "Extract")
             {
-                // Nothing
+                
             }
             else if (bullet.BulletType == "Mineral")
             {
@@ -739,7 +727,18 @@ namespace Engine.Master
             }
             else
             {
-                targetTile.Height += 0.1f;
+                if (targetTile.TileObjects.Count > 0)
+                {
+                    targetTile.TileObjects.RemoveAt(targetTile.TileObjects.Count - 1);
+                    if (targetTile.TileObjects.Count == 0)
+                    {
+                        Map.AddTerrainTile(targetTile);
+                    }
+                }
+                else
+                {
+                    targetTile.Height += 0.1f;
+                }
             }
             
             if (!changedGroundPositions.ContainsKey(pos))
@@ -1455,18 +1454,23 @@ namespace Engine.Master
 
                 if (MoveNr == 73)
                 {
-                    int xxxx = 0;
+                    
                 }
 
                 changedUnits.Clear();
                 changedGroundPositions.Clear();
 
+                /*
+                foreach (MapZone zone in Map.Zones.Values)
+                {
+                    zone.CreateTerrainTile(Map);
+                }*/
                 MapInfo mapInfo1 = new MapInfo();
                 mapInfo1.ComputeMapInfo(this);
 
                 if (mapInfo != null && mapInfo1.TotalMetal != mapInfo.TotalMetal)
                 {
-                    int xx = 0;
+                    
                 }
 
                 bool first = false;
@@ -1515,7 +1519,7 @@ namespace Engine.Master
 
                             Unit unit = Map.Units.FindUnit(gameCommand.UnitId);
                             if (unit != null)
-                                unit.ExtractMe = true;
+                                unit.ExtractUnit();
                         }
                     }
                 }

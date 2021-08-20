@@ -137,6 +137,31 @@ namespace Engine.Ants
             }
         }
 
+        public Position Find(int id, Player player, PheromoneType pheromoneType, float minDistance, float minValue)
+        {
+            PheromoneStack pheromoneStack = pheromoneStacks[id];
+            foreach (PheromoneStackItem pheromoneStackItem in pheromoneStack.PheromoneItems)
+            {
+                if (pheromoneStackItem.Distance < minDistance)
+                {
+                    float f = pheromoneStackItem.Pheromone.GetIntensityF(player.PlayerModel.Id, pheromoneType); // < minValue)
+                    if (f < minValue)
+                    {
+                        Tile t = player.Game.Map.GetTile(pheromoneStackItem.Pheromone.Pos);
+                        if (t.TileObjects.Count > 1)
+                            continue;
+
+                        if (t.Owner != player.PlayerModel.Id)
+                        {
+                            continue;
+                        }
+                        return pheromoneStackItem.Pheromone.Pos;
+                    }
+                }
+            }
+            return null;
+        }
+
         public int DropPheromones(Player player, Position pos, int range, PheromoneType pheromoneType, float intensity, bool isStatic, float minIntensity = 0)
         {
             PheromoneStack pheromoneStack = new PheromoneStack();
@@ -232,6 +257,11 @@ namespace Engine.Ants
         public float Distance { get; set; }
         public Pheromone Pheromone { get; set; }
         public PheromoneItem PheromoneItem { get; set; }
+
+        public override string ToString()
+        {
+            return "D: " + Distance + " " + PheromoneItem.ToString();
+        }
     }
 
 
@@ -261,6 +291,12 @@ namespace Engine.Ants
 
             return Intensity == 0;
         }
+
+        public override string ToString()
+        {
+            return PheromoneType.ToString() + " " + Intensity.ToString();
+        }
+
         /*
         IntensityHome -= IntensityHome * 0.01f;
         if (IntensityHome < 0.001f) IntensityHome = 0;

@@ -134,7 +134,7 @@ namespace Engine.Control
                 if (playerUnit.Unit.ExtractMe == false &&
                     playerUnit.Unit.Engine != null)
                 {
-                    playerUnit.Unit.ExtractMe = true;
+                    playerUnit.Unit.ExtractUnit();
                     if (extractorUnit.Unit.Engine == null)
                     {
                         if (!possibleExtrationTiles.ContainsKey(playerUnit.Unit.Pos))
@@ -166,7 +166,7 @@ namespace Engine.Control
                         }
                     }
                     // Stuck unit cannot move away
-                    playerUnit.Unit.ExtractMe = true;
+                    playerUnit.Unit.ExtractUnit();
                 }
             }
         }
@@ -612,7 +612,7 @@ namespace Engine.Control
                     if (selectedPath.PlayerUnit.Unit.ExtractMe)
                     {
                         // Rescued!
-                        selectedPath.PlayerUnit.Unit.ExtractMe = false;
+                        selectedPath.PlayerUnit.Unit.ExtractUnit();
                     }
                     dispatcherRequestUnit.Command.AssignUnit(selectedPath.PlayerUnit.Unit.UnitId);
                     MoveUnit(dispatcherRequestUnit.Command, selectedPath.PlayerUnit, selectedPath.Path[selectedPath.Path.Count - 1]);

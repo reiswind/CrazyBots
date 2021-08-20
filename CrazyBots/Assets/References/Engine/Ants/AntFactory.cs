@@ -35,7 +35,8 @@ namespace Engine.Ants
                 cntrlUnit.Assembler != null &&
                 cntrlUnit.Assembler.BuildQueue == null)
             {
-                if (workerInPercent < 10 || Control.NumberOfWorkers < (Control.NumberOfAssembler * 2))
+                //if (workerInPercent < 10 || Control.NumberOfWorkers < (Control.NumberOfAssembler * 2))
+                if (Control.NumberOfWorkers < 2 || workerInPercent < 10)
                     addWorker = true;
 
                 //if (addWorker == false && Control.NumberOfAssembler < Control.MaxAssembler)

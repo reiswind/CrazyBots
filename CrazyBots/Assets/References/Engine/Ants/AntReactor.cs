@@ -68,7 +68,7 @@ namespace Engine.Ants
             bool unitMoved = false;
 
             Unit cntrlUnit = PlayerUnit.Unit;
-
+            /*
             if (cntrlUnit.Weapon != null)
             {
                 List<Move> possiblemoves = new List<Move>();
@@ -92,7 +92,7 @@ namespace Engine.Ants
                         return unitMoved;
                     }
                 }
-            }
+            }*/
 
             if (cntrlUnit.Extractor != null)
             {

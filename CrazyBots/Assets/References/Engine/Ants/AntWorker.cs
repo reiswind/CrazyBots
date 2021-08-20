@@ -1005,7 +1005,7 @@ namespace Engine.Ants
                                 PlayerUnit.Unit.CurrentGameCommand = null;
 
                                 // Extract the unit
-                                cntrlUnit.ExtractMe = true;
+                                AbendonUnit(player);                                
                             }
                         }
                         FollowThisRoute = null;
@@ -1030,13 +1030,12 @@ namespace Engine.Ants
                             move1.UnitId == PlayerUnit.Unit.CurrentGameCommand.UnitId)
                         {
                             moves.Add(move1);
-                            break;
+
+                            FollowThisRoute = null;
+                            unitMoved = true;
+                            return unitMoved;
                         }
                     }
-                    FollowThisRoute = null;
-
-                    unitMoved = true;
-                    return unitMoved;
                 }
             }
 
@@ -1086,8 +1085,10 @@ namespace Engine.Ants
                         loadFirst = true;
                     */
                     //if (!loadFirst)
-                    
-                        if (PlayerUnit.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build)
+
+                    if (PlayerUnit.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build)
+                    {
+                        if (PlayerUnit.Unit.Assembler != null && PlayerUnit.Unit.Assembler.CanProduce())
                         {
                             Tile t = player.Game.Map.GetTile(cntrlUnit.Pos);
                             foreach (Tile n in t.Neighbors)
@@ -1101,8 +1102,8 @@ namespace Engine.Ants
                                 }
                             }
                         }
-
-                    if (cntrlUnit.Pos == PlayerUnit.Unit.CurrentGameCommand.TargetPosition)
+                    }
+                    else if (cntrlUnit.Pos == PlayerUnit.Unit.CurrentGameCommand.TargetPosition)
                     {
                         /*
                         if (AntWorkerType == AntWorkerType.Worker)
