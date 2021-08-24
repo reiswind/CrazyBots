@@ -11,6 +11,9 @@ namespace Engine.Interface
 {
     public class Bullet
     {
+        /// <summary>
+        /// Zerro if extract
+        /// </summary>
         public TileObject TileObject { get; set; }
         public Position Target { get; set; }
     }

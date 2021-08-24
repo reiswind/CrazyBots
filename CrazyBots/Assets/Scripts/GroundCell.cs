@@ -15,10 +15,7 @@ public class GroundCell : MonoBehaviour
 
     internal List<UnitCommand> UnitCommands { get; private set; }
 
-    private List<GameObject> minerals;
-    private GameObject mineralObstacle;
-    private List<GameObject> destructables;
-    private List<GameObject> obstacles;
+    public List<GameObject> TileContainer { get; private set; }
 
     private GameObject markerEnergy;
     private GameObject markerToHome;
@@ -27,9 +24,7 @@ public class GroundCell : MonoBehaviour
 
     public GroundCell()
     {
-        minerals = new List<GameObject>();
-        destructables = new List<GameObject>();
-        obstacles = new List<GameObject>();
+        TileContainer = new List<GameObject>();
 
         UnitCommands = new List<UnitCommand>();
         ShowPheromones = true;
@@ -328,7 +323,7 @@ public class GroundCell : MonoBehaviour
     internal void CreateDestructables()
     {
         List<GameObject> allTileObjects = new List<GameObject>();
-        allTileObjects.AddRange(destructables);
+        allTileObjects.AddRange(TileContainer);
         bool noc = true;
 
         foreach (TileObject tileObject in GroundStat.TileObjects)
@@ -358,7 +353,7 @@ public class GroundCell : MonoBehaviour
                     destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
                     destructable.name = tileObject.TileObjectType.ToString();
 
-                    destructables.Add(destructable);
+                    TileContainer.Add(destructable);
                 }
             }
         }
@@ -369,9 +364,10 @@ public class GroundCell : MonoBehaviour
         foreach (GameObject destructable in allTileObjects)
         {
             HexGrid.Destroy(destructable);
-            destructables.Remove(destructable);
+            TileContainer.Remove(destructable);
         }
     }
+
 
     /*
     internal void CreateObstacles()
@@ -434,16 +430,12 @@ public class GroundCell : MonoBehaviour
         }
     }
 
+    /*
 
     internal void CreateMinerals()
     {
         int numberOfMinerals = 0;
-        /*
-        if (NextMove!= null && NextMove.Stats.MoveUpdateGroundStat != null)
-            numberOfMinerals = NextMove.Stats.MoveUpdateGroundStat.Minerals;
-        else
-            numberOfMinerals = Tile.Metal;
-        */
+
         if (numberOfMinerals >= 20)
         {
             if (mineralObstacle == null)
@@ -498,5 +490,5 @@ public class GroundCell : MonoBehaviour
                 minerals.Remove(crystal);
             }
         }
-    }
+    }*/
 }

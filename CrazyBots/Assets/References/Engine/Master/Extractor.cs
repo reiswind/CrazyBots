@@ -333,11 +333,14 @@ namespace Engine.Master
                 return false;
             }
         }
-        public bool ExtractInto(Position from, List<Bullet> hitByBullet, Game game, string otherUnitId)
+        public bool ExtractInto(Unit unit, Move move, Position from, List<Bullet> hitByBullet, Game game, string otherUnitId)
         {
             Tile fromTile = Unit.Game.Map.GetTile(from);
 
             List<TileObject> removeTileObjects = new List<TileObject>();
+            MoveUpdateGroundStat moveUpdateGroundStat;
+            moveUpdateGroundStat = new MoveUpdateGroundStat();
+            moveUpdateGroundStat.TileObjects = new List<TileObject>();
 
             if (otherUnitId.StartsWith("unit"))
             {
@@ -350,6 +353,7 @@ namespace Engine.Master
                 if (otherUnit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
                 {
                     int capacity = Unit.CountCapacity();
+
                     // friendly unit
                     while (capacity-- > 0)
                     {
@@ -358,12 +362,10 @@ namespace Engine.Master
                             break;
                         }
                     }
-
                     if (otherUnit.ExtractMe && Unit.CanFill())
                     {
                         Bullet bullet = new Bullet();
                         bullet.Target = fromTile.Pos;
-                        //bullet.BulletType = "Extract";
                         hitByBullet.Add(bullet);
                     }
                 }
@@ -372,7 +374,6 @@ namespace Engine.Master
                     // enemy unit
                     Bullet bullet = new Bullet();
                     bullet.Target = fromTile.Pos;
-                    //bullet.BulletType = "Extract";
                     hitByBullet.Add(bullet);
                 }
             }
@@ -396,144 +397,19 @@ namespace Engine.Master
                     if (removedTileObject == null)
                     {
                         int x = 0;
-                        
                     }
                 }
                 if (removedTileObject != null)
                     removeTileObjects.Add(removedTileObject);
-            }
-            /*
-            if (!CanExtractMinerals)
-                return false;
-            int metalRemoved = 0;
 
-            if (otherUnitId != "Mineral" && fromTile.Unit != null)
-            {
-                // friendly unit
-                if (fromTile.Unit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
-                {
-                    bool canExtractMore = true;
-
-                    Container sourceContainer = null;
-                    if (fromTile.Unit.Container != null && fromTile.Unit.Container.Mineral > 0)
-                    {
-                        sourceContainer = fromTile.Unit.Container;
-                    }
-                    if (sourceContainer != null && sourceContainer.Mineral > 0)
-                    {
-                        int totalMetal = 0;
-
-                        if (fromTile.Unit.Engine != null)
-                        {
-                            // Take all
-                            totalMetal = sourceContainer.Mineral;
-                        }
-                        else
-                        {
-                            if (Unit.BuilderWaitForMetal)
-                            {
-                                Unit.BuilderWaitForMetal = false;
-                            }
-                            else
-                            {
-                                // Take all
-                                totalMetal = sourceContainer.Mineral;
-                            }
-                        }
-
-                        if (totalMetal > 0 && Unit.Weapon != null && Unit.Weapon.Container != null && Unit.Weapon.Container.Mineral < Unit.Weapon.Container.Capacity)
-                        {
-                            int mins = Unit.Weapon.Container.Capacity - Unit.Weapon.Container.Mineral;
-                            if (mins > totalMetal)
-                            {
-                                metalRemoved += totalMetal;
-                                totalMetal = 0;
-                            }
-                            else
-                            {
-                                metalRemoved += mins;
-                                totalMetal -= mins;
-                            }
-                        }
-                        if (totalMetal > 0 && Unit.Assembler != null && Unit.Assembler.Container != null && Unit.Assembler.Container.Mineral < Unit.Assembler.Container.Capacity)
-                        {
-                            int mins = Unit.Assembler.Container.Capacity - Unit.Assembler.Container.Mineral;
-                            if (mins > totalMetal)
-                            {
-                                metalRemoved += totalMetal;
-                                totalMetal = 0;
-                            }
-                            else
-                            {
-                                metalRemoved += mins;
-                                totalMetal -= mins;
-                            }
-                        }
-                        if (totalMetal > 0 && Unit.Reactor != null && Unit.Reactor.Container != null && Unit.Reactor.Container.Mineral < Unit.Reactor.Container.Capacity)
-                        {
-                            int mins = Unit.Reactor.Container.Capacity - Unit.Reactor.Container.Mineral;
-                            if (mins > totalMetal)
-                            {
-                                metalRemoved += totalMetal;
-                                totalMetal = 0;
-                            }
-                            else
-                            {
-                                metalRemoved += mins;
-                                totalMetal -= mins;
-                            }
-                        }
-                        if (totalMetal > 0 && Unit.Container != null && Unit.Container.Mineral < Unit.Container.Capacity)
-                        {
-                            int mins = Unit.Container.Capacity - Unit.Container.Mineral;
-                            if (mins > totalMetal)
-                            {
-                                metalRemoved += totalMetal;
-                                totalMetal = 0;
-                            }
-                            else
-                            {
-                                metalRemoved += mins;
-                                totalMetal -= mins;
-                            }
-                        }
-
-                        if (totalMetal > 0)
-                        {
-                            canExtractMore = true;
-                            //break;
-                        }
-                        sourceContainer.Mineral -= metalRemoved;
-
-                        if (!game.changedUnits.ContainsKey(fromTile.Unit.Pos))
-                            game.changedUnits.Add(fromTile.Unit.Pos, fromTile.Unit);
-                        
-                    }
-
-                    if (fromTile.Unit.ExtractMe && canExtractMore)
-                    {
-                        Bullet bullet = new Bullet();
-                        bullet.Target = fromTile.Pos;
-                        bullet.BulletType = "Extract";
-                        hitByBullet.Add(bullet);
-                    }
-                }
-                else
-                {
-                    Bullet bullet = new Bullet();
-                    bullet.Target = fromTile.Pos;
-                    bullet.BulletType = "Extract";
-                    hitByBullet.Add(bullet);
-                }
+                move.Stats = new MoveUpdateStats();
+                move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
+                move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
+                move.Stats.MoveUpdateGroundStat.TileObjects.Add(removedTileObject);
             }
 
-            if (metalRemoved == 0 && fromTile.Metal > 0)
-            {
-                // Extract from ground
-                metalRemoved = 1;
-                fromTile.AddMinerals(-1);
-            }
-            */
+            moveUpdateGroundStat.TileObjects.AddRange(removeTileObjects);
+
             bool didRemove = removeTileObjects.Count > 0;
 
             Unit.AddTileObjects(removeTileObjects);
@@ -542,6 +418,8 @@ namespace Engine.Master
             {
                 fromTile.TileContainer.TileObjects.AddRange(removeTileObjects);
             }
+            move.Stats = unit.CollectStats();
+            move.Stats.MoveUpdateGroundStat = moveUpdateGroundStat;
 
             return didRemove;
         }

@@ -10,6 +10,11 @@ public class UnitCommand
     public GroundCell TargetCell { get; set; }
     public UnitBase Owner { get; set; }
 }
+public class UnitBaseTileObject
+{
+    public GameObject GameObject { get; set; }
+    public TileObject TileObject { get; set; }
+}
 
 public class UnitBasePart
 {
@@ -19,6 +24,7 @@ public class UnitBasePart
     public bool IsUnderConstruction { get; set; }
     public bool Destroyed { get; set; }
     public GameObject Part { get; set; }
+    public List<UnitBaseTileObject> TileObjects { get; set; }
 
 }
 
@@ -27,9 +33,7 @@ public class UnitBase : MonoBehaviour
     public UnitBase()
     {
         UnitCommands = new List<UnitCommand>();
-        unitBaseParts = new List<UnitBasePart>();
-
-        Container = new List<Container1>();
+        UnitBaseParts = new List<UnitBasePart>();
         AboveGround =0f;
     }
 
@@ -40,7 +44,7 @@ public class UnitBase : MonoBehaviour
     internal string UnitId { get; set; }
     public MoveUpdateStats MoveUpdateStats { get; set; }
 
-    private List<UnitBasePart> unitBaseParts;
+    public List<UnitBasePart> UnitBaseParts { get; private set; }
 
     public List<string> PartsThatHaveBeenHit { get; set; }
 
@@ -183,7 +187,18 @@ public class UnitBase : MonoBehaviour
         unitBasePart.Part = newPart;
         unitBasePart.Level = moveUpdateUnitPart.Level;
         unitBasePart.IsUnderConstruction = underConstruction;
-        unitBaseParts.Add(unitBasePart);
+
+        if (moveUpdateUnitPart.TileObjects != null)
+        {
+            unitBasePart.TileObjects = new List<UnitBaseTileObject>();
+            foreach (TileObject tileObject in moveUpdateUnitPart.TileObjects)
+            {
+                UnitBaseTileObject unitBaseTileObject = new UnitBaseTileObject();
+                unitBaseTileObject.TileObject = tileObject;
+                unitBasePart.TileObjects.Add(unitBaseTileObject);
+            }
+        }
+        UnitBaseParts.Add(unitBasePart);
     }
 
 
@@ -296,17 +311,17 @@ public class UnitBase : MonoBehaviour
     {
         PlayerId = newPlayerId;
 
-        foreach (UnitBasePart unitBasePart in unitBaseParts)
+        foreach (UnitBasePart unitBasePart in UnitBaseParts)
         {
             SetPlayerColor(HexGrid, PlayerId, unitBasePart.Part);
         }
     }
 
-    public void Extract(Move move, UnitBase otherUnit)
+    public void Extract(Move move, UnitBase unit, UnitBase otherUnit)
     {
         if (Extractor != null)
         {
-            Extractor.Extract(HexGrid, move, otherUnit);
+            Extractor.Extract(HexGrid, move, unit, otherUnit);
         }
     }
 
@@ -327,9 +342,9 @@ public class UnitBase : MonoBehaviour
 
     public void Transport(Move move)
     {
-        if (Container.Count > 0)
+        if (Container != null)
         {
-            Container[0].Transport(HexGrid, move);
+            Container.Transport(HexGrid, move);
         }
     }
 
@@ -449,7 +464,7 @@ public class UnitBase : MonoBehaviour
 
     private Engine1 Engine;
     private Assembler1 Assembler;
-    private List<Container1> Container;
+    private Container1 Container;
     private Extractor1 Extractor;
     private Weapon1 Weapon;
     private Reactor1 Reactor;
@@ -606,7 +621,7 @@ public class UnitBase : MonoBehaviour
         unitBasePart.Part = gameObject;
         unitBasePart.Level = moveUpdateUnitPart.Level;
         unitBasePart.IsUnderConstruction = UnderConstruction;
-        unitBaseParts.Add(unitBasePart);
+        UnitBaseParts.Add(unitBasePart);
     }
 
     /*
@@ -634,9 +649,9 @@ public class UnitBase : MonoBehaviour
         if (hitPart == null)
             return;
 
-        for (int i = unitBaseParts.Count - 1; i >= 0; i--)
+        for (int i = UnitBaseParts.Count - 1; i >= 0; i--)
         {
-            UnitBasePart unitBasePart = unitBaseParts[i];
+            UnitBasePart unitBasePart = UnitBaseParts[i];
             if (unitBasePart.PartType == hitPart)
             {
                 GroundCell currentCell = HexGrid.GroundCells[CurrentPos];
@@ -668,7 +683,7 @@ public class UnitBase : MonoBehaviour
                 unitBasePart.Destroyed = true;
                 SetPlayerColor(HexGrid, 0, unitBasePart.Part);
                 Destroy(unitBasePart.Part, 8);
-                unitBaseParts.Remove(unitBasePart);
+                UnitBaseParts.Remove(unitBasePart);
                 break;
             }
         }
@@ -748,7 +763,7 @@ public class UnitBase : MonoBehaviour
 
     public void Assemble(bool underConstruction)
     {
-        unitBaseParts.Clear();
+        UnitBaseParts.Clear();
         UnderConstruction = underConstruction;
         if (IsBuilding())
         {
@@ -839,7 +854,7 @@ public class UnitBase : MonoBehaviour
 
     public void UpdateParts()
     {
-        Container.Clear();
+        Container = null;
         Extractor = null;
         Assembler = null;
         Weapon = null;
@@ -849,7 +864,7 @@ public class UnitBase : MonoBehaviour
 
         bool missingPartFound = false;
 
-        foreach (UnitBasePart unitBasePart in unitBaseParts)
+        foreach (UnitBasePart unitBasePart in UnitBaseParts)
         {
             foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
             {
@@ -861,7 +876,16 @@ public class UnitBase : MonoBehaviour
                         unitBasePart.IsUnderConstruction = false;
                         SetPlayerColor(HexGrid, PlayerId, unitBasePart.Part);
                     }
-
+                    if (moveUpdateUnitPart.TileObjects != null)
+                    {
+                        unitBasePart.TileObjects = new List<UnitBaseTileObject>();
+                        foreach (TileObject tileObject in moveUpdateUnitPart.TileObjects)
+                        {
+                            UnitBaseTileObject unitBaseTileObject = new UnitBaseTileObject();
+                            unitBaseTileObject.TileObject = tileObject;
+                            unitBasePart.TileObjects.Add(unitBaseTileObject);
+                        }
+                    }
                     if (unitBasePart.Level != moveUpdateUnitPart.Level)
                     {
                         //int xx = 0;
@@ -878,7 +902,8 @@ public class UnitBase : MonoBehaviour
                         Container1 container = unitBasePart.Part.GetComponent<Container1>();
                         if (container != null)
                         {
-                            Container.Add(container);
+
+                            Container = container;
                             container.UpdateContent(HexGrid, moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
                         }
                         Extractor1 extractor = unitBasePart.Part.GetComponent<Extractor1>();

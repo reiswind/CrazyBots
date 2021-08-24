@@ -220,20 +220,7 @@ public class HexGrid : MonoBehaviour
 	public GameObject CreateDestructable(Transform transform, TileObject tileObject)
 	{
 		GameObject prefab;
-		/*
-		if (tile.IsDarkSand() || tile.IsSand())
-		{
-			int idx = game.Random.Next(rockResources.Count);
-			prefab = rockResources.Values.ElementAt(idx);
-		}
-		else if (tile.IsGrassDark() || tile.IsGras())
-        {
-			int idx = game.Random.Next(bushResources.Count);
-			prefab = bushResources.Values.ElementAt(idx);
-		}
-		else
-        {*/
-
+		
 		if (tileObject.TileObjectType == TileObjectType.Tree)
 		{
 			int idx = game.Random.Next(treeResources.Count);
@@ -253,21 +240,22 @@ public class HexGrid : MonoBehaviour
 			prefab = null;
 		}
 
-		GameObject obstacle = null;
+		GameObject gameTileObject = null;
 		if (prefab != null)
 		{
 			float y = prefab.transform.position.y;
 
-			obstacle = Instantiate(prefab, transform, false);
+			gameTileObject = Instantiate(prefab, transform, false);
 
 			Vector2 randomPos = UnityEngine.Random.insideUnitCircle;
 			Vector3 unitPos3 = transform.position;
 			unitPos3.x += (randomPos.x * 0.5f);
 			unitPos3.z += (randomPos.y * 0.7f);
 			unitPos3.y += y;
-			obstacle.transform.position = unitPos3;
+			gameTileObject.transform.position = unitPos3;
+			gameTileObject.name = tileObject.TileObjectType.ToString();
 		}
-		return obstacle;
+		return gameTileObject;
 	}
 
 	public GameObject CreateObstacle(Transform transform)
@@ -605,9 +593,27 @@ public class HexGrid : MonoBehaviour
 					unit.Fire(move);
 				}
 			}
-			else if (move.MoveType == MoveType.Extract ||
-					move.MoveType == MoveType.Transport ||
-					move.MoveType == MoveType.UpdateStats)
+			else if (move.MoveType == MoveType.Extract)
+			{
+				if (BaseUnits.ContainsKey(move.UnitId))
+				{
+					UnitBase unit = BaseUnits[move.UnitId];
+					UnitBase otherUnit = null; ;
+					if (move.OtherUnitId.StartsWith("unit"))
+						otherUnit = BaseUnits[move.OtherUnitId];
+					unit.UpdateStats(move.Stats);
+					unit.Extract(move, unit, otherUnit);
+				}
+			}
+			else if (move.MoveType == MoveType.Transport)
+			{
+				if (BaseUnits.ContainsKey(move.UnitId))
+				{
+					UnitBase unit = BaseUnits[move.UnitId];
+					unit.Transport(move);
+				}
+			}
+			else if (move.MoveType == MoveType.UpdateStats)
 			{
 				if (BaseUnits.ContainsKey(move.UnitId))
 				{
@@ -617,42 +623,7 @@ public class HexGrid : MonoBehaviour
 						unit.ChangePlayer(move.PlayerId);
 					}
 					unit.UpdateStats(move.Stats);
-
-					if (move.MoveType == MoveType.Extract)
-					{
-						UnitBase otherUnit = null;
-						if (move.OtherUnitId.StartsWith("unit")) 
-						{
-							foreach (UnitBase allUnits in BaseUnits.Values)
-							{
-								//if (allUnits.CurrentPos == move.Positions[1])
-								if (allUnits.UnitId == move.OtherUnitId)
-								{
-									otherUnit = allUnits;
-									break;
-								}
-							}
-							/*
-							if (otherUnit == null)
-							{
-								foreach (UnitBase allUnits in deletedUnits)
-								{
-									if (allUnits.CurrentPos == move.Positions[1])
-									{
-										otherUnit = allUnits;
-										break;
-									}
-								}
-							}*/
-						}
-						unit.Extract(move, otherUnit);
-					}
-					if (move.MoveType == MoveType.Transport)
-					{
-						unit.Transport(move);
-					}
 				}
-
 			}
 			else if (move.MoveType == MoveType.Move)
 			{
@@ -661,7 +632,6 @@ public class HexGrid : MonoBehaviour
 					UnitBase unit = BaseUnits[move.UnitId];
 					unit.MoveTo(move.Positions[1]);
 				}
-
 			}
 			else if (move.MoveType == MoveType.CommandComplete)
 			{

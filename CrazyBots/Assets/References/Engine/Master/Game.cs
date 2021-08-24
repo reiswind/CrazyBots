@@ -743,8 +743,6 @@ namespace Engine.Master
             Unit targetUnit = targetTile.Unit;
             if (targetUnit != null)
             {
-                //int totalMetalInUnitBeforeHit = targetUnit.CountMineral();
-
                 Ability hitPart = targetUnit.HitBy();
                 if (hitPart is Shield)
                 {
@@ -772,7 +770,6 @@ namespace Engine.Master
                                 targetTile.TileContainer.TileObjects.Add(tileObject);
                             }
                         }
-                        
                     }
                     TileObject hitPartTileObject = hitPart.PartTileObjects[0];
                     hitPart.PartTileObjects.Remove(hitPartTileObject);
@@ -1064,15 +1061,15 @@ namespace Engine.Master
                         bool extracted = false;
 
                         Position fromPos = move.Positions[move.Positions.Count - 1];
-                        extracted = unit.Extractor.ExtractInto(fromPos, hitByBullet, this, move.OtherUnitId);
+                        extracted = unit.Extractor.ExtractInto(unit, move, fromPos, hitByBullet, this, move.OtherUnitId);
 
                         if (extracted)
                         {
                             if (!changedGroundPositions.ContainsKey(fromPos))
                                 changedGroundPositions.Add(fromPos, null);
 
-                            if (!changedUnits.ContainsKey(unit.Pos))
-                                changedUnits.Add(unit.Pos, unit);
+                            //if (!changedUnits.ContainsKey(unit.Pos))
+                            //    changedUnits.Add(unit.Pos, unit);
 
                             lastMoves.Add(move);
                         }

@@ -64,65 +64,8 @@ namespace Engine.Interface
         public bool IsUnderwater { get; set; }
         [DataMember(EmitDefaultValue = false)]
         public float Height { get; set; }
-
-        //[DataMember(EmitDefaultValue = false)]
-        //public int Minerals { get; set; }
-        //[DataMember(EmitDefaultValue = false)]
-        //public int NumberOfDestructables { get; set; }
-        //[DataMember(EmitDefaultValue = false)]
-        //public int NumberOfObstacles { get; set; }
-
         [DataMember(EmitDefaultValue = false)]
         public List<TileObject> TileObjects { get; set; }
-        /*
-        public bool IsHill()
-        {
-            return TerrainTypeIndex >= 4;
-            //return Height > 0.8 && Height <= 0.9;
-        }
-        public bool IsRock()
-        {
-
-            return TerrainTypeIndex >= 4;
-            //return Height > 0.7 && Height <= 0.8;
-        }
-
-        public bool IsDarkWood()
-        {
-            return PlantLevel <= 4 && TerrainTypeIndex == 3;
-            //return Height > 0.6 && Height <= 0.7;
-        }
-
-        public bool IsWood()
-        {
-            return PlantLevel == 2 && TerrainTypeIndex == 3;
-            //return Height > 0.5 && Height <= 0.6;
-        }
-
-        public bool IsLightWood()
-        {
-            return PlantLevel <= 1 && TerrainTypeIndex == 3;
-            //return Height > 0.4 && Height <= 0.5;
-        }
-        public bool IsGrassDark()
-        {
-            return PlantLevel > 1 && TerrainTypeIndex == 1;
-            //return Height > 0.3 && Height <= 0.4;
-        }
-        public bool IsGras()
-        {
-            return PlantLevel <= 1 && TerrainTypeIndex == 1;
-            //return Height > 0.20 && Height <= 0.3;
-        }
-        public bool IsDarkSand()
-        {
-            return PlantLevel > 1 && TerrainTypeIndex == 0;
-            //return Height > 0.1 && Height <= 0.20;
-        }
-        public bool IsSand()
-        {
-            return PlantLevel <= 1 && TerrainTypeIndex == 0;
-        }*/
     }
 
     public class MoveUpdateStatsCommand
@@ -146,17 +89,14 @@ namespace Engine.Interface
         [DataMember(EmitDefaultValue = false)]
         public MoveUpdateGroundStat MoveUpdateGroundStat { get; set; }
 
+        [DataMember(EmitDefaultValue = false)]
         public MoveUpdateStatsCommand MoveUpdateStatsCommand { get; set; }
 
 
         [DataMember]
-        public bool MarkedForExtraction { 
-            get; 
-            set; 
-        }
+        public bool MarkedForExtraction { get; set; }
 
         public int Power { get; set; }
-
     }
 
     [DataContract]
@@ -167,7 +107,6 @@ namespace Engine.Interface
 
         }
 
-        internal int Priority { get; set; }
         /// <summary>
         /// The Player who made that move
         /// </summary>
