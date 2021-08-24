@@ -10,9 +10,7 @@ namespace Engine.Master
 {
     public class Assembler : Ability
     {
-        public int Level { get; set; }
-
-        public Container Container { get; set; }
+        public override string Name { get { return "Assembler"; } }
 
         public List<string> BuildQueue { get; set; }
 
@@ -28,9 +26,9 @@ namespace Engine.Master
         {
             if (Unit.Power == 0)
                 return false;
-            if (Container != null && Container.Mineral > 0)
+            if (TileContainer != null && TileContainer.Minerals > 0)
                 return true;
-            if (Unit.Container != null && Unit.Container.Mineral > 0)
+            if (Unit.Container != null && Unit.Container.TileContainer.Minerals> 0)
                 return true;
             return false;
         }
@@ -38,28 +36,26 @@ namespace Engine.Master
         public Assembler(Unit owner, int level) : base(owner)
         {
             Level = level;
-            Container = new Container(owner, 1);
-            Container.Capacity = 4;
-            //Container.Metal = 4;
+            TileContainer = new TileContainer();
+            TileContainer.Capacity = 4;
         }
 
-        public void ConsumeMetalForUnit()
+        
+        public TileObject ConsumeMineralForUnit()
         {
-            if (Unit.Container != null && Unit.Container.Mineral > 0)
+            TileObject tileObject = null;
+            if (Unit.Container != null)
             {
-                Unit.Container.Mineral--;
+                tileObject = Unit.Container.TileContainer.RemoveTileObject(TileObjectType.Mineral);
             }
-            else
+            if (tileObject == null)
             {
-                if (Container != null && Container.Mineral > 0)
+                if (TileContainer != null)
                 {
-                    Container.Mineral--;
-                }
-                else
-                {
-                    throw new Exception();
+                    tileObject = TileContainer.RemoveTileObject(TileObjectType.Mineral);
                 }
             }
+            return tileObject;
         }
 
         private Move CreateAssembleMove(Position pos, string productCode)

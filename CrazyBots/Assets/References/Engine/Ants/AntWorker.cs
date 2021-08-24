@@ -19,7 +19,6 @@ namespace Engine.Ants
     }
     internal class AntWorker : Ant
     {
-        public AntWorkerType AntWorkerType { get; set; }
         public bool ReturnHome { get; set; }
 
         public bool BuildPositionReached { get; set; }
@@ -274,7 +273,7 @@ namespace Engine.Ants
             Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(PlayerUnit.Unit.Pos, 3, false, matcher: tile =>
             {
                 Pheromone pheroHere = player.Game.Pheromones.FindAt(tile.Pos);
-                if (tile.Metal > 0)
+                if (tile.Minerals > 0)
                 {
                     AddDestination(possibleTiles, player, tile.Tile, 0.6f, false, PheromoneType.None);
                     return true;
@@ -292,7 +291,7 @@ namespace Engine.Ants
 
             foreach (AntDestination antDestination in possibleTiles)
             {
-                if (antDestination.Tile.Metal > 0 && (bestMetal == null || bestMetal.Tile.Metal > antDestination.Tile.Metal))
+                if (antDestination.Tile.Minerals > 0 && (bestMetal == null || bestMetal.Tile.Minerals > antDestination.Tile.Minerals))
                 {
                     bestMetal = antDestination;
                 }
@@ -508,12 +507,12 @@ namespace Engine.Ants
                 {
                     if (pheromoneType != PheromoneType.Energy && cntrlUnit.Container != null)
                     {
-                        if (cntrlUnit.Container.Loaded == 0)
+                        if (cntrlUnit.Container.TileContainer.Loaded == 0)
                         {
                             pheromoneType = PheromoneType.Mineral;
                             Debug.WriteLine("Empty load");
                         }
-                        else if (!cntrlUnit.Container.IsFreeSpace)
+                        else if (!cntrlUnit.Container.TileContainer.IsFreeSpace)
                         {
                             pheromoneType = PheromoneType.Container;
                             Debug.WriteLine("Full go Home");
@@ -532,7 +531,7 @@ namespace Engine.Ants
                                 float intensityContainer = pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Container);
                                 float intensityMineral = pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Mineral);
 
-                                float loaded = ((float)cntrlUnit.Container.Loaded / cntrlUnit.Container.Capacity);
+                                float loaded = ((float)cntrlUnit.Container.TileContainer.Loaded / cntrlUnit.Container.TileContainer.Capacity);
                                 intensityContainer *= loaded;
 
                                 if (intensityContainer > intensityMineral)
@@ -596,7 +595,7 @@ namespace Engine.Ants
                         moveToPosition = null;
                         FollowThisRoute = null;
                     }
-                    if (moveToPosition == null && cntrlUnit.Container != null && cntrlUnit.Container.Mineral > 0)
+                    if (moveToPosition == null && cntrlUnit.Container != null && cntrlUnit.Container.TileContainer.Minerals > 0)
                     {
                         // Return the mins
                         pheromoneType = PheromoneType.Container;
@@ -608,8 +607,15 @@ namespace Engine.Ants
                     if (PlayerUnit.Unit.CurrentGameCommand != null)
                     {
                         moveToPosition = Control.FindCommandTarget(player, this);
-                        // Builders are directed directly to their position. This is a lost builder
-                        //cntrlUnit.ExtractMe = true;
+                     
+                        if (moveToPosition == null)
+                        {
+                            // Cannot reach target
+                            StuckCounter++;
+                            if (StuckCounter > 10)
+                                AbendonUnit(player);
+                            return false;
+                        }
                     }
                     else
                     {
@@ -985,29 +991,6 @@ namespace Engine.Ants
                     if (move != null)
                     {
                         moves.Add(move);
-
-                        if (BuildPositionReached)
-                        {
-                            // Build complete
-                            if (cntrlUnit.Assembler.Container.Mineral <= 1)
-                            {
-                                // Command complete
-                                if (PlayerUnit.Unit.CurrentGameCommand != null)
-                                {
-                                    Move commandMove = new Move();
-                                    commandMove.MoveType = MoveType.CommandComplete;
-                                    commandMove.UnitId = cntrlUnit.UnitId;
-                                    commandMove.PlayerId = player.PlayerModel.Id;
-                                    commandMove.Positions = new List<Position>();
-                                    commandMove.Positions.Add(PlayerUnit.Unit.CurrentGameCommand.TargetPosition);
-                                    moves.Add(commandMove);
-                                }
-                                PlayerUnit.Unit.CurrentGameCommand = null;
-
-                                // Extract the unit
-                                AbendonUnit(player);                                
-                            }
-                        }
                         FollowThisRoute = null;
 
                         unitMoved = true;
@@ -1026,6 +1009,7 @@ namespace Engine.Ants
                     foreach (Move move1 in possiblemoves)
                     {
                         if (PlayerUnit.Unit.CurrentGameCommand != null &&
+                            PlayerUnit.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build &&
                             move1.Positions[1] == PlayerUnit.Unit.CurrentGameCommand.TargetPosition && 
                             move1.UnitId == PlayerUnit.Unit.CurrentGameCommand.UnitId)
                         {
@@ -1037,41 +1021,16 @@ namespace Engine.Ants
                         }
                     }
                 }
-            }
-
-            if (AntWorkerType == AntWorkerType.Fighter && cntrlUnit.Weapon != null && 
-                cntrlUnit.Weapon.Container.Dirt >= cntrlUnit.Weapon.Container.Capacity)
-            {
-                // Fight, do not extract if can fire
-            }
-            else
-            {
-                // only if enemy is close...
-                if (false && cntrlUnit.Armor != null && cntrlUnit.Armor.ShieldActive == false && AntWorkerType != AntWorkerType.Worker)
+                // Reached position, tryin to build but cant.
+                StuckCounter++;
+                if (StuckCounter > 10)
                 {
-                    // Run away, extract later 
+                    AbendonUnit(player);
                 }
-                else
-                {
-                    if (cntrlUnit.Extractor != null && cntrlUnit.Extractor.CanExtract)
-                    {
-                        List<Move> possiblemoves = new List<Move>();
-                        cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, null, MoveFilter.Extract);
-                        if (possiblemoves.Count > 0)
-                        {
-                            int idx = player.Game.Random.Next(possiblemoves.Count);
-                            Move move = possiblemoves[idx];
-                            moves.Add(move);
-
-                            //Control.MineralsFound(player, move.Positions[1], false);
-                            FollowThisRoute = null;
-
-                            unitMoved = true;
-                            return unitMoved;
-                        }
-                    }
-                }
+                return false;
             }
+
+            
             if (cntrlUnit.Engine != null && cntrlUnit.UnderConstruction == false)
             {
                 if (PlayerUnit.Unit.CurrentGameCommand != null)

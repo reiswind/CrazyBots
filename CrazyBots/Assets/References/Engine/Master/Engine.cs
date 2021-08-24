@@ -10,7 +10,7 @@ namespace Engine.Master
 {
     public class Engine : Ability
     {
-        public int Level { get; set; }
+        public override string Name { get { return "Engine"; } }
 
         public int Range
         {

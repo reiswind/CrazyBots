@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Engine.Interface;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace Engine.Master
 {
     public class Reactor : Ability
     {
-        public Container Container { get; set; }
+        public override string Name { get { return "Reactor"; } }
         public int AvailablePower { get; set; }
         public int StoredPower
         {
@@ -17,10 +18,10 @@ namespace Engine.Master
                 int storedPower = 0;
                 if (Unit.Container != null)
                 {
-                    storedPower = Unit.Container.Mineral * 100;
+                    storedPower = Unit.Container.TileContainer.Minerals * 100;
                 }
 
-                return storedPower + Container.Mineral * 100;
+                return storedPower + TileContainer.Minerals * 100;
             }
         }
 
@@ -33,38 +34,17 @@ namespace Engine.Master
                 return 12;
             }
         }
-
-        public int Level { get; set; }
         public void BurnIfNeccessary()
         {
             if (AvailablePower == 0)
             {
-                bool burnMineral = false;
-
-                if (Unit.Container != null && Unit.Container.Mineral > 0)
-                {
-                    Unit.Container.Mineral--;
-                    burnMineral = true;
-                }
-                else if (Unit.Assembler != null && Unit.Assembler.Container.Mineral > 0)
-                {
-                    Unit.Assembler.Container.Mineral--;
-                    burnMineral = true;
-                }
-                else if (Unit.Weapon != null && Unit.Weapon.Container.Mineral > 0)
-                {
-                    Unit.Weapon.Container.Mineral--;
-                    burnMineral = true;
-                }
-                else if (Container.Mineral > 0)
-                {
-                    Container.Mineral--;
-                    burnMineral = true;
-                }
-                if (burnMineral)
+                List<TileObject> tileObjects = new List<TileObject>();
+                this.Unit.RemoveTileObjects(tileObjects, 1, TileObjectType.Mineral);
+                
+                if (tileObjects.Count > 0)
                 {
                     AvailablePower = 100;
-                    Unit.Game.Map.DistributeMineral();
+                    Unit.Game.Map.DistributeTileObject(tileObjects[0]);
                 }
             }
         }
@@ -98,8 +78,8 @@ namespace Engine.Master
 
             Level = level;
 
-            Container = new Container(owner, 1);
-            Container.Capacity = 4;
+            TileContainer = new TileContainer();
+            TileContainer.Capacity = 4;
         }
     }
 }

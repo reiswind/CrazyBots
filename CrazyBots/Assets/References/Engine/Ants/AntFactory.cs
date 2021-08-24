@@ -44,7 +44,7 @@ namespace Engine.Ants
 
                 int powerPerUnit = Control.MapPlayerInfo.TotalPower / Control.MapPlayerInfo.TotalUnits;
 
-                if (addWorker == false && totalMetalInPercent > 10 && powerPerUnit > 50 && Control.NumberOfFighter <= 10)
+                if (addWorker == false && totalMetalInPercent > 10 && powerPerUnit > 80 && Control.NumberOfFighter <= 10)
                     addFighter = true;
             }
             if (cntrlUnit.Assembler != null)
@@ -318,28 +318,6 @@ namespace Engine.Ants
                 }
             }
 
-            if (!unitMoved)
-            {
-                if (cntrlUnit.Extractor != null)
-                {
-                    List<Move> possiblemoves = new List<Move>();
-                    cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, null, MoveFilter.Extract);
-                    if (possiblemoves.Count > 0)
-                    {
-                        foreach (Move possibleMove in possiblemoves)
-                        {
-                            Tile n = player.Game.Map.GetTile(possibleMove.Positions[1]);
-                            if (n.Unit != null && n.Unit.Assembler != null && !n.Unit.ExtractMe)
-                            {
-                                // Do not extract from attached factory
-                                //continue;
-                            }
-                            moves.Add(possibleMove);
-                            return true;
-                        }
-                    }
-                }
-            }
 
             return unitMoved;
         }

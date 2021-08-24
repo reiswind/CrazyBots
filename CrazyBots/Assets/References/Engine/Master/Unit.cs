@@ -126,36 +126,40 @@ namespace Engine.Master
         public int CountMineral()
         {
             int mineral = 0;
+
             if (Container != null)
             {
-                mineral += Container.Mineral;
-                mineral += Container.Level;
+                mineral += Container.TileContainer.TileObjects.Count;
+                mineral += Container.PartTileObjects.Count;
             }
 
             // Every part is one metal
-            if (Engine != null) mineral += Engine.Level;
-            if (Armor != null) mineral += Armor.Level;
+            if (Engine != null) 
+                mineral += Engine.PartTileObjects.Count;
+            if (Armor != null) 
+                mineral += Armor.PartTileObjects.Count;
             if (Weapon != null)
             {
-                if (Weapon.Container != null)
-                    mineral += Weapon.Container.Mineral;
-                mineral += Weapon.Level;
+                if (Weapon.TileContainer != null)
+                    mineral += Weapon.TileContainer.TileObjects.Count;
+                mineral += Weapon.PartTileObjects.Count;
             }
             if (Assembler != null)
             {
-                if (Assembler.Container != null)
-                    mineral += Assembler.Container.Mineral;
-                mineral += Assembler.Level;
+                if (Assembler.TileContainer != null)
+                    mineral += Assembler.TileContainer.TileObjects.Count;
+                mineral += Assembler.PartTileObjects.Count;
             }
-            if (Extractor != null) mineral++;
+            if (Extractor != null)
+                mineral += Extractor.PartTileObjects.Count;
             if (Reactor != null)
             {
-                if (Reactor.Container != null)
-                    mineral += Reactor.Container.Mineral;
-                mineral+= Reactor.Level;
+                if (Reactor.TileContainer != null)
+                    mineral += Reactor.TileContainer.TileObjects.Count;
+                mineral+= Reactor.PartTileObjects.Count;
             }
             if (Radar != null)
-                mineral+= Radar.Level;
+                mineral+= Radar.PartTileObjects.Count;
 
             return mineral;
         }
@@ -165,22 +169,22 @@ namespace Engine.Master
             int metal = 0;
             if (Engine == null)
             {
-                if (Container != null) metal += Container.Mineral;
+                if (Container != null) metal += Container.TileContainer.Minerals;
 
                 if (Weapon != null)
                 {
-                    if (Weapon.Container != null)
-                        metal += Weapon.Container.Mineral;
+                    if (Weapon.TileContainer != null)
+                        metal += Weapon.TileContainer.Minerals;
                 }
                 if (Assembler != null)
                 {
-                    if (Assembler.Container != null)
-                        metal += Assembler.Container.Mineral;
+                    if (Assembler.TileContainer != null)
+                        metal += Assembler.TileContainer.Minerals;
                 }
                 if (Reactor != null)
                 {
-                    if (Reactor.Container != null)
-                        metal += Reactor.Container.Mineral;
+                    if (Reactor.TileContainer != null)
+                        metal += Reactor.TileContainer.Minerals;
                 }
             }
             return metal;
@@ -190,22 +194,22 @@ namespace Engine.Master
         {
             int capacity = 0;
             if (Container != null) 
-                capacity += Container.Capacity;
+                capacity += Container.TileContainer.Capacity;
 
             if (Weapon != null)
             {
-                if (Weapon.Container != null)
-                    capacity += Weapon.Container.Capacity;
+                if (Weapon.TileContainer != null)
+                    capacity += Weapon.TileContainer.Capacity;
             }
             if (Assembler != null)
             {
-                if (Assembler.Container != null)
-                    capacity += Assembler.Container.Capacity;
+                if (Assembler.TileContainer != null)
+                    capacity += Assembler.TileContainer.Capacity;
             }
             if (Reactor != null)
             {
-                if (Reactor.Container != null)
-                    capacity += Reactor.Container.Capacity;
+                if (Reactor.TileContainer != null)
+                    capacity += Reactor.TileContainer.Capacity;
             }
             
             return capacity;
@@ -246,8 +250,9 @@ namespace Engine.Master
             return true;
         }
 
-        private void CreateBlueprintPart(BlueprintPart blueprintPart, int level, bool fillContainer)
+        private void CreateBlueprintPart(BlueprintPart blueprintPart, int level, bool fillContainer, TileObject tileObject)
         {
+            Ability createdAbility = null;
             if (blueprintPart.PartType.StartsWith("Engine"))
             {
                 if (Engine == null)
@@ -256,6 +261,7 @@ namespace Engine.Master
                 }
                 while (level > Engine.Level)
                     Engine.Level++;
+                createdAbility = Engine;
             }
 
             else if (blueprintPart.PartType.StartsWith("Armor"))
@@ -266,6 +272,7 @@ namespace Engine.Master
                 }
                 while (level > Armor.Level)
                     Armor.Level++;
+                createdAbility = Armor;
             }
 
 
@@ -277,6 +284,7 @@ namespace Engine.Master
                 }
                 while (level > Extractor.Level)
                     Extractor.Level++;
+                createdAbility = Extractor;
             }
 
             else if (blueprintPart.PartType.StartsWith("Assembler"))
@@ -285,14 +293,15 @@ namespace Engine.Master
                 {
                     Assembler = new Assembler(this, 1);
                     if (blueprintPart.Capacity.HasValue)
-                        Assembler.Container.Capacity = blueprintPart.Capacity.Value;
+                        Assembler.TileContainer.Capacity = blueprintPart.Capacity.Value;
                     if (fillContainer)
                     {
-                        Assembler.Container.Mineral = Assembler.Container.Capacity;
+                        Assembler.TileContainer.CreateMinerals(Assembler.TileContainer.Capacity);
                     }
                 }
                 while (level > Assembler.Level)
                     Assembler.Level++;
+                createdAbility = Assembler;
             }
             else if (blueprintPart.PartType.StartsWith("Weapon"))
             {
@@ -300,14 +309,15 @@ namespace Engine.Master
                 {
                     Weapon = new Weapon(this, 1);
                     if (blueprintPart.Capacity.HasValue)
-                        Weapon.Container.Capacity = blueprintPart.Capacity.Value;
+                        Weapon.TileContainer.Capacity = blueprintPart.Capacity.Value;
                     if (fillContainer)
                     {
-                        Weapon.Container.Mineral = Weapon.Container.Capacity;
+                        Weapon.TileContainer.CreateMinerals(Weapon.TileContainer.Capacity);
                     }
                 }
                 while (level > Weapon.Level)
                     Weapon.Level++;
+                createdAbility = Weapon;
             }
 
             else if (blueprintPart.PartType.StartsWith("Container"))
@@ -316,19 +326,20 @@ namespace Engine.Master
                 {
                     Container = new Container(this, 1);
                     if (blueprintPart.Capacity.HasValue)
-                        Container.Capacity = blueprintPart.Capacity.Value;
+                        Container.TileContainer.Capacity = blueprintPart.Capacity.Value;
                     if (fillContainer)
                     {
                         // TESTEXTRACT
-                        
-                        if (Container.Capacity < 20)
-                            Container.Mineral = Container.Capacity;
+                        if (Container.TileContainer.Capacity < 20)
+                            Container.TileContainer.CreateMinerals(Container.TileContainer.Capacity);
                         else
-                            Container.Mineral = 20;
+                            Container.TileContainer.CreateMinerals(20);
+                        
                     }
                 }
                 while (level > Container.Level)
                     Container.Level++;
+                createdAbility = Container;
             }
 
             else if (blueprintPart.PartType.StartsWith("Reactor"))
@@ -337,14 +348,15 @@ namespace Engine.Master
                 {
                     Reactor = new Reactor(this, 1);
                     if (blueprintPart.Capacity.HasValue)
-                        Reactor.Container.Capacity = blueprintPart.Capacity.Value;
+                        Reactor.TileContainer.Capacity = blueprintPart.Capacity.Value;
                     if (fillContainer)
                     {
-                        Reactor.Container.Mineral = Reactor.Container.Capacity;
+                        Reactor.TileContainer.CreateMinerals(Reactor.TileContainer.Capacity);
                     }
                 }
                 while (level > Reactor.Level)
                     Reactor.Level++;
+                createdAbility = Reactor;
             }
 
             else if (blueprintPart.PartType.StartsWith("Radar"))
@@ -355,6 +367,15 @@ namespace Engine.Master
                 }
                 while (level > Radar.Level)
                     Radar.Level++;
+                createdAbility = Radar;
+            }
+            if (createdAbility != null)
+            {
+                createdAbility.PartTileObjects.Add(tileObject);
+            }
+            else
+            {
+                throw new Exception();
             }
         }
 
@@ -391,7 +412,11 @@ namespace Engine.Master
         {
             foreach (BlueprintPart blueprintPart in Blueprint.Parts)
             {
-                CreateBlueprintPart(blueprintPart, blueprintPart.Level, true);
+                TileObject tileObject = new TileObject();
+                tileObject.Direction = Direction.N;
+                tileObject.TileObjectType = TileObjectType.Mineral;
+
+                CreateBlueprintPart(blueprintPart, blueprintPart.Level, true, tileObject);
             }
             UnderConstruction = false;
         }
@@ -515,7 +540,8 @@ namespace Engine.Master
                         //if (startCode == "StartFactory" || startCode == "StartColony")
                         if (parts[5].StartsWith("F"))
                         {
-                            Container.Mineral = Container.Capacity;
+                            // TODOMIN
+                            //Container.Mineral = Container.Capacity;
                             //Container.Capacity = 100000;
                         }
                     }
@@ -532,7 +558,7 @@ namespace Engine.Master
                     if (level > 0)
                         Radar = new Radar(this, level);
                 }
-                UnderConstruction = true; // !IsComplete();
+                UnderConstruction = true;
             }
         }
 
@@ -540,34 +566,35 @@ namespace Engine.Master
         {
             if (Weapon != null)
             {
-                if (Weapon.Container != null && Weapon.Container.Mineral < Weapon.Container.Capacity)
+                if (Weapon.TileContainer != null && Weapon.TileContainer.Loaded < Weapon.TileContainer.Capacity)
                 {
                     return true;
                 }
             }
             if (Assembler != null)
             {
-                if (Assembler.Container != null && Assembler.Container.Mineral < Assembler.Container.Capacity)
+                if (Assembler.TileContainer != null && Assembler.TileContainer.Loaded < Assembler.TileContainer.Capacity)
                 {
                     return true;
                 }
             }
             if (Reactor != null)
             {
-                if (Reactor.Container != null && Reactor.Container.Mineral < Reactor.Container.Capacity)
+                if (Reactor.TileContainer != null && Reactor.TileContainer.Loaded < Reactor.TileContainer.Capacity)
                 {
                     return true;
                 }
             }
-            if (Container != null && Container.Mineral < Container.Capacity)
+            if (Container != null && Container.TileContainer.Loaded < Container.TileContainer.Capacity)
             {
                 return true;
             }
             return false;
         }
-    
+        
 
-        public void Upgrade(string unitCode)
+
+        public void Upgrade(string unitCode, TileObject tileObject)
         {
             int unitCodeLevel = 1;
             if (unitCode.EndsWith("2"))
@@ -577,9 +604,9 @@ namespace Engine.Master
 
             foreach (BlueprintPart blueprintPart in Blueprint.Parts)
             {
-                if (unitCode.StartsWith(blueprintPart.PartType)) // + blueprintPart.Level == unitCode)
+                if (unitCode.StartsWith(blueprintPart.PartType))
                 {
-                    CreateBlueprintPart(blueprintPart, unitCodeLevel, false);
+                    CreateBlueprintPart(blueprintPart, unitCodeLevel, false, tileObject);
                     break;
                 }
             }
@@ -587,74 +614,15 @@ namespace Engine.Master
             {
                 UnderConstruction = false;
             }
-            /*
-            if (unitCode == "Engine")
-            {
-                if (Engine == null)
-                    Engine = new Engine(this, 1);
-                else
-                    Engine.Level++;
-            }
-            if (unitCode == "Armor")
-            {
-                if (Armor == null)
-                    Armor = new Armor(this, 1);
-                else
-                    Armor.Level++;
-            }
-            if (unitCode == "Weapon")
-            {
-                if (Weapon == null)
-                    Weapon = new Weapon(this, 1);
-                else
-                    Weapon.Level++;
-            }
-            if (unitCode == "Assembler")
-            {
-                if (Assembler == null)
-                    Assembler = new Assembler(this, 1);
-                else
-                    Assembler.Level++;
-            }
-            if (unitCode == "Extractor")
-            {
-                if (Extractor == null)
-                    Extractor = new Extractor(this, 1);
-                else
-                    Extractor.Level++;
-            }
-            if (unitCode == "Container")
-            {
-                if (Container == null)
-                    Container = new Container(this, 1);
-                else
-                    Container.Level++;
-            }
-            if (unitCode == "Reactor")
-            {
-                if (Reactor == null)
-                    Reactor = new Reactor(this, 1);
-                else
-                    Reactor.Level++;
-            }
-            if (unitCode == "Radar")
-            {
-                if (Radar == null)
-                    Radar = new Radar(this, 1);
-                else
-                    Radar.Level++;
-            }*/
-
-            /*
-            if (IsComplete())
-            {
-                UnderConstruction = false;
-            }
-            else
-            {
-                UnderConstruction = true;
-            }*/
+            
             ExtractMe = false;
+        }
+
+        private List<TileObject> CopyContainer(TileContainer tileContainer)
+        {
+            List<TileObject> target = new List<TileObject>();
+            target.AddRange(tileContainer.TileObjects);
+            return target;
         }
 
         public MoveUpdateStats CollectStats()
@@ -677,14 +645,14 @@ namespace Engine.Master
                     if (blueprintPart.PartType.StartsWith( "Weapon"))
                     {
                         moveUpdateUnitPart.Level = Weapon.Level;
-                        moveUpdateUnitPart.Minerals = Weapon.Container.Dirt + Weapon.Container.Mineral;
-                        moveUpdateUnitPart.Capacity = Weapon.Container.Capacity;
+                        moveUpdateUnitPart.TileObjects = CopyContainer(Weapon.TileContainer);
+                        moveUpdateUnitPart.Capacity = Weapon.TileContainer.Capacity;
                     }
                     if (blueprintPart.PartType.StartsWith("Assembler"))
                     {
                         moveUpdateUnitPart.Level = Assembler.Level;
-                        moveUpdateUnitPart.Minerals = Assembler.Container.Mineral;
-                        moveUpdateUnitPart.Capacity = Assembler.Container.Capacity;
+                        moveUpdateUnitPart.TileObjects = CopyContainer(Assembler.TileContainer);
+                        moveUpdateUnitPart.Capacity = Assembler.TileContainer.Capacity;
 
                         if (Assembler.BuildQueue != null)
                         {
@@ -695,21 +663,25 @@ namespace Engine.Master
                     if (blueprintPart.PartType.StartsWith("Container"))
                     {
                         moveUpdateUnitPart.Level = Container.Level;
-                        moveUpdateUnitPart.Minerals = Container.Mineral;
-                        moveUpdateUnitPart.Capacity = Container.Capacity;
+                        moveUpdateUnitPart.TileObjects = CopyContainer(Container.TileContainer);
+                        moveUpdateUnitPart.Capacity = Container.TileContainer.Capacity;
                     }
                     if (blueprintPart.PartType.StartsWith("Reactor"))
                     {
                         moveUpdateUnitPart.Level = Reactor.Level;
                         moveUpdateUnitPart.AvailablePower = Reactor.AvailablePower;
-                        moveUpdateUnitPart.Minerals = Reactor.Container.Mineral;
-                        moveUpdateUnitPart.Capacity = Reactor.Container.Capacity;
+                        moveUpdateUnitPart.TileObjects = CopyContainer(Reactor.TileContainer);
+                        moveUpdateUnitPart.Capacity = Reactor.TileContainer.Capacity;
                     }
                     if (blueprintPart.PartType.StartsWith("Armor"))
                     {
                         moveUpdateUnitPart.Level = Armor.Level;
                         moveUpdateUnitPart.ShieldActive = Armor.ShieldActive;
                         moveUpdateUnitPart.ShieldPower = Armor.ShieldPower;
+                    }
+                    if (blueprintPart.PartType.StartsWith("Radar"))
+                    {
+                        moveUpdateUnitPart.Level = Radar.Level;
                     }
                 }
                 stats.UnitParts.Add(moveUpdateUnitPart);
@@ -747,29 +719,32 @@ namespace Engine.Master
             }
         }
 
-        public string HitBy()
+        public Ability HitBy()
         {
             if (IsDead())
             {
                 throw new Exception("Dead unit hit...");
             }
-            string partHit = null;
+            Ability partHit = null;
 
             if (this.Armor != null)
             {
                 if (Armor.ShieldActive)
                 {
                     Armor.ShieldHit();
-                    partHit = "Shield";
+
+                    Shield shield = new Shield(this, 1);
+                    partHit = shield;
                 }
                 else
                 {
+                    partHit = Armor;
+
                     Armor.Level--;
                     if (Armor.Level <= 0)
                     {
                         this.Armor = null;
                     }
-                    partHit = "Armor";
                 }
             }
             else
@@ -785,66 +760,67 @@ namespace Engine.Master
                         {
                             if (Weapon != null && Weapon.Level > 0)
                             {
+                                partHit = Weapon;
                                 Weapon.Level--;
                                 if (Weapon.Level == 0)
                                 {
                                     Weapon = null;
                                 }
                                 damageDone = true;
-                                partHit = "Weapon";
                             }
                         }
                         else if (damageType == 1)
                         {
                             if (Assembler != null && Assembler.Level > 0)
                             {
+                                partHit = Assembler;
                                 Assembler.Level--;
                                 if (Assembler.Level == 0)
                                 {
                                     Assembler = null;
                                 }
                                 damageDone = true;
-                                partHit = "Assembler";
                             }
                         }
                         else if (damageType == 2)
                         {
                             if (Container != null && Container.Level > 0)
                             {
+                                partHit = Container;
                                 Container.Level--;
-                                Container.ResetExtraCapacity();
+                                Container.ResetCapacity();
+
                                 if (Container.Level == 0)
                                 {
                                     Container = null;
                                 }
                                 damageDone = true;
-                                partHit = "Container";
                             }
                         }
                         else if (damageType == 3)
                         {
                             if (Reactor != null && Reactor.Level > 0)
                             {
+                                partHit = Reactor;
                                 Reactor.Level--;
                                 if (Reactor.Level == 0)
                                 {
                                     Reactor = null;
                                 }
                                 damageDone = true;
-                                partHit = "Reactor";
                             }
                         }
                         else if (damageType == 4)
                         {
                             if (Radar != null && Radar.Level > 0)
                             {
+                                partHit = Radar;
                                 Radar.Level--;
                                 if (Radar.Level == 0)
                                 {
                                     Radar = null;
                                 }
                                 damageDone = true;
-                                partHit = "Radar";
                             }
                         }
                         if (!damageDone)
@@ -857,175 +833,146 @@ namespace Engine.Master
                         {
                             if (Engine != null && Engine.Level > 0)
                             {
+                                partHit = Engine;
                                 Engine.Level--;
                                 if (Engine.Level == 0)
                                 {
                                     Engine = null;
                                 }
                                 damageDone = true;
-                                partHit = "Engine";
                             }
                         }
                         else if (damageType == 1)
                         {
                             if (Extractor != null && Extractor.Level > 0)
                             {
+                                partHit = Extractor;
                                 Extractor.Level--;
                                 if (Extractor.Level == 0)
                                 {
                                     Extractor = null;
                                 }
                                 damageDone = true;
-                                partHit = "Extractor";
                             }
                         }
                     }
 
                 }
             }
-
             return partHit;
         }
-
-        public int RemoveMinerals(int totalMetal)
+       
+        public bool RemoveTileObjects(List<TileObject> tileObjects, int numberOfObjects, TileObjectType tileObjectType)
         {
-            int metalRemoved = 0;
-            if (totalMetal > 0 && Weapon != null && Weapon.Container != null) // && Weapon.Container.Mineral < Weapon.Container.Capacity)
+            bool removed = false;
+            if (Container != null)
             {
-                int mins = Weapon.Container.Mineral;
-                if (mins > totalMetal)
+                while (numberOfObjects > 0)
                 {
-                    Weapon.Container.Mineral -= totalMetal;
-                    metalRemoved += totalMetal;
-                    totalMetal = 0;
-                }
-                else
-                {
-                    Weapon.Container.Mineral = 0;
-                    metalRemoved += mins;
-                    totalMetal -= mins;
+                    TileObject tileObject = Container.TileContainer.RemoveTileObject(tileObjectType);
+                    if (tileObject == null)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        numberOfObjects--;
+                        tileObjects.Add(tileObject);
+                        removed = true;
+                    }
                 }
             }
-            if (totalMetal > 0 && Assembler != null && Assembler.Container != null) // && Assembler.Container.Mineral < Assembler.Container.Capacity)
+            if (Weapon != null && Weapon.TileContainer != null)
             {
-                int mins = Assembler.Container.Mineral;
-                if (mins > totalMetal)
+                while (numberOfObjects > 0)
                 {
-                    Assembler.Container.Mineral -= totalMetal;
-                    metalRemoved += totalMetal;
-                    totalMetal = 0;
-                }
-                else
-                {
-                    Assembler.Container.Mineral = 0;
-                    metalRemoved += mins;
-                    totalMetal -= mins;
+                    TileObject tileObject = Weapon.TileContainer.RemoveTileObject(tileObjectType);
+                    if (tileObject == null)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        numberOfObjects--;
+                        tileObjects.Add(tileObject);
+                        removed = true;
+                    }
                 }
             }
-            if (totalMetal > 0 && Reactor != null && Reactor.Container != null) // && Reactor.Container.Mineral < Reactor.Container.Capacity)
+            if (Assembler != null && Assembler.TileContainer != null)
             {
-                int mins = Reactor.Container.Mineral;
-                if (mins > totalMetal)
+                while (numberOfObjects > 0)
                 {
-                    Reactor.Container.Mineral -= totalMetal;
-                    metalRemoved += totalMetal;
-                    totalMetal = 0;
-                }
-                else
-                {
-                    Reactor.Container.Mineral = 0;
-                    metalRemoved += mins;
-                    totalMetal -= mins;
+                    TileObject tileObject = Assembler.TileContainer.RemoveTileObject(tileObjectType);
+                    if (tileObject == null)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        numberOfObjects--;
+                        tileObjects.Add(tileObject);
+                        removed = true;
+                    }
                 }
             }
-            if (totalMetal > 0 && Container != null) // && Container.Mineral < Container.Capacity)
+            if (Reactor != null && Reactor.TileContainer != null)
             {
-                int mins = Container.Mineral;
-                if (mins > totalMetal)
+                while (numberOfObjects > 0)
                 {
-                    metalRemoved += totalMetal;
-                    Container.Mineral -= totalMetal;
-                    totalMetal = 0;
-                }
-                else
-                {
-                    metalRemoved += mins;
-                    totalMetal -= mins;
-                    Container.Mineral = 0;
+                    TileObject tileObject = Reactor.TileContainer.RemoveTileObject(tileObjectType);
+                    if (tileObject == null)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        numberOfObjects--;
+                        tileObjects.Add(tileObject);
+                        removed = true;
+                    }
                 }
             }
-            return metalRemoved;
+            return removed;
         }
-
-        public int AddMinerals(int minerals)
+        
+        public void AddTileObjects(List<TileObject> tileObjects)
         {
-            if (minerals > 0)
+            if (Reactor != null && Reactor.TileContainer != null)
             {
-                if (Reactor != null && Reactor.Container != null)
+                while (tileObjects.Count > 0 && Reactor.TileContainer.Loaded < Reactor.TileContainer.Capacity)
                 {
-                    if (Reactor.Container.Mineral + minerals > Reactor.Container.Capacity)
-                    {
-                        minerals -= Reactor.Container.Capacity - Reactor.Container.Mineral;
-                        Reactor.Container.Mineral = Reactor.Container.Capacity;
-                    }
-                    else
-                    {
-                        Reactor.Container.Mineral += minerals;
-                        minerals = 0;
-                    }
-                    Reactor.BurnIfNeccessary();
+                    Reactor.TileContainer.TileObjects.Add(tileObjects[0]);
+                    tileObjects.RemoveAt(0);
+                }
+                Reactor.BurnIfNeccessary();
+            }
+            if (Assembler != null && Assembler.TileContainer != null)
+            {
+                while (tileObjects.Count > 0 && Assembler.TileContainer.Loaded < Assembler.TileContainer.Capacity)
+                {
+                    Assembler.TileContainer.TileObjects.Add(tileObjects[0]);
+                    tileObjects.RemoveAt(0);
                 }
             }
-            if (minerals > 0)
+            if (Weapon != null && Weapon.TileContainer != null)
             {
-                if (Assembler != null && Assembler.Container != null)
+                while (tileObjects.Count > 0 && Weapon.TileContainer.Loaded < Weapon.TileContainer.Capacity)
                 {
-                    if (Assembler.Container.Mineral + minerals > Assembler.Container.Capacity)
-                    {
-                        minerals -= Assembler.Container.Capacity - Assembler.Container.Mineral;
-                        Assembler.Container.Mineral = Assembler.Container.Capacity;
-                    }
-                    else
-                    {
-                        Assembler.Container.Mineral += minerals;
-                        minerals = 0;
-                    }
+                    Weapon.TileContainer.TileObjects.Add(tileObjects[0]);
+                    tileObjects.RemoveAt(0);
                 }
             }
-            if (minerals > 0)
+            if (Container != null)
             {
-                if (Weapon != null && Weapon.Container != null)
+                while (tileObjects.Count > 0 && Container.TileContainer.Loaded < Container.TileContainer.Capacity)
                 {
-                    if (Weapon.Container.Mineral + minerals > Weapon.Container.Capacity)
-                    {
-                        minerals -= Weapon.Container.Capacity - Weapon.Container.Mineral;
-                        Weapon.Container.Mineral = Weapon.Container.Capacity;
-                    }
-                    else
-                    {
-                        Weapon.Container.Mineral += minerals;
-                        minerals = 0;
-                    }
+                    Container.TileContainer.TileObjects.Add(tileObjects[0]);
+                    tileObjects.RemoveAt(0);
                 }
             }
-            if (minerals > 0)
-            {
-                if (Container != null)
-                {
-                    if (Container.Mineral + minerals > Container.Capacity)
-                    {
-                        minerals -= Container.Capacity - Container.Mineral;
-                        Container.Mineral = Container.Capacity;
-                    }
-                    else
-                    {
-                        Container.Mineral += minerals;
-                        minerals = 0;
-                    }
-                }
-            }
-            return minerals;
         }
+        
 
         public bool IsDead()
         {

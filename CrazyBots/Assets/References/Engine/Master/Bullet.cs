@@ -11,12 +11,14 @@ namespace Engine.Interface
 {
     public class Bullet
     {
-        public string BulletType { get; set; }
+        public TileObject TileObject { get; set; }
         public Position Target { get; set; }
     }
 
     public class AbilityBullet : Ability
     {
+        public override string Name { get { return "Bullet"; } }
+
         //public  AbilityBulletModel Model;
         public Move Move;
         private int moved;

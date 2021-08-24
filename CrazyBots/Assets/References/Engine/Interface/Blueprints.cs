@@ -123,6 +123,11 @@ namespace Engine.Interface
         public string Layout { get; set; }
 
         public List<BlueprintPart> Parts { get; private set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 
     public class BlueprintPart

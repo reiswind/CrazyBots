@@ -8,7 +8,7 @@ namespace Engine.Master
 {
     public class Radar : Ability
     {
-        public int Level { get; set; }
+        public override string Name { get { return "Radar"; } }
 
         public Radar(Unit owner, int level) : base(owner)
         {

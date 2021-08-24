@@ -455,9 +455,8 @@ public class GameCanvas : MonoBehaviour
     private bool CanBuildAt(GroundCell groundCell)
     {
         if (groundCell == null ||
-            groundCell.Tile.TileObjects.Count > 0 ||
-            groundCell.Tile.NumberOfObstacles > 0 ||
-            groundCell.Tile.Unit != null)
+            groundCell.GroundStat.TileObjects.Count > 0
+            /*|| groundCell.Tile.Unit != null*/)
         {
             return false;
         }
@@ -469,17 +468,17 @@ public class GameCanvas : MonoBehaviour
     private bool CanCommandAt(GroundCell groundCell)
     {
         if (groundCell == null ||
-            groundCell.Tile.TileObjects.Count > 0 ||
-            groundCell.Tile.NumberOfObstacles > 0)
+            groundCell.GroundStat.TileObjects.Count > 0)
         {
             return false;
         }
+        /*
         if (groundCell.Tile.Unit != null &&
             groundCell.Tile.Unit.Engine == null)
         {
             // Not on buildings
             return false;
-        }
+        }*/
 
 
         return true;
@@ -495,7 +494,7 @@ public class GameCanvas : MonoBehaviour
                 SetButtonText(1, "(q) Extract");
 
             if (lastSelectedGroundCell != null &&
-                HexGrid.ActiveGameCommands.ContainsKey(lastSelectedGroundCell.Tile.Pos))
+                HexGrid.ActiveGameCommands.ContainsKey(lastSelectedGroundCell.Pos))
             {
                 SetButtonText(2, "(w) Cancel");
             }
@@ -730,10 +729,10 @@ public class GameCanvas : MonoBehaviour
 
     void CancelCommand()
     {
-        if (HexGrid.ActiveGameCommands.ContainsKey(lastSelectedGroundCell.Tile.Pos))
+        if (HexGrid.ActiveGameCommands.ContainsKey(lastSelectedGroundCell.Pos))
         {
             GameCommand gameCommand;
-            gameCommand = HexGrid.ActiveGameCommands[lastSelectedGroundCell.Tile.Pos];
+            gameCommand = HexGrid.ActiveGameCommands[lastSelectedGroundCell.Pos];
             HexGrid.ActiveGameCommands.Remove(gameCommand.TargetPosition);
 
             lastSelectedGroundCell.SetAttack(false);
@@ -855,7 +854,7 @@ public class GameCanvas : MonoBehaviour
             {
                 foreach (UnitBase unitFrame in HexGrid.BaseUnits.Values)
                 {
-                    if (unitFrame.CurrentPos == hitByMouseClick.GroundCell.Tile.Pos)
+                    if (unitFrame.CurrentPos == hitByMouseClick.GroundCell.Pos)
                     {
                         hitByMouseClick.UnitFrame = unitFrame;
                         break;
@@ -888,18 +887,18 @@ public class GameCanvas : MonoBehaviour
     private void AppendGroundInfo(GroundCell gc)
     {
         GameCommand gameCommand = null;
-        if (HexGrid.ActiveGameCommands.ContainsKey(lastSelectedGroundCell.Tile.Pos))
+        if (HexGrid.ActiveGameCommands.ContainsKey(lastSelectedGroundCell.Pos))
         {
-            gameCommand = HexGrid.ActiveGameCommands[lastSelectedGroundCell.Tile.Pos];
+            gameCommand = HexGrid.ActiveGameCommands[lastSelectedGroundCell.Pos];
         }
 
         StringBuilder sb = new StringBuilder();
 
-        sb.Append("Position: " + gc.Tile.Pos.X + ", " + gc.Tile.Pos.Y);
-        if (gc.Tile.Metal > 0)
-            sb.Append(" Minerals: " + gc.Tile.Metal);
+        sb.Append("Position: " + gc.Pos.X + ", " + gc.Pos.Y);
+        //if (gc.GroundStat.Minerals.Tile.Metal > 0)
+        //    sb.Append(" Minerals: " + gc.Tile.Metal);
 
-        sb.Append(" Owner: " + gc.Tile.Owner);
+        sb.Append(" Owner: " + gc.GroundStat.Owner);
 
         if (selectedUnitFrame == null)
         {
@@ -928,13 +927,9 @@ public class GameCanvas : MonoBehaviour
             }
             else
             {
-                if (gc.Tile.TileObjects.Count > 0)
+                if (gc.GroundStat.TileObjects.Count > 0)
                 {
                     headerText.text = "Destructable";
-                }
-                else if (gc.Tile.NumberOfObstacles > 0)
-                {
-                    headerText.text = "Obstacle";
                 }
                 else
                 {
@@ -944,10 +939,8 @@ public class GameCanvas : MonoBehaviour
             headerSubText.text = sb.ToString();
 
             sb.Clear();
-            if (gc.Tile.TileObjects.Count > 0)
-                sb.Append("Items: " + gc.Tile.TileObjects.Count);
-            if (gc.Tile.NumberOfObstacles > 0)
-                sb.Append("Obstacles: " + gc.Tile.NumberOfObstacles);
+            if (gc.GroundStat.TileObjects.Count > 0)
+                sb.Append("Items: " + gc.GroundStat.TileObjects.Count);
 
             headerGroundText.text = sb.ToString();
         }
@@ -1104,7 +1097,7 @@ public class GameCanvas : MonoBehaviour
                 lastSelectedGroundCell != null &&
                 CanCommandAt(lastSelectedGroundCell))
             {
-                Position pos = lastSelectedGroundCell.Tile.Pos;
+                Position pos = lastSelectedGroundCell.Pos;
                 if (HexGrid.GameCommands.ContainsKey(pos))
                     HexGrid.GameCommands.Remove(pos);
 
@@ -1203,9 +1196,9 @@ public class GameCanvas : MonoBehaviour
                 else
                 {
                     if (selectedUnitFrame != null &&
-                        selectedUnitFrame.CurrentPos != lastSelectedGroundCell.Tile.Pos)
+                        selectedUnitFrame.CurrentPos != lastSelectedGroundCell.Pos)
                     {
-                        selectedUnitFrame.CurrentPos = lastSelectedGroundCell.Tile.Pos;
+                        selectedUnitFrame.CurrentPos = lastSelectedGroundCell.Pos;
                         selectedUnitFrame.PutAtCurrentPosition(true);
                         selectedUnitFrame.gameObject.SetActive(true);
                     }
@@ -1219,7 +1212,7 @@ public class GameCanvas : MonoBehaviour
             {
                 //lastSelectedGroundCell.SetSelected(true);
 
-                Position pos = lastSelectedGroundCell.Tile.Pos;
+                Position pos = lastSelectedGroundCell.Pos;
                 selectedUnitFrame.CurrentPos = pos;
 
                 if (HexGrid.GameCommands.ContainsKey(pos))
@@ -1524,45 +1517,54 @@ public class GameCanvas : MonoBehaviour
                         panelWeapon.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                         panelWeapon.SetActive(true);
 
-                        StringBuilder sb = new StringBuilder();
-                        sb.Append("Ammunition  ");
-                        if (part.Minerals.HasValue)
-                            sb.Append(part.Minerals.Value);
+                        if (part.Exists)
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append("Ammunition  ");
+                            sb.Append(part.TileObjects.Count);
+
+                            if (part.Capacity.HasValue)
+                                sb.Append("/" + part.Capacity.Value);
+
+                            panelWeapon.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+                        }
                         else
-                            sb.Append("0");
-
-                        if (part.Capacity.HasValue)
-                            sb.Append("/" + part.Capacity.Value);
-
-                        panelWeapon.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+                        {
+                            panelWeapon.transform.Find("Content").GetComponent<Text>().text = "Destroyed";
+                        }
                     }
                     if (part.PartType.StartsWith("Assembler"))
                     {
                         panelAssembler.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                         panelAssembler.SetActive(true);
 
-                        StringBuilder sb = new StringBuilder();
-                        sb.Append("Minerals  ");
-                        if (part.Minerals.HasValue)
-                            sb.Append(part.Minerals.Value);
-                        else
-                            sb.Append("0");
-
-                        if (part.Capacity.HasValue)
-                            sb.Append("/" + part.Capacity.Value);
-
-                        panelAssembler.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
-
-                        sb = new StringBuilder();
-                        if (part.BildQueue != null)
+                        if (part.Exists)
                         {
-                            foreach (string b in part.BildQueue)
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append("Minerals  ");
+                            sb.Append(part.TileObjects.Count);
+
+                            if (part.Capacity.HasValue)
+                                sb.Append("/" + part.Capacity.Value);
+
+                            panelAssembler.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+
+                            sb = new StringBuilder();
+                            if (part.BildQueue != null)
                             {
-                                if (sb.Length > 0) sb.Append(" ");
-                                sb.Append(b);
+                                foreach (string b in part.BildQueue)
+                                {
+                                    if (sb.Length > 0) sb.Append(" ");
+                                    sb.Append(b);
+                                }
                             }
+                            panelAssembler.transform.Find("BuildQueue").GetComponent<Text>().text = sb.ToString();
+
                         }
-                        panelAssembler.transform.Find("BuildQueue").GetComponent<Text>().text = sb.ToString();
+                        else
+                        {
+                            panelWeapon.transform.Find("Content").GetComponent<Text>().text = "Destroyed";
+                        }
 
                     }
                     if (part.PartType.StartsWith("Reactor"))
@@ -1570,23 +1572,26 @@ public class GameCanvas : MonoBehaviour
                         panelReactor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                         panelReactor.SetActive(true);
 
-                        StringBuilder sb = new StringBuilder();
-                        sb.Append("Minerals  ");
-                        if (part.Minerals.HasValue)
-                            sb.Append(part.Minerals.Value);
+                        if (part.Exists)
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append("Minerals  ");
+                            sb.Append(part.TileObjects.Count);
+
+                            if (part.Capacity.HasValue)
+                                sb.Append("/" + part.Capacity.Value);
+
+                            sb.Append(" Power  ");
+                            if (part.AvailablePower.HasValue)
+                                sb.Append(part.AvailablePower.Value);
+                            else
+                                sb.Append("0");
+                            panelReactor.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+                        }
                         else
-                            sb.Append("0");
-
-                        if (part.Capacity.HasValue)
-                            sb.Append("/" + part.Capacity.Value);
-
-                        sb.Append(" Power  ");
-                        if (part.AvailablePower.HasValue)
-                            sb.Append(part.AvailablePower.Value);
-                        else
-                            sb.Append("0");
-                        panelReactor.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
-
+                        {
+                            panelWeapon.transform.Find("Content").GetComponent<Text>().text = "Destroyed";
+                        }
                     }
                     if (part.PartType.StartsWith("Armor"))
                     {
@@ -1615,17 +1620,21 @@ public class GameCanvas : MonoBehaviour
                         panelContainer.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                         panelContainer.SetActive(true);
 
-                        StringBuilder sb = new StringBuilder();
-                        sb.Append("Minerals  ");
-                        if (part.Minerals.HasValue)
-                            sb.Append(part.Minerals.Value);
+                        if (part.Exists)
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append("Minerals  ");
+                            sb.Append(part.TileObjects.Count);
+
+                            if (part.Capacity.HasValue)
+                                sb.Append("/" + part.Capacity.Value);
+
+                            panelContainer.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+                        }
                         else
-                            sb.Append("0");
-
-                        if (part.Capacity.HasValue)
-                            sb.Append("/" + part.Capacity.Value);
-
-                        panelContainer.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+                        {
+                            panelWeapon.transform.Find("Content").GetComponent<Text>().text = "Destroyed";
+                        }
                     }
                 }
             }

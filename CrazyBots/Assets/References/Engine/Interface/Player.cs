@@ -780,7 +780,7 @@ namespace Engine.Interface
 
         private void CheckUnits()
         {
-            return;
+            //return;
 
             foreach (PlayerUnit playerUnit in Units.Values)
             {

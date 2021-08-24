@@ -44,11 +44,11 @@ namespace Engine.Ants
 
             // Reactor demands Minerals
             if (PlayerUnit.Unit.Engine == null &&
-                PlayerUnit.Unit.Reactor.Container.Mineral < PlayerUnit.Unit.Reactor.Container.Capacity)
+                PlayerUnit.Unit.Reactor.TileContainer.Minerals < PlayerUnit.Unit.Reactor.TileContainer.Capacity)
             {
 
                 intensity = 1;
-                intensity -= (float)PlayerUnit.Unit.Reactor.Container.Mineral / PlayerUnit.Unit.Reactor.Container.Capacity;
+                intensity -= (float)PlayerUnit.Unit.Reactor.TileContainer.Minerals / PlayerUnit.Unit.Reactor.TileContainer.Capacity;
                 range = 5;
 
                 if (depositNeedMinerals == 0)
@@ -67,54 +67,6 @@ namespace Engine.Ants
         {
             bool unitMoved = false;
 
-            Unit cntrlUnit = PlayerUnit.Unit;
-            /*
-            if (cntrlUnit.Weapon != null)
-            {
-                List<Move> possiblemoves = new List<Move>();
-                cntrlUnit.Weapon.ComputePossibleMoves(possiblemoves, null, MoveFilter.Fire);
-                if (possiblemoves.Count > 0)
-                {
-                    int idx = player.Game.Random.Next(possiblemoves.Count);
-                    if (cntrlUnit.Engine == null)
-                    {
-                        // Do not fire at trees
-                        while (possiblemoves.Count > 0 && possiblemoves[idx].OtherUnitId == "Destructable")
-                        {
-                            possiblemoves.RemoveAt(idx);
-                            idx = player.Game.Random.Next(possiblemoves.Count);
-                        }
-                    }
-                    if (possiblemoves.Count > 0)
-                    {
-                        moves.Add(possiblemoves[idx]);
-                        unitMoved = true;
-                        return unitMoved;
-                    }
-                }
-            }*/
-
-            if (cntrlUnit.Extractor != null)
-            {
-                List<Move> possiblemoves = new List<Move>();
-                cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, null, MoveFilter.Extract);
-                if (possiblemoves.Count > 0)
-                {
-                    foreach (Move possibleMove in possiblemoves)
-                    {
-                        if (Control.IsExtractable(player, possibleMove, moves))
-                        {
-                            Tile n = player.Game.Map.GetTile(possibleMove.Positions[1]);
-                            if (n.Unit != null && n.Unit.Assembler != null && !n.Unit.ExtractMe)
-                            {
-                                // YES extract from attached factory
-                            }
-                            moves.Add(possibleMove);
-                            return true;
-                        }
-                    }
-                }
-            }
             return unitMoved;
         }
     }

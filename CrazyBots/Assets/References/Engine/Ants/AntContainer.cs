@@ -45,10 +45,10 @@ namespace Engine.Ants
             // Reactor demands Minerals
             if (PlayerUnit.Unit.Engine == null &&
                 PlayerUnit.Unit.Container != null &&
-                PlayerUnit.Unit.Container.Mineral < PlayerUnit.Unit.Container.Capacity)
+                PlayerUnit.Unit.Container.TileContainer.Minerals < PlayerUnit.Unit.Container.TileContainer.Capacity)
             {
                 intensity = 1;
-                intensity -= (float)PlayerUnit.Unit.Container.Mineral / PlayerUnit.Unit.Container.Capacity;
+                intensity -= (float)PlayerUnit.Unit.Container.TileContainer.Minerals / PlayerUnit.Unit.Container.TileContainer.Capacity;
                 range = 5;
 
                 if (depositNeedMinerals == 0)
@@ -66,28 +66,7 @@ namespace Engine.Ants
         {
             bool unitMoved = false;
 
-            Unit cntrlUnit = PlayerUnit.Unit;
-            if (cntrlUnit.Extractor != null)
-            {
-                List<Move> possiblemoves = new List<Move>();
-                cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, null, MoveFilter.Extract);
-                if (possiblemoves.Count > 0)
-                {
-                    foreach (Move possibleMove in possiblemoves)
-                    {
-                        if (Control.IsExtractable(player, possibleMove, moves))
-                        {
-                            Tile n = player.Game.Map.GetTile(possibleMove.Positions[1]);
-                            if (n.Unit != null && n.Unit.Assembler != null && !n.Unit.ExtractMe)
-                            {
-                                // YES extract from attached factory
-                            }
-                            moves.Add(possibleMove);
-                            return true;
-                        }
-                    }
-                }
-            }
+            
             return unitMoved;
         }
 

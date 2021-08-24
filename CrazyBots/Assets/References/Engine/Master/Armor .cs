@@ -6,9 +6,19 @@ using System.Threading.Tasks;
 
 namespace Engine.Master
 {
+    public class Shield : Ability
+    {
+        public Shield(Unit owner, int level) : base(owner)
+        {
+            
+        }
+
+        public override string Name { get { return "Shield"; } }
+    }
+
     public class Armor : Ability
     {
-        public int Level { get; set; }
+        public override string Name { get { return "Armor"; } }
 
         public bool ShieldActive { get; set; }
 

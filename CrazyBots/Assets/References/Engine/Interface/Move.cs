@@ -43,8 +43,8 @@ namespace Engine.Interface
         public bool Exists { get; set; }
         public bool? ShieldActive { get; set; }
         public int? ShieldPower { get; set; }
-        // Minerals in part
-        public int? Minerals { get; set; }
+        
+        public List<TileObject> TileObjects { get; set; }
         public int? Capacity { get; set; }
         public int? AvailablePower { get; set; }
         public List<string> BildQueue { get; set; }
@@ -56,16 +56,21 @@ namespace Engine.Interface
         public int Owner { get; set; }
         [DataMember]
         public bool IsBorder { get; set; }
-        public int PlantLevel { get; set; }
-        public int TerrainTypeIndex { get; set; }
-        public bool IsUnderwater { get; set; }
-
         [DataMember(EmitDefaultValue = false)]
-        public int Minerals { get; set; }
+        public int PlantLevel { get; set; }
+        [DataMember(EmitDefaultValue = false)]
+        public int TerrainTypeIndex { get; set; }
+        [DataMember(EmitDefaultValue = false)]
+        public bool IsUnderwater { get; set; }
+        [DataMember(EmitDefaultValue = false)]
+        public float Height { get; set; }
+
+        //[DataMember(EmitDefaultValue = false)]
+        //public int Minerals { get; set; }
         //[DataMember(EmitDefaultValue = false)]
         //public int NumberOfDestructables { get; set; }
-        [DataMember(EmitDefaultValue = false)]
-        public int NumberOfObstacles { get; set; }
+        //[DataMember(EmitDefaultValue = false)]
+        //public int NumberOfObstacles { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
         public List<TileObject> TileObjects { get; set; }

@@ -33,13 +33,13 @@ public class MineralContainer
         return true;
     }
 
-    public void UpdateContent(HexGrid hexGrid, GameObject gameObject, int? minerals, int? capacity)
+    public void UpdateContent(HexGrid hexGrid, GameObject gameObject, List<TileObject> tileObjects, int? capacity)
     {
         if (capacity.HasValue && capacity <= 0) 
             return;
 
-        if (minerals.HasValue && minerals < 0)
-            minerals = 0;
+        int minerals = tileObjects.Count;
+
 
         if (mineralCubes.Count == 0)
         {
@@ -49,15 +49,12 @@ public class MineralContainer
             max = mineralCubes.Count;
         }
 
-        if (!minerals.HasValue)
-            return;
-
-        int mins = minerals.Value;
+        int mins = minerals;
         
         int minPercent = mins * 100 / capacity.Value;
         mins = minPercent * max / 100;
 
-        if (minerals.Value > 0 && mins == 0)
+        if (minerals > 0 && mins == 0)
             mins = 1;
 
         if (mins != filled)
@@ -126,9 +123,9 @@ public class Container1 : MonoBehaviour
         Destroy(shellObject, 5f);
     }
 
-    public void UpdateContent(HexGrid hexGrid, int? minerals, int? capacity)
+    public void UpdateContent(HexGrid hexGrid, List<TileObject> tileObjects, int? capacity)
     {
-        mineralContainer.UpdateContent(hexGrid, this.gameObject, minerals, capacity);
+        mineralContainer.UpdateContent(hexGrid, this.gameObject, tileObjects, capacity);
     }
 }
 

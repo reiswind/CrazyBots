@@ -138,7 +138,7 @@ namespace Engine.Control
                     else
                     {
                         // Wait for some metal before moving away
-                        if (playerUnit.Unit.Container != null && playerUnit.Unit.Container.Mineral >= 16)
+                        if (playerUnit.Unit.Container != null && playerUnit.Unit.Container.TileContainer.Minerals >= 16)
                         {
                             // Move the unit here
                             dispatcher.MoveUnit(this, playerUnit, Center);

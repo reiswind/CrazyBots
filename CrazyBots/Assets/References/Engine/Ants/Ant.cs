@@ -1,5 +1,6 @@
 ﻿using Engine.Control;
 using Engine.Interface;
+using Engine.Master;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -96,5 +97,59 @@ namespace Engine.Ants
         }
 
         internal GameCommand GameCommandDuringCreation;
+        public AntWorkerType AntWorkerType { get; set; }
+
+        public bool Extract(Player player, List<Move> moves)
+        {
+            Unit cntrlUnit = PlayerUnit.Unit;
+
+            if (AntWorkerType == AntWorkerType.Fighter && cntrlUnit.Weapon != null &&
+                cntrlUnit.Weapon.TileContainer.Loaded >= cntrlUnit.Weapon.TileContainer.Capacity)
+            {
+                // Fight, do not extract if can fire
+            }
+            else
+            {
+                // only if enemy is close...
+                if (false && cntrlUnit.Armor != null && cntrlUnit.Armor.ShieldActive == false && AntWorkerType != AntWorkerType.Worker)
+                {
+                    // Run away, extract later 
+                }
+                else
+                {
+                    if (cntrlUnit.Extractor != null && cntrlUnit.Extractor.CanExtract)
+                    {
+                        List<Move> possiblemoves = new List<Move>();
+                        cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, null, MoveFilter.Extract);
+                        if (possiblemoves.Count > 0)
+                        {
+                            // Assume Minerals for now
+                            List<Move> mineralmoves = new List<Move>();
+                            foreach (Move mineralMove in possiblemoves)
+                            {
+                                if (mineralMove.OtherUnitId == "Mineral")
+                                    mineralmoves.Add(mineralMove);
+                                if (mineralMove.OtherUnitId.StartsWith("unit"))
+                                    mineralmoves.Add(mineralMove);
+                            }
+                            if (mineralmoves.Count > 0)
+                            {
+                                int idx = player.Game.Random.Next(mineralmoves.Count);
+                                Move move = mineralmoves[idx];
+                                moves.Add(move);
+
+                                //Control.MineralsFound(player, move.Positions[1], false);
+                                FollowThisRoute = null;
+
+                                //unitMoved = true;
+                                return true; // unitMoved;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        
     }
 }

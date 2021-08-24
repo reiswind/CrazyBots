@@ -45,8 +45,8 @@ public class Assembler1 : MonoBehaviour
         HexGrid.Destroy(particleDust, 2.5f);
     }
 
-    public void UpdateContent(HexGrid hexGrid, int? minerals, int? capacity)
+    public void UpdateContent(HexGrid hexGrid, List<TileObject> tileObjects, int? capacity)
     {
-        mineralContainer.UpdateContent(hexGrid, this.gameObject, minerals, capacity);
+        mineralContainer.UpdateContent(hexGrid, this.gameObject, tileObjects, capacity);
     }
 }

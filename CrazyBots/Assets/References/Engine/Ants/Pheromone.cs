@@ -148,7 +148,7 @@ namespace Engine.Ants
                     if (f < minValue)
                     {
                         Tile t = player.Game.Map.GetTile(pheromoneStackItem.Pheromone.Pos);
-                        if (t.TileObjects.Count > 1)
+                        if (!t.CanBuild())
                             continue;
 
                         if (t.Owner != player.PlayerModel.Id)

@@ -7,55 +7,26 @@ using System.Threading.Tasks;
 
 namespace Engine.Master
 {
+
+    
     public class Container : Ability
     {
-        public int Level { get; set; }
-        public int Mineral { get; set; }
-        public int Dirt { get; set; }
-
-        private int extraCapacity;
-        public void ResetExtraCapacity()
-        {
-            extraCapacity = 0;
-        }
-
-        public int Loaded
-        {
-            get
-            {
-                return Mineral + Dirt;
-            }
-        }
-
-        public bool IsFreeSpace
-        {
-            get
-            {
-                return Mineral + Dirt < Capacity;
-            }
-        }
-        public int Capacity
-        {
-            get
-            {
-                //return 30;
-
-                if (extraCapacity != 0) return extraCapacity;
-                if (Level == 1) return 20;
-                if (Level == 2) return 60;
-                if (Level == 3) return 220;
-                return Level * 20;
-            }
-            set
-            {
-                extraCapacity = value;
-            }
-        }
+        public override string Name { get { return "Container"; } }
 
         public Container(Unit owner, int level) : base(owner)
         {
             Level = level;
+            TileContainer = new TileContainer();
+            ResetCapacity();
         }
+
+        public void ResetCapacity()
+        {
+            if (Level == 1) TileContainer.Capacity = 20;
+            if (Level == 2) TileContainer.Capacity = 60;
+            if (Level == 3) TileContainer.Capacity = 220;
+        }
+
         public int Range
         {
             get
@@ -68,7 +39,7 @@ namespace Engine.Master
             if ((moveFilter & MoveFilter.Transport) == 0)
                 return;
 
-            if (Mineral == 0)
+            if (TileContainer.TileObjects.Count() == 0)
                 return;
 
             Dictionary<Position, TileWithDistance> tiles = Unit.Game.Map.EnumerateTiles(Unit.Pos, Range, false, matcher: tile =>
@@ -95,23 +66,23 @@ namespace Engine.Master
                     // Fill only container buildings
                     if (n.Unit.Engine == null && 
                         n.Unit.Container != null &&
-                        n.Unit.Container.Mineral < n.Unit.Container.Capacity &&
-                        n.Unit.Container.Mineral < Mineral-1)
+                        n.Unit.Container.TileContainer.Loaded < n.Unit.Container.TileContainer.Capacity &&
+                        n.Unit.Container.TileContainer.Loaded < TileContainer.Loaded - 1)
                         transport = true;
 
                     if (n.Unit.Engine == null && 
                         n.Unit.Assembler != null &&
-                        n.Unit.Assembler.Container.Mineral < n.Unit.Assembler.Container.Capacity)
+                        n.Unit.Assembler.TileContainer.Loaded < n.Unit.Assembler.TileContainer.Capacity)
                         transport = true;
 
                     if (n.Unit.Engine == null &&
                         n.Unit.Reactor != null &&
-                        n.Unit.Reactor.Container.Mineral < n.Unit.Reactor.Container.Capacity)
+                        n.Unit.Reactor.TileContainer.Loaded < n.Unit.Reactor.TileContainer.Capacity)
                         transport = true;
 
                     if (n.Unit.Engine == null &&
                         n.Unit.Weapon != null &&
-                        n.Unit.Weapon.Container.Mineral < n.Unit.Weapon.Container.Capacity)
+                        n.Unit.Weapon.TileContainer.Loaded < n.Unit.Weapon.TileContainer.Capacity)
                         transport = true;
 
                     if (transport)
@@ -124,7 +95,7 @@ namespace Engine.Master
                         move.Positions.Add(Unit.Pos);
                         move.Positions.Add(n.Pos);
 
-                        possibleMoves.Add(move);
+                        //possibleMoves.Add(move);
                     }
                 }
             }

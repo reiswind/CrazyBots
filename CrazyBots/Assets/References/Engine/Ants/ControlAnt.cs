@@ -48,7 +48,7 @@ namespace Engine.Control
                     Tile tile = player.Game.Map.GetTile(pos);
 
                     MineralDeposit mineralDeposit;
-                    if (tile.Metal == 0)
+                    if (tile.Minerals == 0)
                     {
                         if (mineralsDeposits.ContainsKey(pos))
                         {
@@ -60,15 +60,15 @@ namespace Engine.Control
                     }
                     else
                     {
-                        float intensity = 1f * ((float)tile.Metal / 12);
+                        float intensity = 1f * ((float)tile.Minerals / 12);
                         if (intensity > 1) intensity = 1;
 
                         if (mineralsDeposits.ContainsKey(pos))
                         {
                             mineralDeposit = mineralsDeposits[pos];
-                            if (mineralDeposit.Minerals != tile.Metal)
+                            if (mineralDeposit.Minerals != tile.Minerals)
                             {
-                                mineralDeposit.Minerals = tile.Metal;
+                                mineralDeposit.Minerals = tile.Minerals;
 
                                 player.Game.Pheromones.DeletePheromones(mineralDeposit.DepositId);
                                 mineralDeposit.DepositId = player.Game.Pheromones.DropPheromones(player, pos, 5, PheromoneType.Mineral, intensity, true);
@@ -78,7 +78,7 @@ namespace Engine.Control
                         {
                             mineralDeposit = new MineralDeposit();
 
-                            mineralDeposit.Minerals = tile.Metal;
+                            mineralDeposit.Minerals = tile.Minerals;
                             mineralDeposit.Pos = pos;
                             mineralDeposit.DepositId = player.Game.Pheromones.DropPheromones(player, pos, 5, PheromoneType.Mineral, intensity, true);
 
@@ -314,18 +314,18 @@ namespace Engine.Control
             // Reactor demands Minerals
             if (ant.PlayerUnit.Unit.Reactor != null &&
                 ant.PlayerUnit.Unit.Engine == null &&
-                ant.PlayerUnit.Unit.Reactor.Container.Mineral < ant.PlayerUnit.Unit.Reactor.Container.Capacity)
+                ant.PlayerUnit.Unit.Reactor.TileContainer.Minerals < ant.PlayerUnit.Unit.Reactor.TileContainer.Capacity)
             {
 
                 intensity = 1;
-                intensity -= (float)ant.PlayerUnit.Unit.Reactor.Container.Mineral / ant.PlayerUnit.Unit.Reactor.Container.Capacity;
+                intensity -= (float)ant.PlayerUnit.Unit.Reactor.TileContainer.Minerals / ant.PlayerUnit.Unit.Reactor.TileContainer.Capacity;
                 range = 5;
             }
 
             // Container depends on neighbors
             if (ant.PlayerUnit.Unit.Container != null &&
                 ant.PlayerUnit.Unit.Engine == null &&
-                ant.PlayerUnit.Unit.Container.Mineral < ant.PlayerUnit.Unit.Container.Capacity)
+                ant.PlayerUnit.Unit.Container.TileContainer.Minerals < ant.PlayerUnit.Unit.Container.TileContainer.Capacity)
             {
                 range = 2;
                 if (ant.PlayerUnit.Unit.Container.Level == 2)
@@ -616,7 +616,7 @@ namespace Engine.Control
         {
             Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.CurrentGameCommand.TargetPosition, 3, false, matcher: tile =>
             {
-                if (tile.Metal > 0 ||
+                if (tile.Minerals > 0 ||
                     (tile.Unit != null && (tile.Unit.ExtractMe || tile.Unit.Owner.PlayerModel.Id == 0)))
                 {
                     List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, tile.Pos, ant.PlayerUnit.Unit);
@@ -637,7 +637,7 @@ namespace Engine.Control
             foreach (Position pos in player.VisiblePositions) // TileWithDistance t in tiles.Values)
             {
                 Tile tile = player.Game.Map.GetTile(pos);
-                if (tile.Metal > 0 ||
+                if (tile.Minerals > 0 ||
                     (tile.Unit != null && (tile.Unit.ExtractMe || tile.Unit.Owner.PlayerModel.Id == 0)))
                 {
                     List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, tile.Pos, ant.PlayerUnit.Unit);
@@ -701,7 +701,7 @@ namespace Engine.Control
                 AntContainer antContainer = possibleAnt as AntContainer;
                 if (antContainer != null &&
                     antContainer.PlayerUnit.Unit.Container != null &&
-                    antContainer.PlayerUnit.Unit.Container.Mineral > 0)
+                    antContainer.PlayerUnit.Unit.Container.TileContainer.Minerals > 0)
                 {
                     List<Position> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, antContainer.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit);
                     if (positions != null && positions.Count > 2)
@@ -862,6 +862,8 @@ namespace Engine.Control
                     }
                     if (lowestTile != null)
                     { 
+                        // TODOMIN
+                        /*
                         Move move = new Move();
                         move.MoveType = MoveType.Fire;
                         move.UnitId = ant.PlayerUnit.Unit.UnitId;
@@ -887,6 +889,7 @@ namespace Engine.Control
                         move.Positions.Add(lowestTile.Tile.Pos);
 
                         moves.Add(move);
+                        */
                     }
                 }
             }
@@ -984,7 +987,28 @@ namespace Engine.Control
             }
         }
 
-        private void AttachGamecommands(Player player, List<Ant> unmovedAnts)
+        private bool HasUnitBeenBuilt(Player player, GameCommand gameCommand, Ant ant, List<Move> moves)
+        {
+            Tile t = player.Game.Map.GetTile(gameCommand.TargetPosition);
+            if (t.Unit != null &&
+                t.Unit.IsComplete() &&
+                t.Unit.Blueprint.Name == gameCommand.UnitId)
+            {
+                Move commandMove = new Move();
+                commandMove.MoveType = MoveType.CommandComplete;
+                if (ant != null)
+                    commandMove.UnitId = ant.PlayerUnit.Unit.UnitId;
+                commandMove.PlayerId = player.PlayerModel.Id;
+                commandMove.Positions = new List<Position>();
+                commandMove.Positions.Add(gameCommand.TargetPosition);
+                moves.Add(commandMove);
+
+                return true;
+            }
+            return false;
+        }
+
+        private void AttachGamecommands(Player player, List<Ant> unmovedAnts, List<Move> moves)
         {
             List<GameCommand> assignedCommands = new List<GameCommand>();
 
@@ -1020,9 +1044,40 @@ namespace Engine.Control
                 }
             }
 
+            foreach (Ant ant in unmovedAnts)
+            {
+                if (ant.PlayerUnit.Unit.CurrentGameCommand != null &&
+                    ant.PlayerUnit.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build)
+                {
+                    if (HasUnitBeenBuilt(player, ant.PlayerUnit.Unit.CurrentGameCommand, ant, moves))
+                    {
+                        //ant.PlayerUnit.Unit.CurrentGameCommand = null;
+                        ant.AbendonUnit(player);
+                    }
+                }
+                if (ant.GameCommandDuringCreation != null &&
+                    ant.GameCommandDuringCreation.GameCommandType == GameCommandType.Build)
+                {
+                    if (HasUnitBeenBuilt(player, ant.GameCommandDuringCreation, ant, moves))
+                    {
+                        //ant.GameCommandDuringCreation = null;
+                        ant.AbendonUnit(player);
+                    }
+                }
+            }
+
             // Attach gamecommands to idle units
             foreach (GameCommand gameCommand in player.GameCommands)
             {
+                if (gameCommand.GameCommandType == GameCommandType.Build)
+                {
+                    if (HasUnitBeenBuilt(player, gameCommand, null, moves))
+                    {
+                        // Building is there. Command complete.
+                        assignedCommands.Add(gameCommand);
+                    }
+                }
+
                 if (gameCommand.GameCommandType == GameCommandType.Attack ||
                     gameCommand.GameCommandType == GameCommandType.Defend ||
                     gameCommand.GameCommandType == GameCommandType.Scout ||
@@ -1497,7 +1552,18 @@ namespace Engine.Control
                 }
             }
 
-            AttachGamecommands(player, unmovedAnts);
+            AttachGamecommands(player, unmovedAnts, moves);
+
+            foreach (Ant ant in unmovedAnts)
+            {
+                if (ant.PlayerUnit.Unit.Extractor != null)
+                {
+                    if (ant.Extract(player, moves))
+                    {
+                        movableAnts.Remove(ant);
+                    }
+                }
+            }
 
             foreach (Ant ant in unmovedAnts)
             {
@@ -1519,6 +1585,7 @@ namespace Engine.Control
                 }
             }
 
+            /* Noo expand*/
             foreach (Ant ant in unmovedAnts)
             {
                 if (ant is AntReactor)

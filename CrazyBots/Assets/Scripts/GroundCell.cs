@@ -5,10 +5,12 @@ using UnityEngine;
 
 public class GroundCell : MonoBehaviour
 {
-    public Tile Tile { get; set; }
+    public Position Pos { get; set; }
 
     public HexGrid HexGrid { get; set; }
-    public Move NextMove { get; set; }
+
+    public MoveUpdateGroundStat GroundStat { get; set; }
+
     public bool ShowPheromones { get; set; }
 
     internal List<UnitCommand> UnitCommands { get; private set; }
@@ -171,7 +173,7 @@ public class GroundCell : MonoBehaviour
 
     private string currentMaterialName;
 
-    internal void SetGroundMaterial()
+    internal void SetGroundMaterial(TileObject tileObject)
     {
         /*
         for (int i = 0; i < unit.transform.childCount; i++)
@@ -182,36 +184,32 @@ public class GroundCell : MonoBehaviour
         }*/
 
         string materialName;
-        if (Tile.IsUnderwater)
+        if (GroundStat.IsUnderwater)
         {
             materialName = "Water";
         }
         else
         {
             materialName = "Rock";
-
-            if (NextMove != null && NextMove.Stats != null && NextMove.Stats.MoveUpdateGroundStat != null)
+                
+            if (tileObject.TileObjectType == TileObjectType.Gras)
             {
-                if (NextMove.Stats.MoveUpdateGroundStat.TileObjects.Count > 0)
-                {
-                    TileObject tileObject = NextMove.Stats.MoveUpdateGroundStat.TileObjects[0];
-                    if (tileObject.Direction == Direction.C)
-                    {
-                        if (tileObject.TileObjectType == TileObjectType.Gras)
-                        {
-                            materialName = "Grass";
-                        }
-                        else if (tileObject.TileObjectType == TileObjectType.Bush)
-                        {
-                            materialName = "GrassDark";
-                        }
-                        else if (tileObject.TileObjectType == TileObjectType.Tree)
-                        {
-                            materialName = "Wood";
-                        }
-                    }
-                }
+                materialName = "Grass";
             }
+            else if (tileObject.TileObjectType == TileObjectType.Bush)
+            {
+                materialName = "GrassDark";
+            }
+            else if (tileObject.TileObjectType == TileObjectType.Tree)
+            {
+                materialName = "Wood";
+            }
+            else
+            {
+                int x=0;
+            }
+                
+            
                 /*
                 if (Tile.IsHill())
                 {
@@ -283,128 +281,99 @@ public class GroundCell : MonoBehaviour
             }
         }
     }
-    
+
 
     internal void UpdateGround()
     {
-        if (NextMove != null)
+        if (GroundStat.Owner == 0 || !GroundStat.IsBorder || GroundStat.IsUnderwater)
         {
-            if (NextMove.Stats != null && NextMove.Stats.MoveUpdateGroundStat != null)
+            if (markerEnergy != null)
             {
-                MoveUpdateGroundStat stat = NextMove.Stats.MoveUpdateGroundStat;
-               
-                if (stat.Owner == 0 || !stat.IsBorder || Tile.IsUnderwater)
-                {
-                    if (markerEnergy != null)
-                    {
-                        Vector3 position = transform.position;
-                        position.y -= 1;
-                        markerEnergy.transform.position = position;
-                    }
-                }
-                else
-                {
-                    if (markerEnergy == null)
-                    {
-                        CreateMarker();
-                    }
-                    float highestEnergy = 1;
-
-                    Vector3 position = transform.position;
-                    position.y += 0.054f + (0.2f * highestEnergy);
-                    markerEnergy.transform.position = position;
-                    UnitBase.SetPlayerColor(HexGrid, stat.Owner, markerEnergy);
-                }
-
-                Vector3 vector3 = transform.localPosition;
-                vector3.y = ((float)Tile.Height)+ 0.3f;
-                transform.localPosition = vector3;
-
-                // This is for Web
-                //Tile.Metal = stat.Minerals;                
-                //Tile.NumberOfDestructables = stat.NumberOfDestructables;
-                Tile.NumberOfObstacles = stat.NumberOfObstacles;
-                
+                Vector3 position = transform.position;
+                position.y -= 1;
+                markerEnergy.transform.position = position;
             }
-            SetGroundMaterial();
-            CreateObstacles();
-            CreateDestructables();
-            CreateMinerals();
-            NextMove = null;
         }
+        else
+        {
+            if (markerEnergy == null)
+            {
+                CreateMarker();
+            }
+            float highestEnergy = 1;
+
+            Vector3 position = transform.position;
+            position.y += 0.054f + (0.2f * highestEnergy);
+            markerEnergy.transform.position = position;
+            UnitBase.SetPlayerColor(HexGrid, GroundStat.Owner, markerEnergy);
+        }
+
+        Vector3 vector3 = transform.localPosition;
+        vector3.y = GroundStat.Height + 0.3f;
+        transform.localPosition = vector3;
+
+        // This is for Web
+        //Tile.Metal = stat.Minerals;                
+        //Tile.NumberOfDestructables = stat.NumberOfDestructables;
+        //Tile.NumberOfObstacles = stat.NumberOfObstacles;
+
+
+        //SetGroundMaterial();
+        //CreateObstacles();
+        CreateDestructables();
+        //CreateMinerals();
+
     }
 
     internal void CreateDestructables()
     {
-        if (NextMove != null && NextMove.Stats.MoveUpdateGroundStat != null)
+        List<GameObject> allTileObjects = new List<GameObject>();
+        allTileObjects.AddRange(destructables);
+        bool noc = true;
+
+        foreach (TileObject tileObject in GroundStat.TileObjects)
         {
-            
-            List<GameObject> allTileObjects = new List<GameObject>();
-            
-            allTileObjects.AddRange(destructables);
-            
-
-            foreach (TileObject tileObject in NextMove.Stats.MoveUpdateGroundStat.TileObjects)
+            if (tileObject.Direction == Direction.C)
             {
-                if (tileObject.Direction == Direction.C)
+                SetGroundMaterial(tileObject);
+                noc = false;
+            }
+            else
+            {
+                bool found = false;
+                foreach (GameObject destructable in allTileObjects)
                 {
-
-                }
-                else
-                {
-                    bool found = false;
-                    foreach (GameObject destructable in allTileObjects)
+                    if (destructable.name == tileObject.TileObjectType.ToString())
                     {
-                        if (destructable.name == tileObject.TileObjectType.ToString())
-                        {
-                            found = true;
-                            allTileObjects.Remove(destructable);
-                            break;
-                        }
-                    }
-                    if (!found)
-                    {
-                        GameObject destructable;
-
-                        destructable = HexGrid.CreateDestructable(transform, Tile);
-                        destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
-                        destructable.name = tileObject.TileObjectType.ToString();
-
-                        destructables.Add(destructable);
+                        found = true;
+                        allTileObjects.Remove(destructable);
+                        break;
                     }
                 }
-            }
-            foreach (GameObject destructable in allTileObjects)
-            {
-                HexGrid.Destroy(destructable);
-                destructables.Remove(destructable);
+                if (!found)
+                {
+                    GameObject destructable;
+
+                    destructable = HexGrid.CreateDestructable(transform, tileObject);
+                    destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
+                    destructable.name = tileObject.TileObjectType.ToString();
+
+                    destructables.Add(destructable);
+                }
             }
         }
-        /*
-            numberOfDestructables = NextMove.Stats.MoveUpdateGroundStat.TileObjects.Count;
-        else
-            numberOfDestructables = Tile.TileObjects.Count;
-
-
-        while (destructables.Count < numberOfDestructables)
+        if (noc)
         {
-
-            GameObject destructable;
-
-            destructable = HexGrid.CreateDestructable(transform, Tile);
-            destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
-            //destructable.transform.position = unitPos3;
-
-            destructables.Add(destructable);
+            int x=0;
         }
-        while (destructables.Count > numberOfDestructables)
+        foreach (GameObject destructable in allTileObjects)
         {
-            GameObject destructable = destructables[0];
             HexGrid.Destroy(destructable);
             destructables.Remove(destructable);
-        }*/
+        }
     }
 
+    /*
     internal void CreateObstacles()
     {
         int numberOfObstacles;
@@ -433,7 +402,7 @@ public class GroundCell : MonoBehaviour
             obstacles.Remove(obstacle);
         }
     }
-
+    */
     private Light selectionLight;
 
     public bool IsSelected { get; private set; }
@@ -468,12 +437,13 @@ public class GroundCell : MonoBehaviour
 
     internal void CreateMinerals()
     {
-        int numberOfMinerals;
+        int numberOfMinerals = 0;
+        /*
         if (NextMove!= null && NextMove.Stats.MoveUpdateGroundStat != null)
             numberOfMinerals = NextMove.Stats.MoveUpdateGroundStat.Minerals;
         else
             numberOfMinerals = Tile.Metal;
-
+        */
         if (numberOfMinerals >= 20)
         {
             if (mineralObstacle == null)

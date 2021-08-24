@@ -661,7 +661,8 @@ public class UnitBase : MonoBehaviour
                 Container1 container = unitBasePart.Part.GetComponent<Container1>();
                 if (container != null)
                 {
-                    container.UpdateContent(HexGrid, 0, 1);
+                    List<TileObject> tileObjects = new List<TileObject>();
+                    container.UpdateContent(HexGrid, tileObjects, 1);
                 }
 
                 unitBasePart.Destroyed = true;
@@ -847,8 +848,6 @@ public class UnitBase : MonoBehaviour
         Armor = null;
 
         bool missingPartFound = false;
-        int? totalMinerals = null;
-        int? totalCapacity = null;
 
         foreach (UnitBasePart unitBasePart in unitBaseParts)
         {
@@ -865,7 +864,7 @@ public class UnitBase : MonoBehaviour
 
                     if (unitBasePart.Level != moveUpdateUnitPart.Level)
                     {
-                        int xx = 0;
+                        //int xx = 0;
                     }
 
                     //unitBasePart.Part.SetActive(unitBasePart.IsUnderConstruction || moveUpdateUnitPart.Exists);
@@ -879,12 +878,8 @@ public class UnitBase : MonoBehaviour
                         Container1 container = unitBasePart.Part.GetComponent<Container1>();
                         if (container != null)
                         {
-                            if (!unitBasePart.Destroyed)
-                            {
-                                totalMinerals = moveUpdateUnitPart.Minerals;
-                                totalCapacity = moveUpdateUnitPart.Capacity;
-                            }
                             Container.Add(container);
+                            container.UpdateContent(HexGrid, moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
                         }
                         Extractor1 extractor = unitBasePart.Part.GetComponent<Extractor1>();
                         if (extractor != null)
@@ -893,19 +888,19 @@ public class UnitBase : MonoBehaviour
                         if (assembler != null)
                         {
                             Assembler = assembler;
-                            assembler.UpdateContent(HexGrid, moveUpdateUnitPart.Minerals, moveUpdateUnitPart.Capacity);
+                            assembler.UpdateContent(HexGrid, moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
                         }
                         Weapon1 weapon = unitBasePart.Part.GetComponent<Weapon1>();
                         if (weapon != null)
                         {
                             Weapon = weapon;
-                            weapon.UpdateContent(HexGrid, moveUpdateUnitPart.Minerals, moveUpdateUnitPart.Capacity);
+                            weapon.UpdateContent(HexGrid, moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
                         }
                         Reactor1 reactor = unitBasePart.Part.GetComponent<Reactor1>();
                         if (reactor != null)
                         {
                             Reactor = reactor;
-                            reactor.UpdateContent(HexGrid, moveUpdateUnitPart.Minerals, moveUpdateUnitPart.Capacity);
+                            reactor.UpdateContent(HexGrid, moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
                         }
                         Armor armor = unitBasePart.Part.GetComponent<Armor>();
                         if (armor != null)
@@ -926,16 +921,6 @@ public class UnitBase : MonoBehaviour
             }
         }
 
-        if (Container.Count > 0)
-        {
-            int partMinerals = totalMinerals.Value / Container.Count;
-            int partCapacity = totalCapacity.Value / Container.Count;
-
-            foreach (Container1 container1 in Container)
-            {
-                container1.UpdateContent(HexGrid, partMinerals, partCapacity);
-            }
-        }
         if (UnderConstruction && missingPartFound == false)
             UnderConstruction = false;
     }

@@ -76,7 +76,7 @@ namespace Engine.Control
                                 if (playerUnit.Unit.Extractor.CanExtractMinerals)
                                 {
                                     TileWithDistance nextTile = null;
-                                    if (nextTile == null || nextTile.Metal == 0)
+                                    if (nextTile == null || nextTile.Tile.TileContainer.Minerals == 0)
                                     {
                                         // Move that punk to metal
                                         Dictionary<Position, TileWithDistance> tiles = Map.EnumerateTiles(Center, Range, true, matcher: tile =>
@@ -107,7 +107,7 @@ namespace Engine.Control
                                                     }
                                                 }
                                             }
-                                            return tile.Metal > 0;
+                                            return tile.Tile.TileContainer.Minerals > 0;
                                         });
 
                                         nextTile = null;

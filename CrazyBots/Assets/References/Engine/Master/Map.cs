@@ -89,7 +89,7 @@ namespace Engine.Interface
             {
                 foreach (Tile t in game.Map.Tiles.Values)
                 {
-                    TotalMetal += t.Metal;
+                    TotalMetal += t.Minerals;
                     if (t.Unit != null)
                     {
                         TotalMetal += t.Unit.CountMineral();
@@ -138,7 +138,9 @@ namespace Engine.Master
         public void StartObjectGenerator(Map map)
         {
             Tile startTile = map.GetTile(Center);
-            startTile.TileObjects = CreateRandomObjects(map);
+
+            List<TileObject> tileObjects = CreateRandomObjects(map);
+            startTile.TileContainer.TileObjects.AddRange(tileObjects);
 
             openTiles = new List<Tile>();
             openTiles.AddRange(startTile.Neighbors);
@@ -168,7 +170,7 @@ namespace Engine.Master
                 {
                     foreach (Tile n in tile.Neighbors)
                     {
-                        if (n.TileObjects.Count == 0)
+                        if (n.TileContainer.TileObjects.Count == 0)
                             continue;
                         if (n.Unit != null && tileObjects.Count > 1)
                             continue;
@@ -183,12 +185,12 @@ namespace Engine.Master
                     }
                 }
 
-                bestTile.TileObjects.AddRange(bestTileFit.TileObjects);
+                bestTile.TileContainer.TileObjects.AddRange(bestTileFit.TileObjects);
                 openTiles.Remove(bestTile);
 
                 foreach (Tile n in bestTile.Neighbors)
                 {
-                    if (n.TileObjects.Count == 0 && !openTiles.Contains(n)) // Only in Zone? && Tiles.ContainsKey(n.Pos))
+                    if (n.TileContainer.TileObjects.Count == 0 && !openTiles.Contains(n)) // Only in Zone? && Tiles.ContainsKey(n.Pos))
                     {
                         openTiles.Add(n);
                     }
@@ -753,21 +755,20 @@ namespace Engine.Master
             mapZone.StartObjectGenerator(this);
         }
 
-        //private Dictionary<Position, int> mineralDwells;
-        private int overflowMinerals;
+        private List<TileObject> overflowMinerals = new List<TileObject>();
 
-        public void DistributeMineral()
+        public void DistributeTileObject(TileObject tileObject)
         {
             if (Zones.Count <= 1)
                 return;
 
-            overflowMinerals++;
+            overflowMinerals.Add(tileObject);
 
             if (zoneCounter == 0)
                 zoneCounter = 1;
 
             int max = Zones.Count;
-            while (max-- > 0 && overflowMinerals > 0)
+            while (max-- > 0 && overflowMinerals.Count > 0)
             {
                 KeyValuePair<int, MapZone> zoneItem = Zones.ElementAt(zoneCounter);
                 MapZone mapZone = zoneItem.Value;
@@ -780,7 +781,7 @@ namespace Engine.Master
                     int idx = Game.Random.Next(mapZone.Tiles.Count);
 
                     TileWithDistance t = mapZone.Tiles.ElementAt(idx).Value;
-                    if (t != null && t.Metal < 20)
+                    if (t != null && t.Minerals < 20)
                     {
                         if (t.Unit != null && t.Unit.Engine == null)
                         {
@@ -791,16 +792,17 @@ namespace Engine.Master
                             if (!Game.changedGroundPositions.ContainsKey(t.Pos))
                                 Game.changedGroundPositions.Add(t.Pos, null);
 
-                            t.Tile.AddMinerals(1);
-                            //t.Metal++;
-                            overflowMinerals--;
+                            tileObject = overflowMinerals[0];
+                            overflowMinerals.RemoveAt(0);
+
+                            t.Tile.TileContainer.TileObjects.Add(tileObject);
                         }
                     }
                 }
             }
-            if (overflowMinerals > 0)
+            if (overflowMinerals.Count > 0)
             {
-                int xxx = 0;
+                //int xxx = 0;
             }
             /*
             int minX, minY;
@@ -912,10 +914,8 @@ namespace Engine.Master
             moveUpdateGroundStat.PlantLevel = t.PlantLevel;
             moveUpdateGroundStat.TerrainTypeIndex = t.TerrainTypeIndex;
             moveUpdateGroundStat.IsUnderwater = t.IsUnderwater;
-            moveUpdateGroundStat.Minerals = t.Metal;
-            ///moveUpdateGroundStat.NumberOfDestructables = t.NumberOfDestructables;
-            moveUpdateGroundStat.NumberOfObstacles = t.NumberOfObstacles;
-            moveUpdateGroundStat.TileObjects = t.TileObjects;
+            moveUpdateGroundStat.TileObjects = t.TileContainer.TileObjects;
+            moveUpdateGroundStat.Height = (float)t.Height;
 
             MoveUpdateStats moveUpdateStats;
             moveUpdateStats = new MoveUpdateStats();

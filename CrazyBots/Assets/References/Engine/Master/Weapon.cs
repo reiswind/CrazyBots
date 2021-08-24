@@ -9,19 +9,17 @@ namespace Engine.Master
 {
     public class Weapon : Ability
     {
-        public Container Container { get; set; }
-        public int Level { get; set; }
+        public override string Name { get { return "Weapon"; } }
         public Weapon(Unit owner, int level) : base(owner)
         {
-            Container = new Container(owner, 1);
+            TileContainer = new TileContainer();
 
             if (level == 1)
-                Container.Capacity = 1;
+                TileContainer.Capacity = 1;
             else if (level == 2)
-                Container.Capacity = 3;
+                TileContainer.Capacity = 3;
             else if (level == 3)
-                Container.Capacity = 10;
-
+                TileContainer.Capacity = 10;
 
             Level = level;
         }
@@ -32,13 +30,9 @@ namespace Engine.Master
             {
                 if (Unit.Power == 0)
                     return false;
-                if (Container != null && Container.Dirt > 0)
+                if (TileContainer != null && TileContainer.Loaded > 0)
                     return true;
-                if (Unit.Container != null && Unit.Container.Dirt > 0)
-                    return true;
-                if (Container != null && Container.Mineral > 0)
-                    return true;
-                if (Unit.Container != null && Unit.Container.Mineral > 0)
+                if (Unit.Container != null && Unit.Container.TileContainer.Loaded > 0)
                     return true;
                 return false;
             }
@@ -80,7 +74,7 @@ namespace Engine.Master
                 // Cannot fire on ground
                 if (n.Unit == null)
                 {
-                    if (n.Tile.TileObjects.Count > 0)
+                    if (n.Tile.TileContainer.Loaded > 0)
                     {
                         /* No longer fire at destrucables. They are extracted now */
                         /*

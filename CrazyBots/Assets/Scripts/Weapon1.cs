@@ -31,9 +31,9 @@ public class Weapon1 : MonoBehaviour
         return velocity * vI;
     }
 
-    internal void UpdateContent(HexGrid hexGrid, int? minerals, int? capacity)
+    internal void UpdateContent(HexGrid hexGrid, List<TileObject> tileObjects, int? capacity)
     {
-        mineralContainer.UpdateContent(hexGrid, this.gameObject, minerals-1, capacity-1);
+        mineralContainer.UpdateContent(hexGrid, this.gameObject, tileObjects, capacity-1);
 
         GameObject weapon = UnitBase.FindChildNyName(this.gameObject, "Weapon");
         if (weapon != null)
@@ -41,7 +41,7 @@ public class Weapon1 : MonoBehaviour
             GameObject ammo = UnitBase.FindChildNyName(weapon, "Ammo");
             if (ammo != null)
             {
-                ammo.SetActive(minerals > 0);
+                ammo.SetActive(tileObjects.Count > 0);
             }
         }
     }

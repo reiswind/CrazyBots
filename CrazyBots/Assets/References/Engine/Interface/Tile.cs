@@ -50,11 +50,11 @@ namespace Engine.Interface
             }     
         }
 
-        public int Metal
+        public int Minerals
         {
             get
             {
-                return tile.Metal;
+                return tile.Minerals;
             }
         }
 
@@ -86,15 +86,23 @@ namespace Engine.Interface
 
     public class Tile
     {
+        public static TileObjectType GetObjectType(string id)
+        {
+            if (id == "Mineral") return TileObjectType.Mineral;
+            if (id == "Gras") return TileObjectType.Gras;
+            if (id == "Bush") return TileObjectType.Bush;
+            if (id == "Tree") return TileObjectType.Tree;
+            return TileObjectType.None;
+        }
+
         internal Tile(Map map, Position pos)
         {
             Map = map;
             Pos = pos;
 
-            TileObjects = new List<TileObject>();
+            TileContainer = new TileContainer();
         }
-
-        public List<TileObject> TileObjects { get; set; }
+        public TileContainer TileContainer { get; set; }
 
         private Direction TurnAround(Direction direction)
         {
@@ -170,7 +178,7 @@ namespace Engine.Interface
         internal int CalcFitObj(List<TileObject> tileObjects)
         {
             int score = 0;
-            foreach (TileObject tileObject in this.TileObjects)
+            foreach (TileObject tileObject in TileContainer.TileObjects)
             {
                 foreach (TileObject fitTileObject in tileObjects)
                 {
@@ -228,30 +236,46 @@ namespace Engine.Interface
         public double Height { get; set; }
         public int TerrainTypeIndex { get; set; }
         public int PlantLevel { get; set; }
-
-        private int minerals;
-        public int Metal 
+        /*
+        private int minerals;*/
+        public int Minerals
         {  
             get
             {
-                return minerals;
+                return TileContainer.Minerals;
             }
         }
         public int ZoneId { get; set; }
         
         public bool IsUnderwater { get; set; }
 
-        //public int NumberOfDestructables { get; set; }
-        public int NumberOfObstacles { get; set; }
-
         public int Owner { get; set; }
 
         public bool IsBorder { get; set; }
 
+        /*
         public void AddMinerals(int mins)
         {
             Map.Zones[ZoneId].TotalMinerals += mins;
-            minerals += mins;
+            Container.CreateMinerals(mins);
+        }*/
+
+        public bool CanBuild()
+        {
+            foreach (TileObject tileObject in TileContainer.TileObjects)
+            {
+                if (tileObject.Direction != Direction.C)
+                    return false;
+            }
+            return true;
+        }
+
+        public bool HasTileObjects
+        {
+            get
+            {
+                return TileContainer.Loaded > 0;
+            }
         }
 
 
@@ -274,23 +298,16 @@ namespace Engine.Interface
             {
                 return false;
             }
-            if (NumberOfObstacles > 0)
+            foreach (TileObject tileObject in TileContainer.TileObjects)
             {
-                return false;
-            }
-            if (TileObjects.Count > 0)
-            {
-                foreach (TileObject tileObject in TileObjects)
-                {
-                    if (tileObject.Direction != Direction.C)
-                        return false;
-                }
+                if (tileObject.Direction != Direction.C)
+                    return false;
             }
 
             if (IsUnderwater)
                 return false;
 
-            if (Metal >= 20)
+            if (Minerals >= 20)
             {
                 return false;
             }

@@ -217,7 +217,7 @@ public class HexGrid : MonoBehaviour
 	}
 
 
-	public GameObject CreateDestructable(Transform transform, Tile tile)
+	public GameObject CreateDestructable(Transform transform, TileObject tileObject)
 	{
 		GameObject prefab;
 		/*
@@ -233,21 +233,40 @@ public class HexGrid : MonoBehaviour
 		}
 		else
         {*/
+
+		if (tileObject.TileObjectType == TileObjectType.Tree)
+		{
 			int idx = game.Random.Next(treeResources.Count);
 			prefab = treeResources.Values.ElementAt(idx);
+		}
+		else if (tileObject.TileObjectType == TileObjectType.Bush)
+		{
+			int idx = game.Random.Next(bushResources.Count);
+			prefab = bushResources.Values.ElementAt(idx);
+		}
+		else if (tileObject.TileObjectType == TileObjectType.Mineral)
+		{
+			prefab = GetTerrainResource("Crystal");
+		}
+		else
+		{
+			prefab = null;
+		}
 
-		//}
-		float y = prefab.transform.position.y;
+		GameObject obstacle = null;
+		if (prefab != null)
+		{
+			float y = prefab.transform.position.y;
 
-		GameObject obstacle = Instantiate(prefab, transform, false);
+			obstacle = Instantiate(prefab, transform, false);
 
-		Vector2 randomPos = UnityEngine.Random.insideUnitCircle;
-		Vector3 unitPos3 = transform.position;
-		unitPos3.x += (randomPos.x * 0.5f);
-		unitPos3.z += (randomPos.y * 0.7f);
-		unitPos3.y += y;
-		obstacle.transform.position = unitPos3;
-
+			Vector2 randomPos = UnityEngine.Random.insideUnitCircle;
+			Vector3 unitPos3 = transform.position;
+			unitPos3.x += (randomPos.x * 0.5f);
+			unitPos3.z += (randomPos.y * 0.7f);
+			unitPos3.y += y;
+			obstacle.transform.position = unitPos3;
+		}
 		return obstacle;
 	}
 
@@ -291,10 +310,11 @@ public class HexGrid : MonoBehaviour
 		{
 			foreach (Tile t in game.Map.Tiles.Values)
 			{
-				GroundCell hexCell = CreateCell(t, cellPrefab);
+				MoveUpdateStats moveUpdateStats = game.Map.CollectGroundStats(t.Pos);
+
+				GroundCell hexCell = CreateCell(t.Pos, moveUpdateStats.MoveUpdateGroundStat, cellPrefab);
 				if (GroundCells.ContainsKey(t.Pos))
 				{
-
 				}
 				else
 				{
@@ -683,7 +703,8 @@ public class HexGrid : MonoBehaviour
 			else if (move.MoveType == MoveType.UpdateGround)
 			{
 				GroundCell hexCell = GroundCells[move.Positions[0]];
-				hexCell.NextMove = move;
+				//hexCell.NextMove = move;
+				hexCell.GroundStat = move.Stats.MoveUpdateGroundStat;
 				hexCell.UpdateGround();
 			}
 			else if (move.MoveType == MoveType.Delete)
@@ -928,11 +949,11 @@ public class HexGrid : MonoBehaviour
 		return new Vector3((x * gridSizeX), 0,  -y * gridSizeY);
 	}
 
-	private GroundCell CreateCell(Tile t, GameObject cellPrefabx)
+	private GroundCell CreateCell(Position pos, MoveUpdateGroundStat groundStat, GameObject cellPrefabx)
 	{
-		int x = t.Pos.X;
-		int y = t.Pos.Y;
-
+		int x = pos.X;
+		int y = pos.Y;
+		
 		GameObject gameObjectCell = Instantiate(cellPrefabx);
 		gameObjectCell.hideFlags = HideFlags.DontSave; //.enabled = false;	
 		gameObjectCell.transform.SetParent(transform, false);
@@ -940,33 +961,24 @@ public class HexGrid : MonoBehaviour
 
 		GroundCell groundCell = gameObjectCell.GetComponent<GroundCell>();
 		groundCell.HexGrid = this;
+		groundCell.GroundStat = groundStat;
+		groundCell.Pos = pos;
 
 		Vector2 gridPos = new Vector2(x, y);
 		Vector3 gridPos3 = CalcWorldPos(gridPos);
 
-		groundCell.Tile = t;
-
-		double height = t.Height;
-
-		
-		if (false && t.ZoneId != 0)
-		{
-			gridPos3.y += 1;
-		}
-		else
-		{
-			gridPos3.y += ((float)height) + 0.3f;
-		}
+		float height = groundStat.Height;
+		gridPos3.y += height + 0.3f;
 		gameObjectCell.transform.localPosition = gridPos3;
 
 		//
 		//Material materialResource = GetMaterial(materialName); 
 		//MeshRenderer meshRenderer = gameObjectCell.GetComponent<MeshRenderer>();
 		//meshRenderer.material = materialResource;
-		groundCell.SetGroundMaterial();
-		groundCell.CreateMinerals();
+		//groundCell.SetGroundMaterial();
+		//groundCell.CreateMinerals();
 		groundCell.CreateDestructables();
-		groundCell.CreateObstacles();
+		//groundCell.CreateObstacles();
 
 		return groundCell;
 	}
