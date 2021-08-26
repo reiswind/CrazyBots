@@ -15,7 +15,7 @@ public class GroundCell : MonoBehaviour
 
     internal List<UnitCommand> UnitCommands { get; private set; }
 
-    public List<GameObject> TileContainer { get; private set; }
+    public List<GameObject> GameObjects { get; private set; }
 
     private GameObject markerEnergy;
     private GameObject markerToHome;
@@ -24,7 +24,7 @@ public class GroundCell : MonoBehaviour
 
     public GroundCell()
     {
-        TileContainer = new List<GameObject>();
+        GameObjects = new List<GameObject>();
 
         UnitCommands = new List<UnitCommand>();
         ShowPheromones = true;
@@ -323,7 +323,7 @@ public class GroundCell : MonoBehaviour
     internal void CreateDestructables()
     {
         List<GameObject> allTileObjects = new List<GameObject>();
-        allTileObjects.AddRange(TileContainer);
+        allTileObjects.AddRange(GameObjects);
         bool noc = true;
 
         foreach (TileObject tileObject in GroundStat.TileObjects)
@@ -353,7 +353,7 @@ public class GroundCell : MonoBehaviour
                     destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
                     destructable.name = tileObject.TileObjectType.ToString();
 
-                    TileContainer.Add(destructable);
+                    GameObjects.Add(destructable);
                 }
             }
         }
@@ -364,7 +364,7 @@ public class GroundCell : MonoBehaviour
         foreach (GameObject destructable in allTileObjects)
         {
             HexGrid.Destroy(destructable);
-            TileContainer.Remove(destructable);
+            GameObjects.Remove(destructable);
         }
     }
 

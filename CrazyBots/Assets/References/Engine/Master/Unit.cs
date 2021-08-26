@@ -253,7 +253,7 @@ namespace Engine.Master
         private void CreateBlueprintPart(BlueprintPart blueprintPart, int level, bool fillContainer, TileObject tileObject)
         {
             Ability createdAbility = null;
-            if (blueprintPart.PartType.StartsWith("Engine"))
+            if (blueprintPart.PartType == TileObjectType.PartEngine)
             {
                 if (Engine == null)
                 {
@@ -264,7 +264,7 @@ namespace Engine.Master
                 createdAbility = Engine;
             }
 
-            else if (blueprintPart.PartType.StartsWith("Armor"))
+            else if (blueprintPart.PartType == TileObjectType.PartArmor)
             {
                 if (Armor == null)
                 {
@@ -276,7 +276,7 @@ namespace Engine.Master
             }
 
 
-            else if (blueprintPart.PartType.StartsWith("Extractor"))
+            else if (blueprintPart.PartType == TileObjectType.PartExtractor)
             {
                 if (Extractor == null)
                 {
@@ -287,7 +287,7 @@ namespace Engine.Master
                 createdAbility = Extractor;
             }
 
-            else if (blueprintPart.PartType.StartsWith("Assembler"))
+            else if (blueprintPart.PartType == TileObjectType.PartAssembler)
             {
                 if (Assembler == null)
                 {
@@ -303,7 +303,7 @@ namespace Engine.Master
                     Assembler.Level++;
                 createdAbility = Assembler;
             }
-            else if (blueprintPart.PartType.StartsWith("Weapon"))
+            else if (blueprintPart.PartType == TileObjectType.PartWeapon)
             {
                 if (Weapon == null)
                 {
@@ -320,7 +320,7 @@ namespace Engine.Master
                 createdAbility = Weapon;
             }
 
-            else if (blueprintPart.PartType.StartsWith("Container"))
+            else if (blueprintPart.PartType == TileObjectType.PartContainer)
             {
                 if (Container == null)
                 {
@@ -342,7 +342,7 @@ namespace Engine.Master
                 createdAbility = Container;
             }
 
-            else if (blueprintPart.PartType.StartsWith("Reactor"))
+            else if (blueprintPart.PartType == TileObjectType.PartReactor)
             {
                 if (Reactor == null)
                 {
@@ -359,7 +359,7 @@ namespace Engine.Master
                 createdAbility = Reactor;
             }
 
-            else if (blueprintPart.PartType.StartsWith("Radar"))
+            else if (blueprintPart.PartType == TileObjectType.PartRadar)
             {
                 if (Radar == null)
                 {
@@ -381,28 +381,28 @@ namespace Engine.Master
 
         public bool IsInstalled(BlueprintPart blueprintPart, int level)
         {
-            if (blueprintPart.PartType == "Engine")
+            if (blueprintPart.PartType == TileObjectType.PartEngine)
                 return Engine != null && Engine.Level == level;
 
-            if (blueprintPart.PartType == "Armor")
+            if (blueprintPart.PartType == TileObjectType.PartArmor)
                 return Armor != null && Armor.Level == level;
 
-            if (blueprintPart.PartType == "Weapon")
+            if (blueprintPart.PartType == TileObjectType.PartWeapon)
                 return Weapon != null && Weapon.Level == level;
 
-            if (blueprintPart.PartType == "Assembler")
+            if (blueprintPart.PartType == TileObjectType.PartAssembler)
                 return Assembler != null && Assembler.Level == level;
 
-            if (blueprintPart.PartType == "Extractor")
+            if (blueprintPart.PartType == TileObjectType.PartExtractor)
                 return Extractor != null && Extractor.Level == level;
 
-            if (blueprintPart.PartType == "Container")
+            if (blueprintPart.PartType == TileObjectType.PartContainer)
                 return Container != null && Container.Level == level;
 
-            if (blueprintPart.PartType == "Reactor")
+            if (blueprintPart.PartType == TileObjectType.PartReactor)
                 return Reactor != null && Reactor.Level == level;
 
-            if (blueprintPart.PartType == "Radar")
+            if (blueprintPart.PartType == TileObjectType.PartRadar)
                 return Radar != null && Radar.Level == level;
 
             return false;
@@ -596,15 +596,12 @@ namespace Engine.Master
 
         public void Upgrade(string unitCode, TileObject tileObject)
         {
-            int unitCodeLevel = 1;
-            if (unitCode.EndsWith("2"))
-                unitCodeLevel = 2;
-            if (unitCode.EndsWith("3"))
-                unitCodeLevel = 3;
+            int unitCodeLevel;
+            TileObjectType tileObjectType = TileObject.GetTileObjectTypeFromString(unitCode, out unitCodeLevel);
 
             foreach (BlueprintPart blueprintPart in Blueprint.Parts)
             {
-                if (unitCode.StartsWith(blueprintPart.PartType))
+                if (tileObjectType == blueprintPart.PartType)
                 {
                     CreateBlueprintPart(blueprintPart, unitCodeLevel, false, tileObject);
                     break;
@@ -642,13 +639,13 @@ namespace Engine.Master
 
                 if (moveUpdateUnitPart.Exists)
                 {
-                    if (blueprintPart.PartType.StartsWith( "Weapon"))
+                    if (blueprintPart.PartType == TileObjectType.PartWeapon)
                     {
                         moveUpdateUnitPart.Level = Weapon.Level;
                         moveUpdateUnitPart.TileObjects = CopyContainer(Weapon.TileContainer);
                         moveUpdateUnitPart.Capacity = Weapon.TileContainer.Capacity;
                     }
-                    if (blueprintPart.PartType.StartsWith("Assembler"))
+                    else if (blueprintPart.PartType == TileObjectType.PartAssembler)
                     {
                         moveUpdateUnitPart.Level = Assembler.Level;
                         moveUpdateUnitPart.TileObjects = CopyContainer(Assembler.TileContainer);
@@ -660,28 +657,36 @@ namespace Engine.Master
                             moveUpdateUnitPart.BildQueue.AddRange(Assembler.BuildQueue);
                         }
                     }
-                    if (blueprintPart.PartType.StartsWith("Container"))
+                    else if (blueprintPart.PartType == TileObjectType.PartContainer)
                     {
                         moveUpdateUnitPart.Level = Container.Level;
                         moveUpdateUnitPart.TileObjects = CopyContainer(Container.TileContainer);
                         moveUpdateUnitPart.Capacity = Container.TileContainer.Capacity;
                     }
-                    if (blueprintPart.PartType.StartsWith("Reactor"))
+                    else if (blueprintPart.PartType == TileObjectType.PartReactor)
                     {
                         moveUpdateUnitPart.Level = Reactor.Level;
                         moveUpdateUnitPart.AvailablePower = Reactor.AvailablePower;
                         moveUpdateUnitPart.TileObjects = CopyContainer(Reactor.TileContainer);
                         moveUpdateUnitPart.Capacity = Reactor.TileContainer.Capacity;
                     }
-                    if (blueprintPart.PartType.StartsWith("Armor"))
+                    else if (blueprintPart.PartType == TileObjectType.PartArmor)
                     {
                         moveUpdateUnitPart.Level = Armor.Level;
                         moveUpdateUnitPart.ShieldActive = Armor.ShieldActive;
                         moveUpdateUnitPart.ShieldPower = Armor.ShieldPower;
                     }
-                    if (blueprintPart.PartType.StartsWith("Radar"))
+                    else if (blueprintPart.PartType == TileObjectType.PartRadar)
                     {
                         moveUpdateUnitPart.Level = Radar.Level;
+                    }
+                    else if (blueprintPart.PartType == TileObjectType.PartExtractor)
+                    {
+                        moveUpdateUnitPart.Level = Extractor.Level;
+                    }
+                    else if (blueprintPart.PartType == TileObjectType.PartEngine)
+                    {
+                        moveUpdateUnitPart.Level = Engine.Level;
                     }
                 }
                 stats.UnitParts.Add(moveUpdateUnitPart);

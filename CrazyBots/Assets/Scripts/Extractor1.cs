@@ -8,113 +8,262 @@ public class Extractor1 : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (moveToContainer != null)
+        if (tileObjectsInTransit != null)
         {
-            Vector3 unitPos3 = transform.position;
+            List<GameObject> transit = new List<GameObject>();
+            transit.AddRange(tileObjectsInTransit);
 
-            float speed = 2.0f / hexGrid.GameSpeed;
-            float step = speed * Time.deltaTime;
-
-            moveToContainer.transform.position = Vector3.MoveTowards(moveToContainer.transform.position, transform.position, step);
-            if (moveToContainer.transform.position == transform.position)
+            foreach (GameObject gameTileObject in transit)
             {
-                moveToContainer.SetActive(false);
-                //Destroy(moveToContainer);
-                moveToContainer = null;
+                if (gameTileObject == null)
+                {
+                    tileObjectsInTransit.Remove(gameTileObject);
+                }
+                else
+                {
+                    Vector3 vector3 = transform.position;
+                    //vector3.y = 2;
+
+                    float speed = 1.5f / hexGrid.GameSpeed;
+                    float step = speed * Time.deltaTime;
+
+                    gameTileObject.transform.position = Vector3.MoveTowards(gameTileObject.transform.position, vector3, step);
+                    if (gameTileObject.transform.position == transform.position)
+                    {
+                        Destroy(gameTileObject.gameObject);
+                        tileObjectsInTransit.Remove(gameTileObject);
+                    }
+                }
             }
+            if (tileObjectsInTransit.Count == 0)
+                tileObjectsInTransit = null;
         }
     }
 
     private HexGrid hexGrid;
-    private GameObject moveToContainer;
+    private List<GameObject> tileObjectsInTransit;
 
     public void Extract(HexGrid hexGrid, Move move, UnitBase unit, UnitBase otherUnit)
     {
         this.hexGrid = hexGrid;
 
-        if (moveToContainer != null)
+        /*
+        if (tileObjectsInTranst != null)
         {
-            moveToContainer.SetActive(false);
-            //Destroy(moveToContainer);
-            moveToContainer = null;
-        }
-        bool found = false;
+            foreach (GameObject gameTileObject in tileObjectsInTranst)
+            {
+                Destroy(gameTileObject);
+            }
+            tileObjectsInTranst = null;
+        }*/
 
+        bool found;
+
+        if (tileObjectsInTransit == null)
+            tileObjectsInTransit = new List<GameObject>();
+
+        if (move.Stats.MoveUpdateGroundStat.TileObjects.Count > 1)
+        {
+            int sfd = 0;
+        }
+
+        // Find the extracted tileobjects
         foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
         {
-            foreach (UnitBasePart unitBasePart in unit.UnitBaseParts)
-            {
-                if (unitBasePart.TileObjects != null)
-                {
-                    foreach (UnitBaseTileObject targetTileObject in unitBasePart.TileObjects)
-                    {
-                        if (tileObject.TileObjectType == targetTileObject.TileObject.TileObjectType &&
-                            targetTileObject.GameObject == null)
-                        {
-                            // This is the target UnitBaseTileObject
-                            if (otherUnit == null)
-                            {
-                                Position from = move.Positions[1];
-                                GroundCell sourceCell = hexGrid.GroundCells[from];
+            found = false;
 
-                                foreach (GameObject gameTileObject in sourceCell.TileContainer)
+            if (otherUnit == null)
+            {
+                Position from = move.Positions[1];
+                GroundCell sourceCell = hexGrid.GroundCells[from];
+
+                found = false;
+                foreach (GameObject gameTileObject in sourceCell.GameObjects)
+                {
+                    if (gameTileObject.name == move.OtherUnitId)
+                    {
+                        sourceCell.GameObjects.Remove(gameTileObject);
+                        gameTileObject.transform.SetParent(unit.transform, true);
+                        tileObjectsInTransit.Add(gameTileObject);
+
+                        //GameObject destructable;
+                        //destructable = hexGrid.CreateDestructable(transform, tileObject);
+                        //tileObjectsInTranst.Add(destructable);
+                        //destructable.transform.SetParent(unit.transform, true);
+
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    // Bug!
+                    int x = 0;
+                }
+            }
+            else
+            {
+                if (unit.PlayerId == otherUnit.PlayerId)
+                {
+                    // Find source tile in friendly otherUnit
+                    foreach (UnitBasePart otherUnitBasePart in otherUnit.UnitBaseParts)
+                    {
+                        if (otherUnitBasePart.PartType == tileObject.TileObjectType)
+                        {
+                            // Extract from friendly unit
+                            otherUnit.PartExtracted(tileObject.TileObjectType);
+
+                            if (otherUnitBasePart.Level == 0)
+                            {
+                                GameObject otherPart;
+                                otherPart = otherUnitBasePart.Part;
+                                otherPart.transform.SetParent(unit.transform, true);
+                                tileObjectsInTransit.Add(otherPart);
+                            }
+                            found = true;
+                            break;
+                        }
+                        if (otherUnitBasePart.TileObjects != null)
+                        {
+                            foreach (UnitBaseTileObject sourceTileObject in otherUnitBasePart.TileObjects)
+                            {
+                                if (tileObject.TileObjectType == sourceTileObject.TileObject.TileObjectType)
                                 {
-                                    if (gameTileObject.name == move.OtherUnitId)
-                                    {
-                                        sourceCell.TileContainer.Remove(gameTileObject);
-                                        targetTileObject.GameObject = gameTileObject;
-                                        break;
-                                    }
+                                    otherUnitBasePart.TileObjects.Remove(sourceTileObject);
+
+                                    GameObject destructable;
+
+                                    //TileObject tileObject1 = new TileObject();
+                                    //tileObject1.TileObjectType = TileObjectType.Tree;
+                                    if (unit.Container != null)
+                                        destructable = hexGrid.CreateTileObject(unit.Container.transform, tileObject);
+                                    else
+                                        destructable = hexGrid.CreateTileObject(unit.transform, tileObject);
+
+                                    destructable.name = "xx" + tileObject.TileObjectType.ToString() + " to " + otherUnit.UnitId;
+
+                                    Vector2 randomPos = UnityEngine.Random.insideUnitCircle;
+                                    Vector3 unitPos3 = otherUnitBasePart.Part.transform.position;
+                                    unitPos3.x += (randomPos.x * 0.5f);
+                                    unitPos3.z += (randomPos.y * 0.7f);
+                                    //unitPos3.y += 1;
+                                    destructable.transform.position = unitPos3;
+
+                                    tileObjectsInTransit.Add(destructable);
+
+                                    found = true;
+                                    break;
                                 }
-                                if (targetTileObject.GameObject == null)
+                            }
+                        }
+                        if (found)
+                            break;
+                    }
+                }
+                else
+                {
+                    // Extract Part in enemy otherUnit
+                    // Find source tile in friendly otherUnit
+                    foreach (UnitBasePart otherUnitBasePart in otherUnit.UnitBaseParts)
+                    {
+                        if (otherUnitBasePart.PartType == tileObject.TileObjectType)
+                        {
+                            otherUnit.PartExtracted(tileObject.TileObjectType);
+
+                            if (otherUnitBasePart.Level == 0)
+                            {
+                                GameObject otherPart;
+                                otherPart = otherUnitBasePart.Part;
+                                otherPart.transform.SetParent(unit.transform, true);
+                                tileObjectsInTransit.Add(otherPart);
+                            }
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (!found)
+            {
+                // Bug!
+                int x = 0;
+            }
+            /*
+            // Remove tileobject from the other unit
+            foreach (UnitBasePart unitBasePart in unit.UnitBaseParts)
+                {
+                    if (unitBasePart.TileObjects != null)
+                    {
+                        foreach (UnitBaseTileObject targetTileObject in unitBasePart.TileObjects)
+                        {
+                            if (tileObject.TileObjectType == targetTileObject.TileObject.TileObjectType &&
+                                targetTileObject.GameObject == null)
+                            {
+                                // This is the target UnitBaseTileObject
+                                if (otherUnit == null)
                                 {
-                                    int x = 0;
+                                    Position from = move.Positions[1];
+                                    GroundCell sourceCell = hexGrid.GroundCells[from];
+
+                                    foreach (GameObject gameTileObject in sourceCell.TileContainer)
+                                    {
+                                        if (gameTileObject.name == move.OtherUnitId)
+                                        {
+                                            sourceCell.TileContainer.Remove(gameTileObject);
+                                            targetTileObject.GameObject = gameTileObject;
+                                            break;
+                                        }
+                                    }
+                                    if (targetTileObject.GameObject == null)
+                                    {
+                                        int x = 0;
+                                    }
+                                    else
+                                    {
+                                        found = true;
+                                        moveToContainer = targetTileObject.GameObject;
+                                        moveToContainer.transform.SetParent(unit.transform, true);
+                                    }
                                 }
                                 else
                                 {
-                                    found = true;
-                                    moveToContainer = targetTileObject.GameObject;
-                                    moveToContainer.transform.SetParent(unit.transform, true);
-                                }
-                            }
-                            else
-                            {
-                                // Find source tile in otherUmit
-                                foreach (UnitBasePart otherUnitBasePart in otherUnit.UnitBaseParts)
-                                {
-                                    if (otherUnitBasePart.TileObjects != null)
+                                    // Find source tile in otherUmit
+                                    foreach (UnitBasePart otherUnitBasePart in otherUnit.UnitBaseParts)
                                     {
-                                        foreach (UnitBaseTileObject sourceTileObject in otherUnitBasePart.TileObjects)
+                                        if (otherUnitBasePart.TileObjects != null)
                                         {
-                                            if (tileObject.TileObjectType == sourceTileObject.TileObject.TileObjectType &&
-                                                sourceTileObject.GameObject != null)
+                                            foreach (UnitBaseTileObject sourceTileObject in otherUnitBasePart.TileObjects)
                                             {
-                                                moveToContainer = targetTileObject.GameObject;
-                                                moveToContainer.transform.SetParent(unit.transform, true);
-                                                moveToContainer.SetActive(true);
+                                                if (tileObject.TileObjectType == sourceTileObject.TileObject.TileObjectType &&
+                                                    sourceTileObject.GameObject != null)
+                                                {
+                                                    moveToContainer = targetTileObject.GameObject;
+                                                    moveToContainer.transform.SetParent(unit.transform, true);
+                                                    moveToContainer.SetActive(true);
 
-                                                found = true;
+                                                    found = true;
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
+
+
                         }
-
-
+                        if (found)
+                            break;
                     }
-                    if (found)
-                        break;
+                    else
+                    {
+                        int nottileobn = 0;
+                    }
                 }
-                else
+                if (!found)
                 {
-                    int nottileobn = 0;
+                    int vvveyNotFoundException = 0;
                 }
-            }
-            if (!found)
-            {
-                int vvveyNotFoundException = 0;
-            }
+            }*/
         }
             /*
         if (otherUnit == null)

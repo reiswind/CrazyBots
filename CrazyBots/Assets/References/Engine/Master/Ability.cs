@@ -11,8 +11,9 @@ namespace Engine.Master
     {
         public Unit Unit;
 
-        public Ability(Unit unit)
+        public Ability(Unit unit, TileObjectType partType)
         {
+            PartType = partType;
             Unit = unit;
             PartTileObjects = new List<TileObject>();
         }
@@ -20,6 +21,7 @@ namespace Engine.Master
         public abstract string Name { get; }
         public TileContainer TileContainer { get; set; }
         public int Level { get; set; }
+        public TileObjectType PartType { get; set; }
 
         public virtual void ComputePossibleMoves(List<Move> possibleMoves, List<Position> includedPositions, MoveFilter moveFilter)
         {

@@ -12,7 +12,7 @@ namespace Engine.Master
     {
         public override string Name { get { return "Extractor"; } }
 
-        public Extractor(Unit owner, int level) : base(owner)
+        public Extractor(Unit owner, int level) : base(owner, TileObjectType.PartExtractor)
         {
             Level = level;
         }
@@ -174,39 +174,18 @@ namespace Engine.Master
                         // Extract from own unit?
                         if (t.Unit.ExtractMe)
                         {
-                            if (Unit.Engine == null)
-                            {
-                                // Extract everything
-                                Move move = new Move();
+                            // Extract everything
+                            Move move = new Move();
 
-                                move.MoveType = MoveType.Extract;
+                            move.MoveType = MoveType.Extract;
 
-                                move.UnitId = Unit.UnitId;
-                                move.OtherUnitId = t.Unit.UnitId;
-                                move.Positions = new List<Position>();
-                                move.Positions.Add(Unit.Pos);
-                                move.Positions.Add(t.Pos);
+                            move.UnitId = Unit.UnitId;
+                            move.OtherUnitId = t.Unit.UnitId;
+                            move.Positions = new List<Position>();
+                            move.Positions.Add(Unit.Pos);
+                            move.Positions.Add(t.Pos);
 
-                                possibleMoves.Add(move);
-                            }
-                            else
-                            {
-                                //if (t.Unit.Engine == null)
-                                {
-                                    // Extract garbage units that cannot move. Do not extract from containers returning home
-                                    Move move = new Move();
-
-                                    move.MoveType = MoveType.Extract;
-
-                                    move.UnitId = Unit.UnitId;
-                                    move.OtherUnitId = t.Unit.UnitId;
-                                    move.Positions = new List<Position>();
-                                    move.Positions.Add(Unit.Pos);
-                                    move.Positions.Add(t.Pos);
-
-                                    possibleMoves.Add(move);
-                                }
-                            }
+                            possibleMoves.Add(move);
                         }
                         else if (t.Unit.Container != null)
                         {
@@ -243,14 +222,14 @@ namespace Engine.Master
                                     move.Positions.Add(Unit.Pos);
                                     move.Positions.Add(t.Pos);
 
-                                    //possibleMoves.Add(move);
+                                    possibleMoves.Add(move);
                                 }
                             }
                         }                        
                     }
                     else
                     {
-                        // Cannot extract if shield is up
+                        // Cannot extract if enemy shield is up
                         if (t.Unit.Armor == null || !t.Unit.Armor.ShieldActive)
                         {
                             // Extract from enemy? Always an option
@@ -333,7 +312,7 @@ namespace Engine.Master
                 return false;
             }
         }
-        public bool ExtractInto(Unit unit, Move move, Position from, List<Bullet> hitByBullet, Game game, string otherUnitId)
+        public bool ExtractInto(Unit unit, Move move, Position from, Game game, string otherUnitId)
         {
             Tile fromTile = Unit.Game.Map.GetTile(from);
 
@@ -362,26 +341,59 @@ namespace Engine.Master
                             break;
                         }
                     }
-                    if (otherUnit.ExtractMe && Unit.CanFill())
+
+                    foreach (TileObject tileObject in removeTileObjects)
                     {
-                        Bullet bullet = new Bullet();
-                        bullet.Target = fromTile.Pos;
-                        hitByBullet.Add(bullet);
+                        if (tileObject.TileObjectType != TileObjectType.Mineral)
+                        {
+                            int x = 9;
+                        }
+                    }
+
+                    if (otherUnit.ExtractMe && !otherUnit.IsDead() && capacity > 0)
+                    {
+                        // First clear container, next move will extract the parts if needed??
+
+                        // fiendly unit
+                        Ability hitPart = otherUnit.HitBy();
+
+                        TileObject removedTileObject = new TileObject();
+                        removedTileObject.TileObjectType = hitPart.PartType;
+                        removedTileObject.Direction = Direction.C;
+                        if (removedTileObject != null)
+                            removeTileObjects.Add(removedTileObject);
+
+                        move.Stats = new MoveUpdateStats();
+                        move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
+                        move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
+                        move.Stats.MoveUpdateGroundStat.TileObjects.Add(removedTileObject);
                     }
                 }
                 else
                 {
-                    // enemy unit
-                    Bullet bullet = new Bullet();
-                    bullet.Target = fromTile.Pos;
-                    hitByBullet.Add(bullet);
+                    if (!otherUnit.IsDead())
+                    {
+                        // enemy unit
+                        Ability hitPart = otherUnit.HitBy();
+
+                        TileObject removedTileObject = new TileObject();
+                        removedTileObject.TileObjectType = hitPart.PartType;
+                        removedTileObject.Direction = Direction.C;
+                        if (removedTileObject != null)
+                            removeTileObjects.Add(removedTileObject);
+
+                        move.Stats = new MoveUpdateStats();
+                        move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
+                        move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
+                        move.Stats.MoveUpdateGroundStat.TileObjects.Add(removedTileObject);
+                    }
                 }
             }
             else
             {
                 TileObject removedTileObject;
 
-                // Extract from tile
+                // Extract from tile (Only 1)
                 TileObjectType tileObjectType = Tile.GetObjectType(otherUnitId);
                 if (tileObjectType == TileObjectType.Dirt)
                 {
@@ -394,10 +406,6 @@ namespace Engine.Master
                 else
                 {
                     removedTileObject = fromTile.TileContainer.RemoveTileObject(tileObjectType);
-                    if (removedTileObject == null)
-                    {
-                        int x = 0;
-                    }
                 }
                 if (removedTileObject != null)
                     removeTileObjects.Add(removedTileObject);
@@ -408,16 +416,17 @@ namespace Engine.Master
                 move.Stats.MoveUpdateGroundStat.TileObjects.Add(removedTileObject);
             }
 
+            // The remove tileobjects will be in the move until the next move
             moveUpdateGroundStat.TileObjects.AddRange(removeTileObjects);
 
             bool didRemove = removeTileObjects.Count > 0;
-
+            /*
             Unit.AddTileObjects(removeTileObjects);
             
             if (removeTileObjects.Count > 0)
             {
                 fromTile.TileContainer.TileObjects.AddRange(removeTileObjects);
-            }
+            }*/
             move.Stats = unit.CollectStats();
             move.Stats.MoveUpdateGroundStat = moveUpdateGroundStat;
 

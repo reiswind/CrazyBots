@@ -12,18 +12,23 @@ public class UnitCommand
 }
 public class UnitBaseTileObject
 {
-    public GameObject GameObject { get; set; }
+    //public GameObject GameObject { get; set; }
     public TileObject TileObject { get; set; }
 }
 
 public class UnitBasePart
 {
+    public UnitBasePart()
+    {
+
+    }
     public string Name { get; set; }
-    public string PartType { get; set; }
+    public TileObjectType PartType { get; set; }
     public int Level { get; set; }
     public bool IsUnderConstruction { get; set; }
     public bool Destroyed { get; set; }
     public GameObject Part { get; set; }
+    public TileObjectType TileObjectType { get; set; }
     public List<UnitBaseTileObject> TileObjects { get; set; }
 
 }
@@ -186,6 +191,12 @@ public class UnitBase : MonoBehaviour
         unitBasePart.PartType = moveUpdateUnitPart.PartType;
         unitBasePart.Part = newPart;
         unitBasePart.Level = moveUpdateUnitPart.Level;
+
+        if (moveUpdateUnitPart.Exists && moveUpdateUnitPart.Level == 0)
+        {
+            int x = 0;
+        }
+
         unitBasePart.IsUnderConstruction = underConstruction;
 
         if (moveUpdateUnitPart.TileObjects != null)
@@ -348,8 +359,6 @@ public class UnitBase : MonoBehaviour
         }
     }
 
-    
-
     internal void SetMaterialGhost(int playerId, GameObject unit)
     {
         for (int i = 0; i < unit.transform.childCount; i++)
@@ -460,11 +469,9 @@ public class UnitBase : MonoBehaviour
         return Container != null && Engine == null;
     }
 
-    
-
     private Engine1 Engine;
     private Assembler1 Assembler;
-    private Container1 Container;
+    internal Container1 Container;
     private Extractor1 Extractor;
     private Weapon1 Weapon;
     private Reactor1 Reactor;
@@ -534,13 +541,13 @@ public class UnitBase : MonoBehaviour
 
         foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
         {
-            if (moveUpdateUnitPart.PartType.StartsWith("Extractor"))
+            if (moveUpdateUnitPart.PartType == TileObjectType.PartExtractor)
             {
                 lastObject = AddPart(foundation, lastObject, "Foundation", UnderConstruction);
                 foundation = lastObject;
                 AddBasePart(moveUpdateUnitPart, lastObject);
             }
-            else if (moveUpdateUnitPart.PartType.StartsWith("Container"))
+            else if (moveUpdateUnitPart.PartType == TileObjectType.PartContainer)
             {
                 lastObject = AddPart(foundation, lastObject, "ContainerPart", UnderConstruction);
                 AddBasePart(moveUpdateUnitPart, lastObject);
@@ -556,7 +563,7 @@ public class UnitBase : MonoBehaviour
                     AddBasePart(moveUpdateUnitPart, lastObject);
                 }
             }
-            else if (moveUpdateUnitPart.PartType.StartsWith("Reactor"))
+            else if (moveUpdateUnitPart.PartType == TileObjectType.PartReactor)
             {
                 if (moveUpdateUnitPart.Level == 1)
                 {
@@ -580,7 +587,7 @@ public class UnitBase : MonoBehaviour
                     AddBasePart(moveUpdateUnitPart, lastObject);
                 }
             }
-            else if (moveUpdateUnitPart.PartType.StartsWith("Assembler"))
+            else if (moveUpdateUnitPart.PartType == TileObjectType.PartAssembler)
             {
                 if (moveUpdateUnitPart.Level == 1)
                 {
@@ -638,52 +645,54 @@ public class UnitBase : MonoBehaviour
         return hitPart;
     }*/
 
-    public void PartExtracted(string hitPart)
+    public void PartExtracted(TileObjectType hitPart)
     {
         if (!shellHit)
         {
             int x = 0;
         }
+
         shellHit = false;
-        //string hitPart = GetPartThatHasBeenHit();
-        if (hitPart == null)
-            return;
 
         for (int i = UnitBaseParts.Count - 1; i >= 0; i--)
         {
             UnitBasePart unitBasePart = UnitBaseParts[i];
             if (unitBasePart.PartType == hitPart)
             {
-                GroundCell currentCell = HexGrid.GroundCells[CurrentPos];
-                unitBasePart.Part.transform.SetParent(currentCell.transform, true);
-
-                Rigidbody otherRigid = unitBasePart.Part.GetComponent<Rigidbody>();
-
-                if (otherRigid != null)
+                unitBasePart.Level--;
+                if (unitBasePart.Level == 0)
                 {
-                    otherRigid.isKinematic = false;
+                    /*
+                    GroundCell currentCell = HexGrid.GroundCells[CurrentPos];
+                    unitBasePart.Part.transform.SetParent(currentCell.transform, true);
+
+                    Rigidbody otherRigid = unitBasePart.Part.GetComponent<Rigidbody>();
+
+                    if (otherRigid != null)
+                    {
+                        otherRigid.isKinematic = false;
+
+                        Vector3 vector3 = new Vector3();
+                        vector3.y = 5;
+                        vector3.x = Random.value;
+                        vector3.z = Random.value;
+
+                        otherRigid.velocity = vector3;
+                        otherRigid.rotation = Random.rotation;
+                    }
                     
-                    Vector3 vector3 = new Vector3();
-                    vector3.y = 5;
-                    vector3.x = Random.value;
-                    vector3.z = Random.value;
+                    Container1 container = unitBasePart.Part.GetComponent<Container1>();
+                    if (container != null)
+                    {
+                        List<TileObject> tileObjects = new List<TileObject>();
+                        container.UpdateContent(HexGrid, tileObjects, 1);
+                    }*/
 
-
-                    otherRigid.velocity = vector3;
-                    otherRigid.rotation = Random.rotation;
+                    unitBasePart.Destroyed = true;
+                    SetPlayerColor(HexGrid, 0, unitBasePart.Part);
+                    Destroy(unitBasePart.Part, 8);
+                    UnitBaseParts.Remove(unitBasePart);
                 }
-
-                Container1 container = unitBasePart.Part.GetComponent<Container1>();
-                if (container != null)
-                {
-                    List<TileObject> tileObjects = new List<TileObject>();
-                    container.UpdateContent(HexGrid, tileObjects, 1);
-                }
-
-                unitBasePart.Destroyed = true;
-                SetPlayerColor(HexGrid, 0, unitBasePart.Part);
-                Destroy(unitBasePart.Part, 8);
-                UnitBaseParts.Remove(unitBasePart);
                 break;
             }
         }
@@ -751,7 +760,7 @@ public class UnitBase : MonoBehaviour
         {
             foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
             {
-                if (moveUpdateUnitPart.PartType.StartsWith("Engine"))
+                if (moveUpdateUnitPart.PartType == TileObjectType.PartEngine)
                 {
                     return false;
                 }
@@ -792,14 +801,14 @@ public class UnitBase : MonoBehaviour
         bool groundFound = false;
         foreach (MoveUpdateUnitPart moveUpdateUnitPart in remainingParts)
         {
-            if (engine != null && moveUpdateUnitPart.PartType.StartsWith("Engine"))
+            if (engine != null && moveUpdateUnitPart.PartType == TileObjectType.PartEngine)
             {
                 ReplacePart(engine, moveUpdateUnitPart, underConstruction);
                 remainingParts.Remove(moveUpdateUnitPart);
                 groundFound = true;
                 break;
             }
-            else if (ground != null && moveUpdateUnitPart.PartType.StartsWith("Extractor"))
+            else if (ground != null && moveUpdateUnitPart.PartType == TileObjectType.PartExtractor)
             {
                 ReplacePart(ground, moveUpdateUnitPart, underConstruction);
                 ground.name = moveUpdateUnitPart.Name;
@@ -822,10 +831,10 @@ public class UnitBase : MonoBehaviour
         {
             foreach (MoveUpdateUnitPart moveUpdateUnitPart in remainingParts)
             {
-                if (moveUpdateUnitPart.PartType.StartsWith("Container") ||
-                    moveUpdateUnitPart.PartType.StartsWith("Weapon") ||
-                    moveUpdateUnitPart.PartType.StartsWith("Reactor") ||
-                    moveUpdateUnitPart.PartType.StartsWith("Assembler"))
+                if (moveUpdateUnitPart.PartType == TileObjectType.PartContainer ||
+                    moveUpdateUnitPart.PartType == TileObjectType.PartWeapon ||
+                    moveUpdateUnitPart.PartType == TileObjectType.PartReactor ||
+                    moveUpdateUnitPart.PartType == TileObjectType.PartAssembler)
                 {
                     ReplacePart(bigPart, moveUpdateUnitPart, underConstruction);
                     remainingParts.Remove(moveUpdateUnitPart);
@@ -888,7 +897,7 @@ public class UnitBase : MonoBehaviour
                     }
                     if (unitBasePart.Level != moveUpdateUnitPart.Level)
                     {
-                        //int xx = 0;
+                        unitBasePart.Level = moveUpdateUnitPart.Level;
                     }
 
                     //unitBasePart.Part.SetActive(unitBasePart.IsUnderConstruction || moveUpdateUnitPart.Exists);

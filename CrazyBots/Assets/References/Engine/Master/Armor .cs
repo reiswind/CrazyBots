@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Engine.Interface;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace Engine.Master
 {
     public class Shield : Ability
     {
-        public Shield(Unit owner, int level) : base(owner)
+        public Shield(Unit owner, int level) : base(owner, TileObjectType.None)
         {
             
         }
@@ -24,7 +25,7 @@ namespace Engine.Master
 
         public int ShieldPower { get; set; }
 
-        public Armor(Unit owner, int level) : base(owner)
+        public Armor(Unit owner, int level) : base(owner, TileObjectType.PartArmor)
         {
             Level = level;
         }

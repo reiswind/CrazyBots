@@ -2,7 +2,7 @@
   "Name": "Test",
   "MapWidth": 2,
   "MapHeight": 2,
-  "xSeed": 1,
+  "Seed": 1,
   "MapType": "2",
   "Players": [
     {
@@ -23,7 +23,7 @@
     {
       "ControlLevel": 1,
       "Id": 4,
-      "Name": "Player3"
+      "Name": "Player4"
     }
   ],
   "Units": [

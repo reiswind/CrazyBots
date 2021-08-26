@@ -33,7 +33,7 @@ namespace Engine.Master
             return false;
         }
 
-        public Assembler(Unit owner, int level) : base(owner)
+        public Assembler(Unit owner, int level) : base(owner, TileObjectType.PartAssembler)
         {
             Level = level;
             TileContainer = new TileContainer();
@@ -99,7 +99,7 @@ namespace Engine.Master
             move.Positions.Add(pos);
             move.PlayerId = Unit.Owner.PlayerModel.Id;
             move.UnitId = upgradedUnit.UnitId;
-            move.OtherUnitId = blueprintPart.PartType + level;
+            move.OtherUnitId = blueprintPart.PartType.ToString() + level;
 
             return move;
         }

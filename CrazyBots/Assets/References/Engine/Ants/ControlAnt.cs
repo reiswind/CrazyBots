@@ -1481,7 +1481,8 @@ namespace Engine.Control
                         else
                         {
                             UpdateUnitCounters(ant);
-                            movableAnts.Add(ant);
+                            // cannot move until complete
+                            //movableAnts.Add(ant);
                         }
                     }
                     else
@@ -1547,8 +1548,7 @@ namespace Engine.Control
                 if (!alreadyInProgress)
                 {
                     // Need more reactors
-                    //BuildReactor(player);
-                    checkBuildReactor = true;
+                    //checkBuildReactor = true;
                 }
             }
 

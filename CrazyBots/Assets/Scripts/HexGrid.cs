@@ -216,6 +216,36 @@ public class HexGrid : MonoBehaviour
 		return null;
 	}
 
+	public GameObject CreateTileObject(Transform transform, TileObject tileObject)
+	{
+		GameObject prefab;
+
+		if (tileObject.TileObjectType == TileObjectType.Tree)
+		{
+			int idx = game.Random.Next(treeResources.Count);
+			prefab = treeResources.Values.ElementAt(idx);
+		}
+		else if (tileObject.TileObjectType == TileObjectType.Bush)
+		{
+			int idx = game.Random.Next(bushResources.Count);
+			prefab = bushResources.Values.ElementAt(idx);
+		}
+		else if (tileObject.TileObjectType == TileObjectType.Mineral)
+		{
+			prefab = GetTerrainResource("Crystal");
+		}
+		else
+		{
+			prefab = GetTerrainResource("Marker");
+			//prefab = null;
+		}
+		GameObject gameTileObject = null;
+		if (prefab != null)
+		{
+			gameTileObject = Instantiate(prefab, transform, false);
+		}
+		return gameTileObject;
+	}
 
 	public GameObject CreateDestructable(Transform transform, TileObject tileObject)
 	{
@@ -580,7 +610,10 @@ public class HexGrid : MonoBehaviour
 					if (unit.PartsThatHaveBeenHit == null)
 						unit.PartsThatHaveBeenHit = new List<string>();
 					unit.PartsThatHaveBeenHit.Add(move.OtherUnitId);*/
-					unit.PartExtracted(move.OtherUnitId);
+					int level;
+					TileObjectType tileObjectType = TileObject.GetTileObjectTypeFromString(move.OtherUnitId, out level);
+
+					unit.PartExtracted(tileObjectType);
 
 				}
 			}
@@ -601,7 +634,7 @@ public class HexGrid : MonoBehaviour
 					UnitBase otherUnit = null; ;
 					if (move.OtherUnitId.StartsWith("unit"))
 						otherUnit = BaseUnits[move.OtherUnitId];
-					unit.UpdateStats(move.Stats);
+					//unit.UpdateStats(move.Stats);
 					unit.Extract(move, unit, otherUnit);
 				}
 			}
@@ -793,7 +826,6 @@ public class HexGrid : MonoBehaviour
 		unit.HexGrid = this;
 		unit.gameObject.SetActive(false);
 		unit.PlayerId = 1;
-
 
 		MoveUpdateStats stats = new MoveUpdateStats();
 		stats.BlueprintName = blueprint.Name;

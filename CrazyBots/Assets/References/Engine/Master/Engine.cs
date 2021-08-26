@@ -23,7 +23,7 @@ namespace Engine.Master
             }
         }
 
-        public Engine(Unit owner, int level) : base(owner)
+        public Engine(Unit owner, int level) : base(owner, TileObjectType.PartEngine)
         {
             Level = level;
         }

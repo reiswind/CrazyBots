@@ -30,7 +30,7 @@ namespace Engine.Interface
         private List<Position> lineRoute;
         private static int GridSize = 10;
 
-        public AbilityBullet(Unit owner) : base(owner)
+        public AbilityBullet(Unit owner) : base(owner, TileObjectType.None)
         {
             //Model = model;
         }

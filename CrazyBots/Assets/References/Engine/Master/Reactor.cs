@@ -72,7 +72,7 @@ namespace Engine.Master
             return removed;
         }
 
-        public Reactor(Unit owner, int level) : base(owner)
+        public Reactor(Unit owner, int level) : base(owner, TileObjectType.PartReactor)
         {
             AvailablePower = 100;
 

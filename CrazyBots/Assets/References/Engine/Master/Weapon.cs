@@ -10,7 +10,7 @@ namespace Engine.Master
     public class Weapon : Ability
     {
         public override string Name { get { return "Weapon"; } }
-        public Weapon(Unit owner, int level) : base(owner)
+        public Weapon(Unit owner, int level) : base(owner, TileObjectType.PartWeapon)
         {
             TileContainer = new TileContainer();
 
@@ -108,7 +108,7 @@ namespace Engine.Master
                         move.Positions.Add(Unit.Pos);
                         move.Positions.Add(n.Pos);
 
-                        possibleMoves.Add(move);
+                        //possibleMoves.Add(move);
                     }
                 }
             }

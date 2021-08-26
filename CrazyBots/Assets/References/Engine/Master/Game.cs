@@ -640,7 +640,54 @@ namespace Engine.Master
                 }
                 else if (move.MoveType == MoveType.Extract)
                 {
-                    
+                    if (move.Stats != null &&
+                        move.Stats.MoveUpdateGroundStat != null &&
+                        move.Stats.MoveUpdateGroundStat.TileObjects != null)
+                    {
+                        // Insert the previously removed tileobjects into the units
+                        Unit unit = Map.Units.GetUnitAt(move.Positions[0]);
+                        if (unit != null && unit.Extractor != null)
+                        {
+                            List<TileObject> tileObjects = new List<TileObject>();
+                            foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
+                            {
+                                if (tileObject.TileObjectType == TileObjectType.Mineral)
+                                {
+                                    tileObjects.Add(tileObject);
+                                }
+                                else
+                                {
+                                    // Extract everything else into minerals
+                                    tileObject.TileObjectType = TileObjectType.Mineral;
+                                    tileObjects.Add(tileObject);
+                                }
+                            }
+                            unit.AddTileObjects(tileObjects);
+
+                           if (tileObjects.Count > 0)
+                           {
+                                Position from = move.Positions[move.Positions.Count - 1];
+                                Tile fromTile = Map.GetTile(from);
+                                fromTile.TileContainer.TileObjects.AddRange(tileObjects);
+
+                                Move updateGroundMove = new Move();
+                                updateGroundMove.MoveType = MoveType.UpdateGround;
+                                updateGroundMove.Positions = new List<Position>();
+                                updateGroundMove.Positions.Add(from);
+                                updateGroundMove.Stats = Map.CollectGroundStats(from);
+                                nextMoves.Add(updateGroundMove);
+                            }
+                        }
+                        // Insert an update move, so the client knows that tileobjects have been added
+                        Move moveUpdate = new Move();
+                        moveUpdate.PlayerId = unit.Owner.PlayerModel.Id;
+                        moveUpdate.MoveType = MoveType.UpdateStats;
+                        moveUpdate.UnitId = unit.UnitId;
+                        moveUpdate.Positions = new List<Position>();
+                        moveUpdate.Positions.Add(unit.Pos);
+                        moveUpdate.Stats = unit.CollectStats();
+                        nextMoves.Add(moveUpdate);
+                    }
                     finishedMoves.Add(move);
                 }
                 else if (move.MoveType == MoveType.Transport)
@@ -1022,6 +1069,14 @@ namespace Engine.Master
             // Move all units to their new location
             foreach (Move move in newMoves)
             {
+                if (move.MoveType == MoveType.UpdateGround)
+                {
+                    lastMoves.Add(move);
+                }
+                if (move.MoveType == MoveType.UpdateStats)
+                {
+                    lastMoves.Add(move);
+                }
                 if (move.MoveType == MoveType.Hit)
                 {
                     lastMoves.Add(move);
@@ -1061,7 +1116,7 @@ namespace Engine.Master
                         bool extracted = false;
 
                         Position fromPos = move.Positions[move.Positions.Count - 1];
-                        extracted = unit.Extractor.ExtractInto(unit, move, fromPos, hitByBullet, this, move.OtherUnitId);
+                        extracted = unit.Extractor.ExtractInto(unit, move, fromPos, this, move.OtherUnitId);
 
                         if (extracted)
                         {
@@ -1076,13 +1131,13 @@ namespace Engine.Master
                         else
                         {
                             // cloud not extract, ignore move
-                            //move.MoveType = MoveType.Skip;
+                            move.MoveType = MoveType.Skip;
                         }
                     }
                     else
                     {
-                        // move failed
-                        //move.MoveType = MoveType.Skip;
+                        // move failed, no unit or no extractor
+                        move.MoveType = MoveType.Skip;
                     }
 
                 }

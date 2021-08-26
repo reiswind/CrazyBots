@@ -24,7 +24,7 @@ namespace Engine.Interface
             blueprint.Name = "Outpost";
             blueprint.Layout = "Ground";
             blueprint.Parts.Add(new BlueprintPart("Foundation"));
-            blueprint.Parts.Add(new BlueprintPart("Assembler3", "Assembler", 1, 4));
+            blueprint.Parts.Add(new BlueprintPart("Assembler3", TileObjectType.PartAssembler, 1, 4));
             blueprint.Parts.Add(new BlueprintPart("Container", 24));
             blueprint.Parts.Add(new BlueprintPart("Reactor"));
             Items.Add(blueprint);
@@ -34,7 +34,7 @@ namespace Engine.Interface
             blueprint.Name = "Container";
             blueprint.Layout = "Ground";
             blueprint.Parts.Add(new BlueprintPart("Foundation"));
-            blueprint.Parts.Add(new BlueprintPart("ContainerXL", "Container", 3, 96));
+            blueprint.Parts.Add(new BlueprintPart("ContainerXL", TileObjectType.PartContainer, 3, 96));
             Items.Add(blueprint);
 
             // Turret
@@ -42,7 +42,7 @@ namespace Engine.Interface
             blueprint.Name = "Turret";
             blueprint.Layout = "Ground";
             blueprint.Parts.Add(new BlueprintPart("Foundation"));
-            blueprint.Parts.Add(new BlueprintPart("Weapon3", "Weapon", 3, 6));
+            blueprint.Parts.Add(new BlueprintPart("Weapon3", TileObjectType.PartWeapon, 3, 6));
             Items.Add(blueprint);
 
             // Reactor
@@ -50,7 +50,7 @@ namespace Engine.Interface
             blueprint.Name = "Reactor";
             blueprint.Layout = "Ground";
             blueprint.Parts.Add(new BlueprintPart("Foundation"));
-            blueprint.Parts.Add(new BlueprintPart("ReactorXL", "Reactor", 3, 6));
+            blueprint.Parts.Add(new BlueprintPart("ReactorXL", TileObjectType.PartReactor, 3, 6));
             Items.Add(blueprint);
 
             // Factory
@@ -58,7 +58,7 @@ namespace Engine.Interface
             blueprint.Name = "Factory";
             blueprint.Layout = "Ground";
             blueprint.Parts.Add(new BlueprintPart("Foundation"));
-            blueprint.Parts.Add(new BlueprintPart("AssemblerXL", "Assembler", 3, 6));
+            blueprint.Parts.Add(new BlueprintPart("AssemblerXL", TileObjectType.PartAssembler, 3, 6));
             Items.Add(blueprint);
 
             // Worker to collect Minerals
@@ -86,7 +86,7 @@ namespace Engine.Interface
             blueprint.Name = "Bomber";
             blueprint.Layout = "MovableUnitBigPart";
             blueprint.Parts.Add(new BlueprintPart("Engine"));
-            blueprint.Parts.Add(new BlueprintPart("Weapon2", "Weapon", 2, 3));
+            blueprint.Parts.Add(new BlueprintPart("Weapon2", TileObjectType.PartWeapon, 2, 3));
             blueprint.Parts.Add(new BlueprintPart("Extractor"));
             Items.Add(blueprint);
 
@@ -143,21 +143,21 @@ namespace Engine.Interface
         private void DetactPartType()
         {
             if (Name.Contains("Extractor") || Name.Contains("Foundation"))
-                PartType = "Extractor";
+                PartType = TileObjectType.PartExtractor;
             if (Name.Contains("Assembler"))
-                PartType = "Assembler";
+                PartType = TileObjectType.PartAssembler;
             if (Name.Contains("Container"))
-                PartType = "Container";
+                PartType = TileObjectType.PartContainer;
             if (Name.Contains("Armor"))
-                PartType = "Armor";
+                PartType = TileObjectType.PartArmor;
             if (Name.Contains("Engine"))
-                PartType = "Engine";
+                PartType = TileObjectType.PartEngine;
             if (Name.Contains("Weapon"))
-                PartType = "Weapon";
+                PartType = TileObjectType.PartWeapon;
             if (Name.Contains("Reactor"))
-                PartType = "Reactor";
+                PartType = TileObjectType.PartReactor;
             if (Name.Contains("Radar"))
-                PartType = "Radar";
+                PartType = TileObjectType.PartRadar;
             Level = 1;
         }
 
@@ -168,7 +168,7 @@ namespace Engine.Interface
             DetactPartType();
         }
 
-        public BlueprintPart(string name, string partType, int level, int capacity)
+        public BlueprintPart(string name, TileObjectType partType, int level, int capacity)
         {
             Name = name;
             Capacity = capacity;
@@ -176,7 +176,7 @@ namespace Engine.Interface
             Level = level;
         }
 
-        public string PartType { get; set; }
+        public TileObjectType PartType { get; set; }
         public int Level { get; set; }
         public string Name { get; set; }
         public int? Capacity { get; set; }

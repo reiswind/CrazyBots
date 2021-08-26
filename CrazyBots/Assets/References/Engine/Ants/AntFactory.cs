@@ -44,7 +44,7 @@ namespace Engine.Ants
 
                 int powerPerUnit = Control.MapPlayerInfo.TotalPower / Control.MapPlayerInfo.TotalUnits;
 
-                if (addWorker == false && totalMetalInPercent > 10 && powerPerUnit > 80 && Control.NumberOfFighter <= 10)
+                if (addWorker == false && totalMetalInPercent > 10 && powerPerUnit > 80 && Control.NumberOfFighter <= 2)
                     addFighter = true;
             }
             if (cntrlUnit.Assembler != null)
@@ -125,7 +125,7 @@ namespace Engine.Ants
                                     bool engineFound = false;
                                     foreach (BlueprintPart blueprintPart in commandBluePrint.Parts)
                                     {
-                                        if (blueprintPart.PartType == "Engine")
+                                        if (blueprintPart.PartType == TileObjectType.PartEngine)
                                         {
                                             engineFound = true;
                                             break;

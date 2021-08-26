@@ -91,7 +91,16 @@ namespace Engine.Interface
         Gras,
         Bush,
         Tree,
-        Mineral
+        Mineral,
+
+        PartExtractor, 
+        PartAssembler, 
+        PartContainer, 
+        PartArmor,
+        PartEngine,
+        PartWeapon,
+        PartReactor,
+        PartRadar
     }
 
     public class TileObject
@@ -99,6 +108,27 @@ namespace Engine.Interface
         public TileObject()
         {
 
+        }
+
+        public static TileObjectType GetTileObjectTypeFromString(string unitCode, out int unitCodeLevel)
+        {
+            unitCodeLevel = 1;
+            if (unitCode.EndsWith("2"))
+                unitCodeLevel = 2;
+            if (unitCode.EndsWith("3"))
+                unitCodeLevel = 3;
+
+            if (unitCode.StartsWith("PartExtractor")) return TileObjectType.PartExtractor;
+            if (unitCode.StartsWith("PartAssembler")) return TileObjectType.PartAssembler;
+            if (unitCode.StartsWith("PartContainer")) return TileObjectType.PartContainer;
+            if (unitCode.StartsWith("PartArmor")) return TileObjectType.PartArmor;
+
+            if (unitCode.StartsWith("PartEngine")) return TileObjectType.PartEngine;
+            if (unitCode.StartsWith("PartWeapon")) return TileObjectType.PartWeapon;
+            if (unitCode.StartsWith("PartReactor")) return TileObjectType.PartReactor;
+            if (unitCode.StartsWith("PartRadar")) return TileObjectType.PartRadar;
+
+            return TileObjectType.None;
         }
 
         public TileObjectType TileObjectType { get; set; }

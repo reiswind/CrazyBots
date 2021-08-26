@@ -13,7 +13,7 @@ namespace Engine.Master
     {
         public override string Name { get { return "Container"; } }
 
-        public Container(Unit owner, int level) : base(owner)
+        public Container(Unit owner, int level) : base(owner, TileObjectType.PartContainer)
         {
             Level = level;
             TileContainer = new TileContainer();

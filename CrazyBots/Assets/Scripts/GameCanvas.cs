@@ -1507,12 +1507,12 @@ public class GameCanvas : MonoBehaviour
                     {
                         state = "";
                     }
-                    if (part.PartType.StartsWith("Extractor"))
+                    if (part.PartType == TileObjectType.PartExtractor)
                     {
                         panelExtractor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                         panelExtractor.SetActive(true);
                     }
-                    if (part.PartType.StartsWith("Weapon"))
+                    if (part.PartType == TileObjectType.PartWeapon)
                     {
                         panelWeapon.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                         panelWeapon.SetActive(true);
@@ -1533,7 +1533,7 @@ public class GameCanvas : MonoBehaviour
                             panelWeapon.transform.Find("Content").GetComponent<Text>().text = "Destroyed";
                         }
                     }
-                    if (part.PartType.StartsWith("Assembler"))
+                    if (part.PartType == TileObjectType.PartAssembler)
                     {
                         panelAssembler.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                         panelAssembler.SetActive(true);
@@ -1567,7 +1567,7 @@ public class GameCanvas : MonoBehaviour
                         }
 
                     }
-                    if (part.PartType.StartsWith("Reactor"))
+                    if (part.PartType == TileObjectType.PartReactor)
                     {
                         panelReactor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                         panelReactor.SetActive(true);
@@ -1593,7 +1593,7 @@ public class GameCanvas : MonoBehaviour
                             panelWeapon.transform.Find("Content").GetComponent<Text>().text = "Destroyed";
                         }
                     }
-                    if (part.PartType.StartsWith("Armor"))
+                    if (part.PartType == TileObjectType.PartArmor)
                     {
                         panelArmor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                         panelArmor.SetActive(true);
@@ -1610,12 +1610,12 @@ public class GameCanvas : MonoBehaviour
 
                         panelArmor.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
                     }
-                    if (part.PartType.StartsWith("Engine"))
+                    if (part.PartType == TileObjectType.PartEngine)
                     {
                         panelEngine.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                         panelEngine.SetActive(true);
                     }
-                    if (part.PartType.StartsWith("Container"))
+                    if (part.PartType== TileObjectType.PartContainer)
                     {
                         panelContainer.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                         panelContainer.SetActive(true);
