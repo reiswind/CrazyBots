@@ -102,7 +102,7 @@ namespace Engine.Interface
 
             TileContainer = new TileContainer();
         }
-        public TileContainer TileContainer { get; set; }
+        public TileContainer TileContainer { get; private set; }
 
         private Direction TurnAround(Direction direction)
         {

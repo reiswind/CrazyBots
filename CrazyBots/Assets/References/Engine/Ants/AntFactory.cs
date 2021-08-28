@@ -44,7 +44,7 @@ namespace Engine.Ants
 
                 int powerPerUnit = Control.MapPlayerInfo.TotalPower / Control.MapPlayerInfo.TotalUnits;
 
-                if (addWorker == false && totalMetalInPercent > 10 && powerPerUnit > 80 && Control.NumberOfFighter <= 2)
+                if (addWorker == false && totalMetalInPercent > 10 && powerPerUnit > 80 && Control.NumberOfFighter <= 9)
                     addFighter = true;
             }
             if (cntrlUnit.Assembler != null)

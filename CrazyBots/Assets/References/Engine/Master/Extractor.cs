@@ -312,26 +312,56 @@ namespace Engine.Master
                 return false;
             }
         }
-        public bool ExtractInto(Unit unit, Move move, Position from, Game game, string otherUnitId)
-        {
-            Tile fromTile = Unit.Game.Map.GetTile(from);
 
+        public void ExtractFromUnit(Move move, Unit otherUnit, List<TileObject> removeTileObjects)
+        {
+            Ability hitPart = otherUnit.HitBy();
+            if (hitPart is Shield)
+            {
+                move.MoveType = MoveType.Skip;
+                return;
+            }
+
+            if (hitPart.Level == 0 && hitPart.TileContainer != null)
+            {
+                if (hitPart.TileContainer.TileObjects.Count > 0)
+                {
+                    removeTileObjects.AddRange(hitPart.TileContainer.TileObjects);
+                    hitPart.TileContainer.Clear();
+                }
+            }
+
+            TileObject removedTileObject = hitPart.PartTileObjects[0];
+            hitPart.PartTileObjects.Remove(removedTileObject);
+            removeTileObjects.Add(removedTileObject);
+
+            move.Stats = new MoveUpdateStats();
+            move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
+            move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
+            move.Stats.MoveUpdateGroundStat.TileObjects.Add(removedTileObject);
+
+            if (otherUnit.IsDead())
+            {
+                if (hitPart.PartTileObjects.Count > 0)
+                    throw new Exception();
+            }
+        }
+
+        public bool ExtractInto(Unit unit, Move move, Tile fromTile, Game game, Unit otherUnit, TileObjectType tileObjectType)
+        {
             List<TileObject> removeTileObjects = new List<TileObject>();
             MoveUpdateGroundStat moveUpdateGroundStat;
             moveUpdateGroundStat = new MoveUpdateGroundStat();
             moveUpdateGroundStat.TileObjects = new List<TileObject>();
 
-            if (otherUnitId.StartsWith("unit"))
+            if (otherUnit != null)
             {
-                Unit otherUnit = fromTile.Unit;
-                if (otherUnit == null || otherUnit.UnitId != otherUnitId)
-                {
-                    // Extract from unit, but no longer there or not from this unit
-                    return false;
-                }
                 if (otherUnit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
                 {
                     int capacity = Unit.CountCapacity();
+                    int minsInContainer = Unit.CountMineralsInContainer();
+
+                    capacity -= minsInContainer;
 
                     // friendly unit
                     while (capacity-- > 0)
@@ -342,50 +372,17 @@ namespace Engine.Master
                         }
                     }
 
-                    foreach (TileObject tileObject in removeTileObjects)
-                    {
-                        if (tileObject.TileObjectType != TileObjectType.Mineral)
-                        {
-                            int x = 9;
-                        }
-                    }
-
                     if (otherUnit.ExtractMe && !otherUnit.IsDead() && capacity > 0)
                     {
-                        // First clear container, next move will extract the parts if needed??
-
-                        // fiendly unit
-                        Ability hitPart = otherUnit.HitBy();
-
-                        TileObject removedTileObject = new TileObject();
-                        removedTileObject.TileObjectType = hitPart.PartType;
-                        removedTileObject.Direction = Direction.C;
-                        if (removedTileObject != null)
-                            removeTileObjects.Add(removedTileObject);
-
-                        move.Stats = new MoveUpdateStats();
-                        move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
-                        move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
-                        move.Stats.MoveUpdateGroundStat.TileObjects.Add(removedTileObject);
+                        ExtractFromUnit(move, otherUnit, removeTileObjects);
                     }
                 }
                 else
                 {
+                    // enemy unit
                     if (!otherUnit.IsDead())
                     {
-                        // enemy unit
-                        Ability hitPart = otherUnit.HitBy();
-
-                        TileObject removedTileObject = new TileObject();
-                        removedTileObject.TileObjectType = hitPart.PartType;
-                        removedTileObject.Direction = Direction.C;
-                        if (removedTileObject != null)
-                            removeTileObjects.Add(removedTileObject);
-
-                        move.Stats = new MoveUpdateStats();
-                        move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
-                        move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
-                        move.Stats.MoveUpdateGroundStat.TileObjects.Add(removedTileObject);
+                        ExtractFromUnit(move, otherUnit, removeTileObjects);
                     }
                 }
             }
@@ -394,7 +391,6 @@ namespace Engine.Master
                 TileObject removedTileObject;
 
                 // Extract from tile (Only 1)
-                TileObjectType tileObjectType = Tile.GetObjectType(otherUnitId);
                 if (tileObjectType == TileObjectType.Dirt)
                 {
                     fromTile.Height -= 0.1f;
@@ -416,22 +412,15 @@ namespace Engine.Master
                 move.Stats.MoveUpdateGroundStat.TileObjects.Add(removedTileObject);
             }
 
-            // The remove tileobjects will be in the move until the next move
+            // The removed tileobjects will be in the move until the next move
             moveUpdateGroundStat.TileObjects.AddRange(removeTileObjects);
 
             bool didRemove = removeTileObjects.Count > 0;
-            /*
-            Unit.AddTileObjects(removeTileObjects);
-            
-            if (removeTileObjects.Count > 0)
-            {
-                fromTile.TileContainer.TileObjects.AddRange(removeTileObjects);
-            }*/
+
             move.Stats = unit.CollectStats();
             move.Stats.MoveUpdateGroundStat = moveUpdateGroundStat;
 
             return didRemove;
         }
-        
     }
 }

@@ -197,7 +197,7 @@ namespace Engine.Master
             }
             foreach (TileObject tileObject in remove)
             {
-                t.TileContainer.TileObjects.Remove(tileObject);
+                t.TileContainer.Remove(tileObject);
             }
         }
 
@@ -668,7 +668,7 @@ namespace Engine.Master
                            {
                                 Position from = move.Positions[move.Positions.Count - 1];
                                 Tile fromTile = Map.GetTile(from);
-                                fromTile.TileContainer.TileObjects.AddRange(tileObjects);
+                                fromTile.TileContainer.AddRange(tileObjects);
 
                                 Move updateGroundMove = new Move();
                                 updateGroundMove.MoveType = MoveType.UpdateGround;
@@ -736,6 +736,7 @@ namespace Engine.Master
                 }
                 else if (move.MoveType == MoveType.Fire)
                 {
+                    HitByBullet(move, nextMoves);
                     finishedMoves.Add(move);
                 }
                 else
@@ -752,9 +753,9 @@ namespace Engine.Master
                 lastMoves.Add(move);
             }
             // Compute the damage of the fire shots in the last round
-            foreach (Bullet bullet in hitByBullet)
+            //foreach (Bullet bullet in hitByBullet)
             {
-                HitByBullet(bullet, lastMoves);
+               // HitByBullet(bullet, lastMoves);
 
                 /* Hit area
                 Tile targetTile = GetTile(bullet.Target);
@@ -766,21 +767,22 @@ namespace Engine.Master
             }
         }
 
-        internal void HitByBullet(Bullet bullet, List<Move> nextMoves)
+        internal void HitByBullet(Move move, List<Move> nextMoves)
         {
-            Position pos = bullet.Target;
-
+            Position pos = move.Positions[move.Positions.Count-1];
             Tile targetTile = GetTile(pos);
 
-            if (bullet.TileObject != null)
+            TileObject tileObject = move.Stats.MoveUpdateGroundStat.TileObjects[0];
+
+            if (tileObject != null)
             {
-                if (bullet.TileObject.TileObjectType == TileObjectType.Dirt)
+                if (tileObject.TileObjectType == TileObjectType.Dirt)
                 {
                     targetTile.Height += 0.1f;
                 }
                 else
                 {
-                    targetTile.TileContainer.TileObjects.Add(bullet.TileObject);
+                    targetTile.TileContainer.Add(tileObject);
                 }
             }
 
@@ -812,15 +814,18 @@ namespace Engine.Master
                     {
                         if (hitPart.TileContainer != null)
                         {
-                            foreach (TileObject tileObject in hitPart.TileContainer.TileObjects)
+                            foreach (TileObject unitTileObject in hitPart.TileContainer.TileObjects)
                             {
-                                targetTile.TileContainer.TileObjects.Add(tileObject);
+                                targetTile.TileContainer.Add(unitTileObject);
                             }
                         }
                     }
                     TileObject hitPartTileObject = hitPart.PartTileObjects[0];
                     hitPart.PartTileObjects.Remove(hitPartTileObject);
-                    targetTile.TileContainer.TileObjects.Add(hitPartTileObject);
+
+                    // Part turns into mineral on ground
+                    hitPartTileObject.TileObjectType = TileObjectType.Mineral;
+                    targetTile.TileContainer.Add(hitPartTileObject);
 
                     if (targetUnit.IsDead())
                     {
@@ -1057,7 +1062,6 @@ namespace Engine.Master
             }
         }
 
-        private List<Bullet> hitByBullet = new List<Bullet>();
         /// <summary>
         /// All units have been put at their final destination after the moves.
         /// </summary>
@@ -1104,8 +1108,6 @@ namespace Engine.Master
                 
             }
 
-            hitByBullet.Clear();
-
             foreach (Move move in newMoves)
             {
                 if (move.MoveType == MoveType.Extract)
@@ -1116,22 +1118,62 @@ namespace Engine.Master
                         bool extracted = false;
 
                         Position fromPos = move.Positions[move.Positions.Count - 1];
-                        extracted = unit.Extractor.ExtractInto(unit, move, fromPos, this, move.OtherUnitId);
+                        Tile fromTile = Map.GetTile(fromPos);
 
-                        if (extracted)
+                        Unit otherUnit = null;
+                        TileObjectType tileObjectType;
+                        if (move.OtherUnitId.StartsWith("unit"))
                         {
-                            if (!changedGroundPositions.ContainsKey(fromPos))
-                                changedGroundPositions.Add(fromPos, null);
-
-                            //if (!changedUnits.ContainsKey(unit.Pos))
-                            //    changedUnits.Add(unit.Pos, unit);
-
-                            lastMoves.Add(move);
+                            otherUnit = fromTile.Unit;
+                            if (otherUnit == null || otherUnit.UnitId != move.OtherUnitId)
+                            {
+                                // Extract from unit, but no longer there or not from this unit
+                                move.MoveType = MoveType.Skip;
+                            }
+                            tileObjectType = TileObjectType.None;
                         }
                         else
                         {
-                            // cloud not extract, ignore move
-                            move.MoveType = MoveType.Skip;
+                            tileObjectType = Tile.GetObjectType(move.OtherUnitId);
+                            if (tileObjectType == TileObjectType.None)
+                            {
+                                move.MoveType = MoveType.Skip;
+                            }
+                        }
+                        if (move.MoveType != MoveType.Skip)
+                        {
+                            extracted = unit.Extractor.ExtractInto(unit, move, fromTile, this, otherUnit, tileObjectType);
+
+                            if (extracted)
+                            {
+                                if (!changedGroundPositions.ContainsKey(fromPos))
+                                    changedGroundPositions.Add(fromPos, null);
+
+                                if (otherUnit != null && !changedUnits.ContainsKey(otherUnit.Pos))
+                                    changedUnits.Add(otherUnit.Pos, unit);
+
+                                lastMoves.Add(move);
+
+                                if (otherUnit != null && otherUnit.IsDead())
+                                {
+                                    // Unit has died!
+                                    Move deleteMove = new Move();
+                                    deleteMove.PlayerId = otherUnit.Owner.PlayerModel.Id;
+                                    deleteMove.MoveType = MoveType.Delete;
+                                    deleteMove.Positions = new List<Position>();
+                                    deleteMove.Positions.Add(otherUnit.Pos);
+                                    deleteMove.UnitId = otherUnit.UnitId;
+                                    lastMoves.Add(deleteMove);
+
+                                    Map.Units.Remove(otherUnit.Pos);
+                                }
+
+                            }
+                            else
+                            {
+                                // cloud not extract, ignore move
+                                move.MoveType = MoveType.Skip;
+                            }
                         }
                     }
                     else
@@ -1146,22 +1188,25 @@ namespace Engine.Master
                     Unit fireingUnit = Map.Units.GetUnitAt(move.Positions[0]);
                     if (fireingUnit != null && fireingUnit.Weapon != null)
                     {
-                        Bullet bullet = new Bullet();
-                        bullet.Target = move.Positions[1];
+                        List<TileObject> removedTileObjects = new List<TileObject>();
+                        fireingUnit.RemoveTileObjects(removedTileObjects, 1, TileObjectType.All);
 
-                        List<TileObject> tileObjects = new List<TileObject>();
-                        fireingUnit.RemoveTileObjects(tileObjects, 1, TileObjectType.All);
-
-                        if (tileObjects.Count > 0)
+                        if (removedTileObjects.Count > 0)
                         {
                             move.Stats = fireingUnit.CollectStats();
+                            move.Stats = new MoveUpdateStats();
+                            move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
+                            move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
+                            move.Stats.MoveUpdateGroundStat.TileObjects.AddRange (removedTileObjects);
 
                             if (!changedUnits.ContainsKey(fireingUnit.Pos))
                                 changedUnits.Add(fireingUnit.Pos, fireingUnit);
-                            bullet.TileObject = tileObjects[0];
-                            hitByBullet.Add(bullet);
+                            //Bullet bullet = new Bullet();
+                            //bullet.Target = move.Positions[1];
+                            //bullet.TileObject = tileObjects[0];
+                            //hitByBullet.Add(bullet);
 
-                            move.OtherUnitId = bullet.TileObject.TileObjectType.ToString();
+                            move.OtherUnitId = removedTileObjects[0].TileObjectType.ToString();
                             lastMoves.Add(move);
                         }
                     }
@@ -1190,29 +1235,6 @@ namespace Engine.Master
                         lastMoves.Add(move);
                 }
             }
-
-            foreach (Bullet bullet in hitByBullet)
-            {
-
-                //MapInfo mapInfoPrev = new MapInfo();
-                //mapInfoPrev.ComputeMapInfo(this);
-
-
-
-                HitByBullet(bullet, lastMoves);
-
-                /*
-                MapInfo mapInfoNext = new MapInfo();
-                mapInfoNext.ComputeMapInfo(this);
-
-                if (mapInfoPrev.TotalMetal != mapInfoNext.TotalMetal)
-                {
-                    int x = 0;
-                }*/
-
-            }
-            hitByBullet.Clear();
-
             newMoves.Clear();
         }
 
@@ -1504,9 +1526,10 @@ namespace Engine.Master
                     return returnMoves;
                 }
 
-                if (MoveNr == 198)
+                if (MoveNr == 23)
                 {
-
+                    Tile t = Map.GetTile(new Position(6, 6));
+                    int x = 0;
                 }
 
                 changedUnits.Clear();
@@ -1518,7 +1541,7 @@ namespace Engine.Master
                     zone.CreateTerrainTile(Map);
                 }*/
                 MapInfo mapInfo1 = new MapInfo();
-                mapInfo1.ComputeMapInfo(this);
+                mapInfo1.ComputeMapInfo(this, null);
 
                 if (mapInfo != null && mapInfo1.TotalMetal != mapInfo.TotalMetal)
                 {
@@ -1540,8 +1563,20 @@ namespace Engine.Master
 
                     if (lastMoves.Count > 0)
                     {
+                        MapInfo mapInfoLast = new MapInfo();
+                        mapInfoLast.ComputeMapInfo(this, lastMoves);
+
                         // Remove moves that have been processed
                         ProcessLastMoves();
+
+                        MapInfo mapInfoLast1 = new MapInfo();
+                        mapInfoLast1.ComputeMapInfo(this, lastMoves);
+
+                        if (mapInfoLast.TotalMetal != mapInfoLast1.TotalMetal)
+                        {
+                            int x = 0;
+                        }
+
                         if (lastMoves.Count > 0)
                         {
                             // Follow up moves (units have been hit i.e. and must be removed. This is a result of the
@@ -1595,18 +1630,18 @@ namespace Engine.Master
 
                 UpdateUnitPositions(newMoves);
 
-                //MapInfo mapInfoPrev = new MapInfo();
-                //mapInfoPrev.ComputeMapInfo(this);
+                MapInfo mapInfoPrev = new MapInfo();
+                mapInfoPrev.ComputeMapInfo(this, newMoves);
 
                 ProcessNewMoves();
 
                 mapInfo = new MapInfo();
-                mapInfo.ComputeMapInfo(this);
-                /*
+                mapInfo.ComputeMapInfo(this, lastMoves);
+                
                 if (mapInfoPrev.TotalMetal != mapInfo.TotalMetal)
                 {
-
-                }*/
+                    int x = 0;
+                }
 
                 foreach (Player player in Players.Values)
                 {

@@ -58,7 +58,7 @@ namespace Engine.Interface
 
         public Dictionary<Position, MapPheromone> Pheromones { get; private set; }
 
-        internal void ComputeMapInfo(Game game)
+        internal void ComputeMapInfo(Game game, List<Move> moves)
         {
             foreach (Pheromone pheromone in game.Pheromones.AllPhromones)
             {
@@ -85,32 +85,48 @@ namespace Engine.Interface
                 Pheromones.Add(mapPheromone.Pos, mapPheromone);
             }
 
-            //foreach (MapSector mapSector in game.Map.Sectors.Values)
-            {
-                foreach (Tile t in game.Map.Tiles.Values)
-                {
-                    TotalMetal += t.Minerals;
-                    if (t.Unit != null)
-                    {
-                        TotalMetal += t.Unit.CountMineral();
 
-                        MapPlayerInfo mapPlayerInfo;
-                        if (PlayerInfo.ContainsKey(t.Unit.Owner.PlayerModel.Id))
+            foreach (Tile t in game.Map.Tiles.Values)
+            {
+                TotalMetal += t.Minerals;
+                if (t.Unit != null)
+                {
+                    TotalMetal += t.Unit.CountMineral();
+
+                    MapPlayerInfo mapPlayerInfo;
+                    if (PlayerInfo.ContainsKey(t.Unit.Owner.PlayerModel.Id))
+                    {
+                        mapPlayerInfo = PlayerInfo[t.Unit.Owner.PlayerModel.Id];
+                    }
+                    else
+                    {
+                        mapPlayerInfo = new MapPlayerInfo();
+                        PlayerInfo.Add(t.Unit.Owner.PlayerModel.Id, mapPlayerInfo);
+                    }
+                    mapPlayerInfo.TotalCapacity += t.Unit.CountCapacity();
+                    mapPlayerInfo.TotalMetal += t.Unit.CountMineralsInContainer();
+                    mapPlayerInfo.TotalUnits++;
+                }
+            }
+            
+            if (moves != null)
+            {
+                foreach (Move move in moves)
+                {
+                    if ((move.MoveType == MoveType.Extract || move.MoveType == MoveType.Fire) &&
+                        move.Stats != null &&
+                        move.Stats.MoveUpdateGroundStat != null)
+                    {
+                        foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
                         {
-                            mapPlayerInfo = PlayerInfo[t.Unit.Owner.PlayerModel.Id];
+                            //if (tileObject.TileObjectType == TileObjectType.Mineral)
+                            {
+                                TotalMetal++;
+                            }
                         }
-                        else
-                        {
-                            mapPlayerInfo = new MapPlayerInfo();
-                            PlayerInfo.Add(t.Unit.Owner.PlayerModel.Id, mapPlayerInfo);
-                        }
-                        mapPlayerInfo.TotalCapacity += t.Unit.CountCapacity();
-                        mapPlayerInfo.TotalMetal += t.Unit.CountMineralsInContainer();
-                        mapPlayerInfo.TotalUnits++;
                     }
                 }
             }
-
             /*
             if (checkTotalMetal != 0)
             {
@@ -138,13 +154,17 @@ namespace Engine.Master
         public void StartObjectGenerator(Map map)
         {
             Tile startTile = map.GetTile(Center);
-
-            List<TileObject> tileObjects = CreateRandomObjects(map);
-            startTile.TileContainer.TileObjects.AddRange(tileObjects);
-
+            if (startTile.TileContainer.Count == 0)
+            {
+                List<TileObject> tileObjects = CreateRandomObjects(map);
+                startTile.TileContainer.AddRange(tileObjects);
+            }
             openTiles = new List<Tile>();
-            openTiles.AddRange(startTile.Neighbors);
-
+            foreach (Tile n in startTile.Neighbors)
+            {
+                if (n.TileContainer.Count == 0)
+                    openTiles.Add(n);
+            }
             while (openTiles.Count > 0)
                 CreateTerrainTile(map);
         }
@@ -184,15 +204,23 @@ namespace Engine.Master
                         }
                     }
                 }
-
-                bestTile.TileContainer.TileObjects.AddRange(bestTileFit.TileObjects);
-                openTiles.Remove(bestTile);
-
-                foreach (Tile n in bestTile.Neighbors)
+                if (bestTile != null)
                 {
-                    if (n.TileContainer.TileObjects.Count == 0 && !openTiles.Contains(n)) // Only in Zone? && Tiles.ContainsKey(n.Pos))
+                    if (bestTileFit != null)
                     {
-                        openTiles.Add(n);
+                        bestTile.TileContainer.AddRange(bestTileFit.TileObjects);
+                    }
+
+                    if (!openTiles.Remove(bestTile))
+                    {
+                    }
+
+                    foreach (Tile n in bestTile.Neighbors)
+                    {
+                        if (n.TileContainer.TileObjects.Count == 0 && !openTiles.Contains(n)) // Only in Zone? && Tiles.ContainsKey(n.Pos))
+                        {
+                            openTiles.Add(n);
+                        }
                     }
                 }
             }
@@ -795,7 +823,7 @@ namespace Engine.Master
                             tileObject = overflowMinerals[0];
                             overflowMinerals.RemoveAt(0);
 
-                            t.Tile.TileContainer.TileObjects.Add(tileObject);
+                            t.Tile.TileContainer.Add(tileObject);
                         }
                     }
                 }
@@ -914,7 +942,8 @@ namespace Engine.Master
             moveUpdateGroundStat.PlantLevel = t.PlantLevel;
             moveUpdateGroundStat.TerrainTypeIndex = t.TerrainTypeIndex;
             moveUpdateGroundStat.IsUnderwater = t.IsUnderwater;
-            moveUpdateGroundStat.TileObjects = t.TileContainer.TileObjects;
+            moveUpdateGroundStat.TileObjects = new List<TileObject>();
+            moveUpdateGroundStat.TileObjects.AddRange(t.TileContainer.TileObjects);
             moveUpdateGroundStat.Height = (float)t.Height;
 
             MoveUpdateStats moveUpdateStats;

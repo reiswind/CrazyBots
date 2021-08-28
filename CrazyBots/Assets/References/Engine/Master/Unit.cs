@@ -371,6 +371,7 @@ namespace Engine.Master
             }
             if (createdAbility != null)
             {
+                tileObject.TileObjectType = createdAbility.PartType;
                 createdAbility.PartTileObjects.Add(tileObject);
             }
             else
@@ -637,57 +638,54 @@ namespace Engine.Master
                 moveUpdateUnitPart.Exists = IsInstalled(blueprintPart, blueprintPart.Level);
                 moveUpdateUnitPart.PartType = blueprintPart.PartType;
 
-                if (moveUpdateUnitPart.Exists)
+                if (blueprintPart.PartType == TileObjectType.PartWeapon && Weapon != null)
                 {
-                    if (blueprintPart.PartType == TileObjectType.PartWeapon)
-                    {
-                        moveUpdateUnitPart.Level = Weapon.Level;
-                        moveUpdateUnitPart.TileObjects = CopyContainer(Weapon.TileContainer);
-                        moveUpdateUnitPart.Capacity = Weapon.TileContainer.Capacity;
-                    }
-                    else if (blueprintPart.PartType == TileObjectType.PartAssembler)
-                    {
-                        moveUpdateUnitPart.Level = Assembler.Level;
-                        moveUpdateUnitPart.TileObjects = CopyContainer(Assembler.TileContainer);
-                        moveUpdateUnitPart.Capacity = Assembler.TileContainer.Capacity;
+                    moveUpdateUnitPart.Level = Weapon.Level;
+                    moveUpdateUnitPart.TileObjects = CopyContainer(Weapon.TileContainer);
+                    moveUpdateUnitPart.Capacity = Weapon.TileContainer.Capacity;
+                }
+                else if (blueprintPart.PartType == TileObjectType.PartAssembler && Assembler != null)
+                {
+                    moveUpdateUnitPart.Level = Assembler.Level;
+                    moveUpdateUnitPart.TileObjects = CopyContainer(Assembler.TileContainer);
+                    moveUpdateUnitPart.Capacity = Assembler.TileContainer.Capacity;
 
-                        if (Assembler.BuildQueue != null)
-                        {
-                            moveUpdateUnitPart.BildQueue = new List<string>();
-                            moveUpdateUnitPart.BildQueue.AddRange(Assembler.BuildQueue);
-                        }
-                    }
-                    else if (blueprintPart.PartType == TileObjectType.PartContainer)
+                    if (Assembler.BuildQueue != null)
                     {
-                        moveUpdateUnitPart.Level = Container.Level;
-                        moveUpdateUnitPart.TileObjects = CopyContainer(Container.TileContainer);
-                        moveUpdateUnitPart.Capacity = Container.TileContainer.Capacity;
+                        moveUpdateUnitPart.BildQueue = new List<string>();
+                        moveUpdateUnitPart.BildQueue.AddRange(Assembler.BuildQueue);
                     }
-                    else if (blueprintPart.PartType == TileObjectType.PartReactor)
-                    {
-                        moveUpdateUnitPart.Level = Reactor.Level;
-                        moveUpdateUnitPart.AvailablePower = Reactor.AvailablePower;
-                        moveUpdateUnitPart.TileObjects = CopyContainer(Reactor.TileContainer);
-                        moveUpdateUnitPart.Capacity = Reactor.TileContainer.Capacity;
-                    }
-                    else if (blueprintPart.PartType == TileObjectType.PartArmor)
-                    {
-                        moveUpdateUnitPart.Level = Armor.Level;
-                        moveUpdateUnitPart.ShieldActive = Armor.ShieldActive;
-                        moveUpdateUnitPart.ShieldPower = Armor.ShieldPower;
-                    }
-                    else if (blueprintPart.PartType == TileObjectType.PartRadar)
-                    {
-                        moveUpdateUnitPart.Level = Radar.Level;
-                    }
-                    else if (blueprintPart.PartType == TileObjectType.PartExtractor)
-                    {
-                        moveUpdateUnitPart.Level = Extractor.Level;
-                    }
-                    else if (blueprintPart.PartType == TileObjectType.PartEngine)
-                    {
-                        moveUpdateUnitPart.Level = Engine.Level;
-                    }
+                }
+                else if (blueprintPart.PartType == TileObjectType.PartContainer && Container != null)
+                {
+                    moveUpdateUnitPart.Level = Container.Level;
+                    moveUpdateUnitPart.TileObjects = CopyContainer(Container.TileContainer);
+                    moveUpdateUnitPart.Capacity = Container.TileContainer.Capacity;
+                }
+                else if (blueprintPart.PartType == TileObjectType.PartReactor && Reactor != null)
+                {
+                    moveUpdateUnitPart.Level = Reactor.Level;
+                    moveUpdateUnitPart.AvailablePower = Reactor.AvailablePower;
+                    moveUpdateUnitPart.TileObjects = CopyContainer(Reactor.TileContainer);
+                    moveUpdateUnitPart.Capacity = Reactor.TileContainer.Capacity;
+                }
+                else if (blueprintPart.PartType == TileObjectType.PartArmor && Armor != null)
+                {
+                    moveUpdateUnitPart.Level = Armor.Level;
+                    moveUpdateUnitPart.ShieldActive = Armor.ShieldActive;
+                    moveUpdateUnitPart.ShieldPower = Armor.ShieldPower;
+                }
+                else if (blueprintPart.PartType == TileObjectType.PartRadar && Radar != null)
+                {
+                    moveUpdateUnitPart.Level = Radar.Level;
+                }
+                else if (blueprintPart.PartType == TileObjectType.PartExtractor && Extractor != null)
+                {
+                    moveUpdateUnitPart.Level = Extractor.Level;
+                }
+                else if (blueprintPart.PartType == TileObjectType.PartEngine && Engine != null)
+                {
+                    moveUpdateUnitPart.Level = Engine.Level;
                 }
                 stats.UnitParts.Add(moveUpdateUnitPart);
             }
@@ -834,6 +832,11 @@ namespace Engine.Master
                     if (!damageDone)
                     {
                         int damageType = Game.Random.Next(2);
+                        if (Engine != null && Extractor != null)
+                        {
+                            // If moveable, destroy the extractor first
+                            damageType = 1;
+                        }
                         if (damageType == 0)
                         {
                             if (Engine != null && Engine.Level > 0)
@@ -947,7 +950,7 @@ namespace Engine.Master
             {
                 while (tileObjects.Count > 0 && Reactor.TileContainer.Loaded < Reactor.TileContainer.Capacity)
                 {
-                    Reactor.TileContainer.TileObjects.Add(tileObjects[0]);
+                    Reactor.TileContainer.Add(tileObjects[0]);
                     tileObjects.RemoveAt(0);
                 }
                 Reactor.BurnIfNeccessary();
@@ -956,7 +959,7 @@ namespace Engine.Master
             {
                 while (tileObjects.Count > 0 && Assembler.TileContainer.Loaded < Assembler.TileContainer.Capacity)
                 {
-                    Assembler.TileContainer.TileObjects.Add(tileObjects[0]);
+                    Assembler.TileContainer.Add(tileObjects[0]);
                     tileObjects.RemoveAt(0);
                 }
             }
@@ -964,7 +967,7 @@ namespace Engine.Master
             {
                 while (tileObjects.Count > 0 && Weapon.TileContainer.Loaded < Weapon.TileContainer.Capacity)
                 {
-                    Weapon.TileContainer.TileObjects.Add(tileObjects[0]);
+                    Weapon.TileContainer.Add(tileObjects[0]);
                     tileObjects.RemoveAt(0);
                 }
             }
@@ -972,7 +975,7 @@ namespace Engine.Master
             {
                 while (tileObjects.Count > 0 && Container.TileContainer.Loaded < Container.TileContainer.Capacity)
                 {
-                    Container.TileContainer.TileObjects.Add(tileObjects[0]);
+                    Container.TileContainer.Add(tileObjects[0]);
                     tileObjects.RemoveAt(0);
                 }
             }

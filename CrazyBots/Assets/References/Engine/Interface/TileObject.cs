@@ -1,6 +1,7 @@
 ﻿using Engine.Master;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,10 +12,12 @@ namespace Engine.Interface
     {
         public TileContainer()
         {
-            TileObjects = new List<TileObject>();
+            tileObjects = new List<TileObject>();
         }
 
-        public List<TileObject> TileObjects { get; set; }
+        private List<TileObject> tileObjects;
+
+        public ReadOnlyCollection<TileObject> TileObjects { get { return tileObjects.AsReadOnly(); } }
 
         public int Minerals
         {
@@ -30,13 +33,39 @@ namespace Engine.Interface
             }
         }
 
+        public void Clear()
+        {
+            tileObjects.Clear();
+        }
+
+        public int Count
+        {
+            get
+            {
+                return tileObjects.Count;
+            }
+        }
+
+        public void AddRange(List<TileObject> ptileObjects)
+        {
+            tileObjects.AddRange(ptileObjects);
+        }
+        public void Add(TileObject tileObject)
+        {
+            tileObjects.Add(tileObject);
+        }
+        public void Remove(TileObject tileObject)
+        {
+            tileObjects.Remove(tileObject);
+        }
+
         public TileObject RemoveTileObject(TileObjectType tileObjectType)
         {
-            foreach (TileObject tileObject in TileObjects)
+            foreach (TileObject tileObject in tileObjects)
             {
                 if (tileObject.TileObjectType == tileObjectType || tileObjectType == TileObjectType.All)
                 {
-                    TileObjects.Remove(tileObject);
+                    tileObjects.Remove(tileObject);
                     return tileObject;
                 }
             }
@@ -50,7 +79,7 @@ namespace Engine.Interface
                 TileObject tileObject = new TileObject();
                 tileObject.Direction = Direction.N;
                 tileObject.TileObjectType = TileObjectType.Mineral;
-                TileObjects.Add(tileObject);
+                tileObjects.Add(tileObject);
             }
         }
 

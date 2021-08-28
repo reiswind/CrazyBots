@@ -108,7 +108,7 @@ namespace Engine.Master
                         move.Positions.Add(Unit.Pos);
                         move.Positions.Add(n.Pos);
 
-                        //possibleMoves.Add(move);
+                        possibleMoves.Add(move);
                     }
                 }
             }

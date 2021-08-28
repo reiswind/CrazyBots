@@ -387,7 +387,9 @@ namespace Engine.MapGenerator
 		HexCell[] neighbors = new HexCell[6];
 
 		//[SerializeField]
+#pragma warning disable CS0649 // Add readonly modifier
 		bool[] roads;
+#pragma warning restore CS0649 // Add readonly modifier
 
 		public void IncreaseVisibility()
 		{

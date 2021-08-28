@@ -875,81 +875,84 @@ public class UnitBase : MonoBehaviour
 
         foreach (UnitBasePart unitBasePart in UnitBaseParts)
         {
-            foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
+            if (MoveUpdateStats.UnitParts != null)
             {
-                if (unitBasePart.Name == moveUpdateUnitPart.Name)
+                foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
                 {
-                    if (unitBasePart.IsUnderConstruction && moveUpdateUnitPart.Exists)
+                    if (unitBasePart.Name == moveUpdateUnitPart.Name)
                     {
-                        // Change from transparent to reals
-                        unitBasePart.IsUnderConstruction = false;
-                        SetPlayerColor(HexGrid, PlayerId, unitBasePart.Part);
-                    }
-                    if (moveUpdateUnitPart.TileObjects != null)
-                    {
-                        unitBasePart.TileObjects = new List<UnitBaseTileObject>();
-                        foreach (TileObject tileObject in moveUpdateUnitPart.TileObjects)
+                        if (unitBasePart.IsUnderConstruction && moveUpdateUnitPart.Exists)
                         {
-                            UnitBaseTileObject unitBaseTileObject = new UnitBaseTileObject();
-                            unitBaseTileObject.TileObject = tileObject;
-                            unitBasePart.TileObjects.Add(unitBaseTileObject);
+                            // Change from transparent to reals
+                            unitBasePart.IsUnderConstruction = false;
+                            SetPlayerColor(HexGrid, PlayerId, unitBasePart.Part);
                         }
-                    }
-                    if (unitBasePart.Level != moveUpdateUnitPart.Level)
-                    {
-                        unitBasePart.Level = moveUpdateUnitPart.Level;
-                    }
-
-                    //unitBasePart.Part.SetActive(unitBasePart.IsUnderConstruction || moveUpdateUnitPart.Exists);
-                    if (moveUpdateUnitPart.Exists)
-                    {
-                        Engine1 engine = unitBasePart.Part.GetComponent<Engine1>();
-                        if (engine != null)
+                        if (moveUpdateUnitPart.TileObjects != null)
                         {
-                            Engine = engine;
-                        }
-                        Container1 container = unitBasePart.Part.GetComponent<Container1>();
-                        if (container != null)
-                        {
-
-                            Container = container;
-                            container.UpdateContent(HexGrid, moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
-                        }
-                        Extractor1 extractor = unitBasePart.Part.GetComponent<Extractor1>();
-                        if (extractor != null)
-                            Extractor = extractor;
-                        Assembler1 assembler = unitBasePart.Part.GetComponent<Assembler1>();
-                        if (assembler != null)
-                        {
-                            Assembler = assembler;
-                            assembler.UpdateContent(HexGrid, moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
-                        }
-                        Weapon1 weapon = unitBasePart.Part.GetComponent<Weapon1>();
-                        if (weapon != null)
-                        {
-                            Weapon = weapon;
-                            weapon.UpdateContent(HexGrid, moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
-                        }
-                        Reactor1 reactor = unitBasePart.Part.GetComponent<Reactor1>();
-                        if (reactor != null)
-                        {
-                            Reactor = reactor;
-                            reactor.UpdateContent(HexGrid, moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
-                        }
-                        Armor armor = unitBasePart.Part.GetComponent<Armor>();
-                        if (armor != null)
-                        {
-                            Armor = armor;
-                            Transform shield = transform.Find("Shield");
-                            if (shield != null)
+                            unitBasePart.TileObjects = new List<UnitBaseTileObject>();
+                            foreach (TileObject tileObject in moveUpdateUnitPart.TileObjects)
                             {
-                                shield.gameObject.SetActive(moveUpdateUnitPart.ShieldActive == true);
+                                UnitBaseTileObject unitBaseTileObject = new UnitBaseTileObject();
+                                unitBaseTileObject.TileObject = tileObject;
+                                unitBasePart.TileObjects.Add(unitBaseTileObject);
                             }
                         }
-                    }
-                    else
-                    {
-                        missingPartFound = true;
+                        if (unitBasePart.Level != moveUpdateUnitPart.Level)
+                        {
+                            unitBasePart.Level = moveUpdateUnitPart.Level;
+                        }
+
+                        //unitBasePart.Part.SetActive(unitBasePart.IsUnderConstruction || moveUpdateUnitPart.Exists);
+                        if (moveUpdateUnitPart.Exists)
+                        {
+                            Engine1 engine = unitBasePart.Part.GetComponent<Engine1>();
+                            if (engine != null)
+                            {
+                                Engine = engine;
+                            }
+                            Container1 container = unitBasePart.Part.GetComponent<Container1>();
+                            if (container != null)
+                            {
+
+                                Container = container;
+                                container.UpdateContent(HexGrid, moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
+                            }
+                            Extractor1 extractor = unitBasePart.Part.GetComponent<Extractor1>();
+                            if (extractor != null)
+                                Extractor = extractor;
+                            Assembler1 assembler = unitBasePart.Part.GetComponent<Assembler1>();
+                            if (assembler != null)
+                            {
+                                Assembler = assembler;
+                                assembler.UpdateContent(HexGrid, moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
+                            }
+                            Weapon1 weapon = unitBasePart.Part.GetComponent<Weapon1>();
+                            if (weapon != null)
+                            {
+                                Weapon = weapon;
+                                weapon.UpdateContent(HexGrid, moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
+                            }
+                            Reactor1 reactor = unitBasePart.Part.GetComponent<Reactor1>();
+                            if (reactor != null)
+                            {
+                                Reactor = reactor;
+                                reactor.UpdateContent(HexGrid, moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
+                            }
+                            Armor armor = unitBasePart.Part.GetComponent<Armor>();
+                            if (armor != null)
+                            {
+                                Armor = armor;
+                                Transform shield = transform.Find("Shield");
+                                if (shield != null)
+                                {
+                                    shield.gameObject.SetActive(moveUpdateUnitPart.ShieldActive == true);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            missingPartFound = true;
+                        }
                     }
                 }
             }
