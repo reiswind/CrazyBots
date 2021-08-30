@@ -1,8 +1,9 @@
-{
-  "Seed": -1599727108,
+{  
   "Name": "Unittest",
-  "MapWidth": 40,
-  "MapHeight": 40,
+  "MapWidth": 2,
+  "MapHeight": 2,
+  "Seed": 1,
+  "MapType": "2",
   "Players": [
 
     {
@@ -20,28 +21,38 @@
     {
       "Name": "Container",
       "PlayerId": 1,
-	  "Parts": "0;0;0;0;1;F1;1;0",
+	  "Blueprint": "Outpost",
       "Position": {
-        "X": 9,
-        "Y": 8
+        "X": 0,
+        "Y": 0
       }
     },
 	{
       "Name": "DefenseTower",
       "PlayerId": 1,
-	  "Parts": "0;0;3;0;1;0;0;0",
+	  "Blueprint": "Container",
       "Position": {
-        "X": 8,
-        "Y": 8
+        "X": 1,
+        "Y": 1
+      }
+    },
+	
+	{
+      "Name": "Reactor",
+      "PlayerId": 2,
+	  "Blueprint": "Reactor",
+      "Position": {
+        "X": -9,
+        "Y": -2
       }
     },
 	{
       "Name": "Worker",
       "PlayerId": 2,
-	  "Parts": "1;1;0;0;1;1;0;0",
+	  "Blueprint": "Bomber",
       "Position": {
-        "X": 10,
-        "Y": 11
+        "X": -11,
+        "Y": -2
       }
     }
   ]

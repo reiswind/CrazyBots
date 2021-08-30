@@ -20,6 +20,13 @@ namespace Assets.Scripts
         private int filled;
         private int max;
 
+        public GameObject RemoveTop()
+        {
+            GameObject top = mineralCubes[0];
+            mineralCubes.Remove(top);
+            return top;
+        }
+
         private bool AddMinerals(GameObject container)
         {
             if (container.name.StartsWith("Mineral"))

@@ -14,7 +14,7 @@ namespace Assets.Scripts
     }
     public class UnitBaseTileObject
     {
-        //public GameObject GameObject { get; set; }
+        public GameObject GameObject { get; set; }
         public TileObject TileObject { get; set; }
     }
     public class TransitObject
@@ -25,6 +25,13 @@ namespace Assets.Scripts
         public bool DestroyAtArrival { get; set; }
     }
 
+    public class HitByBullet
+    {
+        public TileObjectType HitPartTileObjectType { get; set; }
+        public float HitTime { get; set; }
+        public TileObject Bullet { get; set; }
+        public bool BulletImpact { get; set; }
+    }
 
 
     public class UnitBase : MonoBehaviour
@@ -89,20 +96,11 @@ namespace Assets.Scripts
                     else
                     {
                         Vector3 vector3 = transitObject.TargetPosition;
-                        //vector3.y = 2;
 
                         float speed = 2.0f / HexGrid.GameSpeed;
                         float step = speed * Time.deltaTime;
 
                         transitObject.GameObject.transform.position = Vector3.MoveTowards(transitObject.GameObject.transform.position, vector3, step);
-
-                        if (transitObject.TargetRotation != null)
-                        {
-                            //LookAtDirection(HexGrid, transitObject.GameObject.transform, transitObject.GameObject.transform.position);
-
-                            //vector3 = Vector3.RotateTowards(transitObject.GameObject.transform.rotation, transitObject.TargetRotation, step, step);
-                        }
-
                         if (transitObject.GameObject.transform.position == transitObject.TargetPosition)
                         {
                             if (transitObject.DestroyAtArrival)
@@ -119,6 +117,91 @@ namespace Assets.Scripts
                 }
                 if (tileObjectsInTransit.Count == 0)
                     tileObjectsInTransit = null;
+            }
+            if (hitByBullets != null)
+            {
+                List<HitByBullet> currentHitByBullets = new List<HitByBullet>();
+                currentHitByBullets.AddRange(hitByBullets);
+                foreach (HitByBullet hitByBullet in currentHitByBullets)
+                {
+                    if (hitByBullet.BulletImpact && hitByBullet.Bullet != null)
+                    {
+                        HasBeenHit(hitByBullet);
+                        hitByBullets.Remove(hitByBullet);
+                    }
+                    if (hitByBullet.HitTime < Time.unscaledTime)
+                    {
+                        if (hitByBullet.Bullet != null)
+                        {
+                            HasBeenHit(hitByBullet);
+                        }
+                        hitByBullets.Remove(hitByBullet);
+                    }
+                }
+                if (hitByBullets.Count == 0)
+                    hitByBullets = null;
+            }
+        }
+
+        private List<HitByBullet> hitByBullets;
+
+        public void HasBeenHit(HitByBullet hitByBullet)
+        {
+            HitByShell();
+            PartHitByShell(hitByBullet.HitPartTileObjectType);
+        }
+
+        public void Impact()
+        {
+            if (hitByBullets == null)
+                hitByBullets = new List<HitByBullet>();
+            bool found = false;
+            foreach (HitByBullet hitByBullet in hitByBullets)
+            {
+                if (hitByBullet.BulletImpact == false)
+                {
+                    hitByBullet.BulletImpact = true;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                HitByBullet hitByBullet = new HitByBullet();
+                hitByBullet.BulletImpact = true;
+                hitByBullet.HitTime = Time.unscaledTime + 2;
+                hitByBullets.Add(hitByBullet);
+            }
+
+        }
+        public void HasBeenHit(Move move)
+        {
+            if (hitByBullets == null)
+                hitByBullets = new List<HitByBullet>();
+
+            int level;
+            TileObjectType hitPartTileObjectType = TileObject.GetTileObjectTypeFromString(move.OtherUnitId, out level);
+
+            TileObject bullet = move.Stats.MoveUpdateGroundStat.TileObjects[0];
+
+            bool found = false;
+            foreach (HitByBullet hitByBullet in hitByBullets)
+            {
+                if (hitByBullet.Bullet == null)
+                {
+                    hitByBullet.HitPartTileObjectType = hitPartTileObjectType;
+                    hitByBullet.Bullet = bullet;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                HitByBullet hitByBullet = new HitByBullet();
+                hitByBullet.Bullet = bullet;
+                hitByBullet.HitPartTileObjectType = hitPartTileObjectType;
+                hitByBullet.HitTime = Time.unscaledTime + 2;
+                hitByBullets.Add(hitByBullet);
             }
         }
 
@@ -405,10 +488,19 @@ namespace Assets.Scripts
         }
         public void Fire(Move move)
         {
+            foreach (UnitBasePart unitBasePart in UnitBaseParts)
+            {
+                if (unitBasePart.PartType == TileObjectType.PartWeapon)
+                {
+                    unitBasePart.Fire(move, Weapon);
+                }
+            }
+            /*
+
             if (Weapon != null)
             {
                 Weapon.Fire(HexGrid, move);
-            }
+            }*/
         }
 
         public void Transport(Move move)
@@ -697,35 +789,14 @@ namespace Assets.Scripts
             UnitBaseParts.Add(unitBasePart);
         }
 
-        /*
-        private string GetPartThatHasBeenHit()
-        {
-            if (PartsThatHaveBeenHit == null)
-            {
-                return null;
-            }
-            string hitPart = PartsThatHaveBeenHit[0];
-            PartsThatHaveBeenHit.Remove(hitPart);
-            if (PartsThatHaveBeenHit.Count == 0)
-                PartsThatHaveBeenHit = null;
-            return hitPart;
-        }*/
-
         public void PartExtracted(TileObjectType hitPart)
         {
-            if (!shellHit)
-            {
-                int x = 0;
-            }
-
-            shellHit = false;
-
             for (int i = UnitBaseParts.Count - 1; i >= 0; i--)
             {
                 UnitBasePart unitBasePart = UnitBaseParts[i];
                 if (unitBasePart.PartType == hitPart)
                 {
-                    unitBasePart.Level--;
+                    //unitBasePart.Level--;
                     if (unitBasePart.Level == 0)
                     {
                         /*
@@ -764,12 +835,53 @@ namespace Assets.Scripts
             }
         }
 
-        private bool shellHit;
+        public void PartHitByShell(TileObjectType hitPart)
+        {
+            for (int i = UnitBaseParts.Count - 1; i >= 0; i--)
+            {
+                UnitBasePart unitBasePart = UnitBaseParts[i];
+                if (unitBasePart.PartType == hitPart)
+                {
+                    if (unitBasePart.Level == 0)
+                    {
+                        GroundCell currentCell = HexGrid.GroundCells[CurrentPos];
+                        unitBasePart.Part.transform.SetParent(currentCell.transform, true);
+
+                        Rigidbody otherRigid = unitBasePart.Part.GetComponent<Rigidbody>();
+
+                        if (otherRigid != null)
+                        {
+                            otherRigid.isKinematic = false;
+
+                            Vector3 vector3 = new Vector3();
+                            vector3.y = 5;
+                            vector3.x = Random.value;
+                            vector3.z = Random.value;
+
+                            otherRigid.velocity = vector3;
+                            otherRigid.rotation = Random.rotation;
+                        }
+
+                        /*
+                        Container1 container = unitBasePart.Part.GetComponent<Container1>();
+                        if (container != null)
+                        {
+                            List<TileObject> tileObjects = new List<TileObject>();
+                            container.UpdateContent(HexGrid, tileObjects, 1);
+                        }*/
+
+                        unitBasePart.Destroyed = true;
+                        SetPlayerColor(HexGrid, 0, unitBasePart.Part);
+                        Destroy(unitBasePart.Part, 8);
+                        UnitBaseParts.Remove(unitBasePart);
+                    }
+                    break;
+                }
+            }
+        }
 
         public void HitByShell()
         {
-            shellHit = true;
-
             ParticleSystem particleSource;
 
             particleSource = HexGrid.MakeParticleSource("TankExplosion");

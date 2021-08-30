@@ -73,13 +73,15 @@ namespace Assets.Scripts
         private HexGrid hexGrid;
         private Move move;
         private GroundCell weaponTargetCell;
+        private UnitBaseTileObject unitBaseTileObject;
 
-        public void Fire(HexGrid hexGrid, Move move)
+        public void Fire(HexGrid hexGrid, Move move, UnitBaseTileObject unitBaseTileObject)
         {
             Position pos = move.Positions[move.Positions.Count - 1];
             weaponTargetCell = hexGrid.GroundCells[pos];
             this.move = move;
             this.hexGrid = hexGrid;
+            this.unitBaseTileObject = unitBaseTileObject;
 
             // Determine which direction to rotate towards
             turnWeaponIntoDirection = (weaponTargetCell.transform.position - transform.position).normalized;
@@ -89,7 +91,7 @@ namespace Assets.Scripts
         void UpdateDirection(Transform transform)
         {
             float str; // = Mathf.Min(2f * Time.deltaTime, 1);
-            str = 4f * Time.deltaTime;
+            str = 8f * Time.deltaTime;
 
             // Calculate a rotation a step closer to the target and applies rotation to this object
             Quaternion lookRotation = Quaternion.LookRotation(turnWeaponIntoDirection);
@@ -127,8 +129,11 @@ namespace Assets.Scripts
                     launchPosition.gameObject.SetActive(false);
 
                     GameObject shellprefab = hexGrid.GetUnitResource("Shell");
-
                     GameObject shellObject = Instantiate(shellprefab);
+                    
+                    //GameObject shellObject = unitBaseTileObject.GameObject;
+
+
                     Shell shell = shellObject.GetComponent<Shell>();
 
                     Vector3 launchPos = launchPosition.position;

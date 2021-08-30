@@ -255,7 +255,7 @@ namespace Engine.Master
                 {
                     Engine = new Engine(this, 1);
                 }
-                while (level > Engine.Level)
+                else if (level > Engine.Level)
                     Engine.Level++;
                 createdAbility = Engine;
             }
@@ -266,7 +266,7 @@ namespace Engine.Master
                 {
                     Armor = new Armor(this, 1);
                 }
-                while (level > Armor.Level)
+                else if (level > Armor.Level)
                     Armor.Level++;
                 createdAbility = Armor;
             }
@@ -278,7 +278,7 @@ namespace Engine.Master
                 {
                     Extractor = new Extractor(this, 1);
                 }
-                while (level > Extractor.Level)
+                else if (level > Extractor.Level)
                     Extractor.Level++;
                 createdAbility = Extractor;
             }
@@ -295,7 +295,7 @@ namespace Engine.Master
                         Assembler.TileContainer.CreateMinerals(Assembler.TileContainer.Capacity);
                     }
                 }
-                while (level > Assembler.Level)
+                else if (level > Assembler.Level)
                     Assembler.Level++;
                 createdAbility = Assembler;
             }
@@ -311,7 +311,7 @@ namespace Engine.Master
                         Weapon.TileContainer.CreateMinerals(Weapon.TileContainer.Capacity);
                     }
                 }
-                while (level > Weapon.Level)
+                else if (level > Weapon.Level)
                     Weapon.Level++;
                 createdAbility = Weapon;
             }
@@ -333,7 +333,7 @@ namespace Engine.Master
                         
                     }
                 }
-                while (level > Container.Level)
+                else if (level > Container.Level)
                     Container.Level++;
                 createdAbility = Container;
             }
@@ -350,7 +350,7 @@ namespace Engine.Master
                         Reactor.TileContainer.CreateMinerals(Reactor.TileContainer.Capacity);
                     }
                 }
-                while (level > Reactor.Level)
+                else if (level > Reactor.Level)
                     Reactor.Level++;
                 createdAbility = Reactor;
             }
@@ -361,7 +361,7 @@ namespace Engine.Master
                 {
                     Radar = new Radar(this, 1);
                 }
-                while (level > Radar.Level)
+                else if (level > Radar.Level)
                     Radar.Level++;
                 createdAbility = Radar;
             }
@@ -410,11 +410,16 @@ namespace Engine.Master
         {
             foreach (BlueprintPart blueprintPart in Blueprint.Parts)
             {
-                TileObject tileObject = new TileObject();
-                tileObject.Direction = Direction.N;
-                tileObject.TileObjectType = TileObjectType.Mineral;
-
-                CreateBlueprintPart(blueprintPart, blueprintPart.Level, true, tileObject);
+                Ability ability;
+                do
+                {
+                    TileObject tileObject = new TileObject();
+                    tileObject.Direction = Direction.N;
+                    tileObject.TileObjectType = TileObjectType.Mineral;
+                    
+                    ability = CreateBlueprintPart(blueprintPart, blueprintPart.Level, true, tileObject);
+                }
+                while (ability.Level < blueprintPart.Level);
             }
             UnderConstruction = false;
         }

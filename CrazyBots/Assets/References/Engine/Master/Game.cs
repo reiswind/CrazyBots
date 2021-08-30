@@ -736,7 +736,7 @@ namespace Engine.Master
                 }
                 else if (move.MoveType == MoveType.Fire)
                 {
-                    HitByBullet(move, nextMoves);
+                    //HitByBullet(move, nextMoves);
                     finishedMoves.Add(move);
                 }
                 else
@@ -807,7 +807,11 @@ namespace Engine.Master
                     hitmove.Positions = new List<Position>();
                     hitmove.Positions.Add(targetUnit.Pos);
                     hitmove.UnitId = targetUnit.UnitId;
-                    hitmove.OtherUnitId = hitPart.Name;
+                    hitmove.OtherUnitId = hitPart.PartType.ToString();
+
+                    hitmove.Stats = new MoveUpdateStats();
+                    hitmove.Stats.MoveUpdateGroundStat = move.Stats.MoveUpdateGroundStat;
+
                     nextMoves.Add(hitmove);
 
                     if (hitPart.Level == 0)
@@ -1205,9 +1209,10 @@ namespace Engine.Master
                             //bullet.Target = move.Positions[1];
                             //bullet.TileObject = tileObjects[0];
                             //hitByBullet.Add(bullet);
-
-                            move.OtherUnitId = removedTileObjects[0].TileObjectType.ToString();
+                            //move.OtherUnitId = removedTileObjects[0].TileObjectType.ToString();
                             lastMoves.Add(move);
+
+                            HitByBullet(move, lastMoves);
                         }
                     }
                 }

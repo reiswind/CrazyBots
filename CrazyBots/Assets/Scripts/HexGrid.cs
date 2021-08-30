@@ -582,14 +582,16 @@ namespace Assets.Scripts
 					if (BaseUnits.ContainsKey(move.UnitId))
 					{
 						UnitBase unit = BaseUnits[move.UnitId];
+						unit.HasBeenHit(move);
+
 						/*
 						if (unit.PartsThatHaveBeenHit == null)
 							unit.PartsThatHaveBeenHit = new List<string>();
 						unit.PartsThatHaveBeenHit.Add(move.OtherUnitId);*/
-						int level;
-						TileObjectType tileObjectType = TileObject.GetTileObjectTypeFromString(move.OtherUnitId, out level);
+						//int level;
+						//TileObjectType tileObjectType = TileObject.GetTileObjectTypeFromString(move.OtherUnitId, out level);
 
-						unit.PartExtracted(tileObjectType);
+						//unit.PartExtracted(tileObjectType);
 
 					}
 				}
@@ -598,7 +600,6 @@ namespace Assets.Scripts
 					if (BaseUnits.ContainsKey(move.UnitId))
 					{
 						UnitBase unit = BaseUnits[move.UnitId];
-						unit.UpdateStats(move.Stats);
 						unit.Fire(move);
 					}
 				}

@@ -85,6 +85,27 @@ namespace Assets.Scripts
                             {
                                 foreach (UnitBaseTileObject sourceTileObject in otherUnitBasePart.TileObjects)
                                 {
+                                    if (otherUnitBasePart.TileObjects != null)
+                                    {
+                                        foreach (UnitBaseTileObject otherTileObject in otherUnitBasePart.TileObjects)
+                                        {
+                                            if (otherTileObject.TileObject.TileObjectType == tileObject.TileObjectType)
+                                            {
+                                                /*
+                                                TransitObject transitObject = new TransitObject();
+                                                transitObject.GameObject = otherTileObject.Part;
+                                                transitObject.TargetPosition = transform.position;
+                                                transitObject.DestroyAtArrival = true;
+                                                unit.AddTransitTileObject(transitObject);*/
+
+                                                found = true;
+                                                break;
+                                            }
+                                        }
+                                        if (found)
+                                            break;
+                                    }
+
                                     if (tileObject.TileObjectType == sourceTileObject.TileObject.TileObjectType)
                                     {
                                         otherUnitBasePart.ClearContainer();
@@ -112,9 +133,6 @@ namespace Assets.Scripts
                                         transitObject.DestroyAtArrival = true;
                                         unit.AddTransitTileObject(transitObject);
 
-                                        //unit.AddTransitTileObject(destructable);
-                                        //tileObjectsInTransit.Add(destructable);
-
                                         found = true;
                                         break;
                                     }
@@ -130,6 +148,26 @@ namespace Assets.Scripts
                         // Find source tile in friendly otherUnit
                         foreach (UnitBasePart otherUnitBasePart in otherUnit.UnitBaseParts)
                         {
+                            if (otherUnitBasePart.TileObjects != null)
+                            {
+                                foreach (UnitBaseTileObject otherTileObject in otherUnitBasePart.TileObjects)
+                                {
+                                    if (otherTileObject.TileObject.TileObjectType == tileObject.TileObjectType)
+                                    {
+                                        /*
+                                        TransitObject transitObject = new TransitObject();
+                                        transitObject.GameObject = otherTileObject.Part;
+                                        transitObject.TargetPosition = transform.position;
+                                        transitObject.DestroyAtArrival = true;
+                                        unit.AddTransitTileObject(transitObject);*/
+
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                if (found)
+                                    break;
+                            }
                             if (otherUnitBasePart.PartType == tileObject.TileObjectType)
                             {
                                 otherUnit.PartExtracted(tileObject.TileObjectType);

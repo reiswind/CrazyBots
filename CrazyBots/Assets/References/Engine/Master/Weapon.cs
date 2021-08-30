@@ -103,7 +103,7 @@ namespace Engine.Master
                         Move move = new Move();
                         move.MoveType = MoveType.Fire;
                         move.UnitId = Unit.UnitId;
-                        move.OtherUnitId = null; // n.Unit.UnitId;
+                        move.OtherUnitId = null;
                         move.Positions = new List<Position>();
                         move.Positions.Add(Unit.Pos);
                         move.Positions.Add(n.Pos);

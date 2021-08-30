@@ -27,6 +27,17 @@ namespace Assets.Scripts
         public GameObject Part { get; set; }
         public List<UnitBaseTileObject> TileObjects { get; set; }
 
+        public void Fire(Move move, Weapon1 weapon)
+        {
+            UnitBaseTileObject unitBaseTileObject = TileObjects[0];
+            TileObjects.Remove(unitBaseTileObject);
+            
+            unitBaseTileObject.GameObject = mineralContainer.RemoveTop();
+
+            if (weapon != null)
+                weapon.Fire(UnitBase.HexGrid, move, unitBaseTileObject);
+        }
+
         public void ClearContainer()
         {
             mineralContainer.ClearContent();
