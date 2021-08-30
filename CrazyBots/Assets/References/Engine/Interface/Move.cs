@@ -38,6 +38,8 @@ namespace Engine.Interface
         public string Name { get; set; }
         public TileObjectType PartType { get; set; }
         public int Level { get; set; }
+        public int CompleteLevel { get; set; }
+        
 
         // True if the part exists
         public bool Exists { get; set; }

@@ -1,11 +1,7 @@
 ﻿using Engine.Interface;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Engine.Master
 {
@@ -250,7 +246,7 @@ namespace Engine.Master
             return true;
         }
 
-        private void CreateBlueprintPart(BlueprintPart blueprintPart, int level, bool fillContainer, TileObject tileObject)
+        private Ability CreateBlueprintPart(BlueprintPart blueprintPart, int level, bool fillContainer, TileObject tileObject)
         {
             Ability createdAbility = null;
             if (blueprintPart.PartType == TileObjectType.PartEngine)
@@ -378,6 +374,7 @@ namespace Engine.Master
             {
                 throw new Exception();
             }
+            return createdAbility;
         }
 
         public bool IsInstalled(BlueprintPart blueprintPart, int level)
@@ -595,16 +592,18 @@ namespace Engine.Master
         
 
 
-        public void Upgrade(string unitCode, TileObject tileObject)
+        public void Upgrade(Move move, TileObject tileObject)
         {
-            int unitCodeLevel;
-            TileObjectType tileObjectType = TileObject.GetTileObjectTypeFromString(unitCode, out unitCodeLevel);
+            MoveUpdateUnitPart moveUpdateUnitPart = move.Stats.UnitParts[0];
 
             foreach (BlueprintPart blueprintPart in Blueprint.Parts)
             {
-                if (tileObjectType == blueprintPart.PartType)
+                if (moveUpdateUnitPart.PartType == blueprintPart.PartType)
                 {
-                    CreateBlueprintPart(blueprintPart, unitCodeLevel, false, tileObject);
+                    CreateBlueprintPart(blueprintPart, moveUpdateUnitPart.Level, false, tileObject);
+
+                    moveUpdateUnitPart.TileObjects.Add(tileObject);
+
                     break;
                 }
             }
@@ -637,6 +636,7 @@ namespace Engine.Master
                 moveUpdateUnitPart.Name = blueprintPart.Name;
                 moveUpdateUnitPart.Exists = IsInstalled(blueprintPart, blueprintPart.Level);
                 moveUpdateUnitPart.PartType = blueprintPart.PartType;
+                moveUpdateUnitPart.CompleteLevel = blueprintPart.Level;
 
                 if (blueprintPart.PartType == TileObjectType.PartWeapon && Weapon != null)
                 {

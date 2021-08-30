@@ -6,10 +6,34 @@ using UnityEngine;
 public class Assembler1 : MonoBehaviour
 {
     private MineralContainer mineralContainer = new MineralContainer();
-    internal int Level { get; set; }
+    
 
-    public void Assemble(HexGrid hexGrid, Move move)
+    public void Assemble(HexGrid hexGrid, UnitBase unit, UnitBase upgradedUnit, Move move)
     {
+        MoveUpdateUnitPart moveUpdateUnitPart = move.Stats.UnitParts[0];
+        foreach (UnitBasePart upgradedBasePart in upgradedUnit.UnitBaseParts)
+        {
+            if (upgradedBasePart.PartType == moveUpdateUnitPart.PartType &&
+                upgradedBasePart.CompleteLevel == moveUpdateUnitPart.Level)
+            {
+                TransitObject transitObject = new TransitObject();
+                transitObject.GameObject = upgradedBasePart.Part;
+                transitObject.TargetPosition = upgradedBasePart.Part.transform.position;
+                transitObject.TargetRotation = upgradedBasePart.Part.transform.rotation;
+
+                // Reset current pos to assembler
+                upgradedBasePart.Part.transform.position = transform.position;
+
+                
+                upgradedBasePart.Part.SetActive(true);
+
+                // Move to position in unit
+                unit.AddTransitTileObject(transitObject);
+            }
+        }
+
+
+        /*
         ParticleSystem particleSource;
         
         Position from = move.Positions[0];
@@ -43,6 +67,7 @@ public class Assembler1 : MonoBehaviour
 
         particleDust.Play();
         HexGrid.Destroy(particleDust, 2.5f);
+        */
     }
 
     public void UpdateContent(HexGrid hexGrid, List<TileObject> tileObjects, int? capacity)

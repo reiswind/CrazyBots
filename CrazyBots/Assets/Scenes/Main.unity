@@ -8400,7 +8400,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridWidth: 10
   gridHeight: 10
-  GameSpeed: 0.5
+  GameSpeed: 1
 --- !u!4 &1571186512
 Transform:
   m_ObjectHideFlags: 0

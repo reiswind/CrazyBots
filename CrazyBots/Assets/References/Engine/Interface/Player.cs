@@ -396,13 +396,13 @@ namespace Engine.Interface
                     Position to = move.Positions[move.Positions.Count - 1];
                     if (move.PlayerId == PlayerModel.Id)
                     {
-                        if (UnitsInBuild.ContainsKey(move.UnitId))
+                        if (UnitsInBuild.ContainsKey(move.OtherUnitId))
                         {
-                            PlayerUnit playerUnit = UnitsInBuild[move.UnitId];
+                            PlayerUnit playerUnit = UnitsInBuild[move.OtherUnitId];
                             addedUnits.Add(to, playerUnit);
                             Units.Add(playerUnit.Unit.UnitId, playerUnit);
                             changedUnits.Add(to);
-                            UnitsInBuild.Remove(move.UnitId);
+                            UnitsInBuild.Remove(move.OtherUnitId);
                         }
                     }
                 }

@@ -15,6 +15,13 @@ public class UnitBaseTileObject
     //public GameObject GameObject { get; set; }
     public TileObject TileObject { get; set; }
 }
+public class TransitObject
+{
+    public GameObject GameObject { get; set; }
+    public Vector3 TargetPosition { get; set; }
+    public Quaternion TargetRotation { get; set; }
+    public bool DestroyAtArrival { get; set; }
+}
 
 public class UnitBasePart
 {
@@ -25,18 +32,23 @@ public class UnitBasePart
     public string Name { get; set; }
     public TileObjectType PartType { get; set; }
     public int Level { get; set; }
+    public int CompleteLevel { get; set; }
     public bool IsUnderConstruction { get; set; }
     public bool Destroyed { get; set; }
     public GameObject Part { get; set; }
-    public TileObjectType TileObjectType { get; set; }
     public List<UnitBaseTileObject> TileObjects { get; set; }
 
+    public void ClearContainer()
+    {
+
+    }
 }
 
 public class UnitBase : MonoBehaviour
 {
     public UnitBase()
     {
+
         UnitCommands = new List<UnitCommand>();
         UnitBaseParts = new List<UnitBasePart>();
         AboveGround =0f;
@@ -56,6 +68,9 @@ public class UnitBase : MonoBehaviour
     internal bool Temporary { get; set; }
     internal bool UnderConstruction { get; set; }
     internal bool HasBeenDestroyed { get; set; }
+
+    private List<TransitObject> tileObjectsInTransit;
+
     // Update is called once per frame
     void Update()
     {
@@ -77,6 +92,58 @@ public class UnitBase : MonoBehaviour
             transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
             UpdateDirection(unitPos3);
         }
+        if (tileObjectsInTransit != null)
+        {
+            List<TransitObject> transit = new List<TransitObject>();
+            transit.AddRange(tileObjectsInTransit);
+
+            foreach (TransitObject transitObject in transit)
+            {
+                if (transitObject.GameObject == null)
+                {
+                    tileObjectsInTransit.Remove(transitObject);
+                }
+                else
+                {
+                    Vector3 vector3 = transitObject.TargetPosition;
+                    //vector3.y = 2;
+
+                    float speed = 1.5f / HexGrid.GameSpeed;
+                    float step = speed * Time.deltaTime;
+
+                    transitObject.GameObject.transform.position = Vector3.MoveTowards(transitObject.GameObject.transform.position, vector3, step);
+
+                    if (transitObject.TargetRotation != null)
+                    {
+                        //LookAtDirection(HexGrid, transitObject.GameObject.transform, transitObject.GameObject.transform.position);
+
+                        //vector3 = Vector3.RotateTowards(transitObject.GameObject.transform.rotation, transitObject.TargetRotation, step, step);
+                    }
+
+                    if (transitObject.GameObject.transform.position == transitObject.TargetPosition)
+                    {
+                        if (transitObject.DestroyAtArrival)
+                        {
+                            Destroy(transitObject.GameObject);
+                        }
+                        else
+                        {
+                            // int x=0;
+                        }
+                        tileObjectsInTransit.Remove(transitObject);
+                    }
+                }
+            }
+            if (tileObjectsInTransit.Count == 0)
+                tileObjectsInTransit = null;
+        }
+    }
+
+    public void AddTransitTileObject(TransitObject transitObject)
+    {
+        if (tileObjectsInTransit == null)
+            tileObjectsInTransit = new List<TransitObject>();
+        tileObjectsInTransit.Add(transitObject);
     }
 
     void UpdateDirection(Vector3 position)
@@ -119,6 +186,16 @@ public class UnitBase : MonoBehaviour
         {
             unitPos3.y += HexGrid.hexCellHeight + AboveGround;
             transform.position = unitPos3;
+        }
+        
+        if (tileObjectsInTransit != null)
+        {
+            foreach (TransitObject transitObject in tileObjectsInTransit)
+            {
+                if (transitObject.DestroyAtArrival)
+                    Destroy(transitObject.GameObject);
+            }
+            tileObjectsInTransit = null;
         }
     }
 
@@ -168,10 +245,14 @@ public class UnitBase : MonoBehaviour
         newPart.name = moveUpdateUnitPart.Name;
 
         if (underConstruction)
-            SetMaterialGhost(PlayerId, newPart);
+        {
+            newPart.SetActive(false);
+            //SetMaterialGhost(PlayerId, newPart);
+        }
         else
+        {
             SetPlayerColor(HexGrid, PlayerId, newPart);
-
+        }
         Destroy(part.gameObject);
 
         Rigidbody rigidbody = newPart.GetComponent<Rigidbody>();
@@ -191,11 +272,7 @@ public class UnitBase : MonoBehaviour
         unitBasePart.PartType = moveUpdateUnitPart.PartType;
         unitBasePart.Part = newPart;
         unitBasePart.Level = moveUpdateUnitPart.Level;
-
-        if (moveUpdateUnitPart.Exists && moveUpdateUnitPart.Level == 0)
-        {
-            int x = 0;
-        }
+        unitBasePart.CompleteLevel = moveUpdateUnitPart.CompleteLevel;
 
         unitBasePart.IsUnderConstruction = underConstruction;
 
@@ -336,11 +413,11 @@ public class UnitBase : MonoBehaviour
         }
     }
 
-    public void Upgrade(Move move)
+    public void Upgrade(Move move, UnitBase upgradedUnit)
     {
         if (Assembler != null)
         {
-            Assembler.Assemble(HexGrid, move);
+            Assembler.Assemble(HexGrid, this, upgradedUnit, move);
         }
     }
     public void Fire(Move move)
@@ -494,10 +571,14 @@ public class UnitBase : MonoBehaviour
         newPart.name = name;
 
         if (underConstruction)
-            SetMaterialGhost(PlayerId, newPart);
+        {
+            newPart.SetActive(false);
+            //SetMaterialGhost(PlayerId, newPart);
+        }
         else
+        {
             SetPlayerColor(HexGrid, PlayerId, newPart);
-
+        }
         if (foundation != null)
         {
             /*
@@ -627,6 +708,8 @@ public class UnitBase : MonoBehaviour
         unitBasePart.PartType = moveUpdateUnitPart.PartType;
         unitBasePart.Part = gameObject;
         unitBasePart.Level = moveUpdateUnitPart.Level;
+        unitBasePart.CompleteLevel = moveUpdateUnitPart.CompleteLevel;
+
         unitBasePart.IsUnderConstruction = UnderConstruction;
         UnitBaseParts.Add(unitBasePart);
     }

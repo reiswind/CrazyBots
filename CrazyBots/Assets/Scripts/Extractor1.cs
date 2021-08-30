@@ -5,67 +5,9 @@ using UnityEngine;
 
 public class Extractor1 : MonoBehaviour
 {
-    // Update is called once per frame
-    void Update()
-    {
-        if (tileObjectsInTransit != null)
-        {
-            List<GameObject> transit = new List<GameObject>();
-            transit.AddRange(tileObjectsInTransit);
-
-            foreach (GameObject gameTileObject in transit)
-            {
-                if (gameTileObject == null)
-                {
-                    tileObjectsInTransit.Remove(gameTileObject);
-                }
-                else
-                {
-                    Vector3 vector3 = transform.position;
-                    //vector3.y = 2;
-
-                    float speed = 1.5f / hexGrid.GameSpeed;
-                    float step = speed * Time.deltaTime;
-
-                    gameTileObject.transform.position = Vector3.MoveTowards(gameTileObject.transform.position, vector3, step);
-                    if (gameTileObject.transform.position == transform.position)
-                    {
-                        Destroy(gameTileObject.gameObject);
-                        tileObjectsInTransit.Remove(gameTileObject);
-                    }
-                }
-            }
-            if (tileObjectsInTransit.Count == 0)
-                tileObjectsInTransit = null;
-        }
-    }
-
-    private HexGrid hexGrid;
-    private List<GameObject> tileObjectsInTransit;
-
     public void Extract(HexGrid hexGrid, Move move, UnitBase unit, UnitBase otherUnit)
     {
-        this.hexGrid = hexGrid;
-
-        /*
-        if (tileObjectsInTranst != null)
-        {
-            foreach (GameObject gameTileObject in tileObjectsInTranst)
-            {
-                Destroy(gameTileObject);
-            }
-            tileObjectsInTranst = null;
-        }*/
-
         bool found;
-
-        if (tileObjectsInTransit == null)
-            tileObjectsInTransit = new List<GameObject>();
-
-        if (move.Stats.MoveUpdateGroundStat.TileObjects.Count > 1)
-        {
-            int sfd = 0;
-        }
 
         // Find the extracted tileobjects
         foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
@@ -84,7 +26,14 @@ public class Extractor1 : MonoBehaviour
                     {
                         sourceCell.GameObjects.Remove(gameTileObject);
                         gameTileObject.transform.SetParent(unit.transform, true);
-                        tileObjectsInTransit.Add(gameTileObject);
+
+                        TransitObject transitObject = new TransitObject();
+                        transitObject.GameObject = gameTileObject;
+                        transitObject.TargetPosition = unit.transform.position;
+                        transitObject.DestroyAtArrival = true;
+
+                        unit.AddTransitTileObject(transitObject);
+                        //tileObjectsInTransit.Add(gameTileObject);
 
                         //GameObject destructable;
                         //destructable = hexGrid.CreateDestructable(transform, tileObject);
@@ -115,10 +64,17 @@ public class Extractor1 : MonoBehaviour
 
                             if (otherUnitBasePart.Level == 0)
                             {
+                                TransitObject transitObject = new TransitObject();
+                                transitObject.GameObject = otherUnitBasePart.Part;
+                                transitObject.TargetPosition = unit.transform.position;
+                                transitObject.DestroyAtArrival = true;
+                                unit.AddTransitTileObject(transitObject);
+
+                                /*
                                 GameObject otherPart;
                                 otherPart = otherUnitBasePart.Part;
                                 otherPart.transform.SetParent(unit.transform, true);
-                                tileObjectsInTransit.Add(otherPart);
+                                unit.AddTransitTileObject(otherPart);*/
                             }
                             found = true;
                             break;
@@ -129,12 +85,12 @@ public class Extractor1 : MonoBehaviour
                             {
                                 if (tileObject.TileObjectType == sourceTileObject.TileObject.TileObjectType)
                                 {
+                                    otherUnitBasePart.ClearContainer();
+
                                     otherUnitBasePart.TileObjects.Remove(sourceTileObject);
 
                                     GameObject destructable;
 
-                                    //TileObject tileObject1 = new TileObject();
-                                    //tileObject1.TileObjectType = TileObjectType.Tree;
                                     if (unit.Container != null)
                                         destructable = hexGrid.CreateTileObject(unit.Container.transform, tileObject);
                                     else
@@ -146,10 +102,16 @@ public class Extractor1 : MonoBehaviour
                                     Vector3 unitPos3 = otherUnitBasePart.Part.transform.position;
                                     unitPos3.x += (randomPos.x * 0.5f);
                                     unitPos3.z += (randomPos.y * 0.7f);
-                                    //unitPos3.y += 1;
                                     destructable.transform.position = unitPos3;
 
-                                    tileObjectsInTransit.Add(destructable);
+                                    TransitObject transitObject = new TransitObject();
+                                    transitObject.GameObject = destructable;
+                                    transitObject.TargetPosition = unit.transform.position;
+                                    transitObject.DestroyAtArrival = true;
+                                    unit.AddTransitTileObject(transitObject);
+
+                                    //unit.AddTransitTileObject(destructable);
+                                    //tileObjectsInTransit.Add(destructable);
 
                                     found = true;
                                     break;
@@ -172,10 +134,17 @@ public class Extractor1 : MonoBehaviour
 
                             if (otherUnitBasePart.Level == 0)
                             {
+                                /*
                                 GameObject otherPart;
                                 otherPart = otherUnitBasePart.Part;
                                 otherPart.transform.SetParent(unit.transform, true);
-                                tileObjectsInTransit.Add(otherPart);
+                                unit.AddTransitTileObject(otherPart);
+                                */
+                                TransitObject transitObject = new TransitObject();
+                                transitObject.GameObject = otherUnitBasePart.Part;
+                                transitObject.TargetPosition = unit.transform.position;
+                                transitObject.DestroyAtArrival = true;
+                                unit.AddTransitTileObject(transitObject);
                             }
                             found = true;
                             break;

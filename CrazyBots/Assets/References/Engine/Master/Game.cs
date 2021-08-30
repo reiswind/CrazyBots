@@ -455,10 +455,10 @@ namespace Engine.Master
                         {
                             Player player = Players[move.PlayerId];
 
-                            if (player.UnitsInBuild.ContainsKey(move.UnitId)) //move.Positions[1]))
+                            if (player.UnitsInBuild.ContainsKey(move.OtherUnitId)) //move.Positions[1]))
                             {
                                 // From under construction to real unit
-                                PlayerUnit playerUnit = player.UnitsInBuild[move.UnitId];
+                                PlayerUnit playerUnit = player.UnitsInBuild[move.OtherUnitId];
                                 newUnit = playerUnit.Unit;
                                 playerUnit.Unit.IsGhost = false;
                                 addedUnits.Add(playerUnit.Unit);
@@ -469,7 +469,7 @@ namespace Engine.Master
                             TileObject tileObject = factory.Assembler.ConsumeMineralForUnit();
                             if (tileObject != null)
                             {
-                                newUnit.Upgrade(move.OtherUnitId, tileObject);
+                                newUnit.Upgrade(move, tileObject);
 
                                 if (!changedUnits.ContainsKey(newUnit.Pos))
                                     changedUnits.Add(newUnit.Pos, newUnit);

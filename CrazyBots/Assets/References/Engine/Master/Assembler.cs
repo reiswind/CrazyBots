@@ -75,7 +75,7 @@ namespace Engine.Master
             return move;
         }
 
-        private Move CreateUpgradeMove(Position pos, Unit upgradedUnit, BlueprintPart blueprintPart) // string productCode)
+        private Move CreateUpgradeMove(Position pos, Unit assemblerUnit, Unit upgradedUnit, BlueprintPart blueprintPart) 
         {
             int level = blueprintPart.Level;
             
@@ -98,8 +98,21 @@ namespace Engine.Master
             move.Positions.Add(Unit.Pos);
             move.Positions.Add(pos);
             move.PlayerId = Unit.Owner.PlayerModel.Id;
-            move.UnitId = upgradedUnit.UnitId;
-            move.OtherUnitId = blueprintPart.PartType.ToString() + level;
+            move.UnitId = assemblerUnit.UnitId;
+            move.OtherUnitId = upgradedUnit.UnitId;
+
+            move.Stats = new MoveUpdateStats();
+
+            MoveUpdateUnitPart part = new MoveUpdateUnitPart();
+            part.PartType = blueprintPart.PartType;
+            part.Level = level;
+            part.Name = blueprintPart.Name;
+            part.Capacity = blueprintPart.Capacity;
+            part.TileObjects = new List<TileObject>();
+            part.CompleteLevel = blueprintPart.Level;
+
+            move.Stats.UnitParts = new List<MoveUpdateUnitPart>();
+            move.Stats.UnitParts.Add(part);
 
             return move;
         }
@@ -264,7 +277,7 @@ namespace Engine.Master
                             {
                                 if (!playerUnit.Unit.IsInstalled(blueprintPart, blueprintPart.Level))
                                 {
-                                    possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, playerUnit.Unit, blueprintPart));
+                                    possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, Unit, playerUnit.Unit, blueprintPart));
                                     return;
                                 }
                             }
@@ -310,7 +323,7 @@ namespace Engine.Master
                                 {
                                     if (!neighbor.Unit.IsInstalled(blueprintPart, blueprintPart.Level))
                                     {
-                                        possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, neighbor.Unit, blueprintPart));
+                                        possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, Unit, neighbor.Unit, blueprintPart));
                                         break;
                                     }
                                 }

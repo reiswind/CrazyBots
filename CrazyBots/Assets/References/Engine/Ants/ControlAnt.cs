@@ -185,7 +185,7 @@ namespace Engine.Control
             {
                 if (intendedMove.MoveType == MoveType.Upgrade)
                 {
-                    if (possibleMove.UnitId == intendedMove.UnitId)
+                    if (possibleMove.UnitId == intendedMove.OtherUnitId)
                     {
                         extractable = false;
                         break;
@@ -371,7 +371,7 @@ namespace Engine.Control
                 if (intendedMove.MoveType == MoveType.Upgrade)
                 {
                     if (intendedMove.Positions[intendedMove.Positions.Count - 1] == move.Positions[intendedMove.Positions.Count - 1] &&
-                        intendedMove.UnitId == move.UnitId)
+                        intendedMove.OtherUnitId == move.OtherUnitId)
                     {
                         occupied = true;
                         break;

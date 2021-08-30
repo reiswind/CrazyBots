@@ -29,34 +29,7 @@
   "Units": [
     {
       "Name": "Outpost",
-      "PlayerId": 1,
-      "Blueprint": "Outpost",
-      "Position": {
-        "X": 0,
-        "Y": 0
-      }
-    },
-    {
-      "Name": "Outpost",
       "PlayerId": 2,
-      "Blueprint": "Outpost",
-      "Position": {
-        "X": 0,
-        "Y": 0
-      }
-    },
-    {
-      "Name": "Outpost",
-      "PlayerId": 3,
-      "Blueprint": "Outpost",
-      "Position": {
-        "X": 0,
-        "Y": 0
-      }
-    },
-    {
-      "Name": "Outpost",
-      "PlayerId": 4,
       "Blueprint": "Outpost",
       "Position": {
         "X": 0,

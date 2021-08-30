@@ -683,9 +683,10 @@ public class HexGrid : MonoBehaviour
 			{
 				if (BaseUnits.ContainsKey(move.UnitId))
 				{
-					// 
 					UnitBase unit = BaseUnits[move.UnitId];
-					unit.Upgrade(move);
+					UnitBase upgradedUnit = BaseUnits[move.OtherUnitId];
+					unit.Upgrade(move, upgradedUnit);
+
 				}
 
 				/*
