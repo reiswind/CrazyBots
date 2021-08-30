@@ -1528,8 +1528,7 @@ namespace Engine.Master
 
                 if (MoveNr == 23)
                 {
-                    Tile t = Map.GetTile(new Position(6, 6));
-                    int x = 0;
+
                 }
 
                 changedUnits.Clear();

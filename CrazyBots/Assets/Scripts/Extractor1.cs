@@ -3,45 +3,155 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Extractor1 : MonoBehaviour
+namespace Assets.Scripts
 {
-    public void Extract(HexGrid hexGrid, Move move, UnitBase unit, UnitBase otherUnit)
+    public class Extractor1 : MonoBehaviour
     {
-        bool found;
-
-        // Find the extracted tileobjects
-        foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
+        public void Extract(HexGrid hexGrid, Move move, UnitBase unit, UnitBase otherUnit)
         {
-            found = false;
+            bool found;
 
-            if (otherUnit == null)
+            // Find the extracted tileobjects
+            foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
             {
-                Position from = move.Positions[1];
-                GroundCell sourceCell = hexGrid.GroundCells[from];
-
                 found = false;
-                foreach (GameObject gameTileObject in sourceCell.GameObjects)
+
+                if (otherUnit == null)
                 {
-                    if (gameTileObject.name == move.OtherUnitId)
+                    Position from = move.Positions[1];
+                    GroundCell sourceCell = hexGrid.GroundCells[from];
+
+                    found = false;
+                    foreach (GameObject gameTileObject in sourceCell.GameObjects)
                     {
-                        sourceCell.GameObjects.Remove(gameTileObject);
-                        gameTileObject.transform.SetParent(unit.transform, true);
+                        if (gameTileObject.name == move.OtherUnitId)
+                        {
+                            sourceCell.GameObjects.Remove(gameTileObject);
+                            gameTileObject.transform.SetParent(transform, true);
 
-                        TransitObject transitObject = new TransitObject();
-                        transitObject.GameObject = gameTileObject;
-                        transitObject.TargetPosition = unit.transform.position;
-                        transitObject.DestroyAtArrival = true;
+                            TransitObject transitObject = new TransitObject();
+                            transitObject.GameObject = gameTileObject;
+                            transitObject.TargetPosition = transform.position;
+                            transitObject.DestroyAtArrival = true;
 
-                        unit.AddTransitTileObject(transitObject);
-                        //tileObjectsInTransit.Add(gameTileObject);
+                            unit.AddTransitTileObject(transitObject);
+                            //tileObjectsInTransit.Add(gameTileObject);
 
-                        //GameObject destructable;
-                        //destructable = hexGrid.CreateDestructable(transform, tileObject);
-                        //tileObjectsInTranst.Add(destructable);
-                        //destructable.transform.SetParent(unit.transform, true);
+                            //GameObject destructable;
+                            //destructable = hexGrid.CreateDestructable(transform, tileObject);
+                            //tileObjectsInTranst.Add(destructable);
+                            //destructable.transform.SetParent(unit.transform, true);
 
-                        found = true;
-                        break;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                    {
+                        // Bug!
+                        int x = 0;
+                    }
+                }
+                else
+                {
+                    if (unit.PlayerId == otherUnit.PlayerId)
+                    {
+                        // Find source tile in friendly otherUnit
+                        foreach (UnitBasePart otherUnitBasePart in otherUnit.UnitBaseParts)
+                        {
+                            if (otherUnitBasePart.PartType == tileObject.TileObjectType)
+                            {
+                                // Extract from friendly unit
+                                otherUnit.PartExtracted(tileObject.TileObjectType);
+
+                                if (otherUnitBasePart.Level == 0)
+                                {
+                                    TransitObject transitObject = new TransitObject();
+                                    transitObject.GameObject = otherUnitBasePart.Part;
+                                    transitObject.TargetPosition = transform.position;
+                                    transitObject.DestroyAtArrival = true;
+                                    unit.AddTransitTileObject(transitObject);
+
+                                    /*
+                                    GameObject otherPart;
+                                    otherPart = otherUnitBasePart.Part;
+                                    otherPart.transform.SetParent(unit.transform, true);
+                                    unit.AddTransitTileObject(otherPart);*/
+                                }
+                                found = true;
+                                break;
+                            }
+                            if (otherUnitBasePart.TileObjects != null)
+                            {
+                                foreach (UnitBaseTileObject sourceTileObject in otherUnitBasePart.TileObjects)
+                                {
+                                    if (tileObject.TileObjectType == sourceTileObject.TileObject.TileObjectType)
+                                    {
+                                        otherUnitBasePart.ClearContainer();
+
+                                        otherUnitBasePart.TileObjects.Remove(sourceTileObject);
+
+                                        GameObject destructable;
+
+                                        if (unit.Container != null)
+                                            destructable = hexGrid.CreateTileObject(unit.Container.transform, tileObject);
+                                        else
+                                            destructable = hexGrid.CreateTileObject(unit.transform, tileObject);
+
+                                        destructable.name = "xx" + tileObject.TileObjectType.ToString() + " to " + otherUnit.UnitId;
+
+                                        Vector2 randomPos = UnityEngine.Random.insideUnitCircle;
+                                        Vector3 unitPos3 = otherUnitBasePart.Part.transform.position;
+                                        unitPos3.x += (randomPos.x * 0.5f);
+                                        unitPos3.z += (randomPos.y * 0.7f);
+                                        destructable.transform.position = unitPos3;
+
+                                        TransitObject transitObject = new TransitObject();
+                                        transitObject.GameObject = destructable;
+                                        transitObject.TargetPosition = transform.position;
+                                        transitObject.DestroyAtArrival = true;
+                                        unit.AddTransitTileObject(transitObject);
+
+                                        //unit.AddTransitTileObject(destructable);
+                                        //tileObjectsInTransit.Add(destructable);
+
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (found)
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        // Extract Part in enemy otherUnit
+                        // Find source tile in friendly otherUnit
+                        foreach (UnitBasePart otherUnitBasePart in otherUnit.UnitBaseParts)
+                        {
+                            if (otherUnitBasePart.PartType == tileObject.TileObjectType)
+                            {
+                                otherUnit.PartExtracted(tileObject.TileObjectType);
+
+                                if (otherUnitBasePart.Level == 0)
+                                {
+                                    /*
+                                    GameObject otherPart;
+                                    otherPart = otherUnitBasePart.Part;
+                                    otherPart.transform.SetParent(unit.transform, true);
+                                    unit.AddTransitTileObject(otherPart);
+                                    */
+                                    TransitObject transitObject = new TransitObject();
+                                    transitObject.GameObject = otherUnitBasePart.Part;
+                                    transitObject.TargetPosition = transform.position;
+                                    transitObject.DestroyAtArrival = true;
+                                    unit.AddTransitTileObject(transitObject);
+                                }
+                                found = true;
+                                break;
+                            }
+                        }
                     }
                 }
                 if (!found)
@@ -49,191 +159,83 @@ public class Extractor1 : MonoBehaviour
                     // Bug!
                     int x = 0;
                 }
-            }
-            else
-            {
-                if (unit.PlayerId == otherUnit.PlayerId)
-                {
-                    // Find source tile in friendly otherUnit
-                    foreach (UnitBasePart otherUnitBasePart in otherUnit.UnitBaseParts)
+                /*
+                // Remove tileobject from the other unit
+                foreach (UnitBasePart unitBasePart in unit.UnitBaseParts)
                     {
-                        if (otherUnitBasePart.PartType == tileObject.TileObjectType)
+                        if (unitBasePart.TileObjects != null)
                         {
-                            // Extract from friendly unit
-                            otherUnit.PartExtracted(tileObject.TileObjectType);
-
-                            if (otherUnitBasePart.Level == 0)
+                            foreach (UnitBaseTileObject targetTileObject in unitBasePart.TileObjects)
                             {
-                                TransitObject transitObject = new TransitObject();
-                                transitObject.GameObject = otherUnitBasePart.Part;
-                                transitObject.TargetPosition = unit.transform.position;
-                                transitObject.DestroyAtArrival = true;
-                                unit.AddTransitTileObject(transitObject);
-
-                                /*
-                                GameObject otherPart;
-                                otherPart = otherUnitBasePart.Part;
-                                otherPart.transform.SetParent(unit.transform, true);
-                                unit.AddTransitTileObject(otherPart);*/
-                            }
-                            found = true;
-                            break;
-                        }
-                        if (otherUnitBasePart.TileObjects != null)
-                        {
-                            foreach (UnitBaseTileObject sourceTileObject in otherUnitBasePart.TileObjects)
-                            {
-                                if (tileObject.TileObjectType == sourceTileObject.TileObject.TileObjectType)
+                                if (tileObject.TileObjectType == targetTileObject.TileObject.TileObjectType &&
+                                    targetTileObject.GameObject == null)
                                 {
-                                    otherUnitBasePart.ClearContainer();
-
-                                    otherUnitBasePart.TileObjects.Remove(sourceTileObject);
-
-                                    GameObject destructable;
-
-                                    if (unit.Container != null)
-                                        destructable = hexGrid.CreateTileObject(unit.Container.transform, tileObject);
-                                    else
-                                        destructable = hexGrid.CreateTileObject(unit.transform, tileObject);
-
-                                    destructable.name = "xx" + tileObject.TileObjectType.ToString() + " to " + otherUnit.UnitId;
-
-                                    Vector2 randomPos = UnityEngine.Random.insideUnitCircle;
-                                    Vector3 unitPos3 = otherUnitBasePart.Part.transform.position;
-                                    unitPos3.x += (randomPos.x * 0.5f);
-                                    unitPos3.z += (randomPos.y * 0.7f);
-                                    destructable.transform.position = unitPos3;
-
-                                    TransitObject transitObject = new TransitObject();
-                                    transitObject.GameObject = destructable;
-                                    transitObject.TargetPosition = unit.transform.position;
-                                    transitObject.DestroyAtArrival = true;
-                                    unit.AddTransitTileObject(transitObject);
-
-                                    //unit.AddTransitTileObject(destructable);
-                                    //tileObjectsInTransit.Add(destructable);
-
-                                    found = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (found)
-                            break;
-                    }
-                }
-                else
-                {
-                    // Extract Part in enemy otherUnit
-                    // Find source tile in friendly otherUnit
-                    foreach (UnitBasePart otherUnitBasePart in otherUnit.UnitBaseParts)
-                    {
-                        if (otherUnitBasePart.PartType == tileObject.TileObjectType)
-                        {
-                            otherUnit.PartExtracted(tileObject.TileObjectType);
-
-                            if (otherUnitBasePart.Level == 0)
-                            {
-                                /*
-                                GameObject otherPart;
-                                otherPart = otherUnitBasePart.Part;
-                                otherPart.transform.SetParent(unit.transform, true);
-                                unit.AddTransitTileObject(otherPart);
-                                */
-                                TransitObject transitObject = new TransitObject();
-                                transitObject.GameObject = otherUnitBasePart.Part;
-                                transitObject.TargetPosition = unit.transform.position;
-                                transitObject.DestroyAtArrival = true;
-                                unit.AddTransitTileObject(transitObject);
-                            }
-                            found = true;
-                            break;
-                        }
-                    }
-                }
-            }
-            if (!found)
-            {
-                // Bug!
-                int x = 0;
-            }
-            /*
-            // Remove tileobject from the other unit
-            foreach (UnitBasePart unitBasePart in unit.UnitBaseParts)
-                {
-                    if (unitBasePart.TileObjects != null)
-                    {
-                        foreach (UnitBaseTileObject targetTileObject in unitBasePart.TileObjects)
-                        {
-                            if (tileObject.TileObjectType == targetTileObject.TileObject.TileObjectType &&
-                                targetTileObject.GameObject == null)
-                            {
-                                // This is the target UnitBaseTileObject
-                                if (otherUnit == null)
-                                {
-                                    Position from = move.Positions[1];
-                                    GroundCell sourceCell = hexGrid.GroundCells[from];
-
-                                    foreach (GameObject gameTileObject in sourceCell.TileContainer)
+                                    // This is the target UnitBaseTileObject
+                                    if (otherUnit == null)
                                     {
-                                        if (gameTileObject.name == move.OtherUnitId)
+                                        Position from = move.Positions[1];
+                                        GroundCell sourceCell = hexGrid.GroundCells[from];
+
+                                        foreach (GameObject gameTileObject in sourceCell.TileContainer)
                                         {
-                                            sourceCell.TileContainer.Remove(gameTileObject);
-                                            targetTileObject.GameObject = gameTileObject;
-                                            break;
+                                            if (gameTileObject.name == move.OtherUnitId)
+                                            {
+                                                sourceCell.TileContainer.Remove(gameTileObject);
+                                                targetTileObject.GameObject = gameTileObject;
+                                                break;
+                                            }
+                                        }
+                                        if (targetTileObject.GameObject == null)
+                                        {
+                                            int x = 0;
+                                        }
+                                        else
+                                        {
+                                            found = true;
+                                            moveToContainer = targetTileObject.GameObject;
+                                            moveToContainer.transform.SetParent(unit.transform, true);
                                         }
                                     }
-                                    if (targetTileObject.GameObject == null)
-                                    {
-                                        int x = 0;
-                                    }
                                     else
                                     {
-                                        found = true;
-                                        moveToContainer = targetTileObject.GameObject;
-                                        moveToContainer.transform.SetParent(unit.transform, true);
-                                    }
-                                }
-                                else
-                                {
-                                    // Find source tile in otherUmit
-                                    foreach (UnitBasePart otherUnitBasePart in otherUnit.UnitBaseParts)
-                                    {
-                                        if (otherUnitBasePart.TileObjects != null)
+                                        // Find source tile in otherUmit
+                                        foreach (UnitBasePart otherUnitBasePart in otherUnit.UnitBaseParts)
                                         {
-                                            foreach (UnitBaseTileObject sourceTileObject in otherUnitBasePart.TileObjects)
+                                            if (otherUnitBasePart.TileObjects != null)
                                             {
-                                                if (tileObject.TileObjectType == sourceTileObject.TileObject.TileObjectType &&
-                                                    sourceTileObject.GameObject != null)
+                                                foreach (UnitBaseTileObject sourceTileObject in otherUnitBasePart.TileObjects)
                                                 {
-                                                    moveToContainer = targetTileObject.GameObject;
-                                                    moveToContainer.transform.SetParent(unit.transform, true);
-                                                    moveToContainer.SetActive(true);
+                                                    if (tileObject.TileObjectType == sourceTileObject.TileObject.TileObjectType &&
+                                                        sourceTileObject.GameObject != null)
+                                                    {
+                                                        moveToContainer = targetTileObject.GameObject;
+                                                        moveToContainer.transform.SetParent(unit.transform, true);
+                                                        moveToContainer.SetActive(true);
 
-                                                    found = true;
+                                                        found = true;
+                                                    }
                                                 }
                                             }
                                         }
                                     }
                                 }
+
+
                             }
-
-
+                            if (found)
+                                break;
                         }
-                        if (found)
-                            break;
+                        else
+                        {
+                            int nottileobn = 0;
+                        }
                     }
-                    else
+                    if (!found)
                     {
-                        int nottileobn = 0;
+                        int vvveyNotFoundException = 0;
                     }
-                }
-                if (!found)
-                {
-                    int vvveyNotFoundException = 0;
-                }
-            }*/
-        }
+                }*/
+            }
             /*
         if (otherUnit == null)
         {
@@ -286,30 +288,31 @@ public class Extractor1 : MonoBehaviour
             }
 
             int x = 0;*/
-        
 
-        /*
-        particleSource = hexGrid.MakeParticleSource("ExtractSource");
-        particleSource.transform.SetParent(sourceCell.transform, false);
 
-        Position to = move.Positions[0];
-        GroundCell targetCell = hexGrid.GroundCells[to];
+            /*
+            particleSource = hexGrid.MakeParticleSource("ExtractSource");
+            particleSource.transform.SetParent(sourceCell.transform, false);
 
-        ParticleSystemForceField particleTarget = hexGrid.MakeParticleTarget();
-        particleTarget.transform.SetParent(targetCell.transform, false);
+            Position to = move.Positions[0];
+            GroundCell targetCell = hexGrid.GroundCells[to];
 
-        Vector3 unitPos3 = particleTarget.transform.position;
-        unitPos3.y += 0.1f;
-        particleTarget.transform.position = unitPos3;
+            ParticleSystemForceField particleTarget = hexGrid.MakeParticleTarget();
+            particleTarget.transform.SetParent(targetCell.transform, false);
 
-        particleSource.externalForces.SetInfluence(0, particleTarget);
-        HexGrid.Destroy(particleTarget, 2.5f);
-        */
-        /*
-        if (otherUnit != null)
-        {
-            otherUnit.PartExtracted();
-        }*/
-        //particleSource.Play();
+            Vector3 unitPos3 = particleTarget.transform.position;
+            unitPos3.y += 0.1f;
+            particleTarget.transform.position = unitPos3;
+
+            particleSource.externalForces.SetInfluence(0, particleTarget);
+            HexGrid.Destroy(particleTarget, 2.5f);
+            */
+            /*
+            if (otherUnit != null)
+            {
+                otherUnit.PartExtracted();
+            }*/
+            //particleSource.Play();
+        }
     }
 }

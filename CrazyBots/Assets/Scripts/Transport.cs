@@ -1,25 +1,27 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class Transport : MonoBehaviour
+namespace Assets.Scripts
 {
-    internal Vector3 TargetPosition { get; set; }
-
-    internal HexGrid HexGrid { get; set; }
-
-    // Update is called once per frame
-    void Update()
+    public class Transport : MonoBehaviour
     {
-        if (TargetPosition != null)
-        {
-            float speed = 2.75f / HexGrid.GameSpeed;
-            float step = speed * Time.deltaTime;
+        internal Vector3 TargetPosition { get; set; }
 
-            transform.position = Vector3.MoveTowards(transform.position, TargetPosition, step);
-            if (transform.position == TargetPosition)
+        internal HexGrid HexGrid { get; set; }
+
+        // Update is called once per frame
+        void Update()
+        {
+            if (TargetPosition != null)
             {
-                Destroy(this.gameObject);
+                float speed = 2.75f / HexGrid.GameSpeed;
+                float step = speed * Time.deltaTime;
+
+                transform.position = Vector3.MoveTowards(transform.position, TargetPosition, step);
+                if (transform.position == TargetPosition)
+                {
+                    Destroy(this.gameObject);
+                }
             }
         }
     }

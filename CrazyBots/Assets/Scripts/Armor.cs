@@ -2,7 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Armor : MonoBehaviour
+namespace Assets.Scripts
 {
+    public class Armor : MonoBehaviour
+    {
 
+    }
 }

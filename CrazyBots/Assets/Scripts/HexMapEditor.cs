@@ -1,38 +1,47 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class HexMapEditor : MonoBehaviour {
+namespace Assets.Scripts
+{
+	public class HexMapEditor : MonoBehaviour
+	{
 
-	public Color[] colors;
+		public Color[] colors;
 
-	public HexGrid hexGrid;
+		public HexGrid hexGrid;
 
-	private Color activeColor;
+		private Color activeColor;
 
-	void Awake () {
-		SelectColor(0);
-	}
-
-	void Update () {
-		if (
-			Input.GetMouseButton(0) &&
-			!EventSystem.current.IsPointerOverGameObject()
-		) {
-			HandleInput();
+		void Awake()
+		{
+			SelectColor(0);
 		}
-	}
 
-	void HandleInput () {
+		void Update()
+		{
+			if (
+				Input.GetMouseButton(0) &&
+				!EventSystem.current.IsPointerOverGameObject()
+			)
+			{
+				HandleInput();
+			}
+		}
 
-		/*
-		Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-		RaycastHit hit;
-		if (Physics.Raycast(inputRay, out hit)) {
-			hexGrid.ColorCell(hit.point, activeColor);
-		}*/
-	}
+		void HandleInput()
+		{
 
-	public void SelectColor (int index) {
-		activeColor = colors[index];
+			/*
+			Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+			RaycastHit hit;
+			if (Physics.Raycast(inputRay, out hit)) {
+				hexGrid.ColorCell(hit.point, activeColor);
+			}*/
+		}
+
+		public void SelectColor(int index)
+		{
+			activeColor = colors[index];
+		}
 	}
 }

@@ -3,8 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Engine1 : MonoBehaviour
+
+namespace Assets.Scripts
 {
+    public class Engine1 : MonoBehaviour
+    {
 
 
+    }
 }

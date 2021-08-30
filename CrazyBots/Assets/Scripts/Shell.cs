@@ -2,153 +2,156 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Shell : MonoBehaviour
+namespace Assets.Scripts
 {
-    public ParticleSystem m_ExplosionParticles;
-
-    internal string TargetUnitId { get; set; }
-    internal HexGrid HexGrid { get; set; }
-
-    private UnitBase GetUnitFrameFromCollider(Collider other)
+    public class Shell : MonoBehaviour
     {
-        UnitBase unitBase = other.GetComponent<UnitBase>();
-        if (unitBase != null) return unitBase;
+        public ParticleSystem m_ExplosionParticles;
 
-        Transform transform = other.transform;
+        internal string TargetUnitId { get; set; }
+        internal HexGrid HexGrid { get; set; }
 
-        while (transform.parent != null)
+        private UnitBase GetUnitFrameFromCollider(Collider other)
         {
-            unitBase = transform.parent.GetComponent<UnitBase>();
+            UnitBase unitBase = other.GetComponent<UnitBase>();
             if (unitBase != null) return unitBase;
-            if (transform.parent == null)
-                break;
-            transform = transform.parent;
-        }
-        return null;
-    }
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        Destroy(gameObject);
+            Transform transform = other.transform;
 
-        Collider other = collision.collider;
-        if (other == null || string.IsNullOrEmpty(other.name))
-            return;
-
-        Rigidbody otherRigid = other.GetComponent<Rigidbody>();
-        if (otherRigid != null)
-        {
-            Vector3 velo = otherRigid.velocity;
-        }
-
-
-        UnitBase hitUnit = GetUnitFrameFromCollider(other);
-
-        bool targetHit = false;
-        if (other.name.StartsWith("Ground"))
-        {
-            targetHit = true;
-
-            if (TargetUnitId != "Dirt" || TargetUnitId != "Destructable")
+            while (transform.parent != null)
             {
-                //if (HexGrid.BaseUnits.ContainsKey(TargetUnitId))
-                //    hitUnit = HexGrid.BaseUnits[TargetUnitId];
+                unitBase = transform.parent.GetComponent<UnitBase>();
+                if (unitBase != null) return unitBase;
+                if (transform.parent == null)
+                    break;
+                transform = transform.parent;
+            }
+            return null;
+        }
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            Destroy(gameObject);
+
+            Collider other = collision.collider;
+            if (other == null || string.IsNullOrEmpty(other.name))
+                return;
+
+            Rigidbody otherRigid = other.GetComponent<Rigidbody>();
+            if (otherRigid != null)
+            {
+                Vector3 velo = otherRigid.velocity;
+            }
+
+
+            UnitBase hitUnit = GetUnitFrameFromCollider(other);
+
+            bool targetHit = false;
+            if (other.name.StartsWith("Ground"))
+            {
+                targetHit = true;
+
+                if (TargetUnitId != "Dirt" || TargetUnitId != "Destructable")
+                {
+                    //if (HexGrid.BaseUnits.ContainsKey(TargetUnitId))
+                    //    hitUnit = HexGrid.BaseUnits[TargetUnitId];
+                }
+            }
+            else if (hitUnit != null && hitUnit.UnitId == TargetUnitId)
+            {
+                targetHit = true;
+            }
+            else
+            {
+                targetHit = true;
+            }
+            if (targetHit)
+            {
+                /*
+                if (hitUnit != null)
+                {
+                    hitUnit.HitByShell(collision);
+                }*/
+                m_ExplosionParticles.transform.parent = null;
+
+                // Play the particle system.
+                m_ExplosionParticles.Play();
+                Destroy(m_ExplosionParticles.gameObject, m_ExplosionParticles.main.duration);
             }
         }
-        else if (hitUnit != null && hitUnit.UnitId == TargetUnitId)
+
+        private void OnTriggerEnter(Collider other)
         {
-            targetHit = true;
-        }
-        else
-        {
-            targetHit = true;
-        }
-        if (targetHit)
-        {
+
+            if (other == null || string.IsNullOrEmpty(other.name))
+                return;
             /*
-            if (hitUnit != null)
+            Rigidbody otherRigid = other.GetComponent<Rigidbody>();
+            if (otherRigid != null)
             {
-                hitUnit.HitByShell(collision);
+                Vector3 velo = otherRigid.velocity;
             }*/
-            m_ExplosionParticles.transform.parent = null;
-
-            // Play the particle system.
-            m_ExplosionParticles.Play();
-            Destroy(m_ExplosionParticles.gameObject, m_ExplosionParticles.main.duration);
-        }
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        
-        if (other == null || string.IsNullOrEmpty(other.name))
-            return;
-        /*
-        Rigidbody otherRigid = other.GetComponent<Rigidbody>();
-        if (otherRigid != null)
-        {
-            Vector3 velo = otherRigid.velocity;
-        }*/
 
 
-        UnitBase hitUnit = GetUnitFrameFromCollider(other);
-    
+            UnitBase hitUnit = GetUnitFrameFromCollider(other);
 
-        bool targetHit = false;
-        if (other.name.StartsWith("Ground"))
-        {
-            targetHit = true;
-            Destroy(gameObject);
 
-            if (TargetUnitId != "Dirt" || TargetUnitId != "Destructable")
+            bool targetHit = false;
+            if (other.name.StartsWith("Ground"))
             {
-                if (HexGrid.BaseUnits != null &&
-                    HexGrid.BaseUnits.ContainsKey(TargetUnitId))
-                    hitUnit = HexGrid.BaseUnits[TargetUnitId];
+                targetHit = true;
+                Destroy(gameObject);
+
+                if (TargetUnitId != "Dirt" || TargetUnitId != "Destructable")
+                {
+                    if (HexGrid.BaseUnits != null &&
+                        HexGrid.BaseUnits.ContainsKey(TargetUnitId))
+                        hitUnit = HexGrid.BaseUnits[TargetUnitId];
+                }
+            }
+            else if (hitUnit != null && hitUnit.UnitId == TargetUnitId)
+            {
+                targetHit = true;
+                Destroy(gameObject);
+            }
+            else
+            {
+            }
+            if (targetHit)
+            {
+
+                if (hitUnit != null)
+                {
+                    hitUnit.HitByShell();
+                }
+                m_ExplosionParticles.transform.parent = null;
+
+                // Play the particle system.
+                m_ExplosionParticles.Play();
+                Destroy(m_ExplosionParticles.gameObject, m_ExplosionParticles.main.duration);
+
+                /* overkill
+                ParticleSystem particleTarget = UnitFrame.HexGrid.MakeParticleSource("TankExplosion");
+                particleTarget.transform.position = transform.position;
+
+                Vector3 unitPos3 = particleTarget.transform.position;
+                unitPos3.y += 1.1f;
+                particleTarget.transform.position = unitPos3;
+
+                HexGrid.Destroy(particleTarget, 2.5f);
+
+                particleTarget.Play();
+                */
+
             }
         }
-        else if (hitUnit != null && hitUnit.UnitId == TargetUnitId)
+
+        // Update is called once per frame
+        void Update()
         {
-            targetHit = true;
-            Destroy(gameObject);
+            //transform.rotation = Random.rotation;
+            transform.Rotate(Vector3.right); // * Time.deltaTime);
+            transform.Rotate(Vector3.up); // * Time.deltaTime);
         }
-        else
-        {
-        }
-        if (targetHit)
-        {
-            
-            if (hitUnit != null)
-            {
-                hitUnit.HitByShell();
-            }
-            m_ExplosionParticles.transform.parent = null;
-
-            // Play the particle system.
-            m_ExplosionParticles.Play();
-            Destroy(m_ExplosionParticles.gameObject, m_ExplosionParticles.main.duration);
-
-            /* overkill
-            ParticleSystem particleTarget = UnitFrame.HexGrid.MakeParticleSource("TankExplosion");
-            particleTarget.transform.position = transform.position;
-
-            Vector3 unitPos3 = particleTarget.transform.position;
-            unitPos3.y += 1.1f;
-            particleTarget.transform.position = unitPos3;
-
-            HexGrid.Destroy(particleTarget, 2.5f);
-
-            particleTarget.Play();
-            */
-
-        }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        //transform.rotation = Random.rotation;
-        transform.Rotate(Vector3.right); // * Time.deltaTime);
-        transform.Rotate(Vector3.up); // * Time.deltaTime);
     }
 }

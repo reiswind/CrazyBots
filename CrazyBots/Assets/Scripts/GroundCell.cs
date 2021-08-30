@@ -3,208 +3,210 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GroundCell : MonoBehaviour
+namespace Assets.Scripts
 {
-    public Position Pos { get; set; }
-
-    public HexGrid HexGrid { get; set; }
-
-    public MoveUpdateGroundStat GroundStat { get; set; }
-
-    public bool ShowPheromones { get; set; }
-
-    internal List<UnitCommand> UnitCommands { get; private set; }
-
-    public List<GameObject> GameObjects { get; private set; }
-
-    private GameObject markerEnergy;
-    private GameObject markerToHome;
-    private GameObject markerToMineral;
-    private GameObject markerToEnemy;
-
-    public GroundCell()
+    public class GroundCell : MonoBehaviour
     {
-        GameObjects = new List<GameObject>();
+        public Position Pos { get; set; }
 
-        UnitCommands = new List<UnitCommand>();
-        ShowPheromones = true;
-    }
+        public HexGrid HexGrid { get; set; }
 
-    private void CreateMarker()
-    {
-        if (markerEnergy == null)
+        public MoveUpdateGroundStat GroundStat { get; set; }
+
+        public bool ShowPheromones { get; set; }
+
+        internal List<UnitCommand> UnitCommands { get; private set; }
+
+        public List<GameObject> GameObjects { get; private set; }
+
+        private GameObject markerEnergy;
+        private GameObject markerToHome;
+        private GameObject markerToMineral;
+        private GameObject markerToEnemy;
+
+        public GroundCell()
         {
-            GameObject markerPrefab = HexGrid.GetTerrainResource("Marker");
-            markerEnergy = Instantiate(markerPrefab, transform, false);
-            markerEnergy.name = name + "-Energy";
+            GameObjects = new List<GameObject>();
 
-            markerToHome = Instantiate(markerPrefab, transform, false);
-            markerToHome.name = name + "-Home";
-            MeshRenderer meshRenderer = markerToHome.GetComponent<MeshRenderer>();
-            meshRenderer.material.color = new Color(0, 0, 0.6f);
-
-            markerToMineral = Instantiate(markerPrefab, transform, false);
-            markerToMineral.name = name + "-Mineral";
-            meshRenderer = markerToMineral.GetComponent<MeshRenderer>();
-            meshRenderer.material.color = new Color(0, 0.4f, 0);
-
-            markerToEnemy = Instantiate(markerPrefab, transform, false);
-            markerToEnemy.name = name + "-Mineral";
-            meshRenderer = markerToEnemy.GetComponent<MeshRenderer>();
-            meshRenderer.material.color = new Color(0.4f, 0, 0);
+            UnitCommands = new List<UnitCommand>();
+            ShowPheromones = true;
         }
-    }
 
-    internal void UpdatePheromones (MapPheromone mapPheromone)
-    {
-        if (!ShowPheromones)
-            return;
-        if (mapPheromone == null)
-        {
-            if (markerEnergy != null)
-            {
-                markerEnergy.transform.position = transform.position;
-            }
-            if (markerToHome != null)
-            {
-                markerToHome.transform.position = transform.position;
-            }
-            if (markerToMineral != null)
-            {
-                markerToMineral.transform.position = transform.position;
-            }
-            if (markerToEnemy != null)
-            {
-                markerToEnemy.transform.position = transform.position;
-            }
-        }
-        else
+        private void CreateMarker()
         {
             if (markerEnergy == null)
             {
-                CreateMarker();
-            }
-            
-            /*
-            if (mapPheromone.IntensityToWork > 0)
-            {
-                Vector3 position = transform.position;
-                position.y += 0.054f + (0.2f * mapPheromone.IntensityToWork);
-                position.x += 0.1f;
-                markerToHome.transform.position = position;
-            }
-            else
-            {
-                Vector3 position = transform.position;
-                position.y -= 1;
-                position.x += 0.1f;
-                markerToHome.transform.position = position;
-            }*/
-            
-            /*
-            if (mapPheromone.IntensityToMineral > 0)
-            {
-                Vector3 position = transform.position;
-                position.y += 0.054f + (0.2f * mapPheromone.IntensityToMineral);
-                position.x += 0.2f;
-                markerToMineral.transform.position = position;
-            }
-            else
-            {
-                Vector3 position = transform.position;
-                position.y -= 1;
-                position.x += 0.2f;
-                markerToMineral.transform.position = position;
-            }*/
-           
-            /*
-            if (mapPheromone.IntensityToEnemy > 0)
-            {
-                Vector3 position = transform.position;
-                position.y += 0.054f + (0.2f * mapPheromone.IntensityToEnemy);
-                position.x += 0.3f;
-                markerToEnemy.transform.position = position;
-            }
-            else
-            {
-                Vector3 position = transform.position;
-                position.y -= 1;
-                position.x += 0.3f;
-                markerToEnemy.transform.position = position;
-            }*/
-            
-            /*
-            float highestEnergy = -1;
-            int highestPlayerId = 0;
+                GameObject markerPrefab = HexGrid.GetTerrainResource("Marker");
+                markerEnergy = Instantiate(markerPrefab, transform, false);
+                markerEnergy.name = name + "-Energy";
 
-            foreach (MapPheromoneItem mapPheromoneItem in mapPheromone.PheromoneItems)
+                markerToHome = Instantiate(markerPrefab, transform, false);
+                markerToHome.name = name + "-Home";
+                MeshRenderer meshRenderer = markerToHome.GetComponent<MeshRenderer>();
+                meshRenderer.material.color = new Color(0, 0, 0.6f);
+
+                markerToMineral = Instantiate(markerPrefab, transform, false);
+                markerToMineral.name = name + "-Mineral";
+                meshRenderer = markerToMineral.GetComponent<MeshRenderer>();
+                meshRenderer.material.color = new Color(0, 0.4f, 0);
+
+                markerToEnemy = Instantiate(markerPrefab, transform, false);
+                markerToEnemy.name = name + "-Mineral";
+                meshRenderer = markerToEnemy.GetComponent<MeshRenderer>();
+                meshRenderer.material.color = new Color(0.4f, 0, 0);
+            }
+        }
+
+        internal void UpdatePheromones(MapPheromone mapPheromone)
+        {
+            if (!ShowPheromones)
+                return;
+            if (mapPheromone == null)
             {
-                if (mapPheromoneItem.PheromoneType == Engine.Ants.PheromoneType.Energy)
+                if (markerEnergy != null)
                 {
-                    if (mapPheromoneItem.Intensity >= highestEnergy)
-                    {
-                        highestEnergy = mapPheromoneItem.Intensity;
-                        highestPlayerId = mapPheromoneItem.PlayerId;
-                    }
+                    markerEnergy.transform.position = transform.position;
+                }
+                if (markerToHome != null)
+                {
+                    markerToHome.transform.position = transform.position;
+                }
+                if (markerToMineral != null)
+                {
+                    markerToMineral.transform.position = transform.position;
+                }
+                if (markerToEnemy != null)
+                {
+                    markerToEnemy.transform.position = transform.position;
                 }
             }
-            
-            if (highestEnergy > 0)
+            else
             {
-                Vector3 position = transform.position;
-                position.y += 0.054f + (0.2f * highestEnergy);
-                markerToEnemy.transform.position = position;
-                //UnitBase.SetPlayerColor(HexGrid, highestPlayerId, markerToEnemy);
+                if (markerEnergy == null)
+                {
+                    CreateMarker();
+                }
+
+                /*
+                if (mapPheromone.IntensityToWork > 0)
+                {
+                    Vector3 position = transform.position;
+                    position.y += 0.054f + (0.2f * mapPheromone.IntensityToWork);
+                    position.x += 0.1f;
+                    markerToHome.transform.position = position;
+                }
+                else
+                {
+                    Vector3 position = transform.position;
+                    position.y -= 1;
+                    position.x += 0.1f;
+                    markerToHome.transform.position = position;
+                }*/
+
+                /*
+                if (mapPheromone.IntensityToMineral > 0)
+                {
+                    Vector3 position = transform.position;
+                    position.y += 0.054f + (0.2f * mapPheromone.IntensityToMineral);
+                    position.x += 0.2f;
+                    markerToMineral.transform.position = position;
+                }
+                else
+                {
+                    Vector3 position = transform.position;
+                    position.y -= 1;
+                    position.x += 0.2f;
+                    markerToMineral.transform.position = position;
+                }*/
+
+                /*
+                if (mapPheromone.IntensityToEnemy > 0)
+                {
+                    Vector3 position = transform.position;
+                    position.y += 0.054f + (0.2f * mapPheromone.IntensityToEnemy);
+                    position.x += 0.3f;
+                    markerToEnemy.transform.position = position;
+                }
+                else
+                {
+                    Vector3 position = transform.position;
+                    position.y -= 1;
+                    position.x += 0.3f;
+                    markerToEnemy.transform.position = position;
+                }*/
+
+                /*
+                float highestEnergy = -1;
+                int highestPlayerId = 0;
+
+                foreach (MapPheromoneItem mapPheromoneItem in mapPheromone.PheromoneItems)
+                {
+                    if (mapPheromoneItem.PheromoneType == Engine.Ants.PheromoneType.Energy)
+                    {
+                        if (mapPheromoneItem.Intensity >= highestEnergy)
+                        {
+                            highestEnergy = mapPheromoneItem.Intensity;
+                            highestPlayerId = mapPheromoneItem.PlayerId;
+                        }
+                    }
+                }
+
+                if (highestEnergy > 0)
+                {
+                    Vector3 position = transform.position;
+                    position.y += 0.054f + (0.2f * highestEnergy);
+                    markerToEnemy.transform.position = position;
+                    //UnitBase.SetPlayerColor(HexGrid, highestPlayerId, markerToEnemy);
+                }
+                else
+                {
+                    Vector3 position = transform.position;
+                    position.y -= 1;
+                    markerToEnemy.transform.position = position;
+                }
+                */
+            }
+        }
+
+        private string currentMaterialName;
+
+        internal void SetGroundMaterial(TileObject tileObject)
+        {
+            /*
+            for (int i = 0; i < unit.transform.childCount; i++)
+            {
+                GameObject child = unit.transform.GetChild(i).gameObject;
+                if (!child.name.StartsWith("Mineral") && !child.name.StartsWith("Ammo"))
+                    SetPlayerColor(hexGrid, playerId, child);
+            }*/
+
+            string materialName;
+            if (GroundStat.IsUnderwater)
+            {
+                materialName = "Water";
             }
             else
             {
-                Vector3 position = transform.position;
-                position.y -= 1;
-                markerToEnemy.transform.position = position;
-            }
-            */
-        }
-    }
+                materialName = "Rock";
 
-    private string currentMaterialName;
+                if (tileObject.TileObjectType == TileObjectType.Gras)
+                {
+                    materialName = "Grass";
+                }
+                else if (tileObject.TileObjectType == TileObjectType.Bush)
+                {
+                    materialName = "GrassDark";
+                }
+                else if (tileObject.TileObjectType == TileObjectType.Tree)
+                {
+                    materialName = "Wood";
+                }
+                else
+                {
+                    int x = 0;
+                }
 
-    internal void SetGroundMaterial(TileObject tileObject)
-    {
-        /*
-        for (int i = 0; i < unit.transform.childCount; i++)
-        {
-            GameObject child = unit.transform.GetChild(i).gameObject;
-            if (!child.name.StartsWith("Mineral") && !child.name.StartsWith("Ammo"))
-                SetPlayerColor(hexGrid, playerId, child);
-        }*/
 
-        string materialName;
-        if (GroundStat.IsUnderwater)
-        {
-            materialName = "Water";
-        }
-        else
-        {
-            materialName = "Rock";
-                
-            if (tileObject.TileObjectType == TileObjectType.Gras)
-            {
-                materialName = "Grass";
-            }
-            else if (tileObject.TileObjectType == TileObjectType.Bush)
-            {
-                materialName = "GrassDark";
-            }
-            else if (tileObject.TileObjectType == TileObjectType.Tree)
-            {
-                materialName = "Wood";
-            }
-            else
-            {
-                int x=0;
-            }
-                
-            
                 /*
                 if (Tile.IsHill())
                 {
@@ -246,249 +248,141 @@ public class GroundCell : MonoBehaviour
                 {
                     materialName = "";
                 }*/
-                
-        }
 
-        if (currentMaterialName == null || currentMaterialName != materialName)
-        {
-            currentMaterialName = materialName;
+            }
 
-            MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
-            if (meshRenderer != null)
+            if (currentMaterialName == null || currentMaterialName != materialName)
             {
-                Material[] newMaterials = new Material[meshRenderer.materials.Length];
-                for (int i = 0; i < meshRenderer.materials.Length; i++)
+                currentMaterialName = materialName;
+
+                MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
+                if (meshRenderer != null)
                 {
-                    Material material = meshRenderer.materials[i];
-                    if (!material.name.StartsWith("Normal"))
+                    Material[] newMaterials = new Material[meshRenderer.materials.Length];
+                    for (int i = 0; i < meshRenderer.materials.Length; i++)
                     {
-                        Destroy(material);
-                        newMaterials[i] = HexGrid.GetMaterial(materialName);
+                        Material material = meshRenderer.materials[i];
+                        if (!material.name.StartsWith("Normal"))
+                        {
+                            Destroy(material);
+                            newMaterials[i] = HexGrid.GetMaterial(materialName);
+                        }
+                        else
+                        {
+                            newMaterials[i] = meshRenderer.materials[i];
+                            //Destroy(material);
+                            //newMaterials[i] = HexGrid.GetMaterial("GroundMat");
+                        }
                     }
-                    else
-                    {
-                        newMaterials[i] = meshRenderer.materials[i];
-                        //Destroy(material);
-                        //newMaterials[i] = HexGrid.GetMaterial("GroundMat");
-                    }
+                    meshRenderer.materials = newMaterials;
                 }
-                meshRenderer.materials = newMaterials;
             }
         }
-    }
 
-
-    internal void UpdateGround()
-    {
-        if (GroundStat.Owner == 0 || !GroundStat.IsBorder || GroundStat.IsUnderwater)
+        internal void UpdateGround()
         {
-            if (markerEnergy != null)
+            if (GroundStat.Owner == 0 || !GroundStat.IsBorder || GroundStat.IsUnderwater)
             {
+                if (markerEnergy != null)
+                {
+                    Vector3 position = transform.position;
+                    position.y -= 1;
+                    markerEnergy.transform.position = position;
+                }
+            }
+            else
+            {
+                if (markerEnergy == null)
+                {
+                    CreateMarker();
+                }
+                float highestEnergy = 1;
+
                 Vector3 position = transform.position;
-                position.y -= 1;
+                position.y += 0.054f + (0.2f * highestEnergy);
                 markerEnergy.transform.position = position;
+                UnitBase.SetPlayerColor(HexGrid, GroundStat.Owner, markerEnergy);
             }
-        }
-        else
-        {
-            if (markerEnergy == null)
-            {
-                CreateMarker();
-            }
-            float highestEnergy = 1;
 
-            Vector3 position = transform.position;
-            position.y += 0.054f + (0.2f * highestEnergy);
-            markerEnergy.transform.position = position;
-            UnitBase.SetPlayerColor(HexGrid, GroundStat.Owner, markerEnergy);
+            Vector3 vector3 = transform.localPosition;
+            vector3.y = GroundStat.Height + 0.3f;
+            transform.localPosition = vector3;
+
+            CreateDestructables();
         }
 
-        Vector3 vector3 = transform.localPosition;
-        vector3.y = GroundStat.Height + 0.3f;
-        transform.localPosition = vector3;
-
-        // This is for Web
-        //Tile.Metal = stat.Minerals;                
-        //Tile.NumberOfDestructables = stat.NumberOfDestructables;
-        //Tile.NumberOfObstacles = stat.NumberOfObstacles;
-
-
-        //SetGroundMaterial();
-        //CreateObstacles();
-        CreateDestructables();
-        //CreateMinerals();
-
-    }
-
-    internal void CreateDestructables()
-    {
-        List<GameObject> allTileObjects = new List<GameObject>();
-        allTileObjects.AddRange(GameObjects);
-        bool noc = true;
-
-        foreach (TileObject tileObject in GroundStat.TileObjects)
+        internal void CreateDestructables()
         {
-            if (tileObject.Direction == Direction.C)
+            List<GameObject> allTileObjects = new List<GameObject>();
+            allTileObjects.AddRange(GameObjects);
+
+            foreach (TileObject tileObject in GroundStat.TileObjects)
             {
-                SetGroundMaterial(tileObject);
-                noc = false;
-            }
-            else
-            {
-                bool found = false;
-                foreach (GameObject destructable in allTileObjects)
+                if (tileObject.Direction == Direction.C)
                 {
-                    if (destructable.name == tileObject.TileObjectType.ToString())
+                    SetGroundMaterial(tileObject);
+                }
+                else
+                {
+                    bool found = false;
+                    foreach (GameObject destructable in allTileObjects)
                     {
-                        found = true;
-                        allTileObjects.Remove(destructable);
-                        break;
+                        if (destructable.name == tileObject.TileObjectType.ToString())
+                        {
+                            found = true;
+                            allTileObjects.Remove(destructable);
+                            break;
+                        }
+                    }
+                    if (!found)
+                    {
+                        GameObject destructable;
+
+                        destructable = HexGrid.CreateDestructable(transform, tileObject);
+                        destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
+                        destructable.name = tileObject.TileObjectType.ToString();
+
+                        GameObjects.Add(destructable);
                     }
                 }
-                if (!found)
+            }
+
+            foreach (GameObject destructable in allTileObjects)
+            {
+                HexGrid.Destroy(destructable);
+                GameObjects.Remove(destructable);
+            }
+        }
+
+        private Light selectionLight;
+
+        public bool IsSelected { get; private set; }
+        internal void SetSelected(bool selected)
+        {
+            if (IsSelected != selected)
+            {
+                IsSelected = selected;
+
+                if (IsSelected)
                 {
-                    GameObject destructable;
-
-                    destructable = HexGrid.CreateDestructable(transform, tileObject);
-                    destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
-                    destructable.name = tileObject.TileObjectType.ToString();
-
-                    GameObjects.Add(destructable);
+                    selectionLight = HexGrid.CreateSelectionLight(gameObject);
+                }
+                else
+                {
+                    Destroy(selectionLight);
                 }
             }
         }
-        if (noc)
+
+        public bool IsAttack { get; private set; }
+        internal void SetAttack(bool selected)
         {
-            int x=0;
-        }
-        foreach (GameObject destructable in allTileObjects)
-        {
-            HexGrid.Destroy(destructable);
-            GameObjects.Remove(destructable);
-        }
-    }
-
-
-    /*
-    internal void CreateObstacles()
-    {
-        int numberOfObstacles;
-        if (NextMove != null && NextMove.Stats.MoveUpdateGroundStat != null)
-            numberOfObstacles = NextMove.Stats.MoveUpdateGroundStat.NumberOfObstacles;
-        else
-            numberOfObstacles = Tile.NumberOfObstacles;
-
-        while (obstacles.Count < numberOfObstacles)
-        {
-            Vector3 unitPos3 = transform.position;
-
-            GameObject obstacle;
-
-            obstacle = HexGrid.CreateObstacle(transform);
-
-            obstacle.transform.Rotate(Vector3.up, Random.Range(0, 360));
-            obstacle.transform.position = unitPos3;
-
-            obstacles.Add(obstacle);
-        }
-        while (obstacles.Count > numberOfObstacles)
-        {
-            GameObject obstacle = obstacles[0];
-            HexGrid.Destroy(obstacle);
-            obstacles.Remove(obstacle);
-        }
-    }
-    */
-    private Light selectionLight;
-
-    public bool IsSelected { get; private set; }
-    internal void SetSelected(bool selected)
-    {
-        if (IsSelected != selected)
-        {
-            IsSelected = selected;
-
-            if (IsSelected)
+            if (IsAttack != selected)
             {
-                selectionLight = HexGrid.CreateSelectionLight(gameObject);
-            }
-            else
-            {
-                Destroy(selectionLight);
+                IsAttack = selected;
+
+                transform.Find("Attack").gameObject.SetActive(IsAttack);
             }
         }
     }
-
-    public bool IsAttack { get; private set; }
-    internal void SetAttack(bool selected)
-    {
-        if (IsAttack != selected)
-        {
-            IsAttack = selected;
-
-            transform.Find("Attack").gameObject.SetActive(IsAttack);
-        }
-    }
-
-    /*
-
-    internal void CreateMinerals()
-    {
-        int numberOfMinerals = 0;
-
-        if (numberOfMinerals >= 20)
-        {
-            if (mineralObstacle == null)
-            {
-                mineralObstacle = HexGrid.CreateObstacle(transform);
-                Material crystalMaterial = HexGrid.GetMaterial("CrystalMat");
-
-                MeshRenderer meshRenderer = mineralObstacle.GetComponent<MeshRenderer>();
-                meshRenderer.material = crystalMaterial;
-                mineralObstacle.transform.Rotate(Vector3.up, Random.Range(0, 360));
-
-                mineralObstacle.transform.position = transform.position;
-            }
-
-            while (minerals.Count > 0)
-            {
-                GameObject crystal = minerals[0];
-                HexGrid.Destroy(crystal);
-                minerals.Remove(crystal);
-            }
-        }
-        else
-        {
-            if (numberOfMinerals < 20 && mineralObstacle != null)
-            {
-                HexGrid.Destroy(mineralObstacle);
-                mineralObstacle = null;
-            }
-
-            while (minerals.Count < numberOfMinerals)
-            {
-                Vector2 randomPos = Random.insideUnitCircle;
-
-                Vector3 unitPos3 = transform.position;
-                unitPos3.x += (randomPos.x * 0.7f);
-                unitPos3.z += (randomPos.y * 0.8f);
-                unitPos3.y += 0.13f; // 
-
-                GameObject crystalResource = HexGrid.GetTerrainResource("Crystal");
-                GameObject crystal = Instantiate(crystalResource, transform, false);
-
-                crystal.transform.SetPositionAndRotation(unitPos3, Random.rotation);
-
-                minerals.Add(crystal);
-            }
-            while (minerals.Count > numberOfMinerals)
-            {
-                GameObject crystal = minerals[0];
-
-                HexGrid.Destroy(crystal);
-
-                minerals.Remove(crystal);
-            }
-        }
-    }*/
 }
