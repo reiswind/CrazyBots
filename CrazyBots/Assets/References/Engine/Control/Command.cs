@@ -265,7 +265,7 @@ namespace Engine.Control
                 // Find all extractors and do not move units that are in extraction range
                 foreach (PlayerUnit playerUnit in AssigendPlayerUnits)
                 {
-                    if (playerUnit.Unit.Engine == null && playerUnit.Unit.Extractor != null && playerUnit.Unit.Extractor.CanExtractMinerals)
+                    if (playerUnit.Unit.Engine == null && playerUnit.Unit.Extractor != null && playerUnit.Unit.Extractor.CanExtract)
                     {
                         DispatcherRequestExtract dispatcherRequestExtract = new DispatcherRequestExtract();
 
@@ -323,7 +323,7 @@ namespace Engine.Control
                     {
                         foreach (PlayerUnit playerUnit in cmd.AssigendPlayerUnits)
                         {
-                            if (playerUnit.Unit.Engine == null && playerUnit.Unit.Extractor != null && playerUnit.Unit.Extractor.CanExtractMinerals)
+                            if (playerUnit.Unit.Engine == null && playerUnit.Unit.Extractor != null && playerUnit.Unit.Extractor.CanExtract)
                             {
                                 // Reassign this unit, but only if this unit is still assigend (avoid duplicates)
                                 if (AssignedUnits.Contains(unitToExtract.Unit.UnitId))
@@ -368,7 +368,7 @@ namespace Engine.Control
                 {
                     foreach (PlayerUnit playerUnit in commandSource.Child.AssigendPlayerUnits)
                     {
-                        if (playerUnit.Unit.Engine == null && playerUnit.Unit.Extractor != null && playerUnit.Unit.Extractor.CanExtractMinerals)
+                        if (playerUnit.Unit.Engine == null && playerUnit.Unit.Extractor != null && playerUnit.Unit.Extractor.CanExtract)
                         {
                             // Reassign this unit, but only if this unit is still assigend (avoid duplicates)
                             return commandSource.Child;

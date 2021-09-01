@@ -11,6 +11,12 @@ namespace Assets.Scripts
         {
             bool found;
 
+            if (move.Stats.MoveUpdateGroundStat.TileObjects.Count == 12)
+            {
+                int x = 0;
+            }
+
+
             // Find the extracted tileobjects
             foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
             {
@@ -85,6 +91,7 @@ namespace Assets.Scripts
                             {
                                 foreach (UnitBaseTileObject sourceTileObject in otherUnitBasePart.TileObjects)
                                 {
+                                    /*
                                     if (otherUnitBasePart.TileObjects != null)
                                     {
                                         foreach (UnitBaseTileObject otherTileObject in otherUnitBasePart.TileObjects)
@@ -96,7 +103,7 @@ namespace Assets.Scripts
                                                 transitObject.GameObject = otherTileObject.Part;
                                                 transitObject.TargetPosition = transform.position;
                                                 transitObject.DestroyAtArrival = true;
-                                                unit.AddTransitTileObject(transitObject);*/
+                                                unit.AddTransitTileObject(transitObject);* /
 
                                                 found = true;
                                                 break;
@@ -104,10 +111,11 @@ namespace Assets.Scripts
                                         }
                                         if (found)
                                             break;
-                                    }
+                                    }*/
 
                                     if (tileObject.TileObjectType == sourceTileObject.TileObject.TileObjectType)
                                     {
+                                        //otherUnitBasePart.
                                         otherUnitBasePart.ClearContainer();
 
                                         otherUnitBasePart.TileObjects.Remove(sourceTileObject);

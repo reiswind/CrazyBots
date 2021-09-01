@@ -38,7 +38,6 @@ namespace Assets.Scripts
     {
         public UnitBase()
         {
-
             UnitCommands = new List<UnitCommand>();
             UnitBaseParts = new List<UnitBasePart>();
             AboveGround = 0f;
@@ -99,6 +98,15 @@ namespace Assets.Scripts
 
                         float speed = 2.0f / HexGrid.GameSpeed;
                         float step = speed * Time.deltaTime;
+
+                        MeshRenderer mesh = transitObject.GameObject.GetComponent<MeshRenderer>();
+                        if (mesh.bounds.size.y > 0.3f)
+                        {
+                            Vector3 scaleChange;
+                            scaleChange = new Vector3(-0.002f, -0.002f, -0.002f);
+        
+                            transitObject.GameObject.transform.localScale += scaleChange;
+                        }
 
                         transitObject.GameObject.transform.position = Vector3.MoveTowards(transitObject.GameObject.transform.position, vector3, step);
                         if (transitObject.GameObject.transform.position == transitObject.TargetPosition)
@@ -278,6 +286,10 @@ namespace Assets.Scripts
         {
             if (stats != null)
             {
+                if (IsActive && stats.Power == 0)
+                {
+                    DectivateUnit();
+                }
                 MoveUpdateStats = stats;
                 UpdateParts();
             }
@@ -320,7 +332,7 @@ namespace Assets.Scripts
                 SetPlayerColor(HexGrid, PlayerId, newPart);
             }
             Destroy(part.gameObject);
-
+            
             Rigidbody rigidbody = newPart.GetComponent<Rigidbody>();
             if (rigidbody != null)
             {
@@ -691,8 +703,6 @@ namespace Assets.Scripts
                 return;
 
             GameObject lastObject = null;
-
-
             GameObject foundation = null;
 
             foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
@@ -721,11 +731,10 @@ namespace Assets.Scripts
                 }
                 else if (moveUpdateUnitPart.PartType == TileObjectType.PartReactor)
                 {
-                    if (moveUpdateUnitPart.Level == 1)
-                    {
+
                         lastObject = AddPart(foundation, lastObject, "ReactorPart", UnderConstruction);
                         AddBasePart(moveUpdateUnitPart, lastObject);
-                    }
+                    
                     if (moveUpdateUnitPart.Level == 2)
                     {
                         lastObject = AddPart(foundation, lastObject, "ReactorPart", UnderConstruction);
@@ -745,11 +754,9 @@ namespace Assets.Scripts
                 }
                 else if (moveUpdateUnitPart.PartType == TileObjectType.PartAssembler)
                 {
-                    if (moveUpdateUnitPart.Level == 1)
-                    {
                         lastObject = AddPart(foundation, lastObject, "AssemblerPart", UnderConstruction);
                         AddBasePart(moveUpdateUnitPart, lastObject);
-                    }
+                    
                     if (moveUpdateUnitPart.Level == 2)
                     {
                         lastObject = AddPart(foundation, lastObject, "AssemblerPart", UnderConstruction);
@@ -796,7 +803,11 @@ namespace Assets.Scripts
                 UnitBasePart unitBasePart = UnitBaseParts[i];
                 if (unitBasePart.PartType == hitPart)
                 {
-                    //unitBasePart.Level--;
+                    if (unitBasePart.Level == 0)
+                    {
+                        int x = 0;
+                    }
+                    unitBasePart.Level--;
                     if (unitBasePart.Level == 0)
                     {
                         /*
@@ -1137,7 +1148,42 @@ namespace Assets.Scripts
             }
 
             if (UnderConstruction && missingPartFound == false)
+            {
+                // First time complete
                 UnderConstruction = false;
+
+                ActivateUnit();
+            }
+        }
+
+        public bool IsActive { get; private set; }
+
+        public void ActivateUnit()
+        {
+            if (Engine != null)
+            {
+                GameObject activeAnimation = FindChildNyName(gameObject, "ActiveAnimation");
+                if (activeAnimation != null)
+                {
+                    activeAnimation.SetActive(true);
+                }
+                AboveGround = 0.1f;
+            }
+            IsActive = true;
+        }
+
+        public void DectivateUnit()
+        {
+            IsActive = false;
+            if (Engine != null)
+            {
+                GameObject activeAnimation = FindChildNyName(gameObject, "ActiveAnimation");
+                if (activeAnimation != null)
+                {
+                    activeAnimation.SetActive(false);
+                }
+                AboveGround = 0;
+            }
         }
     }
 

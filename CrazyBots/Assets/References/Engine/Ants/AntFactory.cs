@@ -36,7 +36,7 @@ namespace Engine.Ants
                 cntrlUnit.Assembler.BuildQueue == null)
             {
                 //if (workerInPercent < 10 || Control.NumberOfWorkers < (Control.NumberOfAssembler * 2))
-                if (Control.NumberOfWorkers < 2 || workerInPercent < 10)
+                if (Control.NumberOfWorkers < 3 || workerInPercent < 10)
                     addWorker = true;
 
                 //if (addWorker == false && Control.NumberOfAssembler < Control.MaxAssembler)
@@ -44,7 +44,7 @@ namespace Engine.Ants
 
                 int powerPerUnit = Control.MapPlayerInfo.TotalPower / Control.MapPlayerInfo.TotalUnits;
 
-                if (addWorker == false && totalMetalInPercent > 10 && powerPerUnit > 80 && Control.NumberOfFighter <= 9)
+                if (addWorker == false && totalMetalInPercent > 10 && powerPerUnit > 80 && Control.NumberOfFighter <= 4)
                     addFighter = true;
             }
             if (cntrlUnit.Assembler != null)

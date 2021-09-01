@@ -36,7 +36,7 @@ namespace Engine.Master
             return Unit.Game.Map.EnumerateTiles(Unit.Pos, MetalCollectionRange, false);
         }
 
-        public Dictionary<Position, TileWithDistance> CollectTilesWithMetal()
+        public Dictionary<Position, TileWithDistance> CollectExtractableTiles()
         {
             return Unit.Game.Map.EnumerateTiles(Unit.Pos, MetalCollectionRange, false, matcher: tile => 
             {
@@ -47,7 +47,7 @@ namespace Engine.Master
                         // Extract from enemy- Yeah!
                         return true;
                     }
-                    if (tile.Unit.Container != null && tile.Unit.Container.TileContainer.Minerals > 0)
+                    if (tile.Unit.Container != null && tile.Unit.Container.TileContainer.Count > 0)
                     {
                         // Extract from a friendly container
                         return true;
@@ -59,13 +59,14 @@ namespace Engine.Master
                     }
                 }
 
-                if (tile.Minerals > 0)
+                if (tile.Tile.HasTileObjects)
                     return true;
                 return false;
 
             });
         }
 
+        /*
         public int CountAvailableMetal()
         {
             int metal = 0;
@@ -75,7 +76,7 @@ namespace Engine.Master
                 metal += n.Minerals;
             }
             return metal;
-        }
+        }*/
 
 
         public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position> includedPositions, MoveFilter moveFilter)
@@ -143,12 +144,16 @@ namespace Engine.Master
             if (Unit.ExtractMe)
                 return;
 
-            Dictionary<Position, TileWithDistance> resultList = CollectTilesWithMetal();
+            Dictionary<Position, TileWithDistance> resultList = CollectExtractableTiles();
 
             foreach (TileWithDistance t in resultList.Values)
             {
                 foreach (TileObject tileObject in t.Tile.TileContainer.TileObjects)
                 {
+                    // Everything but gras
+                    if (tileObject.Direction == Direction.C && tileObject.TileObjectType != TileObjectType.Mineral)
+                        continue;
+
                     Move move = new Move();
 
                     move.MoveType = MoveType.Extract;
@@ -254,7 +259,7 @@ namespace Engine.Master
         {
             get
             {
-                return CanExtractMinerals || CanExtractDirt;
+                return CanExtractTileObject || CanExtractDirt;
             }
         }
 
@@ -268,7 +273,7 @@ namespace Engine.Master
                 if (Unit.Weapon != null)
                 {
                     // Dirt
-                    if (Unit.Weapon.TileContainer != null && Unit.Weapon.TileContainer.Loaded < Unit.Weapon.TileContainer.Capacity)
+                    if (Unit.Weapon.TileContainer != null && Unit.Weapon.TileContainer.Count < Unit.Weapon.TileContainer.Capacity)
                     {
                         return true;
                     }
@@ -277,7 +282,7 @@ namespace Engine.Master
             }
         }
 
-        public bool CanExtractMinerals
+        public bool CanExtractTileObject
         {
             get
             {
@@ -286,26 +291,26 @@ namespace Engine.Master
 
                 if (Unit.Assembler != null)
                 {
-                    if (Unit.Assembler.TileContainer != null && Unit.Assembler.TileContainer.Minerals < Unit.Assembler.TileContainer.Capacity)
+                    if (Unit.Assembler.TileContainer != null && Unit.Assembler.TileContainer.Count < Unit.Assembler.TileContainer.Capacity)
                     {
                         return true;
                     }
                 }
                 if (Unit.Reactor != null)
                 {
-                    if (Unit.Reactor.TileContainer != null && Unit.Reactor.TileContainer.Minerals < Unit.Reactor.TileContainer.Capacity)
+                    if (Unit.Reactor.TileContainer != null && Unit.Reactor.TileContainer.Count < Unit.Reactor.TileContainer.Capacity)
                     {
                         return true;
                     }
                 }
                 if (Unit.Weapon != null)
                 {
-                    if (Unit.Weapon.TileContainer != null && Unit.Weapon.TileContainer.Minerals < Unit.Weapon.TileContainer.Capacity)
+                    if (Unit.Weapon.TileContainer != null && Unit.Weapon.TileContainer.Count < Unit.Weapon.TileContainer.Capacity)
                     {
                         return true;
                     }
                 }
-                if (Unit.Container != null && Unit.Container.TileContainer.Minerals < Unit.Container.TileContainer.Capacity)
+                if (Unit.Container != null && Unit.Container.TileContainer.Count < Unit.Container.TileContainer.Capacity)
                 {
                     return true;
                 }                
@@ -359,7 +364,7 @@ namespace Engine.Master
                 if (otherUnit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
                 {
                     int capacity = Unit.CountCapacity();
-                    int minsInContainer = Unit.CountMineralsInContainer();
+                    int minsInContainer = Unit.CountTileObjectsInContainer();
 
                     capacity -= minsInContainer;
 

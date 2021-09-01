@@ -47,12 +47,12 @@ namespace Engine.Master
             Map.CreateZones();
             if (gameModel?.Players != null)
             {
-                int zoneCntr = 1;
+                //int zoneCntr = 1;
                 foreach (PlayerModel playerModel in gameModel.Players)
                 {
                     Player p = new Player(this, playerModel);
 
-                    p.StartZone = Map.Zones[zoneCntr++];
+                    p.StartZone = Map.Zones[playerModel.Zone];
 
                     Players.Add(playerModel.Id, p);
                 }
@@ -66,7 +66,7 @@ namespace Engine.Master
             for (int i = 0; i < Map.DefaultMinerals; i++)
             {
                 TileObject tileObject = new TileObject();
-                tileObject.Direction = Direction.N;
+                tileObject.Direction = Direction.C;
                 tileObject.TileObjectType = TileObjectType.Mineral;
 
                 Map.DistributeTileObject(tileObject);
@@ -651,14 +651,14 @@ namespace Engine.Master
                             List<TileObject> tileObjects = new List<TileObject>();
                             foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
                             {
-                                if (tileObject.TileObjectType == TileObjectType.Mineral)
+                                if (TileObject.ConvertTileObjectIntoMineral(tileObject.TileObjectType))
                                 {
+                                    tileObject.TileObjectType = TileObjectType.Mineral;
+                                    tileObject.Direction = Direction.C;
                                     tileObjects.Add(tileObject);
                                 }
                                 else
                                 {
-                                    // Extract everything else into minerals
-                                    tileObject.TileObjectType = TileObjectType.Mineral;
                                     tileObjects.Add(tileObject);
                                 }
                             }
@@ -829,6 +829,7 @@ namespace Engine.Master
 
                     // Part turns into mineral on ground
                     hitPartTileObject.TileObjectType = TileObjectType.Mineral;
+                    hitPartTileObject.Direction = Direction.C;
                     targetTile.TileContainer.Add(hitPartTileObject);
 
                     if (targetUnit.IsDead())
@@ -1531,9 +1532,9 @@ namespace Engine.Master
                     return returnMoves;
                 }
 
-                if (MoveNr == 23)
+                if (MoveNr == 7)
                 {
-
+                    int x = 0;
                 }
 
                 changedUnits.Clear();
@@ -1544,13 +1545,15 @@ namespace Engine.Master
                 {
                     zone.CreateTerrainTile(Map);
                 }*/
+
+                /*
                 MapInfo mapInfo1 = new MapInfo();
                 mapInfo1.ComputeMapInfo(this, null);
 
                 if (mapInfo != null && mapInfo1.TotalMetal != mapInfo.TotalMetal)
                 {
                     
-                }
+                }*/
 
                 bool first = false;
                 if (!initialized)
@@ -1567,19 +1570,20 @@ namespace Engine.Master
 
                     if (lastMoves.Count > 0)
                     {
-                        MapInfo mapInfoLast = new MapInfo();
-                        mapInfoLast.ComputeMapInfo(this, lastMoves);
+                        //MapInfo mapInfoLast = new MapInfo();
+                        //mapInfoLast.ComputeMapInfo(this, lastMoves);
 
                         // Remove moves that have been processed
                         ProcessLastMoves();
 
+                        /*
                         MapInfo mapInfoLast1 = new MapInfo();
                         mapInfoLast1.ComputeMapInfo(this, lastMoves);
 
                         if (mapInfoLast.TotalMetal != mapInfoLast1.TotalMetal)
                         {
                             int x = 0;
-                        }
+                        }*/
 
                         if (lastMoves.Count > 0)
                         {
@@ -1614,6 +1618,7 @@ namespace Engine.Master
                         }
                     }
                 }
+                Pheromones.Evaporate();
 
                 if (!first && lastMoves.Count == 0)
                 {
@@ -1634,18 +1639,18 @@ namespace Engine.Master
 
                 UpdateUnitPositions(newMoves);
 
-                MapInfo mapInfoPrev = new MapInfo();
-                mapInfoPrev.ComputeMapInfo(this, newMoves);
+                //MapInfo mapInfoPrev = new MapInfo();
+                //mapInfoPrev.ComputeMapInfo(this, newMoves);
 
                 ProcessNewMoves();
 
                 mapInfo = new MapInfo();
                 mapInfo.ComputeMapInfo(this, lastMoves);
-                
+                /*
                 if (mapInfoPrev.TotalMetal != mapInfo.TotalMetal)
                 {
                     int x = 0;
-                }
+                }*/
 
                 foreach (Player player in Players.Values)
                 {

@@ -124,6 +124,8 @@ namespace Engine.Interface
         [DataMember]
         public string Name { get; set; }
         [DataMember]
+        public int Zone { get; set; }
+        [DataMember]
         public int ControlLevel { get; set; }
 
         public override string ToString()

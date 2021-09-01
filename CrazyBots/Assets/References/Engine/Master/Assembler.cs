@@ -38,6 +38,7 @@ namespace Engine.Master
             Level = level;
             TileContainer = new TileContainer();
             TileContainer.Capacity = 4;
+            TileContainer.AcceptedTileObjectTypes = TileObjectType.Mineral;
         }
 
         

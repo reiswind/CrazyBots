@@ -27,6 +27,14 @@ namespace Assets.Scripts
             return top;
         }
 
+        public int Count
+        {
+            get
+            {
+                return mineralCubes.Count;
+            }
+        }
+
         private bool AddMinerals(GameObject container)
         {
             if (container.name.StartsWith("Mineral"))

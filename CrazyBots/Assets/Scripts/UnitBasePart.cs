@@ -32,7 +32,19 @@ namespace Assets.Scripts
             UnitBaseTileObject unitBaseTileObject = TileObjects[0];
             TileObjects.Remove(unitBaseTileObject);
             
-            unitBaseTileObject.GameObject = mineralContainer.RemoveTop();
+            if (mineralContainer.Count > 0)
+                unitBaseTileObject.GameObject = mineralContainer.RemoveTop();
+            else
+            {
+                foreach (UnitBasePart unitBasePart in UnitBase.UnitBaseParts)
+                {
+                    if (unitBasePart.PartType == TileObjectType.PartContainer)
+                    {
+                        unitBaseTileObject.GameObject = unitBasePart.mineralContainer.RemoveTop();
+                    }
+                }
+
+            }
 
             if (weapon != null)
                 weapon.Fire(UnitBase.HexGrid, move, unitBaseTileObject);

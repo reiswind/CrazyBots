@@ -12,6 +12,7 @@ namespace Engine.Interface
     {
         public TileContainer()
         {
+            AcceptedTileObjectTypes = TileObjectType.All;
             tileObjects = new List<TileObject>();
         }
 
@@ -48,15 +49,30 @@ namespace Engine.Interface
 
         public void AddRange(List<TileObject> ptileObjects)
         {
-            tileObjects.AddRange(ptileObjects);
+            foreach (TileObject tileObject in ptileObjects)
+                Add(tileObject);
         }
         public void Add(TileObject tileObject)
         {
+            if (!Accepts(tileObject.TileObjectType))
+            {
+                throw new Exception("Wrong tile type");
+            }
             tileObjects.Add(tileObject);
         }
         public void Remove(TileObject tileObject)
         {
             tileObjects.Remove(tileObject);
+        }
+
+        public bool Accepts(TileObjectType tileObjectType)
+        {
+            if (AcceptedTileObjectTypes != TileObjectType.All)
+            {
+                if (AcceptedTileObjectTypes != tileObjectType)
+                    return false;
+            }
+            return true;
         }
 
         public TileObject RemoveTileObject(TileObjectType tileObjectType)
@@ -77,7 +93,7 @@ namespace Engine.Interface
             while (capacity-- > 0)
             {
                 TileObject tileObject = new TileObject();
-                tileObject.Direction = Direction.N;
+                tileObject.Direction = Direction.C;
                 tileObject.TileObjectType = TileObjectType.Mineral;
                 tileObjects.Add(tileObject);
             }
@@ -100,6 +116,7 @@ namespace Engine.Interface
         }
 
         public int Capacity { get; set; }
+        public TileObjectType AcceptedTileObjectTypes { get; set; }
     }
 
     public enum Direction
@@ -137,6 +154,29 @@ namespace Engine.Interface
         public TileObject()
         {
 
+        }
+
+        public static int GetPowerForTileObjectType(TileObjectType tileObjectType)
+        {
+            if (tileObjectType == TileObjectType.Mineral) return 100;
+            if (tileObjectType == TileObjectType.Tree) return 40;
+            if (tileObjectType == TileObjectType.Bush) return 20;
+
+            return 10;
+        }
+
+        public static bool ConvertTileObjectIntoMineral(TileObjectType tileObjectType)
+        {
+            if (tileObjectType == TileObjectType.PartArmor) return true;
+            if (tileObjectType == TileObjectType.PartAssembler) return true;
+            if (tileObjectType == TileObjectType.PartContainer) return true;
+            if (tileObjectType == TileObjectType.PartEngine) return true;
+            if (tileObjectType == TileObjectType.PartExtractor) return true;
+            if (tileObjectType == TileObjectType.PartRadar) return true;
+            if (tileObjectType == TileObjectType.PartReactor) return true;
+            if (tileObjectType == TileObjectType.PartWeapon) return true;
+
+            return false;
         }
 
         public static TileObjectType GetTileObjectTypeFromString(string unitCode, out int unitCodeLevel)

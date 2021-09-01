@@ -1,62 +1,39 @@
 {
   "Name": "Test",
-  "MapWidth": 2,
-  "MapHeight": 2,
-  "Seedx": 1,
+  "MapWidth": 3,
+  "MapHeight": 3,
+  "Seed": 1,
   "MapType": "2",
   "Players": [
     {
       "ControlLevel": 1,
       "Id": 1,
+      "Zone": 1,
       "Name": "Green"
     },
     {
       "ControlLevel": 1,
       "Id": 2,
+      "Zone": 3,
       "Name": "Red"
     },
     {
       "ControlLevel": 1,
       "Id": 3,
+      "Zone": 7,
       "Name": "Player3"
     },
     {
       "ControlLevel": 1,
       "Id": 4,
-      "Name": "Player4"
+      "Zone": 5,
+      "Name": "Player3"
     }
   ],
   "Units": [
     {
       "Name": "Outpost",
       "PlayerId": 1,
-      "Blueprint": "Outpost",
-      "Position": {
-        "X": 0,
-        "Y": 0
-      }
-    },
-    {
-      "Name": "Outpost",
-      "PlayerId": 2,
-      "Blueprint": "Outpost",
-      "Position": {
-        "X": 0,
-        "Y": 0
-      }
-    },
-    {
-      "Name": "Outpost",
-      "PlayerId": 3,
-      "Blueprint": "Outpost",
-      "Position": {
-        "X": 0,
-        "Y": 0
-      }
-    },
-    {
-      "Name": "Outpost",
-      "PlayerId": 4,
       "Blueprint": "Outpost",
       "Position": {
         "X": 0,

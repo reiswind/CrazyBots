@@ -18,10 +18,30 @@ namespace Engine.Master
                 int storedPower = 0;
                 if (Unit.Container != null)
                 {
-                    storedPower = Unit.Container.TileContainer.Minerals * 100;
+                    foreach (TileObject tileObject in Unit.Container.TileContainer.TileObjects)
+                    {
+                        storedPower += TileObject.GetPowerForTileObjectType(tileObject.TileObjectType);
+                    }
                 }
-
-                return storedPower + TileContainer.Minerals * 100;
+                if (Unit.Assembler != null && Unit.Assembler.TileContainer != null)
+                {
+                    foreach (TileObject tileObject in Unit.Assembler.TileContainer.TileObjects)
+                    {
+                        storedPower += TileObject.GetPowerForTileObjectType(tileObject.TileObjectType);
+                    }
+                }
+                if (Unit.Weapon != null && Unit.Weapon.TileContainer != null)
+                {
+                    foreach (TileObject tileObject in Unit.Weapon.TileContainer.TileObjects)
+                    {
+                        storedPower += TileObject.GetPowerForTileObjectType(tileObject.TileObjectType);
+                    }
+                }
+                foreach (TileObject tileObject in TileContainer.TileObjects)
+                {
+                    storedPower += TileObject.GetPowerForTileObjectType(tileObject.TileObjectType);
+                }
+                return storedPower;
             }
         }
 
@@ -39,12 +59,14 @@ namespace Engine.Master
             if (AvailablePower == 0)
             {
                 List<TileObject> tileObjects = new List<TileObject>();
-                this.Unit.RemoveTileObjects(tileObjects, 1, TileObjectType.Mineral);
+                this.Unit.RemoveTileObjects(tileObjects, 1, TileObjectType.All);
                 
                 if (tileObjects.Count > 0)
                 {
-                    AvailablePower = 100;
-                    Unit.Game.Map.DistributeTileObject(tileObjects[0]);
+                    AvailablePower = TileObject.GetPowerForTileObjectType(tileObjects[0].TileObjectType);
+
+                    // TEST
+                    //Unit.Game.Map.DistributeTileObject(tileObjects[0]);
                 }
             }
         }

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -53,9 +53,6 @@
     <UnityVersion>2019.4.29f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Assets\CursorsAndCrosshairs\CursorChanger.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\AuthorAttribute.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\Bresehnham.cs" />
@@ -64,11 +61,13 @@
     <Compile Include="Assets\References\Engine\Algorithms\PathFinderFast.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\PriorityQueueB.cs" />
     <Compile Include="Assets\References\Engine\Ants\Ant.cs" />
-    <Compile Include="Assets\References\Engine\Ants\AntContainer.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntDestination.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntFactory.cs" />
-    <Compile Include="Assets\References\Engine\Ants\AntReactor.cs" />
-    <Compile Include="Assets\References\Engine\Ants\AntTurret.cs" />
+    <Compile Include="Assets\References\Engine\Ants\AntNetwork.cs" />
+    <Compile Include="Assets\References\Engine\Ants\AntPart.cs" />
+    <Compile Include="Assets\References\Engine\Ants\AntPartAssembler.cs" />
+    <Compile Include="Assets\References\Engine\Ants\AntPartContainer.cs" />
+    <Compile Include="Assets\References\Engine\Ants\AntPartReactor.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntWorker.cs" />
     <Compile Include="Assets\References\Engine\Ants\ControlAnt.cs" />
     <Compile Include="Assets\References\Engine\Ants\MineralDeposit.cs" />

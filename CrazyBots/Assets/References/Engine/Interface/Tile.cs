@@ -274,7 +274,12 @@ namespace Engine.Interface
         {
             get
             {
-                return TileContainer.Loaded > 0;
+                foreach (TileObject tileObject in TileContainer.TileObjects)
+                {
+                    if (tileObject.Direction != Direction.C || tileObject.TileObjectType == TileObjectType.Mineral)
+                        return true;
+                }
+                return false;
             }
         }
 

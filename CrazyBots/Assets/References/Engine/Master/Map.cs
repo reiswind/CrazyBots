@@ -113,13 +113,13 @@ namespace Engine.Interface
             {
                 foreach (Move move in moves)
                 {
-                    if ((move.MoveType == MoveType.Extract || move.MoveType == MoveType.Fire) &&
+                    if ((move.MoveType == MoveType.Extract) &&
                         move.Stats != null &&
                         move.Stats.MoveUpdateGroundStat != null)
                     {
                         foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
                         {
-                            //if (tileObject.TileObjectType == TileObjectType.Mineral)
+                            if (tileObject.TileObjectType == TileObjectType.Mineral) // || TileObject.ConvertTileObjectIntoMineral(tileObject.TileObjectType))
                             {
                                 TotalMetal++;
                             }

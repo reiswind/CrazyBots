@@ -318,7 +318,7 @@ namespace Assets.Scripts
 
             foreach (TileObject tileObject in GroundStat.TileObjects)
             {
-                if (tileObject.Direction == Direction.C)
+                if (tileObject.Direction == Direction.C && tileObject.TileObjectType != TileObjectType.Mineral)
                 {
                     SetGroundMaterial(tileObject);
                 }

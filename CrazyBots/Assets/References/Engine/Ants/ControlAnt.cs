@@ -71,7 +71,7 @@ namespace Engine.Control
                                 mineralDeposit.Minerals = tile.Minerals;
 
                                 player.Game.Pheromones.DeletePheromones(mineralDeposit.DepositId);
-                                mineralDeposit.DepositId = player.Game.Pheromones.DropPheromones(player, pos, 5, PheromoneType.Mineral, intensity, true);
+                                mineralDeposit.DepositId = player.Game.Pheromones.DropStaticPheromones(player, pos, 5, PheromoneType.Mineral, intensity);
                             }
                         }
                         else
@@ -80,7 +80,7 @@ namespace Engine.Control
 
                             mineralDeposit.Minerals = tile.Minerals;
                             mineralDeposit.Pos = pos;
-                            mineralDeposit.DepositId = player.Game.Pheromones.DropPheromones(player, pos, 5, PheromoneType.Mineral, intensity, true);
+                            mineralDeposit.DepositId = player.Game.Pheromones.DropStaticPheromones(player, pos, 5, PheromoneType.Mineral, intensity);
 
                             mineralsDeposits.Add(pos, mineralDeposit);
                         }
@@ -346,7 +346,7 @@ namespace Engine.Control
                 {
                     //ant.PheromoneDepositNeedMineralsLevel = ant.PlayerUnit.Unit.Container.Level;
                     //int intensity = (ant.PlayerUnit.Unit.Container.Mineral * 100 / ant.PlayerUnit.Unit.Container.Capacity) / 100;
-                    ant.PheromoneDepositNeedMinerals = player.Game.Pheromones.DropPheromones(player, ant.PlayerUnit.Unit.Pos, range, PheromoneType.Container, intensity, true);
+                    ant.PheromoneDepositNeedMinerals = player.Game.Pheromones.DropStaticPheromones(player, ant.PlayerUnit.Unit.Pos, range, PheromoneType.Container, intensity);
                 }
                 else
                 {
@@ -696,9 +696,8 @@ namespace Engine.Control
         private List<Position> FindMineralContainer(Player player, AntWorker ant, List<Position> bestPositions)
         {
             // Look for Container with mineraly to refill
-            foreach (Ant possibleAnt in Ants.Values)
+            foreach (Ant antContainer in Ants.Values)
             {
-                AntContainer antContainer = possibleAnt as AntContainer;
                 if (antContainer != null &&
                     antContainer.PlayerUnit.Unit.Container != null &&
                     antContainer.PlayerUnit.Unit.Container.TileContainer.Minerals > 0)
@@ -1167,29 +1166,7 @@ namespace Engine.Control
 
             }
         }
-        public bool CheckBuildReactorMove(Player player, Ant ant, List<Move> moves)
-        {
-            bool unitMoved = false;
-            Unit cntrlUnit = ant.PlayerUnit.Unit;
 
-            if (cntrlUnit.Engine == null && cntrlUnit.Reactor != null)
-            {
-                if (ant.PheromoneDepositEnergy != 0)
-                {
-                    Position pos = player.Game.Pheromones.Find(ant. PheromoneDepositEnergy, player, PheromoneType.Energy, 0.6f, 0.6f);
-                    if (pos != null)
-                    {
-                        GameCommand gameCommand = new GameCommand();
-                        gameCommand.GameCommandType = GameCommandType.Build;
-                        gameCommand.TargetPosition = pos;
-                        gameCommand.UnitId = "Outpost";
-
-                        player.GameCommands.Add(gameCommand);
-                    }
-                }
-            }
-            return unitMoved;
-        }
 
         public bool CheckTransportMove(Ant ant, List<Move> moves)
         {
@@ -1239,6 +1216,83 @@ namespace Engine.Control
             return unitMoved;
         }
 
+        internal void ConnectNearbyAnts(Ant ant)
+        {
+            foreach (Ant otherAnt in Ants.Values)
+            {
+                // Not the same ant
+                if (otherAnt == ant) continue;
+                // Must be complete
+                if (otherAnt.UnderConstruction) continue;                
+                // Must be a building
+                if (otherAnt.PlayerUnit.Unit.Engine != null) continue;
+                // Must be a owned
+                if (otherAnt.PlayerUnit.Unit.Owner != ant.PlayerUnit.Unit.Owner) continue;
+
+                double distance = otherAnt.PlayerUnit.Unit.Pos.GetDistanceTo(ant.PlayerUnit.Unit.Pos);
+                if (distance > 9) continue;
+
+                ant.ConnectWithAnt(otherAnt);
+            }
+        }
+
+        internal bool CanBuildReactor(Player player)
+        {
+            bool checkBuildReactor = false;
+
+            bool alreadyInProgress = false;
+            foreach (GameCommand gameCommand in player.GameCommands)
+            {
+                if (gameCommand.GameCommandType == GameCommandType.Build &&
+                    gameCommand.UnitId.StartsWith("Outpost"))
+                {
+                    alreadyInProgress = true;
+                    break;
+                }
+            }
+            if (!alreadyInProgress)
+            {
+                foreach (Ant ant in CreatedAnts.Values)
+                {
+                    if (ant.GameCommandDuringCreation != null &&
+                        ant.GameCommandDuringCreation.GameCommandType == GameCommandType.Build &&
+                        ant.GameCommandDuringCreation.UnitId.StartsWith("Outpost"))
+                    {
+                        alreadyInProgress = true;
+                        break;
+                    }
+                }
+            }
+            if (!alreadyInProgress)
+            {
+                foreach (Ant ant in Ants.Values)
+                {
+                    if (ant.GameCommandDuringCreation != null &&
+                        ant.GameCommandDuringCreation.GameCommandType == GameCommandType.Build &&
+                        ant.GameCommandDuringCreation.UnitId.StartsWith("Outpost"))
+                    {
+                        alreadyInProgress = true;
+                        break;
+                    }
+                    if (ant.PlayerUnit != null &&
+                        ant.PlayerUnit.Unit.CurrentGameCommand != null &&
+                        ant.PlayerUnit.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build &&
+                        ant.PlayerUnit.Unit.CurrentGameCommand.UnitId.StartsWith("Outpost"))
+                    {
+                        alreadyInProgress = true;
+                        break;
+                    }
+                }
+            }
+            if (!alreadyInProgress)
+            {
+                // Need more reactors
+                checkBuildReactor = true;
+            }
+            return checkBuildReactor;
+        }
+
+
         private static int moveNr;
         public MapPlayerInfo MapPlayerInfo { get; set; }
 
@@ -1250,23 +1304,22 @@ namespace Engine.Control
 
             }
 
-
-            player.Game.Pheromones.Evaporate();
-
             // Returned moves
             List<Move> moves = new List<Move>();
 
-            if (!player.Game.GetDebugMapInfo().PlayerInfo.ContainsKey(player.PlayerModel.Id))
+            MapInfo mapInfo = player.Game.GetDebugMapInfo();
+
+            if (!mapInfo.PlayerInfo.ContainsKey(player.PlayerModel.Id))
             {
                 // Player is dead, no more units
                 return moves;
             }
-            if (player.Game.GetDebugMapInfo().PlayerInfo.Count == 1)
+            if (mapInfo.PlayerInfo.Count == 1)
             {
                 // Only one Player left. Won the game.
             }
 
-            MapPlayerInfo = player.Game.GetDebugMapInfo().PlayerInfo[player.PlayerModel.Id];
+            MapPlayerInfo = mapInfo.PlayerInfo[player.PlayerModel.Id];
 
             // List of all units that can be moved
             List<PlayerUnit> moveableUnits = new List<PlayerUnit>();
@@ -1311,8 +1364,9 @@ namespace Engine.Control
 
                         if (ant.PlayerUnit == null)
                         {
-                            // Turned from Ghost to real
+                            // Turned from Ghost to real                            
                             ant.PlayerUnit = playerUnit;
+                            ant.CreateAntParts();
                             ant.PlayerUnit.Unit.CurrentGameCommand = ant.GameCommandDuringCreation;
                             ant.GameCommandDuringCreation = null;
                         }
@@ -1357,48 +1411,17 @@ namespace Engine.Control
                             else if (playerUnit.Unit.Blueprint.Name == "Outpost" ||
                                      playerUnit.Unit.Blueprint.Name == "Factory")
                             {
-                                AntFactory antFactory = new AntFactory(this, playerUnit);
+                                //AntFactory antFactory = new AntFactory(this, playerUnit);
+                                Ant antFactory = new Ant(this, playerUnit);
                                 antFactory.Alive = true;
                                 Ants.Add(cntrlUnit.UnitId, antFactory);
                             }
-                            else if (playerUnit.Unit.Blueprint.Name == "Container")
+                            else 
                             {
-                                AntContainer antContainer = new AntContainer(this, playerUnit);
-                                antContainer.Alive = true;
-                                Ants.Add(cntrlUnit.UnitId, antContainer);
+                                Ant ant = new Ant(this, playerUnit);
+                                ant.Alive = true;
+                                Ants.Add(cntrlUnit.UnitId, ant);
                             }
-                            else if (playerUnit.Unit.Blueprint.Name == "Turret")
-                            {
-                                AntTurret antTurret = new AntTurret(this, playerUnit);
-                                antTurret.Alive = true;
-                                Ants.Add(cntrlUnit.UnitId, antTurret);
-                            }
-                            else if (playerUnit.Unit.Blueprint.Name == "Reactor")
-                            {
-                                AntReactor antReactor = new AntReactor(this, playerUnit);
-                                antReactor.Alive = true;
-                                Ants.Add(cntrlUnit.UnitId, antReactor);
-                            }
-                            /*else if (playerUnit.Unit.Engine != null)
-                            {
-                                AntWorker antWorker = new AntWorker(this);
-                                antWorker.PlayerUnit = playerUnit;
-                                antWorker.Alive = true;
-                                if (playerUnit.Unit.Weapon == null)
-                                    antWorker.AntWorkerType = AntWorkerType.Worker;
-                                else
-                                    antWorker.AntWorkerType = AntWorkerType.Fighter;
-                                Ants.Add(cntrlUnit.UnitId, antWorker);
-                            }
-                            else if (playerUnit.Unit.Weapon != null)
-                            {
-                                // Defense?
-                                AntWorker antWorker = new AntWorker(this);
-                                antWorker.PlayerUnit = playerUnit;
-                                antWorker.Alive = true;
-                                antWorker.AntWorkerType = AntWorkerType.None;
-                                Ants.Add(cntrlUnit.UnitId, antWorker);
-                            }*/
                         }
                     }
                 }
@@ -1408,7 +1431,7 @@ namespace Engine.Control
                 }
                 else
                 {
-                    player.Game.Pheromones.DropPheromones(player, cntrlUnit.Pos, 15, PheromoneType.Enemy, 0.05f, false);
+                    player.Game.Pheromones.DropPheromones(player, cntrlUnit.Pos, 15, PheromoneType.Enemy, 0.05f);
                 }
             }
 
@@ -1446,6 +1469,16 @@ namespace Engine.Control
                     }
                     else if (ant.PlayerUnit.Unit.IsComplete())
                     {
+                        if (ant.UnderConstruction)
+                        {
+                            // First time the unit is complete
+                            if (ant.PlayerUnit.Unit.Engine == null)
+                            {
+                                ant.CreateAntParts();
+                                ConnectNearbyAnts(ant);
+                            }
+                            ant.UnderConstruction = false;
+                        }
                         UpdateUnitCounters(ant);
 
                         ant.UpdateContainerDeposits(player);
@@ -1456,7 +1489,7 @@ namespace Engine.Control
                             {
                                 if (ant.PlayerUnit.Unit.Reactor.AvailablePower > 0)
                                 {
-                                    ant.PheromoneDepositEnergy = player.Game.Pheromones.DropPheromones(player, ant.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit.Reactor.Range, PheromoneType.Energy, 1, true); //, 0.2f);
+                                    ant.PheromoneDepositEnergy = player.Game.Pheromones.DropStaticPheromones(player, ant.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit.Reactor.Range, PheromoneType.Energy, 1); //, 0.2f);
                                 }
                             }
                             else
@@ -1514,45 +1547,20 @@ namespace Engine.Control
                 SacrificeAnt(player, unmovedAnts);
             }
 
-            bool checkBuildReactor = false;
-            if (/*NumberOfReactors <= 3 && */NumberOfWorkers >= 2)
+            
+            AttachGamecommands(player, unmovedAnts, moves);
+
+            foreach (Ant ant in unmovedAnts)
             {
-                bool alreadyInProgress = false;
-                foreach (GameCommand gameCommand in player.GameCommands)
+                if (!(ant is AntWorker))
                 {
-                    if (gameCommand.GameCommandType == GameCommandType.Build &&
-                        gameCommand.UnitId.StartsWith("Outpost"))
+                    if (ant.Move(player, moves))
                     {
-                        alreadyInProgress = true;
-                        break;
+                        movableAnts.Remove(ant);
                     }
-                }
-                foreach (Ant ant in Ants.Values)
-                {
-                    if (ant.GameCommandDuringCreation != null &&
-                        ant.GameCommandDuringCreation.GameCommandType == GameCommandType.Build &&
-                        ant.GameCommandDuringCreation.UnitId.StartsWith("Outpost"))
-                    {
-                        alreadyInProgress = true;
-                        break;
-                    }
-                    if (ant.PlayerUnit != null &&
-                        ant.PlayerUnit.Unit.CurrentGameCommand != null &&
-                        ant.PlayerUnit.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build &&
-                        ant.PlayerUnit.Unit.CurrentGameCommand.UnitId.StartsWith("Outpost"))
-                    {
-                        alreadyInProgress = true;
-                        break;
-                    }
-                }
-                if (!alreadyInProgress)
-                {
-                    // Need more reactors
-                    //checkBuildReactor = true;
                 }
             }
 
-            AttachGamecommands(player, unmovedAnts, moves);
 
             foreach (Ant ant in unmovedAnts)
             {
@@ -1565,49 +1573,30 @@ namespace Engine.Control
                 }
             }
 
+            /*
             foreach (Ant ant in unmovedAnts)
             {
                 if (ant is AntFactory)
                 {
-                    //ant.HandleGameCommands(player);
-
                     ant.Move(player, moves);
                     movableAnts.Remove(ant);
                 }
-            }
-
-            foreach (Ant ant in unmovedAnts)
-            {
-                if (ant is AntTurret)
-                {
-                    ant.Move(player, moves);
-                    movableAnts.Remove(ant);
-                }
-            }
+            }*/
 
             /* Noo expand*/
+            /*
             foreach (Ant ant in unmovedAnts)
             {
-                if (ant is AntReactor)
-                {
-                    ant.Move(player, moves);
-                    movableAnts.Remove(ant);
-                }
                 if (checkBuildReactor &&
                     CheckBuildReactorMove(player, ant, moves))
                 {
                     checkBuildReactor = false;
                     movableAnts.Remove(ant);
                 }
-            }
+            }*/
 
             foreach (Ant ant in unmovedAnts)
             {
-                if (ant is AntContainer)
-                {
-                    ant.Move(player, moves);
-                    movableAnts.Remove(ant);
-                }
                 if (CheckTransportMove(ant, moves))
                 {
                     movableAnts.Remove(ant);
