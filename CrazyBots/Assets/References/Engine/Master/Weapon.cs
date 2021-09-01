@@ -77,7 +77,7 @@ namespace Engine.Master
                     if (n.Tile.TileContainer.Loaded > 0)
                     {
                         /* No longer fire at destrucables. They are extracted now */
-                        /*
+                        
                         Move move = new Move();
                         move.MoveType = MoveType.Fire;
                         move.UnitId = Unit.UnitId;
@@ -87,7 +87,7 @@ namespace Engine.Master
                         move.Positions.Add(n.Tile.Pos);
 
                         possibleMoves.Add(move);
-                        */
+                        
                     }
                     else
                     {

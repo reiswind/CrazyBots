@@ -32,7 +32,22 @@ namespace Assets.Scripts
             return velocity * vI;
         }
 
-        internal void UpdateContent(HexGrid hexGrid, List<TileObject> tileObjects, int? capacity)
+        private UnitBaseTileObject GetAmmoTileObject(TileObjectContainer tileObjectContainer)
+        {
+            if (tileObjectContainer != null && tileObjectContainer.TileObjects.Count > 0)
+            {
+                UnitBaseTileObject unitBaseTileObject = tileObjectContainer.TileObjects[0];
+                if (unitBaseTileObject.GameObject != null)
+                {
+                    return unitBaseTileObject;
+                }
+            }
+            return null;
+        }
+
+        private UnitBaseTileObject unitBaseTileObject;
+
+        internal void UpdateContent(HexGrid hexGrid, TileObjectContainer tileObjectContainer)
         {
             GameObject weapon = UnitBase.FindChildNyName(this.gameObject, "Weapon");
             if (weapon != null)
@@ -40,7 +55,15 @@ namespace Assets.Scripts
                 GameObject ammo = UnitBase.FindChildNyName(weapon, "Ammo");
                 if (ammo != null)
                 {
-                    ammo.SetActive(tileObjects.Count > 0);
+                    unitBaseTileObject = GetAmmoTileObject(tileObjectContainer);
+
+                    if (unitBaseTileObject != null && unitBaseTileObject.GameObject != null)
+                    {
+                        unitBaseTileObject.GameObject.transform.position = ammo.transform.position;
+                        unitBaseTileObject.GameObject.SetActive(true);
+
+                        //ammo.SetActive(tileObjects.Count > 0);
+                    }
                 }
             }
         }
@@ -73,15 +96,13 @@ namespace Assets.Scripts
         private HexGrid hexGrid;
         private Move move;
         private GroundCell weaponTargetCell;
-        private UnitBaseTileObject unitBaseTileObject;
 
-        public void Fire(HexGrid hexGrid, Move move, UnitBaseTileObject unitBaseTileObject)
+        public void Fire(HexGrid hexGrid, Move move)
         {
             Position pos = move.Positions[move.Positions.Count - 1];
             weaponTargetCell = hexGrid.GroundCells[pos];
             this.move = move;
             this.hexGrid = hexGrid;
-            this.unitBaseTileObject = unitBaseTileObject;
 
             // Determine which direction to rotate towards
             turnWeaponIntoDirection = (weaponTargetCell.transform.position - transform.position).normalized;
@@ -106,6 +127,7 @@ namespace Assets.Scripts
                 {
                     angle = 45;
 
+                    /*
                     GameObject weapon = UnitBase.FindChildNyName(this.gameObject, "Weapon");
 
                     Transform launchPosition = null;
@@ -127,35 +149,45 @@ namespace Assets.Scripts
                         return;
                     }
                     launchPosition.gameObject.SetActive(false);
+                    */
 
-                    GameObject shellprefab = hexGrid.GetUnitResource("Shell");
-                    GameObject shellObject = Instantiate(shellprefab);
-                    
-                    //GameObject shellObject = unitBaseTileObject.GameObject;
+                    if (unitBaseTileObject != null)
+                    {
+                        GameObject shellprefab = hexGrid.GetUnitResource("Shell");
+                        GameObject shellObject = Instantiate(shellprefab);
 
+                        GameObject ammo = unitBaseTileObject.GameObject;
 
-                    Shell shell = shellObject.GetComponent<Shell>();
+                        Vector3 launchPos = ammo.transform.position;
+                        launchPos.y += 0.5f;
 
-                    Vector3 launchPos = launchPosition.position;
-                    launchPos.y += 0.5f;
+                        Shell shell = shellObject.GetComponent<Shell>();
+                        shell.transform.SetPositionAndRotation(launchPos, ammo.transform.rotation);
 
-                    shell.gameObject.hideFlags = HideFlags.HideAndDontSave;
-                    shell.transform.SetPositionAndRotation(launchPos, launchPosition.rotation);
+                        ammo.transform.SetParent(shell.transform, false);
 
-                    shell.TargetUnitId = move.OtherUnitId;
-                    shell.HexGrid = hexGrid;
+                        //Vector3 launchPos = launchPosition.position;
+                        //launchPos.y += 0.5f;
+                        //shell.gameObject.hideFlags = HideFlags.HideAndDontSave;
+                        //shell.transform.SetPositionAndRotation(launchPos, launchPosition.rotation);
 
-                    Vector3 targetPos = weaponTargetCell.transform.position;
-                    targetPos.y += 0.5f;
+                        //shell.TargetUnitId = move.OtherUnitId;
+                        //shell.HexGrid = hexGrid;
 
-                    Rigidbody rigidbody = shell.GetComponent<Rigidbody>();
-                    rigidbody.velocity = calcBallisticVelocityVector(launchPos, targetPos, angle);
-                    rigidbody.rotation = Random.rotation;
+                        Vector3 targetPos = weaponTargetCell.transform.position;
+                        targetPos.y += 0.5f;
 
-                    //Destroy(shellObject, 2.6f);
+                        Rigidbody rigidbody = shell.GetComponent<Rigidbody>();
+                        rigidbody.velocity = calcBallisticVelocityVector(shell.transform.position, targetPos, angle);
+                        //rigidbody.rotation = Random.rotation;
 
-                    turnWeaponIntoDirection = Vector3.zero;
-                    weaponTargetCell = null;
+                        //Destroy(shellObject, 2.6f);
+
+                        turnWeaponIntoDirection = Vector3.zero;
+                        weaponTargetCell = null;
+
+                        unitBaseTileObject = null;
+                    }
                 }
             }
             transform.rotation = newrotation;

@@ -10,7 +10,7 @@ namespace Assets.Scripts
 {
     public class UnitBasePart
     {
-        private MineralContainer mineralContainer = new MineralContainer();
+        public TileObjectContainer TileObjectContainer { get; set; }
         public UnitBasePart(UnitBase unitBase)
         {
             this.UnitBase = unitBase;
@@ -25,39 +25,18 @@ namespace Assets.Scripts
         public bool IsUnderConstruction { get; set; }
         public bool Destroyed { get; set; }
         public GameObject Part { get; set; }
-        public List<UnitBaseTileObject> TileObjects { get; set; }
+        //public List<UnitBaseTileObject> TileObjects { get; set; }
 
         public void Fire(Move move, Weapon1 weapon)
         {
-            UnitBaseTileObject unitBaseTileObject = TileObjects[0];
-            TileObjects.Remove(unitBaseTileObject);
-            
-            if (mineralContainer.Count > 0)
-                unitBaseTileObject.GameObject = mineralContainer.RemoveTop();
-            else
-            {
-                foreach (UnitBasePart unitBasePart in UnitBase.UnitBaseParts)
-                {
-                    if (unitBasePart.PartType == TileObjectType.PartContainer)
-                    {
-                        unitBaseTileObject.GameObject = unitBasePart.mineralContainer.RemoveTop();
-                    }
-                }
-
-            }
-
             if (weapon != null)
-                weapon.Fire(UnitBase.HexGrid, move, unitBaseTileObject);
-        }
-
-        public void ClearContainer()
-        {
-            mineralContainer.ClearContent();
+                weapon.Fire(UnitBase.HexGrid, move);
+            
         }
 
         public void UpdateContent(List<TileObject> tileObjects, int? capacity)
         {
-            mineralContainer.UpdateContent(UnitBase.HexGrid, Part, tileObjects, capacity);
+            TileObjectContainer.UpdateContent(UnitBase, Part, tileObjects, capacity, UnitBase.extractedBaseTileObjects);
         }
     }
 }

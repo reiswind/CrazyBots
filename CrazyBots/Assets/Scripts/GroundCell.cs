@@ -17,7 +17,7 @@ namespace Assets.Scripts
 
         internal List<UnitCommand> UnitCommands { get; private set; }
 
-        public List<GameObject> GameObjects { get; private set; }
+        public List<UnitBaseTileObject> GameObjects { get; private set; }
 
         private GameObject markerEnergy;
         private GameObject markerToHome;
@@ -26,7 +26,7 @@ namespace Assets.Scripts
 
         public GroundCell()
         {
-            GameObjects = new List<GameObject>();
+            GameObjects = new List<UnitBaseTileObject>();
 
             UnitCommands = new List<UnitCommand>();
             ShowPheromones = true;
@@ -313,7 +313,7 @@ namespace Assets.Scripts
 
         internal void CreateDestructables()
         {
-            List<GameObject> allTileObjects = new List<GameObject>();
+            List<UnitBaseTileObject> allTileObjects = new List<UnitBaseTileObject>();
             allTileObjects.AddRange(GameObjects);
 
             foreach (TileObject tileObject in GroundStat.TileObjects)
@@ -325,9 +325,9 @@ namespace Assets.Scripts
                 else
                 {
                     bool found = false;
-                    foreach (GameObject destructable in allTileObjects)
+                    foreach (UnitBaseTileObject destructable in allTileObjects)
                     {
-                        if (destructable.name == tileObject.TileObjectType.ToString())
+                        if (destructable.TileObject.TileObjectType == tileObject.TileObjectType)
                         {
                             found = true;
                             allTileObjects.Remove(destructable);
@@ -342,14 +342,18 @@ namespace Assets.Scripts
                         destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
                         destructable.name = tileObject.TileObjectType.ToString();
 
-                        GameObjects.Add(destructable);
+                        UnitBaseTileObject unitBaseTileObject = new UnitBaseTileObject();
+                        unitBaseTileObject.GameObject = destructable;
+                        unitBaseTileObject.TileObject = tileObject;
+
+                        GameObjects.Add(unitBaseTileObject);
                     }
                 }
             }
 
-            foreach (GameObject destructable in allTileObjects)
+            foreach (UnitBaseTileObject destructable in allTileObjects)
             {
-                HexGrid.Destroy(destructable);
+                HexGrid.Destroy(destructable.GameObject);
                 GameObjects.Remove(destructable);
             }
         }

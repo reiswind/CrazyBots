@@ -66,7 +66,7 @@ namespace Engine.Ants
                 // Every reactor needs a friend
                 if (control.CanBuildReactor(player))
                 {
-                    CheckBuildReactorMove(player, Ant, moves);
+                    //CheckBuildReactorMove(player, Ant, moves);
                 }
             }
 

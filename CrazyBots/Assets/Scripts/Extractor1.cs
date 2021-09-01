@@ -16,7 +16,6 @@ namespace Assets.Scripts
                 int x = 0;
             }
 
-
             // Find the extracted tileobjects
             foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
             {
@@ -28,25 +27,20 @@ namespace Assets.Scripts
                     GroundCell sourceCell = hexGrid.GroundCells[from];
 
                     found = false;
-                    foreach (GameObject gameTileObject in sourceCell.GameObjects)
+                    foreach (UnitBaseTileObject unitBaseTileObject in sourceCell.GameObjects)
                     {
-                        if (gameTileObject.name == move.OtherUnitId)
+                        if (unitBaseTileObject.TileObject.TileObjectType == tileObject.TileObjectType)
                         {
-                            sourceCell.GameObjects.Remove(gameTileObject);
-                            gameTileObject.transform.SetParent(transform, true);
+                            sourceCell.GameObjects.Remove(unitBaseTileObject);
+                            unitBaseTileObject.GameObject.transform.SetParent(transform, true);
 
                             TransitObject transitObject = new TransitObject();
-                            transitObject.GameObject = gameTileObject;
+                            transitObject.GameObject = unitBaseTileObject.GameObject;
                             transitObject.TargetPosition = transform.position;
-                            transitObject.DestroyAtArrival = true;
+                            transitObject.HideAtArrival = true;
 
                             unit.AddTransitTileObject(transitObject);
-                            //tileObjectsInTransit.Add(gameTileObject);
-
-                            //GameObject destructable;
-                            //destructable = hexGrid.CreateDestructable(transform, tileObject);
-                            //tileObjectsInTranst.Add(destructable);
-                            //destructable.transform.SetParent(unit.transform, true);
+                            unit.InsertGameTileObject(unitBaseTileObject);
 
                             found = true;
                             break;
@@ -87,9 +81,9 @@ namespace Assets.Scripts
                                 found = true;
                                 break;
                             }
-                            if (otherUnitBasePart.TileObjects != null)
+                            if (otherUnitBasePart.TileObjectContainer != null)
                             {
-                                foreach (UnitBaseTileObject sourceTileObject in otherUnitBasePart.TileObjects)
+                                foreach (UnitBaseTileObject sourceTileObject in otherUnitBasePart.TileObjectContainer.TileObjects)
                                 {
                                     /*
                                     if (otherUnitBasePart.TileObjects != null)
@@ -115,30 +109,34 @@ namespace Assets.Scripts
 
                                     if (tileObject.TileObjectType == sourceTileObject.TileObject.TileObjectType)
                                     {
-                                        //otherUnitBasePart.
-                                        otherUnitBasePart.ClearContainer();
+                                        otherUnitBasePart.TileObjectContainer.Remove(sourceTileObject);
 
-                                        otherUnitBasePart.TileObjects.Remove(sourceTileObject);
+                                        if (sourceTileObject.GameObject == null)
+                                        {
+                                            if (unit.Container != null)
+                                                sourceTileObject.GameObject = hexGrid.CreateTileObject(unit.Container.transform, tileObject);
+                                            else
+                                                sourceTileObject.GameObject = hexGrid.CreateTileObject(unit.transform, tileObject);
 
-                                        GameObject destructable;
-
-                                        if (unit.Container != null)
-                                            destructable = hexGrid.CreateTileObject(unit.Container.transform, tileObject);
+                                            sourceTileObject.GameObject.name = "xx" + tileObject.TileObjectType.ToString() + " to " + otherUnit.UnitId;
+                                        }
                                         else
-                                            destructable = hexGrid.CreateTileObject(unit.transform, tileObject);
-
-                                        destructable.name = "xx" + tileObject.TileObjectType.ToString() + " to " + otherUnit.UnitId;
-
-                                        Vector2 randomPos = UnityEngine.Random.insideUnitCircle;
+                                        {
+                                            sourceTileObject.GameObject.SetActive(true);
+                                            sourceTileObject.GameObject.transform.SetParent(transform, true);
+                                        }
+                                        unit.InsertGameTileObject(sourceTileObject);
+                                        
+                                        Vector2 randomPos = Random.insideUnitCircle;
                                         Vector3 unitPos3 = otherUnitBasePart.Part.transform.position;
                                         unitPos3.x += (randomPos.x * 0.5f);
                                         unitPos3.z += (randomPos.y * 0.7f);
-                                        destructable.transform.position = unitPos3;
+                                        sourceTileObject.GameObject.transform.position = unitPos3;
 
                                         TransitObject transitObject = new TransitObject();
-                                        transitObject.GameObject = destructable;
+                                        transitObject.GameObject = sourceTileObject.GameObject;
                                         transitObject.TargetPosition = transform.position;
-                                        transitObject.DestroyAtArrival = true;
+                                        transitObject.HideAtArrival = true;
                                         unit.AddTransitTileObject(transitObject);
 
                                         found = true;
@@ -156,9 +154,9 @@ namespace Assets.Scripts
                         // Find source tile in friendly otherUnit
                         foreach (UnitBasePart otherUnitBasePart in otherUnit.UnitBaseParts)
                         {
-                            if (otherUnitBasePart.TileObjects != null)
+                            if (otherUnitBasePart.TileObjectContainer != null)
                             {
-                                foreach (UnitBaseTileObject otherTileObject in otherUnitBasePart.TileObjects)
+                                foreach (UnitBaseTileObject otherTileObject in otherUnitBasePart.TileObjectContainer.TileObjects)
                                 {
                                     if (otherTileObject.TileObject.TileObjectType == tileObject.TileObjectType)
                                     {

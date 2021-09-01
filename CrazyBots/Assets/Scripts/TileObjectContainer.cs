@@ -8,15 +8,17 @@ using UnityEngine;
 
 namespace Assets.Scripts
 {
-    public class MineralContainer
+    public class TileObjectContainer
     {
 
-        public MineralContainer()
+        public TileObjectContainer()
         {
             mineralCubes = new List<GameObject>();
+            tileObjects = new List<UnitBaseTileObject>();
         }
 
         private List<GameObject> mineralCubes;
+        private List<UnitBaseTileObject> tileObjects;
         private int filled;
         private int max;
 
@@ -27,12 +29,21 @@ namespace Assets.Scripts
             return top;
         }
 
-        public int Count
+        public List<UnitBaseTileObject> TileObjects
         {
             get
             {
-                return mineralCubes.Count;
+                return tileObjects;
             }
+        }
+
+        public void Add(UnitBaseTileObject unitBaseTileObject)
+        {
+            tileObjects.Add(unitBaseTileObject);
+        }
+        public void Remove(UnitBaseTileObject unitBaseTileObject)
+        {
+            tileObjects.Remove(unitBaseTileObject);
         }
 
         private bool AddMinerals(GameObject container)
@@ -60,12 +71,25 @@ namespace Assets.Scripts
             }
         }
 
-        public void UpdateContent(HexGrid hexGrid, GameObject gameObject, List<TileObject> tileObjects, int? capacity)
+        public bool AttachGameTileObject(UnitBaseTileObject attachBaseTileObject)
         {
+            foreach (UnitBaseTileObject unitBaseTileObject in tileObjects)
+            {
+                if (attachBaseTileObject.TileObject.TileObjectType == unitBaseTileObject.TileObject.TileObjectType &&
+                    unitBaseTileObject.GameObject == null)
+                {
+                    unitBaseTileObject.GameObject = attachBaseTileObject.GameObject;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public void UpdateContent(UnitBase unitBase, GameObject gameObject, List<TileObject> otherTileObjects, int? capacity, List<UnitBaseTileObject> extractedBaseTileObjects)
+        {
+
             if (capacity.HasValue && capacity <= 0)
                 return;
-
-            int minerals = tileObjects.Count;
 
             if (mineralCubes.Count == 0)
             {
@@ -75,6 +99,63 @@ namespace Assets.Scripts
                 max = mineralCubes.Count;
             }
 
+            // Match content
+            List<TileObject> unassignedTileObjects = new List<TileObject>();
+            unassignedTileObjects.AddRange(otherTileObjects);
+
+            List<UnitBaseTileObject> assignedGameTileObjects = new List<UnitBaseTileObject>();
+            assignedGameTileObjects.AddRange(tileObjects);
+
+            List<UnitBaseTileObject> unassignedGameTileObjects = new List<UnitBaseTileObject>();
+            unassignedGameTileObjects.AddRange(tileObjects);
+
+            foreach (TileObject otherTileObject in otherTileObjects)
+            {
+                foreach (UnitBaseTileObject unitBaseTileObject in unassignedGameTileObjects)
+                {
+                    if (otherTileObject.TileObjectType == unitBaseTileObject.TileObject.TileObjectType)
+                    {
+                        unassignedTileObjects.Remove(otherTileObject);
+                        assignedGameTileObjects.Remove(unitBaseTileObject);
+                        unassignedGameTileObjects.Remove(unitBaseTileObject);
+                        break;
+                    }
+                }
+            }
+            // To less
+            foreach (TileObject tileObject in unassignedTileObjects)
+            {
+                UnitBaseTileObject newUnitBaseTileObject = new UnitBaseTileObject();
+                newUnitBaseTileObject.TileObject = tileObject;
+                tileObjects.Add(newUnitBaseTileObject);
+            }
+            // To many 
+            foreach (UnitBaseTileObject unitBaseTileObject in assignedGameTileObjects)
+            {
+                if (unitBaseTileObject.GameObject != null)
+                {
+                    HexGrid.Destroy(unitBaseTileObject.GameObject);
+                }
+                tileObjects.Remove(unitBaseTileObject);
+            }
+            // Attach
+            List<UnitBaseTileObject> unattachedTileObjects = new List<UnitBaseTileObject>();
+            unattachedTileObjects.AddRange(extractedBaseTileObjects);
+
+            foreach (UnitBaseTileObject extractedUnitBaseTile in unattachedTileObjects)
+            {
+                foreach (UnitBaseTileObject tileObject in tileObjects)
+                {
+                    if (tileObject.GameObject == null && tileObject.TileObject.TileObjectType == extractedUnitBaseTile.TileObject.TileObjectType)
+                    {
+                        tileObject.GameObject = extractedUnitBaseTile.GameObject;
+                        extractedBaseTileObjects.Remove(extractedUnitBaseTile);
+                        break;
+                    }
+                }
+            }
+
+            int minerals = tileObjects.Count;
             int mins = minerals;
 
             int minPercent = mins * 100 / capacity.Value;
