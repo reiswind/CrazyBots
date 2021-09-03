@@ -30,7 +30,7 @@ namespace Assets.Scripts
         public void Fire(Move move, Weapon1 weapon)
         {
             if (weapon != null)
-                weapon.Fire(UnitBase.HexGrid, move, TileObjectContainer);
+                weapon.Fire(UnitBase.HexGrid, this.UnitBase, move, TileObjectContainer);
             
         }
 

@@ -1194,7 +1194,7 @@ namespace Engine.Master
                     if (fireingUnit != null && fireingUnit.Weapon != null)
                     {
                         List<TileObject> removedTileObjects = new List<TileObject>();
-                        fireingUnit.RemoveTileObjects(removedTileObjects, 1, TileObjectType.All);
+                        fireingUnit.RemoveTileObjects(removedTileObjects, 1, TileObjectType.All, null);
 
                         if (removedTileObjects.Count > 0)
                         {

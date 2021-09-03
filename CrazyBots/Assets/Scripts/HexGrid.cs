@@ -555,6 +555,7 @@ namespace Assets.Scripts
 					unitBase.DestinationPos = null;
 					unitBase.PutAtCurrentPosition(true);
 				}
+				unitBase.FinishTransits();
 			}
 			List<UnitBase> deletedUnits = new List<UnitBase>();
 

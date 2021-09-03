@@ -89,6 +89,19 @@ namespace Engine.Interface
             return null;
         }
 
+        public TileObject RemoveTileObjectIfFits(Unit targetUnit)
+        {
+            foreach (TileObject tileObject in tileObjects)
+            {
+                if (targetUnit.IsSpaceForTileObject(tileObject))
+                {
+                    tileObjects.Remove(tileObject);
+                    return tileObject;
+                }
+            }
+            return null;
+        }
+
         public void CreateMinerals(int capacity)
         {
             while (capacity-- > 0)

@@ -16,8 +16,8 @@ namespace Assets.Scripts
             toPos.y = 0;
             var r = toPos.magnitude;
 
-            float rpercent = r * 10; // / 100;
-            angle = 70 * rpercent / 100;
+            //float rpercent = r * 10; // / 100;
+            //angle = 70 * rpercent / 100;
             //if (r > 5)
             //    angle = 30;
 
@@ -100,11 +100,13 @@ namespace Assets.Scripts
         private HexGrid hexGrid;
         private Move move;
         private GroundCell weaponTargetCell;
+        private UnitBase fireingUnit;
 
-        public void Fire(HexGrid hexGrid, Move move, TileObjectContainer tileObjectContainer)
+        public void Fire(HexGrid hexGrid, UnitBase fireingUnit, Move move, TileObjectContainer tileObjectContainer)
         {
             if (ammoTileObject != null && ammoTileObject.GameObject != null)
             {
+                this.fireingUnit = fireingUnit;
                 tileObjectContainer.TileObjects.Remove(ammoTileObject);
 
                 Position pos = move.Positions[move.Positions.Count - 1];
@@ -168,11 +170,11 @@ namespace Assets.Scripts
                         GameObject ammo = ammoTileObject.GameObject;
 
                         Vector3 launchPos = ammo.transform.position;
-                        launchPos.y += 0.5f;
+                        //launchPos.y += 0.5f;
 
                         Shell shell = shellObject.GetComponent<Shell>();
                         shell.transform.SetPositionAndRotation(launchPos, ammo.transform.rotation);
-
+                        shell.FireingUnit = fireingUnit;
                         ammo.transform.SetParent(shell.transform, false);
 
                         //Vector3 launchPos = launchPosition.position;
@@ -184,7 +186,7 @@ namespace Assets.Scripts
                         //shell.HexGrid = hexGrid;
 
                         Vector3 targetPos = weaponTargetCell.transform.position;
-                        targetPos.y += 0.5f;
+                        //targetPos.y += 0.5f;
 
                         Rigidbody rigidbody = shell.GetComponent<Rigidbody>();
                         rigidbody.velocity = calcBallisticVelocityVector(shell.transform.position, targetPos, angle);

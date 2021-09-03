@@ -374,7 +374,7 @@ namespace Engine.Master
                     // friendly unit
                     while (capacity-- > 0)
                     {
-                        if (!otherUnit.RemoveTileObjects(removeTileObjects, 1, TileObjectType.All))
+                        if (!otherUnit.RemoveTileObjects(removeTileObjects, 1, TileObjectType.All, unit))
                         {
                             break;
                         }

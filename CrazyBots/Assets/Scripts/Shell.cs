@@ -8,6 +8,7 @@ namespace Assets.Scripts
     {
         public ParticleSystem m_ExplosionParticles;
 
+        public UnitBase FireingUnit { get; set; }
         internal string TargetUnitId { get; set; }
         internal HexGrid HexGrid { get; set; }
 
@@ -89,6 +90,10 @@ namespace Assets.Scripts
         private void OnTriggerEnter(Collider other)
         {
             UnitBase hitUnit = GetUnitFrameFromCollider(other);
+            if (hitUnit == FireingUnit)
+            {
+                return;
+            }
             if (hitUnit == null)
             {
                 // Play some hit ground animation

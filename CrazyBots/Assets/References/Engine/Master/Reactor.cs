@@ -59,7 +59,7 @@ namespace Engine.Master
             if (AvailablePower == 0)
             {
                 List<TileObject> tileObjects = new List<TileObject>();
-                this.Unit.RemoveTileObjects(tileObjects, 1, TileObjectType.All);
+                this.Unit.RemoveTileObjects(tileObjects, 1, TileObjectType.All, null);
                 
                 if (tileObjects.Count > 0)
                 {

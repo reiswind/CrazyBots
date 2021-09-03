@@ -19,11 +19,16 @@ namespace Assets.Scripts
     }
     public class TransitObject
     {
+        public TransitObject()
+        {
+
+        }
         public GameObject GameObject { get; set; }
         public Vector3 TargetPosition { get; set; }
         public Quaternion TargetRotation { get; set; }
         public bool DestroyAtArrival { get; set; }
         public bool HideAtArrival { get; set; }
+        public bool ScaleDown { get; set; }
     }
 
     public class HitByBullet
@@ -100,15 +105,21 @@ namespace Assets.Scripts
                         float speed = 2.0f / HexGrid.GameSpeed;
                         float step = speed * Time.deltaTime;
 
-                        MeshRenderer mesh = transitObject.GameObject.GetComponent<MeshRenderer>();
-                        if (mesh.bounds.size.y > 0.3f)
+                        if (transitObject.ScaleDown)
                         {
-                            Vector3 scaleChange;
-                            scaleChange = new Vector3(-0.002f, -0.002f, -0.002f);
-        
-                            transitObject.GameObject.transform.localScale += scaleChange;
-                        }
+                            MeshRenderer mesh = transitObject.GameObject.GetComponent<MeshRenderer>();
+                            if (mesh.bounds.size.y > 0.2f || mesh.bounds.size.x > 0.2f || mesh.bounds.size.z > 0.2f)
+                            {
+                                float scalex = mesh.bounds.size.x / 200;
+                                float scaley = mesh.bounds.size.y / 200;
+                                float scalez = mesh.bounds.size.z / 200;
 
+                                Vector3 scaleChange;
+                                scaleChange = new Vector3(-scalex, -scaley, -scalez);
+
+                                transitObject.GameObject.transform.localScale += scaleChange;
+                            }
+                        }
                         transitObject.GameObject.transform.position = Vector3.MoveTowards(transitObject.GameObject.transform.position, vector3, step);
                         if (transitObject.GameObject.transform.position == transitObject.TargetPosition)
                         {
@@ -266,7 +277,9 @@ namespace Assets.Scripts
                 unitPos3.y += HexGrid.hexCellHeight + AboveGround;
                 transform.position = unitPos3;
             }
-
+        }
+        public void FinishTransits()
+        {
             if (tileObjectsInTransit != null)
             {
                 foreach (TransitObject transitObject in tileObjectsInTransit)

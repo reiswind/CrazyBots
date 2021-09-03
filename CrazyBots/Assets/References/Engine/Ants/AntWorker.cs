@@ -978,8 +978,11 @@ namespace Engine.Ants
                         {
                             if (move1.Positions[1] == PlayerUnit.Unit.CurrentGameCommand.TargetPosition)
                             {
-                                move = move1;
-                                break;
+                                if (!Control.IsUpgrading(player, moves, move1))
+                                {
+                                    move = move1;
+                                    break;
+                                }
                             }
                         }
                     }

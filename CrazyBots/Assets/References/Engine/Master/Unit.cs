@@ -906,14 +906,19 @@ namespace Engine.Master
             return partHit;
         }
        
-        public bool RemoveTileObjects(List<TileObject> tileObjects, int numberOfObjects, TileObjectType tileObjectType)
+        public bool RemoveTileObjects(List<TileObject> tileObjects, int numberOfObjects, TileObjectType tileObjectType, Unit targetUnit)
         {
             bool removed = false;
             if (Container != null)
             {
                 while (numberOfObjects > 0)
                 {
-                    TileObject tileObject = Container.TileContainer.RemoveTileObject(tileObjectType);
+                    TileObject tileObject;
+                    if (targetUnit == null)
+                        tileObject = Container.TileContainer.RemoveTileObject(tileObjectType);
+                    else
+                        tileObject = Container.TileContainer.RemoveTileObjectIfFits(targetUnit);
+
                     if (tileObject == null)
                     {
                         break;
@@ -930,7 +935,13 @@ namespace Engine.Master
             {
                 while (numberOfObjects > 0)
                 {
-                    TileObject tileObject = Weapon.TileContainer.RemoveTileObject(tileObjectType);
+                    TileObject tileObject;
+                    if (targetUnit == null)
+                        tileObject = Weapon.TileContainer.RemoveTileObject(tileObjectType);
+                    else
+                        tileObject = Weapon.TileContainer.RemoveTileObjectIfFits(targetUnit);
+
+
                     if (tileObject == null)
                     {
                         break;
@@ -947,7 +958,12 @@ namespace Engine.Master
             {
                 while (numberOfObjects > 0)
                 {
-                    TileObject tileObject = Assembler.TileContainer.RemoveTileObject(tileObjectType);
+                    TileObject tileObject;
+                    if (targetUnit == null)
+                        tileObject = Assembler.TileContainer.RemoveTileObject(tileObjectType);
+                    else
+                        tileObject = Assembler.TileContainer.RemoveTileObjectIfFits(targetUnit);
+
                     if (tileObject == null)
                     {
                         break;
@@ -964,7 +980,12 @@ namespace Engine.Master
             {
                 while (numberOfObjects > 0)
                 {
-                    TileObject tileObject = Reactor.TileContainer.RemoveTileObject(tileObjectType);
+                    TileObject tileObject;
+                    if (targetUnit == null)
+                        tileObject = Reactor.TileContainer.RemoveTileObject(tileObjectType);
+                    else
+                        tileObject = Reactor.TileContainer.RemoveTileObjectIfFits(targetUnit);
+
                     if (tileObject == null)
                     {
                         break;
