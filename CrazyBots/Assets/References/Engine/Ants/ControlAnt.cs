@@ -104,7 +104,7 @@ namespace Engine.Control
                     else if (player.Units.ContainsKey(move.UnitId))
                     {
                         PlayerUnit playerUnit = player.Units[move.UnitId];
-                        AntFactory ant = Ants[playerUnit.Unit.UnitId] as AntFactory;
+                        Ant ant = Ants[playerUnit.Unit.UnitId] as Ant;
                         if (ant != null)
                         {
                             player.UnitsInBuild.Remove(playerUnit.Unit.UnitId);
@@ -699,6 +699,7 @@ namespace Engine.Control
             foreach (Ant antContainer in Ants.Values)
             {
                 if (antContainer != null &&
+                    !antContainer.UnderConstruction &&
                     antContainer.PlayerUnit.Unit.Container != null &&
                     antContainer.PlayerUnit.Unit.Container.TileContainer.Minerals > 0)
                 {
@@ -1074,6 +1075,46 @@ namespace Engine.Control
                     {
                         // Building is there. Command complete.
                         assignedCommands.Add(gameCommand);
+                    }
+                }
+                if (gameCommand.GameCommandType == GameCommandType.Build)
+                {
+                    Ant bestAnt = null;
+                    double bestDistance = 0;
+
+                    foreach (Ant ant in unmovedAnts)
+                    {
+                        AntWorker antWorker = ant as AntWorker;
+                        if (antWorker != null)
+                        {
+                            if (gameCommand.GameCommandType == GameCommandType.Build && antWorker.AntWorkerType == AntWorkerType.Assembler)
+                            {
+                                if (antWorker.PlayerUnit.Unit.CurrentGameCommand == null &&
+                                    !ant.PlayerUnit.Unit.UnderConstruction &&
+                                    !ant.PlayerUnit.Unit.ExtractMe)
+                                {
+                                    if (antWorker.PlayerUnit.Unit.Pos == gameCommand.TargetPosition)
+                                    {
+                                        bestAnt = antWorker;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        double distance = antWorker.PlayerUnit.Unit.Pos.GetDistanceTo(gameCommand.TargetPosition);
+                                        if (bestAnt == null || distance < bestDistance)
+                                        {
+                                            bestDistance = distance;
+                                            bestAnt = ant;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (bestAnt != null)
+                    {
+                        assignedCommands.Add(gameCommand);
+                        bestAnt.PlayerUnit.Unit.CurrentGameCommand = gameCommand;
                     }
                 }
 

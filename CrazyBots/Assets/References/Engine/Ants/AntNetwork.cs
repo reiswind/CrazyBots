@@ -31,6 +31,11 @@ namespace Engine.Ants
 
         public List<AntNetworkConnect> Connections { get; private set; }
 
+        public void OnDestroy(Player player)
+        {
+
+        }
+
         public void Demand(AntPart antPart, AntNetworkDemandType antNetworkDemandType, float urgency)
         {
             foreach (AntNetworkConnect antTargetNetworkConnect in Connections)
@@ -86,7 +91,9 @@ namespace Engine.Ants
 
         public override string ToString()
         {
-            return AntPartSource.ToString() + " to " + AntPartTarget.ToString();
+            if (AntPartSource.Ant == AntPartTarget.Ant)
+                return "Itern: " + AntPartSource.ToString() + " to " + AntPartTarget.ToString();
+            return "Extern: " + AntPartSource.ToString() + " to " + AntPartTarget.ToString();
         }
     }
 

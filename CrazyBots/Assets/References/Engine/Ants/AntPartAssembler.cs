@@ -11,12 +11,17 @@ namespace Engine.Ants
 {
     internal class AntPartAssembler : AntPart
     {
-        private int demandWorker = 2;
+        //private int demandWorker = 2;
 
         public Assembler Assembler { get; private set; }
         public AntPartAssembler(Ant ant, Assembler assembler) : base(ant)
         {
             Assembler = assembler;
+        }
+
+        public override string ToString()
+        {
+            return "AntPartAssembler";
         }
 
         public override bool Move(ControlAnt control, Player player, List<Move> moves)
@@ -34,9 +39,17 @@ namespace Engine.Ants
             bool addAssembler = false;
             bool addFighter = false;
 
-            if (control.NumberOfWorkers < demandWorker)
+            if (control.NumberOfFighter < 1)
+            {
+                addFighter = true;
+            }
+            else if (control.NumberOfWorkers < control.NumberOfReactors)
             {
                 addWorker = true;
+            }
+            else if (control.NumberOfAssembler < 1)
+            {
+                addAssembler = true;
             }
             else
             {
@@ -50,7 +63,8 @@ namespace Engine.Ants
                                 antNetworkDemand.Urgency == 1)
                             {
                                 // Create more storage by building new container OR build something
-                                addFighter = true;
+                                if (control.NumberOfFighter < 8)
+                                    addFighter = true;
                             }
                         }
                     }

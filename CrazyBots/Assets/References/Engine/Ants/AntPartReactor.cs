@@ -19,6 +19,10 @@ namespace Engine.Ants
             Reactor = reactor;
         }
 
+        public override string ToString()
+        {
+            return "AntPartReactor";
+        }
         public bool CheckBuildReactorMove(Player player, Ant ant, List<Move> moves)
         {
             bool unitMoved = false;
@@ -31,12 +35,21 @@ namespace Engine.Ants
                     Position pos = player.Game.Pheromones.Find(ant.PheromoneDepositEnergy, player, PheromoneType.Energy, 0.6f, 0.6f);
                     if (pos != null)
                     {
-                        GameCommand gameCommand = new GameCommand();
-                        gameCommand.GameCommandType = GameCommandType.Build;
-                        gameCommand.TargetPosition = pos;
-                        gameCommand.UnitId = "Outpost";
+                        Tile t = player.Game.GetTile(pos);
+                        List<Position> path = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, pos, ant.PlayerUnit.Unit);
+                        if (path == null)
+                        {
 
-                        player.GameCommands.Add(gameCommand);
+                        }
+                        else
+                        {
+                            GameCommand gameCommand = new GameCommand();
+                            gameCommand.GameCommandType = GameCommandType.Build;
+                            gameCommand.TargetPosition = pos;
+                            gameCommand.UnitId = "Outpost";
+
+                            player.GameCommands.Add(gameCommand);
+                        }
                     }
                 }
             }
@@ -56,17 +69,18 @@ namespace Engine.Ants
                 if (antNetworkConnect.AntPartSource.Ant == Ant)
                     continue;
 
-                if (antNetworkConnect.AntPartTarget.Ant.AntPartReactor != null)
+                if (antNetworkConnect.AntPartSource is AntPartReactor &&
+                    antNetworkConnect.AntPartTarget is AntPartReactor)
                 {
                     countReactorsNearby++;
                 }
             }
-            if (countReactorsNearby == 0 && control.NumberOfReactors < 2)
+            if (countReactorsNearby < 2) // && control.NumberOfReactors < 2)
             {
                 // Every reactor needs a friend
                 if (control.CanBuildReactor(player))
                 {
-                    //CheckBuildReactorMove(player, Ant, moves);
+                    CheckBuildReactorMove(player, Ant, moves);
                 }
             }
 

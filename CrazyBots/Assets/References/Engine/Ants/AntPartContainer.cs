@@ -16,7 +16,10 @@ namespace Engine.Ants
         {
             Container = container;
         }
-
+        public override string ToString()
+        {
+            return "AntPartContainer";
+        }
         public override bool Move(ControlAnt control, Player player, List<Move> moves)
         {
             int items = Container.Unit.CountTileObjectsInContainer();

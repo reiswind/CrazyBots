@@ -1532,9 +1532,9 @@ namespace Engine.Master
                     return returnMoves;
                 }
 
-                if (MoveNr == 7)
+                if (MoveNr == 57)
                 {
-                    int x = 0;
+
                 }
 
                 changedUnits.Clear();

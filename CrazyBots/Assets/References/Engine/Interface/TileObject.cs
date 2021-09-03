@@ -54,7 +54,7 @@ namespace Engine.Interface
         }
         public void Add(TileObject tileObject)
         {
-            if (!Accepts(tileObject.TileObjectType))
+            if (!Accepts(tileObject))
             {
                 throw new Exception("Wrong tile type");
             }
@@ -65,13 +65,14 @@ namespace Engine.Interface
             tileObjects.Remove(tileObject);
         }
 
-        public bool Accepts(TileObjectType tileObjectType)
+        public bool Accepts(TileObject tileObject)
         {
             if (AcceptedTileObjectTypes != TileObjectType.All)
             {
-                if (AcceptedTileObjectTypes != tileObjectType)
+                if (AcceptedTileObjectTypes != tileObject.TileObjectType)
                     return false;
             }
+
             return true;
         }
 

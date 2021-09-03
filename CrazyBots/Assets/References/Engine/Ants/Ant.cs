@@ -45,6 +45,12 @@ namespace Engine.Ants
                     antNetworkConnect.AntPartTarget = antPart1;
                     antNetworkConnect.AntPartSource = antPart2;
                     antPart1.AntNetworkNode.Connections.Add(antNetworkConnect);
+
+                    antNetworkConnect = new AntNetworkConnect();
+                    antNetworkConnect.AntPartTarget = antPart2;
+                    antNetworkConnect.AntPartSource = antPart1;
+                    antPart2.AntNetworkNode.Connections.Add(antNetworkConnect);
+
                 }
             }
         }
@@ -188,6 +194,10 @@ namespace Engine.Ants
         }
         public virtual void OnDestroy(Player player)
         {
+            foreach (AntPart antPart in AntParts)
+            {
+                antPart.OnDestroy(player);
+            }
             if (PheromoneDepositEnergy != 0)
             {
                 player.Game.Pheromones.DeletePheromones(PheromoneDepositEnergy);

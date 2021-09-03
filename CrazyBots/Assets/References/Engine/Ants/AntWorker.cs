@@ -985,8 +985,19 @@ namespace Engine.Ants
                     }
                     else
                     {
-                        int idx = player.Game.Random.Next(possiblemoves.Count);
-                        move = possiblemoves[idx];
+                        while (possiblemoves.Count > 0)
+                        {
+                            int idx = player.Game.Random.Next(possiblemoves.Count);
+                            move = possiblemoves[idx];
+
+                            if (Control.IsUpgrading(player, moves, move))
+                            {
+                                possiblemoves.RemoveAt(idx);
+                                move = null;
+                                continue;
+                            }
+                            break;
+                        }
                     }
                     if (move != null)
                     {

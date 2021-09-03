@@ -154,17 +154,20 @@ namespace Engine.Master
                     if (tileObject.Direction == Direction.C && tileObject.TileObjectType != TileObjectType.Mineral)
                         continue;
 
-                    Move move = new Move();
+                    if (Unit.IsSpaceForTileObject(tileObject))
+                    {
+                        Move move = new Move();
 
-                    move.MoveType = MoveType.Extract;
+                        move.MoveType = MoveType.Extract;
 
-                    move.UnitId = Unit.UnitId;
-                    move.OtherUnitId = tileObject.TileObjectType.ToString();
-                    move.Positions = new List<Position>();
-                    move.Positions.Add(Unit.Pos);
-                    move.Positions.Add(t.Pos);
+                        move.UnitId = Unit.UnitId;
+                        move.OtherUnitId = tileObject.TileObjectType.ToString();
+                        move.Positions = new List<Position>();
+                        move.Positions.Add(Unit.Pos);
+                        move.Positions.Add(t.Pos);
 
-                    possibleMoves.Add(move);
+                        possibleMoves.Add(move);
+                    }
                 }
 
                 if (t.Pos == Unit.Pos)

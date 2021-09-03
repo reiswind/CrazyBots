@@ -76,18 +76,23 @@ namespace Engine.Master
                 {
                     if (n.Tile.TileContainer.Loaded > 0)
                     {
-                        /* No longer fire at destrucables. They are extracted now */
-                        
-                        Move move = new Move();
-                        move.MoveType = MoveType.Fire;
-                        move.UnitId = Unit.UnitId;
-                        move.OtherUnitId = "Destructable";
-                        move.Positions = new List<Position>();
-                        move.Positions.Add(Unit.Pos);
-                        move.Positions.Add(n.Tile.Pos);
+                        foreach (TileObject tileObject in n.Tile.TileContainer.TileObjects)
+                        {
+                            if (tileObject.Direction == Direction.C && tileObject.TileObjectType != TileObjectType.Mineral)
+                                continue;
+                            /* No longer fire at destrucables. They are extracted now */
+                            /*
+                            Move move = new Move();
+                            move.MoveType = MoveType.Fire;
+                            move.UnitId = Unit.UnitId;
+                            move.OtherUnitId = tileObject.TileObjectType.ToString();
+                            move.Positions = new List<Position>();
+                            move.Positions.Add(Unit.Pos);
+                            move.Positions.Add(n.Tile.Pos);
 
-                        possibleMoves.Add(move);
-                        
+                            possibleMoves.Add(move);
+                            */
+                        }
                     }
                     else
                     {

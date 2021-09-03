@@ -45,7 +45,7 @@ namespace Assets.Scripts
             return null;
         }
 
-        private UnitBaseTileObject unitBaseTileObject;
+        private UnitBaseTileObject ammoTileObject;
 
         internal void UpdateContent(HexGrid hexGrid, TileObjectContainer tileObjectContainer)
         {
@@ -55,14 +55,18 @@ namespace Assets.Scripts
                 GameObject ammo = UnitBase.FindChildNyName(weapon, "Ammo");
                 if (ammo != null)
                 {
-                    unitBaseTileObject = GetAmmoTileObject(tileObjectContainer);
+                    UnitBaseTileObject haveAmmo = GetAmmoTileObject(tileObjectContainer);
 
-                    if (unitBaseTileObject != null && unitBaseTileObject.GameObject != null)
+                    if (haveAmmo != null && haveAmmo.GameObject != null)
                     {
-                        unitBaseTileObject.GameObject.transform.position = ammo.transform.position;
-                        unitBaseTileObject.GameObject.SetActive(true);
-
-                        //ammo.SetActive(tileObjects.Count > 0);
+                        if (ammoTileObject != null)
+                        {
+                            // happened
+                            //throw new System.Exception("double ammo");
+                        }
+                        ammoTileObject = haveAmmo;
+                        ammoTileObject.GameObject.transform.position = ammo.transform.position;
+                        ammoTileObject.GameObject.SetActive(true);
                     }
                 }
             }
@@ -97,16 +101,21 @@ namespace Assets.Scripts
         private Move move;
         private GroundCell weaponTargetCell;
 
-        public void Fire(HexGrid hexGrid, Move move)
+        public void Fire(HexGrid hexGrid, Move move, TileObjectContainer tileObjectContainer)
         {
-            Position pos = move.Positions[move.Positions.Count - 1];
-            weaponTargetCell = hexGrid.GroundCells[pos];
-            this.move = move;
-            this.hexGrid = hexGrid;
+            if (ammoTileObject != null && ammoTileObject.GameObject != null)
+            {
+                tileObjectContainer.TileObjects.Remove(ammoTileObject);
 
-            // Determine which direction to rotate towards
-            turnWeaponIntoDirection = (weaponTargetCell.transform.position - transform.position).normalized;
-            turnWeaponIntoDirection.y = 0;
+                Position pos = move.Positions[move.Positions.Count - 1];
+                weaponTargetCell = hexGrid.GroundCells[pos];
+                this.move = move;
+                this.hexGrid = hexGrid;
+
+                // Determine which direction to rotate towards
+                turnWeaponIntoDirection = (weaponTargetCell.transform.position - transform.position).normalized;
+                turnWeaponIntoDirection.y = 0;
+            }
         }
 
         void UpdateDirection(Transform transform)
@@ -151,12 +160,12 @@ namespace Assets.Scripts
                     launchPosition.gameObject.SetActive(false);
                     */
 
-                    if (unitBaseTileObject != null)
+                    if (ammoTileObject != null && ammoTileObject.GameObject != null)
                     {
                         GameObject shellprefab = hexGrid.GetUnitResource("Shell");
                         GameObject shellObject = Instantiate(shellprefab);
 
-                        GameObject ammo = unitBaseTileObject.GameObject;
+                        GameObject ammo = ammoTileObject.GameObject;
 
                         Vector3 launchPos = ammo.transform.position;
                         launchPos.y += 0.5f;
@@ -186,7 +195,7 @@ namespace Assets.Scripts
                         turnWeaponIntoDirection = Vector3.zero;
                         weaponTargetCell = null;
 
-                        unitBaseTileObject = null;
+                        ammoTileObject = null;
                     }
                 }
             }

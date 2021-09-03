@@ -1145,8 +1145,8 @@ namespace Assets.Scripts
                                 Weapon = weapon;
                                 if (moveUpdateUnitPart.TileObjects != null)
                                 {
-                                    weapon.UpdateContent(HexGrid, unitBasePart.TileObjectContainer);
                                     unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
+                                    weapon.UpdateContent(HexGrid, unitBasePart.TileObjectContainer);
                                 }
                             }
                             Reactor1 reactor = unitBasePart.Part.GetComponent<Reactor1>();

@@ -62,7 +62,6 @@
     <Compile Include="Assets\References\Engine\Algorithms\PriorityQueueB.cs" />
     <Compile Include="Assets\References\Engine\Ants\Ant.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntDestination.cs" />
-    <Compile Include="Assets\References\Engine\Ants\AntFactory.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntNetwork.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPart.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartAssembler.cs" />

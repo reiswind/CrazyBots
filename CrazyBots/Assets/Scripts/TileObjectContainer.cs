@@ -22,10 +22,14 @@ namespace Assets.Scripts
         private int filled;
         private int max;
 
-        public GameObject RemoveTop()
+        public UnitBaseTileObject RemoveTop()
         {
-            GameObject top = mineralCubes[0];
-            mineralCubes.Remove(top);
+            UnitBaseTileObject top = null;
+            if (tileObjects.Count > 0)
+            {
+                top  = tileObjects[0];
+                tileObjects.Remove(top);
+            }
             return top;
         }
 
