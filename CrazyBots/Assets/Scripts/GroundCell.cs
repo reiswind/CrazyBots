@@ -170,7 +170,7 @@ namespace Assets.Scripts
 
         private string currentMaterialName;
 
-        internal void SetGroundMaterial(TileObject tileObject)
+        internal void SetGroundMaterial()
         {
             /*
             for (int i = 0; i < unit.transform.childCount; i++)
@@ -189,6 +189,7 @@ namespace Assets.Scripts
             {
                 materialName = "Rock";
 
+                /*
                 if (tileObject.TileObjectType == TileObjectType.Gras)
                 {
                     materialName = "Grass";
@@ -205,49 +206,49 @@ namespace Assets.Scripts
                 {
                     int x = 0;
                 }
+                */
 
-
-                /*
-                if (Tile.IsHill())
+                
+                if (GroundStat.IsHill())
                 {
                     materialName = "Hill";
                 }
-                else if (Tile.IsRock())
+                else if (GroundStat.IsRock())
                 {
                     materialName = "Rock";
                 }
-                else if (Tile.IsSand())
+                else if (GroundStat.IsSand())
                 {
                     materialName = "Sand";
                 }
-                else if (Tile.IsDarkSand())
+                else if (GroundStat.IsDarkSand())
                 {
                     materialName = "DarkSand";
                 }
-                else if (Tile.IsDarkWood())
+                else if (GroundStat.IsDarkWood())
                 {
                     materialName = "DarkWood";
                 }
-                else if (Tile.IsWood())
+                else if (GroundStat.IsWood())
                 {
                     materialName = "Wood";
                 }
-                else if (Tile.IsLightWood())
+                else if (GroundStat.IsLightWood())
                 {
                     materialName = "LightWood";
                 }
-                else if (Tile.IsGrassDark())
+                else if (GroundStat.IsGrassDark())
                 {
                     materialName = "GrassDark";
                 }
-                else if (Tile.IsGras())
+                else if (GroundStat.IsGras())
                 {
                     materialName = "Grass";
                 }
                 else
                 {
                     materialName = "";
-                }*/
+                }
 
             }
 
@@ -313,6 +314,8 @@ namespace Assets.Scripts
 
         internal void CreateDestructables()
         {
+            SetGroundMaterial();
+
             List<UnitBaseTileObject> allTileObjects = new List<UnitBaseTileObject>();
             allTileObjects.AddRange(GameObjects);
 
@@ -320,7 +323,7 @@ namespace Assets.Scripts
             {
                 if (tileObject.Direction == Direction.C && tileObject.TileObjectType != TileObjectType.Mineral)
                 {
-                    SetGroundMaterial(tileObject);
+                    //SetGroundMaterial(tileObject);
                 }
                 else
                 {

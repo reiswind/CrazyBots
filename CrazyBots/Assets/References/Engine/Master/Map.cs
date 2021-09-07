@@ -156,8 +156,8 @@ namespace Engine.Master
             Tile startTile = map.GetTile(Center);
             if (startTile.TileContainer.Count == 0)
             {
-                List<TileObject> tileObjects = CreateRandomObjects(map);
-                startTile.TileContainer.AddRange(tileObjects);
+                //List<TileObject> tileObjects = CreateRandomObjects(map);
+                //startTile.TileContainer.AddRange(tileObjects);
             }
             openTiles = new List<Tile>();
             foreach (Tile n in startTile.Neighbors)
@@ -165,8 +165,9 @@ namespace Engine.Master
                 if (n.TileContainer.Count == 0)
                     openTiles.Add(n);
             }
+            /*
             while (openTiles.Count > 0)
-                CreateTerrainTile(map);
+                CreateTerrainTile(map);*/
         }
 
         public void AddTerrainTile(Tile t)
@@ -174,10 +175,19 @@ namespace Engine.Master
             openTiles.Add(t);
         }
 
-        public void CreateTerrainTile(Map map)
+
+        public Position CreateTerrainTile(Map map)
         {
+            if (map.OpenTileObjects.Count == 0)
+                return null;
+
+            if (ZoneId != 2)
+                return null;
+
             if (openTiles == null)
-                return;
+                return null;
+
+            Position pos = null;
 
             if (openTiles.Count > 0)
             {
@@ -209,6 +219,7 @@ namespace Engine.Master
                     if (bestTileFit != null)
                     {
                         bestTile.TileContainer.AddRange(bestTileFit.TileObjects);
+                        pos = bestTile.Pos;
                     }
 
                     if (!openTiles.Remove(bestTile))
@@ -223,133 +234,43 @@ namespace Engine.Master
                         }
                     }
                 }
-            }
+           }
+            return pos;
         }
 
         internal List<TileObject> CreateRandomObjects(Map map)
         {
             List<TileObject> tileObjects = new List<TileObject>();
-            int rnd = map.Game.Random.Next(34);
 
             TileObject tileObject;
 
-            tileObject = new TileObject();
-            tileObject.TileObjectType = TileObjectType.Gras;
-            tileObject.Direction = Direction.C;
-            tileObjects.Add(tileObject);
-
-            if (rnd == 1)
+            int rnd = map.Game.Random.Next(3) + 1;
+            while (rnd-- > 0 && map.OpenTileObjects.Count > 0)
             {
-                // WoodTile
-                tileObject = new TileObject();
-                tileObject.Direction = Direction.N;
-                tileObject.TileObjectType = TileObjectType.Tree;
-                tileObjects.Add(tileObject);
+                tileObject = map.OpenTileObjects[0];
+                map.OpenTileObjects.RemoveAt(0);
 
-                tileObject = new TileObject();
-                tileObject.Direction = Direction.SE;
-                tileObject.TileObjectType = TileObjectType.Tree;
-                tileObjects.Add(tileObject);
+                bool dirExists;
+                do
+                {
+                    dirExists = false;
+                    int dir = map.Game.Random.Next(6);
 
-                tileObject = new TileObject();
-                tileObject.Direction = Direction.SW;
-                tileObject.TileObjectType = TileObjectType.Tree;
-                tileObjects.Add(tileObject);
-            }
+                    if (dir == 0) tileObject.Direction = Direction.N;
+                    else if (dir == 1) tileObject.Direction = Direction.NE;
+                    else if (dir == 2) tileObject.Direction = Direction.SE;
+                    else if (dir == 3) tileObject.Direction = Direction.S;
+                    else if (dir == 4) tileObject.Direction = Direction.SW;
+                    else if (dir == 5) tileObject.Direction = Direction.NW;
 
-            else if (rnd == 2)
-            {
-                // Small WoodTile
-                tileObject = new TileObject();
-                tileObject.Direction = Direction.N;
-                tileObject.TileObjectType = TileObjectType.Tree;
-                tileObjects.Add(tileObject);
+                    foreach (TileObject alreadyAdded in tileObjects)
+                    {
+                        if (alreadyAdded.Direction == tileObject.Direction)
+                            dirExists = true;
 
-                tileObject = new TileObject();
-                tileObject.Direction = Direction.SE;
-                tileObject.TileObjectType = TileObjectType.Bush;
-                tileObjects.Add(tileObject);
+                    }
+                } while (dirExists);
 
-                tileObject = new TileObject();
-                tileObject.Direction = Direction.SW;
-                tileObject.TileObjectType = TileObjectType.Bush;
-                tileObjects.Add(tileObject);
-            }
-            else if (rnd == 3)
-            {
-                // Small WoodTile
-                tileObject = new TileObject();
-                tileObject.Direction = Direction.N;
-                tileObject.TileObjectType = TileObjectType.Tree;
-                tileObjects.Add(tileObject);
-
-                tileObject = new TileObject();
-                tileObject.Direction = Direction.SE;
-                tileObject.TileObjectType = TileObjectType.Tree;
-                tileObjects.Add(tileObject);
-
-                tileObject = new TileObject();
-                tileObject.Direction = Direction.SW;
-                tileObject.TileObjectType = TileObjectType.Bush;
-                tileObjects.Add(tileObject);
-            }
-            else if (rnd == 4)
-            {
-                // Small Busch
-                tileObject = new TileObject();
-                tileObject.Direction = Direction.N;
-                tileObject.TileObjectType = TileObjectType.Bush;
-                tileObjects.Add(tileObject);
-                /*
-                tileObject = new TileObject();
-                tileObject.Direction = Direction.SE;
-                tileObject.TileObjectType = TileObjectType.Gras;
-                tileObjects.Add(tileObject);
-
-                tileObject = new TileObject();
-                tileObject.Direction = Direction.SW;
-                tileObject.TileObjectType = TileObjectType.Gras;
-                tileObjects.Add(tileObject);*/
-            }
-            else
-            {
-                // Gras
-                /*
-                tileObject = new TileObject();
-                tileObject.Direction = Direction.N;
-                tileObject.TileObjectType = TileObjectType.Gras;
-                tileObjects.Add(tileObject);
-
-                tileObject = new TileObject();
-                tileObject.Direction = Direction.SE;
-                tileObject.TileObjectType = TileObjectType.Gras;
-                tileObjects.Add(tileObject);
-
-                tileObject = new TileObject();
-                tileObject.Direction = Direction.SW;
-                tileObject.TileObjectType = TileObjectType.Gras;
-                tileObjects.Add(tileObject);*/
-            }
-
-            int rotate = map.Game.Random.Next(2);
-            if (rotate == 1)
-                tileObjects = Tile.Rotate(tileObjects);
-
-            if (rnd == 99)
-            {
-
-                tileObject = new TileObject();
-
-                int dir = map.Game.Random.Next(6);
-
-                if (dir == 0) tileObject.Direction = Direction.N;
-                else if (dir == 1) tileObject.Direction = Direction.NE;
-                else if (dir == 2) tileObject.Direction = Direction.SE;
-                else if (dir == 3) tileObject.Direction = Direction.S;
-                else if (dir == 4) tileObject.Direction = Direction.SW;
-                else if (dir == 5) tileObject.Direction = Direction.NW;
-
-                tileObject.TileObjectType = TileObjectType.Tree;
                 tileObjects.Add(tileObject);
             }
             return tileObjects;
@@ -375,6 +296,17 @@ namespace Engine.Master
         //private int zoneWidth;
         //private int maxZones;
 
+        public List<TileObject> OpenTileObjects { get; private set; }
+
+        public void AddOpenTileObject(TileObject tileObject)
+        {
+            if (TileObject.ConvertTileObjectIntoMineral(tileObject.TileObjectType))
+            {
+                tileObject.TileObjectType = TileObjectType.Mineral;
+            }
+            OpenTileObjects.Add(tileObject);
+        }
+
         public int DefaultMinerals
         {
             get
@@ -394,6 +326,7 @@ namespace Engine.Master
             MapHeight = game.GameModel.MapHeight;
             MapType = game.GameModel.MapType;
 
+            OpenTileObjects = new List<TileObject>();
             //zoneWidth = (MapWidth / 15);
             //maxZones = zoneWidth * (MapHeight / 15) - 1;
 
@@ -601,11 +534,6 @@ namespace Engine.Master
                 }
             }
 
-
-
-            
-
-
             /*
             mineralDwells = new Dictionary<Position, int>();
 
@@ -685,6 +613,13 @@ namespace Engine.Master
 
             while (openTiles.Count > 0)
                 CreateTerrainTile();*/
+
+            for (int i=0; i < 15; i++)
+            {
+                TileObject tileObject = new TileObject();
+                tileObject.TileObjectType = TileObjectType.Tree;
+                OpenTileObjects.Add(tileObject);
+            }
         }
 
         public void CreateTerrain(Game game)
@@ -783,20 +718,16 @@ namespace Engine.Master
             mapZone.StartObjectGenerator(this);
         }
 
-        private List<TileObject> overflowMinerals = new List<TileObject>();
-
         public void DistributeTileObject(TileObject tileObject)
         {
             if (Zones.Count <= 1)
                 return;
 
-            overflowMinerals.Add(tileObject);
-
             if (zoneCounter == 0)
                 zoneCounter = 1;
 
             int max = Zones.Count;
-            while (max-- > 0 && overflowMinerals.Count > 0)
+            while (max-- > 0)
             {
                 KeyValuePair<int, MapZone> zoneItem = Zones.ElementAt(zoneCounter);
                 MapZone mapZone = zoneItem.Value;
@@ -820,17 +751,13 @@ namespace Engine.Master
                             if (!Game.changedGroundPositions.ContainsKey(t.Pos))
                                 Game.changedGroundPositions.Add(t.Pos, null);
 
-                            tileObject = overflowMinerals[0];
-                            overflowMinerals.RemoveAt(0);
+                            //tileObject = OpenTileObjects[0];
+                            //OpenTileObjects.RemoveAt(0);
 
                             t.Tile.TileContainer.Add(tileObject);
                         }
                     }
                 }
-            }
-            if (overflowMinerals.Count > 0)
-            {
-                //int xxx = 0;
             }
             /*
             int minX, minY;
@@ -931,7 +858,20 @@ namespace Engine.Master
 
         //private HeightMap terrain;
 
+        public void CollectGroundStats(MoveUpdateStats moveUpdateStats, List<TileObject> tileObjects)
+        {
+            moveUpdateStats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
+            moveUpdateStats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
 
+            foreach (TileObject tileObject in tileObjects)
+            {
+                TileObject newTileObject = new TileObject();
+                newTileObject.TileObjectType = tileObject.TileObjectType;
+                newTileObject.Direction = tileObject.Direction;
+                moveUpdateStats.MoveUpdateGroundStat.TileObjects.Add(newTileObject);
+            }
+        }
+        
         public MoveUpdateStats CollectGroundStats(Position pos)
         {
             MoveUpdateGroundStat moveUpdateGroundStat = new MoveUpdateGroundStat();

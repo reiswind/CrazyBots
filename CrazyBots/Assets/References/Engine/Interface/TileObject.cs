@@ -147,12 +147,14 @@ namespace Engine.Interface
     {
         None,
         All,
+
+        // Environment
         Dirt,
-        Gras,
         Bush,
         Tree,
         Mineral,
 
+        // Parts
         PartExtractor, 
         PartAssembler, 
         PartContainer, 

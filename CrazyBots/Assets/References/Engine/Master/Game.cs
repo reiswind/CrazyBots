@@ -63,7 +63,7 @@ namespace Engine.Master
 
             // TESTEXTRACT
 
-            for (int i = 0; i < Map.DefaultMinerals; i++)
+            for (int i = 0; i < Map.DefaultMinerals / Map.Zones.Count; i++)
             {
                 TileObject tileObject = new TileObject();
                 tileObject.Direction = Direction.C;
@@ -190,6 +190,8 @@ namespace Engine.Master
             {
                 if (tileObject.Direction != Direction.C)
                 {
+                    Map.AddOpenTileObject(tileObject);
+
                     remove.Add(tileObject);
                     if (!changedGroundPositions.ContainsKey(t.Pos))
                         changedGroundPositions.Add(t.Pos, null);
@@ -198,6 +200,11 @@ namespace Engine.Master
             foreach (TileObject tileObject in remove)
             {
                 t.TileContainer.Remove(tileObject);
+            }
+            if (!t.HasTileObjects)
+            {
+                // Add open tile?
+                int x=0;
             }
         }
 
@@ -653,9 +660,14 @@ namespace Engine.Master
                             {
                                 if (TileObject.ConvertTileObjectIntoMineral(tileObject.TileObjectType))
                                 {
-                                    tileObject.TileObjectType = TileObjectType.Mineral;
-                                    tileObject.Direction = Direction.C;
-                                    tileObjects.Add(tileObject);
+                                    TileObject newTileObject = new TileObject();
+                                    newTileObject.TileObjectType = TileObjectType.Mineral;
+                                    newTileObject.Direction = tileObject.Direction;
+                                    tileObjects.Add(newTileObject);
+
+                                    //tileObject.TileObjectType = TileObjectType.Mineral;
+                                    //tileObject.Direction = Direction.C;
+                                    //tileObjects.Add(tileObject);
                                 }
                                 else
                                 {
@@ -668,8 +680,16 @@ namespace Engine.Master
                            {
                                 Position from = move.Positions[move.Positions.Count - 1];
                                 Tile fromTile = Map.GetTile(from);
-                                fromTile.TileContainer.AddRange(tileObjects);
 
+                                foreach (TileObject tileObject in tileObjects)
+                                {
+                                    // Drop Minerals on the floor, distribute anything else on the map
+                                    // (No Trees in Buildings)
+                                    if (tileObject.TileObjectType == TileObjectType.Mineral)
+                                        fromTile.TileContainer.Add(tileObject);
+                                    else
+                                        Map.AddOpenTileObject(tileObject);
+                                }
                                 Move updateGroundMove = new Move();
                                 updateGroundMove.MoveType = MoveType.UpdateGround;
                                 updateGroundMove.Positions = new List<Position>();
@@ -1199,11 +1219,13 @@ namespace Engine.Master
                         if (removedTileObjects.Count > 0)
                         {
                             move.Stats = fireingUnit.CollectStats();
+                            Map.CollectGroundStats(move.Stats, removedTileObjects);
+                            /*
                             move.Stats = new MoveUpdateStats();
                             move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
                             move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
                             move.Stats.MoveUpdateGroundStat.TileObjects.AddRange (removedTileObjects);
-
+                            */
                             if (!changedUnits.ContainsKey(fireingUnit.Pos))
                                 changedUnits.Add(fireingUnit.Pos, fireingUnit);
                             //Bullet bullet = new Bullet();
@@ -1540,11 +1562,6 @@ namespace Engine.Master
                 changedUnits.Clear();
                 changedGroundPositions.Clear();
 
-                /*
-                foreach (MapZone zone in Map.Zones.Values)
-                {
-                    zone.CreateTerrainTile(Map);
-                }*/
 
                 /*
                 MapInfo mapInfo1 = new MapInfo();
@@ -1563,6 +1580,18 @@ namespace Engine.Master
                 }
                 else
                 {
+                    // Replace tile objects
+                    foreach (MapZone zone in Map.Zones.Values)
+                    {
+                        Position pos = zone.CreateTerrainTile(Map);
+                        if (pos != null)
+                        {
+                            if (!changedGroundPositions.ContainsKey(pos))
+                                changedGroundPositions.Add(pos, null);
+                        }
+
+
+                    }
 
 #if DEBUG
                     Validate(lastMoves);
@@ -1607,7 +1636,6 @@ namespace Engine.Master
                     {
                         Player player = Players[gameCommand.PlayerId];
                         player.GameCommands.Add(gameCommand);
-
 
                         if (gameCommand.GameCommandType == GameCommandType.Extract)
                         {

@@ -89,7 +89,7 @@ namespace Engine.Interface
         public static TileObjectType GetObjectType(string id)
         {
             if (id == "Mineral") return TileObjectType.Mineral;
-            if (id == "Gras") return TileObjectType.Gras;
+            if (id == "Dirt") return TileObjectType.Dirt;
             if (id == "Bush") return TileObjectType.Bush;
             if (id == "Tree") return TileObjectType.Tree;
             return TileObjectType.None;
@@ -197,16 +197,7 @@ namespace Engine.Interface
                     {
                         bonus = 3;
                     }
-                    else if (tileObject.TileObjectType == TileObjectType.Gras &&
-                            fitTileObject.TileObjectType == TileObjectType.Bush)
-                    {
-                        bonus = 3;
-                    }
-                    else if (tileObject.TileObjectType == TileObjectType.Bush &&
-                             fitTileObject.TileObjectType == TileObjectType.Gras)
-                    {
-                        bonus = 3;
-                    }
+                    
                     if (bonus > 0)
                     { 
                         if (tileObject.Direction == TurnAround(fitTileObject.Direction))

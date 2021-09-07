@@ -344,10 +344,12 @@ namespace Engine.Master
             removeTileObjects.Add(removedTileObject);
 
             move.Stats = new MoveUpdateStats();
+            Unit.Game.Map.CollectGroundStats(move.Stats, removeTileObjects);
+            /*
             move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
             move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
             move.Stats.MoveUpdateGroundStat.TileObjects.Add(removedTileObject);
-
+            */
             if (otherUnit.IsDead())
             {
                 if (hitPart.PartTileObjects.Count > 0)
@@ -358,9 +360,8 @@ namespace Engine.Master
         public bool ExtractInto(Unit unit, Move move, Tile fromTile, Game game, Unit otherUnit, TileObjectType tileObjectType)
         {
             List<TileObject> removeTileObjects = new List<TileObject>();
-            MoveUpdateGroundStat moveUpdateGroundStat;
-            moveUpdateGroundStat = new MoveUpdateGroundStat();
-            moveUpdateGroundStat.TileObjects = new List<TileObject>();
+            //MoveUpdateGroundStat moveUpdateGroundStat;
+            //moveUpdateGroundStat = new MoveUpdateGroundStat();
 
             if (otherUnit != null)
             {
@@ -414,19 +415,22 @@ namespace Engine.Master
                 if (removedTileObject != null)
                     removeTileObjects.Add(removedTileObject);
 
+                /*
                 move.Stats = new MoveUpdateStats();
                 move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
                 move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
-                move.Stats.MoveUpdateGroundStat.TileObjects.Add(removedTileObject);
+                move.Stats.MoveUpdateGroundStat.TileObjects.Add(removedTileObject);*/
             }
 
             // The removed tileobjects will be in the move until the next move
-            moveUpdateGroundStat.TileObjects.AddRange(removeTileObjects);
+            move.Stats = unit.CollectStats();
+            Unit.Game.Map.CollectGroundStats(move.Stats, removeTileObjects);
+            //moveUpdateGroundStat.TileObjects.AddRange(removeTileObjects);
 
             bool didRemove = removeTileObjects.Count > 0;
 
-            move.Stats = unit.CollectStats();
-            move.Stats.MoveUpdateGroundStat = moveUpdateGroundStat;
+            //move.Stats = unit.CollectStats();
+            //move.Stats.MoveUpdateGroundStat = moveUpdateGroundStat;
 
             return didRemove;
         }

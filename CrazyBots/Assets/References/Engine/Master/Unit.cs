@@ -393,13 +393,15 @@ namespace Engine.Master
             }
             if (createdAbility != null)
             {
-                tileObject.TileObjectType = createdAbility.PartType;
-
                 if (createdAbility.PartTileObjects.Count > createdAbility.Level - 1)
                 {
                     throw new Exception("duplicate part");
                 }
-                createdAbility.PartTileObjects.Add(tileObject);
+
+                TileObject newTileObject = new TileObject();
+                newTileObject.TileObjectType = createdAbility.PartType;
+                newTileObject.Direction = tileObject.Direction;
+                createdAbility.PartTileObjects.Add(newTileObject);
             }
             else
             {

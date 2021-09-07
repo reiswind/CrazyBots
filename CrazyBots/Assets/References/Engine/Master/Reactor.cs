@@ -65,7 +65,8 @@ namespace Engine.Master
                 {
                     AvailablePower = TileObject.GetPowerForTileObjectType(tileObjects[0].TileObjectType);
 
-                    Unit.Game.Map.DistributeTileObject(tileObjects[0]);
+
+                    Unit.Game.Map.AddOpenTileObject(tileObjects[0]);
                 }
             }
         }
