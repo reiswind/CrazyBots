@@ -163,7 +163,10 @@ namespace Engine.Master
             foreach (Tile n in startTile.Neighbors)
             {
                 if (n.TileContainer.Count == 0)
+                {
+                    n.IsOpenTile = true;
                     openTiles.Add(n);
+                }
             }
             /*
             while (openTiles.Count > 0)
@@ -172,7 +175,17 @@ namespace Engine.Master
 
         public void AddTerrainTile(Tile t)
         {
+            t.IsOpenTile = true;
             openTiles.Add(t);
+        }
+
+        public void AddOpenTile(Tile tile)
+        {
+            if (Tiles != null && Tiles.ContainsKey(tile.Pos))
+            {
+                openTiles.Add(tile);
+                tile.IsOpenTile = true;
+            }
         }
 
 
@@ -181,7 +194,7 @@ namespace Engine.Master
             if (map.OpenTileObjects.Count == 0)
                 return null;
 
-            if (ZoneId != 2)
+            if (ZoneId != 2 && ZoneId != 4)
                 return null;
 
             if (openTiles == null)
@@ -218,24 +231,45 @@ namespace Engine.Master
                 {
                     if (bestTileFit != null)
                     {
+                        if (!bestTile.IsOpenTile)
+                        {
+                            int x = 0;
+                        }
+                        foreach (TileObject tileObject in bestTileFit.TileObjects)
+                            map.OpenTileObjects.Remove(tileObject);
+
                         bestTile.TileContainer.AddRange(bestTileFit.TileObjects);
                         pos = bestTile.Pos;
-                    }
 
-                    if (!openTiles.Remove(bestTile))
-                    {
-                    }
+                        bool removeOpenTile = false;
 
-                    foreach (Tile n in bestTile.Neighbors)
-                    {
-                        if (n.TileContainer.TileObjects.Count == 0 && !openTiles.Contains(n)) // Only in Zone? && Tiles.ContainsKey(n.Pos))
+                        if (!bestTile.CanBuild())
+                            removeOpenTile = true;
+                        if (removeOpenTile)
                         {
-                            openTiles.Add(n);
+                            if (!openTiles.Remove(bestTile))
+                            {
+                            }
+                            if (!map.Game.changedGroundPositions.ContainsKey(bestTile.Pos))
+                                map.Game.changedGroundPositions.Add(bestTile.Pos, null);
+                            bestTile.IsOpenTile = false;
+
+                            foreach (Tile n in bestTile.Neighbors)
+                            {
+                                if (!openTiles.Contains(n) && n.CanBuild() && Tiles.ContainsKey(n.Pos)) // Only in zone
+                                {
+                                    if (!map.Game.changedGroundPositions.ContainsKey(n.Pos))
+                                        map.Game.changedGroundPositions.Add(n.Pos, null);
+
+                                    n.IsOpenTile = true;
+                                    openTiles.Add(n);
+                                }
+                            }
                         }
                     }
                 }
            }
-            return pos;
+           return pos;
         }
 
         internal List<TileObject> CreateRandomObjects(Map map)
@@ -243,12 +277,16 @@ namespace Engine.Master
             List<TileObject> tileObjects = new List<TileObject>();
 
             TileObject tileObject;
+            int mapIndex = 0;
 
             int rnd = map.Game.Random.Next(3) + 1;
-            while (rnd-- > 0 && map.OpenTileObjects.Count > 0)
+            while (rnd-- > 0)
             {
-                tileObject = map.OpenTileObjects[0];
-                map.OpenTileObjects.RemoveAt(0);
+                if (mapIndex >= map.OpenTileObjects.Count)
+                    break;
+
+                tileObject = map.OpenTileObjects[mapIndex];
+                mapIndex++;
 
                 bool dirExists;
                 do
@@ -587,6 +625,7 @@ namespace Engine.Master
                             else
                             {
                                 t = new Tile(this, sectorTilePos);
+                                t.TerrainTypeIndex = 1;
                                 Tiles.Add(sectorTilePos, t);
                             }
                         }
@@ -618,6 +657,24 @@ namespace Engine.Master
             {
                 TileObject tileObject = new TileObject();
                 tileObject.TileObjectType = TileObjectType.Tree;
+                OpenTileObjects.Add(tileObject);
+            }
+            for (int i = 0; i < 15; i++)
+            {
+                TileObject tileObject = new TileObject();
+                tileObject.TileObjectType = TileObjectType.Bush;
+                OpenTileObjects.Add(tileObject);
+            }
+            for (int i = 0; i < 15; i++)
+            {
+                TileObject tileObject = new TileObject();
+                tileObject.TileObjectType = TileObjectType.Tree;
+                OpenTileObjects.Add(tileObject);
+            }
+            for (int i = 0; i < 15; i++)
+            {
+                TileObject tileObject = new TileObject();
+                tileObject.TileObjectType = TileObjectType.Bush;
                 OpenTileObjects.Add(tileObject);
             }
         }
@@ -697,6 +754,14 @@ namespace Engine.Master
                 zone = Zones[t.ZoneId];
             }
             zone.AddTerrainTile(t);
+        }
+
+        public void AddOpenTile(Tile tile)
+        {
+            foreach (MapZone mapZone in Zones.Values)
+            {
+                mapZone.AddOpenTile(tile);
+            }
         }
 
         private void AddZone(Position pos)
@@ -885,6 +950,7 @@ namespace Engine.Master
             moveUpdateGroundStat.TileObjects = new List<TileObject>();
             moveUpdateGroundStat.TileObjects.AddRange(t.TileContainer.TileObjects);
             moveUpdateGroundStat.Height = (float)t.Height;
+            moveUpdateGroundStat.IsOpenTile = t.IsOpenTile;
 
             MoveUpdateStats moveUpdateStats;
             moveUpdateStats = new MoveUpdateStats();

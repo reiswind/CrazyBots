@@ -54,6 +54,11 @@ namespace Engine.Interface
 
     public class MoveUpdateGroundStat
     {
+        public MoveUpdateGroundStat()
+        {
+
+        }
+
         [DataMember]
         public int Owner { get; set; }
         [DataMember]
@@ -69,6 +74,22 @@ namespace Engine.Interface
         [DataMember(EmitDefaultValue = false)]
         public List<TileObject> TileObjects { get; set; }
 
+        [DataMember(EmitDefaultValue = false)]
+        public bool IsOpenTile { get; set; }
+
+        private int Count(TileObjectType tileObjectType)
+        {
+            int count = 0;
+            if (TileObjects != null)
+            {
+                foreach (TileObject tileObject in TileObjects)
+                {
+                    if (tileObject.TileObjectType == tileObjectType)
+                        count++;
+                }
+            }
+            return count;
+        }
 
         public bool IsHill()
         {
@@ -84,23 +105,32 @@ namespace Engine.Interface
 
         public bool IsDarkWood()
         {
+            if (Count(TileObjectType.Tree) > 2)
+                return true;
             return PlantLevel <= 4 && TerrainTypeIndex == 3;
             //return Height > 0.6 && Height <= 0.7;
         }
 
         public bool IsWood()
         {
+            if (Count(TileObjectType.Tree) == 2)
+                return true;
+
             return PlantLevel == 2 && TerrainTypeIndex == 3;
             //return Height > 0.5 && Height <= 0.6;
         }
 
         public bool IsLightWood()
         {
+            if (Count(TileObjectType.Bush) >= 2 || Count(TileObjectType.Tree) == 1)
+                return true;
             return PlantLevel <= 1 && TerrainTypeIndex == 3;
             //return Height > 0.4 && Height <= 0.5;
         }
         public bool IsGrassDark()
         {
+            if (Count(TileObjectType.Bush) == 1 || Count(TileObjectType.Bush) == 2)
+                return true;
             return PlantLevel > 1 && TerrainTypeIndex == 1;
             //return Height > 0.3 && Height <= 0.4;
         }

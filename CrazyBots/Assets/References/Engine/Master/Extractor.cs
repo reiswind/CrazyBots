@@ -413,8 +413,27 @@ namespace Engine.Master
                     removedTileObject = fromTile.TileContainer.RemoveTileObject(tileObjectType);
                 }
                 if (removedTileObject != null)
+                {
                     removeTileObjects.Add(removedTileObject);
 
+                    if (removedTileObject.TileObjectType == TileObjectType.Bush ||
+                        removedTileObject.TileObjectType == TileObjectType.Tree)
+                    {
+                        bool containsOtherObstacles = false;
+                        foreach (TileObject tileObject in fromTile.TileContainer.TileObjects)
+                        {
+                            if (tileObject.TileObjectType == TileObjectType.Bush ||
+                                tileObject.TileObjectType == TileObjectType.Tree)
+                            {
+                                containsOtherObstacles = true;
+                            }
+                        }
+                        if (containsOtherObstacles == false)
+                        {
+                            Unit.Game.Map.AddOpenTile(fromTile);
+                        }
+                    }
+                }
                 /*
                 move.Stats = new MoveUpdateStats();
                 move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();

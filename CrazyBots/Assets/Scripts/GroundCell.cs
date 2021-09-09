@@ -207,7 +207,6 @@ namespace Assets.Scripts
                     int x = 0;
                 }
                 */
-
                 
                 if (GroundStat.IsHill())
                 {
@@ -219,7 +218,7 @@ namespace Assets.Scripts
                 }
                 else if (GroundStat.IsSand())
                 {
-                    materialName = "Grass";
+                    materialName = "Sand";
                 }
                 else if (GroundStat.IsDarkSand())
                 {
@@ -250,6 +249,10 @@ namespace Assets.Scripts
                     materialName = "";
                 }
 
+                if (GroundStat.IsOpenTile)
+                {
+                    //materialName = "DarkSand";
+                }
             }
 
             if (currentMaterialName == null || currentMaterialName != materialName)

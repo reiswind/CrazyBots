@@ -227,8 +227,10 @@ namespace Engine.Interface
         public double Height { get; set; }
         public int TerrainTypeIndex { get; set; }
         public int PlantLevel { get; set; }
-        /*
-        private int minerals;*/
+
+        // Debug
+        public bool IsOpenTile { get; set; }
+
         public int Minerals
         {  
             get
@@ -253,10 +255,13 @@ namespace Engine.Interface
 
         public bool CanBuild()
         {
+            if (TileContainer.Minerals > 20)
+                return false;
+
             foreach (TileObject tileObject in TileContainer.TileObjects)
             {
-                if (tileObject.Direction != Direction.C)
-                    return false;
+                if (tileObject.TileObjectType == TileObjectType.Bush) return false;
+                if (tileObject.TileObjectType == TileObjectType.Tree) return false;
             }
             return true;
         }
