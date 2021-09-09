@@ -26,14 +26,55 @@ namespace Engine.Ants
 
         public override bool Move(ControlAnt control, Player player, List<Move> moves)
         {
+            bool moved = false;
             if (Assembler.CanProduce())
             {
-                Assemble(control, player, moves);
+                if (Ant.BuildPositionReached)
+                {
+                    moved = BuildUnit(control, player, moves);
+                }
+                else
+                {
+                    moved = Assemble(control, player, moves);
+                }
+            }
+            return moved;
+        }
+
+        public bool BuildUnit(ControlAnt control, Player player, List<Move> moves)
+        {
+            Unit cntrlUnit = Assembler.Unit;
+
+            // Assembler reached target, build order
+            List<Move> possiblemoves = new List<Move>();
+            cntrlUnit.Assembler.ComputePossibleMoves(possiblemoves, null, MoveFilter.Assemble);
+            if (possiblemoves.Count > 0)
+            {
+                foreach (Move move1 in possiblemoves)
+                {
+                    if (cntrlUnit.CurrentGameCommand != null &&
+                        cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Build &&
+                        move1.Positions[1] == cntrlUnit.CurrentGameCommand.TargetPosition &&
+                        move1.UnitId == cntrlUnit.CurrentGameCommand.UnitId)
+                    {
+                        moves.Add(move1);
+
+                        Ant.BuildPositionReached = false;
+                        Ant.FollowThisRoute = null;
+                        return true;
+                    }
+                }
+            }
+            // Reached position, tryin to build but cant.
+            Ant.StuckCounter++;
+            if (Ant.StuckCounter > 10)
+            {
+                Ant.AbendonUnit(player);
             }
             return false;
         }
 
-        public void Assemble(ControlAnt control, Player player, List<Move> moves)
+        public bool Assemble(ControlAnt control, Player player, List<Move> moves)
         {
             bool addWorker = false;
             bool addAssembler = false;
@@ -88,7 +129,7 @@ namespace Engine.Ants
                 }
                 upgrading = true;
                 moves.Add(move);
-                break;
+                return true;
             }
 
             if (!upgrading)
@@ -205,26 +246,26 @@ namespace Engine.Ants
 
                         if (move.UnitId == "Assembler")
                         {
-                            AntWorker antWorker = new AntWorker(control);
-                            antWorker.AntWorkerType = AntWorkerType.Assembler;
-                            control.CreatedAnts.Add(move.Positions[1], antWorker);
+                            Ant ant = new Ant(control);
+                            ant.AntWorkerType = AntWorkerType.Assembler;
+                            control.CreatedAnts.Add(move.Positions[1], ant);
 
                             if (selectedGameCommand != null && selectedGameCommand.GameCommandType == GameCommandType.Build)
                             {
-                                antWorker.GameCommandDuringCreation = selectedGameCommand;
+                                ant.GameCommandDuringCreation = selectedGameCommand;
                                 player.GameCommands.Remove(selectedGameCommand);
                             }
                         }
                         else if (move.UnitId == "Worker")
                         {
-                            AntWorker antWorker = new AntWorker(control);
-                            antWorker.AntWorkerType = AntWorkerType.Worker;
+                            Ant ant = new Ant(control);
+                            ant.AntWorkerType = AntWorkerType.Worker;
                             control.NumberOfWorkers++;
-                            control.CreatedAnts.Add(move.Positions[1], antWorker);
+                            control.CreatedAnts.Add(move.Positions[1], ant);
 
                             if (selectedGameCommand != null && selectedGameCommand.GameCommandType == GameCommandType.Collect)
                             {
-                                antWorker.GameCommandDuringCreation = selectedGameCommand;
+                                ant.GameCommandDuringCreation = selectedGameCommand;
                                 player.GameCommands.Remove(selectedGameCommand);
                             }
                             /*
@@ -243,14 +284,14 @@ namespace Engine.Ants
                         }
                         else if (move.UnitId == "Fighter" || move.UnitId.StartsWith("Bomber"))
                         {
-                            AntWorker antWorker = new AntWorker(control);
-                            antWorker.AntWorkerType = AntWorkerType.Fighter;
+                            Ant ant = new Ant(control);
+                            ant.AntWorkerType = AntWorkerType.Fighter;
                             control.NumberOfFighter++;
-                            control.CreatedAnts.Add(move.Positions[1], antWorker);
+                            control.CreatedAnts.Add(move.Positions[1], ant);
 
                             if (selectedGameCommand != null && selectedGameCommand.GameCommandType == GameCommandType.Attack)
                             {
-                                antWorker.GameCommandDuringCreation = selectedGameCommand;
+                                ant.GameCommandDuringCreation = selectedGameCommand;
                                 player.GameCommands.Remove(selectedGameCommand);
                             }
                             /*
@@ -280,11 +321,12 @@ namespace Engine.Ants
                                 player.GameCommands.Remove(selectedGameCommand);
                             }*/
                         }
-
+                        return true;
                         //unitMoved = true;
                     }
                 }
             }
+            return false;
         }
     }
 }

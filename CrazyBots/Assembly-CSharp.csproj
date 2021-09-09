@@ -67,10 +67,14 @@
     <Compile Include="Assets\References\Engine\Ants\AntDestination.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntNetwork.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPart.cs" />
+    <Compile Include="Assets\References\Engine\Ants\AntPartArmor.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartAssembler.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartContainer.cs" />
+    <Compile Include="Assets\References\Engine\Ants\AntPartEngine.cs" />
+    <Compile Include="Assets\References\Engine\Ants\AntPartExtractor.cs" />
+    <Compile Include="Assets\References\Engine\Ants\AntPartRadar.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartReactor.cs" />
-    <Compile Include="Assets\References\Engine\Ants\AntWorker.cs" />
+    <Compile Include="Assets\References\Engine\Ants\AntPartWeapon.cs" />
     <Compile Include="Assets\References\Engine\Ants\ControlAnt.cs" />
     <Compile Include="Assets\References\Engine\Ants\MineralDeposit.cs" />
     <Compile Include="Assets\References\Engine\Ants\Pheromone.cs" />

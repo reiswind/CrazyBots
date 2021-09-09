@@ -274,6 +274,10 @@ namespace Engine.Master
 
         private Ability CreateBlueprintPart(BlueprintPart blueprintPart, int level, bool fillContainer, TileObject tileObject)
         {
+            if (UnitId == "unit66")
+            {
+                int x=0;
+            }
             Ability createdAbility = null;
             if (blueprintPart.PartType == TileObjectType.PartEngine)
             {

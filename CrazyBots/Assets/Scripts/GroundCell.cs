@@ -219,7 +219,7 @@ namespace Assets.Scripts
                 }
                 else if (GroundStat.IsSand())
                 {
-                    materialName = "Sand";
+                    materialName = "Grass";
                 }
                 else if (GroundStat.IsDarkSand())
                 {

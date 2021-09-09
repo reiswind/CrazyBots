@@ -457,7 +457,11 @@ namespace Engine.Master
                     else
                     {
                         Unit newUnit = Map.Units.GetUnitAt(move.Positions[1]);
-
+                        if (newUnit != null && newUnit.UnitId != move.OtherUnitId)
+                        {
+                            // The unit to upgrade is no longer there
+                            newUnit = null;
+                        }
                         if (newUnit == null)
                         {
                             Player player = Players[move.PlayerId];
@@ -544,6 +548,10 @@ namespace Engine.Master
                         //if (thisUnit.Container != null && containerNetal.HasValue)
                         ///    thisUnit.Container.Mineral = containerNetal.Value;
 
+                        if (thisUnit.UnitId == "unit61")
+                        {
+                            int x = 0;
+                        }
                         thisUnit.Power = 20;
                         thisUnit.MaxPower = 20;
                         if (move.MoveType == MoveType.Add)
@@ -676,8 +684,8 @@ namespace Engine.Master
                             }
                             unit.AddTileObjects(tileObjects);
 
-                           if (tileObjects.Count > 0)
-                           {
+                            if (tileObjects.Count > 0)
+                            {
                                 Position from = move.Positions[move.Positions.Count - 1];
                                 Tile fromTile = Map.GetTile(from);
 
@@ -697,16 +705,17 @@ namespace Engine.Master
                                 updateGroundMove.Stats = Map.CollectGroundStats(from);
                                 nextMoves.Add(updateGroundMove);
                             }
+
+                            // Insert an update move, so the client knows that tileobjects have been added
+                            Move moveUpdate = new Move();
+                            moveUpdate.PlayerId = unit.Owner.PlayerModel.Id;
+                            moveUpdate.MoveType = MoveType.UpdateStats;
+                            moveUpdate.UnitId = unit.UnitId;
+                            moveUpdate.Positions = new List<Position>();
+                            moveUpdate.Positions.Add(unit.Pos);
+                            moveUpdate.Stats = unit.CollectStats();
+                            nextMoves.Add(moveUpdate);
                         }
-                        // Insert an update move, so the client knows that tileobjects have been added
-                        Move moveUpdate = new Move();
-                        moveUpdate.PlayerId = unit.Owner.PlayerModel.Id;
-                        moveUpdate.MoveType = MoveType.UpdateStats;
-                        moveUpdate.UnitId = unit.UnitId;
-                        moveUpdate.Positions = new List<Position>();
-                        moveUpdate.Positions.Add(unit.Pos);
-                        moveUpdate.Stats = unit.CollectStats();
-                        nextMoves.Add(moveUpdate);
                     }
                     finishedMoves.Add(move);
                 }
@@ -918,7 +927,10 @@ namespace Engine.Master
 
                     foreach (Move move in moves)
                     {
-                        if (move.MoveType == MoveType.Build || move.MoveType == MoveType.Add)
+                        if (move.MoveType == MoveType.CommandComplete || move.MoveType == MoveType.Transport)
+                        {
+                        }
+                        else if (move.MoveType == MoveType.Build || move.MoveType == MoveType.Add)
                         {
                             if (unitsThatMoved.ContainsKey(move.OtherUnitId))
                                 throw new Exception("Cheater");
@@ -1003,7 +1015,8 @@ namespace Engine.Master
                         }
                         if (unit.UnitId != mapUnit.UnitId)
                         {
-                            throw new Exception("wrong unit moved");
+                            throw new Exception("player has different unit");
+                            //can happen if unit to be upgraded has moved away
                         }
                         if (unit.Owner.PlayerModel.Id != mapUnit.Owner.PlayerModel.Id)
                         {
@@ -1477,6 +1490,10 @@ namespace Engine.Master
                             moveToTargets.Add(destination, move);
                         }
                     }
+                    else if (move.MoveType == MoveType.Upgrade)
+                    {
+
+                    }
                     else
                     {
                         acceptedMoves.Add(move);
@@ -1485,8 +1502,13 @@ namespace Engine.Master
 
                 foreach (Move move in moveToTargets.Values)
                 {
-                    if (move.MoveType == MoveType.Upgrade || move.MoveType == MoveType.Build)
+                    if (/*move.MoveType == MoveType.Upgrade ||*/ move.MoveType == MoveType.Build)
                         continue;
+
+                    if (move.MoveType == MoveType.Upgrade)
+                    {
+                            int x = 0;
+                    }
 
                     Position from = move.Positions[0];
                     Position destination = move.Positions[move.Positions.Count - 1];
@@ -1508,15 +1530,27 @@ namespace Engine.Master
                     else if (t.Unit != null)
                     {
                         bool unitBlocked = true;
-                        // Move onto another unit? Check if this unit goes away
-                        foreach (Move unitMove in moveToTargets.Values)
+                        if (move.MoveType == MoveType.Upgrade)
                         {
-                            if ((unitMove.MoveType == MoveType.Move || unitMove.MoveType == MoveType.Build || unitMove.MoveType == MoveType.Add) && t.Unit.UnitId == unitMove.UnitId)
+                            // Upgrde this unit is ok
+                            if (t.Unit.UnitId == move.OtherUnitId)
                             {
-                                // This unit moves away, so it is ok
-                                acceptedMoves.Add(move);
                                 unitBlocked = false;
-                                break;
+                                acceptedMoves.Add(move);
+                            }
+                        }
+                        else
+                        {
+                            // Move onto another unit? Check if this unit goes away
+                            foreach (Move unitMove in moveToTargets.Values)
+                            {
+                                if ((unitMove.MoveType == MoveType.Move || unitMove.MoveType == MoveType.Build || unitMove.MoveType == MoveType.Add) && t.Unit.UnitId == unitMove.UnitId)
+                                {
+                                    // This unit moves away, so it is ok
+                                    acceptedMoves.Add(move);
+                                    unitBlocked = false;
+                                    break;
+                                }
                             }
                         }
                         if (unitBlocked == true)
@@ -1554,9 +1588,9 @@ namespace Engine.Master
                     return returnMoves;
                 }
 
-                if (MoveNr == 57)
+                if (MoveNr == 94)
                 {
-
+                    int x = 0;
                 }
 
                 changedUnits.Clear();

@@ -34,6 +34,11 @@ namespace Engine.Ants
         public AntPartAssembler AntPartAssembler { get; set; }
         public AntPartReactor AntPartReactor { get; set; }
         public AntPartContainer AntPartContainer { get; set; }
+        public AntPartExtractor AntPartExtractor { get; set; }
+        public AntPartEngine AntPartEngine { get; set; }
+        public AntPartWeapon AntPartWeapon { get; set; }
+        public AntPartRadar AntPartRadar { get; set; }
+        public AntPartArmor AntPartArmor { get; set; }
 
         public void ConnectWithAnt(Ant otherAnt)
         {
@@ -83,7 +88,6 @@ namespace Engine.Ants
                 if (AntPartAssembler == null)
                 {
                     AntPartAssembler = new AntPartAssembler(this, PlayerUnit.Unit.Assembler);
-                    AntParts.Add(AntPartAssembler);
                     changed = true;
                 }
             }
@@ -92,7 +96,6 @@ namespace Engine.Ants
                 if (AntPartAssembler != null)
                 {
                     AntPartAssembler = null;
-                    AntParts.Remove(AntPartAssembler);
                     changed = true;
                 }
             }
@@ -102,7 +105,6 @@ namespace Engine.Ants
                 if (AntPartReactor == null)
                 {
                     AntPartReactor = new AntPartReactor(this, PlayerUnit.Unit.Reactor);
-                    AntParts.Add(AntPartReactor);
                     changed = true;
                 }
             }
@@ -111,7 +113,6 @@ namespace Engine.Ants
                 if (AntPartReactor != null)
                 {
                     AntPartReactor = null;
-                    AntParts.Remove(AntPartReactor);
                     changed = true;
                 }
             }
@@ -121,7 +122,6 @@ namespace Engine.Ants
                 if (AntPartContainer == null)
                 {
                     AntPartContainer = new AntPartContainer(this, PlayerUnit.Unit.Container);
-                    AntParts.Add(AntPartContainer);
                     changed = true;
                 }
             }
@@ -130,13 +130,110 @@ namespace Engine.Ants
                 if (AntPartContainer != null)
                 {
                     AntPartContainer = null;
-                    AntParts.Remove(AntPartContainer);
                     changed = true;
                 }
             }
 
+            if (PlayerUnit.Unit.Extractor != null)
+            {
+                if (AntPartExtractor == null)
+                {
+                    AntPartExtractor = new AntPartExtractor(this, PlayerUnit.Unit.Extractor);
+                    changed = true;
+                }
+            }
+            else
+            {
+                if (AntPartExtractor != null)
+                {
+                    AntPartExtractor = null;
+                    changed = true;
+                }
+            }
+
+            if (PlayerUnit.Unit.Engine != null)
+            {
+                if (AntPartEngine == null)
+                {
+                    AntPartEngine = new AntPartEngine(this, PlayerUnit.Unit.Engine);
+                    changed = true;
+                }
+            }
+            else
+            {
+                if (AntPartEngine != null)
+                {
+                    AntPartEngine = null;
+                    changed = true;
+                }
+            }
+
+            if (PlayerUnit.Unit.Weapon != null)
+            {
+                if (AntPartWeapon == null)
+                {
+                    AntPartWeapon = new AntPartWeapon(this, PlayerUnit.Unit.Weapon);
+                    changed = true;
+                }
+            }
+            else
+            {
+                if (AntPartWeapon != null)
+                {
+                    AntPartWeapon = null;
+                    changed = true;
+                }
+            }
+
+            if (PlayerUnit.Unit.Armor != null)
+            {
+                if (AntPartArmor == null)
+                {
+                    AntPartArmor = new AntPartArmor(this, PlayerUnit.Unit.Armor);
+                    changed = true;
+                }
+            }
+            else
+            {
+                if (AntPartArmor != null)
+                {
+                    AntPartArmor = null;
+                    changed = true;
+                }
+            }
+
+            if (PlayerUnit.Unit.Radar != null)
+            {
+                if (AntPartRadar == null)
+                {
+                    AntPartRadar = new AntPartRadar(this, PlayerUnit.Unit.Radar);
+                    changed = true;
+                }
+            }
+            else
+            {
+                if (AntPartRadar != null)
+                {
+                    AntPartRadar = null;
+                    changed = true;
+                }
+            }
+
+
             if (changed)
+            {
+                AntParts.Clear();
+                if (AntPartWeapon != null) AntParts.Add(AntPartWeapon);
+                if (AntPartExtractor != null) AntParts.Add(AntPartExtractor);
+                if (AntPartReactor != null) AntParts.Add(AntPartReactor);
+                if (AntPartAssembler != null) AntParts.Add(AntPartAssembler);
+                if (AntPartContainer != null) AntParts.Add(AntPartContainer);
+                if (AntPartEngine != null) AntParts.Add(AntPartEngine);
+                if (AntPartArmor != null) AntParts.Add(AntPartArmor);
+                if (AntPartRadar != null) AntParts.Add(AntPartRadar);
+
                 ConnectAntParts();
+            }
         }
 
 
@@ -160,7 +257,7 @@ namespace Engine.Ants
         public int PheromoneDepositNeedMinerals { get; set; }
         public int PheromoneWaypointMineral { get; set; }
         public int PheromoneWaypointAttack { get; set; }
-
+        public bool BuildPositionReached { get; set; }
         public void AbendonUnit(Player player)
         {
             OnDestroy(player);
@@ -183,11 +280,16 @@ namespace Engine.Ants
         public List<Position> FollowThisRoute { get; set; }
         public virtual bool Move(Player player, List<Move> moves)
         {
+            bool moved = false;
             foreach (AntPart antPart in AntParts)
             {
-                antPart.Move(Control, player, moves);
+                if (antPart.Move(Control, player, moves))
+                {
+                    moved = true;
+                    break;
+                }
             }
-            return true;
+            return moved;
         }
         public virtual void UpdateContainerDeposits(Player player)
         {
@@ -219,71 +321,30 @@ namespace Engine.Ants
                 PheromoneWaypointMineral = 0;
             }
             // Another ant has to take this task
-            if (PlayerUnit.Unit.CurrentGameCommand != null)
+            if (PlayerUnit != null &&
+                PlayerUnit.Unit.CurrentGameCommand != null)
             {
-                player.GameCommands.Add(PlayerUnit.Unit.CurrentGameCommand);
+                // Better create new command?
+                //player.GameCommands.Add(PlayerUnit.Unit.CurrentGameCommand);
                 PlayerUnit.Unit.CurrentGameCommand = null;
             }
             if (GameCommandDuringCreation != null)
             {
-                player.GameCommands.Add(GameCommandDuringCreation);
+                // Better create new command?
+                //player.GameCommands.Add(GameCommandDuringCreation);
                 GameCommandDuringCreation = null;
             }
         }
 
         internal GameCommand GameCommandDuringCreation;
         public AntWorkerType AntWorkerType { get; set; }
+    }
 
-        public bool Extract(Player player, List<Move> moves)
-        {
-            Unit cntrlUnit = PlayerUnit.Unit;
-
-            if (AntWorkerType == AntWorkerType.Fighter && cntrlUnit.Weapon != null &&
-                cntrlUnit.Weapon.TileContainer.Loaded >= cntrlUnit.Weapon.TileContainer.Capacity)
-            {
-                // Fight, do not extract if can fire
-            }
-            else
-            {
-                // only if enemy is close...
-                if (false && cntrlUnit.Armor != null && cntrlUnit.Armor.ShieldActive == false && AntWorkerType != AntWorkerType.Worker)
-                {
-                    // Run away, extract later 
-                }
-                else
-                {
-                    if (cntrlUnit.Extractor != null && cntrlUnit.Extractor.CanExtract)
-                    {
-                        List<Move> possiblemoves = new List<Move>();
-                        cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, null, MoveFilter.Extract);
-                        if (possiblemoves.Count > 0)
-                        {
-                            // Assume Minerals for now
-                            List<Move> mineralmoves = new List<Move>();
-                            foreach (Move mineralMove in possiblemoves)
-                            {
-                                /*
-                                if (mineralMove.OtherUnitId == "Mineral")
-                                    mineralmoves.Add(mineralMove);
-                                if (mineralMove.OtherUnitId.StartsWith("unit"))*/
-                                // Everything
-                                mineralmoves.Add(mineralMove);
-                            }
-                            if (mineralmoves.Count > 0)
-                            {
-                                int idx = player.Game.Random.Next(mineralmoves.Count);
-                                Move move = mineralmoves[idx];
-                                moves.Add(move);
-
-                                FollowThisRoute = null;
-
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
-            return false;
-        }
+    internal enum AntWorkerType
+    {
+        None,
+        Worker,
+        Fighter,
+        Assembler
     }
 }

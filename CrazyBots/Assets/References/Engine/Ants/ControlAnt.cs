@@ -86,13 +86,12 @@ namespace Engine.Control
                         }
                     }
                 }
-
-                if (move.MoveType == MoveType.Extract)
+                else if (move.MoveType == MoveType.Extract)
                 {
                     Position pos = move.Positions[move.Positions.Count - 1];
 
                 }
-                if (move.MoveType == MoveType.Build)
+                else if (move.MoveType == MoveType.Build)
                 {
                     Position pos = move.Positions[move.Positions.Count - 1];
                     if (CreatedAnts.ContainsKey(pos))
@@ -115,6 +114,15 @@ namespace Engine.Control
                     else
                     {
                         //WorkFound(player, pos);
+                    }
+                }
+                else if (move.MoveType == MoveType.Upgrade)
+                {
+                    PlayerUnit playerUnit = player.Units[move.UnitId];
+                    Ant ant = Ants[playerUnit.Unit.UnitId] as Ant;
+                    if (ant != null)
+                    {
+                        ant.CreateAntParts();
                     }
                 }
             }
@@ -470,7 +478,7 @@ namespace Engine.Control
             return MakePathFromPositions(bestPositions, antWorker);
         }
 
-        public Position FindCommandTarget(Player player, AntWorker antWorker)
+        public Position FindCommandTarget(Player player, Ant antWorker)
         {
             // Compute route to target
             List<Position> bestPositions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, antWorker.PlayerUnit.Unit.CurrentGameCommand.TargetPosition, antWorker.PlayerUnit.Unit);
@@ -519,8 +527,8 @@ namespace Engine.Control
                 {
                     if (ant.PlayerUnit == null) // Ghost
                         continue;
-                    if (ant is AntWorker)
-                        continue;
+                    //if (ant is AntWorker)
+                    //    continue;
 
                     if (ant.PlayerUnit.Unit.IsComplete() &&
                         ant.PlayerUnit.Unit.Engine == null &&
@@ -612,7 +620,7 @@ namespace Engine.Control
         }
         
 
-        private List<Position> FindMineralForCommand(Player player, AntWorker ant, List<Position> bestPositions)
+        private List<Position> FindMineralForCommand(Player player, Ant ant, List<Position> bestPositions)
         {
             Dictionary<Position, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.CurrentGameCommand.TargetPosition, 3, false, matcher: tile =>
             {
@@ -631,7 +639,7 @@ namespace Engine.Control
             return bestPositions;
         }
 
-        private List<Position> FindMineralOnMap(Player player, AntWorker ant, List<Position> bestPositions)
+        private List<Position> FindMineralOnMap(Player player, Ant ant, List<Position> bestPositions)
         {
             //List<Position> bestPositions = null;
             foreach (Position pos in player.VisiblePositions) // TileWithDistance t in tiles.Values)
@@ -650,7 +658,7 @@ namespace Engine.Control
             return bestPositions;
         }
 
-        private List<Position> FindMineralDeposit(Player player, AntWorker ant, List<Position> bestPositions)
+        private List<Position> FindMineralDeposit(Player player, Ant ant, List<Position> bestPositions)
         {
             //List<Position> bestPositions = null;
 
@@ -693,7 +701,7 @@ namespace Engine.Control
             return bestPositions;
         }
 
-        private List<Position> FindMineralContainer(Player player, AntWorker ant, List<Position> bestPositions)
+        private List<Position> FindMineralContainer(Player player, Ant ant, List<Position> bestPositions)
         {
             // Look for Container with mineraly to refill
             foreach (Ant antContainer in Ants.Values)
@@ -742,7 +750,7 @@ namespace Engine.Control
             return null;
         }
 
-        public Position FindMineral(Player player, AntWorker ant)
+        public Position FindMineral(Player player, Ant ant)
         {
             List<Position> bestPositions = null;
 
@@ -941,16 +949,12 @@ namespace Engine.Control
 
         internal void UpdateUnitCounters(Ant ant)
         {
-            AntWorker antWorker = ant as AntWorker;
-            if (antWorker != null)
-            {
-                if (antWorker.AntWorkerType == AntWorkerType.Worker)
-                    NumberOfWorkers++;
-                if (antWorker.AntWorkerType == AntWorkerType.Fighter)
-                    NumberOfFighter++;
-                if (antWorker.AntWorkerType == AntWorkerType.Assembler)
-                    NumberOfAssembler++;
-            }
+            if (ant.AntWorkerType == AntWorkerType.Worker)
+                NumberOfWorkers++;
+            if (ant.AntWorkerType == AntWorkerType.Fighter)
+                NumberOfFighter++;
+            if (ant.AntWorkerType == AntWorkerType.Assembler)
+                NumberOfAssembler++;
             if (ant.PlayerUnit != null)
             {
                 if (ant.PlayerUnit.Unit.Reactor != null)
@@ -975,8 +979,7 @@ namespace Engine.Control
 
             foreach (Ant ant in ants)
             {
-                AntWorker antWorker = ant as AntWorker;
-                if (antWorker != null && antWorker.AntWorkerType != AntWorkerType.Worker)
+                if (ant.AntWorkerType != AntWorkerType.Worker)
                 {
                     if (ant.PlayerUnit.Unit.Engine != null)
                     {
@@ -1018,19 +1021,18 @@ namespace Engine.Control
                 {
                     foreach (Ant ant in unmovedAnts)
                     {
-                        AntWorker antWorker = ant as AntWorker;
-                        if (antWorker != null && antWorker.PlayerUnit.Unit.CurrentGameCommand != null)
+                        if (ant.PlayerUnit.Unit.CurrentGameCommand != null)
                         {
-                            if (antWorker.PlayerUnit.Unit.CurrentGameCommand.TargetPosition == gameCommand.TargetPosition)
+                            if (ant.PlayerUnit.Unit.CurrentGameCommand.TargetPosition == gameCommand.TargetPosition)
                             {
-                                antWorker.PlayerUnit.Unit.CurrentGameCommand = null;
+                                ant.PlayerUnit.Unit.CurrentGameCommand = null;
                             }
                         }
-                        if (antWorker != null && antWorker.GameCommandDuringCreation != null)
+                        if (ant.GameCommandDuringCreation != null)
                         {
-                            if (antWorker.GameCommandDuringCreation.TargetPosition == gameCommand.TargetPosition)
+                            if (ant.GameCommandDuringCreation.TargetPosition == gameCommand.TargetPosition)
                             {
-                                antWorker.GameCommandDuringCreation = null;
+                                ant.GameCommandDuringCreation = null;
                             }
                         }
                     }
@@ -1084,23 +1086,20 @@ namespace Engine.Control
 
                     foreach (Ant ant in unmovedAnts)
                     {
-                        AntWorker antWorker = ant as AntWorker;
-                        if (antWorker != null)
-                        {
-                            if (gameCommand.GameCommandType == GameCommandType.Build && antWorker.AntWorkerType == AntWorkerType.Assembler)
+                            if (gameCommand.GameCommandType == GameCommandType.Build && ant.AntWorkerType == AntWorkerType.Assembler)
                             {
-                                if (antWorker.PlayerUnit.Unit.CurrentGameCommand == null &&
+                                if (ant.PlayerUnit.Unit.CurrentGameCommand == null &&
                                     !ant.PlayerUnit.Unit.UnderConstruction &&
                                     !ant.PlayerUnit.Unit.ExtractMe)
                                 {
-                                    if (antWorker.PlayerUnit.Unit.Pos == gameCommand.TargetPosition)
+                                    if (ant.PlayerUnit.Unit.Pos == gameCommand.TargetPosition)
                                     {
-                                        bestAnt = antWorker;
+                                        bestAnt = ant;
                                         break;
                                     }
                                     else
                                     {
-                                        double distance = antWorker.PlayerUnit.Unit.Pos.GetDistanceTo(gameCommand.TargetPosition);
+                                        double distance = ant.PlayerUnit.Unit.Pos.GetDistanceTo(gameCommand.TargetPosition);
                                         if (bestAnt == null || distance < bestDistance)
                                         {
                                             bestDistance = distance;
@@ -1109,7 +1108,7 @@ namespace Engine.Control
                                     }
                                 }
                             }
-                        }
+                        
                     }
                     if (bestAnt != null)
                     {
@@ -1128,26 +1127,24 @@ namespace Engine.Control
 
                     foreach (Ant ant in unmovedAnts)
                     {
-                        AntWorker antWorker = ant as AntWorker;
-                        if (antWorker != null)
-                        {
-                            if (gameCommand.GameCommandType == GameCommandType.Attack && antWorker.AntWorkerType == AntWorkerType.Fighter ||
-                                gameCommand.GameCommandType == GameCommandType.Defend && antWorker.AntWorkerType == AntWorkerType.Fighter ||
-                                gameCommand.GameCommandType == GameCommandType.Scout && antWorker.AntWorkerType == AntWorkerType.Fighter ||
-                                gameCommand.GameCommandType == GameCommandType.Collect && antWorker.AntWorkerType == AntWorkerType.Worker)
+
+                            if (gameCommand.GameCommandType == GameCommandType.Attack && ant.AntWorkerType == AntWorkerType.Fighter ||
+                                gameCommand.GameCommandType == GameCommandType.Defend && ant.AntWorkerType == AntWorkerType.Fighter ||
+                                gameCommand.GameCommandType == GameCommandType.Scout && ant.AntWorkerType == AntWorkerType.Fighter ||
+                                gameCommand.GameCommandType == GameCommandType.Collect && ant.AntWorkerType == AntWorkerType.Worker)
                             {
-                                if (antWorker.PlayerUnit.Unit.CurrentGameCommand == null &&
+                                if (ant.PlayerUnit.Unit.CurrentGameCommand == null &&
                                     !ant.PlayerUnit.Unit.UnderConstruction &&
                                     !ant.PlayerUnit.Unit.ExtractMe)
                                 {
-                                    if (antWorker.PlayerUnit.Unit.Pos == gameCommand.TargetPosition)
+                                    if (ant.PlayerUnit.Unit.Pos == gameCommand.TargetPosition)
                                     {
-                                        bestAnt = antWorker;
+                                        bestAnt = ant;
                                         break;
                                     }
                                     else
                                     {
-                                        double distance = antWorker.PlayerUnit.Unit.Pos.GetDistanceTo(gameCommand.TargetPosition);
+                                        double distance = ant.PlayerUnit.Unit.Pos.GetDistanceTo(gameCommand.TargetPosition);
                                         if (bestAnt == null || distance < bestDistance)
                                         {
                                             bestDistance = distance;
@@ -1157,7 +1154,7 @@ namespace Engine.Control
                                 }
                             }
                         }
-                    }
+
                     if (bestAnt != null)
                     {
                         assignedCommands.Add(gameCommand);
@@ -1383,23 +1380,19 @@ namespace Engine.Control
                         Ant ant = Ants[cntrlUnit.UnitId];
                         ant.Alive = true;
 
-                        AntWorker antWorker = ant as AntWorker;
-                        if (antWorker != null)
+                        if (ant.AntWorkerType == AntWorkerType.None)
                         {
-                            if (antWorker.AntWorkerType == AntWorkerType.None)
+                            if (playerUnit.Unit.Blueprint.Name == "Assembler")
                             {
-                                if (playerUnit.Unit.Blueprint.Name == "Assembler")
-                                {
-                                    antWorker.AntWorkerType = AntWorkerType.Assembler;
-                                }
-                                if (playerUnit.Unit.Blueprint.Name == "Fighter" || playerUnit.Unit.Blueprint.Name == "Bomber")
-                                {
-                                    antWorker.AntWorkerType = AntWorkerType.Fighter;
-                                }
-                                if (playerUnit.Unit.Blueprint.Name == "Worker")
-                                {
-                                    antWorker.AntWorkerType = AntWorkerType.Worker;
-                                }
+                                ant.AntWorkerType = AntWorkerType.Assembler;
+                            }
+                            if (playerUnit.Unit.Blueprint.Name == "Fighter" || playerUnit.Unit.Blueprint.Name == "Bomber")
+                            {
+                                ant.AntWorkerType = AntWorkerType.Fighter;
+                            }
+                            if (playerUnit.Unit.Blueprint.Name == "Worker")
+                            {
+                                ant.AntWorkerType = AntWorkerType.Worker;
                             }
                         }
 
@@ -1432,7 +1425,7 @@ namespace Engine.Control
                                 playerUnit.Unit.Blueprint.Name == "Worker" ||
                                 playerUnit.Unit.Blueprint.Name == "Bomber")
                             {
-                                AntWorker antWorker = new AntWorker(this);
+                                Ant antWorker = new Ant(this);
                                 antWorker.PlayerUnit = playerUnit;
                                 antWorker.Alive = true;
 
@@ -1487,14 +1480,26 @@ namespace Engine.Control
             List<Ant> movableAnts = new List<Ant>();
             List<Ant> killedAnts = new List<Ant>();
             List<Ant> unmovedAnts = new List<Ant>();
+            List<Ant> lostAnts = new List<Ant>();
+            lostAnts.AddRange(Ants.Values);
 
             foreach (Ant ant in Ants.Values)
             {
+                lostAnts.Remove(ant);
                 if (!ant.Alive)
                 {
                     if (ant.PlayerUnit == null)
                     {
-                        // Ghost Ant
+                        // Ghost Ant. Remove it, if is not build in time
+                        if (ant.UnderConstruction)
+                        {
+                            ant.StuckCounter++;
+                            if (ant.StuckCounter > 10)
+                            {
+                                // Noone builds, abandon
+                                ant.AbendonUnit(player);
+                            }
+                        }
                         UpdateUnitCounters(ant);
                     }
                     else
@@ -1510,12 +1515,13 @@ namespace Engine.Control
                     }
                     else if (ant.PlayerUnit.Unit.IsComplete())
                     {
+                        ant.CreateAntParts();
+
                         if (ant.UnderConstruction)
                         {
                             // First time the unit is complete
                             if (ant.PlayerUnit.Unit.Engine == null)
                             {
-                                ant.CreateAntParts();
                                 ConnectNearbyAnts(ant);
                             }
                             ant.UnderConstruction = false;
@@ -1570,7 +1576,7 @@ namespace Engine.Control
 
                         if (ant.PlayerUnit.Unit.Engine != null)
                         {
-                            movableAnts.Add(ant);
+                            //movableAnts.Add(ant);
                             ant.AbendonUnit(player);
                         }
                         else
@@ -1591,17 +1597,35 @@ namespace Engine.Control
             
             AttachGamecommands(player, unmovedAnts, moves);
 
+            // Ants that have no units
+            if (lostAnts.Count > 0)
+            {
+                killedAnts.AddRange(lostAnts);
+            }
+            // Execute all extrctor moves
             foreach (Ant ant in unmovedAnts)
             {
-                if (!(ant is AntWorker))
+                if (ant.AntPartExtractor.Move(this, player, moves))
                 {
-                    if (ant.Move(player, moves))
-                    {
-                        movableAnts.Remove(ant);
-                    }
+                    movableAnts.Remove(ant);
                 }
             }
 
+            // Any other moves
+            unmovedAnts.Clear();
+            unmovedAnts.AddRange(movableAnts);
+            foreach (Ant ant in unmovedAnts)
+            {
+                if (ant.Move(player, moves))
+                {
+                    movableAnts.Remove(ant);
+                }
+            }
+
+
+            /*
+            unmovedAnts.Clear();
+            unmovedAnts.AddRange(movableAnts);
 
             foreach (Ant ant in unmovedAnts)
             {
@@ -1613,7 +1637,7 @@ namespace Engine.Control
                     }
                 }
             }
-
+            */
             /*
             foreach (Ant ant in unmovedAnts)
             {
@@ -1634,7 +1658,7 @@ namespace Engine.Control
                     checkBuildReactor = false;
                     movableAnts.Remove(ant);
                 }
-            }*/
+            }
 
             foreach (Ant ant in unmovedAnts)
             {
@@ -1642,15 +1666,18 @@ namespace Engine.Control
                 {
                     movableAnts.Remove(ant);
                 }
-            }
+            }*/
 
-            unmovedAnts.Clear();    
-            unmovedAnts.AddRange(movableAnts);
+            movableAnts.Clear();
+            
+            unmovedAnts.Clear();
+            //unmovedAnts.AddRange(movableAnts);
+
             while (unmovedAnts.Count > 0)
             {
                 foreach (Ant ant in unmovedAnts)
                 {
-                    if (ant is AntWorker)
+                    //if (ant is AntWorker)
                     {
                         /*
                         if (!ant.PlayerUnit.Unit.IsComplete())

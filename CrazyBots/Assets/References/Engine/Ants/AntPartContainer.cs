@@ -33,7 +33,7 @@ namespace Engine.Ants
             {
                 AntNetworkNode.Demand(this, AntNetworkDemandType.Storage, urgency);
             }
-            return true;
+            return false;
         }
 
     }

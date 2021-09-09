@@ -69,6 +69,7 @@ namespace Engine.Interface
         [DataMember(EmitDefaultValue = false)]
         public List<TileObject> TileObjects { get; set; }
 
+
         public bool IsHill()
         {
             return TerrainTypeIndex >= 4;
@@ -206,7 +207,27 @@ namespace Engine.Interface
         /// <returns></returns>
         public override string ToString()
         {
-            return MoveType.ToString() + " " + UnitId + "(" + PlayerId + ")";
+            StringBuilder sb = new StringBuilder();
+            sb.Append(MoveType.ToString());
+            sb.Append(" ");
+            sb.Append(UnitId);
+            sb.Append(" (");
+            sb.Append(PlayerId);
+            sb.Append(") ");
+
+            if (Positions != null)
+            {                
+                if (Positions.Count >= 1)
+                    sb.Append (Positions[0].X + "," + Positions[0].Y);
+                if (Positions.Count >= 2)
+                    sb.Append (" to " + Positions[1].X + "," + Positions[1].Y);
+            }
+            if (OtherUnitId != null)
+            {
+                sb.Append(" ");
+                sb.Append(OtherUnitId);
+            }
+            return sb.ToString();
         }
     }
 }
