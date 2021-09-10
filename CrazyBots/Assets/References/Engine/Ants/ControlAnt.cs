@@ -44,9 +44,15 @@ namespace Engine.Control
             {
                 if (move.MoveType == MoveType.UpdateGround)
                 {
+                    // TEST
+                    
                     Position pos = move.Positions[0];
                     Tile tile = player.Game.Map.GetTile(pos);
-
+                    if (tile.Minerals > 0)
+                    {
+                        player.Game.Pheromones.DropPheromones(player, pos, 10, PheromoneType.Mineral, 0.03f, 0.01f);
+                    }
+                    /*
                     MineralDeposit mineralDeposit;
                     if (tile.Minerals == 0)
                     {
@@ -84,7 +90,7 @@ namespace Engine.Control
 
                             mineralsDeposits.Add(pos, mineralDeposit);
                         }
-                    }
+                    }*/
                 }
                 else if (move.MoveType == MoveType.Extract)
                 {
@@ -639,9 +645,19 @@ namespace Engine.Control
             return bestPositions;
         }
 
+        /// <summary>
+        /// Expensive with many units and no minerals
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="ant"></param>
+        /// <param name="bestPositions"></param>
+        /// <returns></returns>
         private List<Position> FindMineralOnMap(Player player, Ant ant, List<Position> bestPositions)
         {
-            //List<Position> bestPositions = null;
+            // TEST
+            //return bestPositions;
+
+            
             foreach (Position pos in player.VisiblePositions) // TileWithDistance t in tiles.Values)
             {
                 Tile tile = player.Game.Map.GetTile(pos);

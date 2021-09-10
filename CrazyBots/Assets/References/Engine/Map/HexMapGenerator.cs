@@ -131,10 +131,10 @@ namespace Engine.MapGenerator
 		public int elevationMaximum = 8;
 
 		//[Range(0, 10)]
-		public int mapBorderX = 1;
+		public int mapBorderX = 3;
 
 		//[Range(0, 10)]
-		public int mapBorderZ = 1;
+		public int mapBorderZ = 3;
 
 		//[Range(0, 10)]
 		public int regionBorder = 5;

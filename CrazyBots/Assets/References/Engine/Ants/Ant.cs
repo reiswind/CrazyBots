@@ -42,6 +42,8 @@ namespace Engine.Ants
 
         public void ConnectWithAnt(Ant otherAnt)
         {
+            return;
+
             foreach (AntPart antPart1 in AntParts)
             {
                 foreach (AntPart antPart2 in otherAnt.AntParts)
@@ -62,6 +64,8 @@ namespace Engine.Ants
 
         public void ConnectAntParts()
         {
+            return;
+
             // Inside a ant, everything is connected with everything
             foreach (AntPart antPart1 in AntParts)
             {

@@ -150,29 +150,29 @@ namespace Engine.Interface
                     tileFit.Score = score;
                     tileFit.TileObjects = rotatedTileObjects;
                 }
-                rotatedTileObjects = Rotate(rotatedTileObjects);
+                Rotate(rotatedTileObjects);
             }
             return tileFit;
         }
 
-        internal static List<TileObject> Rotate(List<TileObject> tileObjects)
+        internal static void Rotate(List<TileObject> tileObjects)
         {
-            List<TileObject> rotatedTileObjects = new List<TileObject>();
+            //List<TileObject> rotatedTileObjects = new List<TileObject>();
             foreach (TileObject tileObject in tileObjects)
             {
-                TileObject rotatedTileObject = new TileObject();
-                rotatedTileObject.TileObjectType = tileObject.TileObjectType;
+                //TileObject rotatedTileObject = new TileObject();
+                //rotatedTileObject.TileObjectType = tileObject.TileObjectType;
 
-                if (tileObject.Direction == Direction.N) rotatedTileObject.Direction = Direction.NW;
-                else if (tileObject.Direction == Direction.NW) rotatedTileObject.Direction = Direction.SW;
-                else if (tileObject.Direction == Direction.SW) rotatedTileObject.Direction = Direction.S;
-                else if (tileObject.Direction == Direction.S) rotatedTileObject.Direction = Direction.SE;
-                else if (tileObject.Direction == Direction.SE) rotatedTileObject.Direction = Direction.NW;
-                else if (tileObject.Direction == Direction.NW) rotatedTileObject.Direction = Direction.N;
+                if (tileObject.Direction == Direction.N) tileObject.Direction = Direction.NW;
+                else if (tileObject.Direction == Direction.NW) tileObject.Direction = Direction.SW;
+                else if (tileObject.Direction == Direction.SW) tileObject.Direction = Direction.S;
+                else if (tileObject.Direction == Direction.S) tileObject.Direction = Direction.SE;
+                else if (tileObject.Direction == Direction.SE) tileObject.Direction = Direction.NW;
+                else if (tileObject.Direction == Direction.NW) tileObject.Direction = Direction.N;
 
-                rotatedTileObjects.Add(rotatedTileObject);
+                //rotatedTileObjects.Add(rotatedTileObject);
             }
-            return rotatedTileObjects;
+            //return rotatedTileObjects;
         }
 
         internal int CalcFitObj(List<TileObject> tileObjects)

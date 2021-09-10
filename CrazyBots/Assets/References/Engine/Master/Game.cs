@@ -53,6 +53,7 @@ namespace Engine.Master
                     Player p = new Player(this, playerModel);
 
                     p.StartZone = Map.Zones[playerModel.Zone];
+                    p.StartZone.Player = p;
 
                     Players.Add(playerModel.Id, p);
                 }
@@ -63,7 +64,7 @@ namespace Engine.Master
 
             // TESTEXTRACT
 
-            for (int i = 0; i < Map.DefaultMinerals / Map.Zones.Count; i++)
+            for (int i = 0; i < Map.DefaultMinerals; i++)
             {
                 TileObject tileObject = new TileObject();
                 tileObject.Direction = Direction.C;
@@ -811,7 +812,15 @@ namespace Engine.Master
                 }
                 else
                 {
-                    targetTile.TileContainer.Add(tileObject);
+                    // Anything but minerals are distributed
+                    if (tileObject.TileObjectType != TileObjectType.Mineral)
+                    {
+                        Map.AddOpenTileObject(tileObject);                        
+                    }
+                    else
+                    {
+                        targetTile.TileContainer.Add(tileObject);
+                    }
                 }
             }
 
@@ -1588,7 +1597,7 @@ namespace Engine.Master
                     return returnMoves;
                 }
 
-                if (MoveNr == 94)
+                if (MoveNr == 29)
                 {
                     int x = 0;
                 }
@@ -1603,9 +1612,9 @@ namespace Engine.Master
 
                 if (mapInfo != null && mapInfo1.TotalMetal != mapInfo.TotalMetal)
                 {
-                    
-                }*/
-
+                    int x = 0;
+                }
+                */
                 bool first = false;
                 if (!initialized)
                 {
@@ -1614,8 +1623,22 @@ namespace Engine.Master
                 }
                 else
                 {
+                    // Replace mins
+                    foreach (TileObject tileObject in Map.OpenTileObjects)
+                    {
+                        if (tileObject.TileObjectType == TileObjectType.Mineral)
+                        {
+                            Map.DistributeTileObject(tileObject);
+                            Map.OpenTileObjects.Remove(tileObject);
+                            break;
+                        }
+                    }
+
                     // Replace tile objects
-                    foreach (MapZone zone in Map.Zones.Values)
+                    int idx = Random.Next(Map.Zones.Count);
+                    MapZone zone = Map.Zones[idx];
+
+                    if (zone.Player == null)
                     {
                         Position pos = zone.CreateTerrainTile(Map);
                         if (pos != null)
@@ -1623,8 +1646,6 @@ namespace Engine.Master
                             if (!changedGroundPositions.ContainsKey(pos))
                                 changedGroundPositions.Add(pos, null);
                         }
-
-
                     }
 
 #if DEBUG
@@ -1692,6 +1713,10 @@ namespace Engine.Master
                     }
                 }
 
+
+                //MapInfo mapInfoPrev = new MapInfo();
+                //mapInfoPrev.ComputeMapInfo(this, newMoves);
+
                 LogMoves("Process new Moves " + Seed, MoveNr, newMoves);
 
                 // Check collisions and change moves if units collide or get destroyed
@@ -1701,18 +1726,16 @@ namespace Engine.Master
 
                 UpdateUnitPositions(newMoves);
 
-                //MapInfo mapInfoPrev = new MapInfo();
-                //mapInfoPrev.ComputeMapInfo(this, newMoves);
 
                 ProcessNewMoves();
 
                 mapInfo = new MapInfo();
                 mapInfo.ComputeMapInfo(this, lastMoves);
-                /*
-                if (mapInfoPrev.TotalMetal != mapInfo.TotalMetal)
+                
+                //if (mapInfoPrev.TotalMetal != mapInfo.TotalMetal)
                 {
                     int x = 0;
-                }*/
+                }
 
                 foreach (Player player in Players.Values)
                 {

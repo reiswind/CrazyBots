@@ -35,22 +35,30 @@ namespace Engine.Master
             ShieldPower = 0;
             ShieldActive = false;
         }
+        public void RemoveShield()
+        {
+            ShieldPower = 0;
+            ShieldActive = false;
+        }
 
         public int LoadShield(int availablePower)
         {
             int consumed = 0;
-            if (availablePower > 0)
+            if (!Unit.ExtractMe)
             {
-                for (int i = 0; i < 2; i++)
+                if (availablePower > 0)
                 {
-                    if (ShieldPower < 10)
+                    for (int i = 0; i < 2; i++)
                     {
-                        ShieldPower++;
-                        consumed++;
-                    }
-                    if (ShieldPower >= 10)
-                    {
-                        ShieldActive = true;
+                        if (ShieldPower < 10)
+                        {
+                            ShieldPower++;
+                            consumed++;
+                        }
+                        if (ShieldPower >= 10)
+                        {
+                            ShieldActive = true;
+                        }
                     }
                 }
             }

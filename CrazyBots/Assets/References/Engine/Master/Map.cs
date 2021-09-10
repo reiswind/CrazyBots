@@ -119,7 +119,9 @@ namespace Engine.Interface
                     {
                         foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
                         {
-                            if (tileObject.TileObjectType == TileObjectType.Mineral) // || TileObject.ConvertTileObjectIntoMineral(tileObject.TileObjectType))
+                            // Depends when the Part is changing to mineral. In this case, the extractor collects all tileobjects as they are. The are converted
+                            // dureing the insert into a container
+                            if (tileObject.TileObjectType == TileObjectType.Mineral || TileObject.ConvertTileObjectIntoMineral(tileObject.TileObjectType))
                             {
                                 TotalMetal++;
                             }
@@ -146,6 +148,7 @@ namespace Engine.Master
         public int TotalMinerals { get; set; }
         public int MaxMinerals { get; set; }
         public Position Center { get; set; }
+        public Player Player { get; set; }
 
         public Dictionary<Position, TileWithDistance> Tiles { get; set; }
 
@@ -194,8 +197,8 @@ namespace Engine.Master
             if (map.OpenTileObjects.Count == 0)
                 return null;
 
-            if (ZoneId != 2 && ZoneId != 4)
-                return null;
+            //if (ZoneId != 2 && ZoneId != 4)
+            //    return null;
 
             if (openTiles == null)
                 return null;
@@ -205,7 +208,8 @@ namespace Engine.Master
             if (openTiles.Count > 0)
             {
                 List<TileObject> tileObjects = CreateRandomObjects(map);
-
+                if (tileObjects.Count == 0) return null;
+                
                 // Find best tile
                 TileFit bestTileFit = null;
                 Tile bestTile = null;
@@ -213,10 +217,12 @@ namespace Engine.Master
                 {
                     foreach (Tile n in tile.Neighbors)
                     {
-                        if (n.TileContainer.TileObjects.Count == 0)
+                        if (!n.IsOpenTile)
                             continue;
-                        if (n.Unit != null && tileObjects.Count > 1)
-                            continue;
+                        //if (n.TileContainer.TileObjects.Count == 0)
+                        //    continue;
+                        //if (n.Unit != null && tileObjects.Count > 1)
+                        //    continue;
 
                         TileFit tileFit = n.CalcFit(tileObjects);
 
@@ -236,7 +242,10 @@ namespace Engine.Master
                             int x = 0;
                         }
                         foreach (TileObject tileObject in bestTileFit.TileObjects)
-                            map.OpenTileObjects.Remove(tileObject);
+                            if (!map.OpenTileObjects.Remove(tileObject))
+                            {
+                                int x = 0;
+                            }
 
                         bestTile.TileContainer.AddRange(bestTileFit.TileObjects);
                         pos = bestTile.Pos;
@@ -249,6 +258,7 @@ namespace Engine.Master
                         {
                             if (!openTiles.Remove(bestTile))
                             {
+                                int x = 0;
                             }
                             if (!map.Game.changedGroundPositions.ContainsKey(bestTile.Pos))
                                 map.Game.changedGroundPositions.Add(bestTile.Pos, null);
@@ -276,17 +286,34 @@ namespace Engine.Master
         {
             List<TileObject> tileObjects = new List<TileObject>();
 
-            TileObject tileObject;
+            TileObject tileObject = null;
             int mapIndex = 0;
 
             int rnd = map.Game.Random.Next(3) + 1;
             while (rnd-- > 0)
             {
-                if (mapIndex >= map.OpenTileObjects.Count)
-                    break;
+                tileObject = null;
+                if (Player == null)
+                {
+                    if (mapIndex >= map.OpenTileObjects.Count)
+                        break;
 
-                tileObject = map.OpenTileObjects[mapIndex];
-                mapIndex++;
+                    tileObject = map.OpenTileObjects[mapIndex];
+                    mapIndex++;
+                }
+                else
+                {
+                    while (tileObject == null && mapIndex < map.OpenTileObjects.Count)
+                    {
+                        if (map.OpenTileObjects[mapIndex].TileObjectType == TileObjectType.Mineral)
+                        {
+                            tileObject = map.OpenTileObjects[mapIndex];
+                        }
+                        mapIndex++;
+                    }
+                }
+                if (tileObject == null)
+                    break;
 
                 bool dirExists;
                 do
@@ -313,7 +340,6 @@ namespace Engine.Master
             }
             return tileObjects;
         }
-
     }
 
     public class Map
@@ -665,6 +691,7 @@ namespace Engine.Master
                 tileObject.TileObjectType = TileObjectType.Bush;
                 OpenTileObjects.Add(tileObject);
             }
+            /*
             for (int i = 0; i < 15; i++)
             {
                 TileObject tileObject = new TileObject();
@@ -676,7 +703,7 @@ namespace Engine.Master
                 TileObject tileObject = new TileObject();
                 tileObject.TileObjectType = TileObjectType.Bush;
                 OpenTileObjects.Add(tileObject);
-            }
+            }*/
         }
 
         public void CreateTerrain(Game game)
@@ -820,6 +847,7 @@ namespace Engine.Master
                             //OpenTileObjects.RemoveAt(0);
 
                             t.Tile.TileContainer.Add(tileObject);
+                            break;
                         }
                     }
                 }

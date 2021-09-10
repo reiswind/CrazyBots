@@ -104,6 +104,10 @@ namespace Engine.Master
 
         public void ExtractUnit()
         {
+            if (Armor != null)
+            {
+                Armor.RemoveShield();
+            }
             CurrentGameCommand = null;
             ExtractMe = true;
         }
