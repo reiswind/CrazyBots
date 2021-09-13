@@ -321,7 +321,7 @@ namespace Assets.Scripts
 			UnitsInBuild = new Dictionary<Position, UnitBase>();
 
 
-			GameObject cellPrefab = GetTerrainResource("HexCell 2");
+			GameObject cellPrefab = GetTerrainResource("CellGras");
 
 			//foreach (MapSector mapSector in game.Map.Sectors.Values)
 

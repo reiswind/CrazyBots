@@ -90,24 +90,25 @@ namespace Assets.Scripts
         private void OnTriggerEnter(Collider other)
         {
             UnitBase hitUnit = GetUnitFrameFromCollider(other);
-            if (hitUnit == FireingUnit)
+            if (FireingUnit == null || hitUnit == FireingUnit)
             {
                 return;
             }
             if (hitUnit == null)
             {
                 // Play some hit ground animation
+                int x = 0;
             }
             else
             {
                 hitUnit.Impact();
             }
 
-            m_ExplosionParticles.transform.parent = null;
+            //m_ExplosionParticles.transform.parent = null;
 
             // Play the particle system.
             m_ExplosionParticles.Play();
-            Destroy(m_ExplosionParticles.gameObject, m_ExplosionParticles.main.duration);
+            //Destroy(m_ExplosionParticles.gameObject, m_ExplosionParticles.main.duration);
         }
 
         // Update is called once per frame

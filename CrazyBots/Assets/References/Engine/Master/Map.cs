@@ -679,13 +679,13 @@ namespace Engine.Master
             while (openTiles.Count > 0)
                 CreateTerrainTile();*/
 
-            for (int i=0; i < 15; i++)
+            for (int i=0; i < 25; i++)
             {
                 TileObject tileObject = new TileObject();
                 tileObject.TileObjectType = TileObjectType.Tree;
                 OpenTileObjects.Add(tileObject);
             }
-            for (int i = 0; i < 15; i++)
+            for (int i = 0; i < 25; i++)
             {
                 TileObject tileObject = new TileObject();
                 tileObject.TileObjectType = TileObjectType.Bush;

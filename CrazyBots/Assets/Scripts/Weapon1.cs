@@ -45,7 +45,7 @@ namespace Assets.Scripts
             return null;
         }
 
-        private UnitBaseTileObject ammoTileObject;
+        private GameObject ammoTileObject;
 
         internal void UpdateContent(HexGrid hexGrid, TileObjectContainer tileObjectContainer)
         {
@@ -57,8 +57,25 @@ namespace Assets.Scripts
                 {
                     UnitBaseTileObject haveAmmo = GetAmmoTileObject(tileObjectContainer);
 
-                    if (haveAmmo != null && haveAmmo.GameObject != null)
+                    if (haveAmmo != null && ammoTileObject == null)
                     {
+                        GameObject shellprefab;
+                        if (haveAmmo.TileObject.TileObjectType == TileObjectType.Mineral)
+                            shellprefab = hexGrid.GetUnitResource("ShellMineral");
+                        else if (haveAmmo.TileObject.TileObjectType == TileObjectType.Tree)
+                            shellprefab = hexGrid.GetUnitResource("ShellTree");
+                        else
+                            shellprefab = hexGrid.GetUnitResource("ShellTree");
+
+                        
+
+                        ammoTileObject = Instantiate(shellprefab, ammo.transform.position, ammo.transform.rotation, weapon.transform);
+
+
+                        //ammoTileObject.transform.SetParent(weapon.transform, false);
+                        //ammoTileObject.transform.SetPositionAndRotation(ammo.transform.position, ammo.transform.rotation);
+
+                        /*
                         if (ammoTileObject != null)
                         {
                             // happened
@@ -67,6 +84,7 @@ namespace Assets.Scripts
                         ammoTileObject = haveAmmo;
                         ammoTileObject.GameObject.transform.position = ammo.transform.position;
                         ammoTileObject.GameObject.SetActive(true);
+                        */
                     }
                 }
             }
@@ -104,10 +122,10 @@ namespace Assets.Scripts
 
         public void Fire(HexGrid hexGrid, UnitBase fireingUnit, Move move, TileObjectContainer tileObjectContainer)
         {
-            if (ammoTileObject != null && ammoTileObject.GameObject != null)
+            if (ammoTileObject != null)
             {
                 this.fireingUnit = fireingUnit;
-                tileObjectContainer.TileObjects.Remove(ammoTileObject);
+                //tileObjectContainer.TileObjects.Remove(ammoTileObject);
 
                 Position pos = move.Positions[move.Positions.Count - 1];
                 weaponTargetCell = hexGrid.GroundCells[pos];
@@ -162,20 +180,26 @@ namespace Assets.Scripts
                     launchPosition.gameObject.SetActive(false);
                     */
 
-                    if (ammoTileObject != null && ammoTileObject.GameObject != null)
+                    if (ammoTileObject != null)
                     {
-                        GameObject shellprefab = hexGrid.GetUnitResource("Shell");
-                        GameObject shellObject = Instantiate(shellprefab);
+                        //GameObject shellprefab = hexGrid.GetUnitResource("Shell");
+                        //GameObject shellObject = Instantiate(shellprefab);
 
-                        GameObject ammo = ammoTileObject.GameObject;
+                        //GameObject ammo = ammoTileObject.GameObject;
 
-                        Vector3 launchPos = ammo.transform.position;
+                        //Vector3 launchPos = ammo.transform.position;
                         //launchPos.y += 0.5f;
 
-                        Shell shell = shellObject.GetComponent<Shell>();
-                        shell.transform.SetPositionAndRotation(launchPos, ammo.transform.rotation);
+                        Shell shell = ammoTileObject.GetComponent<Shell>();
+                        //shell.transform.SetPositionAndRotation(launchPos, ammo.transform.rotation);
                         shell.FireingUnit = fireingUnit;
-                        ammo.transform.SetParent(shell.transform, false);
+                        ammoTileObject.transform.SetParent(weaponTargetCell.transform, true);
+                        //ammo.transform.SetParent(shell.transform, false);
+
+
+                        GameObject shellTrail = UnitBase.FindChildNyName(ammoTileObject, "ShellTrail");
+                        if (shellTrail != null)
+                            shellTrail.SetActive(true);
 
                         //Vector3 launchPos = launchPosition.position;
                         //launchPos.y += 0.5f;
@@ -190,6 +214,7 @@ namespace Assets.Scripts
 
                         Rigidbody rigidbody = shell.GetComponent<Rigidbody>();
                         rigidbody.velocity = calcBallisticVelocityVector(shell.transform.position, targetPos, angle);
+                        rigidbody.isKinematic = false;
                         //rigidbody.rotation = Random.rotation;
 
                         //Destroy(shellObject, 2.6f);
