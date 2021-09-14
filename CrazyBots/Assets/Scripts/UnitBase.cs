@@ -607,7 +607,7 @@ namespace Assets.Scripts
             for (int i = 0; i < unit.transform.childCount; i++)
             {
                 GameObject child = unit.transform.GetChild(i).gameObject;
-                if (!child.name.StartsWith("Mineral") && !child.name.StartsWith("Ammo"))
+                if (!child.name.StartsWith("Mineral") && !child.name.StartsWith("Ammo") && !child.name.StartsWith("Item"))
                     SetPlayerColor(hexGrid, playerId, child);
             }
 
@@ -1220,6 +1220,11 @@ namespace Assets.Scripts
                 {
                     activeAnimation.SetActive(false);
                 }
+
+                Vector3 unitPos3 = transform.position;
+                unitPos3.y -= AboveGround;
+                transform.position = unitPos3;
+
                 AboveGround = 0;
             }
         }

@@ -252,7 +252,7 @@ namespace Engine.Master
                 PlayerUnit playerUnitNeighbor = null;
                 foreach (PlayerUnit playerUnit1 in Unit.Owner.UnitsInBuild.Values)
                 {
-                    if (playerUnit1.Unit.Pos == neighbor.Tile.Pos)
+                    if (playerUnit1.Unit != this.Unit && playerUnit1.Unit.Pos == neighbor.Tile.Pos)
                     {
                         playerUnitNeighbor = playerUnit1;
                         break;

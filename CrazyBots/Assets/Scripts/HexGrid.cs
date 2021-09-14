@@ -517,6 +517,7 @@ namespace Assets.Scripts
 
 			if (MapInfo != null)
 			{
+				/*
 				foreach (Position pos in MapInfo.Pheromones.Keys)
 				{
 					MapPheromone mapPheromone = MapInfo.Pheromones[pos];
@@ -531,6 +532,7 @@ namespace Assets.Scripts
 					GroundCell hexCell = GroundCells[pos];
 					hexCell.UpdatePheromones(null);
 				}
+				*/
 				updatedPositions = newUpdatedPositions;
 
 				// 

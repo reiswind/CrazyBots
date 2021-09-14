@@ -239,14 +239,15 @@ namespace Engine.Master
                     {
                         if (!bestTile.IsOpenTile)
                         {
-                            int x = 0;
+                            throw new Exception();
                         }
                         foreach (TileObject tileObject in bestTileFit.TileObjects)
+                        {
                             if (!map.OpenTileObjects.Remove(tileObject))
                             {
-                                int x = 0;
+                                throw new Exception();
                             }
-
+                        }
                         bestTile.TileContainer.AddRange(bestTileFit.TileObjects);
                         pos = bestTile.Pos;
 
@@ -258,7 +259,7 @@ namespace Engine.Master
                         {
                             if (!openTiles.Remove(bestTile))
                             {
-                                int x = 0;
+                                throw new Exception();
                             }
                             if (!map.Game.changedGroundPositions.ContainsKey(bestTile.Pos))
                                 map.Game.changedGroundPositions.Add(bestTile.Pos, null);
@@ -266,7 +267,7 @@ namespace Engine.Master
 
                             foreach (Tile n in bestTile.Neighbors)
                             {
-                                if (!openTiles.Contains(n) && n.CanBuild() && Tiles.ContainsKey(n.Pos)) // Only in zone
+                                if (!openTiles.Contains(n) && n.CanBuild()) // && Tiles.ContainsKey(n.Pos)) // Only in zone (creates circles)
                                 {
                                     if (!map.Game.changedGroundPositions.ContainsKey(n.Pos))
                                         map.Game.changedGroundPositions.Add(n.Pos, null);
@@ -330,6 +331,11 @@ namespace Engine.Master
 
                     foreach (TileObject alreadyAdded in tileObjects)
                     {
+                        if (alreadyAdded == tileObject)
+                        {
+                            // Duplicate object in list
+                            break;
+                        }
                         if (alreadyAdded.Direction == tileObject.Direction)
                             dirExists = true;
 
@@ -679,13 +685,13 @@ namespace Engine.Master
             while (openTiles.Count > 0)
                 CreateTerrainTile();*/
 
-            for (int i=0; i < 25; i++)
+            for (int i=0; i < 400; i++)
             {
                 TileObject tileObject = new TileObject();
                 tileObject.TileObjectType = TileObjectType.Tree;
                 OpenTileObjects.Add(tileObject);
             }
-            for (int i = 0; i < 25; i++)
+            for (int i = 0; i < 100; i++)
             {
                 TileObject tileObject = new TileObject();
                 tileObject.TileObjectType = TileObjectType.Bush;

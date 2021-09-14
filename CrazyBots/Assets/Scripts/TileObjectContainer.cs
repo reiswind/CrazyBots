@@ -45,7 +45,7 @@ namespace Assets.Scripts
 
         private bool AddPlaceholders(GameObject container)
         {
-            if (container.name.StartsWith("Mineral"))
+            if (container.name.StartsWith("Mineral") || container.name.StartsWith("Item"))
             {
                 mineralCubes.Add(container);
                 container.SetActive(false);
@@ -77,7 +77,7 @@ namespace Assets.Scripts
             }
 
             bool oneItemPerCube = capacity == mineralCubes.Count;
-            if (oneItemPerCube)
+            if (oneItemPerCube && capacity == 24)
             {
                 int x=0;
             }

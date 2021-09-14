@@ -858,7 +858,15 @@ namespace Engine.Master
                         {
                             foreach (TileObject unitTileObject in hitPart.TileContainer.TileObjects)
                             {
-                                targetTile.TileContainer.Add(unitTileObject);
+                                // Anything but minerals are distributed
+                                if (tileObject.TileObjectType != TileObjectType.Mineral)
+                                {
+                                    Map.AddOpenTileObject(tileObject);
+                                }
+                                else
+                                {
+                                    targetTile.TileContainer.Add(tileObject);
+                                }
                             }
                         }
                     }
@@ -1634,20 +1642,23 @@ namespace Engine.Master
                         }
                     }
 
-                    // Replace tile objects
-                    int idx = Random.Next(Map.Zones.Count);
-                    MapZone zone = Map.Zones[idx];
-
-                    if (zone.Player == null)
+                    // Place tile objects
+                    //foreach (TileObject tileObject in Map.OpenTileObjects)
+                    while (Map.OpenTileObjects.Count > 0)
                     {
-                        Position pos = zone.CreateTerrainTile(Map);
-                        if (pos != null)
+                        int idx = Random.Next(Map.Zones.Count);
+                        MapZone zone = Map.Zones[idx];
+
+                        if (zone.Player == null)
                         {
-                            if (!changedGroundPositions.ContainsKey(pos))
-                                changedGroundPositions.Add(pos, null);
+                            Position pos = zone.CreateTerrainTile(Map);
+                            if (pos != null)
+                            {
+                                if (!changedGroundPositions.ContainsKey(pos))
+                                    changedGroundPositions.Add(pos, null);
+                            }
                         }
                     }
-
 #if DEBUG
                     Validate(lastMoves);
 #endif

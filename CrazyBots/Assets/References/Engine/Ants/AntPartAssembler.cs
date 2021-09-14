@@ -35,7 +35,10 @@ namespace Engine.Ants
                 }
                 else
                 {
-                    moved = Assemble(control, player, moves);
+                    //if (Ant.AntPartEngine == null)
+                    {
+                        moved = Assemble(control, player, moves);
+                    }
                 }
             }
             return moved;
@@ -80,17 +83,17 @@ namespace Engine.Ants
             bool addAssembler = false;
             bool addFighter = false;
 
-            if (control.NumberOfFighter < 1)
-            {
-                addFighter = true;
-            }
-            else if (control.NumberOfWorkers < control.NumberOfReactors)
+            if (control.NumberOfWorkers < control.NumberOfReactors)
             {
                 addWorker = true;
             }
             else if (control.NumberOfAssembler < 1)
             {
                 addAssembler = true;
+            }
+            else if (control.NumberOfFighter < 10)
+            {
+                addFighter = true;
             }
             else
             {
