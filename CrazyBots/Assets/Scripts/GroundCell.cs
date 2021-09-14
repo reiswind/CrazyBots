@@ -317,7 +317,7 @@ namespace Assets.Scripts
 
         internal void CreateDestructables()
         {
-            //SetGroundMaterial();
+            SetGroundMaterial();
 
             List<UnitBaseTileObject> allTileObjects = new List<UnitBaseTileObject>();
             allTileObjects.AddRange(GameObjects);
