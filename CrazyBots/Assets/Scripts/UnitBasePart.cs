@@ -25,7 +25,6 @@ namespace Assets.Scripts
         public bool IsUnderConstruction { get; set; }
         public bool Destroyed { get; set; }
         public GameObject Part { get; set; }
-        //public List<UnitBaseTileObject> TileObjects { get; set; }
 
         public void Fire(Move move, Weapon1 weapon)
         {
@@ -36,7 +35,7 @@ namespace Assets.Scripts
 
         public void UpdateContent(List<TileObject> tileObjects, int? capacity)
         {
-            TileObjectContainer.UpdateContent(UnitBase, Part, tileObjects, capacity, UnitBase.extractedBaseTileObjects);
+            TileObjectContainer.UpdateContent(UnitBase, Part, tileObjects, capacity);
         }
     }
 }

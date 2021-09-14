@@ -14,6 +14,7 @@ namespace Assets.Scripts
     }
     public class UnitBaseTileObject
     {
+        public GameObject Placeholder { get; set; }
         public GameObject GameObject { get; set; }
         public TileObject TileObject { get; set; }
     }
@@ -1077,12 +1078,12 @@ namespace Assets.Scripts
             UpdateParts();
         }
 
-
+        /*
         internal List<UnitBaseTileObject> extractedBaseTileObjects = new List<UnitBaseTileObject>();
         public void InsertGameTileObject(UnitBaseTileObject unitBaseTileObject)
         {
             extractedBaseTileObjects.Add(unitBaseTileObject);
-        }
+        }*/
 
         public void UpdateParts()
         {

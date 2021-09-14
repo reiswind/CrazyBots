@@ -41,7 +41,7 @@ namespace Assets.Scripts
                             transitObject.ScaleDown = true;
 
                             unit.AddTransitTileObject(transitObject);
-                            unit.InsertGameTileObject(unitBaseTileObject);
+                            //unit.InsertGameTileObject(unitBaseTileObject);
 
                             found = true;
                             break;
@@ -121,7 +121,7 @@ namespace Assets.Scripts
                                             sourceTileObject.GameObject.SetActive(true);
                                             sourceTileObject.GameObject.transform.SetParent(transform, true);
                                         }
-                                        unit.InsertGameTileObject(sourceTileObject);
+                                        //unit.InsertGameTileObject(sourceTileObject);
                                         
                                         Vector2 randomPos = Random.insideUnitCircle;
                                         Vector3 unitPos3 = otherUnitBasePart.Part.transform.position;
