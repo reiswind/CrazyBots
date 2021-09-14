@@ -191,6 +191,7 @@ namespace Assets.Scripts
 			InitParticless();
 			InitResources(obstaclesResources, "Prefabs/Obstacles");
 			InitResources(terrainResources, "Prefabs/Terrain");
+			InitResources(terrainResources, "Prefabs/Items");
 			InitResources(treeResources, "Prefabs/Trees");
 			InitResources(rockResources, "Prefabs/Rocks");
 			InitResources(unitResources, "Prefabs/Unit");
@@ -223,17 +224,15 @@ namespace Assets.Scripts
 
 			if (tileObject.TileObjectType == TileObjectType.Tree)
 			{
-				int idx = game.Random.Next(treeResources.Count);
-				prefab = treeResources.Values.ElementAt(idx);
+				prefab = GetTerrainResource("ItemWood");
 			}
 			else if (tileObject.TileObjectType == TileObjectType.Bush)
 			{
-				int idx = game.Random.Next(bushResources.Count);
-				prefab = bushResources.Values.ElementAt(idx);
+				prefab = GetTerrainResource("ItemBush");
 			}
 			else if (tileObject.TileObjectType == TileObjectType.Mineral)
 			{
-				prefab = GetTerrainResource("Crystal");
+				prefab = GetTerrainResource("ItemCrystal");
 			}
 			else
 			{
@@ -251,31 +250,34 @@ namespace Assets.Scripts
 		public GameObject CreateDestructable(Transform transform, TileObject tileObject)
 		{
 			GameObject prefab;
+			float y;
 
 			if (tileObject.TileObjectType == TileObjectType.Tree)
 			{
 				int idx = game.Random.Next(treeResources.Count);
 				prefab = treeResources.Values.ElementAt(idx);
+				y = prefab.transform.position.y;
 			}
 			else if (tileObject.TileObjectType == TileObjectType.Bush)
 			{
 				int idx = game.Random.Next(bushResources.Count);
 				prefab = bushResources.Values.ElementAt(idx);
+				y = prefab.transform.position.y;
 			}
 			else if (tileObject.TileObjectType == TileObjectType.Mineral)
 			{
-				prefab = GetTerrainResource("Crystal");
+				prefab = GetTerrainResource("ItemCrystal");
+				y = 0.05f;
 			}
 			else
 			{
+				y = 0f;
 				prefab = null;
 			}
 
 			GameObject gameTileObject = null;
 			if (prefab != null)
 			{
-				float y = prefab.transform.position.y;
-
 				gameTileObject = Instantiate(prefab, transform, false);
 
 				Vector2 randomPos = UnityEngine.Random.insideUnitCircle;
