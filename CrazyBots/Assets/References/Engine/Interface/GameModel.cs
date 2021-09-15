@@ -114,6 +114,13 @@ namespace Engine.Interface
         public string Parts { get; set; }
         [DataMember]
         public string Blueprint { get; set; }
+
+        [DataMember]
+        public bool HoldPosition { get; set; }
+        [DataMember]
+        public bool FireAtGround { get; set; }
+        [DataMember]
+        public bool EndlessAmmo { get; set; }
     }
 
     [DataContract]

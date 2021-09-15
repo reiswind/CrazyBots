@@ -160,19 +160,40 @@ namespace Engine.Master
                     Tile t = Map.GetTile(posOnMap);
                     if (t != null)
                     {
+                        Unit thisUnit = new Unit(this, unitModel.Blueprint);
+
+                        //if (thisUnit.Container != null && containerNetal.HasValue)
+                        ///    thisUnit.Container.Mineral = containerNetal.Value;
+
+                        thisUnit.Power = 20;
+                        thisUnit.MaxPower = 20;
+                        thisUnit.CreateAllPartsFromBlueprint();
+                        thisUnit.Pos = posOnMap;
+                        thisUnit.Direction = Direction.C; // CalcDirection(move.Positions[0], move.Positions[1]);
+                        thisUnit.Owner = Players[unitModel.PlayerId];
+
+                        if (Map.Units.GetUnitAt(thisUnit.Pos) == null)
+                            Map.Units.Add(thisUnit);
+
+                        if (unitModel.HoldPosition && thisUnit.Engine != null)
+                            thisUnit.Engine.HoldPosition = true;
+
+                        if (unitModel.FireAtGround && thisUnit.Weapon != null)
+                            thisUnit.Weapon.FireAtGround = true;
+                        if (unitModel.EndlessAmmo && thisUnit.Weapon != null)
+                            thisUnit.Weapon.EndlessAmmo = true;
+
+
                         Move move = new Move();
                         move.MoveType = MoveType.Add;
                         move.PlayerId = unitModel.PlayerId;
-                        if (string.IsNullOrEmpty(unitModel.Blueprint))
-                            move.UnitId = unitModel.Parts;
-                        else
-                            move.UnitId = unitModel.Blueprint;
+                        move.UnitId = thisUnit.UnitId;
                         move.OtherUnitId = unitModel.Blueprint;
+                        move.Stats = thisUnit.CollectStats();
                         move.Positions = new List<Position>();
                         move.Positions.Add(posOnMap);
                         newMoves.Add(move);
-
-
+                        
                         t.Owner = unitModel.PlayerId;
                         ResetTile(t);
                         foreach (Tile n in t.Neighbors)
@@ -549,10 +570,6 @@ namespace Engine.Master
                         //if (thisUnit.Container != null && containerNetal.HasValue)
                         ///    thisUnit.Container.Mineral = containerNetal.Value;
 
-                        if (thisUnit.UnitId == "unit61")
-                        {
-                            int x = 0;
-                        }
                         thisUnit.Power = 20;
                         thisUnit.MaxPower = 20;
                         if (move.MoveType == MoveType.Add)
@@ -1244,8 +1261,17 @@ namespace Engine.Master
                     if (fireingUnit != null && fireingUnit.Weapon != null)
                     {
                         List<TileObject> removedTileObjects = new List<TileObject>();
-                        fireingUnit.RemoveTileObjects(removedTileObjects, 1, TileObjectType.All, null);
 
+                        if (fireingUnit.Weapon.EndlessAmmo)
+                        {
+                            TileObject tileObject = new TileObject();
+                            tileObject.TileObjectType = TileObjectType.Mineral;
+                            removedTileObjects.Add(tileObject);
+                        }
+                        else
+                        {
+                            fireingUnit.RemoveTileObjects(removedTileObjects, 1, TileObjectType.All, null);
+                        }
                         if (removedTileObjects.Count > 0)
                         {
                             move.Stats = fireingUnit.CollectStats();
@@ -1724,22 +1750,27 @@ namespace Engine.Master
                     }
                 }
 
+                if (first)
+                {
+                    lastMoves.AddRange(newMoves);
+                    newMoves.Clear();
+                }
+                else
+                {
+                    //MapInfo mapInfoPrev = new MapInfo();
+                    //mapInfoPrev.ComputeMapInfo(this, newMoves);
 
-                //MapInfo mapInfoPrev = new MapInfo();
-                //mapInfoPrev.ComputeMapInfo(this, newMoves);
+                    LogMoves("Process new Moves " + Seed, MoveNr, newMoves);
 
-                LogMoves("Process new Moves " + Seed, MoveNr, newMoves);
+                    // Check collisions and change moves if units collide or get destroyed
+                    HandleCollisions(newMoves);
 
-                // Check collisions and change moves if units collide or get destroyed
-                HandleCollisions(newMoves);
-                
-                LogMoves("New Moves after Collisions", MoveNr, newMoves);                
+                    LogMoves("New Moves after Collisions", MoveNr, newMoves);
 
-                UpdateUnitPositions(newMoves);
+                    UpdateUnitPositions(newMoves);
 
-
-                ProcessNewMoves();
-
+                    ProcessNewMoves();
+                }
                 mapInfo = new MapInfo();
                 mapInfo.ComputeMapInfo(this, lastMoves);
                 

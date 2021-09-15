@@ -10,6 +10,11 @@ namespace Engine.Master
     public class Weapon : Ability
     {
         public override string Name { get { return "Weapon"; } }
+
+        // Testmode
+        public bool FireAtGround { get; set; }
+        public bool EndlessAmmo { get; set; }
+
         public Weapon(Unit owner, int level) : base(owner, TileObjectType.PartWeapon)
         {
             TileContainer = new TileContainer();
@@ -80,22 +85,39 @@ namespace Engine.Master
                         {
                             if (tileObject.Direction == Direction.C && tileObject.TileObjectType != TileObjectType.Mineral)
                                 continue;
-                            /* No longer fire at destrucables. They are extracted now */
-                            /*
+
+                            if (FireAtGround)
+                            {
+                                /* No longer fire at destrucables. They are extracted now */
+
+                                Move move = new Move();
+                                move.MoveType = MoveType.Fire;
+                                move.UnitId = Unit.UnitId;
+                                move.OtherUnitId = tileObject.TileObjectType.ToString();
+                                move.Positions = new List<Position>();
+                                move.Positions.Add(Unit.Pos);
+                                move.Positions.Add(n.Tile.Pos);
+
+                                //possibleMoves.Add(move);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (FireAtGround)
+                        {
+                            /* No longer fire at ground. They are extracted now */
+
                             Move move = new Move();
                             move.MoveType = MoveType.Fire;
                             move.UnitId = Unit.UnitId;
-                            move.OtherUnitId = tileObject.TileObjectType.ToString();
+                            //move.OtherUnitId = tileObject.TileObjectType.ToString();
                             move.Positions = new List<Position>();
                             move.Positions.Add(Unit.Pos);
                             move.Positions.Add(n.Tile.Pos);
 
                             possibleMoves.Add(move);
-                            */
                         }
-                    }
-                    else
-                    {
                         continue;
                     }
                 }

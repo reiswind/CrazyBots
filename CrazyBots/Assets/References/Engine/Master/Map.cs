@@ -658,6 +658,7 @@ namespace Engine.Master
                             {
                                 t = new Tile(this, sectorTilePos);
                                 t.TerrainTypeIndex = 1;
+                                t.Height = Game.Random.NextDouble() / 4;
                                 Tiles.Add(sectorTilePos, t);
                             }
                         }

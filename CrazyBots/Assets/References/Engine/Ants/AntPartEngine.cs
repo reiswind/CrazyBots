@@ -693,6 +693,9 @@ namespace Engine.Ants
                 return false;
             }
 
+            if (cntrlUnit.Engine.HoldPosition)
+                return false;
+
             if (cntrlUnit.UnderConstruction == false)
             {
                 if (cntrlUnit.CurrentGameCommand != null)
