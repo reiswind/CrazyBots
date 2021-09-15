@@ -45,7 +45,7 @@ namespace Assets.Scripts
         public bool BulletImpact { get; set; }
         public Position FireingPosition { get; set; }
         public Position TargetPosition { get; set; }
-        public MoveUpdateGroundStat GroundStat { get; set; }
+        public MoveUpdateStats Stats { get; set; }
     }
 
 
@@ -718,13 +718,13 @@ namespace Assets.Scripts
             }
         }
 
-        public void PartHitByShell(TileObjectType hitPart)
+        public UnitBasePart PartHitByShell(TileObjectType hitPart)
         {
-            for (int i = UnitBaseParts.Count - 1; i >= 0; i--)
-            {
-                UnitBasePart unitBasePart = UnitBaseParts[i];
+            foreach (UnitBasePart unitBasePart in UnitBaseParts)
+            {                
                 if (unitBasePart.PartType == hitPart)
                 {
+                    unitBasePart.Level--;
                     if (unitBasePart.Level == 0)
                     {
                         GroundCell currentCell = HexGrid.GroundCells[CurrentPos];
@@ -757,10 +757,15 @@ namespace Assets.Scripts
                         SetPlayerColor(HexGrid, 0, unitBasePart.Part);
                         Destroy(unitBasePart.Part, 8);
                         UnitBaseParts.Remove(unitBasePart);
+
+                        GameObject smoke = FindChildNyName(gameObject, "SmokeEffect");
+                        if (smoke != null)
+                            smoke.SetActive(true);
                     }
-                    break;
+                    return unitBasePart;
                 }
             }
+            return null;
         }
 
         public void HitByShell()

@@ -1592,7 +1592,7 @@ namespace Engine.Control
 
                         if (ant.PlayerUnit.Unit.Engine != null)
                         {
-                            //movableAnts.Add(ant);
+                            //movableAnts.Add(ant); => Bugs
                             ant.AbendonUnit(player);
                         }
                         else

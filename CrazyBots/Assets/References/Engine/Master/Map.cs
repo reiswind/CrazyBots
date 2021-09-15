@@ -203,36 +203,51 @@ namespace Engine.Master
             if (openTiles == null)
                 return null;
 
+            List<Tile> unopenTiles = new List<Tile>();
+
             Position pos = null;
 
             if (openTiles.Count > 0)
             {
                 List<TileObject> tileObjects = CreateRandomObjects(map);
-                if (tileObjects.Count == 0) return null;
+                //if (tileObjects.Count == 0) return null;
                 
                 // Find best tile
                 TileFit bestTileFit = null;
                 Tile bestTile = null;
                 foreach (Tile tile in openTiles)
                 {
-                    foreach (Tile n in tile.Neighbors)
+                    if (!tile.IsOpenTile)
                     {
-                        if (!n.IsOpenTile)
-                            continue;
-                        //if (n.TileContainer.TileObjects.Count == 0)
-                        //    continue;
-                        //if (n.Unit != null && tileObjects.Count > 1)
-                        //    continue;
-
-                        TileFit tileFit = n.CalcFit(tileObjects);
-
-                        if (bestTileFit == null || tileFit.Score > bestTileFit.Score)
+                        // Filled by soimeone else
+                        unopenTiles.Add(tile);
+                    }
+                    else
+                    {
+                        foreach (Tile n in tile.Neighbors)
                         {
-                            bestTileFit = tileFit;
-                            bestTile = tile;
+                            if (!n.IsOpenTile)
+                                continue;
+                            //if (n.TileContainer.TileObjects.Count == 0)
+                            //    continue;
+                            //if (n.Unit != null && tileObjects.Count > 1)
+                            //    continue;
+
+                            TileFit tileFit = n.CalcFit(tileObjects);
+
+                            if (bestTileFit == null || tileFit.Score > bestTileFit.Score)
+                            {
+                                bestTileFit = tileFit;
+                                bestTile = tile;
+                            }
                         }
                     }
                 }
+                foreach (Tile tile in unopenTiles)
+                {
+                    openTiles.Remove(tile);
+                }
+
                 if (bestTile != null)
                 {
                     if (bestTileFit != null)
@@ -253,7 +268,7 @@ namespace Engine.Master
 
                         bool removeOpenTile = false;
 
-                        if (!bestTile.CanBuild())
+                        //if (!bestTile.CanBuild())
                             removeOpenTile = true;
                         if (removeOpenTile)
                         {
@@ -290,7 +305,8 @@ namespace Engine.Master
             TileObject tileObject = null;
             int mapIndex = 0;
 
-            int rnd = map.Game.Random.Next(3) + 1;
+            int rnd = map.Game.Random.Next(15);
+            rnd -= 12;
             while (rnd-- > 0)
             {
                 tileObject = null;

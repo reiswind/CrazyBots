@@ -180,6 +180,8 @@ namespace Engine.Master
 
                         if (unitModel.FireAtGround && thisUnit.Weapon != null)
                             thisUnit.Weapon.FireAtGround = true;
+                        if (unitModel.HoldFire && thisUnit.Weapon != null)
+                            thisUnit.Weapon.HoldFire = true;
                         if (unitModel.EndlessAmmo && thisUnit.Weapon != null)
                             thisUnit.Weapon.EndlessAmmo = true;
                         if (unitModel.EndlessPower)

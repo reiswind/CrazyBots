@@ -11,7 +11,7 @@ namespace Assets.Scripts
 
         public HexGrid HexGrid { get; set; }
 
-        public MoveUpdateGroundStat GroundStat { get; set; }
+        public MoveUpdateStats Stats { get; set; }
 
         public bool ShowPheromones { get; set; }
 
@@ -181,7 +181,7 @@ namespace Assets.Scripts
             }*/
 
             string materialName;
-            if (GroundStat.IsUnderwater)
+            if (Stats.MoveUpdateGroundStat.IsUnderwater)
             {
                 materialName = "Water";
             }
@@ -208,39 +208,39 @@ namespace Assets.Scripts
                 }
                 */
                 
-                if (GroundStat.IsHill())
+                if (Stats.MoveUpdateGroundStat.IsHill())
                 {
                     materialName = "Hill";
                 }
-                else if (GroundStat.IsRock())
+                else if (Stats.MoveUpdateGroundStat.IsRock())
                 {
                     materialName = "Rock";
                 }
-                else if (GroundStat.IsSand())
+                else if (Stats.MoveUpdateGroundStat.IsSand())
                 {
                     materialName = "Sand";
                 }
-                else if (GroundStat.IsDarkSand())
+                else if (Stats.MoveUpdateGroundStat.IsDarkSand())
                 {
                     materialName = "DarkSand";
                 }
-                else if (GroundStat.IsDarkWood())
+                else if (Stats.MoveUpdateGroundStat.IsDarkWood())
                 {
                     materialName = "DarkWood";
                 }
-                else if (GroundStat.IsWood())
+                else if (Stats.MoveUpdateGroundStat.IsWood())
                 {
                     materialName = "Wood";
                 }
-                else if (GroundStat.IsLightWood())
+                else if (Stats.MoveUpdateGroundStat.IsLightWood())
                 {
                     materialName = "LightWood";
                 }
-                else if (GroundStat.IsGrassDark())
+                else if (Stats.MoveUpdateGroundStat.IsGrassDark())
                 {
                     materialName = "GrassDark";
                 }
-                else if (GroundStat.IsGras())
+                else if (Stats.MoveUpdateGroundStat.IsGras())
                 {
                     materialName = "Grass";
                 }
@@ -249,7 +249,7 @@ namespace Assets.Scripts
                     materialName = "";
                 }
 
-                if (GroundStat.IsOpenTile)
+                if (Stats.MoveUpdateGroundStat.IsOpenTile)
                 {
                     //materialName = "DarkSand";
                 }
@@ -285,7 +285,7 @@ namespace Assets.Scripts
 
         internal void UpdateGround()
         {
-            if (GroundStat.Owner == 0 || !GroundStat.IsBorder || GroundStat.IsUnderwater)
+            if (Stats.MoveUpdateGroundStat.Owner == 0 || !Stats.MoveUpdateGroundStat.IsBorder || Stats.MoveUpdateGroundStat.IsUnderwater)
             {
                 if (markerEnergy != null)
                 {
@@ -305,11 +305,11 @@ namespace Assets.Scripts
                 Vector3 position = transform.position;
                 position.y += 0.054f + (0.2f * highestEnergy);
                 markerEnergy.transform.position = position;
-                UnitBase.SetPlayerColor(HexGrid, GroundStat.Owner, markerEnergy);
+                UnitBase.SetPlayerColor(HexGrid, Stats.MoveUpdateGroundStat.Owner, markerEnergy);
             }
 
             Vector3 vector3 = transform.localPosition;
-            vector3.y = GroundStat.Height + 0.3f;
+            vector3.y = Stats.MoveUpdateGroundStat.Height + 0.3f;
             transform.localPosition = vector3;
 
             CreateDestructables();
@@ -322,7 +322,7 @@ namespace Assets.Scripts
             List<UnitBaseTileObject> allTileObjects = new List<UnitBaseTileObject>();
             allTileObjects.AddRange(GameObjects);
 
-            foreach (TileObject tileObject in GroundStat.TileObjects)
+            foreach (TileObject tileObject in Stats.MoveUpdateGroundStat.TileObjects)
             {
                 if (tileObject.Direction == Direction.C && tileObject.TileObjectType != TileObjectType.Mineral)
                 {

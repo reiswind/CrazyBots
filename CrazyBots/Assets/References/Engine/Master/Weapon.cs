@@ -14,6 +14,7 @@ namespace Engine.Master
         // Testmode
         public bool FireAtGround { get; set; }
         public bool EndlessAmmo { get; set; }
+        public bool HoldFire { get; set; }
 
         public Weapon(Unit owner, int level) : base(owner, TileObjectType.PartWeapon)
         {
@@ -59,7 +60,7 @@ namespace Engine.Master
             if ((moveFilter & MoveFilter.Fire) == 0)
                 return;
 
-            if (!WeaponLoaded)
+            if (!WeaponLoaded || HoldFire)
                 return;
 
             Dictionary<Position, TileWithDistance> tiles = Unit.Game.Map.EnumerateTiles(Unit.Pos, Range , false, matcher: tile =>

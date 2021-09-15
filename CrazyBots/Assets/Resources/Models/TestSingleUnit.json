@@ -31,40 +31,31 @@
     }
   ],
   "Units": [
-    {
-      "Name": "Outpost",
+    
+	{
+      "Name": "Fighter",
       "PlayerId": 1,
-      "Blueprint": "Outpost",
+      "Blueprint": "Fighter",
+	  "HoldPosition": true,
+	  "FireAtGround": false,
+	  "EndlessAmmo": true,
+	  "EndlessPower": true,
       "Position": {
-        "X": 0,
-        "Y": 0
+        "X": -2,
+        "Y": -2
       }
     },
-    {
-      "Name": "Outpost",
+	{
+      "Name": "Fighter",
       "PlayerId": 2,
-      "Blueprint": "Outpost",
+      "Blueprint": "Container",
+	  "HoldPosition": true,
+	  "HoldFire": true,
+	  "EndlessAmmo": true,
+	  "EndlessPower": true,
       "Position": {
-        "X": 0,
-        "Y": 0
-      }
-    },
-    {
-      "Name": "Outpost",
-      "PlayerId": 3,
-      "Blueprint": "Outpost",
-      "Position": {
-        "X": 0,
-        "Y": 0
-      }
-    },
-    {
-      "Name": "Outpost",
-      "PlayerId": 4,
-      "Blueprint": "Outpost",
-      "Position": {
-        "X": 0,
-        "Y": 0
+        "X": -24,
+        "Y": -2
       }
     }
 

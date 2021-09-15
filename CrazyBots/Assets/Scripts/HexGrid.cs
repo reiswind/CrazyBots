@@ -59,7 +59,7 @@ namespace Assets.Scripts
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-			//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestOutpost");
+			//UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
 			UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 			GameModel gameModel;
@@ -335,7 +335,7 @@ namespace Assets.Scripts
 					game.Map.CollectGroundStats(t.Pos, move);
 					MoveUpdateStats moveUpdateStats = move.Stats;
 
-					GroundCell hexCell = CreateCell(t.Pos, moveUpdateStats.MoveUpdateGroundStat, cellPrefab);
+					GroundCell hexCell = CreateCell(t.Pos, moveUpdateStats, cellPrefab);
 					if (GroundCells.ContainsKey(t.Pos))
 					{
 					}
@@ -628,14 +628,26 @@ namespace Assets.Scripts
 				}
 				else if (move.MoveType == MoveType.UpdateStats)
 				{
-					if (BaseUnits.ContainsKey(move.UnitId))
+					bool skip = false;
+					foreach (HitByBullet hitByBullet in hitByBullets)
 					{
-						UnitBase unit = BaseUnits[move.UnitId];
-						if (unit.PlayerId != move.PlayerId)
+						if (hitByBullet.TargetPosition == move.Positions[0])
 						{
-							unit.ChangePlayer(move.PlayerId);
+							hitByBullet.Stats = move.Stats;
+							skip = true;
 						}
-						unit.UpdateStats(move.Stats);
+					}
+					if (!skip)
+					{
+						if (BaseUnits.ContainsKey(move.UnitId))
+						{
+							UnitBase unit = BaseUnits[move.UnitId];
+							if (unit.PlayerId != move.PlayerId)
+							{
+								unit.ChangePlayer(move.PlayerId);
+							}
+							unit.UpdateStats(move.Stats);
+						}
 					}
 				}
 				else if (move.MoveType == MoveType.Move)
@@ -676,14 +688,14 @@ namespace Assets.Scripts
                     {
 						if (hitByBullet.TargetPosition == move.Positions[0])
                         {
-							hitByBullet.GroundStat = move.Stats.MoveUpdateGroundStat;
+							hitByBullet.Stats = move.Stats;
 							skip = true;
 						}
                     }
 					if (!skip)
 					{
 						GroundCell hexCell = GroundCells[move.Positions[0]];
-						hexCell.GroundStat = move.Stats.MoveUpdateGroundStat;
+						hexCell.Stats = move.Stats;
 						hexCell.UpdateGround();
 					}
 				}
@@ -814,11 +826,17 @@ namespace Assets.Scripts
 			{
 				if (hitByBullet.FireingPosition == fireingPostion && hitByBullet.TargetPosition == null)
 				{
+					if (move.UnitId != null)
+					{
+						hitByBullet.TargetUnit = BaseUnits[move.UnitId];
+					}
 					if (move.OtherUnitId != null)
 					{
 						int level;
 						hitByBullet.HitPartTileObjectType = TileObject.GetTileObjectTypeFromString(move.OtherUnitId, out level);
 					}
+
+
 					hitByBullet.HitTime = Time.unscaledTime + 2;
 					hitByBullet.TargetPosition = targetPostion;
 
@@ -829,7 +847,64 @@ namespace Assets.Scripts
 			if (!found)
 			{
 				// First fire, than hit.
-				throw new Exception();
+				//throw new Exception();
+			}
+		}
+
+		public void HitGroundAnimation(Transform transform)
+		{
+			GameObject debrisDirt = GetTerrainResource("DebrisDirt");
+
+			for (int i = 0; i < 40; i++)
+			{
+				GameObject debris = Instantiate(debrisDirt, transform, false);
+
+				Vector2 randomPos = UnityEngine.Random.insideUnitCircle;
+				Vector3 unitPos3 = transform.position;
+				unitPos3.x += (randomPos.x * 0.25f);
+				unitPos3.z += (randomPos.y * 0.27f);
+				debris.transform.position = unitPos3;
+				debris.transform.rotation = UnityEngine.Random.rotation;
+
+				/*
+				Vector3 vector3 = new Vector3();
+				vector3.y = 0.1f;
+				vector3.x = UnityEngine.Random.value;
+				vector3.z = UnityEngine.Random.value;
+
+				Rigidbody otherRigid = debris.GetComponent<Rigidbody>();
+				otherRigid.velocity = vector3;
+				otherRigid.rotation = UnityEngine.Random.rotation;*/
+				Destroy(debris, 12 * UnityEngine.Random.value);
+			}
+		}
+
+		public void HitUnitPartAnimation(Transform transform)
+		{
+			GameObject debrisDirt = GetTerrainResource("DebrisDirt");
+
+			for (int i = 0; i < 40; i++)
+			{
+				GameObject debris = Instantiate(debrisDirt);
+
+				Vector2 randomPos = UnityEngine.Random.insideUnitCircle;
+				Vector3 unitPos3 = transform.position;
+				unitPos3.x += (randomPos.x * 0.25f);
+				unitPos3.z += (randomPos.y * 0.27f);
+				unitPos3.y += 1;
+				debris.transform.position = unitPos3;
+				debris.transform.rotation = UnityEngine.Random.rotation;
+
+				
+				Vector3 vector3 = new Vector3();
+				vector3.y = 1f;
+				vector3.x = UnityEngine.Random.value;
+				vector3.z = UnityEngine.Random.value;
+
+				Rigidbody otherRigid = debris.GetComponent<Rigidbody>();
+				otherRigid.velocity = vector3;
+				otherRigid.rotation = UnityEngine.Random.rotation;
+				Destroy(debris, 5 + (12 * UnityEngine.Random.value));
 			}
 		}
 
@@ -837,11 +912,15 @@ namespace Assets.Scripts
 		{
 			if (hitByBullet.TargetUnit == null)
 			{
-				if (hitByBullet.GroundStat != null)
+				if (hitByBullet.Stats != null)
 				{
 					GroundCell hexCell = GroundCells[hitByBullet.TargetPosition];
-					hexCell.GroundStat = hitByBullet.GroundStat;
-					hexCell.UpdateGround();
+					if (hitByBullet.Stats.MoveUpdateGroundStat != null)
+					{
+						hexCell.Stats = hitByBullet.Stats;
+						hexCell.UpdateGround();
+					}
+					HitGroundAnimation(hexCell.transform);
 				}
 				else
                 {
@@ -851,7 +930,14 @@ namespace Assets.Scripts
 			else
 			{
 				hitByBullet.TargetUnit.HitByShell();
-				hitByBullet.TargetUnit.PartHitByShell(hitByBullet.HitPartTileObjectType);
+				//hitByBullet.TargetUnit.UpdateStats(hitByBullet.Stats);
+				UnitBasePart unitBasePart= hitByBullet.TargetUnit.PartHitByShell(hitByBullet.HitPartTileObjectType);
+				if (unitBasePart != null)
+					HitUnitPartAnimation(unitBasePart.Part.transform);
+				else
+                {
+					int error = 0;
+                }
 			}
 		}
 
@@ -1090,7 +1176,7 @@ namespace Assets.Scripts
 			return new Vector3((x * gridSizeX), 0, -y * gridSizeY);
 		}
 
-		private GroundCell CreateCell(Position pos, MoveUpdateGroundStat groundStat, GameObject cellPrefabx)
+		private GroundCell CreateCell(Position pos, MoveUpdateStats stats, GameObject cellPrefabx)
 		{
 			int x = pos.X;
 			int y = pos.Y;
@@ -1102,13 +1188,13 @@ namespace Assets.Scripts
 
 			GroundCell groundCell = gameObjectCell.GetComponent<GroundCell>();
 			groundCell.HexGrid = this;
-			groundCell.GroundStat = groundStat;
+			groundCell.Stats = stats;
 			groundCell.Pos = pos;
 
 			Vector2 gridPos = new Vector2(x, y);
 			Vector3 gridPos3 = CalcWorldPos(gridPos);
 
-			float height = groundStat.Height;
+			float height = stats.MoveUpdateGroundStat.Height;
 			gridPos3.y += height + 0.3f;
 			gameObjectCell.transform.localPosition = gridPos3;
 			groundCell.CreateDestructables();

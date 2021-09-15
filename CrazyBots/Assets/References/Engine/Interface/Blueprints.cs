@@ -31,7 +31,7 @@ namespace Engine.Interface
 
             // Container
             blueprint = new Blueprint();
-            blueprint.Name = "Container";
+            blueprint.Name = "  ";
             blueprint.Layout = "Ground";
             blueprint.Parts.Add(new BlueprintPart("Foundation"));
             blueprint.Parts.Add(new BlueprintPart("ContainerXL", TileObjectType.PartContainer, 3, 96));

@@ -777,7 +777,7 @@ namespace Engine.Master
             }
             Ability partHit = null;
 
-            if (this.Armor != null)
+            if (Armor != null)
             {
                 if (Armor.ShieldActive)
                 {
@@ -786,132 +786,43 @@ namespace Engine.Master
                     Shield shield = new Shield(this, 1);
                     partHit = shield;
                 }
-                else
-                {
-                    partHit = Armor;
-
-                    Armor.Level--;
-                    if (Armor.Level <= 0)
-                    {
-                        this.Armor = null;
-                    }
-                }
             }
-            else
+            // Revers
+            for (int i = Blueprint.Parts.Count - 1; i >= 0 && partHit == null; i--)
             {
-                bool damageDone = false;
+                BlueprintPart blueprintPart = Blueprint.Parts[i];
 
-                while (damageDone == false)
+                int level = blueprintPart.Level;
+                while (level > 0)
                 {
-                    if (Armor != null || Weapon != null || Assembler != null || Container != null || Reactor != null || Radar != null)
+                    if (IsInstalled(blueprintPart, level))
                     {
-                        int damageType = Game.Random.Next(5);
-                        if (damageType == 0)
-                        {
-                            if (Weapon != null && Weapon.Level > 0)
-                            {
-                                partHit = Weapon;
-                                Weapon.Level--;
-                                if (Weapon.Level == 0)
-                                {
-                                    Weapon = null;
-                                }
-                                damageDone = true;
-                            }
-                        }
-                        else if (damageType == 1)
-                        {
-                            if (Assembler != null && Assembler.Level > 0)
-                            {
-                                partHit = Assembler;
-                                Assembler.Level--;
-                                if (Assembler.Level == 0)
-                                {
-                                    Assembler = null;
-                                }
-                                damageDone = true;
-                            }
-                        }
-                        else if (damageType == 2)
-                        {
-                            if (Container != null && Container.Level > 0)
-                            {
-                                partHit = Container;
-                                Container.Level--;
-                                Container.ResetCapacity();
+                        if (blueprintPart.PartType == TileObjectType.PartArmor) partHit = Armor;
+                        if (blueprintPart.PartType == TileObjectType.PartAssembler) partHit = Assembler;
+                        if (blueprintPart.PartType == TileObjectType.PartContainer) partHit = Container;
+                        if (blueprintPart.PartType == TileObjectType.PartEngine) partHit = Engine;
+                        if (blueprintPart.PartType == TileObjectType.PartExtractor) partHit = Extractor;
+                        if (blueprintPart.PartType == TileObjectType.PartRadar) partHit = Radar;
+                        if (blueprintPart.PartType == TileObjectType.PartReactor) partHit = Reactor;
+                        if (blueprintPart.PartType == TileObjectType.PartWeapon) partHit = Weapon;
 
-                                if (Container.Level == 0)
-                                {
-                                    Container = null;
-                                }
-                                damageDone = true;
-                            }
-                        }
-                        else if (damageType == 3)
+                        partHit.Level--;
+                        if (partHit.Level == 0)
                         {
-                            if (Reactor != null && Reactor.Level > 0)
-                            {
-                                partHit = Reactor;
-                                Reactor.Level--;
-                                if (Reactor.Level == 0)
-                                {
-                                    Reactor = null;
-                                }
-                                damageDone = true;
-                            }
+                            if (blueprintPart.PartType == TileObjectType.PartArmor) Armor = null;
+                            if (blueprintPart.PartType == TileObjectType.PartAssembler) Assembler = null;
+                            if (blueprintPart.PartType == TileObjectType.PartContainer) Container = null;
+                            if (blueprintPart.PartType == TileObjectType.PartEngine) Engine = null;
+                            if (blueprintPart.PartType == TileObjectType.PartExtractor) Extractor = null;
+                            if (blueprintPart.PartType == TileObjectType.PartRadar) Radar = null;
+                            if (blueprintPart.PartType == TileObjectType.PartReactor) Reactor = null;
+                            if (blueprintPart.PartType == TileObjectType.PartWeapon) Weapon = null;
                         }
-                        else if (damageType == 4)
-                        {
-                            if (Radar != null && Radar.Level > 0)
-                            {
-                                partHit = Radar;
-                                Radar.Level--;
-                                if (Radar.Level == 0)
-                                {
-                                    Radar = null;
-                                }
-                                damageDone = true;
-                            }
-                        }
-                        if (!damageDone)
-                            continue;
-                    }
-                    if (!damageDone)
-                    {
-                        int damageType = Game.Random.Next(2);
-                        if (Engine != null && Extractor != null)
-                        {
-                            // If moveable, destroy the extractor first
-                            damageType = 1;
-                        }
-                        if (damageType == 0)
-                        {
-                            if (Engine != null && Engine.Level > 0)
-                            {
-                                partHit = Engine;
-                                Engine.Level--;
-                                if (Engine.Level == 0)
-                                {
-                                    Engine = null;
-                                }
-                                damageDone = true;
-                            }
-                        }
-                        else if (damageType == 1)
-                        {
-                            if (Extractor != null && Extractor.Level > 0)
-                            {
-                                partHit = Extractor;
-                                Extractor.Level--;
-                                if (Extractor.Level == 0)
-                                {
-                                    Extractor = null;
-                                }
-                                damageDone = true;
-                            }
-                        }
-                    }
 
+                        //
+                        break;
+                    }
+                    level--;
                 }
             }
             return partHit;

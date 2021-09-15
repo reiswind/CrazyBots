@@ -118,6 +118,8 @@ namespace Engine.Interface
         [DataMember]
         public bool HoldPosition { get; set; }
         [DataMember]
+        public bool HoldFire { get; set; }
+        [DataMember]
         public bool FireAtGround { get; set; }
         [DataMember]
         public bool EndlessAmmo { get; set; }

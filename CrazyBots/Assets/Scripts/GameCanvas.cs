@@ -457,7 +457,7 @@ namespace Assets.Scripts
         private bool CanBuildAt(GroundCell groundCell)
         {
             if (groundCell == null ||
-                groundCell.GroundStat.TileObjects.Count > 0
+                groundCell.Stats.MoveUpdateGroundStat.TileObjects.Count > 0
                 /*|| groundCell.Tile.Unit != null*/)
             {
                 return false;
@@ -470,7 +470,7 @@ namespace Assets.Scripts
         private bool CanCommandAt(GroundCell groundCell)
         {
             if (groundCell == null ||
-                groundCell.GroundStat.TileObjects.Count > 0)
+                groundCell.Stats.MoveUpdateGroundStat.TileObjects.Count > 0)
             {
                 return false;
             }
@@ -900,7 +900,7 @@ namespace Assets.Scripts
             //if (gc.GroundStat.Minerals.Tile.Metal > 0)
             //    sb.Append(" Minerals: " + gc.Tile.Metal);
 
-            sb.Append(" Owner: " + gc.GroundStat.Owner);
+            sb.Append(" Owner: " + gc.Stats.MoveUpdateGroundStat.Owner);
 
             if (selectedUnitFrame == null)
             {
@@ -929,7 +929,7 @@ namespace Assets.Scripts
                 }
                 else
                 {
-                    if (gc.GroundStat.TileObjects.Count > 0)
+                    if (gc.Stats.MoveUpdateGroundStat.TileObjects.Count > 0)
                     {
                         headerText.text = "Destructable";
                     }
@@ -941,8 +941,8 @@ namespace Assets.Scripts
                 headerSubText.text = sb.ToString();
 
                 sb.Clear();
-                if (gc.GroundStat.TileObjects.Count > 0)
-                    sb.Append("Items: " + gc.GroundStat.TileObjects.Count);
+                if (gc.Stats.MoveUpdateGroundStat.TileObjects.Count > 0)
+                    sb.Append("Items: " + gc.Stats.MoveUpdateGroundStat.TileObjects.Count);
 
                 headerGroundText.text = sb.ToString();
             }
