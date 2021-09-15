@@ -237,6 +237,22 @@ namespace Engine.Master
             return positions;
         }
 
+        private bool CanBuildAt(TileWithDistance neighbor)
+        {
+            if (Unit.CurrentGameCommand != null)
+            { 
+                if (Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build &&
+                        neighbor.Pos == Unit.CurrentGameCommand.TargetPosition)
+                {
+                    return true;
+                }
+                //  &&
+                //move1.UnitId == Unit.CurrentGameCommand.UnitId
+                return false;
+            }
+            return true;
+        }
+
         public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position> includedPositions, MoveFilter moveFilter)
         {
             if ((moveFilter & MoveFilter.Assemble) == 0 && (moveFilter & MoveFilter.Upgrade) == 0)
@@ -249,6 +265,9 @@ namespace Engine.Master
 
             foreach (TileWithDistance neighbor in neighbors.Values)
             {
+                if (!CanBuildAt(neighbor))
+                    continue;
+
                 PlayerUnit playerUnitNeighbor = null;
                 foreach (PlayerUnit playerUnit1 in Unit.Owner.UnitsInBuild.Values)
                 {
@@ -260,9 +279,6 @@ namespace Engine.Master
                 }
 
                 if (playerUnitNeighbor != null)
-                /*
-                neighbor.Tile.UnitInBuild != null &&
-                neighbor.Tile.UnitInBuild.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)*/
                 {
                     PlayerUnit playerUnit = Unit.Owner.UnitsInBuild[playerUnitNeighbor.Unit.UnitId];
                     if (playerUnit.Unit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
@@ -288,6 +304,9 @@ namespace Engine.Master
             }
             foreach (TileWithDistance neighbor in neighbors.Values)
             {
+                if (!CanBuildAt(neighbor))
+                    continue;
+
                 if (!neighbor.Tile.CanMoveTo(Unit.Pos))
                     continue;
 
@@ -303,9 +322,14 @@ namespace Engine.Master
                     {
                         if (Level > 0)
                         {
-                            // Can build everything
+                            // Can build everything or command
                             foreach (Blueprint blueprint in Unit.Owner.Game.Blueprints.Items)
                             {
+                                if (Unit.CurrentGameCommand != null &&
+                                    blueprint.Name != Unit.CurrentGameCommand.UnitId)
+                                {
+                                    continue;
+                                }
                                 possibleMoves.Add(CreateAssembleMove(neighbor.Pos, blueprint.Name));
                             }
                         }

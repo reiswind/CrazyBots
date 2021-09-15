@@ -31,14 +31,12 @@ namespace Engine.Ants
             {
                 if (Ant.BuildPositionReached)
                 {
-                    moved = BuildUnit(control, player, moves);
+                    //moved = BuildUnit(control, player, moves);
+                    int x = 0;
                 }
-                else
+                
                 {
-                    //if (Ant.AntPartEngine == null)
-                    {
-                        moved = Assemble(control, player, moves);
-                    }
+                    moved = Assemble(control, player, moves);
                 }
             }
             return moved;
@@ -137,38 +135,47 @@ namespace Engine.Ants
 
             if (!upgrading)
             {
-                Blueprint commandBluePrint = null;
                 GameCommand selectedGameCommand = null;
-                if (player.GameCommands.Count > 0)
-                {
-                    double bestDistance = 0;
-                    GameCommand bestGameCommand = null;
 
-                    foreach (GameCommand gameCommand in player.GameCommands)
+                if (Assembler.Unit.CurrentGameCommand != null &&
+                    Assembler.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build)
+                {
+                    selectedGameCommand = Assembler.Unit.CurrentGameCommand;
+                }
+                else
+                {
+                    if (player.GameCommands.Count > 0)
                     {
-                        double d = Assembler.Unit.Pos.GetDistanceTo(gameCommand.TargetPosition);
-                        if (bestGameCommand == null || d < bestDistance)
+                        double bestDistance = 0;
+                        GameCommand bestGameCommand = null;
+
+                        foreach (GameCommand gameCommand in player.GameCommands)
                         {
-                            bestDistance = d;
-                            selectedGameCommand = gameCommand;
+                            double d = Assembler.Unit.Pos.GetDistanceTo(gameCommand.TargetPosition);
+                            if (bestGameCommand == null || d < bestDistance)
+                            {
+                                bestDistance = d;
+                                selectedGameCommand = gameCommand;
+                            }
                         }
                     }
-                    if (selectedGameCommand != null)
+                }
+                Blueprint commandBluePrint = null;
+                if (selectedGameCommand != null)
+                {
+                    if (selectedGameCommand.GameCommandType == GameCommandType.Build)
                     {
-                        if (selectedGameCommand.GameCommandType == GameCommandType.Build)
-                        {
-                            commandBluePrint = player.Game.Blueprints.FindBlueprint(selectedGameCommand.UnitId);
-                        }
-                        else if (selectedGameCommand.GameCommandType == GameCommandType.Attack ||
-                                 selectedGameCommand.GameCommandType == GameCommandType.Defend ||
-                                 selectedGameCommand.GameCommandType == GameCommandType.Scout)
-                        {
-                            //addFighter = true;
-                        }
-                        else if (selectedGameCommand.GameCommandType == GameCommandType.Collect)
-                        {
-                            //addWorker = true;
-                        }
+                        commandBluePrint = player.Game.Blueprints.FindBlueprint(selectedGameCommand.UnitId);
+                    }
+                    else if (selectedGameCommand.GameCommandType == GameCommandType.Attack ||
+                             selectedGameCommand.GameCommandType == GameCommandType.Defend ||
+                             selectedGameCommand.GameCommandType == GameCommandType.Scout)
+                    {
+                        //addFighter = true;
+                    }
+                    else if (selectedGameCommand.GameCommandType == GameCommandType.Collect)
+                    {
+                        //addWorker = true;
                     }
                 }
 
@@ -207,15 +214,21 @@ namespace Engine.Ants
                             }
                             else
                             {
-                                // hmmmm
-                                //addFighter = false;
-                                //addWorker = false;
-
-                                // Build an assembler to move there
-                                if ("Assembler" == possibleMove.UnitId)
+                                // Build this unit, this is an assembler
+                                if (Ant.BuildPositionReached)
                                 {
                                     possibleMoves.Add(possibleMove);
                                 }
+                                else if ("Assembler" == possibleMove.UnitId)
+                                {
+                                    // hmmmm
+                                    //addFighter = false;
+                                    //addWorker = false;
+
+                                    // Build an assembler to move there
+
+                                    possibleMoves.Add(possibleMove);
+                                }                            
                             }
                         }
 
