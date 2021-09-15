@@ -40,7 +40,7 @@ namespace Assets.Scripts
                             transitObject.HideAtArrival = true;
                             transitObject.ScaleDown = true;
 
-                            unit.AddTransitTileObject(transitObject);
+                            hexGrid.AddTransitTileObject(transitObject);
                             //unit.InsertGameTileObject(unitBaseTileObject);
 
                             found = true;
@@ -72,7 +72,7 @@ namespace Assets.Scripts
                                     transitObject.TargetPosition = transform.position;
                                     transitObject.DestroyAtArrival = true;
                                     transitObject.ScaleDown = true;
-                                    unit.AddTransitTileObject(transitObject);
+                                    hexGrid.AddTransitTileObject(transitObject);
                                 }
                                 found = true;
                                 break;
@@ -133,7 +133,7 @@ namespace Assets.Scripts
                                         transitObject.GameObject = sourceTileObject.GameObject;
                                         transitObject.TargetPosition = transform.position;
                                         transitObject.HideAtArrival = true;
-                                        unit.AddTransitTileObject(transitObject);
+                                        hexGrid.AddTransitTileObject(transitObject);
 
                                         found = true;
                                         break;
@@ -161,7 +161,7 @@ namespace Assets.Scripts
                                         transitObject.TargetPosition = transform.position;
                                         //transitObject.DestroyAtArrival = true;
                                         //transitObject.ScaleDown = true;
-                                        unit.AddTransitTileObject(transitObject);
+                                        hexGrid.AddTransitTileObject(transitObject);
 
                                         /*
                                         TransitObject transitObject = new TransitObject();
@@ -188,7 +188,7 @@ namespace Assets.Scripts
                                     transitObject.TargetPosition = transform.position;
                                     transitObject.DestroyAtArrival = true;
                                     transitObject.ScaleDown = true;
-                                    unit.AddTransitTileObject(transitObject);
+                                    hexGrid.AddTransitTileObject(transitObject);
                                 }
                                 found = true;
                                 break;

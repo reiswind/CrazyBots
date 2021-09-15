@@ -558,9 +558,9 @@ namespace Assets.Scripts
 					unitBase.CurrentPos = unitBase.DestinationPos;
 					unitBase.DestinationPos = null;
 					unitBase.PutAtCurrentPosition(true);
-				}
-				unitBase.FinishTransits();
+				}				
 			}
+			FinishTransits();
 			List<UnitBase> deletedUnits = new List<UnitBase>();
 
 			foreach (Move move in newMoves)
@@ -780,6 +780,93 @@ namespace Assets.Scripts
 			ParticleSystemForceField extractPrefab = gameObject.GetComponent<ParticleSystemForceField>();
 			ParticleSystemForceField extract = Instantiate(extractPrefab);
 			return extract;
+		}
+
+		private List<TransitObject> tileObjectsInTransit;
+
+		public void AddTransitTileObject(TransitObject transitObject)
+		{
+			if (tileObjectsInTransit == null)
+				tileObjectsInTransit = new List<TransitObject>();
+			tileObjectsInTransit.Add(transitObject);
+		}
+		public void FinishTransits()
+		{
+			if (tileObjectsInTransit != null)
+			{
+				foreach (TransitObject transitObject in tileObjectsInTransit)
+				{
+					if (transitObject.DestroyAtArrival)
+						Destroy(transitObject.GameObject);
+					else if (transitObject.HideAtArrival)
+						transitObject.GameObject.SetActive(false);
+				}
+				tileObjectsInTransit = null;
+			}
+		}
+
+        private void Update()
+        {
+			MoveTransits();
+		}
+
+        private void MoveTransits()
+        {
+			if (tileObjectsInTransit != null)
+			{
+				List<TransitObject> transit = new List<TransitObject>();
+				transit.AddRange(tileObjectsInTransit);
+
+				foreach (TransitObject transitObject in transit)
+				{
+					if (transitObject.GameObject == null)
+					{
+						tileObjectsInTransit.Remove(transitObject);
+					}
+					else
+					{
+						Vector3 vector3 = transitObject.TargetPosition;
+
+						float speed = 2.0f / GameSpeed;
+						float step = speed * Time.deltaTime;
+
+						if (transitObject.ScaleDown)
+						{
+							MeshRenderer mesh = transitObject.GameObject.GetComponent<MeshRenderer>();
+							if (mesh.bounds.size.y > 0.2f || mesh.bounds.size.x > 0.2f || mesh.bounds.size.z > 0.2f)
+							{
+								float scalex = mesh.bounds.size.x / 200;
+								float scaley = mesh.bounds.size.y / 200;
+								float scalez = mesh.bounds.size.z / 200;
+
+								Vector3 scaleChange;
+								scaleChange = new Vector3(-scalex, -scaley, -scalez);
+
+								transitObject.GameObject.transform.localScale += scaleChange;
+							}
+						}
+						transitObject.GameObject.transform.position = Vector3.MoveTowards(transitObject.GameObject.transform.position, vector3, step);
+						if (transitObject.GameObject.transform.position == transitObject.TargetPosition)
+						{
+							if (transitObject.DestroyAtArrival)
+							{
+								Destroy(transitObject.GameObject);
+							}
+							else if (transitObject.HideAtArrival)
+							{
+								transitObject.GameObject.SetActive(false);
+							}
+							else
+							{
+								// int x=0;
+							}
+							tileObjectsInTransit.Remove(transitObject);
+						}
+					}
+				}
+				if (tileObjectsInTransit.Count == 0)
+					tileObjectsInTransit = null;
+			}
 		}
 
 		public UnitBase CreateTempUnit(Blueprint blueprint)

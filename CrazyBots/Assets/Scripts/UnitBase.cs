@@ -65,7 +65,6 @@ namespace Assets.Scripts
         internal bool UnderConstruction { get; set; }
         internal bool HasBeenDestroyed { get; set; }
 
-        private List<TransitObject> tileObjectsInTransit;
 
         // Update is called once per frame
         void Update()
@@ -88,61 +87,7 @@ namespace Assets.Scripts
                 transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
                 UpdateDirection(unitPos3);
             }
-            if (tileObjectsInTransit != null)
-            {
-                List<TransitObject> transit = new List<TransitObject>();
-                transit.AddRange(tileObjectsInTransit);
-
-                foreach (TransitObject transitObject in transit)
-                {
-                    if (transitObject.GameObject == null)
-                    {
-                        tileObjectsInTransit.Remove(transitObject);
-                    }
-                    else
-                    {
-                        Vector3 vector3 = transitObject.TargetPosition;
-
-                        float speed = 2.0f / HexGrid.GameSpeed;
-                        float step = speed * Time.deltaTime;
-
-                        if (transitObject.ScaleDown)
-                        {
-                            MeshRenderer mesh = transitObject.GameObject.GetComponent<MeshRenderer>();
-                            if (mesh.bounds.size.y > 0.2f || mesh.bounds.size.x > 0.2f || mesh.bounds.size.z > 0.2f)
-                            {
-                                float scalex = mesh.bounds.size.x / 200;
-                                float scaley = mesh.bounds.size.y / 200;
-                                float scalez = mesh.bounds.size.z / 200;
-
-                                Vector3 scaleChange;
-                                scaleChange = new Vector3(-scalex, -scaley, -scalez);
-
-                                transitObject.GameObject.transform.localScale += scaleChange;
-                            }
-                        }
-                        transitObject.GameObject.transform.position = Vector3.MoveTowards(transitObject.GameObject.transform.position, vector3, step);
-                        if (transitObject.GameObject.transform.position == transitObject.TargetPosition)
-                        {
-                            if (transitObject.DestroyAtArrival)
-                            {
-                                Destroy(transitObject.GameObject);
-                            }
-                            else if (transitObject.HideAtArrival)
-                            {
-                                transitObject.GameObject.SetActive(false);
-                            }
-                            else
-                            {
-                                // int x=0;
-                            }
-                            tileObjectsInTransit.Remove(transitObject);
-                        }
-                    }
-                }
-                if (tileObjectsInTransit.Count == 0)
-                    tileObjectsInTransit = null;
-            }
+            
             if (hitByBullets != null)
             {
                 List<HitByBullet> currentHitByBullets = new List<HitByBullet>();
@@ -230,12 +175,7 @@ namespace Assets.Scripts
             }
         }
 
-        public void AddTransitTileObject(TransitObject transitObject)
-        {
-            if (tileObjectsInTransit == null)
-                tileObjectsInTransit = new List<TransitObject>();
-            tileObjectsInTransit.Add(transitObject);
-        }
+
 
         void UpdateDirection(Vector3 position)
         {
@@ -279,20 +219,7 @@ namespace Assets.Scripts
                 transform.position = unitPos3;
             }
         }
-        public void FinishTransits()
-        {
-            if (tileObjectsInTransit != null)
-            {
-                foreach (TransitObject transitObject in tileObjectsInTransit)
-                {
-                    if (transitObject.DestroyAtArrival)
-                        Destroy(transitObject.GameObject);
-                    else if (transitObject.HideAtArrival)
-                        transitObject.GameObject.SetActive(false);                    
-                }
-                tileObjectsInTransit = null;
-            }
-        }
+
 
         public void MoveTo(Position pos)
         {

@@ -27,7 +27,7 @@ namespace Assets.Scripts
                     upgradedBasePart.Part.SetActive(true);
 
                     // Move to position in unit
-                    unit.AddTransitTileObject(transitObject);
+                    hexGrid.AddTransitTileObject(transitObject);
                 }
             }
 
