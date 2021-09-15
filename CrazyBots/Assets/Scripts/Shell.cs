@@ -9,8 +9,9 @@ namespace Assets.Scripts
         public ParticleSystem m_ExplosionParticles;
 
         public UnitBase FireingUnit { get; set; }
-        internal string TargetUnitId { get; set; }
         internal HexGrid HexGrid { get; set; }
+
+        internal HitByBullet HitByBullet { get; set; }
 
         private UnitBase GetUnitFrameFromCollider(Collider other)
         {
@@ -23,6 +24,24 @@ namespace Assets.Scripts
             {
                 unitBase = transform.parent.GetComponent<UnitBase>();
                 if (unitBase != null) return unitBase;
+                if (transform.parent == null)
+                    break;
+                transform = transform.parent;
+            }
+            return null;
+        }
+
+        private GroundCell GetGroundCellFromCollider(Collider other)
+        {
+            GroundCell groundCell = other.GetComponent<GroundCell>();
+            if (groundCell != null) return groundCell;
+
+            Transform transform = other.transform;
+
+            while (transform.parent != null)
+            {
+                groundCell = transform.parent.GetComponent<GroundCell>();
+                if (groundCell != null) return groundCell;
                 if (transform.parent == null)
                     break;
                 transform = transform.parent;
@@ -43,8 +62,8 @@ namespace Assets.Scripts
             {
                 Vector3 velo = otherRigid.velocity;
             }
-
-
+            HitByBullet.BulletImpact = true;
+            /*
             UnitBase hitUnit = GetUnitFrameFromCollider(other);
             if (hitUnit == null)
             {
@@ -52,8 +71,8 @@ namespace Assets.Scripts
             }
             else
             {
-                hitUnit.Impact();
-            }
+                HexGrid.Impact(hitUnit);
+            }*/
             /*
 
 
@@ -94,20 +113,14 @@ namespace Assets.Scripts
             {
                 return;
             }
-            if (hitUnit == null)
-            {
-                // Play some hit ground animation
-                int x = 0;
-            }
-            else
-            {
-                hitUnit.Impact();
-            }
 
-            //m_ExplosionParticles.transform.parent = null;
+            HitByBullet.BulletImpact = true;
+           
 
             // Play the particle system.
             m_ExplosionParticles.Play();
+
+            Destroy(this.gameObject, 1f);
             //Destroy(m_ExplosionParticles.gameObject, m_ExplosionParticles.main.duration);
         }
 

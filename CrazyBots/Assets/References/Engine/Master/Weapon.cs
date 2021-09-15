@@ -102,24 +102,26 @@ namespace Engine.Master
                             }
                         }
                     }
+
+                    if (FireAtGround)
+                    {
+                        /* No longer fire at ground. They are extracted now */
+
+                        Move move = new Move();
+                        move.MoveType = MoveType.Fire;
+                        move.UnitId = Unit.UnitId;
+                        //move.OtherUnitId = tileObject.TileObjectType.ToString();
+                        move.Positions = new List<Position>();
+                        move.Positions.Add(Unit.Pos);
+                        move.Positions.Add(n.Tile.Pos);
+
+                        possibleMoves.Add(move);
+                    }
                     else
                     {
-                        if (FireAtGround)
-                        {
-                            /* No longer fire at ground. They are extracted now */
-
-                            Move move = new Move();
-                            move.MoveType = MoveType.Fire;
-                            move.UnitId = Unit.UnitId;
-                            //move.OtherUnitId = tileObject.TileObjectType.ToString();
-                            move.Positions = new List<Position>();
-                            move.Positions.Add(Unit.Pos);
-                            move.Positions.Add(n.Tile.Pos);
-
-                            possibleMoves.Add(move);
-                        }
                         continue;
                     }
+                    
                 }
                 else
                 {

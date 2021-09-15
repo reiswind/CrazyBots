@@ -95,6 +95,7 @@ namespace Engine.Master
         public GameCommand CurrentGameCommand { get; set; }
 
         public int Power { get; set; }
+        public bool EndlessPower { get; set; }
         public int MaxPower { get; set; }
 
         // Unit can be extracted

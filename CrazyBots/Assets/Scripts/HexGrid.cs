@@ -321,7 +321,7 @@ namespace Assets.Scripts
 			GroundCells = new Dictionary<Position, GroundCell>();
 			BaseUnits = new Dictionary<string, UnitBase>();
 			UnitsInBuild = new Dictionary<Position, UnitBase>();
-
+			hitByBullets = new List<HitByBullet>();
 
 			GameObject cellPrefab = GetTerrainResource("HexCell");
 
@@ -331,7 +331,9 @@ namespace Assets.Scripts
 			{
 				foreach (Tile t in game.Map.Tiles.Values)
 				{
-					MoveUpdateStats moveUpdateStats = game.Map.CollectGroundStats(t.Pos);
+					Move move = new Move();
+					game.Map.CollectGroundStats(t.Pos, move);
+					MoveUpdateStats moveUpdateStats = move.Stats;
 
 					GroundCell hexCell = CreateCell(t.Pos, moveUpdateStats.MoveUpdateGroundStat, cellPrefab);
 					if (GroundCells.ContainsKey(t.Pos))
@@ -584,20 +586,17 @@ namespace Assets.Scripts
 				}
 				else if (move.MoveType == MoveType.Hit)
 				{
-					if (BaseUnits.ContainsKey(move.UnitId))
+					if (move.UnitId == null)
 					{
-						UnitBase unit = BaseUnits[move.UnitId];
-						unit.HasBeenHit(move);
-
-						/*
-						if (unit.PartsThatHaveBeenHit == null)
-							unit.PartsThatHaveBeenHit = new List<string>();
-						unit.PartsThatHaveBeenHit.Add(move.OtherUnitId);*/
-						//int level;
-						//TileObjectType tileObjectType = TileObject.GetTileObjectTypeFromString(move.OtherUnitId, out level);
-
-						//unit.PartExtracted(tileObjectType);
-
+						HitMove(null, move);
+					}
+					else
+					{
+						if (BaseUnits.ContainsKey(move.UnitId))
+						{
+							UnitBase unit = BaseUnits[move.UnitId];
+							HitMove(unit, move);
+						}
 					}
 				}
 				else if (move.MoveType == MoveType.Fire)
@@ -672,9 +671,21 @@ namespace Assets.Scripts
 				}
 				else if (move.MoveType == MoveType.UpdateGround)
 				{
-					GroundCell hexCell = GroundCells[move.Positions[0]];
-					hexCell.GroundStat = move.Stats.MoveUpdateGroundStat;
-					hexCell.UpdateGround();
+					bool skip = false;
+					foreach (HitByBullet hitByBullet in hitByBullets)
+                    {
+						if (hitByBullet.TargetPosition == move.Positions[0])
+                        {
+							hitByBullet.GroundStat = move.Stats.MoveUpdateGroundStat;
+							skip = true;
+						}
+                    }
+					if (!skip)
+					{
+						GroundCell hexCell = GroundCells[move.Positions[0]];
+						hexCell.GroundStat = move.Stats.MoveUpdateGroundStat;
+						hexCell.UpdateGround();
+					}
 				}
 				else if (move.MoveType == MoveType.Delete)
 				{
@@ -783,6 +794,85 @@ namespace Assets.Scripts
 		}
 
 		private List<TransitObject> tileObjectsInTransit;
+		private List<HitByBullet> hitByBullets;
+
+		public HitByBullet Fire(UnitBase fireingUnit, TileObject anmo)
+        {
+			HitByBullet hitByBullet = new HitByBullet(fireingUnit.CurrentPos);
+			hitByBullet.HitTime = Time.unscaledTime + 2;
+			hitByBullets.Add(hitByBullet);
+			return hitByBullet;
+		}
+
+		public void HitMove(UnitBase hitUnit, Move move)
+		{
+			Position fireingPostion = move.Positions[0];
+			Position targetPostion = move.Positions[1];
+
+			bool found = false;
+			foreach (HitByBullet hitByBullet in hitByBullets)
+			{
+				if (hitByBullet.FireingPosition == fireingPostion && hitByBullet.TargetPosition == null)
+				{
+					if (move.OtherUnitId != null)
+					{
+						int level;
+						hitByBullet.HitPartTileObjectType = TileObject.GetTileObjectTypeFromString(move.OtherUnitId, out level);
+					}
+					hitByBullet.HitTime = Time.unscaledTime + 2;
+					hitByBullet.TargetPosition = targetPostion;
+
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+			{
+				// First fire, than hit.
+				throw new Exception();
+			}
+		}
+
+		public void HasBeenHit(HitByBullet hitByBullet)
+		{
+			if (hitByBullet.TargetUnit == null)
+			{
+				if (hitByBullet.GroundStat != null)
+				{
+					GroundCell hexCell = GroundCells[hitByBullet.TargetPosition];
+					hexCell.GroundStat = hitByBullet.GroundStat;
+					hexCell.UpdateGround();
+				}
+				else
+                {
+					int x = 0;
+                }
+			}
+			else
+			{
+				hitByBullet.TargetUnit.HitByShell();
+				hitByBullet.TargetUnit.PartHitByShell(hitByBullet.HitPartTileObjectType);
+			}
+		}
+
+		public void HandleImpacts()
+        {
+			List<HitByBullet> currentHitByBullets = new List<HitByBullet>();
+			currentHitByBullets.AddRange(hitByBullets);
+			foreach (HitByBullet hitByBullet in currentHitByBullets)
+			{
+				if (hitByBullet.BulletImpact)
+				{
+					HasBeenHit(hitByBullet);
+					hitByBullets.Remove(hitByBullet);
+				}
+				else if (hitByBullet.HitTime < Time.unscaledTime)
+				{
+					//HasBeenHit(hitByBullet);
+					//hitByBullets.Remove(hitByBullet);
+				}
+			}
+		}
 
 		public void AddTransitTileObject(TransitObject transitObject)
 		{
@@ -807,6 +897,7 @@ namespace Assets.Scripts
 
         private void Update()
         {
+			HandleImpacts();
 			MoveTransits();
 		}
 

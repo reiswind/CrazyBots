@@ -34,10 +34,18 @@ namespace Assets.Scripts
 
     public class HitByBullet
     {
+        public HitByBullet(Position fireingPosition)
+        {
+            FireingPosition = fireingPosition;
+        }
+        public UnitBase TargetUnit { get; set; }
         public TileObjectType HitPartTileObjectType { get; set; }
         public float HitTime { get; set; }
         public TileObject Bullet { get; set; }
         public bool BulletImpact { get; set; }
+        public Position FireingPosition { get; set; }
+        public Position TargetPosition { get; set; }
+        public MoveUpdateGroundStat GroundStat { get; set; }
     }
 
 
@@ -87,95 +95,7 @@ namespace Assets.Scripts
                 transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
                 UpdateDirection(unitPos3);
             }
-            
-            if (hitByBullets != null)
-            {
-                List<HitByBullet> currentHitByBullets = new List<HitByBullet>();
-                currentHitByBullets.AddRange(hitByBullets);
-                foreach (HitByBullet hitByBullet in currentHitByBullets)
-                {
-                    if (hitByBullet.BulletImpact && hitByBullet.Bullet != null)
-                    {
-                        HasBeenHit(hitByBullet);
-                        hitByBullets.Remove(hitByBullet);
-                    }
-                    if (hitByBullet.HitTime < Time.unscaledTime)
-                    {
-                        if (hitByBullet.Bullet != null)
-                        {
-                            HasBeenHit(hitByBullet);
-                        }
-                        hitByBullets.Remove(hitByBullet);
-                    }
-                }
-                if (hitByBullets.Count == 0)
-                    hitByBullets = null;
-            }
         }
-
-        private List<HitByBullet> hitByBullets;
-
-        public void HasBeenHit(HitByBullet hitByBullet)
-        {
-            HitByShell();
-            PartHitByShell(hitByBullet.HitPartTileObjectType);
-        }
-
-        public void Impact()
-        {
-            if (hitByBullets == null)
-                hitByBullets = new List<HitByBullet>();
-            bool found = false;
-            foreach (HitByBullet hitByBullet in hitByBullets)
-            {
-                if (hitByBullet.BulletImpact == false)
-                {
-                    hitByBullet.BulletImpact = true;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-            {
-                HitByBullet hitByBullet = new HitByBullet();
-                hitByBullet.BulletImpact = true;
-                hitByBullet.HitTime = Time.unscaledTime + 2;
-                hitByBullets.Add(hitByBullet);
-            }
-
-        }
-        public void HasBeenHit(Move move)
-        {
-            if (hitByBullets == null)
-                hitByBullets = new List<HitByBullet>();
-
-            int level;
-            TileObjectType hitPartTileObjectType = TileObject.GetTileObjectTypeFromString(move.OtherUnitId, out level);
-
-            TileObject bullet = move.Stats.MoveUpdateGroundStat.TileObjects[0];
-
-            bool found = false;
-            foreach (HitByBullet hitByBullet in hitByBullets)
-            {
-                if (hitByBullet.Bullet == null)
-                {
-                    hitByBullet.HitPartTileObjectType = hitPartTileObjectType;
-                    hitByBullet.Bullet = bullet;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-            {
-                HitByBullet hitByBullet = new HitByBullet();
-                hitByBullet.Bullet = bullet;
-                hitByBullet.HitPartTileObjectType = hitPartTileObjectType;
-                hitByBullet.HitTime = Time.unscaledTime + 2;
-                hitByBullets.Add(hitByBullet);
-            }
-        }
-
-
 
         void UpdateDirection(Vector3 position)
         {
@@ -242,8 +162,6 @@ namespace Assets.Scripts
                 UpdateParts();
             }
         }
-
-
 
         /*
         private GameObject GetPartByName(string name)
@@ -323,7 +241,6 @@ namespace Assets.Scripts
             UnitBaseParts.Add(unitBasePart);
         }
 
-
         public void Delete()
         {
             HasBeenDestroyed = true;
@@ -354,7 +271,6 @@ namespace Assets.Scripts
         }
 
         internal List<UnitCommand> UnitCommands { get; private set; }
-
 
         public void ClearWayPoints(GameCommandType gameCommandType)
         {

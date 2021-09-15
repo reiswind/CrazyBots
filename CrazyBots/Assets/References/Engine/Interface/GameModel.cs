@@ -121,6 +121,8 @@ namespace Engine.Interface
         public bool FireAtGround { get; set; }
         [DataMember]
         public bool EndlessAmmo { get; set; }
+        [DataMember]
+        public bool EndlessPower { get; set; }
     }
 
     [DataContract]

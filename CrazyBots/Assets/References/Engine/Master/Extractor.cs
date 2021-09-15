@@ -344,7 +344,7 @@ namespace Engine.Master
             removeTileObjects.Add(removedTileObject);
 
             move.Stats = new MoveUpdateStats();
-            Unit.Game.Map.CollectGroundStats(move.Stats, removeTileObjects);
+            Unit.Game.Map.CollectGroundStats(otherUnit.Pos, move, removeTileObjects);
             /*
             move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
             move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
@@ -434,22 +434,13 @@ namespace Engine.Master
                         }
                     }
                 }
-                /*
-                move.Stats = new MoveUpdateStats();
-                move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
-                move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
-                move.Stats.MoveUpdateGroundStat.TileObjects.Add(removedTileObject);*/
             }
 
             // The removed tileobjects will be in the move until the next move
             move.Stats = unit.CollectStats();
-            Unit.Game.Map.CollectGroundStats(move.Stats, removeTileObjects);
-            //moveUpdateGroundStat.TileObjects.AddRange(removeTileObjects);
+            Unit.Game.Map.CollectGroundStats(unit.Pos, move, removeTileObjects);
 
             bool didRemove = removeTileObjects.Count > 0;
-
-            //move.Stats = unit.CollectStats();
-            //move.Stats.MoveUpdateGroundStat = moveUpdateGroundStat;
 
             return didRemove;
         }

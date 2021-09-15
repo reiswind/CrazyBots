@@ -182,6 +182,8 @@ namespace Engine.Master
                             thisUnit.Weapon.FireAtGround = true;
                         if (unitModel.EndlessAmmo && thisUnit.Weapon != null)
                             thisUnit.Weapon.EndlessAmmo = true;
+                        if (unitModel.EndlessPower)
+                            thisUnit.EndlessPower = true;
 
 
                         Move move = new Move();
@@ -720,7 +722,7 @@ namespace Engine.Master
                                 updateGroundMove.MoveType = MoveType.UpdateGround;
                                 updateGroundMove.Positions = new List<Position>();
                                 updateGroundMove.Positions.Add(from);
-                                updateGroundMove.Stats = Map.CollectGroundStats(from);
+                                Map.CollectGroundStats(from, updateGroundMove);
                                 nextMoves.Add(updateGroundMove);
                             }
 
@@ -840,7 +842,6 @@ namespace Engine.Master
                     }
                 }
             }
-
             if (!changedGroundPositions.ContainsKey(pos))
                 changedGroundPositions.Add(pos, null);
 
@@ -859,8 +860,7 @@ namespace Engine.Master
                     Move hitmove = new Move();
                     hitmove.MoveType = MoveType.Hit;
                     hitmove.PlayerId = targetUnit.Owner.PlayerModel.Id;
-                    hitmove.Positions = new List<Position>();
-                    hitmove.Positions.Add(targetUnit.Pos);
+                    hitmove.Positions = move.Positions;
                     hitmove.UnitId = targetUnit.UnitId;
                     hitmove.OtherUnitId = hitPart.PartType.ToString();
 
@@ -912,6 +912,21 @@ namespace Engine.Master
                         Map.Units.Remove(targetUnit.Pos);
                     }
                 }
+            }
+            else
+            {
+                // Ground was hit
+                Move hitmove = new Move();
+                hitmove.MoveType = MoveType.Hit;
+                //hitmove.PlayerId = targetUnit.Owner.PlayerModel.Id;
+                hitmove.Positions = move.Positions;
+                //hitmove.UnitId = targetUnit.UnitId;
+                //hitmove.OtherUnitId = hitPart.PartType.ToString();
+
+                hitmove.Stats = new MoveUpdateStats();                
+                hitmove.Stats.MoveUpdateGroundStat = move.Stats.MoveUpdateGroundStat;
+
+                nextMoves.Add(hitmove);
             }
         }
 
@@ -1275,20 +1290,14 @@ namespace Engine.Master
                         if (removedTileObjects.Count > 0)
                         {
                             move.Stats = fireingUnit.CollectStats();
-                            Map.CollectGroundStats(move.Stats, removedTileObjects);
-                            /*
-                            move.Stats = new MoveUpdateStats();
+                            //Map.CollectGroundStats(fireingUnit.Pos, move, removedTileObjects);
                             move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
                             move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
                             move.Stats.MoveUpdateGroundStat.TileObjects.AddRange (removedTileObjects);
-                            */
+                            
                             if (!changedUnits.ContainsKey(fireingUnit.Pos))
                                 changedUnits.Add(fireingUnit.Pos, fireingUnit);
-                            //Bullet bullet = new Bullet();
-                            //bullet.Target = move.Positions[1];
-                            //bullet.TileObject = tileObjects[0];
-                            //hitByBullet.Add(bullet);
-                            //move.OtherUnitId = removedTileObjects[0].TileObjectType.ToString();
+
                             lastMoves.Add(move);
 
                             HitByBullet(move, lastMoves);
@@ -1352,7 +1361,8 @@ namespace Engine.Master
                 
                 if (unit.Power > 0)
                 {
-                    unit.Power--;
+                    if (!unit.EndlessPower)
+                        unit.Power--;
                     totalNumberOfUnits++;
 
                     if (!changedUnits.ContainsKey(unit.Pos))
@@ -1824,7 +1834,7 @@ namespace Engine.Master
                     hitmove.MoveType = MoveType.UpdateGround;
                     hitmove.Positions = new List<Position>();
                     hitmove.Positions.Add(pos);
-                    hitmove.Stats = Map.CollectGroundStats(pos);
+                    Map.CollectGroundStats(pos, hitmove);
                     lastMoves.Add(hitmove);
                 }
 

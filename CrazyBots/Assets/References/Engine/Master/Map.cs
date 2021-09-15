@@ -958,23 +958,28 @@ namespace Engine.Master
 
         //private HeightMap terrain;
 
-        public void CollectGroundStats(MoveUpdateStats moveUpdateStats, List<TileObject> tileObjects)
+        public void CollectGroundStats(Position pos, Move move, List<TileObject> tileObjects)
         {
-            moveUpdateStats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
-            moveUpdateStats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
+            CollectGroundStats(pos, move);
 
             foreach (TileObject tileObject in tileObjects)
             {
                 TileObject newTileObject = new TileObject();
                 newTileObject.TileObjectType = tileObject.TileObjectType;
                 newTileObject.Direction = tileObject.Direction;
-                moveUpdateStats.MoveUpdateGroundStat.TileObjects.Add(newTileObject);
+                move.Stats.MoveUpdateGroundStat.TileObjects.Add(newTileObject);
             }
         }
         
-        public MoveUpdateStats CollectGroundStats(Position pos)
+        public void CollectGroundStats(Position pos, Move move)
         {
-            MoveUpdateGroundStat moveUpdateGroundStat = new MoveUpdateGroundStat();
+            if (move.Stats == null)
+                move.Stats = new MoveUpdateStats();
+
+            if (move.Stats.MoveUpdateGroundStat == null)
+                move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
+
+            MoveUpdateGroundStat moveUpdateGroundStat = move.Stats.MoveUpdateGroundStat;
 
             Tile t = GetTile(pos);
             moveUpdateGroundStat.Owner = t.Owner;
@@ -987,10 +992,10 @@ namespace Engine.Master
             moveUpdateGroundStat.Height = (float)t.Height;
             moveUpdateGroundStat.IsOpenTile = t.IsOpenTile;
 
-            MoveUpdateStats moveUpdateStats;
-            moveUpdateStats = new MoveUpdateStats();
-            moveUpdateStats.MoveUpdateGroundStat = moveUpdateGroundStat;
-            return moveUpdateStats;
+            //MoveUpdateStats moveUpdateStats;
+            //moveUpdateStats = new MoveUpdateStats();
+            //moveUpdateStats.MoveUpdateGroundStat = moveUpdateGroundStat;
+            
         }
 
         /*
