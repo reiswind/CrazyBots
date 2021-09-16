@@ -305,8 +305,8 @@ namespace Engine.Master
             TileObject tileObject = null;
             int mapIndex = 0;
 
-            int rnd = map.Game.Random.Next(15);
-            rnd -= 12;
+            int rnd = map.Game.Random.Next(5);
+            rnd -= 2;
             while (rnd-- > 0)
             {
                 tileObject = null;

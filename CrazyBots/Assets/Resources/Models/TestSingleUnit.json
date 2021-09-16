@@ -35,9 +35,9 @@
 	{
       "Name": "Fighter",
       "PlayerId": 1,
-      "Blueprint": "Fighter",
+      "Blueprint": "Bomber",
 	  "HoldPosition": true,
-	  "FireAtGround": false,
+	  "FireAtGround": true,
 	  "EndlessAmmo": true,
 	  "EndlessPower": true,
       "Position": {
@@ -48,7 +48,7 @@
 	{
       "Name": "Fighter",
       "PlayerId": 2,
-      "Blueprint": "Container",
+      "Blueprint": "Worker",
 	  "HoldPosition": true,
 	  "HoldFire": true,
 	  "EndlessAmmo": true,

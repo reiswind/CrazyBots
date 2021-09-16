@@ -162,13 +162,12 @@ namespace Engine.Master
                     {
                         Unit thisUnit = new Unit(this, unitModel.Blueprint);
 
-                        //if (thisUnit.Container != null && containerNetal.HasValue)
-                        ///    thisUnit.Container.Mineral = containerNetal.Value;
-
                         thisUnit.Power = 20;
                         thisUnit.MaxPower = 20;
                         thisUnit.CreateAllPartsFromBlueprint();
                         thisUnit.Pos = posOnMap;
+
+                        // Turn into direction missing
                         thisUnit.Direction = Direction.C; // CalcDirection(move.Positions[0], move.Positions[1]);
                         thisUnit.Owner = Players[unitModel.PlayerId];
 
@@ -203,7 +202,7 @@ namespace Engine.Master
                         foreach (Tile n in t.Neighbors)
                             ResetTile(n);
                     }
-                    // Turn into direction missing
+
                 }
             }
         }
@@ -1681,7 +1680,7 @@ namespace Engine.Master
                     }
 
                     // Place tile objects
-                    //foreach (TileObject tileObject in Map.OpenTileObjects)
+                    
                     while (Map.OpenTileObjects.Count > 0)
                     {
                         int idx = Random.Next(Map.Zones.Count);

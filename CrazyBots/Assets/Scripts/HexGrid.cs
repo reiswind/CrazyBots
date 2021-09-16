@@ -866,6 +866,8 @@ namespace Assets.Scripts
 				debris.transform.position = unitPos3;
 				debris.transform.rotation = UnityEngine.Random.rotation;
 
+
+
 				/*
 				Vector3 vector3 = new Vector3();
 				vector3.y = 0.1f;
@@ -920,6 +922,14 @@ namespace Assets.Scripts
 						hexCell.Stats = hitByBullet.Stats;
 						hexCell.UpdateGround();
 					}
+
+					Destroy(hexCell.gameObject);
+					GroundCells.Remove(hitByBullet.TargetPosition);
+
+					GameObject cellPrefab = GetTerrainResource("HexCellCrate");
+					hexCell = CreateCell(hexCell.Pos, hexCell.Stats, cellPrefab);
+					GroundCells.Add(hitByBullet.TargetPosition, hexCell);
+
 					HitGroundAnimation(hexCell.transform);
 				}
 				else
