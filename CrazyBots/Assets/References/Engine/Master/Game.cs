@@ -226,11 +226,6 @@ namespace Engine.Master
             {
                 t.TileContainer.Remove(tileObject);
             }
-            if (!t.HasTileObjects)
-            {
-                // Add open tile?
-                int x=0;
-            }
         }
 
 
@@ -1680,19 +1675,23 @@ namespace Engine.Master
                     }
 
                     // Place tile objects
-                    
-                    while (Map.OpenTileObjects.Count > 0)
+                    int attempts = 1; // Map.OpenTileObjects.Count;
+                    while (attempts-- > 0)
                     {
-                        int idx = Random.Next(Map.Zones.Count);
-                        MapZone zone = Map.Zones[idx];
-
-                        if (zone.Player == null)
+                        foreach (MapZone mapZone in Map.Zones.Values)
                         {
-                            Position pos = zone.CreateTerrainTile(Map);
-                            if (pos != null)
+                            if (mapZone.Player == null)
                             {
-                                if (!changedGroundPositions.ContainsKey(pos))
-                                    changedGroundPositions.Add(pos, null);
+                                Position pos = mapZone.CreateTerrainTile(Map);
+                                if (pos != null)
+                                {
+                                    if (!changedGroundPositions.ContainsKey(pos))
+                                        changedGroundPositions.Add(pos, null);
+                                }
+                            }
+                            else
+                            {
+
                             }
                         }
                     }

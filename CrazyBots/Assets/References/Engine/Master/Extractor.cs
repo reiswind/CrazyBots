@@ -58,9 +58,14 @@ namespace Engine.Master
                         return true;
                     }
                 }
-
-                if (tile.Tile.HasTileObjects)
-                    return true;
+                if (tile.Tile.TileContainer != null)
+                {
+                    foreach (TileObject tileObject in tile.Tile.TileContainer.TileObjects)
+                    {
+                        if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
+                            return true;
+                    }
+                }
                 return false;
 
             });

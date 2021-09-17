@@ -172,6 +172,23 @@ namespace Engine.Interface
 
         }
 
+        public static bool IsTileObjectTypeCollectable(TileObjectType tileObjectType)
+        {
+            if (tileObjectType == TileObjectType.Mineral) return true;
+            if (tileObjectType == TileObjectType.Tree) return true;
+            if (tileObjectType == TileObjectType.Bush) return true;
+
+            return false;
+        }
+
+        public static bool IsTileObjectTypeGrow(TileObjectType tileObjectType)
+        {
+            if (tileObjectType == TileObjectType.Tree) return true;
+            if (tileObjectType == TileObjectType.Bush) return true;
+
+            return false;
+        }
+
         public static int GetPowerForTileObjectType(TileObjectType tileObjectType)
         {
             if (tileObjectType == TileObjectType.Mineral) return 100;

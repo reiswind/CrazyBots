@@ -251,7 +251,7 @@ namespace Assets.Scripts
 
                 if (Stats.MoveUpdateGroundStat.IsOpenTile)
                 {
-                    //materialName = "DarkSand";
+                    materialName = "DarkSand";
                 }
             }
 

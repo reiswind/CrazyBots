@@ -266,13 +266,13 @@ namespace Engine.Interface
             return true;
         }
 
-        public bool HasTileObjects
+        public bool HasCollectableTileObjects
         {
             get
             {
                 foreach (TileObject tileObject in TileContainer.TileObjects)
                 {
-                    if (tileObject.Direction != Direction.C || tileObject.TileObjectType == TileObjectType.Mineral)
+                    if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
                         return true;
                 }
                 return false;
