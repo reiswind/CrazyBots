@@ -343,12 +343,14 @@ namespace Engine.Master
            return pos;
         }
 
+        int mapIndex = 0;
+
         internal List<TileObject> CreateRandomObjects(Map map)
         {
             List<TileObject> tileObjects = new List<TileObject>();
 
             TileObject tileObject = null;
-            int mapIndex = 0;
+           
 
             int rnd = map.Game.Random.Next(5);
             rnd -= 2;
@@ -365,6 +367,8 @@ namespace Engine.Master
                 }
                 else
                 {
+                    if (mapIndex >= map.OpenTileObjects.Count)
+                        mapIndex = 0;
                     while (tileObject == null && mapIndex < map.OpenTileObjects.Count)
                     {
                         if (map.OpenTileObjects[mapIndex].TileObjectType == TileObjectType.Mineral)

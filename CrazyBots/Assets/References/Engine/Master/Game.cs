@@ -1626,6 +1626,29 @@ namespace Engine.Master
         internal Dictionary<Position, Unit> changedUnits = new Dictionary<Position, Unit>();
         private Player NeutralPlayer;
 
+        private void CreateTileObjects(int attempts)
+        {
+            while (attempts-- > 0)
+            {
+                foreach (MapZone mapZone in Map.Zones.Values)
+                {
+                    if (mapZone.Player == null)
+                    {
+                        Position pos = mapZone.CreateTerrainTile(Map);
+                        if (pos != null)
+                        {
+                            if (!changedGroundPositions.ContainsKey(pos))
+                                changedGroundPositions.Add(pos, null);
+                        }
+                    }
+                    else
+                    {
+
+                    }
+                }
+            }
+        }
+
         public List<Move> ProcessMove(int playerId, Move myMove, List<GameCommand> gameCommands)
         {
             List<Move> returnMoves = new List<Move>();
@@ -1660,6 +1683,16 @@ namespace Engine.Master
                 {
                     first = true;
                     Initialize(newMoves);
+
+                    int createObjects = 0;
+                    foreach (TileObject tileObject in Map.OpenTileObjects)
+                    {
+                        if (TileObject.IsTileObjectTypeGrow(tileObject.TileObjectType))
+                        {
+                            createObjects++;
+                        }
+                    }
+                    CreateTileObjects(createObjects);
                 }
                 else
                 {
@@ -1675,26 +1708,7 @@ namespace Engine.Master
                     }
 
                     // Place tile objects
-                    int attempts = 1; // Map.OpenTileObjects.Count;
-                    while (attempts-- > 0)
-                    {
-                        foreach (MapZone mapZone in Map.Zones.Values)
-                        {
-                            if (mapZone.Player == null)
-                            {
-                                Position pos = mapZone.CreateTerrainTile(Map);
-                                if (pos != null)
-                                {
-                                    if (!changedGroundPositions.ContainsKey(pos))
-                                        changedGroundPositions.Add(pos, null);
-                                }
-                            }
-                            else
-                            {
-
-                            }
-                        }
-                    }
+                    CreateTileObjects(1);
 #if DEBUG
                     Validate(lastMoves);
 #endif
