@@ -4,3 +4,6 @@
 /CrazyBots/obj
 /CrazyBots/Temp
 /CrazyBots/.vs
+/obj/Debug/*.cache
+/Logs/*.log
+/Library
