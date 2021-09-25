@@ -1628,24 +1628,35 @@ namespace Engine.Master
 
         private void CreateTileObjects(int attempts)
         {
-            while (attempts-- > 0)
+            bool freespace = true;
+            while (freespace && attempts-- > 0)
             {
+                bool oneSpace = false;
                 foreach (MapZone mapZone in Map.Zones.Values)
                 {
+                    if (mapZone.ZoneId != 2)
+                        continue;
                     if (mapZone.Player == null)
                     {
                         Position pos = mapZone.CreateTerrainTile(Map);
                         if (pos != null)
                         {
+                            oneSpace = true;
                             if (!changedGroundPositions.ContainsKey(pos))
                                 changedGroundPositions.Add(pos, null);
+                        }
+                        else
+                        {
+
                         }
                     }
                     else
                     {
-
+                        
                     }
                 }
+                if (!oneSpace)
+                    freespace = false;
             }
         }
 
@@ -1684,19 +1695,12 @@ namespace Engine.Master
                     first = true;
                     Initialize(newMoves);
 
-                    int createObjects = 0;
-                    foreach (TileObject tileObject in Map.OpenTileObjects)
-                    {
-                        if (TileObject.IsTileObjectTypeGrow(tileObject.TileObjectType))
-                        {
-                            createObjects++;
-                        }
-                    }
-                    CreateTileObjects(createObjects);
+                    CreateTileObjects(999);
                 }
                 else
                 {
                     // Replace mins
+                    /*
                     foreach (TileObject tileObject in Map.OpenTileObjects)
                     {
                         if (tileObject.TileObjectType == TileObjectType.Mineral)
@@ -1705,7 +1709,7 @@ namespace Engine.Master
                             Map.OpenTileObjects.Remove(tileObject);
                             break;
                         }
-                    }
+                    }*/
 
                     // Place tile objects
                     CreateTileObjects(1);

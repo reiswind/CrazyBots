@@ -24,7 +24,7 @@ namespace Engine.Ants
         }
 
 
-        private Direction TurnLeft(Direction direction)
+        internal static Direction TurnLeft(Direction direction)
         {
             if (direction == Direction.N) return Direction.NW;
             if (direction == Direction.NW) return Direction.SW;
@@ -34,7 +34,7 @@ namespace Engine.Ants
             if (direction == Direction.NE) return Direction.N;
             return Direction.C;
         }
-        private Direction TurnRight(Direction direction)
+        internal static Direction TurnRight(Direction direction)
         {
             if (direction == Direction.N) return Direction.NE;
             if (direction == Direction.NE) return Direction.SE;

@@ -150,43 +150,54 @@ namespace Engine.Interface
                     tileFit.Score = score;
                     tileFit.TileObjects = rotatedTileObjects;
                 }
-                Rotate(rotatedTileObjects);
+                rotatedTileObjects = Rotate(rotatedTileObjects);
             }
             return tileFit;
         }
 
-        internal static void Rotate(List<TileObject> tileObjects)
+        internal static List<TileObject> Rotate(List<TileObject> tileObjects)
         {
-            //List<TileObject> rotatedTileObjects = new List<TileObject>();
+            List<TileObject> rotatedTileObjects = new List<TileObject>();
             foreach (TileObject tileObject in tileObjects)
             {
-                //TileObject rotatedTileObject = new TileObject();
-                //rotatedTileObject.TileObjectType = tileObject.TileObjectType;
-
-                if (tileObject.Direction == Direction.N) tileObject.Direction = Direction.NW;
-                else if (tileObject.Direction == Direction.NW) tileObject.Direction = Direction.SW;
-                else if (tileObject.Direction == Direction.SW) tileObject.Direction = Direction.S;
-                else if (tileObject.Direction == Direction.S) tileObject.Direction = Direction.SE;
-                else if (tileObject.Direction == Direction.SE) tileObject.Direction = Direction.NW;
-                else if (tileObject.Direction == Direction.NW) tileObject.Direction = Direction.N;
-
-                //rotatedTileObjects.Add(rotatedTileObject);
+                TileObject rotatedTileObject = new TileObject();
+                rotatedTileObject.TileObjectType = tileObject.TileObjectType;
+                rotatedTileObject.Direction = Ants.AntPartEngine.TurnLeft(tileObject.Direction);
+                /*
+                if (tileObject.Direction == Direction.N) rotatedTileObject.Direction = Direction.NW;
+                else if (tileObject.Direction == Direction.NW) rotatedTileObject.Direction = Direction.SW;
+                else if (tileObject.Direction == Direction.SW) rotatedTileObject.Direction = Direction.S;
+                else if (tileObject.Direction == Direction.S) rotatedTileObject.Direction = Direction.SE;
+                else if (tileObject.Direction == Direction.SE) rotatedTileObject.Direction = Direction.NW;
+                else if (tileObject.Direction == Direction.NW) rotatedTileObject.Direction = Direction.N;
+                */
+                rotatedTileObjects.Add(rotatedTileObject);
             }
-            //return rotatedTileObjects;
+            return rotatedTileObjects;
         }
 
         internal int CalcFitObj(List<TileObject> tileObjects)
         {
             int score = 0;
-            foreach (TileObject tileObject in TileContainer.TileObjects)
+            //foreach (TileObject tileObject in TileContainer.TileObjects)
+            for (int i = 0; i < TileContainer.TileObjects.Count; i++)
             {
-                foreach (TileObject fitTileObject in tileObjects)
+                if (i >= tileObjects.Count)
+                    break;
+
+                TileObject tileObject1 = TileContainer.TileObjects[i];
+                if (!TileObject.IsTileObjectTypeGrow(tileObject1.TileObjectType))
+                    continue;
+
+                TileObject tileObject2 = tileObjects[i];
+
+                   
+                if (tileObject1.TileObjectType == tileObject2.TileObjectType &&
+                    tileObject1.Direction == tileObject2.Direction)
                 {
-                    int bonus = 0;
-                    if (tileObject.TileObjectType == fitTileObject.TileObjectType)
-                    {
-                        bonus = 2;
-                    }
+                    score = 1;
+                }
+                /*
                     else if (tileObject.TileObjectType == TileObjectType.Tree &&
                              fitTileObject.TileObjectType == TileObjectType.Bush)
                     {
@@ -213,7 +224,7 @@ namespace Engine.Interface
                             score += bonus/2;
                         }
                     }
-                }
+                }*/
             }
             return score;
         }

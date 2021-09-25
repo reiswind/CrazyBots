@@ -171,7 +171,19 @@ namespace Engine.Interface
         {
 
         }
+        public static int GetBioMass(TileObjectType tileObjectType)
+        {
+            if (tileObjectType == TileObjectType.Tree) return 3;
+            if (tileObjectType == TileObjectType.Bush) return 1;
 
+            return 0;
+        }
+
+        public TileObject(TileObjectType tileObjectType, Direction direction)
+        {
+            TileObjectType = tileObjectType;
+            Direction = direction;
+        }
         public static bool IsTileObjectTypeCollectable(TileObjectType tileObjectType)
         {
             if (tileObjectType == TileObjectType.Mineral) return true;
@@ -185,6 +197,7 @@ namespace Engine.Interface
         {
             if (tileObjectType == TileObjectType.Tree) return true;
             if (tileObjectType == TileObjectType.Bush) return true;
+            if (tileObjectType == TileObjectType.Dirt) return true;
 
             return false;
         }

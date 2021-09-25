@@ -280,10 +280,39 @@ namespace Assets.Scripts
 			{
 				gameTileObject = Instantiate(prefab, transform, false);
 
-				Vector2 randomPos = UnityEngine.Random.insideUnitCircle;
+				//Vector2 randomPos = UnityEngine.Random.insideUnitCircle;
 				Vector3 unitPos3 = transform.position;
-				unitPos3.x += (randomPos.x * 0.5f);
-				unitPos3.z += (randomPos.y * 0.7f);
+
+				if (tileObject.Direction == Direction.N)
+				{
+					unitPos3.z += 0.5f;
+				}
+				else if (tileObject.Direction == Direction.NW)
+				{
+					unitPos3.z += 0.3f;
+					unitPos3.x += 0.5f;
+				}
+				else if (tileObject.Direction == Direction.SW)
+				{
+					unitPos3.z -= 0.3f;
+					unitPos3.x += 0.5f;
+				}
+				else if (tileObject.Direction == Direction.S)
+				{
+					unitPos3.z -= 0.5f;
+				}
+				else if (tileObject.Direction == Direction.SE)
+				{
+					unitPos3.z -= 0.3f;
+					unitPos3.x -= 0.5f;
+				}
+				else if (tileObject.Direction == Direction.NE)
+				{
+					unitPos3.z += 0.3f;
+					unitPos3.x -= 0.5f;
+				}
+				//unitPos3.x += (randomPos.x * 0.5f);
+				//unitPos3.z += (randomPos.y * 0.7f);
 				unitPos3.y += y;
 				gameTileObject.transform.position = unitPos3;
 				gameTileObject.name = tileObject.TileObjectType.ToString();

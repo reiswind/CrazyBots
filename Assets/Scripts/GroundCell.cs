@@ -251,7 +251,7 @@ namespace Assets.Scripts
 
                 if (Stats.MoveUpdateGroundStat.IsOpenTile)
                 {
-                    //materialName = "DarkSand";
+                    materialName = "DarkSand";
                 }
             }
 
@@ -324,9 +324,10 @@ namespace Assets.Scripts
 
             foreach (TileObject tileObject in Stats.MoveUpdateGroundStat.TileObjects)
             {
-                if (tileObject.Direction == Direction.C && tileObject.TileObjectType != TileObjectType.Mineral)
+                if ((tileObject.Direction == Direction.C && tileObject.TileObjectType != TileObjectType.Mineral) ||
+                    tileObject.TileObjectType == TileObjectType.Dirt)
                 {
-                    //SetGroundMaterial(tileObject);
+
                 }
                 else
                 {
@@ -342,6 +343,7 @@ namespace Assets.Scripts
                     }
                     if (!found)
                     {
+
                         GameObject destructable;
 
                         destructable = HexGrid.CreateDestructable(transform, tileObject);
@@ -353,6 +355,7 @@ namespace Assets.Scripts
                         unitBaseTileObject.TileObject = tileObject;
 
                         GameObjects.Add(unitBaseTileObject);
+
                     }
                 }
             }

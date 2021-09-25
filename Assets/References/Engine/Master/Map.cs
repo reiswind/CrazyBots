@@ -198,8 +198,8 @@ namespace Engine.Master
 
         public Position CreateTerrainTile(Map map)
         {
-            if (map.OpenTileObjects.Count == 0)
-                return null;
+            //if (map.OpenTileObjects.Count == 0)
+            //    return null;
 
             //if (ZoneId != 2 && ZoneId != 4)
             //    return null;
@@ -214,8 +214,8 @@ namespace Engine.Master
             if (openTiles.Count > 0)
             {
                 List<TileObject> tileObjects = CreateRandomObjects(map);
-                //if (tileObjects.Count == 0) return null;
-                
+                if (tileObjects == null) return null;
+
                 // Find best tile
                 TileFit bestTileFit = null;
                 Tile bestTile = null;
@@ -240,8 +240,10 @@ namespace Engine.Master
                                         allTilesEmpty = false;
                                 }
                             }
-                            if (!n.IsOpenTile)
-                                continue;
+                            //if (!n.IsOpenTile)
+                            //    continue;
+
+
                             //if (n.TileContainer.TileObjects.Count == 0)
                             //    continue;
                             //if (n.Unit != null && tileObjects.Count > 1)
@@ -291,20 +293,22 @@ namespace Engine.Master
                         {
                             throw new Exception();
                         }
+                        /*
                         foreach (TileObject tileObject in bestTileFit.TileObjects)
                         {
                             if (!map.OpenTileObjects.Remove(tileObject))
                             {
-                                throw new Exception();
+                                //throw new Exception();
                             }
-                        }
+                        }*/
                         bestTile.TileContainer.AddRange(bestTileFit.TileObjects);
                         pos = bestTile.Pos;
 
+                        bestTile.Height = 0.1f;
                         bool removeOpenTile = false;
 
                         //if (!bestTile.CanBuild())
-                            removeOpenTile = true;
+                        removeOpenTile = true;
                         if (removeOpenTile)
                         {
                             bestTile.IsOpenTile = false;
@@ -318,19 +322,28 @@ namespace Engine.Master
 
                             foreach (Tile n in bestTile.Neighbors)
                             {
-                                if (!openTiles.Contains(n) && n.CanBuild()) // && Tiles.ContainsKey(n.Pos)) // Only in zone (creates circles)
+                                if (!openTiles.Contains(n)) // && n.CanBuild()) // && Tiles.ContainsKey(n.Pos)) // Only in zone (creates circles)
                                 {
-                                    if (!map.Game.changedGroundPositions.ContainsKey(n.Pos))
-                                        map.Game.changedGroundPositions.Add(n.Pos, null);
+                                    bool allTilesEmpty = true;
+                                    foreach (TileObject tileObject in n.TileContainer.TileObjects)
+                                    {
+                                        if (TileObject.IsTileObjectTypeGrow(tileObject.TileObjectType))
+                                            allTilesEmpty = false;
+                                    }
+                                    if (allTilesEmpty)
+                                    {
+                                        if (!map.Game.changedGroundPositions.ContainsKey(n.Pos))
+                                            map.Game.changedGroundPositions.Add(n.Pos, null);
 
-                                    n.IsOpenTile = true;
-                                    openTiles.Add(n);
+                                        n.IsOpenTile = true;
+                                        openTiles.Add(n);
+                                    }
                                 }
                             }
                         }
                     }
                 }
-           }
+            }
             if (openTiles.Count == 0)
             {
                 Tile startTile = map.GetTile(Center);
@@ -340,19 +353,129 @@ namespace Engine.Master
                 if (!map.Game.changedGroundPositions.ContainsKey(startTile.Pos))
                     map.Game.changedGroundPositions.Add(startTile.Pos, null);
             }
-           return pos;
+            return pos;
         }
 
         int mapIndex = 0;
 
-        internal List<TileObject> CreateRandomObjects(Map map)
+        internal Direction CreateObjects(List<TileObject> tileObjects, Map map, TileObjectType tileObjectType, Direction direction, int count)
+        {
+            int bio = TileObject.GetBioMass(tileObjectType);
+
+            if (bio * count > map.BioMass)
+            {
+                return Direction.C;
+            }
+
+            while (count-- > 0)
+            {
+                map.BioMass -= bio;
+
+                TileObject tileObject = new TileObject();
+                tileObject.TileObjectType = tileObjectType;
+                tileObject.Direction = direction;
+                tileObjects.Add(tileObject);
+
+                direction = AntPartEngine.TurnLeft(direction);
+
+            }
+            return direction;
+        }
+
+
+        internal List<TileObject> CreateBigTreeObjects(Map map, int count)
         {
             List<TileObject> tileObjects = new List<TileObject>();
+
+            Direction direction = Direction.N;
+            direction = CreateObjects(tileObjects, map, TileObjectType.Tree, direction, count);
+            if (direction != Direction.C)
+                return tileObjects;
+
+            return null;
+        }
+
+        internal List<TileObject> CreateTreeToBushObjects(Map map)
+        {
+            List<TileObject> tileObjects = new List<TileObject>();
+
+            Direction direction = Direction.N;
+            direction = CreateObjects(tileObjects, map, TileObjectType.Tree, direction, 3);
+            if (direction != Direction.C)
+                direction = CreateObjects(tileObjects, map, TileObjectType.Bush, direction, 3);
+            if (direction != Direction.C)
+                return tileObjects;
+
+            return null;
+        }
+
+        internal List<TileObject> CreateBushToGrasObjects(Map map)
+        {
+            List<TileObject> tileObjects = new List<TileObject>();
+
+            Direction direction = Direction.N;
+            direction = CreateObjects(tileObjects, map, TileObjectType.Bush, direction, 3);
+            if (direction != Direction.C)
+                direction = CreateObjects(tileObjects, map, TileObjectType.Dirt, direction, 3);
+            if (direction != Direction.C)
+                return tileObjects;
+
+            return null;
+        }
+
+        internal List<TileObject> CreateGrasObjects(Map map)
+        {
+            List<TileObject> tileObjects = new List<TileObject>();
+
+            Direction direction = Direction.N;
+            direction = CreateObjects(tileObjects, map, TileObjectType.Dirt, direction, 6);
+            if (direction != Direction.C)
+                return tileObjects;
+
+            if (tileObjects.Count == 0) tileObjects = null;
+            return tileObjects;
+        }
+
+        internal List<TileObject> CreateRandomObjects(Map map)
+        {
+            List<TileObject> tileObjects = null;
+
+            int rnd = map.Game.Random.Next(4);
+            //rnd = 1;
+            for (int i = 0; i < 4 && tileObjects == null; i++)
+            {
+                if (rnd == 0)
+                {
+                    tileObjects = CreateBigTreeObjects(map, 6);
+                    if (tileObjects == null) rnd++;
+                }
+                if (tileObjects == null && rnd == 1)
+                {
+                    tileObjects = CreateTreeToBushObjects(map);
+                    if (tileObjects == null) rnd++;
+                }
+                if (tileObjects == null && rnd == 2)
+                {
+                    tileObjects = CreateBushToGrasObjects(map);
+                    if (tileObjects == null) rnd++;
+                }
+                if (tileObjects == null && rnd == 3)
+                {
+                    tileObjects = CreateGrasObjects(map);
+                    rnd = 0;
+                }
+            }
+            //tileObjects = CreateBigTreeObjects(map, 6);
+            //tileObjects = CreateTreeToBushObjects(map);
+            //tileObjects = CreateBushToGrasObjects(map);
+            return tileObjects;
+            /*
+            tileObjects = new List<TileObject>();
 
             TileObject tileObject = null;
            
 
-            int rnd = map.Game.Random.Next(5);
+            rnd = map.Game.Random.Next(5);
             rnd -= 2;
             while (rnd-- > 0)
             {
@@ -409,7 +532,9 @@ namespace Engine.Master
 
                 tileObjects.Add(tileObject);
             }
+            
             return tileObjects;
+            */
         }
     }
 
@@ -431,7 +556,8 @@ namespace Engine.Master
         //private int zoneWidth;
         //private int maxZones;
 
-        public List<TileObject> OpenTileObjects { get; private set; }
+        //public List<TileObject> OpenTileObjects { get; private set; }
+        public int BioMass { get; set; }
 
         public void AddOpenTileObject(TileObject tileObject)
         {
@@ -439,7 +565,10 @@ namespace Engine.Master
             {
                 tileObject.TileObjectType = TileObjectType.Mineral;
             }
-            OpenTileObjects.Add(tileObject);
+            else
+            {
+                BioMass += TileObject.GetBioMass(tileObject.TileObjectType);
+            }
         }
 
         public int DefaultMinerals
@@ -461,7 +590,6 @@ namespace Engine.Master
             MapHeight = game.GameModel.MapHeight;
             MapType = game.GameModel.MapType;
 
-            OpenTileObjects = new List<TileObject>();
             //zoneWidth = (MapWidth / 15);
             //maxZones = zoneWidth * (MapHeight / 15) - 1;
 
@@ -723,7 +851,7 @@ namespace Engine.Master
                             {
                                 t = new Tile(this, sectorTilePos);
                                 t.TerrainTypeIndex = 1;
-                                t.Height = Game.Random.NextDouble() / 4;
+                                //t.Height = Game.Random.NextDouble() / 4;
                                 Tiles.Add(sectorTilePos, t);
                             }
                         }
@@ -751,6 +879,9 @@ namespace Engine.Master
             while (openTiles.Count > 0)
                 CreateTerrainTile();*/
 
+            // ADDTILES
+            BioMass = 1600;
+            /*
             for (int i=0; i < 400; i++)
             {
                 TileObject tileObject = new TileObject();
@@ -763,6 +894,12 @@ namespace Engine.Master
                 tileObject.TileObjectType = TileObjectType.Bush;
                 OpenTileObjects.Add(tileObject);
             }
+            for (int i = 0; i < 100; i++)
+            {
+                TileObject tileObject = new TileObject();
+                tileObject.TileObjectType = TileObjectType.Dirt;
+                OpenTileObjects.Add(tileObject);
+            }*/
             /*
             for (int i = 0; i < 15; i++)
             {
