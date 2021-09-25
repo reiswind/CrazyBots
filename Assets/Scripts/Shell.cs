@@ -6,7 +6,7 @@ namespace Assets.Scripts
 {
     public class Shell : MonoBehaviour
     {
-        public ParticleSystem m_ExplosionParticles;
+        public ParticleSystem HitGroundExplosionParticles;
 
         public UnitBase FireingUnit { get; set; }
         internal HexGrid HexGrid { get; set; }
@@ -113,15 +113,20 @@ namespace Assets.Scripts
             {
                 return;
             }
+            if (HitByBullet.BulletImpact == false)
+            {
+                HitByBullet.BulletImpact = true;
 
-            HitByBullet.BulletImpact = true;
-           
+                // Play the particle system.
+                if (HitGroundExplosionParticles != null)
+                {
+                    ParticleSystem particles = Instantiate(HitGroundExplosionParticles, transform);
+                    particles.Play();
+                }                
 
-            // Play the particle system.
-            m_ExplosionParticles.Play();
-
-            Destroy(this.gameObject, 1f);
-            //Destroy(m_ExplosionParticles.gameObject, m_ExplosionParticles.main.duration);
+                Destroy(this.gameObject, 1f);
+                //Destroy(m_ExplosionParticles.gameObject, m_ExplosionParticles.main.duration);
+            }
         }
 
         // Update is called once per frame

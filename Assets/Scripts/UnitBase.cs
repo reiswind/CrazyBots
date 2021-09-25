@@ -768,14 +768,22 @@ namespace Assets.Scripts
             return null;
         }
 
+        public ParticleSystem TankExplosionParticles;
+
         public void HitByShell()
         {
+            if (TankExplosionParticles != null)
+            {
+                ParticleSystem particles= Instantiate(TankExplosionParticles, transform);
+                particles.Play();
+            }
+            /*
             ParticleSystem particleSource;
 
             particleSource = HexGrid.MakeParticleSource("TankExplosion");
             particleSource.transform.SetParent(transform, false);
             particleSource.Play();
-            HexGrid.Destroy(particleSource, 2f);
+            HexGrid.Destroy(particleSource, 2f);*/
         }
         /*
         public void HitByShell(Collision collision)

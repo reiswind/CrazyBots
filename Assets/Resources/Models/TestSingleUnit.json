@@ -37,7 +37,7 @@
       "PlayerId": 1,
       "Blueprint": "Bomber",
 	  "HoldPosition": true,
-	  "FireAtGround": true,
+	  "FireAtGround": false,
 	  "EndlessAmmo": true,
 	  "EndlessPower": true,
       "Position": {

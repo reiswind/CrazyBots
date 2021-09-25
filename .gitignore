@@ -7,3 +7,5 @@
 /obj/Debug/*.cache
 /Logs/*.log
 /Library
+/.vs/CrazyBots/v16/*.suo
+/Temp

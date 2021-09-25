@@ -51,6 +51,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a30ae5967d95f44eb5f88ba7d028b93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TankExplosionParticles: {fileID: 198460282990120726, guid: 151b49b11ab5924429acc76ead6435fa, type: 3}
 --- !u!54 &5137734744136618969
 Rigidbody:
   m_ObjectHideFlags: 0
