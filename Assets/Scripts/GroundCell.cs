@@ -324,8 +324,7 @@ namespace Assets.Scripts
 
             foreach (TileObject tileObject in Stats.MoveUpdateGroundStat.TileObjects)
             {
-                if ((tileObject.Direction == Direction.C && tileObject.TileObjectType != TileObjectType.Mineral) ||
-                    tileObject.TileObjectType == TileObjectType.Dirt)
+                if (tileObject.Direction == Direction.C && tileObject.TileObjectType != TileObjectType.Mineral)
                 {
 
                 }

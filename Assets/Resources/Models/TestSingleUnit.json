@@ -2,7 +2,7 @@
   "Name": "Test",
   "MapWidth": 3,
   "MapHeight": 3,
-  "Seed": 4,
+  "Seedx": 1,
   "MapType": "2",
   "Players": [
     {

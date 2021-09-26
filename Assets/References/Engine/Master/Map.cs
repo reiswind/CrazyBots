@@ -208,7 +208,6 @@ namespace Engine.Master
                 return null;
 
             List<Tile> unopenTiles = new List<Tile>();
-
             Position pos = null;
 
             if (openTiles.Count > 0)
@@ -217,8 +216,9 @@ namespace Engine.Master
                 if (tileObjects == null) return null;
 
                 // Find best tile
-                TileFit bestTileFit = null;
-                Tile bestTile = null;
+                List<TileFit> bestTilesFit = new List<TileFit>();
+                float bestScore = 0;
+
                 foreach (Tile tile in openTiles)
                 {
                     if (!tile.IsOpenTile)
@@ -228,48 +228,17 @@ namespace Engine.Master
                     }
                     else
                     {
-                        bool allTilesEmpty = true;
+                        TileFit tileFit = tile.CalcFit(tile, tileObjects);
 
-                        foreach (Tile n in tile.Neighbors)
+                        if (bestTilesFit.Count == 0 || tileFit.Score > bestScore)
                         {
-                            if (n.TileContainer != null)
-                            {
-                                foreach (TileObject tileObject in n.TileContainer.TileObjects)
-                                {
-                                    if (TileObject.IsTileObjectTypeGrow(tileObject.TileObjectType))
-                                        allTilesEmpty = false;
-                                }
-                            }
-                            //if (!n.IsOpenTile)
-                            //    continue;
-
-
-                            //if (n.TileContainer.TileObjects.Count == 0)
-                            //    continue;
-                            //if (n.Unit != null && tileObjects.Count > 1)
-                            //    continue;
-
-                            TileFit tileFit = n.CalcFit(tileObjects);
-
-                            if (bestTileFit == null || tileFit.Score > bestTileFit.Score)
-                            {
-                                bestTileFit = tileFit;
-                                bestTile = tile;
-                            }
+                            bestTilesFit.Clear();
+                            bestTilesFit.Add(tileFit);
+                            bestScore = tileFit.Score;
                         }
-                        if (allTilesEmpty)
+                        else if (bestTilesFit.Count > 0 && tileFit.Score == bestScore)
                         {
-                            if (tile.Pos == Center)
-                            {
-                                bestTileFit = tile.CalcFit(tileObjects);
-                                bestTile = tile;
-                            }
-                            else
-                            {
-                                // Filled by someone else
-                                unopenTiles.Add(tile);
-                                bestTile = null;
-                            }
+                            bestTilesFit.Add(tileFit);
                         }
                     }
                 }
@@ -285,60 +254,47 @@ namespace Engine.Master
                     }
                 }
 
-                if (bestTile != null)
+                if (bestTilesFit.Count > 0)
                 {
-                    if (bestTileFit != null)
+                    int rnd = map.Game.Random.Next(bestTilesFit.Count);
+                    TileFit bestTileFit = bestTilesFit[rnd];
+                    Tile bestTile = bestTileFit.Tile;
+
+                    if (!bestTile.IsOpenTile)
                     {
-                        if (!bestTile.IsOpenTile)
+                        throw new Exception();
+                    }
+                    
+                    bestTile.TileContainer.AddRange(bestTileFit.TileObjects);
+                    pos = bestTile.Pos;
+
+                    bestTile.Height = 0.1f;
+
+                    if (!openTiles.Remove(bestTile))
+                    {
+                        throw new Exception();
+                    }
+                    if (!map.Game.changedGroundPositions.ContainsKey(bestTile.Pos))
+                        map.Game.changedGroundPositions.Add(bestTile.Pos, null);
+                    bestTile.IsOpenTile = false;
+
+                    foreach (Tile n in bestTile.Neighbors)
+                    {
+                        if (!openTiles.Contains(n)) // && n.CanBuild()) // && Tiles.ContainsKey(n.Pos)) // Only in zone (creates circles)
                         {
-                            throw new Exception();
-                        }
-                        /*
-                        foreach (TileObject tileObject in bestTileFit.TileObjects)
-                        {
-                            if (!map.OpenTileObjects.Remove(tileObject))
+                            bool allTilesEmpty = true;
+                            foreach (TileObject tileObject in n.TileContainer.TileObjects)
                             {
-                                //throw new Exception();
+                                if (TileObject.IsTileObjectTypeGrow(tileObject.TileObjectType))
+                                    allTilesEmpty = false;
                             }
-                        }*/
-                        bestTile.TileContainer.AddRange(bestTileFit.TileObjects);
-                        pos = bestTile.Pos;
-
-                        bestTile.Height = 0.1f;
-                        bool removeOpenTile = false;
-
-                        //if (!bestTile.CanBuild())
-                        removeOpenTile = true;
-                        if (removeOpenTile)
-                        {
-                            bestTile.IsOpenTile = false;
-                            if (!openTiles.Remove(bestTile))
+                            if (allTilesEmpty)
                             {
-                                throw new Exception();
-                            }
-                            if (!map.Game.changedGroundPositions.ContainsKey(bestTile.Pos))
-                                map.Game.changedGroundPositions.Add(bestTile.Pos, null);
-                            bestTile.IsOpenTile = false;
+                                if (!map.Game.changedGroundPositions.ContainsKey(n.Pos))
+                                    map.Game.changedGroundPositions.Add(n.Pos, null);
 
-                            foreach (Tile n in bestTile.Neighbors)
-                            {
-                                if (!openTiles.Contains(n)) // && n.CanBuild()) // && Tiles.ContainsKey(n.Pos)) // Only in zone (creates circles)
-                                {
-                                    bool allTilesEmpty = true;
-                                    foreach (TileObject tileObject in n.TileContainer.TileObjects)
-                                    {
-                                        if (TileObject.IsTileObjectTypeGrow(tileObject.TileObjectType))
-                                            allTilesEmpty = false;
-                                    }
-                                    if (allTilesEmpty)
-                                    {
-                                        if (!map.Game.changedGroundPositions.ContainsKey(n.Pos))
-                                            map.Game.changedGroundPositions.Add(n.Pos, null);
-
-                                        n.IsOpenTile = true;
-                                        openTiles.Add(n);
-                                    }
-                                }
+                                n.IsOpenTile = true;
+                                openTiles.Add(n);
                             }
                         }
                     }
@@ -356,7 +312,7 @@ namespace Engine.Master
             return pos;
         }
 
-        int mapIndex = 0;
+        //int mapIndex = 0;
 
         internal Direction CreateObjects(List<TileObject> tileObjects, Map map, TileObjectType tileObjectType, Direction direction, int count)
         {
@@ -440,8 +396,9 @@ namespace Engine.Master
         {
             List<TileObject> tileObjects = null;
 
-            int rnd = map.Game.Random.Next(4);
+            int rnd = map.Game.Random.Next(6);
             //rnd = 1;
+
             for (int i = 0; i < 4 && tileObjects == null; i++)
             {
                 if (rnd == 0)
@@ -459,15 +416,13 @@ namespace Engine.Master
                     tileObjects = CreateBushToGrasObjects(map);
                     if (tileObjects == null) rnd++;
                 }
-                if (tileObjects == null && rnd == 3)
+                if (tileObjects == null && rnd >= 3)
                 {
                     tileObjects = CreateGrasObjects(map);
-                    rnd = 0;
+                    if (rnd < 5) rnd++;
+                    else rnd = 0;
                 }
             }
-            //tileObjects = CreateBigTreeObjects(map, 6);
-            //tileObjects = CreateTreeToBushObjects(map);
-            //tileObjects = CreateBushToGrasObjects(map);
             return tileObjects;
             /*
             tileObjects = new List<TileObject>();
@@ -880,7 +835,7 @@ namespace Engine.Master
                 CreateTerrainTile();*/
 
             // ADDTILES
-            BioMass = 1600;
+            BioMass = 2600;
             /*
             for (int i=0; i < 400; i++)
             {

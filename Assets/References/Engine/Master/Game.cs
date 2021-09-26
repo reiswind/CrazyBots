@@ -1634,8 +1634,8 @@ namespace Engine.Master
                 bool oneSpace = false;
                 foreach (MapZone mapZone in Map.Zones.Values)
                 {
-                    if (mapZone.ZoneId != 2)
-                        continue;
+                    //if (mapZone.ZoneId != 2)
+                    //    continue;
                     if (mapZone.Player == null)
                     {
                         Position pos = mapZone.CreateTerrainTile(Map);
@@ -1712,6 +1712,7 @@ namespace Engine.Master
                     }*/
 
                     // Place tile objects
+                    //if (MoveNr <= 2)
                     CreateTileObjects(1);
 #if DEBUG
                     Validate(lastMoves);

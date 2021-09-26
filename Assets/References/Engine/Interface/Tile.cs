@@ -80,7 +80,12 @@ namespace Engine.Interface
 
     internal class TileFit
     {
-        public int Score { get; set; }
+        public TileFit(Tile t)
+        {
+            Tile = t;
+        }
+        public Tile Tile { get; set; }
+        public float Score { get; set; }
         public List<TileObject> TileObjects { get; set; }
     }
 
@@ -104,7 +109,7 @@ namespace Engine.Interface
         }
         public TileContainer TileContainer { get; private set; }
 
-        private Direction TurnAround(Direction direction)
+        internal static Direction TurnAround(Direction direction)
         {
             if (direction == Direction.N) return Direction.S;
             if (direction == Direction.NE) return Direction.SW;
@@ -114,7 +119,7 @@ namespace Engine.Interface
             if (direction == Direction.NW) return Direction.SE;
             return Direction.C;
         }
-        private Direction TurnLeft(Direction direction)
+        internal static Direction TurnLeft(Direction direction)
         {
             if (direction == Direction.N) return Direction.NW;
             if (direction == Direction.NW) return Direction.SW;
@@ -124,7 +129,7 @@ namespace Engine.Interface
             if (direction == Direction.NE) return Direction.N;
             return Direction.C;
         }
-        private Direction TurnRight(Direction direction)
+        internal static Direction TurnRight(Direction direction)
         {
             if (direction == Direction.N) return Direction.NE;
             if (direction == Direction.NE) return Direction.SE;
@@ -135,16 +140,16 @@ namespace Engine.Interface
             return Direction.C;
         }
 
-        internal TileFit CalcFit(List<TileObject> tileObjects)
+        internal TileFit CalcFit(Tile openTile, List<TileObject> tileObjects)
         {
-            TileFit tileFit = new TileFit();
+            TileFit tileFit = new TileFit(openTile);
             tileFit.Score = -1;
 
             List<TileObject> rotatedTileObjects = tileObjects;
 
             for (int i=0; i < 6; i++)
             {
-                int score = CalcFitObj(rotatedTileObjects);
+                float score = CalcFitObj(rotatedTileObjects);
                 if (score > tileFit.Score)
                 {
                     tileFit.Score = score;
@@ -162,69 +167,78 @@ namespace Engine.Interface
             {
                 TileObject rotatedTileObject = new TileObject();
                 rotatedTileObject.TileObjectType = tileObject.TileObjectType;
-                rotatedTileObject.Direction = Ants.AntPartEngine.TurnLeft(tileObject.Direction);
-                /*
-                if (tileObject.Direction == Direction.N) rotatedTileObject.Direction = Direction.NW;
-                else if (tileObject.Direction == Direction.NW) rotatedTileObject.Direction = Direction.SW;
-                else if (tileObject.Direction == Direction.SW) rotatedTileObject.Direction = Direction.S;
-                else if (tileObject.Direction == Direction.S) rotatedTileObject.Direction = Direction.SE;
-                else if (tileObject.Direction == Direction.SE) rotatedTileObject.Direction = Direction.NW;
-                else if (tileObject.Direction == Direction.NW) rotatedTileObject.Direction = Direction.N;
-                */
+                rotatedTileObject.Direction = TurnLeft(tileObject.Direction);
+                
                 rotatedTileObjects.Add(rotatedTileObject);
             }
             return rotatedTileObjects;
         }
 
-        internal int CalcFitObj(List<TileObject> tileObjects)
+        internal float GetScoreForPos(TileObject tileObject, Position position)
         {
-            int score = 0;
-            //foreach (TileObject tileObject in TileContainer.TileObjects)
-            for (int i = 0; i < TileContainer.TileObjects.Count; i++)
+            float score = 0;
+            if (position != null)
             {
-                if (i >= tileObjects.Count)
-                    break;
-
-                TileObject tileObject1 = TileContainer.TileObjects[i];
-                if (!TileObject.IsTileObjectTypeGrow(tileObject1.TileObjectType))
-                    continue;
-
-                TileObject tileObject2 = tileObjects[i];
-
-                   
-                if (tileObject1.TileObjectType == tileObject2.TileObjectType &&
-                    tileObject1.Direction == tileObject2.Direction)
+                Tile forwardTile = Map.GetTile(position);
+                if (forwardTile != null && forwardTile.TileContainer != null)
                 {
-                    score = 1;
+                    foreach (TileObject forwardTileObject in forwardTile.TileContainer.TileObjects)
+                    {
+                        if (tileObject.Direction == TurnAround(forwardTileObject.Direction))
+                        {
+                            if (tileObject.TileObjectType == forwardTileObject.TileObjectType)
+                            {
+                                score += 1;
+                            }
+                            if (tileObject.TileObjectType == TileObjectType.Tree && forwardTileObject.TileObjectType == TileObjectType.Bush)
+                            {
+                                score += 1;
+                            }
+                            if (tileObject.TileObjectType == TileObjectType.Bush && forwardTileObject.TileObjectType == TileObjectType.Tree)
+                            {
+                                score += 1;
+                            }
+
+                            if (tileObject.TileObjectType == TileObjectType.Tree && forwardTileObject.TileObjectType == TileObjectType.Dirt)
+                            {
+                                score += 0.5f;
+                            }
+                            if (tileObject.TileObjectType == TileObjectType.Dirt && forwardTileObject.TileObjectType == TileObjectType.Tree)
+                            {
+                                score += 0.5f;
+                            }
+
+
+
+                            if (tileObject.TileObjectType == TileObjectType.Bush && forwardTileObject.TileObjectType == TileObjectType.Dirt)
+                            {
+                                score += 1;
+                            }
+                            if (tileObject.TileObjectType == TileObjectType.Dirt && forwardTileObject.TileObjectType == TileObjectType.Bush)
+                            {
+                                score += 1;
+                            }
+                        }
+                    }
                 }
-                /*
-                    else if (tileObject.TileObjectType == TileObjectType.Tree &&
-                             fitTileObject.TileObjectType == TileObjectType.Bush)
-                    {
-                        bonus = 3;
-                    }
-                    else if (tileObject.TileObjectType == TileObjectType.Bush &&
-                             fitTileObject.TileObjectType == TileObjectType.Tree)
-                    {
-                        bonus = 3;
-                    }
-                    
-                    if (bonus > 0)
-                    { 
-                        if (tileObject.Direction == TurnAround(fitTileObject.Direction))
-                        {
-                            score += bonus;
-                        }
-                        else if (tileObject.Direction == TurnLeft(TurnAround(fitTileObject.Direction)))
-                        {
-                            score += bonus/2;
-                        }
-                        else if (tileObject.Direction == TurnRight(TurnAround(fitTileObject.Direction)))
-                        {
-                            score += bonus/2;
-                        }
-                    }
-                }*/
+            }
+            return score;
+        }
+
+        internal float CalcFitObj(List<TileObject> tileObjects)
+        {
+            float score = 0;
+
+            foreach (TileObject tileObject in tileObjects)
+            {
+                Position pos = Ants.AntPartEngine.GetPositionInDirection(Pos, tileObject.Direction);
+                score += GetScoreForPos(tileObject, pos);
+
+                pos = Ants.AntPartEngine.GetPositionInDirection(Pos,TurnLeft( tileObject.Direction));
+                score += GetScoreForPos(tileObject, pos);
+
+                pos = Ants.AntPartEngine.GetPositionInDirection(Pos, TurnRight(tileObject.Direction));
+                score += GetScoreForPos(tileObject, pos);
             }
             return score;
         }

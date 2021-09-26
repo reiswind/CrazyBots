@@ -73,7 +73,7 @@ namespace Engine.Ants
             return Direction.C;
         }
 
-        private Direction TurnAround(Direction direction)
+        internal static Direction TurnAround(Direction direction)
         {
             if (direction == Direction.N) return Direction.S;
             if (direction == Direction.NE) return Direction.SW;
@@ -84,7 +84,7 @@ namespace Engine.Ants
             return Direction.C;
         }
 
-        private Tile GetNextPosition(Player player, Position pos, Direction direction)
+        internal static Position GetPositionInDirection(Position pos, Direction direction)
         {
             Position next = null;
             if (direction == Direction.N)
@@ -150,6 +150,14 @@ namespace Engine.Ants
                 }
             }
 
+            return next;
+        }
+
+
+        private Tile GetNextPosition(Player player, Position pos, Direction direction)
+        {
+            Position next = GetPositionInDirection(pos, direction);
+            
             Tile t = null;
             if (next != null)
             {
