@@ -140,7 +140,7 @@ namespace Assets.Scripts
 		private Dictionary<string, GameObject> rockResources = new Dictionary<string, GameObject>();
 		private Dictionary<string, GameObject> unitResources = new Dictionary<string, GameObject>();
 		private Dictionary<string, GameObject> bushResources = new Dictionary<string, GameObject>();
-		private Dictionary<string, GameObject> obstaclesResources = new Dictionary<string, GameObject>();
+		
 		private Dictionary<string, Material> materialResources = new Dictionary<string, Material>();
 		private Dictionary<string, GameObject> particlesResources = new Dictionary<string, GameObject>();
 
@@ -190,7 +190,7 @@ namespace Assets.Scripts
 		{
 			InitMaterials();
 			InitParticless();
-			InitResources(obstaclesResources, "Prefabs/Obstacles");
+			
 			InitResources(terrainResources, "Prefabs/Terrain");
 			InitResources(terrainResources, "Prefabs/Items");
 			foreach (string key in terrainResources.Keys)
@@ -203,8 +203,12 @@ namespace Assets.Scripts
 				if (key.StartsWith("Leave"))
 					leaveTreeResources.Add(key, terrainResources[key]);
 			}
+			foreach (string key in terrainResources.Keys)
+			{
+				if (key.StartsWith("Rock"))
+					rockResources.Add(key, terrainResources[key]);
+			}
 
-			InitResources(rockResources, "Prefabs/Rocks");
 			InitResources(unitResources, "Prefabs/Unit");
 			InitResources(unitResources, "Prefabs/Buildings");
 			InitResources(bushResources, "Prefabs/Bushes");
@@ -335,14 +339,6 @@ namespace Assets.Scripts
 				gameTileObject.name = tileObject.TileObjectType.ToString();
 			}
 			return gameTileObject;
-		}
-
-		public GameObject CreateObstacle(Transform transform)
-		{
-			int idx = game.Random.Next(obstaclesResources.Count);
-			GameObject prefab = obstaclesResources.Values.ElementAt(idx);
-			GameObject obstacle = Instantiate(prefab, transform, false);
-			return obstacle;
 		}
 
 		public void CreateGame(GameModel gameModel)
