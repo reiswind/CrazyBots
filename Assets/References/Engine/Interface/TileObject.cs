@@ -153,6 +153,7 @@ namespace Engine.Interface
         Bush,
         Tree,
         Mineral,
+        Water,
 
         // Parts
         PartExtractor, 
@@ -198,6 +199,7 @@ namespace Engine.Interface
             if (tileObjectType == TileObjectType.Tree) return true;
             if (tileObjectType == TileObjectType.Bush) return true;
             if (tileObjectType == TileObjectType.Dirt) return true;
+            if (tileObjectType == TileObjectType.Water) return true;
 
             return false;
         }

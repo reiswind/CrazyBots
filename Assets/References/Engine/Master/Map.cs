@@ -264,7 +264,11 @@ namespace Engine.Master
                     {
                         throw new Exception();
                     }
-                    
+
+                    if (bestTileFit.TileObjects.Count > 0 &&
+                        bestTileFit.TileObjects[0].TileObjectType == TileObjectType.Water)
+                        bestTile.IsUnderwater = true;
+
                     bestTile.TileContainer.AddRange(bestTileFit.TileObjects);
                     pos = bestTile.Pos;
 
@@ -300,19 +304,8 @@ namespace Engine.Master
                     }
                 }
             }
-            if (openTiles.Count == 0)
-            {
-                Tile startTile = map.GetTile(Center);
-                startTile.IsOpenTile = true;
-                openTiles.Add(startTile);
-
-                if (!map.Game.changedGroundPositions.ContainsKey(startTile.Pos))
-                    map.Game.changedGroundPositions.Add(startTile.Pos, null);
-            }
             return pos;
         }
-
-        //int mapIndex = 0;
 
         internal Direction CreateObjects(List<TileObject> tileObjects, Map map, TileObjectType tileObjectType, Direction direction, int count)
         {
@@ -392,35 +385,51 @@ namespace Engine.Master
             return tileObjects;
         }
 
+        internal List<TileObject> CreateWaterObjects(Map map)
+        {
+            List<TileObject> tileObjects = new List<TileObject>();
+
+            Direction direction = Direction.N;
+            direction = CreateObjects(tileObjects, map, TileObjectType.Water, direction, 6);
+            if (direction != Direction.C)
+                return tileObjects;
+
+            if (tileObjects.Count == 0) tileObjects = null;
+            return tileObjects;
+        }
+
         internal List<TileObject> CreateRandomObjects(Map map)
         {
             List<TileObject> tileObjects = null;
 
-            int rnd = map.Game.Random.Next(6);
             //rnd = 1;
 
             for (int i = 0; i < 4 && tileObjects == null; i++)
             {
+                int rnd = map.Game.Random.Next(7);
+
+                if (map.BioMass <= 3)
+                    rnd = 3;
+
                 if (rnd == 0)
                 {
                     tileObjects = CreateBigTreeObjects(map, 6);
-                    if (tileObjects == null) rnd++;
                 }
-                if (tileObjects == null && rnd == 1)
+                else if (rnd == 1)
                 {
                     tileObjects = CreateTreeToBushObjects(map);
-                    if (tileObjects == null) rnd++;
                 }
-                if (tileObjects == null && rnd == 2)
+                else if (rnd == 2)
                 {
                     tileObjects = CreateBushToGrasObjects(map);
-                    if (tileObjects == null) rnd++;
                 }
-                if (tileObjects == null && rnd >= 3)
+                else if (rnd >= 3 && rnd < 5)
                 {
                     tileObjects = CreateGrasObjects(map);
-                    if (rnd < 5) rnd++;
-                    else rnd = 0;
+                }
+                else if (rnd == 6)
+                {
+                    tileObjects = CreateWaterObjects(map);
                 }
             }
             return tileObjects;

@@ -346,15 +346,16 @@ namespace Assets.Scripts
                         GameObject destructable;
 
                         destructable = HexGrid.CreateDestructable(transform, tileObject);
-                        destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
-                        destructable.name = tileObject.TileObjectType.ToString();
-
+                        if (destructable != null)
+                        {
+                            destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
+                            destructable.name = tileObject.TileObjectType.ToString();
+                        }
                         UnitBaseTileObject unitBaseTileObject = new UnitBaseTileObject();
                         unitBaseTileObject.GameObject = destructable;
                         unitBaseTileObject.TileObject = tileObject;
 
                         GameObjects.Add(unitBaseTileObject);
-
                     }
                 }
             }

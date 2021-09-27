@@ -269,11 +269,6 @@ namespace Assets.Scripts
 				prefab = GetTerrainResource("ItemCrystal");
 				y = 0.05f;
 			}
-			else if (tileObject.TileObjectType == TileObjectType.Dirt)
-			{
-				prefab = GetTerrainResource("ItemWood");
-				y = prefab.transform.position.y;
-			}
 			else
 			{
 				y = 0f;

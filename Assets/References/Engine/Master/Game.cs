@@ -1695,7 +1695,7 @@ namespace Engine.Master
                     first = true;
                     Initialize(newMoves);
 
-                    CreateTileObjects(999);
+                    CreateTileObjects(99);
                 }
                 else
                 {
