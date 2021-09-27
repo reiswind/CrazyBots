@@ -682,7 +682,7 @@ namespace Engine.Master
                             List<TileObject> tileObjects = new List<TileObject>();
                             foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
                             {
-                                if (TileObject.ConvertTileObjectIntoMineral(tileObject.TileObjectType))
+                                if (TileObject.CanConvertTileObjectIntoMineral(tileObject.TileObjectType))
                                 {
                                     TileObject newTileObject = new TileObject();
                                     newTileObject.TileObjectType = TileObjectType.Mineral;
@@ -1695,7 +1695,7 @@ namespace Engine.Master
                     first = true;
                     Initialize(newMoves);
 
-                    CreateTileObjects(99);
+                    CreateTileObjects(999);
                 }
                 else
                 {

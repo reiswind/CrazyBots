@@ -155,8 +155,7 @@ namespace Engine.Master
             {
                 foreach (TileObject tileObject in t.Tile.TileContainer.TileObjects)
                 {
-                    // Everything but gras
-                    if (tileObject.Direction == Direction.C && tileObject.TileObjectType != TileObjectType.Mineral)
+                    if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
                         continue;
 
                     if (Unit.IsSpaceForTileObject(tileObject))
@@ -348,13 +347,17 @@ namespace Engine.Master
             hitPart.PartTileObjects.Remove(removedTileObject);
             removeTileObjects.Add(removedTileObject);
 
+            if (!TileObject.IsTileObjectTypeCollectable(removedTileObject.TileObjectType))
+            {
+                if (!TileObject.CanConvertTileObjectIntoMineral(removedTileObject.TileObjectType))
+                {
+                    throw new Exception();
+                }
+            }
+
             move.Stats = new MoveUpdateStats();
             Unit.Game.Map.CollectGroundStats(otherUnit.Pos, move, removeTileObjects);
-            /*
-            move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
-            move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
-            move.Stats.MoveUpdateGroundStat.TileObjects.Add(removedTileObject);
-            */
+            
             if (otherUnit.IsDead())
             {
                 if (hitPart.PartTileObjects.Count > 0)
@@ -365,8 +368,6 @@ namespace Engine.Master
         public bool ExtractInto(Unit unit, Move move, Tile fromTile, Game game, Unit otherUnit, TileObjectType tileObjectType)
         {
             List<TileObject> removeTileObjects = new List<TileObject>();
-            //MoveUpdateGroundStat moveUpdateGroundStat;
-            //moveUpdateGroundStat = new MoveUpdateGroundStat();
 
             if (otherUnit != null)
             {
@@ -421,6 +422,7 @@ namespace Engine.Master
                 {
                     removeTileObjects.Add(removedTileObject);
 
+                    /*
                     if (removedTileObject.TileObjectType == TileObjectType.Bush ||
                         removedTileObject.TileObjectType == TileObjectType.Tree)
                     {
@@ -437,7 +439,7 @@ namespace Engine.Master
                         {
                             Unit.Game.Map.AddOpenTile(fromTile);
                         }
-                    }
+                    }*/
                 }
             }
 

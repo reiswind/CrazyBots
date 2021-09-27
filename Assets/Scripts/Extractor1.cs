@@ -32,7 +32,8 @@ namespace Assets.Scripts
                         if (unitBaseTileObject.TileObject.TileObjectType == tileObject.TileObjectType)
                         {
                             sourceCell.GameObjects.Remove(unitBaseTileObject);
-                            unitBaseTileObject.GameObject.transform.SetParent(transform, true);
+                            if (unitBaseTileObject.GameObject != null)
+                                unitBaseTileObject.GameObject.transform.SetParent(transform, true);
 
                             TransitObject transitObject = new TransitObject();
                             transitObject.GameObject = unitBaseTileObject.GameObject;

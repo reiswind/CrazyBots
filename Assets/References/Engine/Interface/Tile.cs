@@ -110,8 +110,10 @@ namespace Engine.Interface
         {
             if (id == "Mineral") return TileObjectType.Mineral;
             if (id == "Dirt") return TileObjectType.Dirt;
+            if (id == "Gras") return TileObjectType.Gras;
             if (id == "Bush") return TileObjectType.Bush;
             if (id == "Tree") return TileObjectType.Tree;
+            if (id == "Sand") return TileObjectType.Sand;
             return TileObjectType.None;
         }
 
@@ -204,13 +206,13 @@ namespace Engine.Interface
             if ((t1 == TileObjectType.Tree && t2 == TileObjectType.Bush) || (t1 == TileObjectType.Bush && t2 == TileObjectType.Tree))
                 score = 1;
 
-            if ((t1 == TileObjectType.Tree && t2 == TileObjectType.Dirt) || (t1 == TileObjectType.Dirt && t2 == TileObjectType.Tree))
+            if ((t1 == TileObjectType.Tree && t2 == TileObjectType.Gras) || (t1 == TileObjectType.Gras && t2 == TileObjectType.Tree))
                 score = 0.5f;
 
-            if ((t1 == TileObjectType.Dirt && t2 == TileObjectType.Bush) || (t1 == TileObjectType.Bush && t2 == TileObjectType.Dirt))
+            if ((t1 == TileObjectType.Gras && t2 == TileObjectType.Bush) || (t1 == TileObjectType.Bush && t2 == TileObjectType.Gras))
                 score = 1;
 
-            if ((t1 == TileObjectType.Dirt && t2 == TileObjectType.Sand) || (t1 == TileObjectType.Sand && t2 == TileObjectType.Dirt))
+            if ((t1 == TileObjectType.Gras && t2 == TileObjectType.Sand) || (t1 == TileObjectType.Sand && t2 == TileObjectType.Gras))
                 score = 0.3f;
 
             if ((t1 == TileObjectType.Water && t2 == TileObjectType.Sand) || (t1 == TileObjectType.Sand && t2 == TileObjectType.Water))
@@ -340,7 +342,7 @@ namespace Engine.Interface
             }
             foreach (TileObject tileObject in TileContainer.TileObjects)
             {
-                if (tileObject.Direction != Direction.C)
+                if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))                
                     return false;
             }
 

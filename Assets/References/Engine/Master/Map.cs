@@ -121,7 +121,7 @@ namespace Engine.Interface
                         {
                             // Depends when the Part is changing to mineral. In this case, the extractor collects all tileobjects as they are. The are converted
                             // dureing the insert into a container
-                            if (tileObject.TileObjectType == TileObjectType.Mineral || TileObject.ConvertTileObjectIntoMineral(tileObject.TileObjectType))
+                            if (tileObject.TileObjectType == TileObjectType.Mineral || TileObject.CanConvertTileObjectIntoMineral(tileObject.TileObjectType))
                             {
                                 TotalMetal++;
                             }
@@ -310,8 +310,6 @@ namespace Engine.Master
                     bestTile.TileContainer.AddRange(bestTileFit.TileObjects);
                     pos = bestTile.Pos;
 
-
-
                     if (!openTiles.Remove(bestTile))
                     {
                         throw new Exception();
@@ -322,6 +320,9 @@ namespace Engine.Master
 
                     foreach (Tile n in bestTile.Neighbors)
                     {
+                        if (openTiles.Count > 8)
+                            break;
+
                         if (!openTiles.Contains(n)) // && n.CanBuild()) // && Tiles.ContainsKey(n.Pos)) // Only in zone (creates circles)
                         {
                             bool allTilesEmpty = true;
@@ -408,7 +409,7 @@ namespace Engine.Master
             Direction direction = Direction.N;
             direction = CreateObjects(tileObjects, map, TileObjectType.Bush, direction, 3);
             if (direction != Direction.C)
-                direction = CreateObjects(tileObjects, map, TileObjectType.Dirt, direction, 3);
+                direction = CreateObjects(tileObjects, map, TileObjectType.Gras, direction, 3);
             if (direction != Direction.C)
                 return tileObjects;
 
@@ -461,7 +462,7 @@ namespace Engine.Master
                 else if (rnd >= 3 && rnd < 5)
                 {
                     tileFit.TileFitType = TileFitType.Gras;
-                    tileObjects = CreateObjects(map, TileObjectType.Dirt, 6);
+                    tileObjects = CreateObjects(map, TileObjectType.Gras, 6);
                 }
                 else if (rnd == 6)
                 {
@@ -502,7 +503,7 @@ namespace Engine.Master
 
         public void AddOpenTileObject(TileObject tileObject)
         {
-            if (TileObject.ConvertTileObjectIntoMineral(tileObject.TileObjectType))
+            if (TileObject.CanConvertTileObjectIntoMineral(tileObject.TileObjectType))
             {
                 tileObject.TileObjectType = TileObjectType.Mineral;
             }

@@ -150,6 +150,7 @@ namespace Engine.Interface
 
         // Environment
         Dirt,
+        Gras,
         Bush,
         Tree,
         LeaveTree,
@@ -218,7 +219,7 @@ namespace Engine.Interface
             return 10;
         }
 
-        public static bool ConvertTileObjectIntoMineral(TileObjectType tileObjectType)
+        public static bool CanConvertTileObjectIntoMineral(TileObjectType tileObjectType)
         {
             if (tileObjectType == TileObjectType.PartArmor) return true;
             if (tileObjectType == TileObjectType.PartAssembler) return true;
