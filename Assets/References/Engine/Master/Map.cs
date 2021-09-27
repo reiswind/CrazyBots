@@ -212,8 +212,8 @@ namespace Engine.Master
 
             if (openTiles.Count > 0)
             {
-                List<TileObject> tileObjects = CreateRandomObjects(map);
-                if (tileObjects == null) return null;
+                TileFit randomTileFit = CreateRandomObjects(map);
+                if (randomTileFit == null || randomTileFit.TileObjects == null) return null;
 
                 // Find best tile
                 List<TileFit> bestTilesFit = new List<TileFit>();
@@ -228,7 +228,7 @@ namespace Engine.Master
                     }
                     else
                     {
-                        TileFit tileFit = tile.CalcFit(tile, tileObjects);
+                        TileFit tileFit = tile.CalcFit(tile, randomTileFit);
 
                         if (bestTilesFit.Count == 0 || tileFit.Score > bestScore)
                         {
@@ -265,14 +265,52 @@ namespace Engine.Master
                         throw new Exception();
                     }
 
-                    if (bestTileFit.TileObjects.Count > 0 &&
-                        bestTileFit.TileObjects[0].TileObjectType == TileObjectType.Water)
+                    if (bestTileFit.TileFitType == TileFitType.Water)
+                    {
+                        bestTile.Height = 0f;
                         bestTile.IsUnderwater = true;
+                    }
+                    else if (bestTileFit.TileFitType == TileFitType.Sand)
+                    {
+                        bestTile.Height = 0.1f;
+                        bestTile.TerrainTypeIndex = 0;
+                        bestTile.PlantLevel = 1;
+                    }
+                    else if (bestTileFit.TileFitType == TileFitType.Gras)
+                    {
+                        bestTile.Height = 0.2f;
+                        bestTile.TerrainTypeIndex = 1;
+                        bestTile.PlantLevel = 1;
+                    }
+                    else if (bestTileFit.TileFitType == TileFitType.BushGras)
+                    {
+                        bestTile.Height = 0.3f;
+                        bestTile.TerrainTypeIndex = 1;
+                        bestTile.PlantLevel = 2;
+                    }
+                    else if (bestTileFit.TileFitType == TileFitType.WoodBush)
+                    {
+                        bestTile.Height = 0.4f;
+                        bestTile.TerrainTypeIndex = 3;
+                        bestTile.PlantLevel = 1;
+                    }
+                    else if (bestTileFit.TileFitType == TileFitType.Wood)
+                    {
+                        bestTile.Height = 0.5f;
+                        bestTile.TerrainTypeIndex = 3;
+                        bestTile.PlantLevel = 2;
+                    }
+                    else
+                    {
+                        bestTile.Height = 1f;
+                        bestTile.TerrainTypeIndex = 4;
+                    }
+
 
                     bestTile.TileContainer.AddRange(bestTileFit.TileObjects);
                     pos = bestTile.Pos;
 
-                    bestTile.Height = 0.1f;
+
 
                     if (!openTiles.Remove(bestTile))
                     {
@@ -332,12 +370,17 @@ namespace Engine.Master
         }
 
 
-        internal List<TileObject> CreateBigTreeObjects(Map map, int count)
+        internal List<TileObject> CreateTreeObjects(Map map, int count)
         {
             List<TileObject> tileObjects = new List<TileObject>();
 
+            TileObjectType tileObjectType = TileObjectType.LeaveTree;
+            int rnd = map.Game.Random.Next(1);
+            if (rnd == 0)
+                tileObjectType = TileObjectType.Tree;
+
             Direction direction = Direction.N;
-            direction = CreateObjects(tileObjects, map, TileObjectType.Tree, direction, count);
+            direction = CreateObjects(tileObjects, map, tileObjectType, direction, count);
             if (direction != Direction.C)
                 return tileObjects;
 
@@ -372,12 +415,12 @@ namespace Engine.Master
             return null;
         }
 
-        internal List<TileObject> CreateGrasObjects(Map map)
+        internal List<TileObject> CreateObjects(Map map, TileObjectType tileObjectType, int count)
         {
             List<TileObject> tileObjects = new List<TileObject>();
 
             Direction direction = Direction.N;
-            direction = CreateObjects(tileObjects, map, TileObjectType.Dirt, direction, 6);
+            direction = CreateObjects(tileObjects, map, tileObjectType, direction, count);
             if (direction != Direction.C)
                 return tileObjects;
 
@@ -385,120 +428,54 @@ namespace Engine.Master
             return tileObjects;
         }
 
-        internal List<TileObject> CreateWaterObjects(Map map)
+        internal TileFit CreateRandomObjects(Map map)
         {
-            List<TileObject> tileObjects = new List<TileObject>();
-
-            Direction direction = Direction.N;
-            direction = CreateObjects(tileObjects, map, TileObjectType.Water, direction, 6);
-            if (direction != Direction.C)
-                return tileObjects;
-
-            if (tileObjects.Count == 0) tileObjects = null;
-            return tileObjects;
-        }
-
-        internal List<TileObject> CreateRandomObjects(Map map)
-        {
+            TileFit tileFit = new TileFit();
             List<TileObject> tileObjects = null;
-
-            //rnd = 1;
 
             for (int i = 0; i < 4 && tileObjects == null; i++)
             {
-                int rnd = map.Game.Random.Next(7);
+                int rnd = map.Game.Random.Next(8);
 
                 if (map.BioMass <= 3)
-                    rnd = 3;
-
+                {
+                    // Sprinkles sand
+                    if (rnd != 7)
+                        rnd = 3;
+                }
                 if (rnd == 0)
                 {
-                    tileObjects = CreateBigTreeObjects(map, 6);
+                    tileFit.TileFitType = TileFitType.Wood;
+                    tileObjects = CreateTreeObjects(map, 6);
                 }
                 else if (rnd == 1)
                 {
+                    tileFit.TileFitType = TileFitType.WoodBush;
                     tileObjects = CreateTreeToBushObjects(map);
                 }
                 else if (rnd == 2)
                 {
+                    tileFit.TileFitType = TileFitType.BushGras;
                     tileObjects = CreateBushToGrasObjects(map);
                 }
                 else if (rnd >= 3 && rnd < 5)
                 {
-                    tileObjects = CreateGrasObjects(map);
+                    tileFit.TileFitType = TileFitType.Gras;
+                    tileObjects = CreateObjects(map, TileObjectType.Dirt, 6);
                 }
                 else if (rnd == 6)
                 {
-                    tileObjects = CreateWaterObjects(map);
+                    tileFit.TileFitType = TileFitType.Water;
+                    tileObjects = CreateObjects(map, TileObjectType.Water, 6);
+                }
+                else if (rnd == 7)
+                {
+                    tileFit.TileFitType = TileFitType.Sand;
+                    tileObjects = CreateObjects(map, TileObjectType.Sand, 6);
                 }
             }
-            return tileObjects;
-            /*
-            tileObjects = new List<TileObject>();
-
-            TileObject tileObject = null;
-           
-
-            rnd = map.Game.Random.Next(5);
-            rnd -= 2;
-            while (rnd-- > 0)
-            {
-                tileObject = null;
-                if (Player == null)
-                {
-                    if (mapIndex >= map.OpenTileObjects.Count)
-                        break;
-
-                    tileObject = map.OpenTileObjects[mapIndex];
-                    mapIndex++;
-                }
-                else
-                {
-                    if (mapIndex >= map.OpenTileObjects.Count)
-                        mapIndex = 0;
-                    while (tileObject == null && mapIndex < map.OpenTileObjects.Count)
-                    {
-                        if (map.OpenTileObjects[mapIndex].TileObjectType == TileObjectType.Mineral)
-                        {
-                            tileObject = map.OpenTileObjects[mapIndex];
-                        }
-                        mapIndex++;
-                    }
-                }
-                if (tileObject == null)
-                    break;
-
-                bool dirExists;
-                do
-                {
-                    dirExists = false;
-                    int dir = map.Game.Random.Next(6);
-
-                    if (dir == 0) tileObject.Direction = Direction.N;
-                    else if (dir == 1) tileObject.Direction = Direction.NE;
-                    else if (dir == 2) tileObject.Direction = Direction.SE;
-                    else if (dir == 3) tileObject.Direction = Direction.S;
-                    else if (dir == 4) tileObject.Direction = Direction.SW;
-                    else if (dir == 5) tileObject.Direction = Direction.NW;
-
-                    foreach (TileObject alreadyAdded in tileObjects)
-                    {
-                        if (alreadyAdded == tileObject)
-                        {
-                            // Duplicate object in list
-                            break;
-                        }
-                        if (alreadyAdded.Direction == tileObject.Direction)
-                            dirExists = true;
-
-                    }
-                } while (dirExists);
-
-                tileObjects.Add(tileObject);
-            }
-            
-            return tileObjects;
-            */
+            tileFit.TileObjects = tileObjects;
+            return tileFit;
         }
     }
 

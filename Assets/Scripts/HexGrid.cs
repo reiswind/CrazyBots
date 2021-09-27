@@ -136,6 +136,7 @@ namespace Assets.Scripts
 		*/
 		private Dictionary<string, GameObject> terrainResources = new Dictionary<string, GameObject>();
 		private Dictionary<string, GameObject> treeResources = new Dictionary<string, GameObject>();
+		private Dictionary<string, GameObject> leaveTreeResources = new Dictionary<string, GameObject>();
 		private Dictionary<string, GameObject> rockResources = new Dictionary<string, GameObject>();
 		private Dictionary<string, GameObject> unitResources = new Dictionary<string, GameObject>();
 		private Dictionary<string, GameObject> bushResources = new Dictionary<string, GameObject>();
@@ -192,7 +193,17 @@ namespace Assets.Scripts
 			InitResources(obstaclesResources, "Prefabs/Obstacles");
 			InitResources(terrainResources, "Prefabs/Terrain");
 			InitResources(terrainResources, "Prefabs/Items");
-			InitResources(treeResources, "Prefabs/Trees");
+			foreach (string key in terrainResources.Keys)
+            {
+				if (key.StartsWith("Tree"))
+					treeResources.Add(key, terrainResources[key]);
+			}
+			foreach (string key in terrainResources.Keys)
+			{
+				if (key.StartsWith("Leave"))
+					leaveTreeResources.Add(key, terrainResources[key]);
+			}
+
 			InitResources(rockResources, "Prefabs/Rocks");
 			InitResources(unitResources, "Prefabs/Unit");
 			InitResources(unitResources, "Prefabs/Buildings");
@@ -256,6 +267,12 @@ namespace Assets.Scripts
 			{
 				int idx = game.Random.Next(treeResources.Count);
 				prefab = treeResources.Values.ElementAt(idx);
+				y = prefab.transform.position.y;
+			}
+			else if (tileObject.TileObjectType == TileObjectType.LeaveTree)
+			{
+				int idx = game.Random.Next(leaveTreeResources.Count);
+				prefab = leaveTreeResources.Values.ElementAt(idx);
 				y = prefab.transform.position.y;
 			}
 			else if (tileObject.TileObjectType == TileObjectType.Bush)

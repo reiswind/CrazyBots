@@ -105,16 +105,14 @@ namespace Engine.Interface
 
         public bool IsDarkWood()
         {
-            if (Count(TileObjectType.Tree) > 2)
-                return true;
             return PlantLevel <= 4 && TerrainTypeIndex == 3;
             //return Height > 0.6 && Height <= 0.7;
         }
 
         public bool IsWood()
         {
-            if (Count(TileObjectType.Tree) == 2)
-                return true;
+            //if (Count(TileObjectType.Tree) == 2)
+            //    return true;
 
             return PlantLevel == 2 && TerrainTypeIndex == 3;
             //return Height > 0.5 && Height <= 0.6;
@@ -122,15 +120,15 @@ namespace Engine.Interface
 
         public bool IsLightWood()
         {
-            if (Count(TileObjectType.Bush) >= 2 || Count(TileObjectType.Tree) == 1)
-                return true;
+            //if (Count(TileObjectType.Bush) >= 2 || Count(TileObjectType.Tree) == 1)
+            //    return true;
             return PlantLevel <= 1 && TerrainTypeIndex == 3;
             //return Height > 0.4 && Height <= 0.5;
         }
         public bool IsGrassDark()
         {
-            if (Count(TileObjectType.Bush) == 1 || Count(TileObjectType.Bush) == 2)
-                return true;
+            //if (Count(TileObjectType.Bush) == 1 || Count(TileObjectType.Bush) == 2)
+            //    return true;
             return PlantLevel > 1 && TerrainTypeIndex == 1;
             //return Height > 0.3 && Height <= 0.4;
         }

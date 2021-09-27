@@ -78,12 +78,27 @@ namespace Engine.Interface
         public int Distance { get; set; }
     }
 
+    internal enum TileFitType
+    {
+        Wood,
+        WoodBush,
+        BushGras,
+        Gras,
+        Water,
+        Sand
+    }
+
     internal class TileFit
     {
+        public TileFit()
+        {
+            
+        }
         public TileFit(Tile t)
         {
             Tile = t;
         }
+        public TileFitType TileFitType { get; set; }
         public Tile Tile { get; set; }
         public float Score { get; set; }
         public List<TileObject> TileObjects { get; set; }
@@ -140,12 +155,13 @@ namespace Engine.Interface
             return Direction.C;
         }
 
-        internal TileFit CalcFit(Tile openTile, List<TileObject> tileObjects)
+        internal TileFit CalcFit(Tile openTile, TileFit randomTileFit)
         {
             TileFit tileFit = new TileFit(openTile);
             tileFit.Score = -1;
+            tileFit.TileFitType = randomTileFit.TileFitType;
 
-            List<TileObject> rotatedTileObjects = tileObjects;
+            List<TileObject> rotatedTileObjects = randomTileFit.TileObjects;
 
             for (int i=0; i < 6; i++)
             {
@@ -174,6 +190,35 @@ namespace Engine.Interface
             return rotatedTileObjects;
         }
 
+        internal float GetMatchingScore(TileObjectType t1, TileObjectType t2)
+        {
+            float score = 0;
+            if (t1 == t2)
+            {
+                score = 1;
+            }
+
+            if (t1 == TileObjectType.LeaveTree) t1 = TileObjectType.Tree;
+            if (t2 == TileObjectType.LeaveTree) t2 = TileObjectType.Tree;
+
+            if ((t1 == TileObjectType.Tree && t2 == TileObjectType.Bush) || (t1 == TileObjectType.Bush && t2 == TileObjectType.Tree))
+                score = 1;
+
+            if ((t1 == TileObjectType.Tree && t2 == TileObjectType.Dirt) || (t1 == TileObjectType.Dirt && t2 == TileObjectType.Tree))
+                score = 0.5f;
+
+            if ((t1 == TileObjectType.Dirt && t2 == TileObjectType.Bush) || (t1 == TileObjectType.Bush && t2 == TileObjectType.Dirt))
+                score = 1;
+
+            if ((t1 == TileObjectType.Dirt && t2 == TileObjectType.Sand) || (t1 == TileObjectType.Sand && t2 == TileObjectType.Dirt))
+                score = 0.3f;
+
+            if ((t1 == TileObjectType.Water && t2 == TileObjectType.Sand) || (t1 == TileObjectType.Sand && t2 == TileObjectType.Water))
+                score = 1;
+
+            return score;
+        }
+
         internal float GetScoreForPos(TileObject tileObject, Position position)
         {
             float score = 0;
@@ -186,38 +231,7 @@ namespace Engine.Interface
                     {
                         if (tileObject.Direction == TurnAround(forwardTileObject.Direction))
                         {
-                            if (tileObject.TileObjectType == forwardTileObject.TileObjectType)
-                            {
-                                score += 1;
-                            }
-                            if (tileObject.TileObjectType == TileObjectType.Tree && forwardTileObject.TileObjectType == TileObjectType.Bush)
-                            {
-                                score += 1;
-                            }
-                            if (tileObject.TileObjectType == TileObjectType.Bush && forwardTileObject.TileObjectType == TileObjectType.Tree)
-                            {
-                                score += 1;
-                            }
-
-                            if (tileObject.TileObjectType == TileObjectType.Tree && forwardTileObject.TileObjectType == TileObjectType.Dirt)
-                            {
-                                score += 0.5f;
-                            }
-                            if (tileObject.TileObjectType == TileObjectType.Dirt && forwardTileObject.TileObjectType == TileObjectType.Tree)
-                            {
-                                score += 0.5f;
-                            }
-
-
-
-                            if (tileObject.TileObjectType == TileObjectType.Bush && forwardTileObject.TileObjectType == TileObjectType.Dirt)
-                            {
-                                score += 1;
-                            }
-                            if (tileObject.TileObjectType == TileObjectType.Dirt && forwardTileObject.TileObjectType == TileObjectType.Bush)
-                            {
-                                score += 1;
-                            }
+                            score += GetMatchingScore(tileObject.TileObjectType, forwardTileObject.TileObjectType);
                         }
                     }
                 }

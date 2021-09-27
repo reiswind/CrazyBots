@@ -152,8 +152,10 @@ namespace Engine.Interface
         Dirt,
         Bush,
         Tree,
+        LeaveTree,
         Mineral,
         Water,
+        Sand,
 
         // Parts
         PartExtractor, 
@@ -189,6 +191,7 @@ namespace Engine.Interface
         {
             if (tileObjectType == TileObjectType.Mineral) return true;
             if (tileObjectType == TileObjectType.Tree) return true;
+            if (tileObjectType == TileObjectType.LeaveTree) return true;
             if (tileObjectType == TileObjectType.Bush) return true;
 
             return false;
@@ -197,9 +200,11 @@ namespace Engine.Interface
         public static bool IsTileObjectTypeGrow(TileObjectType tileObjectType)
         {
             if (tileObjectType == TileObjectType.Tree) return true;
+            if (tileObjectType == TileObjectType.LeaveTree) return true;
             if (tileObjectType == TileObjectType.Bush) return true;
             if (tileObjectType == TileObjectType.Dirt) return true;
             if (tileObjectType == TileObjectType.Water) return true;
+            if (tileObjectType == TileObjectType.Sand) return true;
 
             return false;
         }
