@@ -59,8 +59,8 @@ namespace Assets.Scripts
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-			//UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
-			UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+			UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+			//UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 			GameModel gameModel;
 
@@ -621,7 +621,6 @@ namespace Assets.Scripts
 				}				
 			}
 			FinishTransits();
-			List<UnitBase> deletedUnits = new List<UnitBase>();
 
 			foreach (Move move in newMoves)
 			{
@@ -762,18 +761,18 @@ namespace Assets.Scripts
 					if (BaseUnits.ContainsKey(move.UnitId))
 					{
 						UnitBase unit = BaseUnits[move.UnitId];
-						unit.Delete();
-						deletedUnits.Add(unit);
+						bool isInHits = false;
+						foreach (HitByBullet hitByBullet in hitByBullets)
+                        {
+							if (hitByBullet.TargetUnit == unit)
+                            {
+								isInHits = true;
+							}
+                        }
+						if (!isInHits)
+							unit.Delete();
 						BaseUnits.Remove(move.UnitId);
 					}
-					/*
-					if (Units.ContainsKey(move.OtherUnitId))
-					{
-						UnitFrame unit = Units[move.UnitId];
-						unit.NextMove = null;
-						unit.Delete();
-						Units.Remove(move.UnitId);
-					}*/
 				}
 			}
 			newMoves.Clear();
@@ -893,7 +892,6 @@ namespace Assets.Scripts
 						int level;
 						hitByBullet.HitPartTileObjectType = TileObject.GetTileObjectTypeFromString(move.OtherUnitId, out level);
 					}
-
 
 					hitByBullet.HitTime = Time.unscaledTime + 2;
 					hitByBullet.TargetPosition = targetPostion;

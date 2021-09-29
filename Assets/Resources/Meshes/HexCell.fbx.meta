@@ -1,7 +1,7 @@
 fileFormatVersion: 2
 guid: 977bcf150c790a24e8d342deb1d6e374
 ModelImporter:
-  serializedVersion: 20200
+  serializedVersion: 21100
   internalIDToNameTable: []
   externalObjects:
   - first:
@@ -15,7 +15,7 @@ ModelImporter:
       name: images
     second: {fileID: 2800000, guid: dd848631acab4084ea74a51b59d6044b, type: 3}
   materials:
-    materialImportMode: 1
+    materialImportMode: 0
     materialName: 0
     materialSearch: 1
     materialLocation: 1

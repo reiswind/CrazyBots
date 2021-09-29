@@ -32,7 +32,30 @@ namespace Assets.Scripts
                 return tileObjects.AsReadOnly();
             }
         }
-        
+        public void Explode()
+        {
+            foreach (UnitBaseTileObject unitBaseTileObject in tileObjects)
+            {
+                if (unitBaseTileObject.GameObject != null)
+                {
+                    Vector3 vector3 = new Vector3();
+                    vector3.y = 4f;
+                    vector3.x = UnityEngine.Random.value;
+                    vector3.z = UnityEngine.Random.value;
+
+                    Rigidbody otherRigid = unitBaseTileObject.GameObject.GetComponent<Rigidbody>();
+                    if (otherRigid != null)
+                    {
+                        otherRigid.isKinematic = false;
+                        otherRigid.velocity = vector3;
+                        otherRigid.rotation = UnityEngine.Random.rotation;
+                    }
+                    HexGrid.Destroy(unitBaseTileObject.GameObject, 5);
+                }
+            }
+            tileObjects.Clear();
+        }
+
         public void Remove(UnitBaseTileObject unitBaseTileObject)
         {
             if (unitBaseTileObject.Placeholder != null)

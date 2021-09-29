@@ -737,12 +737,17 @@ namespace Assets.Scripts
                             otherRigid.isKinematic = false;
 
                             Vector3 vector3 = new Vector3();
-                            vector3.y = 5;
+                            vector3.y = 15;
                             vector3.x = Random.value;
                             vector3.z = Random.value;
 
                             otherRigid.velocity = vector3;
-                            otherRigid.rotation = Random.rotation;
+                            //otherRigid.rotation = Random.rotation;
+                        }
+
+                        if (unitBasePart.TileObjectContainer != null)
+                        {
+                            unitBasePart.TileObjectContainer.Explode();
                         }
 
                         /*
@@ -758,9 +763,24 @@ namespace Assets.Scripts
                         Destroy(unitBasePart.Part, 8);
                         UnitBaseParts.Remove(unitBasePart);
 
-                        GameObject smoke = FindChildNyName(gameObject, "SmokeEffect");
-                        if (smoke != null)
-                            smoke.SetActive(true);
+                        if (unitBasePart.PartType == TileObjectType.PartEngine) Engine = null;
+                        if (unitBasePart.PartType == TileObjectType.PartAssembler) Assembler = null;
+                        if (unitBasePart.PartType == TileObjectType.PartContainer) Container = null;
+                        if (unitBasePart.PartType == TileObjectType.PartExtractor) Extractor = null;
+                        if (unitBasePart.PartType == TileObjectType.PartWeapon) Weapon = null;
+                        if (unitBasePart.PartType == TileObjectType.PartReactor) Reactor = null;
+                        if (unitBasePart.PartType == TileObjectType.PartArmor) Armor = null;
+
+                        if (UnitBaseParts.Count == 0)
+                        {
+                            Delete();
+                        }
+                        else
+                        {
+                            GameObject smoke = FindChildNyName(gameObject, "SmokeEffect");
+                            if (smoke != null)
+                                smoke.SetActive(true);
+                        }
                     }
                     return unitBasePart;
                 }

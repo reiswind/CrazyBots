@@ -929,7 +929,7 @@ namespace Assets.Scripts
                 }
                 else
                 {
-                    if (gc.Stats.MoveUpdateGroundStat.TileObjects.Count > 0)
+                    if (gc.GameObjects.Count > 0)
                     {
                         headerText.text = "Destructable";
                     }
@@ -941,9 +941,19 @@ namespace Assets.Scripts
                 headerSubText.text = sb.ToString();
 
                 sb.Clear();
-                if (gc.Stats.MoveUpdateGroundStat.TileObjects.Count > 0)
-                    sb.Append("Items: " + gc.Stats.MoveUpdateGroundStat.TileObjects.Count);
-
+                if (gc.GameObjects.Count > 0)
+                {
+                    int mins = 0;
+                    int other = 0;
+                    foreach (UnitBaseTileObject item in gc.GameObjects)
+                    {
+                        if (item.TileObject.TileObjectType == TileObjectType.Mineral)
+                            mins++;
+                        else
+                            other++;
+                    }
+                    sb.Append("Mins: " + mins + " Other: " + other);
+                }
                 headerGroundText.text = sb.ToString();
             }
             else
