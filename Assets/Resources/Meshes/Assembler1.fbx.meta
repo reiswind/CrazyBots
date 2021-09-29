@@ -1,7 +1,7 @@
 fileFormatVersion: 2
 guid: d2d09f6384562624187e5f38b987d986
 ModelImporter:
-  serializedVersion: 20200
+  serializedVersion: 21100
   internalIDToNameTable: []
   externalObjects:
   - first:
@@ -10,7 +10,7 @@ ModelImporter:
       name: UnitFrameMaterial
     second: {fileID: 2100000, guid: d1a34a41b541a7e4eadfe4131b515e2a, type: 2}
   materials:
-    materialImportMode: 2
+    materialImportMode: 0
     materialName: 0
     materialSearch: 1
     materialLocation: 1

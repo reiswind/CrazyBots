@@ -466,6 +466,7 @@ namespace Assets.Scripts
                     if (playerId == 1) meshRenderer.material = hexGrid.GetMaterial("Player1");
                     if (playerId == 2) meshRenderer.material = hexGrid.GetMaterial("Player2");
                     if (playerId == 3) meshRenderer.material = hexGrid.GetMaterial("Player3");
+                    if (playerId == 4) meshRenderer.material = hexGrid.GetMaterial("Player4");
                 }
                 else
                 {
@@ -482,6 +483,7 @@ namespace Assets.Scripts
                             if (playerId == 1) newMaterials[i] = hexGrid.GetMaterial("Player1");
                             if (playerId == 2) newMaterials[i] = hexGrid.GetMaterial("Player2");
                             if (playerId == 3) newMaterials[i] = hexGrid.GetMaterial("Player3");
+                            if (playerId == 4) newMaterials[i] = hexGrid.GetMaterial("Player4");
                         }
                         else
                         {

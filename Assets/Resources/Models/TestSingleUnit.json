@@ -35,7 +35,7 @@
 	{
       "Name": "Fighter",
       "PlayerId": 1,
-      "Blueprint": "Bomber",
+      "Blueprint": "Fighter",
 	  "HoldPosition": true,
 	  "FireAtGround": false,
 	  "EndlessAmmo": true,
