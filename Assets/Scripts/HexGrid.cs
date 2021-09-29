@@ -59,8 +59,8 @@ namespace Assets.Scripts
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-			UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
-			//UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+			//UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+			UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 			GameModel gameModel;
 
@@ -1076,16 +1076,21 @@ namespace Assets.Scripts
 						if (transitObject.ScaleDown)
 						{
 							MeshRenderer mesh = transitObject.GameObject.GetComponent<MeshRenderer>();
+							// if larger
 							if (mesh.bounds.size.y > 0.2f || mesh.bounds.size.x > 0.2f || mesh.bounds.size.z > 0.2f)
 							{
-								float scalex = mesh.bounds.size.x / 200;
-								float scaley = mesh.bounds.size.y / 200;
-								float scalez = mesh.bounds.size.z / 200;
+								// but not to small
+								if (mesh.bounds.size.y > 0.1f && mesh.bounds.size.x > 0.1f && mesh.bounds.size.z > 0.1f)
+								{
+									float scalex = mesh.bounds.size.x / 200;
+									float scaley = mesh.bounds.size.y / 200;
+									float scalez = mesh.bounds.size.z / 200;
 
-								Vector3 scaleChange;
-								scaleChange = new Vector3(-scalex, -scaley, -scalez);
+									Vector3 scaleChange;
+									scaleChange = new Vector3(-scalex, -scaley, -scalez);
 
-								transitObject.GameObject.transform.localScale += scaleChange;
+									transitObject.GameObject.transform.localScale += scaleChange;
+								}
 							}
 						}
 						transitObject.GameObject.transform.position = Vector3.MoveTowards(transitObject.GameObject.transform.position, vector3, step);

@@ -213,7 +213,7 @@ namespace Engine.Master
 
             foreach (TileObject tileObject in t.TileContainer.TileObjects)
             {
-                if (tileObject.Direction != Direction.C)
+                if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
                 {
                     Map.AddOpenTileObject(tileObject);
 
