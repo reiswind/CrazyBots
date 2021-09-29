@@ -32,7 +32,6 @@ namespace Engine.Ants
                 if (Ant.BuildPositionReached)
                 {
                     //moved = BuildUnit(control, player, moves);
-                    int x = 0;
                 }
                 
                 {

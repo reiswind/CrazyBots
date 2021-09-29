@@ -144,7 +144,11 @@ namespace Engine.Interface
         }
         public bool IsSand()
         {
-            return PlantLevel <= 1 && TerrainTypeIndex == 0;
+            return PlantLevel == 1 && TerrainTypeIndex == 0;
+        }
+        public bool IsDirt()
+        {
+            return PlantLevel == 0 && TerrainTypeIndex == 0;
         }
     }
 

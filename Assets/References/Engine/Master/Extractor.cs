@@ -71,19 +71,6 @@ namespace Engine.Master
             });
         }
 
-        /*
-        public int CountAvailableMetal()
-        {
-            int metal = 0;
-            Dictionary<Position, TileWithDistance> resultList = CollectTilesWithMetal();
-            foreach (TileWithDistance n in resultList.Values)
-            {
-                metal += n.Minerals;
-            }
-            return metal;
-        }*/
-
-
         public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position> includedPositions, MoveFilter moveFilter)
         {
             if ((moveFilter & MoveFilter.Extract) == 0)
@@ -169,6 +156,16 @@ namespace Engine.Master
                         move.Positions = new List<Position>();
                         move.Positions.Add(Unit.Pos);
                         move.Positions.Add(t.Pos);
+
+                        move.Stats = new MoveUpdateStats();
+                        move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
+                        move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
+
+                        TileObject tileObjectCopy = new TileObject();
+                        tileObjectCopy.TileObjectType = tileObject.TileObjectType;
+                        tileObjectCopy.Direction = tileObject.Direction;
+
+                        move.Stats.MoveUpdateGroundStat.TileObjects.Add(tileObjectCopy);
 
                         possibleMoves.Add(move);
                     }
@@ -347,11 +344,14 @@ namespace Engine.Master
             hitPart.PartTileObjects.Remove(removedTileObject);
             removeTileObjects.Add(removedTileObject);
 
-            if (!TileObject.IsTileObjectTypeCollectable(removedTileObject.TileObjectType))
+            foreach (TileObject removed in removeTileObjects)
             {
-                if (!TileObject.CanConvertTileObjectIntoMineral(removedTileObject.TileObjectType))
+                if (!TileObject.IsTileObjectTypeCollectable(removed.TileObjectType))
                 {
-                    throw new Exception();
+                    if (!TileObject.CanConvertTileObjectIntoMineral(removed.TileObjectType))
+                    {
+                        throw new Exception();
+                    }
                 }
             }
 
@@ -365,7 +365,7 @@ namespace Engine.Master
             }
         }
 
-        public bool ExtractInto(Unit unit, Move move, Tile fromTile, Game game, Unit otherUnit, TileObjectType tileObjectType)
+        public bool ExtractInto(Unit unit, Move move, Tile fromTile, Game game, Unit otherUnit, TileObject removedTileObject)
         {
             List<TileObject> removeTileObjects = new List<TileObject>();
 
@@ -403,43 +403,17 @@ namespace Engine.Master
             }
             else
             {
-                TileObject removedTileObject;
-
-                // Extract from tile (Only 1)
-                if (tileObjectType == TileObjectType.Dirt)
-                {
-                    fromTile.Height -= 0.1f;
-
-                    removedTileObject = new TileObject();
-                    removedTileObject.TileObjectType = TileObjectType.Dirt;
-                    removedTileObject.Direction = Direction.C;
-                }
-                else
-                {
-                    removedTileObject = fromTile.TileContainer.RemoveTileObject(tileObjectType);
-                }
+                
                 if (removedTileObject != null)
                 {
-                    removeTileObjects.Add(removedTileObject);
-
-                    /*
-                    if (removedTileObject.TileObjectType == TileObjectType.Bush ||
-                        removedTileObject.TileObjectType == TileObjectType.Tree)
+                    if (!TileObject.IsTileObjectTypeCollectable(removedTileObject.TileObjectType))
                     {
-                        bool containsOtherObstacles = false;
-                        foreach (TileObject tileObject in fromTile.TileContainer.TileObjects)
-                        {
-                            if (tileObject.TileObjectType == TileObjectType.Bush ||
-                                tileObject.TileObjectType == TileObjectType.Tree)
-                            {
-                                containsOtherObstacles = true;
-                            }
-                        }
-                        if (containsOtherObstacles == false)
-                        {
-                            Unit.Game.Map.AddOpenTile(fromTile);
-                        }
-                    }*/
+                        throw new Exception();
+                    }
+
+                    fromTile.ExtractTileObject(removedTileObject);
+
+                    removeTileObjects.Add(removedTileObject);
                 }
             }
 

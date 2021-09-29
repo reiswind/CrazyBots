@@ -179,7 +179,7 @@ namespace Engine.Master
             while (openTiles.Count > 0)
                 CreateTerrainTile(map);*/
         }
-
+        /*
         public void AddTerrainTile(Tile t)
         {
             t.IsOpenTile = true;
@@ -194,7 +194,7 @@ namespace Engine.Master
                 tile.IsOpenTile = true;
             }
         }
-
+        */
 
         public Position CreateTerrainTile(Map map)
         {
@@ -213,7 +213,8 @@ namespace Engine.Master
             if (openTiles.Count > 0)
             {
                 TileFit randomTileFit = CreateRandomObjects(map);
-                if (randomTileFit == null || randomTileFit.TileObjects == null) return null;
+                if (randomTileFit == null || randomTileFit.TileObjects == null) 
+                    return null;
 
                 // Find best tile
                 List<TileFit> bestTilesFit = new List<TileFit>();
@@ -306,7 +307,6 @@ namespace Engine.Master
                         bestTile.TerrainTypeIndex = 4;
                     }
 
-
                     bestTile.TileContainer.AddRange(bestTileFit.TileObjects);
                     pos = bestTile.Pos;
 
@@ -328,7 +328,8 @@ namespace Engine.Master
                             bool allTilesEmpty = true;
                             foreach (TileObject tileObject in n.TileContainer.TileObjects)
                             {
-                                if (TileObject.IsTileObjectTypeGrow(tileObject.TileObjectType))
+                                //if (TileObject.IsTileObjectTypeGrow(tileObject.TileObjectType))
+                                if (tileObject.TileObjectType != TileObjectType.Mineral)
                                     allTilesEmpty = false;
                             }
                             if (allTilesEmpty)
@@ -506,6 +507,10 @@ namespace Engine.Master
             if (TileObject.CanConvertTileObjectIntoMineral(tileObject.TileObjectType))
             {
                 tileObject.TileObjectType = TileObjectType.Mineral;
+            }
+            if (tileObject.TileObjectType == TileObjectType.Mineral)
+            {
+                DistributeTileObject(tileObject);
             }
             else
             {
@@ -919,6 +924,8 @@ namespace Engine.Master
                 mapDefaultZone.Tiles.Add(t.Pos, new TileWithDistance(t,0));
             }*/
         }
+
+        /*
         public void AddTerrainTile(Tile t)
         {
             MapZone zone;
@@ -941,7 +948,7 @@ namespace Engine.Master
                 mapZone.AddOpenTile(tile);
             }
         }
-
+        */
         private void AddZone(Position pos)
         {
             int zoneId = Zones.Count;
@@ -1105,13 +1112,16 @@ namespace Engine.Master
         public void CollectGroundStats(Position pos, Move move, List<TileObject> tileObjects)
         {
             CollectGroundStats(pos, move);
-
-            foreach (TileObject tileObject in tileObjects)
+            if (tileObjects != null)
             {
-                TileObject newTileObject = new TileObject();
-                newTileObject.TileObjectType = tileObject.TileObjectType;
-                newTileObject.Direction = tileObject.Direction;
-                move.Stats.MoveUpdateGroundStat.TileObjects.Add(newTileObject);
+                move.Stats.MoveUpdateGroundStat.TileObjects.Clear();
+                foreach (TileObject tileObject in tileObjects)
+                {
+                    TileObject newTileObject = new TileObject();
+                    newTileObject.TileObjectType = tileObject.TileObjectType;
+                    newTileObject.Direction = tileObject.Direction;
+                    move.Stats.MoveUpdateGroundStat.TileObjects.Add(newTileObject);
+                }
             }
         }
         

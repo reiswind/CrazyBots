@@ -604,6 +604,13 @@ namespace Engine.Master
                     thisUnit.Pos = Destination;
                     addedUnits.Add(thisUnit);
 
+                    Tile t = Map.GetTile(Destination);
+                    if (t.RemoveBio())
+                    {
+                        if (!changedGroundPositions.ContainsKey(Destination))
+                            changedGroundPositions.Add(Destination, null);
+                    }
+
                     // is there a unit on the map?
                     /* Could be, but may move later so no error
                     Unit otherUnit = Map.Units.GetUnitAt(Destination);
@@ -748,22 +755,7 @@ namespace Engine.Master
                     }
                     else
                     {
-                        // TODOMIN
-                        /*
-                        if (unit.Reactor != null && unit.Reactor.Container.Mineral < unit.Reactor.Container.Capacity)
-                        {
-                            unit.Reactor.Container.Mineral++;
-                            unit.Reactor.BurnIfNeccessary();
-                        }
-                        else if (unit.Assembler != null && unit.Assembler.Container.Mineral < unit.Assembler.Container.Capacity)
-                            unit.Assembler.Container.Mineral++;
-                        else if (unit.Weapon != null && unit.Weapon.Container.Mineral < unit.Weapon.Container.Capacity)
-                            unit.Weapon.Container.Mineral++;
-                        else if (unit.Container != null && unit.Container.Mineral < unit.Container.Capacity)
-                            unit.Container.Mineral++;
-                        else
-                            dropOnGround = true;
-                        */
+                        
                         if (!changedUnits.ContainsKey(unit.Pos))
                             changedUnits.Add(unit.Pos, unit);
                     }
@@ -771,8 +763,6 @@ namespace Engine.Master
                     {
                         // Target died, transport to ground
                         Tile unitTile = GetTile(transportTargetPos);
-                        // TODOMIN
-                        //unitTile.AddMinerals(1);
 
                         if (!changedGroundPositions.ContainsKey(transportTargetPos))
                             changedGroundPositions.Add(transportTargetPos, null);
@@ -819,25 +809,9 @@ namespace Engine.Master
 
             TileObject tileObject = move.Stats.MoveUpdateGroundStat.TileObjects[0];
 
-            if (tileObject != null)
-            {
-                if (tileObject.TileObjectType == TileObjectType.Dirt)
-                {
-                    targetTile.Height += 0.1f;
-                }
-                else
-                {
-                    // Anything but minerals are distributed
-                    if (tileObject.TileObjectType != TileObjectType.Mineral)
-                    {
-                        Map.AddOpenTileObject(tileObject);                        
-                    }
-                    else
-                    {
-                        targetTile.TileContainer.Add(tileObject);
-                    }
-                }
-            }
+            targetTile.HitByBullet(tileObject);
+
+            
             if (!changedGroundPositions.ContainsKey(pos))
                 changedGroundPositions.Add(pos, null);
 
@@ -914,10 +888,7 @@ namespace Engine.Master
                 // Ground was hit
                 Move hitmove = new Move();
                 hitmove.MoveType = MoveType.Hit;
-                //hitmove.PlayerId = targetUnit.Owner.PlayerModel.Id;
                 hitmove.Positions = move.Positions;
-                //hitmove.UnitId = targetUnit.UnitId;
-                //hitmove.OtherUnitId = hitPart.PartType.ToString();
 
                 hitmove.Stats = new MoveUpdateStats();                
                 hitmove.Stats.MoveUpdateGroundStat = move.Stats.MoveUpdateGroundStat;
@@ -1204,7 +1175,7 @@ namespace Engine.Master
                         Tile fromTile = Map.GetTile(fromPos);
 
                         Unit otherUnit = null;
-                        TileObjectType tileObjectType;
+                        TileObject tileObject = null;
                         if (move.OtherUnitId.StartsWith("unit"))
                         {
                             otherUnit = fromTile.Unit;
@@ -1213,19 +1184,16 @@ namespace Engine.Master
                                 // Extract from unit, but no longer there or not from this unit
                                 move.MoveType = MoveType.Skip;
                             }
-                            tileObjectType = TileObjectType.None;
+                            
                         }
                         else
                         {
-                            tileObjectType = Tile.GetObjectType(move.OtherUnitId);
-                            if (tileObjectType == TileObjectType.None)
-                            {
-                                move.MoveType = MoveType.Skip;
-                            }
+
+                            tileObject = move.Stats.MoveUpdateGroundStat.TileObjects[0];
                         }
                         if (move.MoveType != MoveType.Skip)
                         {
-                            extracted = unit.Extractor.ExtractInto(unit, move, fromTile, this, otherUnit, tileObjectType);
+                            extracted = unit.Extractor.ExtractInto(unit, move, fromTile, this, otherUnit, tileObject);
 
                             if (extracted)
                             {
@@ -1286,7 +1254,6 @@ namespace Engine.Master
                         if (removedTileObjects.Count > 0)
                         {
                             move.Stats = fireingUnit.CollectStats();
-                            //Map.CollectGroundStats(fireingUnit.Pos, move, removedTileObjects);
                             move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
                             move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
                             move.Stats.MoveUpdateGroundStat.TileObjects.AddRange (removedTileObjects);
@@ -1554,11 +1521,6 @@ namespace Engine.Master
                     if (/*move.MoveType == MoveType.Upgrade ||*/ move.MoveType == MoveType.Build)
                         continue;
 
-                    if (move.MoveType == MoveType.Upgrade)
-                    {
-                            int x = 0;
-                    }
-
                     Position from = move.Positions[0];
                     Position destination = move.Positions[move.Positions.Count - 1];
                     Tile t = Map.GetTile(destination);
@@ -1658,9 +1620,24 @@ namespace Engine.Master
                 if (!oneSpace)
                     freespace = false;
             }
+
         }
 
-        public List<Move> ProcessMove(int playerId, Move myMove, List<GameCommand> gameCommands)
+        private void AddChangedGroundInfoMoves(List<Move> moves)
+        {
+            foreach (Position pos in changedGroundPositions.Keys)
+            {
+                Move hitmove = new Move();
+                hitmove.MoveType = MoveType.UpdateGround;
+                hitmove.Positions = new List<Position>();
+                hitmove.Positions.Add(pos);
+                Map.CollectGroundStats(pos, hitmove);
+                moves.Add(hitmove);
+            }
+            changedGroundPositions.Clear();
+        }
+
+    public List<Move> ProcessMove(int playerId, Move myMove, List<GameCommand> gameCommands)
         {
             List<Move> returnMoves = new List<Move>();
             lock (GameModel)
@@ -1673,7 +1650,6 @@ namespace Engine.Master
 
                 if (MoveNr == 29)
                 {
-                    int x = 0;
                 }
 
                 changedUnits.Clear();
@@ -1693,9 +1669,10 @@ namespace Engine.Master
                 if (!initialized)
                 {
                     first = true;
-                    Initialize(newMoves);
 
-                    CreateTileObjects(999);
+                    CreateTileObjects(9999);
+                    AddChangedGroundInfoMoves(newMoves);
+                    Initialize(newMoves);
                 }
                 else
                 {
@@ -1805,7 +1782,7 @@ namespace Engine.Master
                 
                 //if (mapInfoPrev.TotalMetal != mapInfo.TotalMetal)
                 {
-                    int x = 0;
+
                 }
 
                 foreach (Player player in Players.Values)
@@ -1847,15 +1824,7 @@ namespace Engine.Master
                 }
 
                 // Add changed ground info
-                foreach (Position pos in changedGroundPositions.Keys)
-                {
-                    Move hitmove = new Move();
-                    hitmove.MoveType = MoveType.UpdateGround;
-                    hitmove.Positions = new List<Position>();
-                    hitmove.Positions.Add(pos);
-                    Map.CollectGroundStats(pos, hitmove);
-                    lastMoves.Add(hitmove);
-                }
+                AddChangedGroundInfoMoves(lastMoves);
 
                 foreach (Player player in Players.Values)
                 {

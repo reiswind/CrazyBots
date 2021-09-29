@@ -56,11 +56,11 @@ namespace Assets.Scripts
 
 			//gridCanvas = GetComponentInChildren<Canvas>();
 
-			UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+			//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
-			//UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+			UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 			GameModel gameModel;
 
@@ -290,6 +290,11 @@ namespace Assets.Scripts
 				prefab = GetTerrainResource("ItemCrystal");
 				y = 0.05f;
 			}
+			else if (tileObject.TileObjectType == TileObjectType.TreeTrunk)
+			{
+				prefab = GetTerrainResource("TreeTrunk");
+				y = prefab.transform.position.y;
+			}
 			else
 			{
 				y = 0f;
@@ -332,6 +337,17 @@ namespace Assets.Scripts
 					unitPos3.z += 0.3f;
 					unitPos3.x -= 0.5f;
 				}
+
+				float scalex = UnityEngine.Random.value / 10;
+				float scaley = UnityEngine.Random.value / 10;
+				float scalez = UnityEngine.Random.value / 10;
+
+				Vector3 scaleChange;
+				scaleChange = new Vector3(scalex, scaley, scalez);
+
+				gameTileObject.transform.localScale += scaleChange;
+
+
 				//unitPos3.x += (randomPos.x * 0.5f);
 				//unitPos3.z += (randomPos.y * 0.7f);
 				unitPos3.y += y;

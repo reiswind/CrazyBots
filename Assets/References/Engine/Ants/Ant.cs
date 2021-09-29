@@ -43,7 +43,7 @@ namespace Engine.Ants
         public void ConnectWithAnt(Ant otherAnt)
         {
             return;
-
+            /*
             foreach (AntPart antPart1 in AntParts)
             {
                 foreach (AntPart antPart2 in otherAnt.AntParts)
@@ -59,7 +59,7 @@ namespace Engine.Ants
                     antPart2.AntNetworkNode.Connections.Add(antNetworkConnect);
 
                 }
-            }
+            }*/
         }
 
         public void ConnectAntParts()
@@ -67,6 +67,7 @@ namespace Engine.Ants
             return;
 
             // Inside a ant, everything is connected with everything
+            /*
             foreach (AntPart antPart1 in AntParts)
             {
                 antPart1.AntNetworkNode.Connections.Clear();
@@ -81,7 +82,7 @@ namespace Engine.Ants
                         antPart1.AntNetworkNode.Connections.Add(antNetworkConnect);
                     }
                 }
-            }
+            }*/
         }
 
         public void CreateAntParts()

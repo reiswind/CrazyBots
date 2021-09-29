@@ -126,6 +126,112 @@ namespace Engine.Interface
         }
         public TileContainer TileContainer { get; private set; }
 
+        internal int Count(TileObjectType tileObjectType)
+        {
+            int count = 0;
+            foreach (TileObject tileObject in TileContainer.TileObjects)
+            {
+                if (tileObject.TileObjectType == tileObjectType)
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        internal void HitByBullet(TileObject bulletTileObject)
+        {
+            if (bulletTileObject.TileObjectType == TileObjectType.Dirt)
+            {
+                Height += 0.1f;
+            }
+            else
+            {
+                // Anything but minerals are distributed
+                if (bulletTileObject.TileObjectType != TileObjectType.Mineral)
+                {
+                    Map.AddOpenTileObject(bulletTileObject);
+                }
+                else
+                {
+                    // Minerals stay on hit tile
+                    TileContainer.Add(bulletTileObject);
+                }
+            }
+            RemoveBio();
+        }
+
+        internal bool RemoveBio()
+        {
+            bool changed = false;
+
+            foreach (TileObject tileObject in TileContainer.TileObjects)
+            {
+                if (tileObject.TileObjectType == TileObjectType.Gras ||
+                    tileObject.TileObjectType == TileObjectType.TreeTrunk)
+                {
+                    TileContainer.Remove(tileObject);
+                    changed = true;
+                    break;
+                }
+            }
+            if (changed)
+                AdjustTerrainType();
+            return changed;
+        }
+
+        internal void ExtractTileObject(TileObject removedTileObject)
+        {
+            foreach (TileObject tileObject in TileContainer.TileObjects)
+            {
+                if (tileObject.TileObjectType == removedTileObject.TileObjectType)
+                {
+                    if (tileObject.TileObjectType == TileObjectType.Tree)
+                    {
+                        tileObject.TileObjectType = TileObjectType.TreeTrunk;
+                        Map.BioMass++;
+                    }
+                    else if (tileObject.TileObjectType == TileObjectType.Bush)
+                    {
+                        tileObject.TileObjectType = TileObjectType.Gras;
+                        Map.BioMass++;
+                    }
+                    else
+                    {
+                        TileContainer.Remove(tileObject);
+                    }
+
+                    break;
+                }
+            }
+            AdjustTerrainType();
+        }
+        internal void AdjustTerrainType()
+        {
+            if (TerrainTypeIndex == 3)
+            {
+                if (PlantLevel > 1 && Count(TileObjectType.Tree) == 0)
+                {
+                    TerrainTypeIndex = 1;
+                    PlantLevel = 1;
+                }
+                if (PlantLevel > 1 && Count(TileObjectType.Bush) == 0)
+                {
+                    TerrainTypeIndex = 1;
+                    PlantLevel = 1;
+                }
+            }
+            if (TerrainTypeIndex == 1)
+            {
+                if (Count(TileObjectType.Gras) == 0)
+                {
+                    // Dirt
+                    TerrainTypeIndex = 0;
+                    PlantLevel = 0;
+                }
+            }
+        }
+
         internal static Direction TurnAround(Direction direction)
         {
             if (direction == Direction.N) return Direction.S;
@@ -162,34 +268,37 @@ namespace Engine.Interface
             TileFit tileFit = new TileFit(openTile);
             tileFit.Score = -1;
             tileFit.TileFitType = randomTileFit.TileFitType;
-
-            List<TileObject> rotatedTileObjects = randomTileFit.TileObjects;
-
-            for (int i=0; i < 6; i++)
-            {
-                float score = CalcFitObj(rotatedTileObjects);
-                if (score > tileFit.Score)
-                {
-                    tileFit.Score = score;
-                    tileFit.TileObjects = rotatedTileObjects;
-                }
-                rotatedTileObjects = Rotate(rotatedTileObjects);
-            }
-            return tileFit;
-        }
-
-        internal static List<TileObject> Rotate(List<TileObject> tileObjects)
-        {
-            List<TileObject> rotatedTileObjects = new List<TileObject>();
-            foreach (TileObject tileObject in tileObjects)
+            tileFit.TileObjects = new List<TileObject>();
+            foreach (TileObject tileObject in randomTileFit.TileObjects)
             {
                 TileObject rotatedTileObject = new TileObject();
                 rotatedTileObject.TileObjectType = tileObject.TileObjectType;
                 rotatedTileObject.Direction = TurnLeft(tileObject.Direction);
-                
-                rotatedTileObjects.Add(rotatedTileObject);
+
+                tileFit.TileObjects.Add(rotatedTileObject);
             }
-            return rotatedTileObjects;
+            int bestRotation = 0;
+            for (int i=0; i < 6; i++)
+            {
+                float score = CalcFitObj(tileFit.TileObjects);
+                if (score > tileFit.Score)
+                {
+                    bestRotation = i;
+                    tileFit.Score = score;
+                }
+                Rotate(tileFit.TileObjects);
+            }
+            while (bestRotation-- > 0)
+                Rotate(tileFit.TileObjects);
+            return tileFit;
+        }
+
+        internal static void Rotate(List<TileObject> tileObjects)
+        {
+            foreach (TileObject tileObject in tileObjects)
+            {
+                tileObject.Direction = TurnLeft(tileObject.Direction);
+            }
         }
 
         internal float GetMatchingScore(TileObjectType t1, TileObjectType t2)
@@ -224,14 +333,17 @@ namespace Engine.Interface
         internal float GetScoreForPos(TileObject tileObject, Position position)
         {
             float score = 0;
+
             if (position != null)
             {
                 Tile forwardTile = Map.GetTile(position);
                 if (forwardTile != null && forwardTile.TileContainer != null)
                 {
+                    Direction backDirection = TurnAround(tileObject.Direction);
+
                     foreach (TileObject forwardTileObject in forwardTile.TileContainer.TileObjects)
                     {
-                        if (tileObject.Direction == TurnAround(forwardTileObject.Direction))
+                        if (forwardTileObject.Direction == backDirection)
                         {
                             score += GetMatchingScore(tileObject.TileObjectType, forwardTileObject.TileObjectType);
                         }

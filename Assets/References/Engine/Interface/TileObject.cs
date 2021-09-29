@@ -54,6 +54,14 @@ namespace Engine.Interface
         }
         public void Add(TileObject tileObject)
         {
+            if (Capacity != 0 &&
+                !TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
+            {
+                //if (!TileObject.CanConvertTileObjectIntoMineral(removed.TileObjectType))
+                {
+                    throw new Exception();
+                }
+            }
             if (!Accepts(tileObject))
             {
                 throw new Exception("Wrong tile type");
@@ -153,6 +161,7 @@ namespace Engine.Interface
         Gras,
         Bush,
         Tree,
+        TreeTrunk,
         LeaveTree,
         Mineral,
         Water,
@@ -201,6 +210,7 @@ namespace Engine.Interface
         public static bool IsTileObjectTypeGrow(TileObjectType tileObjectType)
         {
             if (tileObjectType == TileObjectType.Tree) return true;
+            if (tileObjectType == TileObjectType.TreeTrunk) return true;
             if (tileObjectType == TileObjectType.LeaveTree) return true;
             if (tileObjectType == TileObjectType.Bush) return true;
             if (tileObjectType == TileObjectType.Dirt) return true;

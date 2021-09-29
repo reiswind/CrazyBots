@@ -244,6 +244,10 @@ namespace Assets.Scripts
                 {
                     materialName = "Grass";
                 }
+                else if (Stats.MoveUpdateGroundStat.IsDirt())
+                {
+                    materialName = "Dirt";
+                }
                 else
                 {
                     materialName = "";
