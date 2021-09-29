@@ -731,7 +731,8 @@ namespace Assets.Scripts
 
         void CancelCommand()
         {
-            if (HexGrid.ActiveGameCommands.ContainsKey(lastSelectedGroundCell.Pos))
+            if (HexGrid.ActiveGameCommands != null &&
+                HexGrid.ActiveGameCommands.ContainsKey(lastSelectedGroundCell.Pos))
             {
                 GameCommand gameCommand;
                 gameCommand = HexGrid.ActiveGameCommands[lastSelectedGroundCell.Pos];

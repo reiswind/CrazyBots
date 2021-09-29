@@ -307,6 +307,8 @@ namespace Engine.Master
                         bestTile.TerrainTypeIndex = 4;
                     }
 
+                    bestTile.Height += map.Game.Random.NextDouble() / 50;
+
                     bestTile.TileContainer.AddRange(bestTileFit.TileObjects);
                     pos = bestTile.Pos;
 
