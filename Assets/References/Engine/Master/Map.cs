@@ -378,7 +378,7 @@ namespace Engine.Master
         {
             List<TileObject> tileObjects = new List<TileObject>();
 
-            TileObjectType tileObjectType = TileObjectType.LeaveTree;
+            TileObjectType tileObjectType = TileObjectType.Tree;
             int rnd = map.Game.Random.Next(1);
             if (rnd == 0)
                 tileObjectType = TileObjectType.Tree;
@@ -451,21 +451,58 @@ namespace Engine.Master
                 {
                     tileFit.TileFitType = TileFitType.Wood;
                     tileObjects = CreateTreeObjects(map, 6);
+
+                    int rndKind = map.Game.Random.Next(5);
+                    if (rndKind == 1 && tileObjects != null)
+                    {
+                        foreach (TileObject tileObject in tileObjects)
+                            tileObject.TileObjectKind = TileObjectKind.LeaveTree;
+                    }
                 }
                 else if (rnd == 1)
                 {
                     tileFit.TileFitType = TileFitType.WoodBush;
                     tileObjects = CreateTreeToBushObjects(map);
+
+                    int rndKind = map.Game.Random.Next(5);
+                    if (rndKind == 1 && tileObjects != null)
+                    {
+                        foreach (TileObject tileObject in tileObjects)
+                        {
+                            if (tileObject.TileObjectType == TileObjectType.Tree)
+                                tileObject.TileObjectKind = TileObjectKind.LeaveTree;
+                        }
+                    }
                 }
                 else if (rnd == 2)
                 {
                     tileFit.TileFitType = TileFitType.BushGras;
                     tileObjects = CreateBushToGrasObjects(map);
                 }
+
                 else if (rnd >= 3 && rnd < 5)
                 {
                     tileFit.TileFitType = TileFitType.Gras;
                     tileObjects = CreateObjects(map, TileObjectType.Gras, 6);
+
+                    int rndKind = map.Game.Random.Next(12);
+                    if (rndKind == 1)
+                    {
+                        tileObjects[0].TileObjectKind = TileObjectKind.LightGras;
+                        tileObjects[1].TileObjectKind = TileObjectKind.LightGras;
+                        tileObjects[2].TileObjectKind = TileObjectKind.LightGras;
+                    }
+                    if (rndKind == 2)
+                    {
+                        tileObjects[0].TileObjectKind = TileObjectKind.DarkGras;
+                        tileObjects[1].TileObjectKind = TileObjectKind.DarkGras;
+                        tileObjects[2].TileObjectKind = TileObjectKind.DarkGras;
+                    }
+
+                    TileObject tileObject = new TileObject();
+                    tileObject.TileObjectType = TileObjectType.Gras;
+                    tileObject.Direction = Direction.C;
+                    tileObjects.Add(tileObject);
                 }
                 else if (rnd == 6)
                 {
@@ -1122,6 +1159,7 @@ namespace Engine.Master
                     TileObject newTileObject = new TileObject();
                     newTileObject.TileObjectType = tileObject.TileObjectType;
                     newTileObject.Direction = tileObject.Direction;
+                    newTileObject.TileObjectKind = tileObject.TileObjectKind;
                     move.Stats.MoveUpdateGroundStat.TileObjects.Add(newTileObject);
                 }
             }

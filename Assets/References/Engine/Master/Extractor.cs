@@ -163,6 +163,7 @@ namespace Engine.Master
 
                         TileObject tileObjectCopy = new TileObject();
                         tileObjectCopy.TileObjectType = tileObject.TileObjectType;
+                        tileObjectCopy.TileObjectKind = tileObject.TileObjectKind;
                         tileObjectCopy.Direction = tileObject.Direction;
 
                         move.Stats.MoveUpdateGroundStat.TileObjects.Add(tileObjectCopy);

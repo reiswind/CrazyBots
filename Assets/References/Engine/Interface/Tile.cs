@@ -273,6 +273,7 @@ namespace Engine.Interface
             {
                 TileObject rotatedTileObject = new TileObject();
                 rotatedTileObject.TileObjectType = tileObject.TileObjectType;
+                rotatedTileObject.TileObjectKind = tileObject.TileObjectKind;
                 rotatedTileObject.Direction = TurnLeft(tileObject.Direction);
 
                 tileFit.TileObjects.Add(rotatedTileObject);
@@ -301,16 +302,19 @@ namespace Engine.Interface
             }
         }
 
-        internal float GetMatchingScore(TileObjectType t1, TileObjectType t2)
+        internal float GetMatchingScore(TileObjectType t1, TileObjectKind k1, TileObjectType t2, TileObjectKind k2)
         {
             float score = 0;
             if (t1 == t2)
             {
-                score = 1;
+                if (k1 == k2)
+                    score = 1;
+                else
+                    score = 0.7f;
             }
 
-            if (t1 == TileObjectType.LeaveTree) t1 = TileObjectType.Tree;
-            if (t2 == TileObjectType.LeaveTree) t2 = TileObjectType.Tree;
+            //if (t1 == TileObjectType.LeaveTree) t1 = TileObjectType.Tree;
+            //if (t2 == TileObjectType.LeaveTree) t2 = TileObjectType.Tree;
 
             if ((t1 == TileObjectType.Tree && t2 == TileObjectType.Bush) || (t1 == TileObjectType.Bush && t2 == TileObjectType.Tree))
                 score = 1;
@@ -345,7 +349,12 @@ namespace Engine.Interface
                     {
                         if (forwardTileObject.Direction == backDirection)
                         {
-                            score += GetMatchingScore(tileObject.TileObjectType, forwardTileObject.TileObjectType);
+                            score += GetMatchingScore(tileObject.TileObjectType, tileObject.TileObjectKind, forwardTileObject.TileObjectType, forwardTileObject.TileObjectKind);
+                            if (score > 0)
+                            {
+                                if (tileObject.TileObjectKind == forwardTileObject.TileObjectKind)
+                                    score += 0.4f;
+                            }
                         }
                     }
                 }

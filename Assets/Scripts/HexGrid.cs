@@ -265,19 +265,26 @@ namespace Assets.Scripts
 		public GameObject CreateDestructable(Transform transform, TileObject tileObject)
 		{
 			GameObject prefab;
+			float x=0;
 			float y;
+			float z=0;
+
+			Vector2 randomPos = UnityEngine.Random.insideUnitCircle;
 
 			if (tileObject.TileObjectType == TileObjectType.Tree)
 			{
-				int idx = game.Random.Next(treeResources.Count);
-				prefab = treeResources.Values.ElementAt(idx);
-				y = prefab.transform.position.y;
-			}
-			else if (tileObject.TileObjectType == TileObjectType.LeaveTree)
-			{
-				int idx = game.Random.Next(leaveTreeResources.Count);
-				prefab = leaveTreeResources.Values.ElementAt(idx);
-				y = prefab.transform.position.y;
+				if (tileObject.TileObjectKind == TileObjectKind.LeaveTree)
+				{
+					int idx = game.Random.Next(leaveTreeResources.Count);
+					prefab = leaveTreeResources.Values.ElementAt(idx);
+					y = prefab.transform.position.y;
+				}
+				else
+				{
+					int idx = game.Random.Next(treeResources.Count);
+					prefab = treeResources.Values.ElementAt(idx);
+					y = prefab.transform.position.y;
+				}
 			}
 			else if (tileObject.TileObjectType == TileObjectType.Bush)
 			{
@@ -285,10 +292,30 @@ namespace Assets.Scripts
 				prefab = bushResources.Values.ElementAt(idx);
 				y = prefab.transform.position.y;
 			}
+			else if (tileObject.TileObjectType == TileObjectType.Gras)
+			{
+				if (tileObject.TileObjectKind == TileObjectKind.LightGras)
+				{
+					prefab = GetTerrainResource("Gras2");
+				}
+				else if (tileObject.TileObjectKind == TileObjectKind.DarkGras)
+				{
+					prefab = GetTerrainResource("Gras3");
+				}
+				else
+				{
+					prefab = GetTerrainResource("Gras1");
+				}
+				y = 0.05f;
+				x = (randomPos.x * 0.05f);
+				z = (randomPos.y * 0.07f);
+			}
 			else if (tileObject.TileObjectType == TileObjectType.Mineral)
 			{
 				prefab = GetTerrainResource("ItemCrystal");
 				y = 0.05f;
+				x = (randomPos.x * 0.5f);
+				z = (randomPos.y * 0.7f);
 			}
 			else if (tileObject.TileObjectType == TileObjectType.TreeTrunk)
 			{
@@ -306,7 +333,6 @@ namespace Assets.Scripts
 			{
 				gameTileObject = Instantiate(prefab, transform, false);
 
-				//Vector2 randomPos = UnityEngine.Random.insideUnitCircle;
 				Vector3 unitPos3 = transform.position;
 
 				if (tileObject.Direction == Direction.N)
@@ -347,9 +373,8 @@ namespace Assets.Scripts
 
 				gameTileObject.transform.localScale += scaleChange;
 
-
-				//unitPos3.x += (randomPos.x * 0.5f);
-				//unitPos3.z += (randomPos.y * 0.7f);
+				unitPos3.x += x;
+				unitPos3.z += z;
 				unitPos3.y += y;
 				gameTileObject.transform.position = unitPos3;
 				gameTileObject.name = tileObject.TileObjectType.ToString();
@@ -620,6 +645,12 @@ namespace Assets.Scripts
 					unitBase.PutAtCurrentPosition(true);
 				}				
 			}
+			// Finish all open hits
+			foreach (HitByBullet hitByBullet in hitByBullets)
+			{
+				HasBeenHit(hitByBullet);
+			}
+			hitByBullets.Clear();
 			FinishTransits();
 
 			foreach (Move move in newMoves)
@@ -1017,11 +1048,6 @@ namespace Assets.Scripts
 				{
 					HasBeenHit(hitByBullet);
 					hitByBullets.Remove(hitByBullet);
-				}
-				else if (hitByBullet.HitTime < Time.unscaledTime)
-				{
-					//HasBeenHit(hitByBullet);
-					//hitByBullets.Remove(hitByBullet);
 				}
 			}
 		}

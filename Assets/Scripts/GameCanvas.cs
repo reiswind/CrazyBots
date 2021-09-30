@@ -890,7 +890,8 @@ namespace Assets.Scripts
         private void AppendGroundInfo(GroundCell gc)
         {
             GameCommand gameCommand = null;
-            if (HexGrid.ActiveGameCommands.ContainsKey(lastSelectedGroundCell.Pos))
+            if (HexGrid.ActiveGameCommands != null &&
+                HexGrid.ActiveGameCommands.ContainsKey(lastSelectedGroundCell.Pos))
             {
                 gameCommand = HexGrid.ActiveGameCommands[lastSelectedGroundCell.Pos];
             }

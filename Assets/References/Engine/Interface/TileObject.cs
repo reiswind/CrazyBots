@@ -151,6 +151,16 @@ namespace Engine.Interface
         SE,
         SW
     }
+
+    public enum TileObjectKind
+    {
+        None,
+        LeaveTree,
+
+        LightGras,
+        DarkGras
+    }
+
     public enum TileObjectType
     {
         None,
@@ -162,7 +172,6 @@ namespace Engine.Interface
         Bush,
         Tree,
         TreeTrunk,
-        LeaveTree,
         Mineral,
         Water,
         Sand,
@@ -201,7 +210,6 @@ namespace Engine.Interface
         {
             if (tileObjectType == TileObjectType.Mineral) return true;
             if (tileObjectType == TileObjectType.Tree) return true;
-            if (tileObjectType == TileObjectType.LeaveTree) return true;
             if (tileObjectType == TileObjectType.Bush) return true;
 
             return false;
@@ -211,7 +219,6 @@ namespace Engine.Interface
         {
             if (tileObjectType == TileObjectType.Tree) return true;
             if (tileObjectType == TileObjectType.TreeTrunk) return true;
-            if (tileObjectType == TileObjectType.LeaveTree) return true;
             if (tileObjectType == TileObjectType.Bush) return true;
             if (tileObjectType == TileObjectType.Dirt) return true;
             if (tileObjectType == TileObjectType.Water) return true;
@@ -264,6 +271,7 @@ namespace Engine.Interface
             return TileObjectType.None;
         }
 
+        public TileObjectKind TileObjectKind { get; set; }
         public TileObjectType TileObjectType { get; set; }
 
         public Direction Direction { get; set; }
