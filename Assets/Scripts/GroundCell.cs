@@ -358,9 +358,23 @@ namespace Assets.Scripts
 
             foreach (UnitBaseTileObject destructable in allTileObjects)
             {
-                HexGrid.Destroy(destructable.GameObject);
+                StartCoroutine(FadeOutDestructable(destructable.GameObject, destructable.GameObject.transform.position.y - 0.1f));
+                //HexGrid.Destroy(destructable.GameObject);
                 GameObjects.Remove(destructable);
             }
+        }
+
+        private IEnumerator FadeOutDestructable(GameObject gameObject, float sinkTo)
+        {
+            while (gameObject.transform.position.y > sinkTo)
+            {
+                Vector3 pos = gameObject.transform.position;
+                pos.y -= 0.0001f;
+                gameObject.transform.position = pos;
+                yield return null;
+            }
+            //yield return new WaitForSeconds(1);
+            HexGrid.Destroy(gameObject);
         }
 
         private Light selectionLight;

@@ -2,6 +2,7 @@
 using Engine.Interface;
 using Newtonsoft.Json;
 using System;
+using System.Collections;
 //using Engine.Master;
 using System.Collections.Generic;
 using System.IO;
@@ -964,8 +965,30 @@ namespace Assets.Scripts
 				Rigidbody otherRigid = debris.GetComponent<Rigidbody>();
 				otherRigid.velocity = vector3;
 				otherRigid.rotation = UnityEngine.Random.rotation;*/
-				Destroy(debris, 12 * UnityEngine.Random.value);
+
+				StartCoroutine(DelayFadeOutDebris(debris, transform.position.y - 0.1f));
+				//Destroy(debris, 12 * UnityEngine.Random.value);
 			}
+		}
+
+		private IEnumerator DelayFadeOutDebris(GameObject gameObject, float sinkTo)
+		{
+			yield return new WaitForSeconds(12 + 12 * (UnityEngine.Random.value));
+			Rigidbody otherRigid = gameObject.GetComponent<Rigidbody>();
+			if (otherRigid != null) otherRigid.isKinematic = true;
+			yield return StartCoroutine(FadeOutDebris(gameObject, sinkTo));
+		}
+		private IEnumerator FadeOutDebris(GameObject gameObject, float sinkTo)
+		{
+			while (gameObject.transform.position.y > sinkTo)
+			{
+				Vector3 pos = gameObject.transform.position;
+				pos.y -= 0.0001f;
+				gameObject.transform.position = pos;
+				yield return null;
+			}
+			
+			Destroy(gameObject);
 		}
 
 		public void HitUnitPartAnimation(Transform transform)
@@ -993,7 +1016,9 @@ namespace Assets.Scripts
 				Rigidbody otherRigid = debris.GetComponent<Rigidbody>();
 				otherRigid.velocity = vector3;
 				otherRigid.rotation = UnityEngine.Random.rotation;
-				Destroy(debris, 5 + (12 * UnityEngine.Random.value));
+
+				StartCoroutine(DelayFadeOutDebris(debris, debris.transform.position.y - 0.1f));
+				//Destroy(debris, 5 + (12 * UnityEngine.Random.value));
 			}
 		}
 

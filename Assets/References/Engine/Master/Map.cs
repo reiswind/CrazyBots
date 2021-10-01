@@ -684,7 +684,7 @@ namespace Engine.Master
             MapType = game.GameModel.MapType;
 
             if (MapType == "2")
-                sectorSize = 12;
+                sectorSize = 10;
             else
                 sectorSize = 4;
 
@@ -978,7 +978,7 @@ namespace Engine.Master
                 CreateTerrainTile();*/
 
             // ADDTILES
-            BioMass = 2600;
+            BioMass = 3000;
             /*
             for (int i=0; i < 400; i++)
             {
