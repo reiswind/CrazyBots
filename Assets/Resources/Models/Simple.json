@@ -1,19 +1,19 @@
 {
-  "Name": "3vs3 Ants",
-  "MapWidth": 50,
-  "MapHeight": 50,
+  "Name": "Simple",
+  "MapWidth": 40,
+  "MapHeight": 40,
   "Seedx": 955708854,
   "MapType": "1",
   "Players": [
     {
       "ControlLevel": 1,
       "Id": 1,
-      "Name": "Green"
+      "Name": "Player1"
     },
     {
       "ControlLevel": 1,
       "Id": 2,
-      "Name": "Red"
+      "Name": "Player2"
     },
     {
       "ControlLevel": 1,
@@ -22,123 +22,6 @@
     }
   ],
   "Units": [
-    {
-      "Name": "Container1",
-      "PlayerId": 1,
-	  "Blueprint": "Container",
-      "Position": {
-        "X": 10,
-        "Y": 8
-      }
-    },
-	{
-      "Name": "Reactor1",
-      "PlayerId": 1,
-	  "Blueprint": "Reactor",
-      "Position": {
-        "X": 9,
-        "Y": 7
-      }
-    },
-	{
-      "Name": "Factory1",
-      "PlayerId": 1,
-	  "Blueprint": "Factory",
-      "Position": {
-        "X": 10,
-        "Y": 9
-      }
-    },
-	
-	{
-      "Name": "Container2",
-      "PlayerId": 2,
-	  "Blueprint": "Container",
-      "Position": {
-        "X": 10,
-        "Y": 29
-      }
-    },
-	{
-      "Name": "Reactor2",
-      "PlayerId": 2,
-	  "Blueprint": "Reactor",
-      "Position": {
-        "X": 10,
-        "Y": 28
-      }
-    },
-	{
-      "Name": "Factory2",
-      "PlayerId": 2,
-	  "Blueprint": "Factory",
-      "Position": {
-        "X": 11,
-        "Y": 28
-      }
-    },
-	{
-      "Name": "Container2",
-      "PlayerId": 2,
-	  "Blueprint": "Container",
-      "Position": {
-        "X": 15,
-        "Y": 29
-      }
-    },
-	{
-      "Name": "Reactor2",
-      "PlayerId": 2,
-	  "Blueprint": "Reactor",
-      "Position": {
-        "X": 15,
-        "Y": 28
-      }
-    },
-	{
-      "Name": "Factory2",
-      "PlayerId": 2,
-	  "Blueprint": "Factory",
-      "Position": {
-        "X": 16,
-        "Y": 28
-      }
-    },
-	{
-      "Name": "Colony3",
-      "PlayerId": 3,
-	  "Blueprint": "Outpost",
-      "Position": {
-        "X": 28,
-        "Y": 24
-      }
-    },
-	{
-      "Name": "Colony31",
-      "PlayerId": 3,
-	  "Blueprint": "Outpost",
-      "Position": {
-        "X": 34,
-        "Y": 28
-      }
-    },
-	{
-      "Name": "Colony32",
-      "PlayerId": 3,
-	  "Blueprint": "Outpost",
-      "Position": {
-        "X": 38,
-        "Y": 32
-      }
-    },
-	{
-      "Name": "Colony32",
-      "PlayerId": 3,
-	  "Blueprint": "Outpost",
-      "Position": {
-        "X": 34,
-        "Y": 21
-      }
-    }
+    
 	]
 }

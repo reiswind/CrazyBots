@@ -119,7 +119,7 @@ namespace Engine.MapGenerator
 		public float sinkProbability = 0.2f;
 
 		//[Range(5, 95)]
-		public int landPercentage = 55;
+		public int landPercentage = 65;
 
 		//[Range(1, 5)]
 		public int waterLevel = 1;
@@ -131,10 +131,10 @@ namespace Engine.MapGenerator
 		public int elevationMaximum = 8;
 
 		//[Range(0, 10)]
-		public int mapBorderX = 3;
+		public int mapBorderX = 4;
 
 		//[Range(0, 10)]
-		public int mapBorderZ = 3;
+		public int mapBorderZ = 4;
 
 		//[Range(0, 10)]
 		public int regionBorder = 5;

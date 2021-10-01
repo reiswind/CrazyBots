@@ -187,7 +187,7 @@ namespace Assets.Scripts
             }
             else
             {
-                materialName = "Rock";
+                materialName = "Dirt";
 
                 /*
                 if (tileObject.TileObjectType == TileObjectType.Gras)
@@ -244,15 +244,11 @@ namespace Assets.Scripts
                 {
                     materialName = "Grass";
                 }
-                else // if (Stats.MoveUpdateGroundStat.IsDirt())
-                {
-                    materialName = "Dirt";
-                }
-
-                if (Stats.MoveUpdateGroundStat.IsOpenTile)
-                {
-                    materialName = "DarkSand";
-                }
+            }
+            //if (Stats.MoveUpdateGroundStat.IsOpenTile)
+            if (Stats.MoveUpdateGroundStat.ZoneId > 0)
+            {
+                //materialName = "DarkSand";
             }
 
             if (currentMaterialName == null || currentMaterialName != materialName)
@@ -290,7 +286,7 @@ namespace Assets.Scripts
                 if (markerEnergy != null)
                 {
                     Vector3 position = transform.position;
-                    position.y -= 1;
+                    position.y -= 2;
                     markerEnergy.transform.position = position;
                 }
             }

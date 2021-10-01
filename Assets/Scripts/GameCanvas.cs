@@ -898,11 +898,12 @@ namespace Assets.Scripts
 
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("Position: " + gc.Pos.X + ", " + gc.Pos.Y);
-            //if (gc.GroundStat.Minerals.Tile.Metal > 0)
-            //    sb.Append(" Minerals: " + gc.Tile.Metal);
+            //sb.Append("Position: " + gc.Pos.X + ", " + gc.Pos.Y);
 
-            sb.Append(" Owner: " + gc.Stats.MoveUpdateGroundStat.Owner);
+            sb.Append("TI: " + gc.Stats.MoveUpdateGroundStat.TerrainTypeIndex);
+            sb.Append(" PI: " + gc.Stats.MoveUpdateGroundStat.PlantLevel);
+            sb.Append(" Z: " + gc.Stats.MoveUpdateGroundStat.ZoneId);
+            //sb.Append(" Owner: " + gc.Stats.MoveUpdateGroundStat.Owner);
 
             if (selectedUnitFrame == null)
             {

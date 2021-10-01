@@ -319,7 +319,7 @@ namespace Assets.Scripts
 			}
 			else if (tileObject.TileObjectType == TileObjectType.TreeTrunk)
 			{
-				prefab = GetTerrainResource("TreeTrunk");
+				prefab = GetTerrainResource("Trunk");
 				y = prefab.transform.position.y;
 			}
 			else

@@ -149,6 +149,7 @@ namespace Engine.Master
         public int MaxMinerals { get; set; }
         public Position Center { get; set; }
         public Player Player { get; set; }
+        public MapGenerator.HexCell HexCell { get; set; }
 
         public Dictionary<Position, TileWithDistance> Tiles { get; set; }
 
@@ -159,7 +160,7 @@ namespace Engine.Master
             Tile startTile = map.GetTile(Center);
             if (startTile.TileContainer.Count == 0)
             {
-                //List<TileObject> tileObjects = CreateRandomObjects(map);
+                //List<TileObject> tileObjects = CrxeateRandomObjects(map);
                 //startTile.TileContainer.AddRange(tileObjects);
             }
             openTiles = new List<Tile>();
@@ -266,49 +267,51 @@ namespace Engine.Master
                         throw new Exception();
                     }
 
-                    if (bestTileFit.TileFitType == TileFitType.Water)
+                    if (HexCell == null)
                     {
-                        bestTile.Height = 0f;
-                        bestTile.IsUnderwater = true;
-                    }
-                    else if (bestTileFit.TileFitType == TileFitType.Sand)
-                    {
-                        bestTile.Height = 0.1f;
-                        bestTile.TerrainTypeIndex = 0;
-                        bestTile.PlantLevel = 1;
-                    }
-                    else if (bestTileFit.TileFitType == TileFitType.Gras)
-                    {
-                        bestTile.Height = 0.2f;
-                        bestTile.TerrainTypeIndex = 1;
-                        bestTile.PlantLevel = 1;
-                    }
-                    else if (bestTileFit.TileFitType == TileFitType.BushGras)
-                    {
-                        bestTile.Height = 0.3f;
-                        bestTile.TerrainTypeIndex = 1;
-                        bestTile.PlantLevel = 2;
-                    }
-                    else if (bestTileFit.TileFitType == TileFitType.WoodBush)
-                    {
-                        bestTile.Height = 0.4f;
-                        bestTile.TerrainTypeIndex = 3;
-                        bestTile.PlantLevel = 1;
-                    }
-                    else if (bestTileFit.TileFitType == TileFitType.Wood)
-                    {
-                        bestTile.Height = 0.5f;
-                        bestTile.TerrainTypeIndex = 3;
-                        bestTile.PlantLevel = 2;
-                    }
-                    else
-                    {
-                        bestTile.Height = 1f;
-                        bestTile.TerrainTypeIndex = 4;
-                    }
+                        if (bestTileFit.TileFitType == TileFitType.Water)
+                        {
+                            bestTile.Height = 0f;
+                            bestTile.IsUnderwater = true;
+                        }
+                        else if (bestTileFit.TileFitType == TileFitType.Sand)
+                        {
+                            bestTile.Height = 0.1f;
+                            bestTile.TerrainTypeIndex = 0;
+                            bestTile.PlantLevel = 1;
+                        }
+                        else if (bestTileFit.TileFitType == TileFitType.Gras)
+                        {
+                            bestTile.Height = 0.2f;
+                            bestTile.TerrainTypeIndex = 1;
+                            bestTile.PlantLevel = 1;
+                        }
+                        else if (bestTileFit.TileFitType == TileFitType.BushGras)
+                        {
+                            bestTile.Height = 0.3f;
+                            bestTile.TerrainTypeIndex = 1;
+                            bestTile.PlantLevel = 2;
+                        }
+                        else if (bestTileFit.TileFitType == TileFitType.WoodBush)
+                        {
+                            bestTile.Height = 0.4f;
+                            bestTile.TerrainTypeIndex = 3;
+                            bestTile.PlantLevel = 1;
+                        }
+                        else if (bestTileFit.TileFitType == TileFitType.Wood)
+                        {
+                            bestTile.Height = 0.5f;
+                            bestTile.TerrainTypeIndex = 3;
+                            bestTile.PlantLevel = 2;
+                        }
+                        else
+                        {
+                            bestTile.Height = 1f;
+                            bestTile.TerrainTypeIndex = 4;
+                        }
 
-                    bestTile.Height += map.Game.Random.NextDouble() / 50;
-
+                        bestTile.Height += map.Game.Random.NextDouble() / 50;
+                    }
                     bestTile.TileContainer.AddRange(bestTileFit.TileObjects);
                     pos = bestTile.Pos;
 
@@ -322,11 +325,29 @@ namespace Engine.Master
 
                     foreach (Tile n in bestTile.Neighbors)
                     {
+                        // Nothing under water
+                        if (n.IsUnderwater)
+                            continue;
+
                         if (openTiles.Count > 8)
                             break;
 
                         if (!openTiles.Contains(n)) // && n.CanBuild()) // && Tiles.ContainsKey(n.Pos)) // Only in zone (creates circles)
                         {
+                            if (HexCell != null &&
+                                n.ZoneId != 0 &&
+                                n.ZoneId != bestTile.ZoneId)
+                            {
+                                if (map.Zones[n.ZoneId].HexCell.TerrainTypeIndex != HexCell.TerrainTypeIndex ||
+
+                                    (map.Zones[n.ZoneId].HexCell.TerrainTypeIndex == HexCell.TerrainTypeIndex && 
+                                     map.Zones[n.ZoneId].HexCell.PlantLevel != HexCell.PlantLevel))
+                                {
+                                    continue;
+                                }
+                            }
+
+
                             bool allTilesEmpty = true;
                             foreach (TileObject tileObject in n.TileContainer.TileObjects)
                             {
@@ -434,6 +455,90 @@ namespace Engine.Master
 
         internal TileFit CreateRandomObjects(Map map)
         {
+            if (HexCell == null)
+                return CreateRandomGrasObjects(map);
+
+            TileFit tileFit = null;
+            if (HexCell.TerrainTypeIndex == 1)
+            {
+                if (HexCell.PlantLevel == 1)
+                    tileFit = CreateRandomGrasObjects(map);
+
+                if (HexCell.PlantLevel == 2)
+                    tileFit = CreateGrasObjects(map);
+
+                //if (HexCell.PlantLevel == 3)
+                //    tileFit = CreateRandomTreeObjects(map);
+            }
+
+            if (HexCell.TerrainTypeIndex == 3)
+            {
+                //if (HexCell.PlantLevel == 1)
+                //    tileFit = CreateGrasObjects(map);
+
+                //if (HexCell.PlantLevel == 2)
+                //    tileFit = CreateRandomGrasObjects(map);
+
+                //if (HexCell.PlantLevel == 3)
+                    tileFit = CreateRandomTreeObjects(map);
+            }
+
+            return tileFit;
+        }
+
+        internal TileFit CreateRandomTreeObjects(Map map)
+        {
+            TileFit tileFit = new TileFit();
+            List<TileObject> tileObjects;
+
+            tileFit.TileFitType = TileFitType.Wood;
+            tileObjects = CreateObjects(map, TileObjectType.Tree, 3);
+
+            int rndKind = map.Game.Random.Next(16);
+            if (rndKind == 1 && tileObjects != null)
+            {
+                foreach (TileObject tileObject in tileObjects)
+                    tileObject.TileObjectKind = TileObjectKind.LeaveTree;
+            }
+
+
+            tileFit.TileObjects = tileObjects;
+            return tileFit;
+        }
+
+        internal TileFit CreateGrasObjects(Map map)
+        {
+            TileFit tileFit = new TileFit();
+            List<TileObject> tileObjects;
+
+            tileFit.TileFitType = TileFitType.Gras;
+            tileObjects = CreateObjects(map, TileObjectType.Gras, 6);
+
+            int rndKind = map.Game.Random.Next(10);
+            if (rndKind == 1)
+            {
+                tileObjects[0].TileObjectKind = TileObjectKind.LightGras;
+                tileObjects[1].TileObjectKind = TileObjectKind.LightGras;
+                tileObjects[2].TileObjectKind = TileObjectKind.LightGras;
+            }
+            if (rndKind == 2)
+            {
+                tileObjects[0].TileObjectKind = TileObjectKind.DarkGras;
+                tileObjects[1].TileObjectKind = TileObjectKind.DarkGras;
+                tileObjects[2].TileObjectKind = TileObjectKind.DarkGras;
+            }
+
+            TileObject tileObject = new TileObject();
+            tileObject.TileObjectType = TileObjectType.Gras;
+            tileObject.Direction = Direction.C;
+            tileObjects.Add(tileObject);
+
+            tileFit.TileObjects = tileObjects;
+            return tileFit;
+        }
+
+        internal TileFit CreateRandomGrasObjects(Map map)
+        { 
             TileFit tileFit = new TileFit();
             List<TileObject> tileObjects = null;
 
@@ -561,7 +666,9 @@ namespace Engine.Master
         {
             get
             {
-                return (Zones.Count-1) * 40;
+                if (MapType == "2")
+                    return (Zones.Count-1) * 40;
+                return 0;
             }
         }
 
@@ -575,6 +682,11 @@ namespace Engine.Master
             MapWidth = game.GameModel.MapWidth;
             MapHeight = game.GameModel.MapHeight;
             MapType = game.GameModel.MapType;
+
+            if (MapType == "2")
+                sectorSize = 12;
+            else
+                sectorSize = 4;
 
             //zoneWidth = (MapWidth / 15);
             //maxZones = zoneWidth * (MapHeight / 15) - 1;
@@ -598,7 +710,7 @@ namespace Engine.Master
             }*/
         }
 
-        private int sectorSize = 12;
+        private int sectorSize;
 
         public Tile GetTile(Position pos)
         {
@@ -916,13 +1028,14 @@ namespace Engine.Master
             Zones.Add(mapDefaultZone.ZoneId, mapDefaultZone);
 
             // Create startup zone for player
+            /*
             Position startPosition = null;
             foreach (MapSector mapSector in Sectors.Values)
             {
                 if (MapType != "2")
                 {
-                    if (mapSector.Center.X < 8 || mapSector.Center.Y < 8)
-                        continue;
+                    //if (mapSector.Center.X < 8 || mapSector.Center.Y < 8)
+                    //    continue;
                 }
                 if (mapSector.IsPossibleStart(this))
                 {
@@ -935,22 +1048,21 @@ namespace Engine.Master
             }
 
             if (startPosition != null)
-            {
+            {*/
                 // Any other zones with minerals?
                 foreach (MapSector mapSector in Sectors.Values)
                 {
-                    if (MapType == "2" || this.Game.Random.Next(4) == 0)
+                    //if (MapType == "2" || this.Game.Random.Next(4) == 0)
                     {
-                        if (mapSector.Center != startPosition &&
-                            mapSector.IsPossibleStart(this))
+                        //if (mapSector.Center != startPosition && mapSector.IsPossibleStart(this))
                         {
                             Position zoneCenter = new Position(mapSector.Center.X + sectorSize / 2, mapSector.Center.Y + sectorSize / 2);
 
-                            AddZone(zoneCenter);
+                            AddZone(mapSector, zoneCenter);
                         }
                     }
                 }
-            }
+            
 
             //AddZone(new Position(10, 10));
             //AddZone(new Position(10, 30));
@@ -988,23 +1100,41 @@ namespace Engine.Master
             }
         }
         */
-        private void AddZone(Position pos)
+        private void AddZone(MapSector mapSector, Position pos)
         {
             int zoneId = Zones.Count;
 
             MapZone mapZone = new MapZone();
             mapZone.ZoneId = zoneId;
-            mapZone.MaxMinerals = 40;
             mapZone.Center = pos;
+            mapZone.HexCell = mapSector.HexCell;
 
-            mapZone.Tiles = EnumerateTiles(pos, sectorSize/2, true);
+            mapZone.Tiles = EnumerateTiles(pos, sectorSize / 2, true);
             foreach (TileWithDistance t in mapZone.Tiles.Values)
             {
                 t.Tile.ZoneId = zoneId;
             }
             Zones.Add(mapZone.ZoneId, mapZone);
 
-            mapZone.StartObjectGenerator(this);
+            if (mapZone.HexCell == null)
+            {
+                mapZone.MaxMinerals = 40;
+                mapZone.StartObjectGenerator(this);
+            }
+            else
+            {
+                if (mapZone.HexCell.IsUnderwater)
+                {
+
+                }
+                else
+                {
+                    BioMass += 10000;
+
+                    mapZone.MaxMinerals = 0; // * sectorSize;
+                    mapZone.StartObjectGenerator(this);
+                }
+            }
         }
 
         public void DistributeTileObject(TileObject tileObject)
@@ -1178,13 +1308,14 @@ namespace Engine.Master
             Tile t = GetTile(pos);
             moveUpdateGroundStat.Owner = t.Owner;
             moveUpdateGroundStat.IsBorder = t.IsBorder;
-            moveUpdateGroundStat.PlantLevel = t.PlantLevel;
-            moveUpdateGroundStat.TerrainTypeIndex = t.TerrainTypeIndex;
             moveUpdateGroundStat.IsUnderwater = t.IsUnderwater;
             moveUpdateGroundStat.TileObjects = new List<TileObject>();
             moveUpdateGroundStat.TileObjects.AddRange(t.TileContainer.TileObjects);
             moveUpdateGroundStat.Height = (float)t.Height;
             moveUpdateGroundStat.IsOpenTile = t.IsOpenTile;
+            moveUpdateGroundStat.ZoneId = t.ZoneId;
+            moveUpdateGroundStat.TerrainTypeIndex = t.TerrainTypeIndex;
+            moveUpdateGroundStat.PlantLevel = t.PlantLevel;
 
             //MoveUpdateStats moveUpdateStats;
             //moveUpdateStats = new MoveUpdateStats();

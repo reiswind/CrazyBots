@@ -1670,7 +1670,7 @@ namespace Engine.Master
                 {
                     first = true;
 
-                    CreateTileObjects(9999);
+                    CreateTileObjects(99999);
                     AddChangedGroundInfoMoves(newMoves);
                     Initialize(newMoves);
                 }
@@ -1688,8 +1688,7 @@ namespace Engine.Master
                         }
                     }*/
 
-                    // Place tile objects
-                    //if (MoveNr <= 2)
+                    // Place tile objects (For Debug)
                     CreateTileObjects(1);
 #if DEBUG
                     Validate(lastMoves);

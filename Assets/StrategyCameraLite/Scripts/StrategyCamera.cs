@@ -94,14 +94,17 @@ public class StrategyCamera : MonoBehaviour
 	}
 	public void JumpTo(Assets.Scripts.HexGrid hexGrid, Engine.Interface.Position pos)
 	{
-		GroundCell groundCell = hexGrid.GroundCells[pos];
-		if (groundCell != null)
+		if (pos != null)
 		{
-			Vector3 vector3 = transform.position;
-			vector3.x = groundCell.transform.position.x;
-			vector3.z = groundCell.transform.position.z;
+			GroundCell groundCell = hexGrid.GroundCells[pos];
+			if (groundCell != null)
+			{
+				Vector3 vector3 = transform.position;
+				vector3.x = groundCell.transform.position.x;
+				vector3.z = groundCell.transform.position.z;
 
-			targetPosition = vector3;
+				targetPosition = vector3;
+			}
 		}
 	}
 	private void OnDrawGizmosSelected()

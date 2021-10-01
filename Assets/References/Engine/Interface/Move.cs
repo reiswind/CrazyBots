@@ -63,19 +63,26 @@ namespace Engine.Interface
         public int Owner { get; set; }
         [DataMember]
         public bool IsBorder { get; set; }
+
         [DataMember(EmitDefaultValue = false)]
         public int PlantLevel { get; set; }
         [DataMember(EmitDefaultValue = false)]
         public int TerrainTypeIndex { get; set; }
+
         [DataMember(EmitDefaultValue = false)]
         public bool IsUnderwater { get; set; }
+
         [DataMember(EmitDefaultValue = false)]
         public float Height { get; set; }
+
         [DataMember(EmitDefaultValue = false)]
         public List<TileObject> TileObjects { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
         public bool IsOpenTile { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public int ZoneId { get; set; }
 
         private int Count(TileObjectType tileObjectType)
         {
@@ -93,13 +100,14 @@ namespace Engine.Interface
 
         public bool IsHill()
         {
-            return TerrainTypeIndex >= 4;
+            return false;
+            //return TerrainTypeIndex >= 4;
             //return Height > 0.8 && Height <= 0.9;
         }
         public bool IsRock()
         {
-
-            return TerrainTypeIndex >= 4;
+            return false;
+            //return TerrainTypeIndex >= 4;
             //return Height > 0.7 && Height <= 0.8;
         }
 
@@ -149,17 +157,19 @@ namespace Engine.Interface
         }
         public bool IsDarkSand()
         {
-            return false;
+            return TerrainTypeIndex == 0;
             //return PlantLevel > 1 && TerrainTypeIndex == 0;
             //return Height > 0.1 && Height <= 0.20;
         }
         public bool IsSand()
         {
-            return PlantLevel == 1 && TerrainTypeIndex == 0;
+            
+            return TerrainTypeIndex == 1 && PlantLevel == 3;
         }
         public bool IsDirt()
         {
-            return PlantLevel == 0 && TerrainTypeIndex == 0;
+            return true;
+            //return PlantLevel == 0 && TerrainTypeIndex == 0;
         }
     }
 
