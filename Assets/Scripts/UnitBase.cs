@@ -72,6 +72,7 @@ namespace Assets.Scripts
         internal bool Temporary { get; set; }
         internal bool UnderConstruction { get; set; }
         internal bool HasBeenDestroyed { get; set; }
+        internal bool IsVisible { get; set; }
 
 
         // Update is called once per frame
@@ -85,15 +86,29 @@ namespace Assets.Scripts
 
             if (DestinationPos != null)
             {
-                GroundCell targetCell = HexGrid.GroundCells[DestinationPos];
-                Vector3 unitPos3 = targetCell.transform.localPosition;
-                unitPos3.y += HexGrid.hexCellHeight + AboveGround;
+                GroundCell targetCell;
+                if (HexGrid.GroundCells.TryGetValue(DestinationPos, out targetCell))
+                {
+                    Vector3 unitPos3 = targetCell.transform.localPosition;
+                    unitPos3.y += HexGrid.hexCellHeight + AboveGround;
 
-                float speed = 1.75f / HexGrid.GameSpeed;
-                float step = speed * Time.deltaTime;
+                    float speed = 1.75f / HexGrid.GameSpeed;
+                    float step = speed * Time.deltaTime;
 
-                transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
-                UpdateDirection(unitPos3);
+                    transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
+                    UpdateDirection(unitPos3);
+
+                    if (!IsVisible)
+                    {
+                        IsVisible = true;
+                        gameObject.SetActive(true);
+                    }
+                }
+                else
+                {
+                    gameObject.SetActive(false);
+                    IsVisible = false;
+                }
             }
         }
 
@@ -123,20 +138,32 @@ namespace Assets.Scripts
         private float AboveGround { get; set; }
         public void PutAtCurrentPosition(bool update)
         {
+            transform.SetParent(HexGrid.transform, false);
 
-            GroundCell targetCell = HexGrid.GroundCells[CurrentPos];
-            Vector3 unitPos3 = targetCell.transform.localPosition;
-
-            if (!update)
+            GroundCell targetCell;
+            if (HexGrid.GroundCells.TryGetValue(CurrentPos, out targetCell))
             {
-                unitPos3.y += HexGrid.hexCellHeight + AboveGround;
-                transform.position = unitPos3;
-                transform.SetParent(HexGrid.transform, false);
+                Vector3 unitPos3 = targetCell.transform.localPosition;
+                if (!update)
+                {
+                    unitPos3.y += HexGrid.hexCellHeight + AboveGround;
+                    transform.position = unitPos3;
+                }
+                else
+                {
+                    unitPos3.y += HexGrid.hexCellHeight + AboveGround;
+                    transform.position = unitPos3;
+                }
+                if (!IsVisible)
+                {
+                    IsVisible = true;
+                    gameObject.SetActive(true);
+                }
             }
             else
             {
-                unitPos3.y += HexGrid.hexCellHeight + AboveGround;
-                transform.position = unitPos3;
+                gameObject.SetActive(false);
+                IsVisible = false;
             }
         }
 
@@ -144,9 +171,24 @@ namespace Assets.Scripts
         public void MoveTo(Position pos)
         {
             DestinationPos = pos;
-            if (Weapon != null)
+
+            GroundCell targetCell;
+            if (HexGrid.GroundCells.TryGetValue(DestinationPos, out targetCell))
             {
-                Weapon.TurnTo(HexGrid, DestinationPos);
+                if (Weapon != null)
+                {
+                    Weapon.TurnTo(HexGrid, DestinationPos);
+                }
+                if (!IsVisible)
+                {
+                    IsVisible = true;
+                    gameObject.SetActive(true);
+                }
+            }
+            else
+            {
+                gameObject.SetActive(false);
+                IsVisible = false;
             }
         }
 
@@ -357,7 +399,7 @@ namespace Assets.Scripts
 
         public void Extract(Move move, UnitBase unit, UnitBase otherUnit)
         {
-            if (Extractor != null)
+            if (IsVisible && Extractor != null)
             {
                 Extractor.Extract(HexGrid, move, unit, otherUnit);
             }
@@ -365,18 +407,21 @@ namespace Assets.Scripts
 
         public void Upgrade(Move move, UnitBase upgradedUnit)
         {
-            if (Assembler != null)
+            if (IsVisible && Assembler != null)
             {
                 Assembler.Assemble(HexGrid, this, upgradedUnit, move);
             }
         }
         public void Fire(Move move)
         {
-            foreach (UnitBasePart unitBasePart in UnitBaseParts)
+            if (IsVisible)
             {
-                if (unitBasePart.PartType == TileObjectType.PartWeapon)
+                foreach (UnitBasePart unitBasePart in UnitBaseParts)
                 {
-                    unitBasePart.Fire(move, Weapon);
+                    if (unitBasePart.PartType == TileObjectType.PartWeapon)
+                    {
+                        unitBasePart.Fire(move, Weapon);
+                    }
                 }
             }
             /*
@@ -729,22 +774,26 @@ namespace Assets.Scripts
                     unitBasePart.Level--;
                     if (unitBasePart.Level == 0)
                     {
-                        GroundCell currentCell = HexGrid.GroundCells[CurrentPos];
-                        unitBasePart.Part.transform.SetParent(currentCell.transform, true);
+                        GroundCell currentCell;
 
-                        Rigidbody otherRigid = unitBasePart.Part.GetComponent<Rigidbody>();
-
-                        if (otherRigid != null)
+                        if (HexGrid.GroundCells.TryGetValue(CurrentPos, out currentCell))
                         {
-                            otherRigid.isKinematic = false;
+                            unitBasePart.Part.transform.SetParent(currentCell.transform, true);
 
-                            Vector3 vector3 = new Vector3();
-                            vector3.y = 15;
-                            vector3.x = Random.value;
-                            vector3.z = Random.value;
+                            Rigidbody otherRigid = unitBasePart.Part.GetComponent<Rigidbody>();
 
-                            otherRigid.velocity = vector3;
-                            //otherRigid.rotation = Random.rotation;
+                            if (otherRigid != null)
+                            {
+                                otherRigid.isKinematic = false;
+
+                                Vector3 vector3 = new Vector3();
+                                vector3.y = 15;
+                                vector3.x = Random.value;
+                                vector3.z = Random.value;
+
+                                otherRigid.velocity = vector3;
+                                //otherRigid.rotation = Random.rotation;
+                            }
                         }
 
                         if (unitBasePart.TileObjectContainer != null)

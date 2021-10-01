@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts;
+using Engine.Interface;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -138,22 +139,43 @@ public class StrategyCamera : MonoBehaviour
 		Zoom(minZoom);
 
 		transform.SetPositionAndRotation(targetPosition, targetRotation);
+	}
 
+	void FixedUpdate()
+	{
 		if (MiniMapCamera != null)
 		{
 			Vector3 miniMapPosition = targetPosition;
-			miniMapPosition.y = 100;
+			miniMapPosition.y = 5;
 			MiniMapCamera.transform.position = miniMapPosition;
 
-			miniMapPosition.y = 0;
+			//miniMapPosition.y = -10;
 
+
+			//Vector3 miniMapWorldPosition = Camera.main.transform.TransformPoint(MiniMapCamera.transform.position);
+			//Vector3 targetPositionWorldPosition = Camera.main.ScreenToWorldPoint(new Vector3(100,100,100));
+
+			
+
+			Ray ray = Camera.main.ScreenPointToRay(targetPosition);
+			Debug.DrawRay(ray.origin, ray.direction, Color.yellow);
+
+			//Debug.DrawLine(ray.origin, ray.direction, Color.red);
+
+			// left bottom corner...
 			RaycastHit raycastHit;
-			if (Physics.Raycast(MiniMapCamera.ScreenPointToRay(miniMapPosition), out raycastHit, Mathf.Infinity))
+			if (Physics.Raycast(ray, out raycastHit, Mathf.Infinity))
 			{
 				GroundCell groundCell = raycastHit.collider.gameObject.GetComponent<GroundCell>();
 				if (groundCell != null)
 				{
-					//int x = 0;
+					Debug.Log(groundCell.Pos.X + "," + groundCell.Pos.Y);
+					Position realPos = new Position();
+					realPos.X = groundCell.Pos.X; // + 16;
+					realPos.Y = groundCell.Pos.Y; // + 16;
+
+					groundCell.HexGrid.RenderSurroundingCells(realPos);
+					
 				}
 			}
 		}

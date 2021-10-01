@@ -1,5 +1,6 @@
 ﻿
 using Engine.Interface;
+using Engine.Master;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -95,46 +96,9 @@ namespace Assets.Scripts
 			}
 			CreateGame(gameModel);
 
-			UnityEngine.SceneManagement.Scene scene = SceneManager.GetActiveScene();
-			foreach (GameObject gameObject in scene.GetRootGameObjects())
-			{
-				if (gameObject.name == "Strategy Camera")
-				{
-					StrategyCamera strategyCamera = gameObject.GetComponentInChildren<StrategyCamera>();
-
-					strategyCamera.JumpTo(this, game.Players[1].StartZone.Center);
-				}
-			}
 			InvokeRepeating(nameof(invoke), 0.5f, GameSpeed);
 		}
 
-		/*
-		public void AddTree(string name, List<GameObject> trees, float scale)
-		{
-			GameObject treePrefab = Resources.Load<GameObject>("LowPolyTreePack/Prefabs/" + name);
-
-			Vector3 sc = new Vector3();
-			sc.x = scale;
-			sc.y = scale;
-			sc.z = scale;
-			treePrefab.transform.localScale = sc;
-
-			trees.Add(treePrefab);
-		}
-
-		public void AddRock(string name, List<GameObject> rocks, float scale)
-		{
-			GameObject treePrefab = Resources.Load<GameObject>("LowPolyRockPack/Prefabs/" + name);
-
-			Vector3 sc = new Vector3();
-			sc.x = scale;
-			sc.y = scale;
-			sc.z = scale;
-			treePrefab.transform.localScale = sc;
-
-			rocks.Add(treePrefab);
-		}
-		*/
 		private Dictionary<string, GameObject> terrainResources = new Dictionary<string, GameObject>();
 		private Dictionary<string, GameObject> treeResources = new Dictionary<string, GameObject>();
 		private Dictionary<string, GameObject> leaveTreeResources = new Dictionary<string, GameObject>();
@@ -383,6 +347,43 @@ namespace Assets.Scripts
 			return gameTileObject;
 		}
 
+		public void RenderSurroundingCells(Position pos)
+		{
+			List<Position> positions = new List<Position>();
+			positions.AddRange(GroundCells.Keys);
+
+			GameObject cellPrefab = GetTerrainResource("HexCell");
+			Dictionary<Position, TileWithDistance> tiles = game.Map.EnumerateTiles(pos, 32, true);
+			if (tiles != null)
+			{
+				foreach (TileWithDistance t in tiles.Values)
+				{
+					positions.Remove(t.Pos);
+
+					if (GroundCells.ContainsKey(t.Pos))
+					{
+					}
+					else
+					{
+						Move move = new Move();
+						game.Map.CollectGroundStats(t.Pos, move);
+						MoveUpdateStats moveUpdateStats = move.Stats;
+
+						GroundCell hexCell = CreateCell(t.Pos, moveUpdateStats, cellPrefab);
+
+						GroundCells.Add(t.Pos, hexCell);
+					}
+				}
+			}
+			foreach (Position pos1 in positions)
+            {
+				GroundCell groundCell = GroundCells[pos1];
+				Destroy(groundCell.gameObject);
+				GroundCells.Remove(pos1);
+
+			}
+		}
+
 		public void CreateGame(GameModel gameModel)
 		{
 			InitResources();
@@ -407,26 +408,28 @@ namespace Assets.Scripts
 			UnitsInBuild = new Dictionary<Position, UnitBase>();
 			hitByBullets = new List<HitByBullet>();
 
-			GameObject cellPrefab = GetTerrainResource("HexCell");
+			
 
-			//foreach (MapSector mapSector in game.Map.Sectors.Values)
+			
+			foreach (MapZone mapZone in game.Map.Zones.Values)
+            {
+				if (mapZone.Player != null)
+                {
+					// This is the start zone
+					RenderSurroundingCells(mapZone.Center);
 
-			//MapSector mapSector = game.Map.Sectors.ElementAt(100).Value;
-			{
-				foreach (Tile t in game.Map.Tiles.Values)
-				{
-					Move move = new Move();
-					game.Map.CollectGroundStats(t.Pos, move);
-					MoveUpdateStats moveUpdateStats = move.Stats;
-
-					GroundCell hexCell = CreateCell(t.Pos, moveUpdateStats, cellPrefab);
-					if (GroundCells.ContainsKey(t.Pos))
+					UnityEngine.SceneManagement.Scene scene = SceneManager.GetActiveScene();
+					foreach (GameObject gameObject in scene.GetRootGameObjects())
 					{
+						if (gameObject.name == "Strategy Camera")
+						{
+							StrategyCamera strategyCamera = gameObject.GetComponentInChildren<StrategyCamera>();
+
+							strategyCamera.JumpTo(this, mapZone.Center);
+						}
 					}
-					else
-					{
-						GroundCells.Add(t.Pos, hexCell);
-					}
+
+					break;
 				}
 			}
 			/*
@@ -783,9 +786,12 @@ namespace Assets.Scripts
                     }
 					if (!skip)
 					{
-						GroundCell hexCell = GroundCells[move.Positions[0]];
-						hexCell.Stats = move.Stats;
-						hexCell.UpdateGround();
+						GroundCell hexCell;
+						if (GroundCells.TryGetValue(move.Positions[0], out hexCell))
+						{
+							hexCell.Stats = move.Stats;
+							hexCell.UpdateGround();
+						}
 					}
 				}
 				else if (move.MoveType == MoveType.Delete)
@@ -1028,21 +1034,25 @@ namespace Assets.Scripts
 			{
 				if (hitByBullet.Stats != null)
 				{
-					GroundCell hexCell = GroundCells[hitByBullet.TargetPosition];
-					if (hitByBullet.Stats.MoveUpdateGroundStat != null)
+					GroundCell hexCell;
+
+					if (GroundCells.TryGetValue(hitByBullet.TargetPosition, out hexCell))
 					{
-						hexCell.Stats = hitByBullet.Stats;
-						hexCell.UpdateGround();
+						if (hitByBullet.Stats.MoveUpdateGroundStat != null)
+						{
+							hexCell.Stats = hitByBullet.Stats;
+							hexCell.UpdateGround();
+						}
+
+						Destroy(hexCell.gameObject);
+						GroundCells.Remove(hitByBullet.TargetPosition);
+
+						GameObject cellPrefab = GetTerrainResource("HexCellCrate");
+						hexCell = CreateCell(hexCell.Pos, hexCell.Stats, cellPrefab);
+						GroundCells.Add(hitByBullet.TargetPosition, hexCell);
+
+						HitGroundAnimation(hexCell.transform);
 					}
-
-					Destroy(hexCell.gameObject);
-					GroundCells.Remove(hitByBullet.TargetPosition);
-
-					GameObject cellPrefab = GetTerrainResource("HexCellCrate");
-					hexCell = CreateCell(hexCell.Pos, hexCell.Stats, cellPrefab);
-					GroundCells.Add(hitByBullet.TargetPosition, hexCell);
-
-					HitGroundAnimation(hexCell.transform);
 				}
 				else
                 {
@@ -1065,14 +1075,17 @@ namespace Assets.Scripts
 
 		public void HandleImpacts()
         {
-			List<HitByBullet> currentHitByBullets = new List<HitByBullet>();
-			currentHitByBullets.AddRange(hitByBullets);
-			foreach (HitByBullet hitByBullet in currentHitByBullets)
+			if (hitByBullets != null)
 			{
-				if (hitByBullet.BulletImpact)
+				List<HitByBullet> currentHitByBullets = new List<HitByBullet>();
+				currentHitByBullets.AddRange(hitByBullets);
+				foreach (HitByBullet hitByBullet in currentHitByBullets)
 				{
-					HasBeenHit(hitByBullet);
-					hitByBullets.Remove(hitByBullet);
+					if (hitByBullet.BulletImpact)
+					{
+						HasBeenHit(hitByBullet);
+						hitByBullets.Remove(hitByBullet);
+					}
 				}
 			}
 		}
@@ -1238,41 +1251,8 @@ namespace Assets.Scripts
 					rigidbody.Sleep();
 				}
 				BaseUnits.Add(move.UnitId, unit);
-				/*
-				Position pos = move.Positions[move.Positions.Count - 1];
-				if (UnitsInBuild.ContainsKey(pos))
-				{
-					// Command to build was slower than the game.
-					UnitBase unitBase = UnitsInBuild[pos];
-					unitBase.Delete();
-					UnitsInBuild.Remove(pos);
-				}
-				UnitsInBuild.Add(pos, unit);*/
 			}
 		}
-
-		/*
-		public void ColorCell (Vector3 position, Color color) {
-			position = transform.InverseTransformPoint(position);
-			HexCoordinates coordinates = HexCoordinates.FromPosition(position);
-			int index = coordinates.X + coordinates.Z * width + coordinates.Z / 2;
-			HexCell cell = cells[index];
-			cell.color = color;
-			hexMesh.Triangulate(cells);
-		}*/
-
-		/*
-		void CalcStartPos()
-		{
-			float offset = 0;
-			if (gridHeight / 2 % 2 != 0)
-				offset = hexWidth / 2;
-
-			float x = -hexWidth * (gridWidth / 2) - offset;
-			float z = hexHeight * 0.75f * (gridHeight / 2);
-
-			startPos = new Vector3(0, 0, 0);
-		}*/
 
 		private Vector3 CalcWorldPos(Vector2 gridPos)
 		{
@@ -1297,6 +1277,7 @@ namespace Assets.Scripts
 			}
 			return new Vector3((x * gridSizeX), 0, -y * gridSizeY);
 		}
+
 
 		private GroundCell CreateCell(Position pos, MoveUpdateStats stats, GameObject cellPrefabx)
 		{

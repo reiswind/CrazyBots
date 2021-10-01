@@ -130,15 +130,16 @@ namespace Assets.Scripts
 
 
             Position pos = move.Positions[move.Positions.Count - 1];
-            weaponTargetCell = hexGrid.GroundCells[pos];
 
-            this.fireingUnit = fireingUnit;
-            this.hexGrid = hexGrid;
+            if (hexGrid.GroundCells.TryGetValue(pos, out weaponTargetCell))
+            {
+                this.fireingUnit = fireingUnit;
+                this.hexGrid = hexGrid;
 
-            // Determine which direction to rotate towards
-            turnWeaponIntoDirection = (weaponTargetCell.transform.position - transform.position).normalized;
-            turnWeaponIntoDirection.y = 0;
-
+                // Determine which direction to rotate towards
+                turnWeaponIntoDirection = (weaponTargetCell.transform.position - transform.position).normalized;
+                turnWeaponIntoDirection.y = 0;
+            }
         }
 
         void UpdateDirection(Transform transform)

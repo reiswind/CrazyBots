@@ -24,34 +24,37 @@ namespace Assets.Scripts
                 if (otherUnit == null)
                 {
                     Position from = move.Positions[1];
-                    GroundCell sourceCell = hexGrid.GroundCells[from];
+                    GroundCell sourceCell; // = hexGrid.GroundCells[from];
 
-                    found = false;
-                    foreach (UnitBaseTileObject unitBaseTileObject in sourceCell.GameObjects)
+                    if (hexGrid.GroundCells.TryGetValue(from, out sourceCell))
                     {
-                        if (unitBaseTileObject.TileObject.TileObjectType == tileObject.TileObjectType)
+                        found = false;
+                        foreach (UnitBaseTileObject unitBaseTileObject in sourceCell.GameObjects)
                         {
-                            sourceCell.GameObjects.Remove(unitBaseTileObject);
-                            if (unitBaseTileObject.GameObject != null)
-                                unitBaseTileObject.GameObject.transform.SetParent(transform, true);
+                            if (unitBaseTileObject.TileObject.TileObjectType == tileObject.TileObjectType)
+                            {
+                                sourceCell.GameObjects.Remove(unitBaseTileObject);
+                                if (unitBaseTileObject.GameObject != null)
+                                    unitBaseTileObject.GameObject.transform.SetParent(transform, true);
 
-                            TransitObject transitObject = new TransitObject();
-                            transitObject.GameObject = unitBaseTileObject.GameObject;
-                            transitObject.TargetPosition = transform.position;
-                            transitObject.HideAtArrival = true;
-                            transitObject.ScaleDown = true;
+                                TransitObject transitObject = new TransitObject();
+                                transitObject.GameObject = unitBaseTileObject.GameObject;
+                                transitObject.TargetPosition = transform.position;
+                                transitObject.HideAtArrival = true;
+                                transitObject.ScaleDown = true;
 
-                            hexGrid.AddTransitTileObject(transitObject);
-                            //unit.InsertGameTileObject(unitBaseTileObject);
+                                hexGrid.AddTransitTileObject(transitObject);
+                                //unit.InsertGameTileObject(unitBaseTileObject);
 
-                            found = true;
-                            break;
+                                found = true;
+                                break;
+                            }
                         }
-                    }
-                    if (!found)
-                    {
-                        // Bug!
-                        int x = 0;
+                        if (!found)
+                        {
+                            // Bug!
+                            int x = 0;
+                        }
                     }
                 }
                 else

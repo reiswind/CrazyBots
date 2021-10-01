@@ -1028,30 +1028,31 @@ namespace Engine.Master
             Zones.Add(mapDefaultZone.ZoneId, mapDefaultZone);
 
             // Create startup zone for player
-            /*
-            Position startPosition = null;
+
+            MapSector startPosition = null;
             foreach (MapSector mapSector in Sectors.Values)
             {
                 if (MapType != "2")
                 {
-                    //if (mapSector.Center.X < 8 || mapSector.Center.Y < 8)
-                    //    continue;
+                    if (mapSector.Center.X < 8 || mapSector.Center.Y < 8)
+                        continue;
                 }
                 if (mapSector.IsPossibleStart(this))
                 {
                     Position zoneCenter = new Position(mapSector.Center.X + sectorSize / 2, mapSector.Center.Y + sectorSize / 2);
-                    AddZone(zoneCenter);
-                    startPosition = mapSector.Center;
-
+                    AddZone(mapSector, zoneCenter);
+                    startPosition = mapSector;
                     break;
                 }
             }
 
             if (startPosition != null)
-            {*/
+            {
                 // Any other zones with minerals?
                 foreach (MapSector mapSector in Sectors.Values)
                 {
+                    if (mapSector == startPosition)
+                        continue;
                     //if (MapType == "2" || this.Game.Random.Next(4) == 0)
                     {
                         //if (mapSector.Center != startPosition && mapSector.IsPossibleStart(this))
@@ -1062,7 +1063,7 @@ namespace Engine.Master
                         }
                     }
                 }
-            
+            }
 
             //AddZone(new Position(10, 10));
             //AddZone(new Position(10, 30));

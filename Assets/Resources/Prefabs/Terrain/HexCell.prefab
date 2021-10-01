@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3271857278224504814}
   - component: {fileID: 5351948936720645640}
   m_Layer: 0
-  m_Name: HexCell 2
+  m_Name: HexCell
   m_TagString: Id
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -54,6 +54,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -63,7 +64,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: fe3e3b8ebc1a32647b48b7ea88f534a8, type: 2}
-  - {fileID: 7137414073595076902, guid: 977bcf150c790a24e8d342deb1d6e374, type: 3}
+  - {fileID: 2100000, guid: fe3e3b8ebc1a32647b48b7ea88f534a8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -108,8 +109,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1.7644792, y: 1.1657162, z: 1.0468675}
-  m_Center: {x: 3.314725e-12, y: -0.5828581, z: -0.0033783915}
+  m_Size: {x: 1.7644792, y: 1.1657162, z: 2.062872}
+  m_Center: {x: -1.4319027e-11, y: -0.5828581, z: 0.0014106631}
 --- !u!1001 &8481927374764325329
 PrefabInstance:
   m_ObjectHideFlags: 0

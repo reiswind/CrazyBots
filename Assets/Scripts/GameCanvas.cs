@@ -898,9 +898,9 @@ namespace Assets.Scripts
 
             StringBuilder sb = new StringBuilder();
 
-            //sb.Append("Position: " + gc.Pos.X + ", " + gc.Pos.Y);
+            sb.Append("P: " + gc.Pos.X + ", " + gc.Pos.Y);
 
-            sb.Append("TI: " + gc.Stats.MoveUpdateGroundStat.TerrainTypeIndex);
+            sb.Append(" TI: " + gc.Stats.MoveUpdateGroundStat.TerrainTypeIndex);
             sb.Append(" PI: " + gc.Stats.MoveUpdateGroundStat.PlantLevel);
             sb.Append(" Z: " + gc.Stats.MoveUpdateGroundStat.ZoneId);
             //sb.Append(" Owner: " + gc.Stats.MoveUpdateGroundStat.Owner);
@@ -1657,8 +1657,9 @@ namespace Assets.Scripts
 
             if (unit.CurrentPos != null)
             {
-                GroundCell gc = HexGrid.GroundCells[unit.CurrentPos];
-                AppendGroundInfo(gc);
+                GroundCell gc;
+                if (HexGrid.GroundCells.TryGetValue(unit.CurrentPos, out gc))
+                    AppendGroundInfo(gc);
             }
         }
     }

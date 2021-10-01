@@ -373,7 +373,6 @@ namespace Assets.Scripts
                 gameObject.transform.position = pos;
                 yield return null;
             }
-            //yield return new WaitForSeconds(1);
             HexGrid.Destroy(gameObject);
         }
 
