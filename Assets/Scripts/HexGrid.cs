@@ -57,11 +57,11 @@ namespace Assets.Scripts
 
 			//gridCanvas = GetComponentInChildren<Canvas>();
 
-			//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+			UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
-			UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+			//UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 			GameModel gameModel;
 
@@ -355,6 +355,13 @@ namespace Assets.Scripts
 		}
 		public void RenderSurroundingCells()
 		{
+			foreach (GroundCell groundCell1 in GroundCells.Values)
+            {
+				groundCell1.Visible = true;
+
+			}
+			return;
+
 			if (visibleCenter != nextVisibleCenter)
 			{
 				visibleCenter = nextVisibleCenter;
@@ -387,10 +394,6 @@ namespace Assets.Scripts
 					GroundCell groundCell;
 					if (GroundCells.TryGetValue(pos1, out groundCell))
 					{
-						if (!groundCell.Visible)
-						{
-							int x = 0;
-						}
 						groundCell.Visible = false;
 						visiblePositions.Remove(pos1);
 					}
@@ -468,7 +471,6 @@ namespace Assets.Scripts
 					// This is the start zone
 					UpdateVisibleCenter(mapZone.Center);
 					
-
 					UnityEngine.SceneManagement.Scene scene = SceneManager.GetActiveScene();
 					foreach (GameObject gameObject in scene.GetRootGameObjects())
 					{

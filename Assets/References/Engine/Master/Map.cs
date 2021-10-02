@@ -323,6 +323,9 @@ namespace Engine.Interface
 
                     foreach (Tile n in bestTile.Neighbors)
                     {
+                        if (n.Pos.GetDistanceTo(Center) > 20)
+                            continue;
+
                         // Nothing under water
                         if (n.IsUnderwater)
                             continue;
@@ -627,6 +630,7 @@ namespace Engine.Interface
     {
         public Dictionary<int, MapZone> Zones = new Dictionary<int, MapZone>();
         public Dictionary<Position, MapSector> Sectors = new Dictionary<Position, MapSector>();
+        public Dictionary<MapGenerator.HexCell, MapSector> HexCellSectors = new Dictionary<MapGenerator.HexCell, MapSector>();
         public Dictionary<Position, Tile> Tiles = new Dictionary<Position, Tile>();
 
         public Units Units { get; private set; }
@@ -681,7 +685,7 @@ namespace Engine.Interface
             if (MapType == "2")
                 sectorSize = 10;
             else
-                sectorSize = 4;
+                sectorSize = 10;
 
             //zoneWidth = (MapWidth / 15);
             //maxZones = zoneWidth * (MapHeight / 15) - 1;
@@ -749,6 +753,7 @@ namespace Engine.Interface
                     mapSector.Center = new Position(sectorPos.X * sectorSize, sectorPos.Y * sectorSize);
                     mapSector.HexCell = hexCell;
                     Sectors.Add(sectorPos, mapSector);
+                    HexCellSectors.Add(hexCell, mapSector);
 
                     //MapGenerator.HexCell hexCellE = hexCell.GetNeighbor(MapGenerator.HexDirection.E);
                     MapGenerator.HexCell hexCellW = hexCell.GetNeighbor(MapGenerator.HexDirection.W);
@@ -951,6 +956,7 @@ namespace Engine.Interface
                     }
 
                     Sectors.Add(sectorPos, mapSector);
+                    
                     /*
                     Position sectorTilePos = new Position(x, y);
                     Tile t = new Tile(this, sectorTilePos);
@@ -1024,7 +1030,7 @@ namespace Engine.Interface
 
             // Create startup zone for player
 
-            MapSector startPosition = null;
+            MapSector startSector = null;
             foreach (MapSector mapSector in Sectors.Values)
             {
                 if (MapType != "2")
@@ -1036,40 +1042,79 @@ namespace Engine.Interface
                 {
                     Position zoneCenter = new Position(mapSector.Center.X + sectorSize / 2, mapSector.Center.Y + sectorSize / 2);
                     AddZone(mapSector, zoneCenter);
-                    startPosition = mapSector;
+                    startSector = mapSector;
                     break;
                 }
             }
 
-            if (startPosition != null)
+            if (startSector != null)
             {
-                // Any other zones with minerals?
-                foreach (MapSector mapSector in Sectors.Values)
+                // Test, add zone for each sektor
+                if (MapType == "2")
                 {
-                    if (mapSector == startPosition)
-                        continue;
-                    //if (MapType == "2" || this.Game.Random.Next(4) == 0)
+                    foreach (MapSector mapSector in Sectors.Values)
                     {
-                        //if (mapSector.Center != startPosition && mapSector.IsPossibleStart(this))
-                        {
-                            Position zoneCenter = new Position(mapSector.Center.X + sectorSize / 2, mapSector.Center.Y + sectorSize / 2);
+                        if (mapSector == startSector)
+                            continue;
 
-                            AddZone(mapSector, zoneCenter);
-                        }
+                        Position zoneCenter = new Position(mapSector.Center.X + sectorSize / 2, mapSector.Center.Y + sectorSize / 2);
+                        AddZone(mapSector, zoneCenter);
+                    }
+                }
+                else
+                {
+                    List<Position> positions = new List<Position>();
+                    List<MapSector> mapSectors = new List<MapSector>();
+                    AddNeigbors(startSector, mapSectors, positions);
+
+                    foreach (MapSector mapSector in mapSectors)
+                    {
+                        List<MapSector> mapSectorN = new List<MapSector>();
+                        AddNeigbors(mapSector, mapSectorN, positions);
                     }
                 }
             }
+        }
 
-            //AddZone(new Position(10, 10));
-            //AddZone(new Position(10, 30));
-            //AddZone(new Position(30, 30));
+        private void AddNeigbors(MapSector mapSector, List<MapSector> mapSectors, List<Position> positions)
+        {
+            MapSector nextSector;
+            nextSector = AddNeigbor(mapSector, MapGenerator.HexDirection.E, positions);
+            if (nextSector != null) mapSectors.Add(nextSector);
 
-            /*
-            mapDefaultZone.Tiles = new Dictionary<Position, TileWithDistance>(); 
-            foreach (Tile t in Tiles.Values)
+            nextSector = AddNeigbor(mapSector, MapGenerator.HexDirection.NE, positions);
+            if (nextSector != null) mapSectors.Add(nextSector);
+
+            nextSector = AddNeigbor(mapSector, MapGenerator.HexDirection.NW, positions);
+            if (nextSector != null) mapSectors.Add(nextSector);
+
+            nextSector = AddNeigbor(mapSector, MapGenerator.HexDirection.SE, positions);
+            if (nextSector != null) mapSectors.Add(nextSector);
+
+            nextSector = AddNeigbor(mapSector, MapGenerator.HexDirection.SW, positions);
+            if (nextSector != null) mapSectors.Add(nextSector);
+
+            nextSector = AddNeigbor(mapSector, MapGenerator.HexDirection.W, positions);
+            if (nextSector != null) mapSectors.Add(nextSector);
+        }
+
+        private MapSector AddNeigbor(MapSector mapSector, MapGenerator.HexDirection hexDirection, List<Position> positions)
+        {
+            MapSector nextSector = null;
+            MapGenerator.HexCell n = mapSector.HexCell.GetNeighbor(hexDirection);
+            if (n != null)
             {
-                mapDefaultZone.Tiles.Add(t.Pos, new TileWithDistance(t,0));
-            }*/
+                nextSector = HexCellSectors[n];
+
+                if (!positions.Contains(nextSector.Center))
+                {
+                    positions.Add(nextSector.Center);
+
+                    Position zoneCenter = new Position(nextSector.Center.X + sectorSize / 2, nextSector.Center.Y + sectorSize / 2);
+                    AddZone(nextSector, zoneCenter);
+                }
+            }
+            return nextSector;
         }
 
         /*
@@ -1125,7 +1170,7 @@ namespace Engine.Interface
                 }
                 else
                 {
-                    BioMass += 10000;
+                    BioMass += 100;
 
                     mapZone.MaxMinerals = 0; // * sectorSize;
                     mapZone.StartObjectGenerator(this);

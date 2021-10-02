@@ -8,6 +8,7 @@
     {
       "ControlLevel": 1,
       "Id": 1,
+	  "Zone": 1,
       "Name": "Player1"
     },
     {

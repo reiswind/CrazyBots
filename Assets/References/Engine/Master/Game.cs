@@ -51,10 +51,11 @@ namespace Engine.Master
                 foreach (PlayerModel playerModel in gameModel.Players)
                 {
                     Player p = new Player(this, playerModel);
-
-                    p.StartZone = Map.Zones[playerModel.Zone];
-                    p.StartZone.Player = p;
-
+                    if (playerModel.Zone != 0)
+                    {
+                        p.StartZone = Map.Zones[playerModel.Zone];
+                        p.StartZone.Player = p;
+                    }
                     Players.Add(playerModel.Id, p);
                 }
             }
@@ -1595,8 +1596,8 @@ namespace Engine.Master
                 bool oneSpace = false;
                 foreach (MapZone mapZone in Map.Zones.Values)
                 {
-                    //if (mapZone.ZoneId != 2)
-                    //    continue;
+                    if (mapZone.ZoneId == 0)
+                        continue;
                     if (mapZone.Player == null)
                     {
                         Position pos = mapZone.CreateTerrainTile(Map);
@@ -1636,7 +1637,7 @@ namespace Engine.Master
             changedGroundPositions.Clear();
         }
 
-    public List<Move> ProcessMove(int playerId, Move myMove, List<GameCommand> gameCommands)
+        public List<Move> ProcessMove(int playerId, Move myMove, List<GameCommand> gameCommands)
         {
             List<Move> returnMoves = new List<Move>();
             lock (GameModel)
