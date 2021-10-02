@@ -15,6 +15,32 @@ namespace Assets.Scripts
 
         public bool ShowPheromones { get; set; }
 
+        private bool visible;
+        public bool Visible
+        {
+            get
+            {
+                return visible;
+            }
+            set
+            {
+                if (visible != value)
+                {
+                    visible = value;
+
+                    foreach (UnitBase unitbase in HexGrid.BaseUnits.Values)
+                    {
+                        if (unitbase.CurrentPos == Pos)
+                        {
+                            unitbase.IsVisible = visible;
+                        }
+                    }
+
+                    gameObject.SetActive(visible);
+                }
+            }
+        }
+
         internal List<UnitCommand> UnitCommands { get; private set; }
 
         public List<UnitBaseTileObject> GameObjects { get; private set; }
@@ -30,6 +56,7 @@ namespace Assets.Scripts
 
             UnitCommands = new List<UnitCommand>();
             ShowPheromones = true;
+            visible = true;
         }
 
         private void CreateMarker()
@@ -309,6 +336,7 @@ namespace Assets.Scripts
             transform.localPosition = vector3;
 
             CreateDestructables();
+            
         }
 
         internal void CreateDestructables()
@@ -355,12 +383,14 @@ namespace Assets.Scripts
                     }
                 }
             }
-
-            foreach (UnitBaseTileObject destructable in allTileObjects)
+            if (visible)
             {
-                StartCoroutine(FadeOutDestructable(destructable.GameObject, destructable.GameObject.transform.position.y - 0.1f));
-                //HexGrid.Destroy(destructable.GameObject);
-                GameObjects.Remove(destructable);
+                foreach (UnitBaseTileObject destructable in allTileObjects)
+                {
+                    StartCoroutine(FadeOutDestructable(destructable.GameObject, destructable.GameObject.transform.position.y - 0.1f));
+                    //HexGrid.Destroy(destructable.GameObject);
+                    GameObjects.Remove(destructable);
+                }
             }
         }
 

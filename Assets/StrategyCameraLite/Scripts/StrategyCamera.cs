@@ -97,8 +97,8 @@ public class StrategyCamera : MonoBehaviour
 	{
 		if (pos != null)
 		{
-			GroundCell groundCell = hexGrid.GroundCells[pos];
-			if (groundCell != null)
+			GroundCell groundCell;
+			if (hexGrid.GroundCells.TryGetValue(pos, out groundCell))
 			{
 				Vector3 vector3 = transform.position;
 				vector3.x = groundCell.transform.position.x;
@@ -139,10 +139,7 @@ public class StrategyCamera : MonoBehaviour
 		Zoom(minZoom);
 
 		transform.SetPositionAndRotation(targetPosition, targetRotation);
-	}
 
-	void FixedUpdate()
-	{
 		if (MiniMapCamera != null)
 		{
 			Vector3 miniMapPosition = targetPosition;
@@ -174,7 +171,7 @@ public class StrategyCamera : MonoBehaviour
 					realPos.X = groundCell.Pos.X; // + 16;
 					realPos.Y = groundCell.Pos.Y; // + 16;
 
-					groundCell.HexGrid.RenderSurroundingCells(realPos);
+					groundCell.HexGrid.UpdateVisibleCenter(realPos);
 					
 				}
 			}

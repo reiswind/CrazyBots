@@ -98,16 +98,11 @@ namespace Assets.Scripts
                     transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
                     UpdateDirection(unitPos3);
 
-                    if (!IsVisible)
+                    if (IsVisible != targetCell.Visible)
                     {
-                        IsVisible = true;
-                        gameObject.SetActive(true);
+                        IsVisible = targetCell.Visible;
+                        gameObject.SetActive(targetCell.Visible);
                     }
-                }
-                else
-                {
-                    gameObject.SetActive(false);
-                    IsVisible = false;
                 }
             }
         }
@@ -154,16 +149,11 @@ namespace Assets.Scripts
                     unitPos3.y += HexGrid.hexCellHeight + AboveGround;
                     transform.position = unitPos3;
                 }
-                if (!IsVisible)
+                if (IsVisible = targetCell.Visible)
                 {
-                    IsVisible = true;
-                    gameObject.SetActive(true);
+                    IsVisible = targetCell.Visible;
+                    gameObject.SetActive(targetCell.Visible);
                 }
-            }
-            else
-            {
-                gameObject.SetActive(false);
-                IsVisible = false;
             }
         }
 
@@ -179,16 +169,11 @@ namespace Assets.Scripts
                 {
                     Weapon.TurnTo(HexGrid, DestinationPos);
                 }
-                if (!IsVisible)
+                if (IsVisible != targetCell.Visible)
                 {
-                    IsVisible = true;
-                    gameObject.SetActive(true);
+                    IsVisible = targetCell.Visible;
+                    gameObject.SetActive(targetCell.Visible);
                 }
-            }
-            else
-            {
-                gameObject.SetActive(false);
-                IsVisible = false;
             }
         }
 
@@ -1102,7 +1087,7 @@ namespace Assets.Scripts
                             {
                                 Armor = armor;
                                 Transform shield = transform.Find("Shield");
-                                if (shield != null)
+                                if (shield != null && IsVisible)
                                 {
                                     shield.gameObject.SetActive(moveUpdateUnitPart.ShieldActive == true);
                                 }

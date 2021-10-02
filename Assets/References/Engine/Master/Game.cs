@@ -215,8 +215,6 @@ namespace Engine.Master
             {
                 if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
                 {
-                    Map.AddOpenTileObject(tileObject);
-
                     remove.Add(tileObject);
                     if (!changedGroundPositions.ContainsKey(t.Pos))
                         changedGroundPositions.Add(t.Pos, null);
@@ -224,6 +222,7 @@ namespace Engine.Master
             }
             foreach (TileObject tileObject in remove)
             {
+                Map.AddOpenTileObject(tileObject);
                 t.TileContainer.Remove(tileObject);
             }
         }

@@ -139,9 +139,7 @@ namespace Engine.Interface
             }*/
         }
     }
-}
-namespace Engine.Master
-{
+
     public class MapZone
     {
         public int ZoneId { get; set; }
@@ -640,10 +638,7 @@ namespace Engine.Master
         public int MapHeight { get; private set; }
         public string MapType { get; set; }
         private int zoneCounter;
-        //private int zoneWidth;
-        //private int maxZones;
 
-        //public List<TileObject> OpenTileObjects { get; private set; }
         public int BioMass { get; set; }
 
         public void AddOpenTileObject(TileObject tileObject)
