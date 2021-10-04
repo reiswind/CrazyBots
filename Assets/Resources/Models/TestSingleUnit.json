@@ -2,31 +2,31 @@
   "Name": "Test",
   "MapWidth": 3,
   "MapHeight": 3,
-  "Seedx": 1,
+  "Seed": 2,
   "MapType": "2",
   "Players": [
     {
       "ControlLevel": 1,
       "Id": 1,
-      "Zone": 1,
+      "Zone": 0,
       "Name": "Green"
     },
     {
       "ControlLevel": 1,
       "Id": 2,
-      "Zone": 3,
+      "Zone": 1,
       "Name": "Red"
     },
     {
       "ControlLevel": 1,
       "Id": 3,
-      "Zone": 7,
+      "Zone": 2,
       "Name": "Player3"
     },
     {
       "ControlLevel": 1,
       "Id": 4,
-      "Zone": 5,
+      "Zone": 3,
       "Name": "Player4"
     }
   ],
@@ -54,8 +54,8 @@
 	  "EndlessAmmo": true,
 	  "EndlessPower": true,
       "Position": {
-        "X": -24,
-        "Y": -2
+        "X": -2,
+        "Y": 4
       }
     }
 

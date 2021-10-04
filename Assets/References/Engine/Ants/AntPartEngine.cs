@@ -89,24 +89,24 @@ namespace Engine.Ants
             Position next = null;
             if (direction == Direction.N)
             {
-                if (pos.Y > 0)
+                //if (pos.Y > 0)
                     next = new Position(pos.X, pos.Y - 1);
             }
             else if (direction == Direction.S)
             {
-                if (pos.Y < 100)
+                //if (pos.Y < 100)
                     next = new Position(pos.X, pos.Y + 1);
             }
             else if (direction == Direction.NE)
             {
                 if (pos.X % 2 != 0)
                 {
-                    if (pos.X < 100)
+                    //if (pos.X < 100)
                         next = new Position(pos.X + 1, pos.Y);
                 }
                 else
                 {
-                    if (pos.X < 100 && pos.Y > 0)
+                    //if (pos.X < 100 && pos.Y > 0)
                         next = new Position(pos.X + 1, pos.Y - 1);
                 }
             }
@@ -114,12 +114,12 @@ namespace Engine.Ants
             {
                 if (pos.X % 2 == 0)
                 {
-                    if (pos.X < 100)
+                    //if (pos.X < 100)
                         next = new Position(pos.X + 1, pos.Y);
                 }
                 else
                 {
-                    if (pos.X < 100 && pos.Y < 100)
+                    //if (pos.X < 100 && pos.Y < 100)
                         next = new Position(pos.X + 1, pos.Y + 1);
                 }
             }
@@ -127,12 +127,12 @@ namespace Engine.Ants
             {
                 if (pos.X % 2 != 0)
                 {
-                    if (pos.X > 0)
+                    //if (pos.X > 0)
                         next = new Position(pos.X - 1, pos.Y);
                 }
                 else
                 {
-                    if (pos.X > 0 && pos.Y > 0)
+                    //if (pos.X > 0 && pos.Y > 0)
                         next = new Position(pos.X - 1, pos.Y - 1);
                 }
             }
@@ -140,12 +140,12 @@ namespace Engine.Ants
             {
                 if (pos.X % 2 == 0)
                 {
-                    if (pos.X > 0)
+                    //if (pos.X > 0)
                         next = new Position(pos.X - 1, pos.Y);
                 }
                 else
                 {
-                    if (pos.X > 0 && pos.Y < 100)
+                    //if (pos.X > 0 && pos.Y < 100)
                         next = new Position(pos.X - 1, pos.Y + 1);
                 }
             }

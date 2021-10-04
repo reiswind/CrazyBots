@@ -272,8 +272,8 @@ namespace Assets.Scripts
                     materialName = "Grass";
                 }
             }
-            //if (Stats.MoveUpdateGroundStat.IsOpenTile)
-            if (Stats.MoveUpdateGroundStat.ZoneId > 0)
+            if (Stats.MoveUpdateGroundStat.IsOpenTile)
+            //if (Stats.MoveUpdateGroundStat.ZoneId > 0)
             {
                 //materialName = "DarkSand";
             }

@@ -141,6 +141,7 @@
     <Compile Include="Assets\References\Engine\Ants\AntPartEngine.cs" />
     <Compile Include="Assets\Scripts\GameCanvas.cs" />
     <Compile Include="Assets\References\Engine\Map\HexMapGenerator.cs" />
+    <Compile Include="Assets\References\Engine\Master\MapZone.cs" />
     <Compile Include="Assets\References\Engine\Control\UnitType.cs" />
     <Compile Include="Assets\References\Engine\Control\Scout.cs" />
     <Compile Include="Assets\CursorsAndCrosshairs\CursorChanger.cs" />

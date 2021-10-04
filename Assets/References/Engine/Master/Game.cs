@@ -36,6 +36,17 @@ namespace Engine.Master
             if (!string.IsNullOrEmpty(logFile))
                 File.Delete(logFile);
 
+            if (gameModel?.Players != null)
+            {
+                //int zoneCntr = 1;
+                foreach (PlayerModel playerModel in gameModel.Players)
+                {
+                    Player p = new Player(this, playerModel);
+                    
+                    Players.Add(playerModel.Id, p);
+                }
+            }
+
             if (gameModel.MapType == "2")
             {
                 Map.CreateFlat();
@@ -44,21 +55,8 @@ namespace Engine.Master
             {
                 Map.CreateTerrain(this);
             }
-            Map.CreateZones();
-            if (gameModel?.Players != null)
-            {
-                //int zoneCntr = 1;
-                foreach (PlayerModel playerModel in gameModel.Players)
-                {
-                    Player p = new Player(this, playerModel);
-                    if (playerModel.Zone != 0)
-                    {
-                        p.StartZone = Map.Zones[playerModel.Zone];
-                        p.StartZone.Player = p;
-                    }
-                    Players.Add(playerModel.Id, p);
-                }
-            }
+            //Map.CreateZones();
+            
 
 
             Map.GetTile(new Position(0, 0));
@@ -156,54 +154,57 @@ namespace Engine.Master
                 {
                     Player player = Players[unitModel.PlayerId];
 
-                    Position posOnMap = new Position(player.StartZone.Center.X + unitModel.Position.X, player.StartZone.Center.Y + unitModel.Position.Y);
-
-                    Tile t = Map.GetTile(posOnMap);
-                    if (t != null)
+                    Position posOnMap = null;
+                    if (player.StartZone != null)
                     {
-                        Unit thisUnit = new Unit(this, unitModel.Blueprint);
+                        posOnMap = new Position(player.StartZone.Center.X + unitModel.Position.X, player.StartZone.Center.Y + unitModel.Position.Y);
 
-                        thisUnit.Power = 20;
-                        thisUnit.MaxPower = 20;
-                        thisUnit.CreateAllPartsFromBlueprint();
-                        thisUnit.Pos = posOnMap;
+                        Tile t = Map.GetTile(posOnMap);
+                        if (t != null)
+                        {
+                            Unit thisUnit = new Unit(this, unitModel.Blueprint);
 
-                        // Turn into direction missing
-                        thisUnit.Direction = Direction.C; // CalcDirection(move.Positions[0], move.Positions[1]);
-                        thisUnit.Owner = Players[unitModel.PlayerId];
+                            thisUnit.Power = 20;
+                            thisUnit.MaxPower = 20;
+                            thisUnit.CreateAllPartsFromBlueprint();
+                            thisUnit.Pos = posOnMap;
 
-                        if (Map.Units.GetUnitAt(thisUnit.Pos) == null)
-                            Map.Units.Add(thisUnit);
+                            // Turn into direction missing
+                            thisUnit.Direction = Direction.C; // CalcDirection(move.Positions[0], move.Positions[1]);
+                            thisUnit.Owner = Players[unitModel.PlayerId];
 
-                        if (unitModel.HoldPosition && thisUnit.Engine != null)
-                            thisUnit.Engine.HoldPosition = true;
+                            if (Map.Units.GetUnitAt(thisUnit.Pos) == null)
+                                Map.Units.Add(thisUnit);
 
-                        if (unitModel.FireAtGround && thisUnit.Weapon != null)
-                            thisUnit.Weapon.FireAtGround = true;
-                        if (unitModel.HoldFire && thisUnit.Weapon != null)
-                            thisUnit.Weapon.HoldFire = true;
-                        if (unitModel.EndlessAmmo && thisUnit.Weapon != null)
-                            thisUnit.Weapon.EndlessAmmo = true;
-                        if (unitModel.EndlessPower)
-                            thisUnit.EndlessPower = true;
+                            if (unitModel.HoldPosition && thisUnit.Engine != null)
+                                thisUnit.Engine.HoldPosition = true;
+
+                            if (unitModel.FireAtGround && thisUnit.Weapon != null)
+                                thisUnit.Weapon.FireAtGround = true;
+                            if (unitModel.HoldFire && thisUnit.Weapon != null)
+                                thisUnit.Weapon.HoldFire = true;
+                            if (unitModel.EndlessAmmo && thisUnit.Weapon != null)
+                                thisUnit.Weapon.EndlessAmmo = true;
+                            if (unitModel.EndlessPower)
+                                thisUnit.EndlessPower = true;
 
 
-                        Move move = new Move();
-                        move.MoveType = MoveType.Add;
-                        move.PlayerId = unitModel.PlayerId;
-                        move.UnitId = thisUnit.UnitId;
-                        move.OtherUnitId = unitModel.Blueprint;
-                        move.Stats = thisUnit.CollectStats();
-                        move.Positions = new List<Position>();
-                        move.Positions.Add(posOnMap);
-                        newMoves.Add(move);
-                        
-                        t.Owner = unitModel.PlayerId;
-                        ResetTile(t);
-                        foreach (Tile n in t.Neighbors)
-                            ResetTile(n);
+                            Move move = new Move();
+                            move.MoveType = MoveType.Add;
+                            move.PlayerId = unitModel.PlayerId;
+                            move.UnitId = thisUnit.UnitId;
+                            move.OtherUnitId = unitModel.Blueprint;
+                            move.Stats = thisUnit.CollectStats();
+                            move.Positions = new List<Position>();
+                            move.Positions.Add(posOnMap);
+                            newMoves.Add(move);
+
+                            t.Owner = unitModel.PlayerId;
+                            ResetTile(t);
+                            foreach (Tile n in t.Neighbors)
+                                ResetTile(n);
+                        }
                     }
-
                 }
             }
         }
@@ -1590,37 +1591,50 @@ namespace Engine.Master
 
         private void CreateTileObjects(int attempts)
         {
+            foreach (MapZone mapZone in Map.Zones.Values)
+            {
+                if (!mapZone.UnderwaterTilesCreated)
+                {
+                    mapZone.UnderwaterTilesCreated = true;
+
+                    foreach (Tile tile in mapZone.Tiles.Values)
+                    {
+                        if (mapZone.IsUnderwater)
+                        {
+                            tile.IsUnderwater = true;
+
+                            TileObject tileObject = new TileObject();
+                            tileObject.TileObjectType = TileObjectType.Water;
+                            tileObject.Direction = Direction.C;
+                            tile.TileContainer.Add(tileObject);
+                        }
+                        if (!changedGroundPositions.ContainsKey(tile.Pos))
+                            changedGroundPositions.Add(tile.Pos, null);
+                    }
+                }
+            }
             bool freespace = true;
             while (freespace && attempts-- > 0)
             {
                 bool oneSpace = false;
+
                 foreach (MapZone mapZone in Map.Zones.Values)
                 {
-                    if (mapZone.ZoneId == 0)
-                        continue;
-                    if (mapZone.Player == null)
+                    Position pos = mapZone.CreateTerrainTile(Map);
+                    if (pos != null)
                     {
-                        Position pos = mapZone.CreateTerrainTile(Map);
-                        if (pos != null)
-                        {
-                            oneSpace = true;
-                            if (!changedGroundPositions.ContainsKey(pos))
-                                changedGroundPositions.Add(pos, null);
-                        }
-                        else
-                        {
-
-                        }
+                        oneSpace = true;
+                        if (!changedGroundPositions.ContainsKey(pos))
+                            changedGroundPositions.Add(pos, null);
                     }
                     else
                     {
-                        
+
                     }
                 }
                 if (!oneSpace)
                     freespace = false;
             }
-
         }
 
         private void AddChangedGroundInfoMoves(List<Move> moves)
@@ -1670,7 +1684,7 @@ namespace Engine.Master
                 {
                     first = true;
 
-                    CreateTileObjects(99999);
+                    CreateTileObjects(999);
                     AddChangedGroundInfoMoves(newMoves);
                     Initialize(newMoves);
                 }

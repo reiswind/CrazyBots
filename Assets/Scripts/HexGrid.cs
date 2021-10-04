@@ -57,10 +57,10 @@ namespace Assets.Scripts
 
 			//gridCanvas = GetComponentInChildren<Canvas>();
 
-			UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
+			//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-			//UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+			UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 			GameModel gameModel;
@@ -353,52 +353,78 @@ namespace Assets.Scripts
 		{
 			nextVisibleCenter = pos;
 		}
-		public void RenderSurroundingCells()
+		public IEnumerator RenderSurroundingCells()
 		{
-			foreach (GroundCell groundCell1 in GroundCells.Values)
-            {
-				groundCell1.Visible = true;
-
-			}
-			return;
-
-			if (visibleCenter != nextVisibleCenter)
+			while (true)
 			{
-				visibleCenter = nextVisibleCenter;
-
-				List<Position> positions = new List<Position>();
-				positions.AddRange(visiblePositions);
-
-				Dictionary<Position, TileWithDistance> tiles = game.Map.EnumerateTiles(visibleCenter, 32, true);
-				if (tiles != null)
+				if (visibleCenter == nextVisibleCenter)
+                {
+					yield return new WaitForSeconds(0.01f);
+				}
+				else
 				{
-					foreach (TileWithDistance t in tiles.Values)
+					
+					//yield return new WaitForSeconds(0.1f);
+
+					/* Debug all visible
+					foreach (GroundCell groundCell1 in GroundCells.Values)
 					{
-						positions.Remove(t.Pos);
-						if (!visiblePositions.Contains(t.Pos))
+						groundCell1.Visible = true;
+
+					}*/
+					//return;
+					int maxActives = 0;
+					bool interrupted = false;
+
+					List<Position> positions = new List<Position>();
+					positions.AddRange(visiblePositions);
+
+					Dictionary<Position, TileWithDistance> tiles = game.Map.EnumerateTiles(nextVisibleCenter, 32, true);
+					if (tiles != null)
+					{
+						foreach (TileWithDistance t in tiles.Values)
 						{
-							GroundCell groundCell;
-							if (GroundCells.TryGetValue(t.Pos, out groundCell))
+							positions.Remove(t.Pos);
+							if (!visiblePositions.Contains(t.Pos))
 							{
-								if (!groundCell.Visible)
+								GroundCell groundCell;
+								if (GroundCells.TryGetValue(t.Pos, out groundCell))
 								{
-									groundCell.Visible = true;
-									visiblePositions.Add(t.Pos);
+									if (!groundCell.Visible)
+									{
+										maxActives++;
+										groundCell.Visible = true;
+										visiblePositions.Add(t.Pos);
+									}
 								}
+							}
+							if (maxActives > 50)
+							{
+								interrupted = true;
+								break;
 							}
 						}
 					}
-				}
-				foreach (Position pos1 in positions)
-				{
-					GroundCell groundCell;
-					if (GroundCells.TryGetValue(pos1, out groundCell))
+					foreach (Position pos1 in positions)
 					{
-						groundCell.Visible = false;
-						visiblePositions.Remove(pos1);
+						GroundCell groundCell;
+						if (GroundCells.TryGetValue(pos1, out groundCell))
+						{
+							groundCell.Visible = false;
+							visiblePositions.Remove(pos1);
+						}
+					}
+					if (interrupted)
+					{
+						yield return new WaitForSeconds(0.01f);
+					}
+					else
+					{
+						visibleCenter = nextVisibleCenter;
 					}
 				}
 			}
+
 		}
 
 		public void CreateGame(GameModel gameModel)
@@ -833,10 +859,11 @@ namespace Assets.Scripts
 			{
 				startPositionSet = true;
 				SelectStartPosition();
+				StartCoroutine(RenderSurroundingCells());
 			}
 			if (startPositionSet)
-			{ 
-				RenderSurroundingCells();
+			{
+				
 			}
 		}
 

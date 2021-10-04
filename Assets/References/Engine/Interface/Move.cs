@@ -63,12 +63,12 @@ namespace Engine.Interface
         public int Owner { get; set; }
         [DataMember]
         public bool IsBorder { get; set; }
-
+        /*
         [DataMember(EmitDefaultValue = false)]
         public int PlantLevel { get; set; }
         [DataMember(EmitDefaultValue = false)]
         public int TerrainTypeIndex { get; set; }
-
+        */
         [DataMember(EmitDefaultValue = false)]
         public bool IsUnderwater { get; set; }
 
@@ -157,14 +157,19 @@ namespace Engine.Interface
         }
         public bool IsDarkSand()
         {
-            return TerrainTypeIndex == 0;
+            if (Count(TileObjectType.Sand) > 1)
+                return true;
+            return false;
+            //return TerrainTypeIndex == 0;
             //return PlantLevel > 1 && TerrainTypeIndex == 0;
             //return Height > 0.1 && Height <= 0.20;
         }
         public bool IsSand()
         {
-            
-            return TerrainTypeIndex == 1 && PlantLevel == 3;
+            if (Count(TileObjectType.Sand) > 0)
+                return true;
+            return false;
+            //return TerrainTypeIndex == 1 && PlantLevel == 3;
         }
         public bool IsDirt()
         {

@@ -900,8 +900,8 @@ namespace Assets.Scripts
 
             sb.Append("P: " + gc.Pos.X + ", " + gc.Pos.Y);
 
-            sb.Append(" TI: " + gc.Stats.MoveUpdateGroundStat.TerrainTypeIndex);
-            sb.Append(" PI: " + gc.Stats.MoveUpdateGroundStat.PlantLevel);
+            //sb.Append(" TI: " + gc.Stats.MoveUpdateGroundStat.TerrainTypeIndex);
+            //sb.Append(" PI: " + gc.Stats.MoveUpdateGroundStat.PlantLevel);
             sb.Append(" Z: " + gc.Stats.MoveUpdateGroundStat.ZoneId);
             //sb.Append(" Owner: " + gc.Stats.MoveUpdateGroundStat.Owner);
 

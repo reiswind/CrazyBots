@@ -80,8 +80,8 @@ namespace Engine.Interface
 
     internal enum TileFitType
     {
-        Wood,
-        WoodBush,
+        Tree,
+        TreeBush,
         BushGras,
         Gras,
         Water,
@@ -175,8 +175,8 @@ namespace Engine.Interface
                     break;
                 }
             }
-            if (changed)
-                AdjustTerrainType();
+            //if (changed)
+            //    AdjustTerrainType();
             return changed;
         }
 
@@ -204,8 +204,9 @@ namespace Engine.Interface
                     break;
                 }
             }
-            AdjustTerrainType();
+            //AdjustTerrainType();
         }
+        /*
         internal void AdjustTerrainType()
         {
             if (TerrainTypeIndex == 3)
@@ -230,7 +231,7 @@ namespace Engine.Interface
                     PlantLevel = 0;
                 }
             }
-        }
+        }*/
 
         internal static Direction TurnAround(Direction direction)
         {
@@ -278,6 +279,12 @@ namespace Engine.Interface
 
                 tileFit.TileObjects.Add(rotatedTileObject);
             }
+
+            if (tileFit.TileFitType == TileFitType.Tree)
+            {
+                int x =0;
+            }
+
             int bestRotation = 0;
             for (int i=0; i < 6; i++)
             {
@@ -308,7 +315,7 @@ namespace Engine.Interface
             if (t1 == t2)
             {
                 if (k1 == k2)
-                    score = 1;
+                    score = 2;
                 else
                     score = 0.7f;
             }
@@ -316,19 +323,19 @@ namespace Engine.Interface
             //if (t1 == TileObjectType.LeaveTree) t1 = TileObjectType.Tree;
             //if (t2 == TileObjectType.LeaveTree) t2 = TileObjectType.Tree;
 
-            if ((t1 == TileObjectType.Tree && t2 == TileObjectType.Bush) || (t1 == TileObjectType.Bush && t2 == TileObjectType.Tree))
+            else if ((t1 == TileObjectType.Tree && t2 == TileObjectType.Bush) || (t1 == TileObjectType.Bush && t2 == TileObjectType.Tree))
                 score = 1;
 
-            if ((t1 == TileObjectType.Tree && t2 == TileObjectType.Gras) || (t1 == TileObjectType.Gras && t2 == TileObjectType.Tree))
+            else if ((t1 == TileObjectType.Tree && t2 == TileObjectType.Gras) || (t1 == TileObjectType.Gras && t2 == TileObjectType.Tree))
                 score = 0.5f;
 
-            if ((t1 == TileObjectType.Gras && t2 == TileObjectType.Bush) || (t1 == TileObjectType.Bush && t2 == TileObjectType.Gras))
+            else if ((t1 == TileObjectType.Gras && t2 == TileObjectType.Bush) || (t1 == TileObjectType.Bush && t2 == TileObjectType.Gras))
                 score = 1;
 
-            if ((t1 == TileObjectType.Gras && t2 == TileObjectType.Sand) || (t1 == TileObjectType.Sand && t2 == TileObjectType.Gras))
+            else if ((t1 == TileObjectType.Gras && t2 == TileObjectType.Sand) || (t1 == TileObjectType.Sand && t2 == TileObjectType.Gras))
                 score = 0.3f;
 
-            if ((t1 == TileObjectType.Water && t2 == TileObjectType.Sand) || (t1 == TileObjectType.Sand && t2 == TileObjectType.Water))
+            else if ((t1 == TileObjectType.Water && t2 == TileObjectType.Sand) || (t1 == TileObjectType.Sand && t2 == TileObjectType.Water))
                 score = 1;
 
             return score;
@@ -387,8 +394,8 @@ namespace Engine.Interface
         private List<Tile> neighbors;
 
         public double Height { get; set; }
-        public int TerrainTypeIndex { get; set; }
-        public int PlantLevel { get; set; }
+        //public int TerrainTypeIndex { get; set; }
+        //public int PlantLevel { get; set; }
 
         // Debug
         public bool IsOpenTile { get; set; }
@@ -527,6 +534,44 @@ namespace Engine.Interface
                 return null;
             }
         }*/
+        public void CreateCube(Dictionary<Position, Tile> createTiles, Dictionary<Position, Tile> tiles, int q, int r, int s)
+        {
+            CubePosition c1 = new CubePosition(q, r, s);
+            Tile t;
+            if (!tiles.TryGetValue(c1.Pos, out t))
+            {
+                t = new Tile(Map, c1.Pos);
+                tiles.Add(t.Pos, t);
+                createTiles.Add(t.Pos, t);
+            }
+            neighbors.Add(t);
+        }
+        public void CreateNeighborsxx(Dictionary<Position, Tile> createTiles, Dictionary<Position, Tile> tiles)
+        {
+            neighbors = new List<Tile>();
+
+            CubePosition cube = Pos.GetCubePosition();
+            CreateCube(createTiles, tiles, cube.q + 1, cube.r - 1, cube.s); // N 11,10
+            CreateCube(createTiles, tiles, cube.q + 1, cube.r, cube.s - 1); // NE 11,9
+            CreateCube(createTiles, tiles, cube.q, cube.r + 1, cube.s - 1); // NW 10,9
+
+            CreateCube(createTiles, tiles, cube.q - 1, cube.r, cube.s + 1); // S 9,10
+            CreateCube(createTiles, tiles, cube.q - 1, cube.r + 1, cube.s); // SE 9,9
+            CreateCube(createTiles, tiles, cube.q, cube.r - 1, cube.s + 1);
+
+        }
+        public void CreateNeighbors(Dictionary<Position, Tile> createTiles, Dictionary<Position, Tile> tiles)
+        {
+            neighbors = new List<Tile>();
+
+            CubePosition cube = Pos.GetCubePosition();
+            CreateCube(createTiles, tiles, cube.q + 1, cube.r - 1, cube.s);
+            CreateCube(createTiles, tiles, cube.q + 1, cube.r, cube.s - 1);
+            CreateCube(createTiles, tiles, cube.q, cube.r + 1, cube.s - 1);
+            CreateCube(createTiles, tiles, cube.q - 1, cube.r + 1, cube.s);
+            CreateCube(createTiles, tiles, cube.q - 1, cube.r, cube.s + 1);
+            CreateCube(createTiles, tiles, cube.q, cube.r - 1, cube.s + 1);
+        }
 
         public List<Tile> Neighbors
         {
