@@ -1,7 +1,7 @@
 {
   "Name": "Test",
-  "MapWidth": 3,
-  "MapHeight": 3,
+  "MapWidth": 2,
+  "MapHeight": 2,
   "Seed": 2,
   "MapType": "2",
   "Players": [
@@ -48,7 +48,7 @@
 	{
       "Name": "Fighter",
       "PlayerId": 2,
-      "Blueprint": "Bomber",
+      "Blueprint": "Factory",
 	  "HoldPosition": true,
 	  "HoldFire": true,
 	  "EndlessAmmo": true,

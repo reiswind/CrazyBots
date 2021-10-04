@@ -498,7 +498,7 @@ namespace Engine.Interface
 
         public void CreateFlat()
         {
-            int mapWidth = 3;
+            int mapWidth = MapWidth;
 
             int offsetx = 10;
             int offsety = 10;

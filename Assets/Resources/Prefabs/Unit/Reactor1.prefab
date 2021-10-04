@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3226997383084630963}
   - component: {fileID: 4453180288523751950}
   m_Layer: 0
-  m_Name: ReactorXL
+  m_Name: Reactor1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

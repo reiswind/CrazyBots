@@ -32,8 +32,41 @@ namespace Assets.Scripts
                 return tileObjects.AsReadOnly();
             }
         }
-        public void Explode()
+
+        public void ExplodeCapacity(Transform parent, int capacity)
         {
+            while (tileObjects.Count > capacity)
+            //foreach (UnitBaseTileObject unitBaseTileObject in tileObjects)
+            {
+                UnitBaseTileObject unitBaseTileObject = tileObjects[tileObjects.Count-1];
+                tileObjects.Remove(unitBaseTileObject);
+
+                if (unitBaseTileObject.GameObject != null)
+                {
+                    unitBaseTileObject.GameObject.transform.SetParent(parent);
+
+                    Vector3 vector3 = new Vector3();
+                    vector3.y = 4f;
+                    vector3.x = UnityEngine.Random.value;
+                    vector3.z = UnityEngine.Random.value;
+
+                    Rigidbody otherRigid = unitBaseTileObject.GameObject.GetComponent<Rigidbody>();
+                    if (otherRigid != null)
+                    {
+                        otherRigid.isKinematic = false;
+                        otherRigid.velocity = vector3;
+                        otherRigid.rotation = UnityEngine.Random.rotation;
+                    }
+                    HexGrid.Destroy(unitBaseTileObject.GameObject, 5);
+                }
+            }
+            //tileObjects.Clear();
+        }
+
+        public void Explode(Transform parent)
+        {
+            ExplodeCapacity(parent, 0);
+            /*
             foreach (UnitBaseTileObject unitBaseTileObject in tileObjects)
             {
                 if (unitBaseTileObject.GameObject != null)
@@ -54,6 +87,7 @@ namespace Assets.Scripts
                 }
             }
             tileObjects.Clear();
+            */
         }
 
         public void Remove(UnitBaseTileObject unitBaseTileObject)
@@ -143,10 +177,8 @@ namespace Assets.Scripts
                     newUnitBaseTileObject.Placeholder = emptyCubes[0];
                     emptyCubes.Remove(newUnitBaseTileObject.Placeholder);
                     
-
                     newUnitBaseTileObject.GameObject = unitBase.HexGrid.CreateTileObject(gameObject.transform, tileObject);
                     newUnitBaseTileObject.GameObject.transform.position = newUnitBaseTileObject.Placeholder.transform.position;
-                    
                 }
             }
             // To many 

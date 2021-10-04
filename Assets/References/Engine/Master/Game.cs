@@ -772,7 +772,6 @@ namespace Engine.Master
                 }
                 else if (move.MoveType == MoveType.Fire)
                 {
-                    //HitByBullet(move, nextMoves);
                     finishedMoves.Add(move);
                 }
                 else
@@ -809,10 +808,8 @@ namespace Engine.Master
             Tile targetTile = GetTile(pos);
 
             TileObject tileObject = move.Stats.MoveUpdateGroundStat.TileObjects[0];
-
             targetTile.HitByBullet(tileObject);
 
-            
             if (!changedGroundPositions.ContainsKey(pos))
                 changedGroundPositions.Add(pos, null);
 
@@ -840,24 +837,25 @@ namespace Engine.Master
 
                     nextMoves.Add(hitmove);
 
-                    if (hitPart.Level == 0)
+                    if (hitPart.TileContainer != null)
                     {
-                        if (hitPart.TileContainer != null)
+                        //foreach (TileObject unitTileObject in hitPart.TileContainer.TileObjects)
+                        while (hitPart.TileContainer.Count > hitPart.TileContainer.Capacity)
                         {
-                            foreach (TileObject unitTileObject in hitPart.TileContainer.TileObjects)
+                            TileObject toDrop = hitPart.TileContainer.RemoveTileObject(TileObjectType.All);
+
+                            // Anything but minerals are distributed
+                            if (toDrop.TileObjectType != TileObjectType.Mineral)
                             {
-                                // Anything but minerals are distributed
-                                if (tileObject.TileObjectType != TileObjectType.Mineral)
-                                {
-                                    Map.AddOpenTileObject(tileObject);
-                                }
-                                else
-                                {
-                                    targetTile.TileContainer.Add(tileObject);
-                                }
+                                Map.AddOpenTileObject(tileObject);
+                            }
+                            else
+                            {
+                                targetTile.TileContainer.Add(tileObject);
                             }
                         }
                     }
+                    
                     TileObject hitPartTileObject = hitPart.PartTileObjects[0];
                     hitPart.PartTileObjects.Remove(hitPartTileObject);
 

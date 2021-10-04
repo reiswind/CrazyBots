@@ -60,8 +60,8 @@ namespace Assets.Scripts
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-			UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
-			//UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+			//UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+			UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 			GameModel gameModel;
 
@@ -398,7 +398,7 @@ namespace Assets.Scripts
 									}
 								}
 							}
-							if (maxActives > 50)
+							if (maxActives > 90)
 							{
 								interrupted = true;
 								break;
@@ -758,7 +758,7 @@ namespace Assets.Scripts
 					{
 						if (hitByBullet.TargetPosition == move.Positions[0])
 						{
-							hitByBullet.Stats = move.Stats;
+							hitByBullet.UpdateUnitStats = move.Stats;
 							skip = true;
 						}
 					}
@@ -813,7 +813,7 @@ namespace Assets.Scripts
                     {
 						if (hitByBullet.TargetPosition == move.Positions[0])
                         {
-							hitByBullet.Stats = move.Stats;
+							hitByBullet.UpdateGroundStats = move.Stats;
 							skip = true;
 						}
                     }
@@ -1083,7 +1083,7 @@ namespace Assets.Scripts
 		{
 			if (hitByBullet.TargetUnit == null)
 			{
-				if (hitByBullet.Stats != null)
+				if (hitByBullet.UpdateGroundStats != null)
 				{
 					GroundCell hexCell;
 
@@ -1091,9 +1091,9 @@ namespace Assets.Scripts
 					{
 						if (hexCell.Visible)
 						{
-							if (hitByBullet.Stats.MoveUpdateGroundStat != null)
+							if (hitByBullet.UpdateGroundStats.MoveUpdateGroundStat != null)
 							{
-								hexCell.Stats = hitByBullet.Stats;
+								hexCell.Stats = hitByBullet.UpdateGroundStats;
 								hexCell.UpdateGround();
 							}
 
@@ -1112,8 +1112,8 @@ namespace Assets.Scripts
 			else
 			{
 				hitByBullet.TargetUnit.HitByShell();
-				//hitByBullet.TargetUnit.UpdateStats(hitByBullet.Stats);
-				UnitBasePart unitBasePart= hitByBullet.TargetUnit.PartHitByShell(hitByBullet.HitPartTileObjectType);
+				
+				UnitBasePart unitBasePart= hitByBullet.TargetUnit.PartHitByShell(hitByBullet.HitPartTileObjectType, hitByBullet.UpdateUnitStats);
 				if (unitBasePart != null)
 					HitUnitPartAnimation(unitBasePart.Part.transform);
 				else

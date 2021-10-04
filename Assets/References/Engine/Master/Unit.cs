@@ -360,8 +360,9 @@ namespace Engine.Master
                         if (Container.TileContainer.Capacity < 20)
                             Container.TileContainer.CreateMinerals(Container.TileContainer.Capacity);
                         else
-                            Container.TileContainer.CreateMinerals(20);
-                        
+                            //Container.TileContainer.CreateMinerals(20);
+                            Container.TileContainer.CreateMinerals(Container.TileContainer.Capacity);
+
                     }
                 }
                 else if (level > Container.Level)
@@ -803,6 +804,10 @@ namespace Engine.Master
                         if (blueprintPart.PartType == TileObjectType.PartWeapon) partHit = Weapon;
 
                         partHit.Level--;
+                        if (partHit.TileContainer != null && blueprintPart.Capacity.HasValue)
+                        {
+                            partHit.TileContainer.Capacity = (blueprintPart.Capacity.Value / blueprintPart.Level) * partHit.Level;
+                        }
                         if (partHit.Level == 0)
                         {
                             if (blueprintPart.PartType == TileObjectType.PartArmor) Armor = null;

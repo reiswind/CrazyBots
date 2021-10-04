@@ -45,7 +45,8 @@ namespace Assets.Scripts
         public bool BulletImpact { get; set; }
         public Position FireingPosition { get; set; }
         public Position TargetPosition { get; set; }
-        public MoveUpdateStats Stats { get; set; }
+        public MoveUpdateStats UpdateUnitStats { get; set; }
+        public MoveUpdateStats UpdateGroundStats { get; set; }
     }
 
 
@@ -207,10 +208,44 @@ namespace Assets.Scripts
             return null;
         }*/
 
+        private void UpdatePart(UnitBasePart unitBasePart, MoveUpdateUnitPart moveUpdateUnitPart, bool underConstruction)
+        {
+            string name = moveUpdateUnitPart.Name + moveUpdateUnitPart.Level;
+            GameObject newPart = HexGrid.InstantiatePrefab(name);
+            newPart.transform.position = unitBasePart.Part.transform.position;
+            newPart.transform.SetParent(transform);
+            newPart.name = moveUpdateUnitPart.Name;
+
+            SetPlayerColor(HexGrid, PlayerId, newPart);
+
+            if (unitBasePart.TileObjectContainer != null)
+            {
+                foreach (UnitBaseTileObject unitBaseTileObject in unitBasePart.TileObjectContainer.TileObjects)
+                {
+                    if (unitBaseTileObject.GameObject != null)
+                    {
+                        unitBaseTileObject.GameObject.transform.SetParent(newPart.transform, false);
+                    }
+                }
+                
+            }
+            Destroy(unitBasePart.Part.gameObject);
+            unitBasePart.Part = newPart;
+        }
+
         private void ReplacePart(Transform part, MoveUpdateUnitPart moveUpdateUnitPart, bool underConstruction)
         {
             // Replace
-            GameObject newPart = HexGrid.InstantiatePrefab(moveUpdateUnitPart.Name);
+            string name;
+            if (underConstruction)
+            {
+                name = moveUpdateUnitPart.Name + "1";
+            }
+            else
+            {
+                name = moveUpdateUnitPart.Name + moveUpdateUnitPart.Level;
+            }
+            GameObject newPart = HexGrid.InstantiatePrefab(name);
             newPart.transform.position = part.transform.position;
             newPart.transform.SetParent(transform);
             newPart.name = moveUpdateUnitPart.Name;
@@ -545,7 +580,7 @@ namespace Assets.Scripts
         private Reactor1 Reactor;
         private Armor Armor;
 
-        private GameObject AddPart(GameObject foundation, GameObject parent, string name, bool underConstruction)
+        private GameObject AddPart(GameObject foundation, GameObject parent, MoveUpdateUnitPart moveUpdateUnitPart, bool underConstruction)
         {
             float y = 0.01f;
             if (parent != null)
@@ -553,6 +588,17 @@ namespace Assets.Scripts
                 Renderer rend = parent.GetComponent<Renderer>();
                 y += parent.transform.position.y + rend.bounds.size.y; // + 0.1f;
             }
+
+            string name;
+            if (underConstruction)
+            {
+                name = moveUpdateUnitPart.Name + "1";
+            }
+            else
+            {
+                name = moveUpdateUnitPart.Name + moveUpdateUnitPart.Level;
+            }
+
             // Replace
             GameObject newPart = HexGrid.InstantiatePrefab(name);
             Vector3 vector3 = transform.position;
@@ -613,15 +659,15 @@ namespace Assets.Scripts
             {
                 if (moveUpdateUnitPart.PartType == TileObjectType.PartExtractor)
                 {
-                    lastObject = AddPart(foundation, lastObject, "Foundation", UnderConstruction);
+                    lastObject = AddPart(foundation, lastObject, moveUpdateUnitPart, UnderConstruction);
                     foundation = lastObject;
                     AddBasePart(moveUpdateUnitPart, lastObject);
                 }
-                else if (moveUpdateUnitPart.PartType == TileObjectType.PartContainer)
+                else //if (moveUpdateUnitPart.PartType == TileObjectType.PartContainer)
                 {
-                    lastObject = AddPart(foundation, lastObject, "ContainerPart", UnderConstruction);
+                    lastObject = AddPart(foundation, lastObject, moveUpdateUnitPart, UnderConstruction);
                     AddBasePart(moveUpdateUnitPart, lastObject);
-
+                    /*
                     if (moveUpdateUnitPart.Level > 1)
                     {
                         lastObject = AddPart(foundation, lastObject, "ContainerPart", UnderConstruction);
@@ -631,13 +677,14 @@ namespace Assets.Scripts
                     {
                         lastObject = AddPart(foundation, lastObject, "ContainerPart", UnderConstruction);
                         AddBasePart(moveUpdateUnitPart, lastObject);
-                    }
+                    }*/
                 }
+                /*
                 else if (moveUpdateUnitPart.PartType == TileObjectType.PartReactor)
                 {
 
-                        lastObject = AddPart(foundation, lastObject, "ReactorPart", UnderConstruction);
-                        AddBasePart(moveUpdateUnitPart, lastObject);
+                    lastObject = AddPart(foundation, lastObject, moveUpdateUnitPart, UnderConstruction);
+                    AddBasePart(moveUpdateUnitPart, lastObject);
                     
                     if (moveUpdateUnitPart.Level == 2)
                     {
@@ -655,12 +702,13 @@ namespace Assets.Scripts
                         lastObject = AddPart(foundation, lastObject, "ReactorPart", UnderConstruction);
                         AddBasePart(moveUpdateUnitPart, lastObject);
                     }
+                    
                 }
                 else if (moveUpdateUnitPart.PartType == TileObjectType.PartAssembler)
                 {
-                        lastObject = AddPart(foundation, lastObject, "AssemblerPart", UnderConstruction);
-                        AddBasePart(moveUpdateUnitPart, lastObject);
-                    
+                    lastObject = AddPart(foundation, lastObject, moveUpdateUnitPart, UnderConstruction);
+                    AddBasePart(moveUpdateUnitPart, lastObject);
+                    /*
                     if (moveUpdateUnitPart.Level == 2)
                     {
                         lastObject = AddPart(foundation, lastObject, "AssemblerPart", UnderConstruction);
@@ -681,7 +729,8 @@ namespace Assets.Scripts
                         AddBasePart(moveUpdateUnitPart, lastObject);
 
                     }
-                }
+                    */
+                
 
             }
             UpdateParts();
@@ -750,15 +799,25 @@ namespace Assets.Scripts
             }
         }
 
-        public UnitBasePart PartHitByShell(TileObjectType hitPart)
+        public UnitBasePart PartHitByShell(TileObjectType hitPart, MoveUpdateStats stats)
         {
             foreach (UnitBasePart unitBasePart in UnitBaseParts)
             {                
                 if (unitBasePart.PartType == hitPart)
                 {
-                    unitBasePart.Level--;
-                    if (unitBasePart.Level == 0)
+                    if (unitBasePart.Level > 1)
                     {
+                        UpdateStats(stats);
+                    }
+                    else
+                    {
+                        if (unitBasePart.TileObjectContainer != null)
+                        {
+                            unitBasePart.TileObjectContainer.Explode(transform);
+                            List<TileObject> tileObjects = new List<TileObject>();
+                            unitBasePart.UpdateContent(tileObjects, 1);
+                        }
+                        unitBasePart.Level = 0;
                         GroundCell currentCell;
 
                         if (HexGrid.GroundCells.TryGetValue(CurrentPos, out currentCell))
@@ -773,17 +832,12 @@ namespace Assets.Scripts
 
                                 Vector3 vector3 = new Vector3();
                                 vector3.y = 15;
-                                vector3.x = Random.value;
-                                vector3.z = Random.value;
+                                //vector3.x = Random.value;
+                                //vector3.z = Random.value;
 
                                 otherRigid.velocity = vector3;
                                 //otherRigid.rotation = Random.rotation;
                             }
-                        }
-
-                        if (unitBasePart.TileObjectContainer != null)
-                        {
-                            unitBasePart.TileObjectContainer.Explode();
                         }
 
                         /*
@@ -990,13 +1044,6 @@ namespace Assets.Scripts
             UpdateParts();
         }
 
-        /*
-        internal List<UnitBaseTileObject> extractedBaseTileObjects = new List<UnitBaseTileObject>();
-        public void InsertGameTileObject(UnitBaseTileObject unitBaseTileObject)
-        {
-            extractedBaseTileObjects.Add(unitBaseTileObject);
-        }*/
-
         public void UpdateParts()
         {
             Container = null;
@@ -1015,7 +1062,8 @@ namespace Assets.Scripts
                 {
                     foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
                     {
-                        if (unitBasePart.Name == moveUpdateUnitPart.Name)
+                        //if (unitBasePart.Name == moveUpdateUnitPart.Name)
+                        if (unitBasePart.PartType == moveUpdateUnitPart.PartType)
                         {
                             if (unitBasePart.IsUnderConstruction && moveUpdateUnitPart.Exists)
                             {
@@ -1027,17 +1075,11 @@ namespace Assets.Scripts
                             {
                                 if (unitBasePart.TileObjectContainer == null)
                                     unitBasePart.TileObjectContainer = new TileObjectContainer();
-                                /*
-                                foreach (TileObject tileObject in moveUpdateUnitPart.TileObjects)
-                                {
-                                    UnitBaseTileObject unitBaseTileObject = new UnitBaseTileObject();
-                                    unitBaseTileObject.TileObject = tileObject;
-                                    unitBasePart.TileObjectContainer.Add(unitBaseTileObject);
-                                }*/
                             }
                             if (unitBasePart.Level != moveUpdateUnitPart.Level)
                             {
                                 unitBasePart.Level = moveUpdateUnitPart.Level;
+                                UpdatePart(unitBasePart, moveUpdateUnitPart, false);
                             }
 
                             if (!moveUpdateUnitPart.Exists)
@@ -1053,7 +1095,10 @@ namespace Assets.Scripts
                             {
                                 Container = container;
                                 if (moveUpdateUnitPart.TileObjects != null)
+                                {
+                                    unitBasePart.TileObjectContainer.ExplodeCapacity(transform, moveUpdateUnitPart.Capacity.Value);
                                     unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
+                                }
                             }
                             Extractor1 extractor = unitBasePart.Part.GetComponent<Extractor1>();
                             if (extractor != null)
@@ -1092,7 +1137,9 @@ namespace Assets.Scripts
                                     shield.gameObject.SetActive(moveUpdateUnitPart.ShieldActive == true);
                                 }
                             }
+                            break;
                         }
+                        
                     }
                 }
             }
