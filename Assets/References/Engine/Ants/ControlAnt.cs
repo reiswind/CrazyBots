@@ -1592,9 +1592,15 @@ namespace Engine.Control
 
                         if (ant.PlayerUnit.Unit.Engine != null)
                         {
+                            if (ant.PlayerUnit.Unit.Extractor == null &&
+                                ant.PlayerUnit.Unit.Weapon != null &&
+                                !ant.PlayerUnit.Unit.Weapon.WeaponLoaded)
+                            {
+                                // Cannot refill to fire, useless unit
+                                ant.PlayerUnit.Unit.ExtractUnit();
+                            }
                             ant.CreateAntParts();
                             movableAnts.Add(ant);
-                            //ant.AbendonUnit(player);
                         }
                         else
                         {

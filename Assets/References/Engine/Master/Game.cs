@@ -1192,6 +1192,10 @@ namespace Engine.Master
                         }
                         if (move.MoveType != MoveType.Skip)
                         {
+                            if (fromPos.X == 64 && fromPos.Y == 76)
+                            {
+                                int x = 0;
+                            }
                             extracted = unit.Extractor.ExtractInto(unit, move, fromTile, this, otherUnit, tileObject);
 
                             if (extracted)

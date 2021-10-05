@@ -1088,10 +1088,7 @@ namespace Engine.Interface
                 move.Stats.MoveUpdateGroundStat.TileObjects.Clear();
                 foreach (TileObject tileObject in tileObjects)
                 {
-                    TileObject newTileObject = new TileObject();
-                    newTileObject.TileObjectType = tileObject.TileObjectType;
-                    newTileObject.Direction = tileObject.Direction;
-                    newTileObject.TileObjectKind = tileObject.TileObjectKind;
+                    TileObject newTileObject = tileObject.Copy();
                     move.Stats.MoveUpdateGroundStat.TileObjects.Add(newTileObject);
                 }
             }

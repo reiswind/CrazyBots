@@ -11,10 +11,6 @@ namespace Assets.Scripts
         {
             bool found;
 
-            if (move.Stats.MoveUpdateGroundStat.TileObjects.Count == 12)
-            {
-                int x = 0;
-            }
 
             // Find the extracted tileobjects
             foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
@@ -24,6 +20,12 @@ namespace Assets.Scripts
                 if (otherUnit == null)
                 {
                     Position from = move.Positions[1];
+
+                    if (from.X == 64 && from.Y == 76)
+                    {
+                        int x = 0;
+                    }
+
                     GroundCell sourceCell; // = hexGrid.GroundCells[from];
 
                     if (hexGrid.GroundCells.TryGetValue(from, out sourceCell))
@@ -33,18 +35,38 @@ namespace Assets.Scripts
                         {
                             if (unitBaseTileObject.TileObject.TileObjectType == tileObject.TileObjectType)
                             {
-                                sourceCell.GameObjects.Remove(unitBaseTileObject);
-                                if (unitBaseTileObject.GameObject != null)
-                                    unitBaseTileObject.GameObject.transform.SetParent(transform, true);
+                                GameObject transitGameObject = null;
+                                if (tileObject.TileObjectType == TileObjectType.Tree)
+                                {
+                                    transitGameObject = unitBaseTileObject.GameObject;
 
-                                TransitObject transitObject = new TransitObject();
-                                transitObject.GameObject = unitBaseTileObject.GameObject;
-                                transitObject.TargetPosition = transform.position;
-                                transitObject.HideAtArrival = true;
-                                transitObject.ScaleDown = true;
+                                    unitBaseTileObject.TileObject.TileObjectType = TileObjectType.TreeTrunk;
+                                    unitBaseTileObject.GameObject = hexGrid.CreateDestructable(sourceCell.transform, unitBaseTileObject.TileObject);
+                                }
+                                else if (tileObject.TileObjectType == TileObjectType.Bush)
+                                {
+                                    transitGameObject = unitBaseTileObject.GameObject;
 
-                                hexGrid.AddTransitTileObject(transitObject);
-                                //unit.InsertGameTileObject(unitBaseTileObject);
+                                    unitBaseTileObject.TileObject.TileObjectType = TileObjectType.Gras;
+                                    unitBaseTileObject.GameObject = hexGrid.CreateDestructable(sourceCell.transform, unitBaseTileObject.TileObject);
+                                }
+                                else
+                                {
+                                    transitGameObject = unitBaseTileObject.GameObject;
+                                    sourceCell.GameObjects.Remove(unitBaseTileObject);
+                                }
+                                if (transitGameObject != null)
+                                {
+                                    transitGameObject.transform.SetParent(transform, true);
+
+                                    TransitObject transitObject = new TransitObject();
+                                    transitObject.GameObject = transitGameObject;
+                                    transitObject.TargetPosition = transform.position;
+                                    transitObject.HideAtArrival = true;
+                                    transitObject.ScaleDown = true;
+
+                                    hexGrid.AddTransitTileObject(transitObject);
+                                }
 
                                 found = true;
                                 break;

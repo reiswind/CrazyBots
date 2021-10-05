@@ -210,27 +210,20 @@ namespace Assets.Scripts
 
         private void UpdatePart(UnitBasePart unitBasePart, MoveUpdateUnitPart moveUpdateUnitPart, bool underConstruction)
         {
-            string name = moveUpdateUnitPart.Name + moveUpdateUnitPart.Level;
-            GameObject newPart = HexGrid.InstantiatePrefab(name);
-            newPart.transform.position = unitBasePart.Part.transform.position;
-            newPart.transform.SetParent(transform);
-            newPart.name = name;
-
-            SetPlayerColor(HexGrid, PlayerId, newPart);
-
-            if (unitBasePart.TileObjectContainer != null)
+            GameObject oldPart = unitBasePart.Part;
+            if (unitBasePart.Level > 0)
             {
-                foreach (UnitBaseTileObject unitBaseTileObject in unitBasePart.TileObjectContainer.TileObjects)
-                {
-                    if (unitBaseTileObject.GameObject != null)
-                    {
-                        unitBaseTileObject.GameObject.transform.SetParent(newPart.transform, false);
-                    }
-                }
-                
+                string name = moveUpdateUnitPart.Name + moveUpdateUnitPart.Level;
+                GameObject newPart = HexGrid.InstantiatePrefab(name);
+                newPart.transform.position = unitBasePart.Part.transform.position;
+                newPart.transform.SetParent(transform);
+                newPart.name = name;
+
+                SetPlayerColor(HexGrid, PlayerId, newPart);
+                unitBasePart.Part = newPart;
             }
-            Destroy(unitBasePart.Part.gameObject);
-            unitBasePart.Part = newPart;
+            if (oldPart != null)
+                Destroy(oldPart);
         }
 
         private void ReplacePart(Transform part, MoveUpdateUnitPart moveUpdateUnitPart, bool underConstruction)
@@ -1054,6 +1047,10 @@ namespace Assets.Scripts
             Engine = null;
             Armor = null;
 
+            if (UnitId == "unit17")
+            {
+                int x = 0;
+            }
             bool missingPartFound = false;
 
             foreach (UnitBasePart unitBasePart in UnitBaseParts)
@@ -1076,12 +1073,28 @@ namespace Assets.Scripts
                                 if (unitBasePart.TileObjectContainer == null)
                                     unitBasePart.TileObjectContainer = new TileObjectContainer();
                             }
-                            if (unitBasePart.Level > moveUpdateUnitPart.Level)
+                            if (unitBasePart.Level > 0 &&
+                                unitBasePart.Level != moveUpdateUnitPart.Level )
                             {
+                                if (unitBasePart.TileObjectContainer != null)
+                                {
+                                    unitBasePart.TileObjectContainer.ExplodeExceedingCapacity(transform, moveUpdateUnitPart.Capacity.Value);
+                                }
                                 unitBasePart.Level = moveUpdateUnitPart.Level;
                                 UpdatePart(unitBasePart, moveUpdateUnitPart, false);
-                            }
 
+                                // Replace the tile container
+                                if (moveUpdateUnitPart.TileObjects != null)
+                                {
+                                    unitBasePart.TileObjectContainer = new TileObjectContainer();
+                                }
+                            }
+                            
+                            if (unitBasePart.Level < moveUpdateUnitPart.Level)
+                            {
+                                unitBasePart.Level = moveUpdateUnitPart.Level;
+                            }
+                            
                             if (!moveUpdateUnitPart.Exists)
                                 missingPartFound = true;
 
@@ -1096,7 +1109,6 @@ namespace Assets.Scripts
                                 Container = container;
                                 if (moveUpdateUnitPart.TileObjects != null)
                                 {
-                                    unitBasePart.TileObjectContainer.ExplodeExceedingCapacity(transform, moveUpdateUnitPart.Capacity.Value);
                                     unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
                                 }
                             }

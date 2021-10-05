@@ -42,23 +42,30 @@ namespace Assets.Scripts
                     UnitBaseTileObject unitBaseTileObject = tileObjects[tileObjects.Count - 1];
                     tileObjects.Remove(unitBaseTileObject);
 
-                    if (unitBaseTileObject.GameObject != null)
+                    try
                     {
-                        unitBaseTileObject.GameObject.transform.SetParent(parent);
-
-                        Vector3 vector3 = new Vector3();
-                        vector3.y = 4f;
-                        vector3.x = UnityEngine.Random.value;
-                        vector3.z = UnityEngine.Random.value;
-
-                        Rigidbody otherRigid = unitBaseTileObject.GameObject.GetComponent<Rigidbody>();
-                        if (otherRigid != null)
+                        if (unitBaseTileObject.GameObject != null)
                         {
-                            otherRigid.isKinematic = false;
-                            otherRigid.velocity = vector3;
-                            otherRigid.rotation = UnityEngine.Random.rotation;
+                            unitBaseTileObject.GameObject.transform.SetParent(parent);
+
+                            Vector3 vector3 = new Vector3();
+                            vector3.y = 4f;
+                            vector3.x = UnityEngine.Random.value;
+                            vector3.z = UnityEngine.Random.value;
+
+                            Rigidbody otherRigid = unitBaseTileObject.GameObject.GetComponent<Rigidbody>();
+                            if (otherRigid != null)
+                            {
+                                otherRigid.isKinematic = false;
+                                otherRigid.velocity = vector3;
+                                otherRigid.rotation = UnityEngine.Random.rotation;
+                            }
+                            HexGrid.Destroy(unitBaseTileObject.GameObject, 5);
                         }
-                        HexGrid.Destroy(unitBaseTileObject.GameObject, 5);
+                    }
+                    catch (Exception)
+                    {
+                        throw;
                     }
                 }
             }
@@ -142,7 +149,7 @@ namespace Assets.Scripts
             foreach (TileObject tileObject in unassignedTileObjects)
             {
                 UnitBaseTileObject newUnitBaseTileObject = new UnitBaseTileObject();
-                newUnitBaseTileObject.TileObject = tileObject;
+                newUnitBaseTileObject.TileObject = tileObject.Copy();
                 tileObjects.Add(newUnitBaseTileObject);
 
                 if (oneItemPerCube)
@@ -150,7 +157,7 @@ namespace Assets.Scripts
                     newUnitBaseTileObject.Placeholder = emptyCubes[0];
                     emptyCubes.Remove(newUnitBaseTileObject.Placeholder);
                     
-                    newUnitBaseTileObject.GameObject = unitBase.HexGrid.CreateTileObject(gameObject.transform, tileObject);
+                    newUnitBaseTileObject.GameObject = unitBase.HexGrid.CreateTileObject(gameObject.transform, newUnitBaseTileObject.TileObject);
                     newUnitBaseTileObject.GameObject.transform.position = newUnitBaseTileObject.Placeholder.transform.position;
                 }
             }

@@ -161,11 +161,7 @@ namespace Engine.Master
                         move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
                         move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
 
-                        TileObject tileObjectCopy = new TileObject();
-                        tileObjectCopy.TileObjectType = tileObject.TileObjectType;
-                        tileObjectCopy.TileObjectKind = tileObject.TileObjectKind;
-                        tileObjectCopy.Direction = tileObject.Direction;
-
+                        TileObject tileObjectCopy = tileObject.Copy();
                         move.Stats.MoveUpdateGroundStat.TileObjects.Add(tileObjectCopy);
 
                         possibleMoves.Add(move);

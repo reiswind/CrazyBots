@@ -341,6 +341,10 @@ namespace Assets.Scripts
 
         internal void CreateDestructables()
         {
+            if (Pos.X == 64 && Pos.Y == 76)
+            {
+                int x = 0;
+            }
             SetGroundMaterial();
 
             List<UnitBaseTileObject> allTileObjects = new List<UnitBaseTileObject>();
@@ -377,7 +381,7 @@ namespace Assets.Scripts
                         }
                         UnitBaseTileObject unitBaseTileObject = new UnitBaseTileObject();
                         unitBaseTileObject.GameObject = destructable;
-                        unitBaseTileObject.TileObject = tileObject;
+                        unitBaseTileObject.TileObject = tileObject.Copy();
 
                         GameObjects.Add(unitBaseTileObject);
                     }

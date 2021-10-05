@@ -194,6 +194,16 @@ namespace Engine.Interface
         {
 
         }
+
+        public TileObject Copy()
+        {
+            TileObject copy = new TileObject();
+            copy.Direction = Direction;
+            copy.TileObjectType = TileObjectType;
+            copy.TileObjectKind = TileObjectKind;
+            return copy;
+        }
+
         public static int GetBioMass(TileObjectType tileObjectType)
         {
             if (tileObjectType == TileObjectType.Tree) return 3;
@@ -212,6 +222,12 @@ namespace Engine.Interface
             if (tileObjectType == TileObjectType.Mineral) return true;
             if (tileObjectType == TileObjectType.Tree) return true;
             if (tileObjectType == TileObjectType.Bush) return true;
+
+            return false;
+        }
+        public static bool IsTileObjectTypeObstacle(TileObjectType tileObjectType)
+        {
+            if (tileObjectType == TileObjectType.Stone) return true;
 
             return false;
         }

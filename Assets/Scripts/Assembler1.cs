@@ -13,6 +13,7 @@ namespace Assets.Scripts
             foreach (UnitBasePart upgradedBasePart in upgradedUnit.UnitBaseParts)
             {
                 if (upgradedBasePart.PartType == moveUpdateUnitPart.PartType &&
+                    upgradedBasePart.Level == 0 &&
                     upgradedBasePart.CompleteLevel == moveUpdateUnitPart.Level)
                 {
                     TransitObject transitObject = new TransitObject();

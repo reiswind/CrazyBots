@@ -107,6 +107,7 @@ namespace Engine.Interface
 
     public class Tile
     {
+        /*
         public static TileObjectType GetObjectType(string id)
         {
             if (id == "Mineral") return TileObjectType.Mineral;
@@ -116,7 +117,7 @@ namespace Engine.Interface
             if (id == "Tree") return TileObjectType.Tree;
             if (id == "Sand") return TileObjectType.Sand;
             return TileObjectType.None;
-        }
+        }*/
 
         internal Tile(Map map, Position pos)
         {
@@ -205,35 +206,8 @@ namespace Engine.Interface
                     break;
                 }
             }
-            //AdjustTerrainType();
         }
-        /*
-        internal void AdjustTerrainType()
-        {
-            if (TerrainTypeIndex == 3)
-            {
-                if (PlantLevel > 1 && Count(TileObjectType.Tree) == 0)
-                {
-                    TerrainTypeIndex = 1;
-                    PlantLevel = 1;
-                }
-                if (PlantLevel > 1 && Count(TileObjectType.Bush) == 0)
-                {
-                    TerrainTypeIndex = 1;
-                    PlantLevel = 1;
-                }
-            }
-            if (TerrainTypeIndex == 1)
-            {
-                if (Count(TileObjectType.Gras) == 0)
-                {
-                    // Dirt
-                    TerrainTypeIndex = 0;
-                    PlantLevel = 0;
-                }
-            }
-        }*/
-
+        
         internal static Direction TurnAround(Direction direction)
         {
             if (direction == Direction.N) return Direction.S;
@@ -273,17 +247,10 @@ namespace Engine.Interface
             tileFit.TileObjects = new List<TileObject>();
             foreach (TileObject tileObject in randomTileFit.TileObjects)
             {
-                TileObject rotatedTileObject = new TileObject();
-                rotatedTileObject.TileObjectType = tileObject.TileObjectType;
-                rotatedTileObject.TileObjectKind = tileObject.TileObjectKind;
+                TileObject rotatedTileObject = tileObject.Copy();
                 rotatedTileObject.Direction = TurnLeft(tileObject.Direction);
 
                 tileFit.TileObjects.Add(rotatedTileObject);
-            }
-
-            if (tileFit.TileFitType == TileFitType.Tree)
-            {
-                int x =0;
             }
 
             int bestRotation = 0;
@@ -320,9 +287,6 @@ namespace Engine.Interface
                 else
                     score = 0.7f;
             }
-
-            //if (t1 == TileObjectType.LeaveTree) t1 = TileObjectType.Tree;
-            //if (t2 == TileObjectType.LeaveTree) t2 = TileObjectType.Tree;
 
             else if ((t1 == TileObjectType.Tree && t2 == TileObjectType.Bush) || (t1 == TileObjectType.Bush && t2 == TileObjectType.Tree))
                 score = 1;
@@ -395,8 +359,6 @@ namespace Engine.Interface
         private List<Tile> neighbors;
 
         public double Height { get; set; }
-        //public int TerrainTypeIndex { get; set; }
-        //public int PlantLevel { get; set; }
 
         // Debug
         public bool IsOpenTile { get; set; }
@@ -415,13 +377,6 @@ namespace Engine.Interface
         public int Owner { get; set; }
 
         public bool IsBorder { get; set; }
-
-        /*
-        public void AddMinerals(int mins)
-        {
-            Map.Zones[ZoneId].TotalMinerals += mins;
-            Container.CreateMinerals(mins);
-        }*/
 
         public bool CanBuild()
         {
@@ -472,6 +427,8 @@ namespace Engine.Interface
             foreach (TileObject tileObject in TileContainer.TileObjects)
             {
                 if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))                
+                    return false;
+                if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
                     return false;
             }
 

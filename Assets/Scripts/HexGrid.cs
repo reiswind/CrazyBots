@@ -1281,7 +1281,10 @@ namespace Assets.Scripts
 			{
 				return;
 			}
-
+			if (blueprint.Name == "Bomber")
+            {
+				int x=0;
+            }
 			UnitBase unit = InstantiatePrefab<UnitBase>(blueprint.Layout);
 
 			unit.HexGrid = this;
