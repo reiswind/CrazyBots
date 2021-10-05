@@ -166,7 +166,7 @@ public class StrategyCamera : MonoBehaviour
 				GroundCell groundCell = raycastHit.collider.gameObject.GetComponent<GroundCell>();
 				if (groundCell != null)
 				{
-					Debug.Log(groundCell.Pos.X + "," + groundCell.Pos.Y);
+					//Debug.Log(groundCell.Pos.X + "," + groundCell.Pos.Y);
 					Position realPos = new Position();
 					realPos.X = groundCell.Pos.X; // + 16;
 					realPos.Y = groundCell.Pos.Y; // + 16;

@@ -214,7 +214,7 @@ namespace Assets.Scripts
             GameObject newPart = HexGrid.InstantiatePrefab(name);
             newPart.transform.position = unitBasePart.Part.transform.position;
             newPart.transform.SetParent(transform);
-            newPart.name = moveUpdateUnitPart.Name;
+            newPart.name = name;
 
             SetPlayerColor(HexGrid, PlayerId, newPart);
 
@@ -237,7 +237,7 @@ namespace Assets.Scripts
         {
             // Replace
             string name;
-            if (underConstruction)
+            if (underConstruction && moveUpdateUnitPart.Level == 0)
             {
                 name = moveUpdateUnitPart.Name + "1";
             }
@@ -248,7 +248,7 @@ namespace Assets.Scripts
             GameObject newPart = HexGrid.InstantiatePrefab(name);
             newPart.transform.position = part.transform.position;
             newPart.transform.SetParent(transform);
-            newPart.name = moveUpdateUnitPart.Name;
+            newPart.name = name;
 
             if (underConstruction)
             {
@@ -1076,7 +1076,7 @@ namespace Assets.Scripts
                                 if (unitBasePart.TileObjectContainer == null)
                                     unitBasePart.TileObjectContainer = new TileObjectContainer();
                             }
-                            if (unitBasePart.Level != moveUpdateUnitPart.Level)
+                            if (unitBasePart.Level > moveUpdateUnitPart.Level)
                             {
                                 unitBasePart.Level = moveUpdateUnitPart.Level;
                                 UpdatePart(unitBasePart, moveUpdateUnitPart, false);
@@ -1096,7 +1096,7 @@ namespace Assets.Scripts
                                 Container = container;
                                 if (moveUpdateUnitPart.TileObjects != null)
                                 {
-                                    unitBasePart.TileObjectContainer.ExplodeCapacity(transform, moveUpdateUnitPart.Capacity.Value);
+                                    unitBasePart.TileObjectContainer.ExplodeExceedingCapacity(transform, moveUpdateUnitPart.Capacity.Value);
                                     unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
                                 }
                             }

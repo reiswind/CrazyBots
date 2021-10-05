@@ -33,61 +33,40 @@ namespace Assets.Scripts
             }
         }
 
-        public void ExplodeCapacity(Transform parent, int capacity)
+        public void ExplodeExceedingCapacity(Transform parent, int capacity)
         {
-            while (tileObjects.Count > capacity)
-            //foreach (UnitBaseTileObject unitBaseTileObject in tileObjects)
+            if (oneItemPerCube)
             {
-                UnitBaseTileObject unitBaseTileObject = tileObjects[tileObjects.Count-1];
-                tileObjects.Remove(unitBaseTileObject);
-
-                if (unitBaseTileObject.GameObject != null)
+                while (tileObjects.Count > capacity)
                 {
-                    unitBaseTileObject.GameObject.transform.SetParent(parent);
+                    UnitBaseTileObject unitBaseTileObject = tileObjects[tileObjects.Count - 1];
+                    tileObjects.Remove(unitBaseTileObject);
 
-                    Vector3 vector3 = new Vector3();
-                    vector3.y = 4f;
-                    vector3.x = UnityEngine.Random.value;
-                    vector3.z = UnityEngine.Random.value;
-
-                    Rigidbody otherRigid = unitBaseTileObject.GameObject.GetComponent<Rigidbody>();
-                    if (otherRigid != null)
+                    if (unitBaseTileObject.GameObject != null)
                     {
-                        otherRigid.isKinematic = false;
-                        otherRigid.velocity = vector3;
-                        otherRigid.rotation = UnityEngine.Random.rotation;
+                        unitBaseTileObject.GameObject.transform.SetParent(parent);
+
+                        Vector3 vector3 = new Vector3();
+                        vector3.y = 4f;
+                        vector3.x = UnityEngine.Random.value;
+                        vector3.z = UnityEngine.Random.value;
+
+                        Rigidbody otherRigid = unitBaseTileObject.GameObject.GetComponent<Rigidbody>();
+                        if (otherRigid != null)
+                        {
+                            otherRigid.isKinematic = false;
+                            otherRigid.velocity = vector3;
+                            otherRigid.rotation = UnityEngine.Random.rotation;
+                        }
+                        HexGrid.Destroy(unitBaseTileObject.GameObject, 5);
                     }
-                    HexGrid.Destroy(unitBaseTileObject.GameObject, 5);
                 }
             }
-            //tileObjects.Clear();
         }
 
         public void Explode(Transform parent)
         {
-            ExplodeCapacity(parent, 0);
-            /*
-            foreach (UnitBaseTileObject unitBaseTileObject in tileObjects)
-            {
-                if (unitBaseTileObject.GameObject != null)
-                {
-                    Vector3 vector3 = new Vector3();
-                    vector3.y = 4f;
-                    vector3.x = UnityEngine.Random.value;
-                    vector3.z = UnityEngine.Random.value;
-
-                    Rigidbody otherRigid = unitBaseTileObject.GameObject.GetComponent<Rigidbody>();
-                    if (otherRigid != null)
-                    {
-                        otherRigid.isKinematic = false;
-                        otherRigid.velocity = vector3;
-                        otherRigid.rotation = UnityEngine.Random.rotation;
-                    }
-                    HexGrid.Destroy(unitBaseTileObject.GameObject, 5);
-                }
-            }
-            tileObjects.Clear();
-            */
+            ExplodeExceedingCapacity(parent, 0);
         }
 
         public void Remove(UnitBaseTileObject unitBaseTileObject)
@@ -120,6 +99,8 @@ namespace Assets.Scripts
             return true;
         }
 
+        private bool oneItemPerCube;
+
         public void UpdateContent(UnitBase unitBase, GameObject gameObject, List<TileObject> otherTileObjects, int? capacity)
         {
             if (capacity.HasValue && capacity <= 0)
@@ -131,13 +112,9 @@ namespace Assets.Scripts
 
                 filled = 0;
                 max = mineralCubes.Count;
+                oneItemPerCube = capacity == mineralCubes.Count;
             }
 
-            bool oneItemPerCube = capacity == mineralCubes.Count;
-            if (oneItemPerCube && capacity == 24)
-            {
-                int x=0;
-            }
             // Match content
             List<TileObject> unassignedTileObjects = new List<TileObject>();
             unassignedTileObjects.AddRange(otherTileObjects);
@@ -170,10 +147,6 @@ namespace Assets.Scripts
 
                 if (oneItemPerCube)
                 {
-                    if (emptyCubes.Count == 0)
-                    {
-                        int x = 0;
-                    }
                     newUnitBaseTileObject.Placeholder = emptyCubes[0];
                     emptyCubes.Remove(newUnitBaseTileObject.Placeholder);
                     
@@ -186,7 +159,16 @@ namespace Assets.Scripts
             {
                 if (unitBaseTileObject.GameObject != null)
                 {
-                    HexGrid.Destroy(unitBaseTileObject.GameObject);
+                    try
+                    {
+                        HexGrid.Destroy(unitBaseTileObject.GameObject);
+                        unitBaseTileObject.GameObject = null;
+                    }
+                    catch(Exception)
+                    {
+                        int x = 0;
+                    }
+
                 }
                 tileObjects.Remove(unitBaseTileObject);
 
@@ -195,7 +177,14 @@ namespace Assets.Scripts
                     if (unitBaseTileObject.Placeholder != null)
                     {
                         emptyCubes.Add(unitBaseTileObject.Placeholder);
-                        unitBaseTileObject.Placeholder.SetActive(false);
+                        try
+                        {
+                            unitBaseTileObject.Placeholder.SetActive(false);
+                        }
+                        catch (Exception)
+                        {
+                            int x = 0;
+                        }
                     }
                 }
             }
@@ -237,12 +226,30 @@ namespace Assets.Scripts
                     {
                         filled--;
                         if (filled < mineralCubes.Count)
-                            mineralCubes[filled].SetActive(false);
+                        {
+                            try 
+                            { 
+                                mineralCubes[filled].SetActive(false);
+                            }
+                            catch (Exception)
+                            {
+                                int x = 0;
+                            }
+                        }
                     }
                     while (filled < mins)
                     {
                         if (filled < mineralCubes.Count)
-                            mineralCubes[filled].SetActive(true);
+                        {
+                            try 
+                            {
+                                mineralCubes[filled].SetActive(true);
+                            }
+                            catch (Exception)
+                            {
+                                int x = 0;
+                            }
+                        }
                         filled++;
                     }
                 }

@@ -35,7 +35,21 @@ namespace Assets.Scripts
 
         public void UpdateContent(List<TileObject> tileObjects, int? capacity)
         {
-            TileObjectContainer.UpdateContent(UnitBase, Part, tileObjects, capacity);
+            if (UnitBase.gameObject == null || Part.gameObject == null)
+            {
+                int x = 0;
+            }
+            else
+            {
+                try
+                {
+                    TileObjectContainer.UpdateContent(UnitBase, Part, tileObjects, capacity);
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
         }
     }
 }

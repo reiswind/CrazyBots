@@ -60,8 +60,8 @@ namespace Assets.Scripts
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-			//UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
-			UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+			UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+			//UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 			GameModel gameModel;
 
@@ -726,6 +726,8 @@ namespace Assets.Scripts
 				}
 				else if (move.MoveType == MoveType.Fire)
 				{
+					Debug.Log("Move Fire" + move.OtherUnitId);
+
 					if (BaseUnits.ContainsKey(move.UnitId))
 					{
 						UnitBase unit = BaseUnits[move.UnitId];

@@ -48,7 +48,7 @@
 	{
       "Name": "Fighter",
       "PlayerId": 2,
-      "Blueprint": "Factory",
+      "Blueprint": "Container",
 	  "HoldPosition": true,
 	  "HoldFire": true,
 	  "EndlessAmmo": true,
