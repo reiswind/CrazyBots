@@ -61,8 +61,6 @@ namespace Assets.Scripts
         private Text headerSubText;
         private Text headerGroundText;
 
-        public Button m_YourFirstButton;
-
         // Start is called before the first frame update
         void Start()
         {
