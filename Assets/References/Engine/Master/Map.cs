@@ -21,6 +21,8 @@ namespace Engine.Interface
         public int TotalMetal { get; set; }
         public int TotalUnits { get; set; }
         public int TotalPower { get; set; }
+
+        public List<GameCommand> GameCommands { get; set; }
     }
 
     public class MapPheromoneItem
@@ -114,11 +116,17 @@ namespace Engine.Interface
                 }
             }
 
-            foreach (Player player in game.Players.Values)
+            foreach (KeyValuePair<int, MapPlayerInfo> valuePair in PlayerInfo)
             {
-                //player.GameCommands
+                if (valuePair.Key != 0)
+                {
+                    Player player = game.Players[valuePair.Key];
+                    MapPlayerInfo mapPlayerInfo = valuePair.Value;
+
+                    mapPlayerInfo.GameCommands = player.GameCommands;
+                }
             }
-            
+
             if (moves != null)
             {
                 foreach (Move move in moves)

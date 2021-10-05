@@ -1029,7 +1029,7 @@ namespace Engine.Control
 
         private void AttachGamecommands(Player player, List<Ant> unmovedAnts, List<Move> moves)
         {
-            List<GameCommand> assignedCommands = new List<GameCommand>();
+            List<GameCommand> completedCommands = new List<GameCommand>();
 
             foreach (GameCommand gameCommand in player.GameCommands)
             {
@@ -1052,13 +1052,13 @@ namespace Engine.Control
                             }
                         }
                     }
-                    assignedCommands.Add(gameCommand);
+                    completedCommands.Add(gameCommand);
                 }
                 if (gameCommand.GameCommandType == GameCommandType.Extract)
                 {
                     // TODO
 
-                    assignedCommands.Add(gameCommand);
+                    completedCommands.Add(gameCommand);
                 }
             }
 
@@ -1087,12 +1087,15 @@ namespace Engine.Control
             // Attach gamecommands to idle units
             foreach (GameCommand gameCommand in player.GameCommands)
             {
+                if (gameCommand.AttachedUnits.Count > 0)
+                    continue;
+
                 if (gameCommand.GameCommandType == GameCommandType.Build)
                 {
                     if (HasUnitBeenBuilt(player, gameCommand, null, moves))
                     {
                         // Building is there. Command complete.
-                        assignedCommands.Add(gameCommand);
+                        completedCommands.Add(gameCommand);
                     }
                 }
                 if (gameCommand.GameCommandType == GameCommandType.Build)
@@ -1128,7 +1131,7 @@ namespace Engine.Control
                     }
                     if (bestAnt != null)
                     {
-                        assignedCommands.Add(gameCommand);
+                        completedCommands.Add(gameCommand);
                         bestAnt.PlayerUnit.Unit.CurrentGameCommand = gameCommand;
                     }
                 }
@@ -1143,42 +1146,42 @@ namespace Engine.Control
 
                     foreach (Ant ant in unmovedAnts)
                     {
-
-                            if (gameCommand.GameCommandType == GameCommandType.Attack && ant.AntWorkerType == AntWorkerType.Fighter ||
-                                gameCommand.GameCommandType == GameCommandType.Defend && ant.AntWorkerType == AntWorkerType.Fighter ||
-                                gameCommand.GameCommandType == GameCommandType.Scout && ant.AntWorkerType == AntWorkerType.Fighter ||
-                                gameCommand.GameCommandType == GameCommandType.Collect && ant.AntWorkerType == AntWorkerType.Worker)
+                        if (gameCommand.GameCommandType == GameCommandType.Attack && ant.AntWorkerType == AntWorkerType.Fighter ||
+                            gameCommand.GameCommandType == GameCommandType.Defend && ant.AntWorkerType == AntWorkerType.Fighter ||
+                            gameCommand.GameCommandType == GameCommandType.Scout && ant.AntWorkerType == AntWorkerType.Fighter ||
+                            gameCommand.GameCommandType == GameCommandType.Collect && ant.AntWorkerType == AntWorkerType.Worker)
+                        {
+                            if (ant.PlayerUnit.Unit.CurrentGameCommand == null &&
+                                !ant.PlayerUnit.Unit.UnderConstruction &&
+                                !ant.PlayerUnit.Unit.ExtractMe)
                             {
-                                if (ant.PlayerUnit.Unit.CurrentGameCommand == null &&
-                                    !ant.PlayerUnit.Unit.UnderConstruction &&
-                                    !ant.PlayerUnit.Unit.ExtractMe)
+                                if (ant.PlayerUnit.Unit.Pos == gameCommand.TargetPosition)
                                 {
-                                    if (ant.PlayerUnit.Unit.Pos == gameCommand.TargetPosition)
+                                    bestAnt = ant;
+                                    break;
+                                }
+                                else
+                                {
+                                    double distance = ant.PlayerUnit.Unit.Pos.GetDistanceTo(gameCommand.TargetPosition);
+                                    if (bestAnt == null || distance < bestDistance)
                                     {
+                                        bestDistance = distance;
                                         bestAnt = ant;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        double distance = ant.PlayerUnit.Unit.Pos.GetDistanceTo(gameCommand.TargetPosition);
-                                        if (bestAnt == null || distance < bestDistance)
-                                        {
-                                            bestDistance = distance;
-                                            bestAnt = ant;
-                                        }
                                     }
                                 }
                             }
                         }
+                    }
 
                     if (bestAnt != null)
                     {
-                        assignedCommands.Add(gameCommand);
                         bestAnt.PlayerUnit.Unit.CurrentGameCommand = gameCommand;
+                        gameCommand.AttachedUnits.Add(bestAnt.PlayerUnit.Unit);
                     }
                 }
             }
-            foreach (GameCommand gameCommand in assignedCommands)
+            
+            foreach (GameCommand gameCommand in completedCommands)
             {
                 player.GameCommands.Remove(gameCommand);
             }
@@ -1586,7 +1589,8 @@ namespace Engine.Control
                         // Another ant has to take this task
                         if (ant.PlayerUnit.Unit.CurrentGameCommand != null)
                         {
-                            player.GameCommands.Add(ant.PlayerUnit.Unit.CurrentGameCommand);
+                            ant.PlayerUnit.Unit.CurrentGameCommand.AttachedUnits.Remove(ant.PlayerUnit.Unit);
+                            //player.GameCommands.Add(ant.PlayerUnit.Unit.CurrentGameCommand);
                             ant.PlayerUnit.Unit.CurrentGameCommand = null;
                         }
 

@@ -26,11 +26,16 @@ namespace Engine.Interface
 
     public class GameCommand
     {
+        public GameCommand()
+        {
+            AttachedUnits = new List<Unit>();
+        }
         public int PlayerId { get; set; }
         public string UnitId { get; set; } // Which unit to build
         public Position TargetPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
-        //public bool Append { get; set; }
+        
+        public List<Unit> AttachedUnits { get; private set; }
     }
 
     public enum MoveFilter

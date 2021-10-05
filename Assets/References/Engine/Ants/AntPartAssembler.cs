@@ -150,6 +150,9 @@ namespace Engine.Ants
 
                         foreach (GameCommand gameCommand in player.GameCommands)
                         {
+                            if (gameCommand.AttachedUnits.Count > 0)
+                                continue;
+
                             double d = Assembler.Unit.Pos.GetDistanceTo(gameCommand.TargetPosition);
                             if (bestGameCommand == null || d < bestDistance)
                             {
@@ -268,7 +271,10 @@ namespace Engine.Ants
                             if (selectedGameCommand != null && selectedGameCommand.GameCommandType == GameCommandType.Build)
                             {
                                 ant.GameCommandDuringCreation = selectedGameCommand;
-                                player.GameCommands.Remove(selectedGameCommand);
+
+                                // Cannot add to assigned units cause unit does not exist yet
+
+                                //player.GameCommands.Remove(selectedGameCommand);
                             }
                         }
                         else if (move.UnitId == "Worker")
@@ -281,7 +287,8 @@ namespace Engine.Ants
                             if (selectedGameCommand != null && selectedGameCommand.GameCommandType == GameCommandType.Collect)
                             {
                                 ant.GameCommandDuringCreation = selectedGameCommand;
-                                player.GameCommands.Remove(selectedGameCommand);
+                                selectedGameCommand.AttachedUnits.Add(ant.PlayerUnit.Unit);
+                                //player.GameCommands.Remove(selectedGameCommand);
                             }
                             /*
                             if (cntrlUnit.GameCommands != null && cntrlUnit.GameCommands.Count > 0)

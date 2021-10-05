@@ -430,6 +430,69 @@ namespace Assets.Scripts
             }
         }
 
+        private List<CellGameCommand> cellGameCommands = new List<CellGameCommand>();
+
+        public bool ClearCommands()
+        {
+            List<CellGameCommand> deletedCommands = new List<CellGameCommand>();
+            foreach (CellGameCommand cellGameCommand in cellGameCommands)
+            {
+                if (cellGameCommand.Touched == false)
+                {
+                    if (cellGameCommand.Command != null)
+                    {
+                        Destroy(cellGameCommand.Command);
+                    }
+                    deletedCommands.Add(cellGameCommand);
+                }
+            }
+            foreach (CellGameCommand deletedCellGameCommand in deletedCommands)
+            {
+                cellGameCommands.Remove(deletedCellGameCommand);
+            }
+            return cellGameCommands.Count == 0;
+        }
+
+        public void UntouchCommands()
+        {
+            foreach (CellGameCommand cellGameCommand in cellGameCommands)
+            {
+                cellGameCommand.Touched = false;
+            }
+        }
+        public void UpdateCommands(GameCommand gameCommand)
+        {
+            CellGameCommand cellGameCommand = null;
+            
+
+            foreach (CellGameCommand checkCellGameCommand in cellGameCommands )
+            {
+                if (checkCellGameCommand.GameCommand == gameCommand)
+                {
+                    cellGameCommand = checkCellGameCommand;
+                    cellGameCommand.Touched = true;
+                    break;
+                }
+            }
+            if (cellGameCommand == null)
+            {
+                cellGameCommand = new CellGameCommand();
+                cellGameCommand.GameCommand = gameCommand;
+                cellGameCommand.Touched = true;
+                cellGameCommand.Command = Instantiate(HexGrid.GetUnitResource("Socket1"), transform, false);
+                Vector3 unitPos3 = transform.position;
+                unitPos3.y += 1;
+                cellGameCommand.Command.transform.position = unitPos3;
+
+                cellGameCommands.Add(cellGameCommand);
+
+            }
+            foreach (Engine.Master.Unit unit in gameCommand.AttachedUnits)
+            {
+                //unit.UnitId
+            }
+        }
+
         public bool IsAttack { get; private set; }
         internal void SetAttack(bool selected)
         {
@@ -441,4 +504,12 @@ namespace Assets.Scripts
             }
         }
     }
+
+    public class CellGameCommand
+    {
+        public GameCommand GameCommand { get; set; }
+        public GameObject Command { get; set; }
+        public bool Touched { get; set; }
+    }
+
 }
