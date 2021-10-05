@@ -12,6 +12,11 @@ namespace Engine.Interface
 {
     public class MapPlayerInfo
     {
+        public MapPlayerInfo()
+        {
+
+        }
+
         public int TotalCapacity { get; set; }
         public int TotalMetal { get; set; }
         public int TotalUnits { get; set; }
@@ -107,6 +112,11 @@ namespace Engine.Interface
                     mapPlayerInfo.TotalMetal += t.Unit.CountMineralsInContainer();
                     mapPlayerInfo.TotalUnits++;
                 }
+            }
+
+            foreach (Player player in game.Players.Values)
+            {
+                //player.GameCommands
             }
             
             if (moves != null)

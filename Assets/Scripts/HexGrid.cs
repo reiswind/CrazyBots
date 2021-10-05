@@ -60,8 +60,8 @@ namespace Assets.Scripts
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-			//UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
-			UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+			UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+			//UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 			GameModel gameModel;
 
@@ -736,8 +736,6 @@ namespace Assets.Scripts
 				}
 				else if (move.MoveType == MoveType.Fire)
 				{
-					Debug.Log("Move Fire" + move.OtherUnitId);
-
 					if (BaseUnits.ContainsKey(move.UnitId))
 					{
 						UnitBase unit = BaseUnits[move.UnitId];
@@ -1058,6 +1056,7 @@ namespace Assets.Scripts
 			}
 			
 			Destroy(gameObject);
+			yield return null;
 		}
 
 		public void HitUnitPartAnimation(Transform transform)
@@ -1087,7 +1086,6 @@ namespace Assets.Scripts
 				otherRigid.rotation = UnityEngine.Random.rotation;
 
 				StartCoroutine(DelayFadeOutDebris(debris, debris.transform.position.y - 0.1f));
-				//Destroy(debris, 5 + (12 * UnityEngine.Random.value));
 			}
 		}
 
@@ -1127,11 +1125,7 @@ namespace Assets.Scripts
 				
 				UnitBasePart unitBasePart= hitByBullet.TargetUnit.PartHitByShell(hitByBullet.HitPartTileObjectType, hitByBullet.UpdateUnitStats);
 				if (unitBasePart != null)
-					HitUnitPartAnimation(unitBasePart.Part.transform);
-				else
-                {
-					int error = 0;
-                }
+					HitUnitPartAnimation(unitBasePart.UnitBase.transform);
 			}
 		}
 
@@ -1281,10 +1275,6 @@ namespace Assets.Scripts
 			{
 				return;
 			}
-			if (blueprint.Name == "Bomber")
-            {
-				int x=0;
-            }
 			UnitBase unit = InstantiatePrefab<UnitBase>(blueprint.Layout);
 
 			unit.HexGrid = this;

@@ -27,10 +27,10 @@ namespace Engine.Interface
     public class GameCommand
     {
         public int PlayerId { get; set; }
-        public string UnitId { get; set; }
+        public string UnitId { get; set; } // Which unit to build
         public Position TargetPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
-        public bool Append { get; set; }
+        //public bool Append { get; set; }
     }
 
     public enum MoveFilter

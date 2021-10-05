@@ -1752,7 +1752,6 @@ namespace Engine.Master
 
                         if (gameCommand.GameCommandType == GameCommandType.Extract)
                         {
-
                             Unit unit = Map.Units.FindUnit(gameCommand.UnitId);
                             if (unit != null)
                                 unit.ExtractUnit();

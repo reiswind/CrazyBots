@@ -61,6 +61,8 @@ namespace Assets.Scripts
         private Text headerSubText;
         private Text headerGroundText;
 
+        public Button m_YourFirstButton;
+
         // Start is called before the first frame update
         void Start()
         {
@@ -456,33 +458,27 @@ namespace Assets.Scripts
 
         private bool CanBuildAt(GroundCell groundCell)
         {
-            if (groundCell == null ||
-                groundCell.Stats.MoveUpdateGroundStat.TileObjects.Count > 0
-                /*|| groundCell.Tile.Unit != null*/)
+            if (groundCell == null)
             {
-                return false;
+                foreach (TileObject tileObject in groundCell.Stats.MoveUpdateGroundStat.TileObjects)
+                {
+                    if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
+                        return false;
+                }
             }
-
-
             return true;
         }
 
         private bool CanCommandAt(GroundCell groundCell)
         {
-            if (groundCell == null ||
-                groundCell.Stats.MoveUpdateGroundStat.TileObjects.Count > 0)
+            if (groundCell == null)
             {
-                return false;
+                foreach (TileObject tileObject in groundCell.Stats.MoveUpdateGroundStat.TileObjects)
+                {
+                    if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
+                        return false;
+                }
             }
-            /*
-            if (groundCell.Tile.Unit != null &&
-                groundCell.Tile.Unit.Engine == null)
-            {
-                // Not on buildings
-                return false;
-            }*/
-
-
             return true;
         }
 
