@@ -999,7 +999,7 @@ namespace Engine.Control
                 {
                     if (ant.PlayerUnit.Unit.Engine != null)
                     {
-                        ant.AbendonUnit(player);
+                        ant.AbandonUnit(player);
                         break;
                     }
                 }
@@ -1070,7 +1070,7 @@ namespace Engine.Control
                     if (HasUnitBeenBuilt(player, ant.PlayerUnit.Unit.CurrentGameCommand, ant, moves))
                     {
                         //ant.PlayerUnit.Unit.CurrentGameCommand = null;
-                        ant.AbendonUnit(player);
+                        ant.AbandonUnit(player);
                     }
                 }
                 if (ant.GameCommandDuringCreation != null &&
@@ -1079,7 +1079,7 @@ namespace Engine.Control
                     if (HasUnitBeenBuilt(player, ant.GameCommandDuringCreation, ant, moves))
                     {
                         //ant.GameCommandDuringCreation = null;
-                        ant.AbendonUnit(player);
+                        ant.AbandonUnit(player);
                     }
                 }
             }
@@ -1513,7 +1513,7 @@ namespace Engine.Control
                             if (ant.StuckCounter > 10)
                             {
                                 // Noone builds, abandon
-                                ant.AbendonUnit(player);
+                                ant.AbandonUnit(player);
                             }
                         }
                         UpdateUnitCounters(ant);
@@ -1572,7 +1572,7 @@ namespace Engine.Control
                         if (ant.StuckCounter > 10)
                         {
                             // Noone builds, abandon
-                            ant.AbendonUnit(player);
+                            ant.AbandonUnit(player);
                         }
                         else
                         {
@@ -1592,12 +1592,13 @@ namespace Engine.Control
 
                         if (ant.PlayerUnit.Unit.Engine != null)
                         {
-                            //movableAnts.Add(ant); => Bugs
-                            ant.AbendonUnit(player);
+                            ant.CreateAntParts();
+                            movableAnts.Add(ant);
+                            //ant.AbendonUnit(player);
                         }
                         else
                         {
-                            ant.AbendonUnit(player);
+                            ant.AbandonUnit(player);
                         }
                     }
                 }
@@ -1610,7 +1611,6 @@ namespace Engine.Control
                 SacrificeAnt(player, unmovedAnts);
             }
 
-            
             AttachGamecommands(player, unmovedAnts, moves);
 
             // Ants that have no units
@@ -1621,9 +1621,12 @@ namespace Engine.Control
             // Execute all extrctor moves
             foreach (Ant ant in unmovedAnts)
             {
-                if (ant.AntPartExtractor.Move(this, player, moves))
+                if (ant.AntPartExtractor != null)
                 {
-                    movableAnts.Remove(ant);
+                    if (ant.AntPartExtractor.Move(this, player, moves))
+                    {
+                        movableAnts.Remove(ant);
+                    }
                 }
             }
 

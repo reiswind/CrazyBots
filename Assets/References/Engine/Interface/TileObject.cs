@@ -175,6 +175,7 @@ namespace Engine.Interface
         Mineral,
         Water,
         Sand,
+        Stone,
 
         // Parts
         PartExtractor, 

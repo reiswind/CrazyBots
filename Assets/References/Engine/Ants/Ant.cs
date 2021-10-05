@@ -263,7 +263,7 @@ namespace Engine.Ants
         public int PheromoneWaypointMineral { get; set; }
         public int PheromoneWaypointAttack { get; set; }
         public bool BuildPositionReached { get; set; }
-        public void AbendonUnit(Player player)
+        public void AbandonUnit(Player player)
         {
             OnDestroy(player);
             if (PlayerUnit != null)

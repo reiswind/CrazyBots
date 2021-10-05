@@ -85,7 +85,8 @@ namespace Engine.Interface
         BushGras,
         Gras,
         Water,
-        Sand
+        Sand,
+        Stone
     }
 
     internal class TileFit

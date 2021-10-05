@@ -599,6 +599,7 @@ namespace Engine.Interface
                         int rnd = Game.Random.Next(4);
                         if (rnd == 0)
                         {
+                            mapZone.Vegetation.Add(new MapVegetation(Game.Random.Next(2), TileFitType.Stone));
                             mapZone.Vegetation.Add(new MapVegetation(Game.Random.Next(2), TileFitType.Water));
                             mapZone.Vegetation.Add(new MapVegetation(Game.Random.Next(7), TileFitType.Sand));
                             mapZone.Vegetation.Add(new MapVegetation(Game.Random.Next(8) + 2, TileFitType.BushGras));
@@ -609,10 +610,12 @@ namespace Engine.Interface
                         else if (rnd == 1)
                         {
                             mapZone.Vegetation.Add(new MapVegetation(3, TileFitType.Water));
+                            mapZone.Vegetation.Add(new MapVegetation(5, TileFitType.Stone));
                             mapZone.Vegetation.Add(new MapVegetation(100, TileFitType.Sand));
                         }
                         else if (rnd == 3)
                         {
+                            mapZone.Vegetation.Add(new MapVegetation(Game.Random.Next(2), TileFitType.Stone));
                             mapZone.Vegetation.Add(new MapVegetation(20, TileFitType.Gras));
                             mapZone.Vegetation.Add(new MapVegetation(30, TileFitType.TreeBush));
                             mapZone.Vegetation.Add(new MapVegetation(100, TileFitType.Tree));
@@ -630,10 +633,9 @@ namespace Engine.Interface
                     }
 
                     //BioMass += 300;
-                    mapZone.MaxMinerals = 10;
+                    mapZone.MaxMinerals = 20;
                     mapZone.StartObjectGenerator(this);
                 }
-
             }
 
             /*

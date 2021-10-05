@@ -458,7 +458,7 @@ namespace Engine.Ants
                             // Cannot reach target
                             Ant.StuckCounter++;
                             if (Ant.StuckCounter > 10)
-                                Ant.AbendonUnit(player);
+                                Ant.AbandonUnit(player);
                             return false;
                         }
                     }

@@ -69,7 +69,7 @@ namespace Engine.Ants
             Ant.StuckCounter++;
             if (Ant.StuckCounter > 10)
             {
-                Ant.AbendonUnit(player);
+                Ant.AbandonUnit(player);
             }
             return false;
         }

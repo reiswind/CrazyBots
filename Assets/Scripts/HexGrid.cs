@@ -60,8 +60,8 @@ namespace Assets.Scripts
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-			UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
-			//UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+			//UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+			UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 			GameModel gameModel;
 
@@ -256,6 +256,12 @@ namespace Assets.Scripts
 				prefab = bushResources.Values.ElementAt(idx);
 				y = prefab.transform.position.y;
 			}
+			else if (tileObject.TileObjectType == TileObjectType.Stone)
+			{
+				int idx = game.Random.Next(rockResources.Count);
+				prefab = rockResources.Values.ElementAt(idx);
+				y = prefab.transform.position.y;
+			}
 			else if (tileObject.TileObjectType == TileObjectType.Gras)
 			{
 				if (tileObject.TileObjectKind == TileObjectKind.LightGras)
@@ -358,21 +364,21 @@ namespace Assets.Scripts
 			while (true)
 			{
 				if (visibleCenter == nextVisibleCenter)
-                {
+				{
 					yield return new WaitForSeconds(0.01f);
 				}
 				else
 				{
-					
-					//yield return new WaitForSeconds(0.1f);
-
-					/* Debug all visible
+					/* Debug all visible*/
 					foreach (GroundCell groundCell1 in GroundCells.Values)
 					{
 						groundCell1.Visible = true;
 
-					}*/
-					//return;
+					}
+					yield return null;
+
+					// Kills FPS
+#if KIILLFPS
 					int maxActives = 0;
 					bool interrupted = false;
 
@@ -398,7 +404,7 @@ namespace Assets.Scripts
 									}
 								}
 							}
-							if (maxActives > 90)
+							if (visibleCenter != null && maxActives > 10)
 							{
 								interrupted = true;
 								break;
@@ -410,8 +416,12 @@ namespace Assets.Scripts
 						GroundCell groundCell;
 						if (GroundCells.TryGetValue(pos1, out groundCell))
 						{
-							groundCell.Visible = false;
-							visiblePositions.Remove(pos1);
+							/*
+							if (pos1.GetDistanceTo(nextVisibleCenter) > 50)
+							{
+								groundCell.Visible = false;
+								visiblePositions.Remove(pos1);
+							}*/
 						}
 					}
 					if (interrupted)
@@ -422,9 +432,9 @@ namespace Assets.Scripts
 					{
 						visibleCenter = nextVisibleCenter;
 					}
+#endif				
 				}
 			}
-
 		}
 
 		public void CreateGame(GameModel gameModel)
