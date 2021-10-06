@@ -1013,6 +1013,8 @@ namespace Engine.Control
                 t.Unit.IsComplete() &&
                 t.Unit.Blueprint.Name == gameCommand.UnitId)
             {
+                gameCommand.CommandComplete = true;
+
                 Move commandMove = new Move();
                 commandMove.MoveType = MoveType.CommandComplete;
                 if (ant != null)
@@ -1176,7 +1178,7 @@ namespace Engine.Control
                     if (bestAnt != null)
                     {
                         bestAnt.PlayerUnit.Unit.CurrentGameCommand = gameCommand;
-                        gameCommand.AttachedUnits.Add(bestAnt.PlayerUnit.Unit);
+                        gameCommand.AttachedUnits.Add(bestAnt.PlayerUnit.Unit.UnitId);
                     }
                 }
             }
@@ -1422,6 +1424,18 @@ namespace Engine.Control
                             ant.CreateAntParts();
                             ant.PlayerUnit.Unit.CurrentGameCommand = ant.GameCommandDuringCreation;
                             ant.GameCommandDuringCreation = null;
+                            if (ant.PlayerUnit.Unit.CurrentGameCommand != null)
+                            {
+                                foreach (string unitid in ant.PlayerUnit.Unit.CurrentGameCommand.AttachedUnits)
+                                {
+                                    if (unitid.StartsWith("Assembler"))
+                                    {
+                                        ant.PlayerUnit.Unit.CurrentGameCommand.AttachedUnits.Remove(unitid);
+                                        ant.PlayerUnit.Unit.CurrentGameCommand.AttachedUnits.Add(ant.PlayerUnit.Unit.UnitId);
+                                        break;
+                                    }
+                                }
+                            }
                         }
                     }
                     else
@@ -1589,7 +1603,7 @@ namespace Engine.Control
                         // Another ant has to take this task
                         if (ant.PlayerUnit.Unit.CurrentGameCommand != null)
                         {
-                            ant.PlayerUnit.Unit.CurrentGameCommand.AttachedUnits.Remove(ant.PlayerUnit.Unit);
+                            ant.PlayerUnit.Unit.CurrentGameCommand.AttachedUnits.Remove(ant.PlayerUnit.Unit.UnitId);
                             //player.GameCommands.Add(ant.PlayerUnit.Unit.CurrentGameCommand);
                             ant.PlayerUnit.Unit.CurrentGameCommand = null;
                         }

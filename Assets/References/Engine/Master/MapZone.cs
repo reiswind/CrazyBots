@@ -386,7 +386,7 @@ namespace Engine.Interface
                     else if (mapVegetation.TileFitType == TileFitType.Stone)
                     {
                         count = map.Game.Random.Next(3)+1;
-                        tileObjectType = TileObjectType.Stone;
+                        tileObjectType = TileObjectType.Rock;
                     }
                     else if (mapVegetation.TileFitType == TileFitType.Tree)
                     {

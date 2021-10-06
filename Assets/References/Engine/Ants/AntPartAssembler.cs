@@ -271,9 +271,7 @@ namespace Engine.Ants
                             if (selectedGameCommand != null && selectedGameCommand.GameCommandType == GameCommandType.Build)
                             {
                                 ant.GameCommandDuringCreation = selectedGameCommand;
-
-                                // Cannot add to assigned units cause unit does not exist yet
-
+                                selectedGameCommand.AttachedUnits.Add("Assembler-" + this.Ant.PlayerUnit.Unit.UnitId);
                                 //player.GameCommands.Remove(selectedGameCommand);
                             }
                         }
@@ -287,7 +285,7 @@ namespace Engine.Ants
                             if (selectedGameCommand != null && selectedGameCommand.GameCommandType == GameCommandType.Collect)
                             {
                                 ant.GameCommandDuringCreation = selectedGameCommand;
-                                selectedGameCommand.AttachedUnits.Add(ant.PlayerUnit.Unit);
+                                selectedGameCommand.AttachedUnits.Add("Assembler-" + this.Ant.PlayerUnit.Unit.UnitId);
                                 //player.GameCommands.Remove(selectedGameCommand);
                             }
                             /*
@@ -314,7 +312,8 @@ namespace Engine.Ants
                             if (selectedGameCommand != null && selectedGameCommand.GameCommandType == GameCommandType.Attack)
                             {
                                 ant.GameCommandDuringCreation = selectedGameCommand;
-                                player.GameCommands.Remove(selectedGameCommand);
+                                selectedGameCommand.AttachedUnits.Add("Assembler-" + this.Ant.PlayerUnit.Unit.UnitId);
+                                //player.GameCommands.Remove(selectedGameCommand);
                             }
                             /*
                             if (cntrlUnit.GameCommands != null && cntrlUnit.GameCommands.Count > 0)

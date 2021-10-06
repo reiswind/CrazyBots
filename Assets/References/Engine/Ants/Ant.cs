@@ -331,12 +331,16 @@ namespace Engine.Ants
             {
                 // Better create new command?
                 //player.GameCommands.Add(PlayerUnit.Unit.CurrentGameCommand);
+                if (PlayerUnit.Unit.CurrentGameCommand.CommandComplete)
+                    player.GameCommands.Remove(PlayerUnit.Unit.CurrentGameCommand);
                 PlayerUnit.Unit.CurrentGameCommand = null;
             }
             if (GameCommandDuringCreation != null)
             {
                 // Better create new command?
                 //player.GameCommands.Add(GameCommandDuringCreation);
+                if (GameCommandDuringCreation.CommandComplete)
+                    player.GameCommands.Remove(GameCommandDuringCreation);
                 GameCommandDuringCreation = null;
             }
         }

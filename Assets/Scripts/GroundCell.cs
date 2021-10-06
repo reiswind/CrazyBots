@@ -63,7 +63,7 @@ namespace Assets.Scripts
         {
             if (markerEnergy == null)
             {
-                GameObject markerPrefab = HexGrid.GetTerrainResource("Marker");
+                GameObject markerPrefab = HexGrid.GetResource("Marker");
                 markerEnergy = Instantiate(markerPrefab, transform, false);
                 markerEnergy.name = name + "-Energy";
 
@@ -479,15 +479,18 @@ namespace Assets.Scripts
                 cellGameCommand = new CellGameCommand();
                 cellGameCommand.GameCommand = gameCommand;
                 cellGameCommand.Touched = true;
-                cellGameCommand.Command = Instantiate(HexGrid.GetUnitResource("Socket1"), transform, false);
+                cellGameCommand.Command = Instantiate(HexGrid.GetResource("BuildStructure"), transform, false);
+
+                Command command = cellGameCommand.Command.GetComponent<Command>();
+                command.GameCommand = gameCommand;
+
                 Vector3 unitPos3 = transform.position;
                 unitPos3.y += 1;
                 cellGameCommand.Command.transform.position = unitPos3;
 
                 cellGameCommands.Add(cellGameCommand);
-
             }
-            foreach (Engine.Master.Unit unit in gameCommand.AttachedUnits)
+            foreach (string unitId in gameCommand.AttachedUnits)
             {
                 //unit.UnitId
             }

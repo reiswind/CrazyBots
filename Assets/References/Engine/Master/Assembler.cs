@@ -322,15 +322,27 @@ namespace Engine.Master
                     {
                         if (Level > 0)
                         {
-                            // Can build everything or command
-                            foreach (Blueprint blueprint in Unit.Owner.Game.Blueprints.Items)
+                            if (Unit.CurrentGameCommand == null)
                             {
-                                if (Unit.CurrentGameCommand != null &&
-                                    blueprint.Name != Unit.CurrentGameCommand.UnitId)
+                                //Can build everything
+                                foreach (Blueprint blueprint in Unit.Owner.Game.Blueprints.Items)
                                 {
-                                    continue;
+                                    possibleMoves.Add(CreateAssembleMove(neighbor.Pos, blueprint.Name));                                    
                                 }
-                                possibleMoves.Add(CreateAssembleMove(neighbor.Pos, blueprint.Name));
+                            }
+                            else
+                            {
+                                foreach (BlueprintCommandItem blueprintCommandItem in Unit.CurrentGameCommand.BlueprintCommand.Units)
+                                {
+                                    // Can units in command
+                                    foreach (Blueprint blueprint in Unit.Owner.Game.Blueprints.Items)
+                                    {
+                                        if (blueprint.Name == blueprintCommandItem.BlueprintName)
+                                        {
+                                            possibleMoves.Add(CreateAssembleMove(neighbor.Pos, blueprint.Name));
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

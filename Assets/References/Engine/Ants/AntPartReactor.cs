@@ -48,6 +48,14 @@ namespace Engine.Ants
                             gameCommand.TargetPosition = pos;
                             gameCommand.UnitId = "Outpost";
 
+                            foreach (BlueprintCommand blueprintCommand in player.Game.Blueprints.Commands)
+                            {
+                                if (blueprintCommand.GameCommandType == GameCommandType.Build)
+                                {
+                                    gameCommand.BlueprintCommand = blueprintCommand;
+                                }
+                            }
+
                             player.GameCommands.Add(gameCommand);
                         }
                     }

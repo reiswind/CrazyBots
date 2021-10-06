@@ -356,7 +356,7 @@ namespace Assets.Scripts
                     {
                         GroundCell targetCell = HexGrid.GroundCells[unitCommand.GameCommand.TargetPosition];
 
-                        GameObject waypointPrefab = HexGrid.GetTerrainResource("Waypoint");
+                        GameObject waypointPrefab = HexGrid.GetResource("Waypoint");
 
                         unitCommand.GameObject = Instantiate(waypointPrefab, targetCell.transform, false);
                         unitCommand.GameObject.name = "Waypoint";
@@ -1076,7 +1076,7 @@ namespace Assets.Scripts
                             if (unitBasePart.Level > 0 &&
                                 unitBasePart.Level != moveUpdateUnitPart.Level )
                             {
-                                if (unitBasePart.TileObjectContainer != null)
+                                if (unitBasePart.TileObjectContainer != null && moveUpdateUnitPart.Capacity.HasValue)
                                 {
                                     unitBasePart.TileObjectContainer.ExplodeExceedingCapacity(transform, moveUpdateUnitPart.Capacity.Value);
                                 }

@@ -98,11 +98,10 @@ namespace Assets.Scripts
 			InvokeRepeating(nameof(invoke), 0.5f, GameSpeed);
 		}
 
-		private Dictionary<string, GameObject> terrainResources = new Dictionary<string, GameObject>();
+		private Dictionary<string, GameObject> allResources = new Dictionary<string, GameObject>();
 		private Dictionary<string, GameObject> treeResources = new Dictionary<string, GameObject>();
 		private Dictionary<string, GameObject> leaveTreeResources = new Dictionary<string, GameObject>();
 		private Dictionary<string, GameObject> rockResources = new Dictionary<string, GameObject>();
-		private Dictionary<string, GameObject> unitResources = new Dictionary<string, GameObject>();
 		private Dictionary<string, GameObject> bushResources = new Dictionary<string, GameObject>();
 		
 		private Dictionary<string, Material> materialResources = new Dictionary<string, Material>();
@@ -154,40 +153,41 @@ namespace Assets.Scripts
 		{
 			InitMaterials();
 			InitParticless();
-			
-			InitResources(terrainResources, "Prefabs/Terrain");
-			InitResources(terrainResources, "Prefabs/Items");
-			foreach (string key in terrainResources.Keys)
+
+			InitResources(allResources, "Prefabs");
+
+			//InitResources(terrainResources, "Prefabs/Terrain");
+			//InitResources(terrainResources, "Prefabs/Items");
+			foreach (string key in allResources.Keys)
             {
 				if (key.StartsWith("Tree"))
-					treeResources.Add(key, terrainResources[key]);
+					treeResources.Add(key, allResources[key]);
 			}
-			foreach (string key in terrainResources.Keys)
+			foreach (string key in allResources.Keys)
 			{
 				if (key.StartsWith("Leave"))
-					leaveTreeResources.Add(key, terrainResources[key]);
+					leaveTreeResources.Add(key, allResources[key]);
 			}
-			foreach (string key in terrainResources.Keys)
+			foreach (string key in allResources.Keys)
 			{
 				if (key.StartsWith("Rock"))
-					rockResources.Add(key, terrainResources[key]);
+					rockResources.Add(key, allResources[key]);
 			}
-
-			InitResources(unitResources, "Prefabs/Unit");
-			InitResources(unitResources, "Prefabs/Buildings");
-			InitResources(bushResources, "Prefabs/Bushes");
+			foreach (string key in allResources.Keys)
+			{
+				if (key.StartsWith("Bush"))
+					bushResources.Add(key, allResources[key]);
+			}
+			//InitResources(unitResources, "Prefabs/Unit");
+			//InitResources(unitResources, "Prefabs/Buildings");
+			//InitResources(bushResources, "Prefabs/Bushes");
 		}
 
-		public GameObject GetTerrainResource(string name)
+
+		public GameObject GetResource(string name)
 		{
-			if (terrainResources.ContainsKey(name))
-				return terrainResources[name];
-			return null;
-		}
-		public GameObject GetUnitResource(string name)
-		{
-			if (unitResources.ContainsKey(name))
-				return unitResources[name];
+			if (allResources.ContainsKey(name))
+				return allResources[name];
 			return null;
 		}
 		public Material GetMaterial(string name)
@@ -203,19 +203,19 @@ namespace Assets.Scripts
 
 			if (tileObject.TileObjectType == TileObjectType.Tree)
 			{
-				prefab = GetTerrainResource("ItemWood");
+				prefab = GetResource("ItemWood");
 			}
 			else if (tileObject.TileObjectType == TileObjectType.Bush)
 			{
-				prefab = GetTerrainResource("ItemBush");
+				prefab = GetResource("ItemBush");
 			}
 			else if (tileObject.TileObjectType == TileObjectType.Mineral)
 			{
-				prefab = GetTerrainResource("ItemCrystal");
+				prefab = GetResource("ItemCrystal");
 			}
 			else
 			{
-				prefab = GetTerrainResource("Marker");
+				prefab = GetResource("Marker");
 				//prefab = null;
 			}
 			GameObject gameTileObject = null;
@@ -256,7 +256,7 @@ namespace Assets.Scripts
 				prefab = bushResources.Values.ElementAt(idx);
 				y = prefab.transform.position.y;
 			}
-			else if (tileObject.TileObjectType == TileObjectType.Stone)
+			else if (tileObject.TileObjectType == TileObjectType.Rock)
 			{
 				int idx = game.Random.Next(rockResources.Count);
 				prefab = rockResources.Values.ElementAt(idx);
@@ -266,15 +266,15 @@ namespace Assets.Scripts
 			{
 				if (tileObject.TileObjectKind == TileObjectKind.LightGras)
 				{
-					prefab = GetTerrainResource("Gras2");
+					prefab = GetResource("Gras2");
 				}
 				else if (tileObject.TileObjectKind == TileObjectKind.DarkGras)
 				{
-					prefab = GetTerrainResource("Gras3");
+					prefab = GetResource("Gras3");
 				}
 				else
 				{
-					prefab = GetTerrainResource("Gras1");
+					prefab = GetResource("Gras1");
 				}
 				y = 0.05f;
 				x = (randomPos.x * 0.05f);
@@ -282,14 +282,14 @@ namespace Assets.Scripts
 			}
 			else if (tileObject.TileObjectType == TileObjectType.Mineral)
 			{
-				prefab = GetTerrainResource("ItemCrystal");
+				prefab = GetResource("ItemCrystal");
 				y = 0.05f;
 				x = (randomPos.x * 0.5f);
 				z = (randomPos.y * 0.7f);
 			}
 			else if (tileObject.TileObjectType == TileObjectType.TreeTrunk)
 			{
-				prefab = GetTerrainResource("Trunk");
+				prefab = GetResource("Trunk");
 				y = prefab.transform.position.y;
 			}
 			else
@@ -865,7 +865,7 @@ namespace Assets.Scripts
 						}
 						else
                         {
-							GameObject cellPrefab = GetTerrainResource("HexCell");
+							GameObject cellPrefab = GetResource("HexCell");
 							hexCell = CreateCell(move.Positions[0], move.Stats, cellPrefab);
 							hexCell.Visible = false;
 							GroundCells.Add(move.Positions[0], hexCell);
@@ -945,7 +945,7 @@ namespace Assets.Scripts
 		[System.Diagnostics.CodeAnalysis.SuppressMessage("Type Safety", "UNT0014:Invalid type for call to GetComponent", Justification = "<Pending>")]
 		public T InstantiatePrefab<T>(string name)
 		{
-			GameObject prefab = unitResources[name];
+			GameObject prefab = allResources[name];
 			GameObject instance = Instantiate(prefab);
 
 			T script = instance.GetComponent<T>();
@@ -954,14 +954,14 @@ namespace Assets.Scripts
 
 		public GameObject InstantiatePrefab(string name)
 		{
-			GameObject prefab = unitResources[name];
+			GameObject prefab = allResources[name];
 			GameObject instance = Instantiate(prefab);
 			return instance;
 		}
 
 		public Light CreateSelectionLight(GameObject gameObject)
 		{
-			GameObject prefabSpotlight = GetUnitResource("Spot Light");
+			GameObject prefabSpotlight = GetResource("Spot Light");
 			GameObject instance = Instantiate(prefabSpotlight);
 			Vector3 vector3 = gameObject.transform.position;
 			vector3.y += 2.5f;
@@ -1036,7 +1036,7 @@ namespace Assets.Scripts
 
 		public void HitGroundAnimation(Transform transform)
 		{
-			GameObject debrisDirt = GetTerrainResource("DebrisDirt");
+			GameObject debrisDirt = GetResource("DebrisDirt");
 
 			for (int i = 0; i < 40; i++)
 			{
@@ -1068,28 +1068,40 @@ namespace Assets.Scripts
 
 		private IEnumerator DelayFadeOutDebris(GameObject gameObject, float sinkTo)
 		{
-			yield return new WaitForSeconds(12 + 12 * (UnityEngine.Random.value));
-			Rigidbody otherRigid = gameObject.GetComponent<Rigidbody>();
-			if (otherRigid != null) otherRigid.isKinematic = true;
-			yield return StartCoroutine(FadeOutDebris(gameObject, sinkTo));
+			if (gameObject != null)
+			{
+				yield return new WaitForSeconds(12 + 12 * (UnityEngine.Random.value));
+				yield return StartCoroutine(FadeOutDebris(gameObject, sinkTo));
+			}
 		}
 		private IEnumerator FadeOutDebris(GameObject gameObject, float sinkTo)
 		{
-			while (gameObject.transform.position.y > sinkTo)
+			if (gameObject != null)
 			{
-				Vector3 pos = gameObject.transform.position;
-				pos.y -= 0.0001f;
-				gameObject.transform.position = pos;
-				yield return null;
+				Rigidbody otherRigid = gameObject.GetComponent<Rigidbody>();
+				if (otherRigid != null) otherRigid.isKinematic = true;
+
+				while (true)
+				{
+					if (gameObject.transform.position.y > sinkTo)
+					{
+						Vector3 pos = gameObject.transform.position;
+						pos.y -= 0.01f;
+						gameObject.transform.position = pos;
+						yield return new WaitForSeconds(0.01f);
+					}
+					else
+                    {
+						Destroy(gameObject);
+						yield break;
+					}
+				}
 			}
-			
-			Destroy(gameObject);
-			yield return null;
 		}
 
 		public void HitUnitPartAnimation(Transform transform)
 		{
-			GameObject debrisDirt = GetTerrainResource("DebrisDirt");
+			GameObject debrisDirt = GetResource("DebrisUnit");
 
 			for (int i = 0; i < 40; i++)
 			{
@@ -1138,7 +1150,7 @@ namespace Assets.Scripts
 							Destroy(hexCell.gameObject);
 							GroundCells.Remove(hitByBullet.TargetPosition);
 
-							GameObject cellPrefab = GetTerrainResource("HexCellCrate");
+							GameObject cellPrefab = GetResource("HexCellCrate");
 							hexCell = CreateCell(hexCell.Pos, hexCell.Stats, cellPrefab);
 							GroundCells.Add(hitByBullet.TargetPosition, hexCell);
 

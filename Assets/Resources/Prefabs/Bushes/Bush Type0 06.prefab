@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3359922}
   - component: {fileID: 2324844}
   m_Layer: 0
-  m_Name: Tree Type0 06
+  m_Name: Bush Type0 06
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

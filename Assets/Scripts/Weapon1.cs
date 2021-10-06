@@ -61,11 +61,11 @@ namespace Assets.Scripts
                     {
                         GameObject shellprefab;
                         if (haveAmmo.TileObject.TileObjectType == TileObjectType.Mineral)
-                            shellprefab = hexGrid.GetUnitResource("ShellMineral");
+                            shellprefab = hexGrid.GetResource("ShellMineral");
                         else if (haveAmmo.TileObject.TileObjectType == TileObjectType.Tree)
-                            shellprefab = hexGrid.GetUnitResource("ShellTree");
+                            shellprefab = hexGrid.GetResource("ShellTree");
                         else
-                            shellprefab = hexGrid.GetUnitResource("ShellTree");
+                            shellprefab = hexGrid.GetResource("ShellTree");
                         ammoTileObject = Instantiate(shellprefab, ammo.transform.position, ammo.transform.rotation, weapon.transform);
 
 

@@ -108,6 +108,7 @@ namespace Engine.Interface
             BlueprintCommand blueprintCommand = new BlueprintCommand();
 
             blueprintCommand.Name = "BuildOutpost";
+            blueprintCommand.Layout = "BuildStructure";
             blueprintCommand.GameCommandType = GameCommandType.Build;
 
             BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
@@ -137,6 +138,7 @@ namespace Engine.Interface
             Units = new List<BlueprintCommandItem>();
         }
         public string Name { get; set; }
+        public string Layout { get; set; }
 
         public GameCommandType GameCommandType { get; set; }
 

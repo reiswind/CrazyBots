@@ -166,16 +166,19 @@ namespace Engine.Interface
         None,
         All,
 
-        // Environment
+        // Collectable
+        Mineral,
         Dirt,
         Gras,
         Bush,
         Tree,
+        Stone,
+
+        // Environment
         TreeTrunk,
-        Mineral,
         Water,
         Sand,
-        Stone,
+        Rock,
 
         // Parts
         PartExtractor, 
@@ -227,7 +230,7 @@ namespace Engine.Interface
         }
         public static bool IsTileObjectTypeObstacle(TileObjectType tileObjectType)
         {
-            if (tileObjectType == TileObjectType.Stone) return true;
+            if (tileObjectType == TileObjectType.Rock) return true;
 
             return false;
         }

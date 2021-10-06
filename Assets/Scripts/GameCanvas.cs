@@ -12,6 +12,7 @@ namespace Assets.Scripts
     {
         public UnitBase UnitFrame { get; set; }
         public GroundCell GroundCell { get; set; }
+        public Command Command{ get; set; }
     }
 
     internal enum CanvasMode
@@ -57,6 +58,7 @@ namespace Assets.Scripts
         private GameObject panelArmor;
         private GameObject panelWeapon;
         private GameObject panelReactor;
+        private GameObject panelCommand;
         private Text headerText;
         private Text headerSubText;
         private Text headerGroundText;
@@ -95,6 +97,7 @@ namespace Assets.Scripts
             panelArmor = panelParts.Find("PanelArmor").gameObject;
             panelWeapon = panelParts.Find("PanelWeapon").gameObject;
             panelReactor = panelParts.Find("PanelReactor").gameObject;
+            panelCommand = panelParts.Find("PanelCommand").gameObject;
 
             Transform panelSelected = gameControlPanel.Find("PanelSelected");
 
@@ -826,6 +829,7 @@ namespace Assets.Scripts
 
 
         private UnitBase selectedUnitFrame;
+        private GameCommand selectedGameCommand;
         private Blueprint selectedBuildBlueprint;
         private GroundCell lastSelectedGroundCell;
 
@@ -840,6 +844,7 @@ namespace Assets.Scripts
             if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out raycastHit, Mathf.Infinity))
             {
                 hitByMouseClick = new HitByMouseClick();
+                hitByMouseClick.Command = raycastHit.collider.gameObject.GetComponent<Command>();
                 hitByMouseClick.GroundCell = raycastHit.collider.gameObject.GetComponent<GroundCell>();
                 hitByMouseClick.UnitFrame = GetUnitFrameFromRayCast(raycastHit);
 
@@ -883,12 +888,13 @@ namespace Assets.Scripts
 
         private void AppendGroundInfo(GroundCell gc)
         {
+            /*
             GameCommand gameCommand = null;
             if (HexGrid.ActiveGameCommands != null &&
                 HexGrid.ActiveGameCommands.ContainsKey(lastSelectedGroundCell.Pos))
             {
                 gameCommand = HexGrid.ActiveGameCommands[lastSelectedGroundCell.Pos];
-            }
+            }*/
 
             StringBuilder sb = new StringBuilder();
 
@@ -901,6 +907,7 @@ namespace Assets.Scripts
 
             if (selectedUnitFrame == null)
             {
+                /*
                 if (gameCommand != null)
                 {
                     if (gameCommand.GameCommandType == GameCommandType.Collect)
@@ -925,6 +932,7 @@ namespace Assets.Scripts
                     }
                 }
                 else
+                */
                 {
                     if (gc.GameObjects.Count > 0)
                     {
@@ -938,7 +946,11 @@ namespace Assets.Scripts
                 headerSubText.text = sb.ToString();
 
                 sb.Clear();
-                if (gc.GameObjects.Count > 0)
+                if (gc.Stats.MoveUpdateGroundStat.IsUnderwater)
+                {
+                    sb.Append("Underwater");
+                }
+                else if (gc.GameObjects.Count > 0)
                 {
                     int mins = 0;
                     int other = 0;
@@ -978,6 +990,7 @@ namespace Assets.Scripts
             panelArmor.SetActive(false);
             panelWeapon.SetActive(false);
             panelReactor.SetActive(false);
+            panelCommand.SetActive(false);
         }
 
 
@@ -1411,6 +1424,11 @@ namespace Assets.Scripts
 
                 if (hitByMouseClick != null)
                 {
+                    if (hitByMouseClick.Command != null)
+                        selectedGameCommand = hitByMouseClick.Command.GameCommand;
+                    else
+                        HideSelectedGameCommand();
+
                     if (lastSelectedGroundCell != hitByMouseClick.GroundCell)
                     {
                         if (lastSelectedGroundCell != null)
@@ -1434,6 +1452,10 @@ namespace Assets.Scripts
             {
                 DisplaySelectedUnitframe();
             }
+            else if (selectedGameCommand != null)
+            {
+                DisplaySelectedGameCommand();
+            }
             else if (lastSelectedGroundCell != null)
             {
                 if (selectedUnitFrame == null)
@@ -1451,6 +1473,62 @@ namespace Assets.Scripts
                 HideAllParts();
             }
         }
+        private void HideSelectedGameCommand()
+        {
+            foreach (UnitBase unitBase in selectedCommandUnits)
+            {
+                unitBase.SetSelected(false);
+            }
+            selectedGameCommand = null;
+        }
+        private List<UnitBase> selectedCommandUnits = new List<UnitBase>();
+
+        private void DisplaySelectedGameCommand()
+        {
+            if (selectedGameCommand.CommandComplete)
+            {
+                HideSelectedGameCommand();
+                
+                return;
+            }
+            HideAllParts();
+            headerText.text = selectedGameCommand.BlueprintCommand.Name;
+            headerSubText.text = selectedGameCommand.GameCommandType.ToString() + " " + selectedGameCommand.UnitId;
+            headerGroundText.text = selectedGameCommand.TargetPosition.X + ", " + selectedGameCommand.TargetPosition.Y;
+
+            List<UnitBase> allCommandUnits = new List<UnitBase>();
+            allCommandUnits.AddRange(selectedCommandUnits);
+
+            StringBuilder stringBuilder = new StringBuilder();
+            foreach (string unitId in selectedGameCommand.AttachedUnits)
+            {
+                UnitBase unitBase = null;
+                if (unitId.StartsWith("Assembler"))
+                {
+                    unitBase = HexGrid.BaseUnits[unitId.Substring(10)];
+                }
+                else
+                {
+                    unitBase = HexGrid.BaseUnits[unitId];
+                }
+                allCommandUnits.Remove(unitBase);
+                if (!selectedCommandUnits.Contains(unitBase))
+                {
+                    selectedCommandUnits.Add(unitBase);
+                    unitBase.SetSelected(true);
+                }
+
+                stringBuilder.Append(unitId);
+            }
+            foreach (UnitBase unitBase in allCommandUnits)
+            {
+                unitBase.SetSelected(false);
+            }
+
+            panelCommand.transform.Find("Partname").GetComponent<Text>().text = stringBuilder.ToString();
+            panelCommand.SetActive(true);
+        }
+
         private void DisplaySelectedUnitframe()
         {
             UnitBase unit = selectedUnitFrame;

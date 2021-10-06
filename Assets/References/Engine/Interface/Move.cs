@@ -157,7 +157,7 @@ namespace Engine.Interface
         }
         public bool IsDarkSand()
         {
-            if (Count(TileObjectType.Stone) > 0)
+            if (Count(TileObjectType.Rock) > 0)
                 return true;
             return false;
             //return TerrainTypeIndex == 0;

@@ -28,14 +28,15 @@ namespace Engine.Interface
     {
         public GameCommand()
         {
-            AttachedUnits = new List<Unit>();
+            AttachedUnits = new List<string>();        
         }
+        public bool CommandComplete { get; set; }
         public int PlayerId { get; set; }
-        public string UnitId { get; set; } // Which unit to build
+        public string UnitId { get; set; } // Which unit to build, extract...
         public Position TargetPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
-        
-        public List<Unit> AttachedUnits { get; private set; }
+        public BlueprintCommand BlueprintCommand { get; set; }
+        public List<string> AttachedUnits { get; private set; }
     }
 
     public enum MoveFilter

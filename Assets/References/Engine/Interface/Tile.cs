@@ -424,18 +424,23 @@ namespace Engine.Interface
             {
                 return false;
             }
-            foreach (TileObject tileObject in TileContainer.TileObjects)
-            {
-                if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))                
-                    return false;
-                if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
-                    return false;
-            }
-
             if (IsUnderwater)
                 return false;
 
-            if (Minerals >= 20)
+            int mins = 0;
+            foreach (TileObject tileObject in TileContainer.TileObjects)
+            {
+                if (tileObject.TileObjectType == TileObjectType.Mineral)
+                {
+                    mins++;
+                }
+                else if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
+                    return false;
+                else if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
+                    return false;
+            }
+
+            if (mins >= 20)
             {
                 return false;
             }

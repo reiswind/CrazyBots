@@ -218,7 +218,7 @@ namespace Engine.Algorithms
 
         public List<Position> FindPath(Unit unit, Position start, Position end)
         {
-            lock(this)
+            //lock(this)
             {
                 //HighResolutionTime.Start();
 

@@ -15,7 +15,7 @@ namespace Assets.Scripts
             launchPosition = transform.position;
             launchPosition.y += 1;
 
-            GameObject shellprefab = hexGrid.GetUnitResource("Transport");
+            GameObject shellprefab = hexGrid.GetResource("Transport");
 
             GameObject shellObject = Instantiate(shellprefab);
             Transport transport = shellObject.GetComponent<Transport>();
