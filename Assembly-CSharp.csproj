@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -52,6 +52,9 @@
     <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
     <UnityVersion>2021.1.22f1</UnityVersion>
   </PropertyGroup>
+  <ItemGroup>
+    <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\References\Engine\Interface\Player.cs" />
     <Compile Include="Assets\References\Engine\Map\HexDirection.cs" />
@@ -104,6 +107,7 @@
     <Compile Include="Assets\Scripts\HexGrid.cs" />
     <Compile Include="Assets\References\Engine\Master\Bullet.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartWeapon.cs" />
+    <Compile Include="Assets\Scripts\Command.cs" />
     <Compile Include="Assets\References\Engine\Interface\Blueprints.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntNetwork.cs" />
     <Compile Include="Assets\References\Engine\Control\Assemble.cs" />
@@ -145,7 +149,6 @@
     <Compile Include="Assets\References\Engine\Master\Engine.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\PriorityQueueB.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartReactor.cs" />
-    <Compile Include="Assets\Scripts\Command.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\link.xml" />

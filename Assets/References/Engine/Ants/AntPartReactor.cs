@@ -66,10 +66,12 @@ namespace Engine.Ants
 
         public override bool Move(ControlAnt control, Player player, List<Move> moves)
         {
+            /*
             if (Reactor.TileContainer.Count < Reactor.TileContainer.Capacity)
             {
                 AntNetworkNode.Demand(this, AntNetworkDemandType.Minerals, Reactor.TileContainer.Capacity / (Reactor.TileContainer.Capacity - Reactor.TileContainer.Count));
             }
+            
             // Count connections to Reactors
             int countReactorsNearby = 0;
             foreach (AntNetworkConnect antNetworkConnect in AntNetworkNode.Connections)
@@ -91,7 +93,7 @@ namespace Engine.Ants
                     CheckBuildReactorMove(player, Ant, moves);
                 }
             }
-
+            */
             return false;
         }
     }

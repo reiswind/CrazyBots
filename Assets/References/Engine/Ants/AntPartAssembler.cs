@@ -82,15 +82,15 @@ namespace Engine.Ants
 
             if (control.NumberOfWorkers < control.NumberOfReactors)
             {
-                addWorker = true;
+                //addWorker = true;
             }
             else if (control.NumberOfAssembler < 1)
             {
-                addAssembler = true;
+                //addAssembler = true;
             }
             else if (control.NumberOfFighter < 10)
             {
-                addFighter = true;
+                //addFighter = true;
             }
             else
             {
@@ -104,8 +104,8 @@ namespace Engine.Ants
                                 antNetworkDemand.Urgency == 1)
                             {
                                 // Create more storage by building new container OR build something
-                                if (control.NumberOfFighter < 8)
-                                    addFighter = true;
+                                //if (control.NumberOfFighter < 8)
+                                //    addFighter = true;
                             }
                         }
                     }
@@ -167,7 +167,14 @@ namespace Engine.Ants
                 {
                     if (selectedGameCommand.GameCommandType == GameCommandType.Build)
                     {
-                        commandBluePrint = player.Game.Blueprints.FindBlueprint(selectedGameCommand.UnitId);
+                        if (selectedGameCommand.UnitId == null)
+                        {
+                            commandBluePrint = player.Game.Blueprints.FindBlueprint(selectedGameCommand.BlueprintCommand.Units[0].BlueprintName);
+                        }
+                        else
+                        {
+                            commandBluePrint = player.Game.Blueprints.FindBlueprint(selectedGameCommand.UnitId);
+                        }
                     }
                     else if (selectedGameCommand.GameCommandType == GameCommandType.Attack ||
                              selectedGameCommand.GameCommandType == GameCommandType.Defend ||
@@ -268,7 +275,7 @@ namespace Engine.Ants
                             ant.AntWorkerType = AntWorkerType.Assembler;
                             control.CreatedAnts.Add(move.Positions[1], ant);
 
-                            if (selectedGameCommand != null && selectedGameCommand.GameCommandType == GameCommandType.Build)
+                            if (selectedGameCommand != null) // && selectedGameCommand.GameCommandType == GameCommandType.Build)
                             {
                                 ant.GameCommandDuringCreation = selectedGameCommand;
                                 selectedGameCommand.AttachedUnits.Add("Assembler-" + this.Ant.PlayerUnit.Unit.UnitId);
@@ -282,10 +289,12 @@ namespace Engine.Ants
                             control.NumberOfWorkers++;
                             control.CreatedAnts.Add(move.Positions[1], ant);
 
-                            if (selectedGameCommand != null && selectedGameCommand.GameCommandType == GameCommandType.Collect)
+                            // This is the BUILD Command.
+                            if (selectedGameCommand != null) // && selectedGameCommand.GameCommandType == GameCommandType.Collect)
                             {
                                 ant.GameCommandDuringCreation = selectedGameCommand;
                                 selectedGameCommand.AttachedUnits.Add("Assembler-" + this.Ant.PlayerUnit.Unit.UnitId);
+                                Assembler.Unit.CurrentGameCommand = null;
                                 //player.GameCommands.Remove(selectedGameCommand);
                             }
                             /*
@@ -309,7 +318,7 @@ namespace Engine.Ants
                             control.NumberOfFighter++;
                             control.CreatedAnts.Add(move.Positions[1], ant);
 
-                            if (selectedGameCommand != null && selectedGameCommand.GameCommandType == GameCommandType.Attack)
+                            if (selectedGameCommand != null) // && selectedGameCommand.GameCommandType == GameCommandType.Attack)
                             {
                                 ant.GameCommandDuringCreation = selectedGameCommand;
                                 selectedGameCommand.AttachedUnits.Add("Assembler-" + this.Ant.PlayerUnit.Unit.UnitId);

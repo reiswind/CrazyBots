@@ -349,6 +349,16 @@ namespace Engine.Ants
         public AntWorkerType AntWorkerType { get; set; }
     }
 
+    public class AntCollect
+    {
+        public int Minerals { get; set; }
+
+        public override string ToString()
+        {
+            return "Mins: " + Minerals;
+        }
+    }
+
     internal enum AntWorkerType
     {
         None,

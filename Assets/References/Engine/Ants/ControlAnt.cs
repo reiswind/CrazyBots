@@ -1,4 +1,5 @@
 ﻿using Engine.Algorithms;
+using Engine.Algorithms;
 using Engine.Ants;
 using Engine.Interface;
 using Engine.Master;
@@ -37,21 +38,24 @@ namespace Engine.Control
             PlayerModel = playerModel;
             GameModel = gameModel;
         }
-
+        public Dictionary<int, AntCollect> AntCollects = new Dictionary<int, AntCollect>();
         public void ProcessMoves(Player player, List<Move> moves)
         {
             foreach (Move move in moves)
             {
                 if (move.MoveType == MoveType.UpdateGround)
                 {
-                    // TEST
-                    
+                    // TEST (This is cheating cause it sees everything)
+
+                    /*
                     Position pos = move.Positions[0];
                     Tile tile = player.Game.Map.GetTile(pos);
                     if (tile.Minerals > 0)
                     {
                         player.Game.Pheromones.DropPheromones(player, pos, 10, PheromoneType.Mineral, 0.03f, 0.01f);
-                    }
+                    }*/
+
+
                     /*
                     MineralDeposit mineralDeposit;
                     if (tile.Minerals == 0)
@@ -91,10 +95,35 @@ namespace Engine.Control
                             mineralsDeposits.Add(pos, mineralDeposit);
                         }
                     }*/
+
+                }
+                else if (move.MoveType == MoveType.HiddenTiles)
+                {
+                    int x = 0;
+                }
+                else if (move.MoveType == MoveType.VisibleTiles)
+                {
+                    foreach (Position pos in move.Positions)
+                    {
+                        Tile tile = player.Game.Map.GetTile(pos);
+                        if (tile.Minerals > 0)
+                        {
+                            player.Game.Pheromones.DropPheromones(player, pos, 10, PheromoneType.Mineral, 0.03f, 0.01f);
+
+                            AntCollect antCollect;
+                            if (!AntCollects.TryGetValue(tile.ZoneId, out antCollect))
+                            {
+                                antCollect = new AntCollect();
+                                AntCollects.Add(tile.ZoneId, antCollect);
+                            }
+                            antCollect.Minerals += tile.Minerals;
+                        }
+                    }
+                    int x = 0;
                 }
                 else if (move.MoveType == MoveType.Extract)
                 {
-                    Position pos = move.Positions[move.Positions.Count - 1];
+                    //Position pos = move.Positions[move.Positions.Count - 1];
 
                 }
                 else if (move.MoveType == MoveType.Build)
@@ -129,6 +158,50 @@ namespace Engine.Control
                     if (ant != null)
                     {
                         ant.CreateAntParts();
+                    }
+                }
+            }
+            CreateCommands(player);
+        }
+
+        public void CreateCommands(Player player)
+        {
+            foreach (KeyValuePair<int, AntCollect> value in AntCollects)
+            {
+                int zoneId = value.Key;
+                MapZone mapZone = player.Game.Map.Zones[zoneId];
+                AntCollect antCollect = value.Value;
+
+                if (antCollect.Minerals > 5)
+                {
+                    bool commandActive = false;
+                    foreach (GameCommand gameCommand in player.GameCommands)
+                    {
+                        if (gameCommand.GameCommandType == GameCommandType.Collect &&
+                            gameCommand.TargetPosition == mapZone.Center)
+                        {
+                            commandActive = true;
+                            break;
+                        }
+                    }
+                    if (!commandActive)
+                    {
+                        // Create a command to collect the resources
+                        foreach (BlueprintCommand blueprintCommand in player.Game.Blueprints.Commands)
+                        {
+                            if (blueprintCommand.GameCommandType == GameCommandType.Collect)
+                            {
+                                GameCommand gameCommand = new GameCommand();
+
+                                gameCommand.GameCommandType = GameCommandType.Collect;
+                                gameCommand.TargetPosition = mapZone.Center;
+                                gameCommand.PlayerId = player.PlayerModel.Id;
+                                gameCommand.BlueprintCommand = blueprintCommand;
+
+                                player.GameCommands.Add(gameCommand);
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -1090,8 +1163,10 @@ namespace Engine.Control
             foreach (GameCommand gameCommand in player.GameCommands)
             {
                 if (gameCommand.AttachedUnits.Count > 0)
+                {
+                    completedCommands.Add(gameCommand);
                     continue;
-
+                }
                 if (gameCommand.GameCommandType == GameCommandType.Build)
                 {
                     if (HasUnitBeenBuilt(player, gameCommand, null, moves))
@@ -1107,29 +1182,29 @@ namespace Engine.Control
 
                     foreach (Ant ant in unmovedAnts)
                     {
-                            if (gameCommand.GameCommandType == GameCommandType.Build && ant.AntWorkerType == AntWorkerType.Assembler)
+                        if (gameCommand.GameCommandType == GameCommandType.Build && ant.AntPartAssembler != null) //.AntWorkerType == AntWorkerType.Assembler)
+                        {
+                            if (ant.PlayerUnit.Unit.CurrentGameCommand == null &&
+                                !ant.PlayerUnit.Unit.UnderConstruction &&
+                                !ant.PlayerUnit.Unit.ExtractMe)
                             {
-                                if (ant.PlayerUnit.Unit.CurrentGameCommand == null &&
-                                    !ant.PlayerUnit.Unit.UnderConstruction &&
-                                    !ant.PlayerUnit.Unit.ExtractMe)
+                                if (ant.PlayerUnit.Unit.Pos == gameCommand.TargetPosition)
                                 {
-                                    if (ant.PlayerUnit.Unit.Pos == gameCommand.TargetPosition)
+                                    bestAnt = ant;
+                                    break;
+                                }
+                                else
+                                {
+                                    double distance = ant.PlayerUnit.Unit.Pos.GetDistanceTo(gameCommand.TargetPosition);
+                                    if (bestAnt == null || distance < bestDistance)
                                     {
+                                        bestDistance = distance;
                                         bestAnt = ant;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        double distance = ant.PlayerUnit.Unit.Pos.GetDistanceTo(gameCommand.TargetPosition);
-                                        if (bestAnt == null || distance < bestDistance)
-                                        {
-                                            bestDistance = distance;
-                                            bestAnt = ant;
-                                        }
                                     }
                                 }
                             }
-                        
+                        }
+
                     }
                     if (bestAnt != null)
                     {
@@ -1182,11 +1257,53 @@ namespace Engine.Control
                     }
                 }
             }
-            
+
             foreach (GameCommand gameCommand in completedCommands)
             {
-                player.GameCommands.Remove(gameCommand);
+                //player.GameCommands.Remove(gameCommand);
             }
+
+            List<GameCommand> addedCommands = new List<GameCommand>();
+
+            // Still open commands
+            foreach (GameCommand gameCommand in player.GameCommands)
+            {
+                if (gameCommand.GameCommandType == GameCommandType.Collect)
+                {
+                    if (gameCommand.AttachedUnits.Count > 0)
+                    {
+                        //completedCommands.Add(gameCommand);
+                        continue;
+                    }
+
+                    foreach (BlueprintCommandItem blueprintCommandItem in gameCommand.BlueprintCommand.Units)
+                    {
+                        // Create a command to collect the resources
+                        foreach (BlueprintCommand blueprintCommand in player.Game.Blueprints.Commands)
+                        {
+                            if (blueprintCommand.GameCommandType == GameCommandType.Build &&
+                                blueprintCommand.Name == blueprintCommandItem.BlueprintName)
+                            {
+                                // Demand this unit
+                                GameCommand newCommand = new GameCommand();
+
+                                newCommand.GameCommandType = GameCommandType.Build;
+                                //newCommand.UnitId = blueprintCommandItem.BlueprintName;
+                                newCommand.TargetPosition = gameCommand.TargetPosition;
+                                newCommand.BlueprintCommand = blueprintCommand;
+                                newCommand.AttachToThisOnCompletion = gameCommand;
+                                addedCommands.Add(newCommand);
+
+                                break;
+                            }
+                        }
+
+                        gameCommand.AttachedUnits.Add("CommandId?");
+                    }
+                    
+                }
+            }
+            player.GameCommands.AddRange(addedCommands);
         }
 
         private void BuildReactor(Player player)
@@ -1426,12 +1543,26 @@ namespace Engine.Control
                             ant.GameCommandDuringCreation = null;
                             if (ant.PlayerUnit.Unit.CurrentGameCommand != null)
                             {
-                                foreach (string unitid in ant.PlayerUnit.Unit.CurrentGameCommand.AttachedUnits)
+                                GameCommand gameCommand = ant.PlayerUnit.Unit.CurrentGameCommand;
+
+                                foreach (string unitid in gameCommand.AttachedUnits)
                                 {
                                     if (unitid.StartsWith("Assembler"))
                                     {
-                                        ant.PlayerUnit.Unit.CurrentGameCommand.AttachedUnits.Remove(unitid);
-                                        ant.PlayerUnit.Unit.CurrentGameCommand.AttachedUnits.Add(ant.PlayerUnit.Unit.UnitId);
+                                        if (gameCommand.AttachToThisOnCompletion != null)
+                                        {
+                                            gameCommand.CommandComplete = true;
+                                            player.GameCommands.Remove(gameCommand);
+
+                                            gameCommand.AttachToThisOnCompletion.AttachedUnits.Clear(); // Works with only one
+                                            gameCommand.AttachToThisOnCompletion.AttachedUnits.Add(ant.PlayerUnit.Unit.UnitId);
+                                            ant.PlayerUnit.Unit.CurrentGameCommand = gameCommand.AttachToThisOnCompletion;
+                                        }
+                                        else
+                                        {
+                                            gameCommand.AttachedUnits.Remove(unitid);
+                                            gameCommand.AttachedUnits.Add(ant.PlayerUnit.Unit.UnitId);
+                                        }
                                         break;
                                     }
                                 }

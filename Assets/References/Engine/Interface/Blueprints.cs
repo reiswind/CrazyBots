@@ -105,13 +105,45 @@ namespace Engine.Interface
             Commands = new List<BlueprintCommand>();
 
             // Commands
-            BlueprintCommand blueprintCommand = new BlueprintCommand();
+            BlueprintCommand blueprintCommand;
+            BlueprintCommandItem blueprintCommandItem;
+
+            // Collect resources
+            blueprintCommand = new BlueprintCommand();
+
+            blueprintCommand.Name = "Collect";
+            blueprintCommand.Layout = "BuildStructure";
+            blueprintCommand.GameCommandType = GameCommandType.Collect;
+
+            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem.BlueprintName = "BuildWorker";
+            blueprintCommandItem.Count = 1;
+            blueprintCommand.Units.Add(blueprintCommandItem);
+
+            Commands.Add(blueprintCommand);
+
+            // Build Worker
+            blueprintCommand = new BlueprintCommand();
+
+            blueprintCommand.Name = "BuildWorker";
+            blueprintCommand.Layout = "BuildStructure";
+            blueprintCommand.GameCommandType = GameCommandType.Build;
+
+            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem.BlueprintName = "Worker";
+            blueprintCommandItem.Count = 1;
+            blueprintCommand.Units.Add(blueprintCommandItem);
+
+            Commands.Add(blueprintCommand);
+
+            // Build outpost
+            blueprintCommand = new BlueprintCommand();
 
             blueprintCommand.Name = "BuildOutpost";
             blueprintCommand.Layout = "BuildStructure";
             blueprintCommand.GameCommandType = GameCommandType.Build;
 
-            BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Outpost";
             blueprintCommandItem.Count = 1;
             blueprintCommand.Units.Add(blueprintCommandItem);

@@ -1509,15 +1509,17 @@ namespace Assets.Scripts
                 }
                 else
                 {
-                    unitBase = HexGrid.BaseUnits[unitId];
+                    HexGrid.BaseUnits.TryGetValue(unitId, out unitBase);
                 }
-                allCommandUnits.Remove(unitBase);
-                if (!selectedCommandUnits.Contains(unitBase))
+                if (unitBase != null)
                 {
-                    selectedCommandUnits.Add(unitBase);
-                    unitBase.SetSelected(true);
+                    allCommandUnits.Remove(unitBase);
+                    if (!selectedCommandUnits.Contains(unitBase))
+                    {
+                        selectedCommandUnits.Add(unitBase);
+                        unitBase.SetSelected(true);
+                    }
                 }
-
                 stringBuilder.Append(unitId);
             }
             foreach (UnitBase unitBase in allCommandUnits)

@@ -485,7 +485,10 @@ namespace Assets.Scripts
                 command.GameCommand = gameCommand;
 
                 Vector3 unitPos3 = transform.position;
-                unitPos3.y += 1;
+                if (gameCommand.GameCommandType == GameCommandType.Collect)
+                    unitPos3.y += 1.8f;
+                if (gameCommand.GameCommandType == GameCommandType.Build)
+                    unitPos3.y += 2.8f;
                 cellGameCommand.Command.transform.position = unitPos3;
 
                 cellGameCommands.Add(cellGameCommand);

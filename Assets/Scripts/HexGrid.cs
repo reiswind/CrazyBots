@@ -60,8 +60,8 @@ namespace Assets.Scripts
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
 			//UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-			//UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
-			UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+			UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+			//UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 			GameModel gameModel;
 
@@ -666,40 +666,43 @@ namespace Assets.Scripts
 				}
 				*/
 				updatedPositions = newUpdatedPositions;
-
-				foreach (Position pos in groundcellsWithCommands)
+				if (GroundCells.Count > 0)
 				{
-					GroundCell hexCell = GroundCells[pos];
-					hexCell.UntouchCommands();
-				}
-
-				foreach (MapPlayerInfo mapPlayerInfo in MapInfo.PlayerInfo.Values)
-				{
-					if (mapPlayerInfo.GameCommands != null)
+					foreach (Position pos in groundcellsWithCommands)
 					{
-						foreach (GameCommand gameCommand in mapPlayerInfo.GameCommands)
-						{
-							GroundCell hexCell = GroundCells[gameCommand.TargetPosition];
-							hexCell.UpdateCommands(gameCommand);
+						GroundCell hexCell = GroundCells[pos];
+						hexCell.UntouchCommands();
+					}
 
-							if (!groundcellsWithCommands.Contains(gameCommand.TargetPosition))
-								groundcellsWithCommands.Add(gameCommand.TargetPosition);
+					foreach (MapPlayerInfo mapPlayerInfo in MapInfo.PlayerInfo.Values)
+					{
+						if (mapPlayerInfo.GameCommands != null)
+						{
+							foreach (GameCommand gameCommand in mapPlayerInfo.GameCommands)
+							{
+								GroundCell hexCell = GroundCells[gameCommand.TargetPosition];
+								hexCell.UpdateCommands(gameCommand);
+
+								if (!groundcellsWithCommands.Contains(gameCommand.TargetPosition))
+									groundcellsWithCommands.Add(gameCommand.TargetPosition);
+							}
 						}
 					}
-				}
-				List<Position> clearedPositions = new List<Position>();
-				foreach (Position pos in groundcellsWithCommands)
-				{
-					GroundCell hexCell = GroundCells[pos];
-					if (hexCell.ClearCommands())
+					List<Position> clearedPositions = new List<Position>();
+					foreach (Position pos in groundcellsWithCommands)
 					{
-						clearedPositions.Add(pos);
+						GroundCell hexCell = GroundCells[pos];
+						if (hexCell.ClearCommands())
+						{
+							clearedPositions.Add(pos);
+						}
+					}
+					foreach (Position pos in clearedPositions)
+					{
+						groundcellsWithCommands.Remove(pos);
 					}
 				}
-				foreach (Position pos in clearedPositions)
-				{
-					groundcellsWithCommands.Remove(pos);
-				}
+
 				/* Update all
 				foreach (Position pos in GroundCells.Keys)
 				{

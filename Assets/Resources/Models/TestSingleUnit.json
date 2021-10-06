@@ -2,7 +2,7 @@
   "Name": "Test",
   "MapWidth": 2,
   "MapHeight": 2,
-  "Seed": 2,
+  "Seedx": 2,
   "MapType": "2",
   "Players": [
     {
@@ -10,24 +10,6 @@
       "Id": 1,
       "Zone": 0,
       "Name": "Green"
-    },
-    {
-      "ControlLevel": 1,
-      "Id": 2,
-      "Zone": 1,
-      "Name": "Red"
-    },
-    {
-      "ControlLevel": 1,
-      "Id": 3,
-      "Zone": 2,
-      "Name": "Player3"
-    },
-    {
-      "ControlLevel": 1,
-      "Id": 4,
-      "Zone": 3,
-      "Name": "Player4"
     }
   ],
   "Units": [
@@ -35,7 +17,7 @@
 	{
       "Name": "Fighter",
       "PlayerId": 1,
-      "Blueprint": "Fighter",
+      "Blueprint": "Outpost",
 	  "HoldPosition": true,
 	  "FireAtGround": false,
 	  "EndlessAmmo": true,
@@ -44,19 +26,7 @@
         "X": -2,
         "Y": -2
       }
-    },
-	{
-      "Name": "Fighter",
-      "PlayerId": 2,
-      "Blueprint": "Bomber",
-	  "HoldPosition": true,
-	  "HoldFire": true,
-	  "EndlessAmmo": true,
-	  "EndlessPower": true,
-      "Position": {
-        "X": -2,
-        "Y": 4
-      }
+    
     }
 
   ]

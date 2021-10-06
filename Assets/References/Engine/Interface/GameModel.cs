@@ -37,6 +37,8 @@ namespace Engine.Interface
         public GameCommandType GameCommandType { get; set; }
         public BlueprintCommand BlueprintCommand { get; set; }
         public List<string> AttachedUnits { get; private set; }
+
+        internal GameCommand AttachToThisOnCompletion { get; set; }
     }
 
     public enum MoveFilter

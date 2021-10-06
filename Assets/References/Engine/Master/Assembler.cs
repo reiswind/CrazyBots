@@ -241,14 +241,16 @@ namespace Engine.Master
         {
             if (Unit.CurrentGameCommand != null)
             { 
+                // Disabled. Otherwise cannt update a worker
+                /*
                 if (Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build &&
                         neighbor.Pos == Unit.CurrentGameCommand.TargetPosition)
                 {
                     return true;
                 }
-                //  &&
-                //move1.UnitId == Unit.CurrentGameCommand.UnitId
+                
                 return false;
+                */
             }
             return true;
         }
