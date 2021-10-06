@@ -150,6 +150,7 @@
     <Compile Include="Assets\References\Engine\Ants\AntPartReactor.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\link.xml" />
     <None Include="Assets\References\Newtonsoft.Json.dll" />
     <None Include="Assets\BrokenVector\LowPolyTreePack\README.txt" />
     <None Include="Assets\Polygonal Particles\Assets\Shaders\GradientBackgroundShader.shader" />

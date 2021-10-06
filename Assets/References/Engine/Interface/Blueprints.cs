@@ -14,6 +14,7 @@ namespace Engine.Interface
             Initialize();
         }
         public List<Blueprint> Items { get; private set; }
+        public List<BlueprintCommand> Commands { get; private set; }
 
         public void Initialize()
         {
@@ -100,6 +101,22 @@ namespace Engine.Interface
             blueprint.Parts.Add(new BlueprintPart("Armor"));
             Items.Add(blueprint);
 
+
+            Commands = new List<BlueprintCommand>();
+
+            // Commands
+            BlueprintCommand blueprintCommand = new BlueprintCommand();
+
+            blueprintCommand.Name = "BuildOutpost";
+            blueprintCommand.GameCommandType = GameCommandType.Build;
+
+            BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem.BlueprintName = "Outpost";
+            blueprintCommandItem.Count = 1;
+            blueprintCommand.Units.Add(blueprintCommandItem);
+
+            Commands.Add(blueprintCommand);
+
         }
 
         public Blueprint FindBlueprint(string name)
@@ -111,6 +128,30 @@ namespace Engine.Interface
             }
             return null;
         }
+    }
+
+    public class BlueprintCommand
+    {
+        public BlueprintCommand()
+        {
+            Units = new List<BlueprintCommandItem>();
+        }
+        public string Name { get; set; }
+
+        public GameCommandType GameCommandType { get; set; }
+
+        public List<BlueprintCommandItem> Units { get; private set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
+    }
+
+    public class BlueprintCommandItem
+    {
+        public string BlueprintName { get; set; }
+        public int Count { get; set; }
     }
 
     public class Blueprint
