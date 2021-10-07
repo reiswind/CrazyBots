@@ -353,12 +353,14 @@ namespace Assets.Scripts
 		}
 
 		private List<Position> visiblePositions = new List<Position>();
-		private Position visibleCenter;
 		private Position nextVisibleCenter;
 		public void UpdateVisibleCenter(Position pos)
 		{
 			nextVisibleCenter = pos;
 		}
+
+#if KIILLFPS
+		private Position visibleCenter;
 		public IEnumerator RenderSurroundingCells()
 		{
 			while (true)
@@ -369,16 +371,8 @@ namespace Assets.Scripts
 				}
 				else
 				{
-					/* Debug all visible*/
-					foreach (GroundCell groundCell1 in GroundCells.Values)
-					{
-						groundCell1.Visible = true;
-
-					}
-					yield return null;
-
 					// Kills FPS
-#if KIILLFPS
+
 					int maxActives = 0;
 					bool interrupted = false;
 
@@ -432,10 +426,12 @@ namespace Assets.Scripts
 					{
 						visibleCenter = nextVisibleCenter;
 					}
-#endif				
+
 				}
 			}
 		}
+#endif
+	
 
 		public void CreateGame(GameModel gameModel)
 		{
@@ -900,7 +896,15 @@ namespace Assets.Scripts
 			{
 				startPositionSet = true;
 				SelectStartPosition();
-				StartCoroutine(RenderSurroundingCells());
+
+				/* Debug all visible*/
+				foreach (GroundCell groundCell1 in GroundCells.Values)
+				{
+					groundCell1.Visible = true;
+
+				}
+
+				//StartCoroutine(RenderSurroundingCells());
 			}
 			if (startPositionSet)
 			{

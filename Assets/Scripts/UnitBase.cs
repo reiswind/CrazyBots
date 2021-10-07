@@ -749,10 +749,6 @@ namespace Assets.Scripts
                 UnitBasePart unitBasePart = UnitBaseParts[i];
                 if (unitBasePart.PartType == hitPart)
                 {
-                    if (unitBasePart.Level == 0)
-                    {
-                        int x = 0;
-                    }
                     unitBasePart.Level--;
                     if (unitBasePart.Level == 0)
                     {
@@ -1047,10 +1043,6 @@ namespace Assets.Scripts
             Engine = null;
             Armor = null;
 
-            if (UnitId == "unit17")
-            {
-                int x = 0;
-            }
             bool missingPartFound = false;
 
             foreach (UnitBasePart unitBasePart in UnitBaseParts)

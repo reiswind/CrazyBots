@@ -439,30 +439,6 @@ namespace Engine.Interface
                     }
                 }
             }
-
-            /*
-            mineralDwells = new Dictionary<Position, int>();
-
-            int zone = 0;
-            while (zone < maxZones)
-            {
-                int minX = (zone % zoneWidth) * 15;
-                int minY = (zone / zoneWidth) * 15;
-                zone++;
-
-                int x = Game.Random.Next(10) + 3;
-                int y = Game.Random.Next(10) + 3;
-
-                Position dwell = new Position(minX + x, minY + y);
-                //Tile t = GetTile(dwell);
-                //t.Height = 0.5f;
-
-                mineralDwells.Add(dwell, 0);
-            }*/
-
-
-            //checkTotalMetal = GetMapInfo().TotalMetal;
-
         }
 
         internal Position CalcTilePos(Position sectorPos)
@@ -478,40 +454,6 @@ namespace Engine.Interface
                 y += sectorSize / 2;
             }
             return new Position(x, y);
-            if ((sectorPos.X % 2) != 0)
-            {
-                //x = (x * sectorSize) - (sectorSize / 2);
-                //x -= (sectorSize / 2) + 1;
-                if ((sectorPos.Y % 2) != 0)
-                {
-                    //x -= sectorSize;
-                    x -= sectorSize / 2; // NE
-                    //x += sectorSize / 2; // SE NW
-                    y += sectorSize / 2;
-
-                    //x *= sectorSize;
-                    //y = -(y * sectorSize) - (sectorSize / 2);
-                    //return new Vector3((x * gridSizeX), 0, -(y * gridSizeY) - halfGridSize);
-                }
-                else
-                {
-                    // N/S
-                    //x -= sectorSize / 2;
-                }
-            }
-            else if ((sectorPos.Y % 2) != 0)
-            {
-                //if ((sectorPos.X % 2) != 0)
-                {
-                    x -= sectorSize / 2; // NW
-                    y += sectorSize / 2;
-                }
-                //x *= sectorSize;
-                //y = -(y * sectorSize) - (sectorSize / 2);
-                //return new Vector3((x * gridSizeX), 0, -(y * gridSizeY) - halfGridSize);
-            }
-            return new Position(x, y);
-
         }
 
         public void CreateFlat()

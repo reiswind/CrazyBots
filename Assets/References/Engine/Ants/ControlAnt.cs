@@ -1,5 +1,4 @@
 ﻿using Engine.Algorithms;
-using Engine.Algorithms;
 using Engine.Ants;
 using Engine.Interface;
 using Engine.Master;

@@ -173,7 +173,7 @@ namespace Assets.Scripts
                     }
                     catch(Exception)
                     {
-                        int x = 0;
+                        throw;
                     }
 
                 }
@@ -190,7 +190,7 @@ namespace Assets.Scripts
                         }
                         catch (Exception)
                         {
-                            int x = 0;
+                            throw;
                         }
                     }
                 }
@@ -240,7 +240,7 @@ namespace Assets.Scripts
                             }
                             catch (Exception)
                             {
-                                int x = 0;
+                                throw;
                             }
                         }
                     }
@@ -254,7 +254,7 @@ namespace Assets.Scripts
                             }
                             catch (Exception)
                             {
-                                int x = 0;
+                                throw;
                             }
                         }
                         filled++;

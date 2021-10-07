@@ -341,10 +341,6 @@ namespace Assets.Scripts
 
         internal void CreateDestructables()
         {
-            if (Pos.X == 64 && Pos.Y == 76)
-            {
-                int x = 0;
-            }
             SetGroundMaterial();
 
             List<UnitBaseTileObject> allTileObjects = new List<UnitBaseTileObject>();

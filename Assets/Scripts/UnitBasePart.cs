@@ -37,7 +37,7 @@ namespace Assets.Scripts
         {
             if (UnitBase.gameObject == null || Part.gameObject == null)
             {
-                int x = 0;
+
             }
             else
             {

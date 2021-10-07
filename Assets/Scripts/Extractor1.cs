@@ -21,11 +21,6 @@ namespace Assets.Scripts
                 {
                     Position from = move.Positions[1];
 
-                    if (from.X == 64 && from.Y == 76)
-                    {
-                        int x = 0;
-                    }
-
                     GroundCell sourceCell; // = hexGrid.GroundCells[from];
 
                     if (hexGrid.GroundCells.TryGetValue(from, out sourceCell))
@@ -75,7 +70,7 @@ namespace Assets.Scripts
                         if (!found)
                         {
                             // Bug!
-                            int x = 0;
+                            //int x = 0;
                         }
                     }
                 }
@@ -225,7 +220,7 @@ namespace Assets.Scripts
                 if (!found)
                 {
                     // Bug!
-                    int x = 0;
+                    //int x = 0;
                 }
             }
         }
