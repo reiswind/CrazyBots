@@ -645,7 +645,7 @@ namespace Assets.Scripts
 
 			if (MapInfo != null)
 			{
-				/*
+				
 				foreach (Position pos in MapInfo.Pheromones.Keys)
 				{
 					MapPheromone mapPheromone = MapInfo.Pheromones[pos];
@@ -660,7 +660,7 @@ namespace Assets.Scripts
 					GroundCell hexCell = GroundCells[pos];
 					hexCell.UpdatePheromones(null);
 				}
-				*/
+				
 				updatedPositions = newUpdatedPositions;
 				if (GroundCells.Count > 0)
 				{
@@ -676,11 +676,14 @@ namespace Assets.Scripts
 						{
 							foreach (GameCommand gameCommand in mapPlayerInfo.GameCommands)
 							{
-								GroundCell hexCell = GroundCells[gameCommand.TargetPosition];
-								hexCell.UpdateCommands(gameCommand);
+								if (gameCommand.TargetPosition != null)
+								{
+									GroundCell hexCell = GroundCells[gameCommand.TargetPosition];
+									hexCell.UpdateCommands(gameCommand);
 
-								if (!groundcellsWithCommands.Contains(gameCommand.TargetPosition))
-									groundcellsWithCommands.Add(gameCommand.TargetPosition);
+									if (!groundcellsWithCommands.Contains(gameCommand.TargetPosition))
+										groundcellsWithCommands.Add(gameCommand.TargetPosition);
+								}
 							}
 						}
 					}
@@ -1243,20 +1246,23 @@ namespace Assets.Scripts
 						if (transitObject.ScaleDown)
 						{
 							MeshRenderer mesh = transitObject.GameObject.GetComponent<MeshRenderer>();
-							// if larger
-							if (mesh.bounds.size.y > 0.2f || mesh.bounds.size.x > 0.2f || mesh.bounds.size.z > 0.2f)
+							if (mesh != null)
 							{
-								// but not to small
-								if (mesh.bounds.size.y > 0.1f && mesh.bounds.size.x > 0.1f && mesh.bounds.size.z > 0.1f)
+								// if larger
+								if (mesh.bounds.size.y > 0.2f || mesh.bounds.size.x > 0.2f || mesh.bounds.size.z > 0.2f)
 								{
-									float scalex = mesh.bounds.size.x / 200;
-									float scaley = mesh.bounds.size.y / 200;
-									float scalez = mesh.bounds.size.z / 200;
+									// but not to small
+									if (mesh.bounds.size.y > 0.1f && mesh.bounds.size.x > 0.1f && mesh.bounds.size.z > 0.1f)
+									{
+										float scalex = mesh.bounds.size.x / 200;
+										float scaley = mesh.bounds.size.y / 200;
+										float scalez = mesh.bounds.size.z / 200;
 
-									Vector3 scaleChange;
-									scaleChange = new Vector3(-scalex, -scaley, -scalez);
+										Vector3 scaleChange;
+										scaleChange = new Vector3(-scalex, -scaley, -scalez);
 
-									transitObject.GameObject.transform.localScale += scaleChange;
+										transitObject.GameObject.transform.localScale += scaleChange;
+									}
 								}
 							}
 						}

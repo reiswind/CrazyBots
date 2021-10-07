@@ -252,6 +252,13 @@ namespace Engine.Interface
         }
 
         private int sectorSize;
+        public int SectorSize
+        {
+            get
+            {
+                return sectorSize;
+            }
+        }
 
         public Tile GetTile(Position pos)
         {

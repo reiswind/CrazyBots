@@ -253,6 +253,7 @@ namespace Engine.Ants
         //public bool HoldPosition { get; set; }
         public int MoveAttempts { get; set; }
         public int StuckCounter { get; set; }
+        public int MovesWithoutCommand { get; set; }
         public bool Alive { get; set; }
         public bool UnderConstruction { get; set; }
         public PlayerUnit PlayerUnit { get; set; }
@@ -301,6 +302,13 @@ namespace Engine.Ants
         }
         public virtual void OnDestroy(Player player)
         {
+            if (PlayerUnit != null)
+            {
+                foreach (GameCommand gameCommand in player.GameCommands)
+                {
+                    gameCommand.AttachedUnits.Remove(PlayerUnit.Unit.UnitId);
+                }
+            }
             foreach (AntPart antPart in AntParts)
             {
                 antPart.OnDestroy(player);
@@ -333,7 +341,7 @@ namespace Engine.Ants
                 //player.GameCommands.Add(PlayerUnit.Unit.CurrentGameCommand);
                 if (PlayerUnit.Unit.CurrentGameCommand.CommandComplete)
                     player.GameCommands.Remove(PlayerUnit.Unit.CurrentGameCommand);
-                PlayerUnit.Unit.CurrentGameCommand = null;
+                PlayerUnit.Unit.ResetGameCommand();
             }
             if (GameCommandDuringCreation != null)
             {
@@ -346,12 +354,14 @@ namespace Engine.Ants
         }
 
         internal GameCommand GameCommandDuringCreation;
+        internal GameCommand FinishCommandWhenCompleted;
         public AntWorkerType AntWorkerType { get; set; }
     }
 
     public class AntCollect
     {
         public int Minerals { get; set; }
+        public int AllCollectables { get; set; }
 
         public override string ToString()
         {

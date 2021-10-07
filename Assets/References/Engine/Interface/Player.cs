@@ -497,7 +497,7 @@ namespace Engine.Interface
                     if (this.VisiblePositions.Contains(oldPos))
                     {
                         // Now we do not see it any more
-                        this.VisiblePositions.Remove(oldPos);
+                        VisiblePositions.Remove(oldPos);
                         hiddenTilesMove.Positions.Add(oldPos);
                         
                         Unit unit = Game.Map.Units.GetUnitAt(oldPos);
@@ -618,8 +618,8 @@ namespace Engine.Interface
                                 addMove.UnitId = move.UnitId;
                                 LastMoves.Add(addMove);
                                 */
-                    }
-                }
+                            }
+                        }
                         else
                         {
                             if (movedAwayUnits.ContainsKey(move.Positions[0]))
@@ -761,20 +761,38 @@ namespace Engine.Interface
                 Units.Remove(unit.UnitId);
             }
 
+            int ccc = 0;
             foreach (Move move in moves)
             {
                 if (move.MoveType == MoveType.UpdateGround)
                 {
-                    if (VisiblePositions.Contains(move.Positions[0]))
+                    Position pos = move.Positions[0];
+                    Tile tile = Game.Map.GetTile(pos);
+
+                    if (VisiblePositions.Contains(pos))
                     {
+                        /*
+                        if (tile.Minerals > 0)
+                        {
+                            Game.Pheromones.DropPheromones(this, pos, 10, PheromoneType.Mineral, 0.03f, 0.01f);
+
+                            AntCollect antCollect;
+                            if (!AntCollects.TryGetValue(tile.ZoneId, out antCollect))
+                            {
+                                antCollect = new AntCollect();
+                                AntCollects.Add(tile.ZoneId, antCollect);
+                            }
+                            antCollect.Minerals += tile.Minerals;
+                        }*/
                         LastMoves.Add(move);
                     }
+                    
                 }
             }
                 //CreateAreas();
 
 #if DEBUG
-                CheckUnits();
+            CheckUnits();
 #endif
         }
 

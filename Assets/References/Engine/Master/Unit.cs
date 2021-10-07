@@ -92,7 +92,20 @@ namespace Engine.Master
         [DataMember]
         public string UnitId { get; set; }
 
-        public GameCommand CurrentGameCommand { get; set; }
+        public GameCommand CurrentGameCommand { get; private set; }
+
+        public void SetGameCommand(GameCommand gameCommand)
+        {
+            CurrentGameCommand = gameCommand;
+        }
+        public void ResetGameCommand()
+        {
+            if (UnitId == "unit5")
+            {
+                int x = 0;
+            }
+            CurrentGameCommand = null;
+        }
 
         public int Power { get; set; }
         public bool EndlessPower { get; set; }

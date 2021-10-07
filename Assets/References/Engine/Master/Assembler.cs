@@ -232,7 +232,7 @@ namespace Engine.Master
 
         public Dictionary<Position, TileWithDistance> CollectOutputPositions()
         {
-            Dictionary<Position, TileWithDistance> positions = Unit.Game.Map.EnumerateTiles(Unit.Pos, 1, true);
+            Dictionary<Position, TileWithDistance> positions = Unit.Game.Map.EnumerateTiles(Unit.Pos, 1, false);
 
             return positions;
         }

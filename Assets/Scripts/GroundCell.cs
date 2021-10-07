@@ -130,11 +130,15 @@ namespace Assets.Scripts
                     markerToHome.transform.position = position;
                 }*/
 
-                /*
+                
                 if (mapPheromone.IntensityToMineral > 0)
                 {
                     Vector3 position = transform.position;
                     position.y += 0.054f + (0.2f * mapPheromone.IntensityToMineral);
+
+                    if (mapPheromone.IntensityToMineral == 1)
+                        position.y += 0.9f;
+
                     position.x += 0.2f;
                     markerToMineral.transform.position = position;
                 }
@@ -144,7 +148,7 @@ namespace Assets.Scripts
                     position.y -= 1;
                     position.x += 0.2f;
                     markerToMineral.transform.position = position;
-                }*/
+                }
 
                 /*
                 if (mapPheromone.IntensityToEnemy > 0)

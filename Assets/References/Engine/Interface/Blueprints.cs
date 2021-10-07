@@ -136,6 +136,20 @@ namespace Engine.Interface
 
             Commands.Add(blueprintCommand);
 
+            // Build Assembler
+            blueprintCommand = new BlueprintCommand();
+
+            blueprintCommand.Name = "BuildAssembler";
+            blueprintCommand.Layout = "BuildStructure";
+            blueprintCommand.GameCommandType = GameCommandType.Build;
+
+            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem.BlueprintName = "Assembler";
+            blueprintCommandItem.Count = 1;
+            blueprintCommand.Units.Add(blueprintCommandItem);
+
+            Commands.Add(blueprintCommand);
+
             // Build outpost
             blueprintCommand = new BlueprintCommand();
 
@@ -150,6 +164,19 @@ namespace Engine.Interface
 
             Commands.Add(blueprintCommand);
 
+            // Build Container
+            blueprintCommand = new BlueprintCommand();
+
+            blueprintCommand.Name = "BuildContainer";
+            blueprintCommand.Layout = "BuildStructure";
+            blueprintCommand.GameCommandType = GameCommandType.Build;
+
+            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem.BlueprintName = "Container";
+            blueprintCommandItem.Count = 1;
+            blueprintCommand.Units.Add(blueprintCommandItem);
+
+            Commands.Add(blueprintCommand);
         }
 
         public Blueprint FindBlueprint(string name)

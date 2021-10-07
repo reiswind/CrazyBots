@@ -735,6 +735,10 @@ namespace Engine.Ants
                             }
                         }
                     }
+                    else if (cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Collect)
+                    {
+                        // Nothing, just move around
+                    }
                     else if (cntrlUnit.Pos == cntrlUnit.CurrentGameCommand.TargetPosition)
                     {
                         /*

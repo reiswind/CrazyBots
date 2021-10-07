@@ -32,6 +32,7 @@ namespace Engine.Interface
         }
         public bool CommandComplete { get; set; }
         public int PlayerId { get; set; }
+        public int TargetZone { get; set; }
         public string UnitId { get; set; } // Which unit to build, extract...
         public Position TargetPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }

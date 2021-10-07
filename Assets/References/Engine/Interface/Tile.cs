@@ -380,6 +380,10 @@ namespace Engine.Interface
 
         public bool CanBuild()
         {
+            if (Unit != null)
+            {
+                return false;
+            }
             if (TileContainer.Minerals > 20)
                 return false;
 
@@ -416,6 +420,16 @@ namespace Engine.Interface
         public bool CanMoveTo(Position from)
         {
             return CanMoveTo(Map.GetTile(from));            
+        }
+
+        public bool IsNeighbor(Position pos)
+        {
+            foreach (Tile n in neighbors)
+            {
+                if (n.Pos == pos)
+                    return true;
+            }
+            return false;
         }
 
         public bool CanMoveTo(Tile from)
