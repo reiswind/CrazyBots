@@ -525,8 +525,8 @@ namespace Assets.Scripts
 
 		private bool readyForNextMove;
 
-		//private string serverUrl = "https://fastfertig.net/api/";
-		private string serverUrl = "http://localhost:10148/api/";
+		private string serverUrl = "https://fastfertig.net/api/";
+		//private string serverUrl = "http://localhost:10148/api/";
 
 		IEnumerator<object> StartRemoteGame(GameModel gameModel)
 		{
