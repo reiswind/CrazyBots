@@ -486,7 +486,7 @@ namespace Engine.Interface
             }
 
             // Add water border
-            map_radius = mapWidth + 3;
+            map_radius = mapWidth + 1;
             for (int q = -map_radius; q <= map_radius; q++)
             {
                 int r1 = Math.Max(-map_radius, -q - map_radius);
