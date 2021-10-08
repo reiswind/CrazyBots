@@ -147,6 +147,8 @@ namespace Engine.Interface
         public int Zone { get; set; }
         [DataMember]
         public int ControlLevel { get; set; }
+        [DataMember]
+        public bool IsHuman { get; set; }
 
         public override string ToString()
         {

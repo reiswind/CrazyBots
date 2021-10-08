@@ -672,14 +672,14 @@ namespace Assets.Scripts
 
 					foreach (MapPlayerInfo mapPlayerInfo in MapInfo.PlayerInfo.Values)
 					{
-						if (mapPlayerInfo.GameCommands != null)
+						if (mapPlayerInfo.GameCommands != null && mapPlayerInfo.GameCommands.Count > 0)
 						{
 							foreach (GameCommand gameCommand in mapPlayerInfo.GameCommands)
 							{
 								if (gameCommand.TargetPosition != null)
 								{
 									GroundCell hexCell = GroundCells[gameCommand.TargetPosition];
-									hexCell.UpdateCommands(gameCommand);
+									hexCell.UpdateCommands(gameCommand, null);
 
 									if (!groundcellsWithCommands.Contains(gameCommand.TargetPosition))
 										groundcellsWithCommands.Add(gameCommand.TargetPosition);
@@ -1316,7 +1316,7 @@ namespace Assets.Scripts
 				stats.UnitParts.Add(moveUpdateUnitPart);
 			}
 			unit.MoveUpdateStats = stats;
-			unit.Assemble(false);
+			unit.Assemble(true, true);
 
 			return unit;
 		}

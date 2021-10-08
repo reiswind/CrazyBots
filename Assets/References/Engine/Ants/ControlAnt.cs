@@ -83,6 +83,9 @@ namespace Engine.Control
 
         public void CreateCommands(Player player)
         {
+            if (player.PlayerModel.IsHuman)
+                return;
+
             AntCollects.Clear();
             foreach (int id in staticMineralDeposits.Values)
             {
@@ -170,6 +173,9 @@ namespace Engine.Control
 
         public void CreateCommandForContainerInZone(Player player, int zoneId)
         {
+            if (player.PlayerModel.IsHuman)
+                return;
+
             MapZone mapZone = player.Game.Map.Zones[zoneId];
 
             foreach (GameCommand gameCommand in player.GameCommands)

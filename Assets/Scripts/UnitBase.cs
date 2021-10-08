@@ -244,9 +244,12 @@ namespace Assets.Scripts
             newPart.name = name;
 
             if (underConstruction)
-            {
-                newPart.SetActive(false);
-                //SetMaterialGhost(PlayerId, newPart);
+            {                
+                if (IsGhost)
+                    SetMaterialGhost(PlayerId, newPart);
+                else
+                    newPart.SetActive(false);
+                
             }
             else
             {
@@ -458,31 +461,37 @@ namespace Assets.Scripts
             for (int i = 0; i < unit.transform.childCount; i++)
             {
                 GameObject child = unit.transform.GetChild(i).gameObject;
-                if (!child.name.StartsWith("Mineral") && !child.name.StartsWith("Ammo"))
+                if (!child.name.StartsWith("Mineral") && !child.name.StartsWith("Ammo") && !child.name.StartsWith("Item"))
                     SetMaterialGhost(playerId, child);
             }
 
             MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
             if (meshRenderer != null)
             {
-                Material[] newMaterials = new Material[meshRenderer.materials.Length];
-                for (int i = 0; i < meshRenderer.materials.Length; i++)
+                if (meshRenderer.materials.Length == 1)
                 {
-                    Material material = meshRenderer.materials[i];
-                    if (material.name.StartsWith("Player"))
-                    {
-                        Destroy(material);
-                        if (playerId == 1) newMaterials[i] = HexGrid.GetMaterial("PlayerTransparent");
-                        if (playerId == 2) newMaterials[i] = HexGrid.GetMaterial("PlayerTransparent");
-                        if (playerId == 3) newMaterials[i] = HexGrid.GetMaterial("PlayerTransparent");
-                    }
-                    else
-                    {
-                        Destroy(material);
-                        newMaterials[i] = HexGrid.GetMaterial("TransparentFrame");
-                    }
+                    Destroy(meshRenderer.material);                   
+                    meshRenderer.material = HexGrid.GetMaterial("PlayerTransparent");
                 }
-                meshRenderer.materials = newMaterials;
+                else
+                {
+                    Material[] newMaterials = new Material[meshRenderer.materials.Length];
+                    for (int i = 0; i < meshRenderer.materials.Length; i++)
+                    {
+                        Material material = meshRenderer.materials[i];
+                        if (material.name.StartsWith("Player"))
+                        {
+                            Destroy(material);
+                            newMaterials[i] = HexGrid.GetMaterial("PlayerTransparent");
+                        }
+                        else
+                        {
+                            Destroy(material);
+                            newMaterials[i] = HexGrid.GetMaterial("TransparentFrame");
+                        }
+                    }
+                    meshRenderer.materials = newMaterials;
+                }
             }
         }
 
@@ -528,8 +537,6 @@ namespace Assets.Scripts
                 }
                 else
                 {
-                    //return;
-
                     Material[] newMaterials = new Material[meshRenderer.materials.Length];
                     for (int i = 0; i < meshRenderer.materials.Length; i++)
                     {
@@ -583,7 +590,7 @@ namespace Assets.Scripts
             }
 
             string name;
-            if (underConstruction)
+            if (moveUpdateUnitPart.Level == 0)
             {
                 name = moveUpdateUnitPart.Name + "1";
             }
@@ -602,8 +609,10 @@ namespace Assets.Scripts
 
             if (underConstruction)
             {
-                newPart.SetActive(false);
-                //SetMaterialGhost(PlayerId, newPart);
+                if (IsGhost)
+                    SetMaterialGhost(PlayerId, newPart);
+                else
+                    newPart.SetActive(false);
             }
             else
             {
@@ -943,8 +952,15 @@ namespace Assets.Scripts
             return false;
         }
 
+        public bool IsGhost { get; set; }
         public void Assemble(bool underConstruction)
         {
+            Assemble(underConstruction, false);
+        }
+        public void Assemble(bool underConstruction, bool ghost)
+        {
+            IsGhost = ghost;
+
             UnitBaseParts.Clear();
             UnderConstruction = underConstruction;
             if (IsBuilding())
@@ -1060,15 +1076,13 @@ namespace Assets.Scripts
                                 unitBasePart.IsUnderConstruction = false;
                                 SetPlayerColor(HexGrid, PlayerId, unitBasePart.Part);
                             }
-                            if (moveUpdateUnitPart.TileObjects != null)
-                            {
-                                if (unitBasePart.TileObjectContainer == null)
-                                    unitBasePart.TileObjectContainer = new TileObjectContainer();
-                            }
+                            if (unitBasePart.TileObjectContainer == null)
+                                unitBasePart.TileObjectContainer = new TileObjectContainer();
+
                             if (unitBasePart.Level > 0 &&
                                 unitBasePart.Level != moveUpdateUnitPart.Level )
                             {
-                                if (unitBasePart.TileObjectContainer != null && moveUpdateUnitPart.Capacity.HasValue)
+                                if (moveUpdateUnitPart.Capacity.HasValue)
                                 {
                                     unitBasePart.TileObjectContainer.ExplodeExceedingCapacity(transform, moveUpdateUnitPart.Capacity.Value);
                                 }
@@ -1099,10 +1113,7 @@ namespace Assets.Scripts
                             if (container != null)
                             {
                                 Container = container;
-                                if (moveUpdateUnitPart.TileObjects != null)
-                                {
-                                    unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
-                                }
+                                unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
                             }
                             Extractor1 extractor = unitBasePart.Part.GetComponent<Extractor1>();
                             if (extractor != null)
@@ -1111,16 +1122,15 @@ namespace Assets.Scripts
                             if (assembler != null)
                             {
                                 Assembler = assembler;
-                                if (moveUpdateUnitPart.TileObjects != null)
-                                    unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
+                                unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
                             }
                             Weapon1 weapon = unitBasePart.Part.GetComponent<Weapon1>();
                             if (weapon != null)
                             {
                                 Weapon = weapon;
+                                unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
                                 if (moveUpdateUnitPart.TileObjects != null)
                                 {
-                                    unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
                                     weapon.UpdateContent(HexGrid, unitBasePart.TileObjectContainer);
                                 }
                             }
@@ -1128,8 +1138,7 @@ namespace Assets.Scripts
                             if (reactor != null)
                             {
                                 Reactor = reactor;
-                                if (moveUpdateUnitPart.TileObjects != null)
-                                    unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
+                                unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
                             }
                             Armor armor = unitBasePart.Part.GetComponent<Armor>();
                             if (armor != null)

@@ -439,6 +439,10 @@ namespace Assets.Scripts
             {
                 if (cellGameCommand.Touched == false)
                 {
+                    if (cellGameCommand.GhostUnit != null)
+                    {
+                        cellGameCommand.GhostUnit.Delete();
+                    }
                     if (cellGameCommand.Command != null)
                     {
                         Destroy(cellGameCommand.Command);
@@ -460,12 +464,12 @@ namespace Assets.Scripts
                 cellGameCommand.Touched = false;
             }
         }
-        public void UpdateCommands(GameCommand gameCommand)
+        public void UpdateCommands(GameCommand gameCommand, UnitBase unitBase)
         {
             CellGameCommand cellGameCommand = null;
             
 
-            foreach (CellGameCommand checkCellGameCommand in cellGameCommands )
+            foreach (CellGameCommand checkCellGameCommand in cellGameCommands)
             {
                 if (checkCellGameCommand.GameCommand == gameCommand)
                 {
@@ -485,6 +489,18 @@ namespace Assets.Scripts
                 cellGameCommand.Touched = true;
                 cellGameCommand.Command = Instantiate(HexGrid.GetResource(layout), transform, false);
 
+                if (unitBase == null && gameCommand.GameCommandType == GameCommandType.Build)
+                {
+                    Blueprint blueprint = HexGrid.game.Blueprints.FindBlueprint(gameCommand.BlueprintCommand.Units[0].BlueprintName);
+                    if (blueprint != null)
+                    {
+                        unitBase = HexGrid.CreateTempUnit(blueprint);
+                        unitBase.CurrentPos = Pos;
+                        unitBase.PutAtCurrentPosition(true);
+                    }
+                }
+                cellGameCommand.GhostUnit = unitBase;
+
                 Command command = cellGameCommand.Command.GetComponent<Command>();
                 command.GameCommand = gameCommand;
 
@@ -492,7 +508,7 @@ namespace Assets.Scripts
                 if (gameCommand.GameCommandType == GameCommandType.Collect)
                     unitPos3.y += 0.8f;
                 if (gameCommand.GameCommandType == GameCommandType.Build)
-                    unitPos3.y += 0.8f;
+                    unitPos3.y += 2.5f;
                 cellGameCommand.Command.transform.position = unitPos3;
 
                 cellGameCommands.Add(cellGameCommand);
@@ -517,6 +533,7 @@ namespace Assets.Scripts
 
     public class CellGameCommand
     {
+        public UnitBase GhostUnit { get; set; }
         public GameCommand GameCommand { get; set; }
         public GameObject Command { get; set; }
         public bool Touched { get; set; }

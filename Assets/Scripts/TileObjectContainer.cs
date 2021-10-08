@@ -124,24 +124,29 @@ namespace Assets.Scripts
 
             // Match content
             List<TileObject> unassignedTileObjects = new List<TileObject>();
-            unassignedTileObjects.AddRange(otherTileObjects);
-
+            if (otherTileObjects != null)
+            {
+                unassignedTileObjects.AddRange(otherTileObjects);
+            }
             List<UnitBaseTileObject> assignedGameTileObjects = new List<UnitBaseTileObject>();
             assignedGameTileObjects.AddRange(tileObjects);
 
             List<UnitBaseTileObject> unassignedGameTileObjects = new List<UnitBaseTileObject>();
             unassignedGameTileObjects.AddRange(tileObjects);
 
-            foreach (TileObject otherTileObject in otherTileObjects)
+            if (otherTileObjects != null)
             {
-                foreach (UnitBaseTileObject unitBaseTileObject in unassignedGameTileObjects)
+                foreach (TileObject otherTileObject in otherTileObjects)
                 {
-                    if (otherTileObject.TileObjectType == unitBaseTileObject.TileObject.TileObjectType)
+                    foreach (UnitBaseTileObject unitBaseTileObject in unassignedGameTileObjects)
                     {
-                        unassignedTileObjects.Remove(otherTileObject);
-                        assignedGameTileObjects.Remove(unitBaseTileObject);
-                        unassignedGameTileObjects.Remove(unitBaseTileObject);
-                        break;
+                        if (otherTileObject.TileObjectType == unitBaseTileObject.TileObject.TileObjectType)
+                        {
+                            unassignedTileObjects.Remove(otherTileObject);
+                            assignedGameTileObjects.Remove(unitBaseTileObject);
+                            unassignedGameTileObjects.Remove(unitBaseTileObject);
+                            break;
+                        }
                     }
                 }
             }
@@ -221,12 +226,14 @@ namespace Assets.Scripts
                 int minerals = tileObjects.Count;
                 int mins = minerals;
 
-                int minPercent = mins * 100 / capacity.Value;
-                mins = minPercent * max / 100;
+                if (capacity.HasValue && capacity.Value > 0)
+                {
+                    int minPercent = mins * 100 / capacity.Value;
+                    mins = minPercent * max / 100;
 
-                if (minerals > 0 && mins == 0)
-                    mins = 1;
-
+                    if (minerals > 0 && mins == 0)
+                        mins = 1;
+                }
                 if (mins != filled)
                 {
                     while (filled > mins)

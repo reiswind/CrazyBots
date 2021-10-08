@@ -138,15 +138,18 @@ namespace Assets.Scripts
             actions[2].onClick.AddListener(OnClickAction3);
             actions[3].onClick.AddListener(OnClickAction4);
 
-            SetActionText(1, "(t) Select");
-            SetActionText(2, "(g) Command");
-            SetActionText(3, "(b) Build");
+            //SetActionText(1, "(t) Select");
+            //SetActionText(2, "(g) Command");
+            //SetActionText(3, "(b) Build");            
+            HideAction(1);
+            HideAction(2);
+            HideAction(3);
             HideAction(4);
-
-            UpdateCommandButtons();
 
             SetMode(CanvasMode.Select);
             HexGrid.StartGame();
+
+            UpdateCommandButtons();
         }
 
         void SetMode(CanvasMode newCanvasMode)
@@ -459,13 +462,31 @@ namespace Assets.Scripts
 
         private bool CanBuildAt(GroundCell groundCell)
         {
-            if (groundCell == null)
+            if (groundCell != null)
             {
-                foreach (TileObject tileObject in groundCell.Stats.MoveUpdateGroundStat.TileObjects)
+                // SAME as Tileobject
+                MoveUpdateGroundStat stats = groundCell.Stats.MoveUpdateGroundStat;
+                if (stats.IsUnderwater)
+                    return false;
+
+                int mins = 0;
+                foreach (TileObject tileObject in stats.TileObjects)
                 {
-                    if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
+                    if (tileObject.TileObjectType == TileObjectType.Mineral)
+                    {
+                        mins++;
+                    }
+                    else if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
+                        return false;
+                    else if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
                         return false;
                 }
+
+                if (mins >= 20)
+                {
+                    return false;
+                }
+                return true;
             }
             return true;
         }
@@ -487,6 +508,20 @@ namespace Assets.Scripts
         {
             if (canvasMode == CanvasMode.Select)
             {
+                int idx = 1;
+                if (HexGrid.game != null)
+                {
+                    foreach (BlueprintCommand blueprintCommand in HexGrid.game.Blueprints.Commands)
+                    {
+                        SetButtonText(idx, blueprintCommand.Name);
+                        idx++;
+                    }
+                }
+                while (idx <= 12)
+                {
+                    HideButton(idx++);
+                }
+                /*
                 if (selectedUnitFrame == null)
                     HideButton(1);
                 else
@@ -510,7 +545,7 @@ namespace Assets.Scripts
                 HideButton(9);
                 HideButton(10);
                 HideButton(11);
-                HideButton(12);
+                HideButton(12);*/
             }
 
             if (canvasMode == CanvasMode.Unit)
@@ -530,66 +565,7 @@ namespace Assets.Scripts
             }
 
 
-            /*
-            if (IsAssemblerAt())
-            {
-                SetButtonText(1, "(q) Unit");
-                SetButtonText(2, "(w) Waypoint");
-                HideButton(3);
-
-                if (selectedUnitFrame.MoveUpdateStats.MarkedForExtraction)
-                    HideButton(4);
-                else
-                    SetButtonText(4, "(r) Extract");
-            }
-            else if (IsContainerAt())
-            {
-                HideButton(1);
-                SetButtonText(2, "(w) Waypoint");
-                HideButton(3);
-                if (selectedUnitFrame.MoveUpdateStats.MarkedForExtraction)
-                    HideButton(4);
-                else
-                    SetButtonText(4, "(r) Extract");
-            }
-            else if (IsUnitAt())
-            {
-                HideButton(1);
-                HideButton(2);
-                HideButton(3);
-                if (selectedUnitFrame.MoveUpdateStats.MarkedForExtraction)
-                    HideButton(4);
-                else
-                    SetButtonText(4, "(r) Extract");
-                HideButton(5);
-                HideButton(6);
-                HideButton(7);
-                HideButton(8);
-                HideButton(9);
-                HideButton(10);
-                HideButton(11);
-                HideButton(12);
-                return;
-            }
-            else if (!CanBuildAt(lastSelectedGroundCell))
-            {
-                HideButton(1);
-                HideButton(2);
-                HideButton(3);
-                HideButton(4);
-                HideButton(5);
-                HideButton(6);
-                HideButton(7);
-                HideButton(8);
-                HideButton(9);
-                HideButton(10);
-                HideButton(11);
-                HideButton(12);
-                return;
-            }
-            else
-            { 
-            */
+            
             if (canvasMode == CanvasMode.Build)
             {
                 SetButtonText(1, "(q) Factory", "Factory");
@@ -615,90 +591,7 @@ namespace Assets.Scripts
                 selectedBuildButton = 0;
             }
         }
-        /*
-        void UnSelectTopButton()
-        {
-            if (topSelectedSelectButton != 0)
-            {
-                UnselectButton(topSelectedSelectButton);
-                //topSelectedSelectButton = 0;
-            }
-            if (topSelectedAttackButton != 0)
-            {
-                UnselectButton(topSelectedAttackButton);
-                //topSelectedAttackButton = 0;
-            }
-            if (topSelectedMineralsButton != 0)
-            {
-                UnselectButton(topSelectedMineralsButton);
-                //topSelectedMineralsButton = 0;
-            }
-            if (topSelectedBuildButton != 0)
-            {
-                UnselectButton(topSelectedBuildButton);
-                //topSelectedBuildButton = 0;
-            }
-        }
-
-
-        void SelectTopButton(int btn)
-        {
-            if (!GetButton(btn).IsActive())
-                return;
-
-            UnSelectTopButton();
-
-            if (middleSelectedButton != 0)
-            {
-                UnselectButton(middleSelectedButton);
-                middleSelectedButton = 0;
-            }
-            UnselectUnitFrame();
-            SelectButton(btn);
-
-            if (canvasMode == CanvasMode.Select)
-                topSelectedSelectButton = btn;
-            if (canvasMode == CanvasMode.Attack)
-                topSelectedAttackButton = btn;
-            if (canvasMode == CanvasMode.Mineral)
-                topSelectedMineralsButton = btn;
-            if (canvasMode == CanvasMode.Build)
-                topSelectedBuildButton = btn;
-        }
-
-        void SelectMiddleButton(int btn)
-        {
-            if (!GetButton(btn).IsActive())
-                return;
-
-            if (middleSelectedButton != 0 && middleSelectedButton != btn)
-                UnselectButton(middleSelectedButton);
-            middleSelectedButton = btn;
-            SelectButton(btn);
-        }*/
-
-
-        /*
-        void OnClickExtract()
-        {
-            if (HexGrid.UnitsInBuild.ContainsKey(selectedUnitFrame.CurrentPos))
-            {
-                if (HexGrid.UnitsInBuild[selectedUnitFrame.CurrentPos] != null)
-                    HexGrid.UnitsInBuild[selectedUnitFrame.CurrentPos].Delete();
-                HexGrid.UnitsInBuild.Remove(selectedUnitFrame.CurrentPos);
-            }
-
-            // Extract the unit
-            GameCommand gameCommand = new GameCommand();
-
-            gameCommand.UnitId = selectedUnitFrame.UnitId;
-            gameCommand.TargetPosition = selectedUnitFrame.CurrentPos;
-            gameCommand.GameCommandType = GameCommandType.Extract;
-            gameCommand.PlayerId = 1;
-            HexGrid.GameCommands.Add(selectedUnitFrame.CurrentPos, gameCommand);
-
-            selectedUnitFrame.MoveUpdateStats.MarkedForExtraction = true;
-        }*/
+        
 
         void SelectActionUnit(int btn)
         {
@@ -728,7 +621,7 @@ namespace Assets.Scripts
 
         void CancelCommand()
         {
-            if (HexGrid.ActiveGameCommands != null &&
+            if (HexGrid.ActiveGameCommands != null && lastSelectedGroundCell != null &&
                 HexGrid.ActiveGameCommands.ContainsKey(lastSelectedGroundCell.Pos))
             {
                 GameCommand gameCommand;
@@ -758,31 +651,58 @@ namespace Assets.Scripts
             selectedUnitFrame.MoveUpdateStats.MarkedForExtraction = true;
         }
 
+        private BlueprintCommand executedBlueprintCommand;
+        void ExecuteCommand(int btn)
+        {
+            executedBlueprintCommand = null;
 
+            if (selectedBuildButton != btn)
+            {
+                if (selectedBuildButton != 0)
+                    UnselectButton(selectedBuildButton);
+
+                selectedBuildButton = btn;
+                SelectButton(btn);
+            }
+            BlueprintCommand blueprintCommand = HexGrid.game.Blueprints.Commands[btn - 1];
+            if (blueprintCommand.GameCommandType == GameCommandType.Build)
+            {
+                SelectBlueprint(blueprintCommand.Units[0].BlueprintName);
+
+                canvasMode = CanvasMode.Build;
+                executedBlueprintCommand = blueprintCommand;
+            }
+        }
         void OnClickBuild1()
         {
+            ExecuteCommand(1);
+            /*
             if (canvasMode == CanvasMode.Build)
                 SelectBuildUnit(1);
             else if (canvasMode == CanvasMode.Unit)
                 SelectActionUnit(1);
             else if (canvasMode == CanvasMode.Select)
-                MarkUnitForExtraction();
+                MarkUnitForExtraction();*/
         }
         void OnClickBuild2()
         {
+            ExecuteCommand(2);
+            /*
             if (canvasMode == CanvasMode.Build)
                 SelectBuildUnit(2);
             if (canvasMode == CanvasMode.Unit)
                 SelectActionUnit(2);
             else if (canvasMode == CanvasMode.Select)
-                CancelCommand();
+                CancelCommand();*/
         }
         void OnClickBuild3()
         {
+            ExecuteCommand(3);
+            /*
             if (canvasMode == CanvasMode.Build)
                 SelectBuildUnit(3);
             if (canvasMode == CanvasMode.Unit)
-                SelectActionUnit(3);
+                SelectActionUnit(3);*/
         }
         void OnClickBuild4()
         {
@@ -1232,8 +1152,6 @@ namespace Assets.Scripts
                     lastSelectedGroundCell != null &&
                     CanBuildAt(lastSelectedGroundCell))
                 {
-                    //lastSelectedGroundCell.SetSelected(true);
-
                     Position pos = lastSelectedGroundCell.Pos;
                     selectedUnitFrame.CurrentPos = pos;
 
@@ -1257,25 +1175,26 @@ namespace Assets.Scripts
                     }
                     else
                     {
-
                         // Build the temp. unit
                         GameCommand gameCommand = new GameCommand();
                         gameCommand.UnitId = selectedUnitFrame.MoveUpdateStats.BlueprintName;
                         gameCommand.TargetPosition = pos;
                         gameCommand.GameCommandType = GameCommandType.Build;
+                        gameCommand.BlueprintCommand = executedBlueprintCommand;
                         gameCommand.PlayerId = 1;
                         HexGrid.GameCommands.Add(pos, gameCommand);
 
                         HexGrid.UnitsInBuild.Add(pos, selectedUnitFrame);
 
-                        // Turn the temp unit into ghost
-                        selectedUnitFrame.Temporary = false;
-                        selectedUnitFrame.PutAtCurrentPosition(false);
-                        selectedUnitFrame.Assemble(true);
-                        selectedUnitFrame.gameObject.SetActive(true);
+                        lastSelectedGroundCell.UpdateCommands(gameCommand, selectedUnitFrame);
+                        selectedUnitFrame = null;
 
-                        // Prepare next
-                        SelectBuildUnit(selectedBuildButton);
+                        // Prepare next (not working)
+                        //SelectBuildUnit(selectedBuildButton);
+
+                        // Build one per click
+                        canvasMode = CanvasMode.Select;
+
                         /*
                         if (selectedBuildBlueprint == null)
                         {
