@@ -20,6 +20,7 @@ namespace Assets.Scripts
         None,
         Select,
         Build,
+        Collect,
         Unit
     }
 
@@ -672,7 +673,13 @@ namespace Assets.Scripts
                 canvasMode = CanvasMode.Build;
                 executedBlueprintCommand = blueprintCommand;
             }
+            else if (blueprintCommand.GameCommandType == GameCommandType.Collect)
+            {
+                canvasMode = CanvasMode.Collect;
+                executedBlueprintCommand = blueprintCommand;
+            }
         }
+
         void OnClickBuild1()
         {
             ExecuteCommand(1);
@@ -706,45 +713,51 @@ namespace Assets.Scripts
         }
         void OnClickBuild4()
         {
+            ExecuteCommand(4);
+            /*
             if (canvasMode == CanvasMode.Build)
                 SelectBuildUnit(4);
             if (canvasMode == CanvasMode.Unit)
                 SelectActionUnit(4);
+            */
         }
 
         void OnClickBuild5()
         {
+            ExecuteCommand(5);
+            /*
             if (canvasMode == CanvasMode.Build)
                 SelectBuildUnit(5);
+            */
         }
         void OnClickBuild6()
         {
-
+            ExecuteCommand(6);
         }
         void OnClickBuild7()
         {
-
+            ExecuteCommand(7);
         }
         void OnClickBuild8()
         {
-
+            ExecuteCommand(8);
         }
 
         void OnClickBuild9()
         {
-
+            ExecuteCommand(9);
         }
         void OnClickBuild10()
         {
-
+            ExecuteCommand(10);
         }
         void OnClickBuild11()
         {
-
+            ExecuteCommand(11);
         }
         void OnClickBuild12()
         {
-
+            ExecuteCommand(12);
         }
 
 
@@ -987,14 +1000,19 @@ namespace Assets.Scripts
             {
                 UpdateSelectMode();
             }
-            if (canvasMode == CanvasMode.Build)
+            else if (canvasMode == CanvasMode.Build)
             {
                 UpdateBuildMode();
             }
-            if (canvasMode == CanvasMode.Unit)
+            else if (canvasMode == CanvasMode.Unit)
             {
                 UpdateAttackMode();
             }
+            else if (canvasMode == CanvasMode.Collect)
+            {
+                UpdateCollectMode();
+            }
+            
         }
 
         private bool leftMouseButtonDown;
@@ -1082,6 +1100,78 @@ namespace Assets.Scripts
             }
         }
 
+        void UpdateCollectMode()
+        {
+            if (Input.GetMouseButtonDown(1))
+            {
+                if (selectedBuildButton != 0)
+                {
+                    UnselectButton(selectedBuildButton);
+                    selectedBuildButton = 0;
+                }
+                if (lastSelectedGroundCell != null)
+                {
+                    lastSelectedGroundCell.SetSelected(false);
+                    lastSelectedGroundCell = null;
+                }
+            }
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                leftMouseButtonDown = true;
+                lastSelectedGroundCell = null;
+            }
+            if (Input.GetMouseButtonUp(0))
+            {
+                leftMouseButtonDown = false;
+            }
+
+            HitByMouseClick hitByMouseClick = GetClickedInfo();
+
+            GroundCell selectGroundCell = null;
+            if (hitByMouseClick != null)
+            {
+                selectGroundCell = hitByMouseClick.GroundCell;
+            }
+            if (lastSelectedGroundCell != selectGroundCell)
+            {
+                if (lastSelectedGroundCell != null)
+                    lastSelectedGroundCell.SetSelected(false);
+                lastSelectedGroundCell = selectGroundCell;
+
+                if (!leftMouseButtonDown)
+                {
+                    // Preview
+                    if (lastSelectedGroundCell == null)
+                    {
+                    }
+                    else
+                    {
+                    }
+                }
+
+                if (leftMouseButtonDown &&
+                    lastSelectedGroundCell != null)
+                {
+                    Position pos = lastSelectedGroundCell.Pos;
+                    //if (HexGrid.GameCommands.ContainsKey(pos))
+                    //    HexGrid.GameCommands.Remove(pos);
+
+                    GameCommand gameCommand = new GameCommand();
+                    gameCommand.TargetPosition = pos;
+                    gameCommand.GameCommandType = executedBlueprintCommand.GameCommandType;
+                    gameCommand.BlueprintCommand = executedBlueprintCommand;
+                    gameCommand.PlayerId = 1;
+                    HexGrid.GameCommands.Add(pos, gameCommand);
+
+                    lastSelectedGroundCell.UpdateCommands(gameCommand, selectedUnitFrame);
+                    selectedUnitFrame = null;
+
+                    // Build one per click
+                    canvasMode = CanvasMode.Select;
+                }
+            }
+        }
 
         void UpdateBuildMode()
         {
@@ -1177,7 +1267,7 @@ namespace Assets.Scripts
                     {
                         // Build the temp. unit
                         GameCommand gameCommand = new GameCommand();
-                        gameCommand.UnitId = selectedUnitFrame.MoveUpdateStats.BlueprintName;
+                        //gameCommand.UnitId = selectedUnitFrame.MoveUpdateStats.BlueprintName;
                         gameCommand.TargetPosition = pos;
                         gameCommand.GameCommandType = GameCommandType.Build;
                         gameCommand.BlueprintCommand = executedBlueprintCommand;

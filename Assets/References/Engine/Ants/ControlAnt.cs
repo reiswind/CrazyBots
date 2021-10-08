@@ -181,7 +181,7 @@ namespace Engine.Control
             foreach (GameCommand gameCommand in player.GameCommands)
             {
                 if (gameCommand.GameCommandType == GameCommandType.Build &&
-                    gameCommand.BlueprintCommand.Name == "BuildContainer" &&
+                    gameCommand.BlueprintCommand.Name == "Container" &&
                     gameCommand.TargetZone == zoneId)
                 {
                     // Is already in progress
@@ -213,7 +213,7 @@ namespace Engine.Control
 
                     foreach (BlueprintCommand blueprintCommand in player.Game.Blueprints.Commands)
                     {
-                        if (blueprintCommand.Name == "BuildContainer")
+                        if (blueprintCommand.Name == "Container")
                         {
                             gameCommand.BlueprintCommand = blueprintCommand;
                             break;
@@ -1719,8 +1719,9 @@ namespace Engine.Control
                         {
                             if (ant.AntPartEngine != null)
                             {
+                                
                                 ant.MovesWithoutCommand++;
-                                if (ant.MovesWithoutCommand > 10)
+                                if (ant.MovesWithoutCommand > 10 && ant.AntWorkerType != AntWorkerType.Fighter)
                                     ant.AbandonUnit(player);
                             }
                         }
