@@ -309,8 +309,11 @@ namespace Engine.Master
                 if (!CanBuildAt(neighbor))
                     continue;
 
-                if (!neighbor.Tile.CanMoveTo(Unit.Pos))
-                    continue;
+                if (neighbor.Unit == null)
+                {
+                    if (!neighbor.Tile.CanBuild())
+                        continue;
+                }
 
                 if (includedPositions != null)
                 {
@@ -351,7 +354,6 @@ namespace Engine.Master
                 }
                 else
                 {
-                    
                     if (neighbor.Unit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
                     {
                         if (Level > 0 && !neighbor.Unit.IsComplete() && !neighbor.Unit.ExtractMe)

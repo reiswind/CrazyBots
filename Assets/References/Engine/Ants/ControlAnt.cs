@@ -197,9 +197,9 @@ namespace Engine.Control
 
             //foreach (Tile tile in mapZone.Tiles.Values)
             {
-                if (tile.CanBuild())
+                if (tile.Unit == null && tile.CanBuild())
                 {
-                    // Simple the first one
+                    // Simple the first one BUILD-STEP1 (KI: Select fixed blueprint)
                     GameCommand gameCommand = new GameCommand();
                     gameCommand.GameCommandType = GameCommandType.Build;
                     gameCommand.TargetPosition = tile.Pos;
@@ -1225,7 +1225,8 @@ namespace Engine.Control
 
                     }
                     if (bestAnt != null)
-                    {                        
+                    {
+                        // Assigen the build command to an assembler COMMAND-STEP2 BUILD-STEP2
                         bestAnt.PlayerUnit.Unit.SetGameCommand(gameCommand);
                         gameCommand.AttachedUnits.Add(bestAnt.PlayerUnit.Unit.UnitId);
                         completedCommands.Add(gameCommand);
@@ -1307,29 +1308,22 @@ namespace Engine.Control
                         {
                             continue;
                         }
-                        foreach (BlueprintCommandItem blueprintCommandItem in gameCommand.BlueprintCommand.Units)
-                        {
-                            // Create a command to collect the resources
-                            foreach (BlueprintCommand blueprintCommand in player.Game.Blueprints.Commands)
-                            {
-                                if (blueprintCommand.GameCommandType == GameCommandType.Build &&
-                                    blueprintCommand.Name == blueprintCommandItem.BlueprintName)
-                                {
-                                    // Demand this unit at Targetposition
-                                    GameCommand newCommand = new GameCommand();
 
-                                    newCommand.GameCommandType = GameCommandType.Build;
-                                    newCommand.TargetPosition = gameCommand.TargetPosition;
-                                    newCommand.BlueprintCommand = blueprintCommand;
-                                    newCommand.AttachToThisOnCompletion = gameCommand;
-                                    addedCommands.Add(newCommand);
+                        // Create a command to build a worker that will collect the resources (COMMAND-STEP1)
+                        BlueprintCommand blueprintCommand = new BlueprintCommand();
+                        blueprintCommand.GameCommandType = GameCommandType.Build;
+                        blueprintCommand.Name = "BuildUnitForCollect";
+                        blueprintCommand.Units.AddRange(gameCommand.BlueprintCommand.Units);
 
-                                    break;
-                                }
-                            }
+                        GameCommand newCommand = new GameCommand();
 
-                            gameCommand.AttachedUnits.Add("CommandId?");
-                        }
+                        newCommand.GameCommandType = GameCommandType.Build;
+                        newCommand.TargetPosition = gameCommand.TargetPosition;
+                        newCommand.BlueprintCommand = blueprintCommand;
+                        newCommand.AttachToThisOnCompletion = gameCommand;
+                        addedCommands.Add(newCommand);
+
+                        gameCommand.AttachedUnits.Add("CommandId?");
                     }
                 }
             }
@@ -1584,8 +1578,8 @@ namespace Engine.Control
                                     {
                                         if (gameCommand.AttachToThisOnCompletion != null)
                                         {
+                                            // Assembler complete. Complete the temp. build command and assign the original build command BUILD-STEP5
                                             gameCommand.CommandComplete = true;
-                                            player.GameCommands.Remove(gameCommand);
 
                                             gameCommand.AttachToThisOnCompletion.AttachedUnits.Clear(); // Works with only one
                                             gameCommand.AttachToThisOnCompletion.AttachedUnits.Add(ant.PlayerUnit.Unit.UnitId);
@@ -1593,6 +1587,8 @@ namespace Engine.Control
                                         }
                                         else
                                         {
+                                            // Remove the attached assembler and replace it with the created unit COMMAND-STEP5
+                                            // The Unit will then execute the command. Workflow complete
                                             gameCommand.AttachedUnits.Remove(unitid);
                                             gameCommand.AttachedUnits.Add(ant.PlayerUnit.Unit.UnitId);
                                         }

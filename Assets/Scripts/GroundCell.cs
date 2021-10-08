@@ -476,10 +476,14 @@ namespace Assets.Scripts
             }
             if (cellGameCommand == null)
             {
+                string layout = "BuildStructure";
+                if (!string.IsNullOrEmpty(gameCommand.BlueprintCommand.Layout))
+                    layout = gameCommand.BlueprintCommand.Layout;
+
                 cellGameCommand = new CellGameCommand();
                 cellGameCommand.GameCommand = gameCommand;
                 cellGameCommand.Touched = true;
-                cellGameCommand.Command = Instantiate(HexGrid.GetResource("BuildStructure"), transform, false);
+                cellGameCommand.Command = Instantiate(HexGrid.GetResource(layout), transform, false);
 
                 Command command = cellGameCommand.Command.GetComponent<Command>();
                 command.GameCommand = gameCommand;

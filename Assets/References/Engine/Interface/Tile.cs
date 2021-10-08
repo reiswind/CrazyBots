@@ -378,22 +378,7 @@ namespace Engine.Interface
 
         public bool IsBorder { get; set; }
 
-        public bool CanBuild()
-        {
-            if (Unit != null)
-            {
-                return false;
-            }
-            if (TileContainer.Minerals > 20)
-                return false;
 
-            foreach (TileObject tileObject in TileContainer.TileObjects)
-            {
-                if (tileObject.TileObjectType == TileObjectType.Bush) return false;
-                if (tileObject.TileObjectType == TileObjectType.Tree) return false;
-            }
-            return true;
-        }
 
         public bool HasCollectableTileObjects
         {
@@ -432,12 +417,8 @@ namespace Engine.Interface
             return false;
         }
 
-        public bool CanMoveTo(Tile from)
+        public bool CanBuild()
         {
-            if (from.Pos != Pos && from.Height + 0.4f < Height )
-            {
-                return false;
-            }
             if (IsUnderwater)
                 return false;
 
@@ -459,6 +440,15 @@ namespace Engine.Interface
                 return false;
             }
             return true;
+        }
+
+        public bool CanMoveTo(Tile from)
+        {
+            if (from.Pos != Pos && from.Height + 0.4f < Height )
+            {
+                return false;
+            }
+            return CanBuild();
         }
         public override string ToString()
         {

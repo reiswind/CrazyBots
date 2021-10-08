@@ -168,6 +168,7 @@ namespace Engine.Ants
 
                 List<Position> includedPositions = null;
 
+                bool computePossibleMoves = true;
                 GameCommand passGameCommandToNewUnit = null;
                 GameCommand finishCommandWhenCompleted = null;
                 if (selectedGameCommand == null)
@@ -195,7 +196,7 @@ namespace Engine.Ants
                         }
                         else
                         {
-                            // Structure: Build unit or an assembler that moves there
+                            // Structure: Build unit or an assembler that moves there 
                             Blueprint commandBluePrint;
                             if (selectedGameCommand.UnitId == null)
                             {
@@ -217,36 +218,77 @@ namespace Engine.Ants
                             }
                             if (engineFound)
                             {
-                                // Build this unit, it will move to the target
-                                passGameCommandToNewUnit = selectedGameCommand;
+                                // Build this unit, it will move to the target COMMAND-STEP3
+                                passGameCommandToNewUnit = selectedGameCommand.AttachToThisOnCompletion;
+                                finishCommandWhenCompleted = selectedGameCommand;
                             }
                             else
                             {
-                                foreach (BlueprintCommand blueprintCommand in player.Game.Blueprints.Commands)
+                                // Check if TargetPosition is neighbor!
+                                Tile tile = player.Game.Map.GetTile(Ant.PlayerUnit.Unit.Pos);
+                                if (tile.IsNeighbor(selectedGameCommand.TargetPosition))
                                 {
-                                    if (blueprintCommand.Name == "BuildAssembler")
+                                    // No need to build an assembler. Just build the unit
+                                    int x = 0;
+                                }
+                                else
+                                {
+                                    // If not neighbor, need to build an assembler to move there BUILD-STEP3
+                                    BlueprintCommand blueprintCommand = new BlueprintCommand();
+                                    blueprintCommand.GameCommandType = GameCommandType.Build;
+                                    blueprintCommand.Name = "BuildUnitForAssemble";
+
+                                    bool assembler;
+                                    bool engine;
+                                    foreach (Blueprint blueprint in player.Game.Blueprints.Items)
                                     {
-                                        // Must build an assembler, to move there
-                                        GameCommand buildAssemblerCommand = new GameCommand();
-                                        buildAssemblerCommand.GameCommandType = GameCommandType.Build;
-                                        buildAssemblerCommand.BlueprintCommand = blueprintCommand;
-                                        buildAssemblerCommand.TargetZone = selectedGameCommand.TargetZone;
-                                        buildAssemblerCommand.AttachToThisOnCompletion = selectedGameCommand;
+                                        assembler = false;
+                                        engine = false;
 
-                                        Assembler.Unit.SetGameCommand(buildAssemblerCommand);
-
-                                        // Command was only assigend to build an assembler
-                                        passGameCommandToNewUnit = selectedGameCommand;
-                                        break;
+                                        foreach (BlueprintPart blueprintPart in blueprint.Parts)
+                                        {
+                                            if (blueprintPart.PartType == TileObjectType.PartAssembler)
+                                            {
+                                                assembler = true;
+                                            }
+                                            if (blueprintPart.PartType == TileObjectType.PartEngine)
+                                            {
+                                                engine = true;
+                                            }
+                                        }
+                                        if (assembler && engine)
+                                        {
+                                            BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
+                                            blueprintCommandItem.BlueprintName = blueprint.Name;
+                                            blueprintCommandItem.Count = 1;
+                                            blueprintCommand.Units.Add(blueprintCommandItem);
+                                            break;
+                                        }
                                     }
+
+                                    GameCommand newCommand = new GameCommand();
+
+                                    newCommand.GameCommandType = GameCommandType.Build;
+                                    newCommand.TargetPosition = selectedGameCommand.TargetPosition;
+                                    newCommand.BlueprintCommand = blueprintCommand;
+                                    newCommand.AttachToThisOnCompletion = selectedGameCommand;
+
+                                    computePossibleMoves = false;
+
+                                    // Hack to create build assembler moves
+                                    Assembler.Unit.SetGameCommand(newCommand);
+                                    Assembler.ComputePossibleMoves(possiblemoves, includedPositions, MoveFilter.Assemble);
+
+                                    Assembler.Unit.SetGameCommand(selectedGameCommand);
+                                    passGameCommandToNewUnit = newCommand;
                                 }
                             }
                         }
                     }
                 }
 
-                Assembler.ComputePossibleMoves(possiblemoves, includedPositions, MoveFilter.Assemble);
-                
+                if (computePossibleMoves)
+                    Assembler.ComputePossibleMoves(possiblemoves, includedPositions, MoveFilter.Assemble);
 
                 if (possiblemoves.Count > 0)
                 {
@@ -288,7 +330,9 @@ namespace Engine.Ants
                         ant.FinishCommandWhenCompleted = finishCommandWhenCompleted;
                         if (passGameCommandToNewUnit != null)
                         {
+                            // Pass the command to the created unit. The command is attached to the factory until the unit is created COMMAND-STEP4 
                             ant.GameCommandDuringCreation = passGameCommandToNewUnit;
+                            passGameCommandToNewUnit.AttachedUnits.Clear();
                             passGameCommandToNewUnit.AttachedUnits.Add("Assembler-" + this.Ant.PlayerUnit.Unit.UnitId);
                         }
                         Assembler.Unit.ResetGameCommand();

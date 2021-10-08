@@ -116,13 +116,14 @@ namespace Engine.Interface
             blueprintCommand.GameCommandType = GameCommandType.Collect;
 
             blueprintCommandItem = new BlueprintCommandItem();
-            blueprintCommandItem.BlueprintName = "BuildWorker";
+            blueprintCommandItem.BlueprintName = "Worker";
             blueprintCommandItem.Count = 1;
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
 
             // Build Worker
+            /*
             blueprintCommand = new BlueprintCommand();
 
             blueprintCommand.Name = "BuildWorker";
@@ -149,6 +150,7 @@ namespace Engine.Interface
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
+            */
 
             // Build outpost
             blueprintCommand = new BlueprintCommand();
