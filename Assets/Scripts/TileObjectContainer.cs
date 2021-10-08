@@ -110,7 +110,7 @@ namespace Assets.Scripts
 
         public void UpdateContent(UnitBase unitBase, GameObject gameObject, List<TileObject> otherTileObjects, int? capacity)
         {
-            if (capacity.HasValue && capacity <= 0)
+            if (!capacity.HasValue || (capacity.HasValue && capacity.Value <= 0))
                 return;
 
             if (mineralCubes.Count == 0)

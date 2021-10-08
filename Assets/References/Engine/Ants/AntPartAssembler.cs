@@ -218,6 +218,14 @@ namespace Engine.Ants
                             }
                             if (engineFound)
                             {
+                                Tile tile = player.Game.Map.GetTile(Ant.PlayerUnit.Unit.Pos);
+                                if (tile.IsNeighbor(selectedGameCommand.TargetPosition))
+                                {
+                                    // No need to build an assembler. Just build the unit at this position
+                                    includedPositions = new List<Position>();
+                                    includedPositions.Add(selectedGameCommand.TargetPosition);
+                                }
+                               
                                 // Build this unit, it will move to the target COMMAND-STEP3
                                 passGameCommandToNewUnit = selectedGameCommand.AttachToThisOnCompletion;
                                 finishCommandWhenCompleted = selectedGameCommand;
@@ -229,7 +237,9 @@ namespace Engine.Ants
                                 if (tile.IsNeighbor(selectedGameCommand.TargetPosition))
                                 {
                                     // No need to build an assembler. Just build the unit
-                                    int x = 0;
+                                    includedPositions = new List<Position>();
+                                    includedPositions.Add(selectedGameCommand.TargetPosition);
+                                    finishCommandWhenCompleted = selectedGameCommand;
                                 }
                                 else
                                 {
