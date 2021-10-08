@@ -490,9 +490,9 @@ namespace Assets.Scripts
 
                 Vector3 unitPos3 = transform.position;
                 if (gameCommand.GameCommandType == GameCommandType.Collect)
-                    unitPos3.y += 1.8f;
+                    unitPos3.y += 0.8f;
                 if (gameCommand.GameCommandType == GameCommandType.Build)
-                    unitPos3.y += 2.8f;
+                    unitPos3.y += 0.8f;
                 cellGameCommand.Command.transform.position = unitPos3;
 
                 cellGameCommands.Add(cellGameCommand);
