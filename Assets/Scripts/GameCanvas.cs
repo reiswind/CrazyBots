@@ -165,7 +165,7 @@ namespace Assets.Scripts
                     UnselectAction(3);
                     UnselectAction(4);
 
-                    Cursor.SetCursor(NormalCursor, new Vector2(0, 0), CursorMode.Auto);
+                    //Cursor.SetCursor(NormalCursor, new Vector2(0, 0), CursorMode.Auto);
 
                     //if (topSelectedSelectButton == 0)
                     //    topSelectedSelectButton = 1;
@@ -179,7 +179,7 @@ namespace Assets.Scripts
                     UnselectAction(3);
                     UnselectAction(4);
 
-                    Cursor.SetCursor(AttackCursor, new Vector2(0, 0), CursorMode.Auto);
+                    //Cursor.SetCursor(AttackCursor, new Vector2(0, 0), CursorMode.Auto);
 
                     /*
                     if (topSelectedAttackButton == 0)
@@ -195,7 +195,7 @@ namespace Assets.Scripts
                     SelectAction(3);
                     UnselectAction(4);
 
-                    Cursor.SetCursor(AttackCursor, new Vector2(0, 0), CursorMode.Auto);
+                    //Cursor.SetCursor(AttackCursor, new Vector2(0, 0), CursorMode.Auto);
 
                 }*/
 
@@ -206,7 +206,7 @@ namespace Assets.Scripts
                     SelectAction(3);
                     UnselectAction(3);
 
-                    Cursor.SetCursor(BuildCursor, new Vector2(0, 0), CursorMode.Auto);
+                    //Cursor.SetCursor(BuildCursor, new Vector2(0, 0), CursorMode.Auto);
 
                     //if (topSelectedBuildButton == 0)
                     //    topSelectedBuildButton = 1;

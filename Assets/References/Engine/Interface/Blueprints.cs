@@ -112,7 +112,7 @@ namespace Engine.Interface
             blueprintCommand = new BlueprintCommand();
 
             blueprintCommand.Name = "Collect";
-            blueprintCommand.Layout = "BuildStructure";
+            blueprintCommand.Layout = "UICollect";
             blueprintCommand.GameCommandType = GameCommandType.Collect;
 
             blueprintCommandItem = new BlueprintCommandItem();
