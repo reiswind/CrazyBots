@@ -203,6 +203,8 @@ namespace Assets.Scripts
 
         internal void SetGroundMaterial()
         {
+
+
             /*
             for (int i = 0; i < unit.transform.childCount; i++)
             {
@@ -210,11 +212,15 @@ namespace Assets.Scripts
                 if (!child.name.StartsWith("Mineral") && !child.name.StartsWith("Ammo"))
                     SetPlayerColor(hexGrid, playerId, child);
             }*/
+            Color color = Color.black;
 
             string materialName;
             if (Stats.MoveUpdateGroundStat.IsUnderwater)
             {
                 materialName = "Water";
+                if (ColorUtility.TryParseHtmlString("#278BB2", out color))
+                {
+                }
             }
             else
             {
@@ -249,10 +255,16 @@ namespace Assets.Scripts
                 }
                 else if (Stats.MoveUpdateGroundStat.IsSand())
                 {
+                    if (ColorUtility.TryParseHtmlString("#D3B396", out color))
+                    {
+                    }
                     materialName = "Sand";
                 }
                 else if (Stats.MoveUpdateGroundStat.IsDarkSand())
                 {
+                    if (ColorUtility.TryParseHtmlString("#9D7C68", out color))
+                    {
+                    }
                     materialName = "DarkSand";
                 }
                 else if (Stats.MoveUpdateGroundStat.IsDarkWood())
@@ -261,19 +273,35 @@ namespace Assets.Scripts
                 }
                 else if (Stats.MoveUpdateGroundStat.IsWood())
                 {
+                    if (ColorUtility.TryParseHtmlString("#45502D", out color))
+                    {
+                    }
                     materialName = "Wood";
                 }
                 else if (Stats.MoveUpdateGroundStat.IsLightWood())
                 {
-                    materialName = "LightWood";
+                    if (ColorUtility.TryParseHtmlString("#60703C", out color))
+                    {
+                    }
+                    materialName = "LightWood"; 
                 }
                 else if (Stats.MoveUpdateGroundStat.IsGrassDark())
                 {
+                    if (ColorUtility.TryParseHtmlString("#6F803F", out color))
+                    {
+                    }
                     materialName = "GrassDark";
                 }
                 else if (Stats.MoveUpdateGroundStat.IsGras())
                 {
                     materialName = "Grass";
+                }
+                else
+                {
+                    if (ColorUtility.TryParseHtmlString("#513A31", out color))
+                    {
+                    }
+
                 }
             }
             if (Stats.MoveUpdateGroundStat.IsOpenTile)
@@ -282,13 +310,20 @@ namespace Assets.Scripts
                 //materialName = "DarkSand";
             }
 
-            if (currentMaterialName == null || currentMaterialName != materialName)
+
+            //if (currentMaterialName == null || currentMaterialName != materialName)
             {
                 currentMaterialName = materialName;
 
-                MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
-                if (meshRenderer != null)
+                Renderer renderer = GetComponent<Renderer>();
+                renderer.material.SetColor("SurfaceColor", color);
+
+
+
+                //MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
+                //if (meshRenderer != null)
                 {
+                    /*
                     Material[] newMaterials = new Material[meshRenderer.materials.Length];
                     for (int i = 0; i < meshRenderer.materials.Length; i++)
                     {
@@ -306,6 +341,7 @@ namespace Assets.Scripts
                         }
                     }
                     meshRenderer.materials = newMaterials;
+                    */
                 }
             }
         }
@@ -346,7 +382,7 @@ namespace Assets.Scripts
         internal void CreateDestructables()
         {
             SetGroundMaterial();
-
+            
             List<UnitBaseTileObject> allTileObjects = new List<UnitBaseTileObject>();
             allTileObjects.AddRange(GameObjects);
 
@@ -387,6 +423,26 @@ namespace Assets.Scripts
                     }
                 }
             }
+
+            // Set color
+            Renderer renderer = GetComponent<Renderer>();
+            if (Stats.MoveUpdateGroundStat.Owner != 0)
+                renderer.material.SetFloat("Darkness", 0.8f);
+            else
+                renderer.material.SetFloat("Darkness", 0.2f);
+            foreach (UnitBaseTileObject unitBaseTileObject1 in GameObjects)
+            {
+                if (unitBaseTileObject1.GameObject != null)
+                {
+                    renderer = unitBaseTileObject1.GameObject.GetComponent<Renderer>();
+
+                    if (Stats.MoveUpdateGroundStat.Owner != 0)
+                        renderer.material.SetFloat("Darkness", 0.8f);
+                    else
+                        renderer.material.SetFloat("Darkness", 0.2f);
+                }
+            }
+
             if (visible)
             {
                 foreach (UnitBaseTileObject destructable in allTileObjects)
