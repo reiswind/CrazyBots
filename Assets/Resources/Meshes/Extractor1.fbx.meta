@@ -1,11 +1,21 @@
 fileFormatVersion: 2
 guid: 5bb181a5eccd44842b2e55bbbbbd5a76
 ModelImporter:
-  serializedVersion: 20200
+  serializedVersion: 21100
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PlayerColor
+    second: {fileID: 2100000, guid: d1a34a41b541a7e4eadfe4131b515e2a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: UnitFrameMaterial
+    second: {fileID: 2100000, guid: d1a34a41b541a7e4eadfe4131b515e2a, type: 2}
   materials:
-    materialImportMode: 2
+    materialImportMode: 0
     materialName: 0
     materialSearch: 1
     materialLocation: 1
