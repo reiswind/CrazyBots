@@ -116,7 +116,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1164728245572755777, guid: 71b8601ebeb1d1343a0cbf396c1d6ddb, type: 3}
       propertyPath: m_Name
-      value: S-Container1 (1)
+      value: S-Container2
       objectReference: {fileID: 0}
     - target: {fileID: 1973177552164502523, guid: 71b8601ebeb1d1343a0cbf396c1d6ddb, type: 3}
       propertyPath: m_RootOrder

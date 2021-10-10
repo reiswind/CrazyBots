@@ -458,6 +458,7 @@ namespace Assets.Scripts
 
         internal void SetMaterialGhost(int playerId, GameObject unit)
         {
+            return;
             for (int i = 0; i < unit.transform.childCount; i++)
             {
                 GameObject child = unit.transform.GetChild(i).gameObject;
@@ -514,6 +515,18 @@ namespace Assets.Scripts
 
         internal static void SetPlayerColor(HexGrid hexGrid, int playerId, GameObject unit)
         {
+            Color color = Color.black;
+            if (playerId == 1) ColorUtility.TryParseHtmlString("#FFA200", out color);
+            if (playerId == 2) ColorUtility.TryParseHtmlString("#7D0054", out color);
+            if (playerId == 3) ColorUtility.TryParseHtmlString("#1FD9D5", out color);
+            if (playerId == 4) ColorUtility.TryParseHtmlString("#1F2ED9", out color);
+
+
+            Renderer renderer = unit.GetComponent<Renderer>();
+            renderer.material.SetColor("PlayerColor", color);
+
+            return;
+
             for (int i = 0; i < unit.transform.childCount; i++)
             {
                 GameObject child = unit.transform.GetChild(i).gameObject;
