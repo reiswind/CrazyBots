@@ -11,6 +11,9 @@
         },
         {
             "m_Id": "96353943c41c4cbcb78aad40110f5dca"
+        },
+        {
+            "m_Id": "0158f714d94e4523a69c20dc11b2e3ec"
         }
     ],
     "m_Keywords": [],
@@ -209,6 +212,26 @@
             "m_Id": "590dd48904e84b51bdb0341438a8cbb5"
         }
     ]
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Internal.BooleanShaderProperty",
+    "m_ObjectId": "0158f714d94e4523a69c20dc11b2e3ec",
+    "m_Guid": {
+        "m_GuidSerialized": "61852477-8e04-44a9-b5c4-df3484e5c92a"
+    },
+    "m_Name": "is_selected",
+    "m_DefaultRefNameVersion": 1,
+    "m_RefNameGeneratedByDisplayName": "is_selected",
+    "m_DefaultReferenceName": "is_selected",
+    "m_OverrideReferenceName": "",
+    "m_GeneratePropertyBlock": true,
+    "m_Precision": 0,
+    "overrideHLSLDeclaration": false,
+    "hlslDeclarationOverride": 0,
+    "m_Hidden": false,
+    "m_Value": true
 }
 
 {
@@ -1425,7 +1448,7 @@
         "b": 0.09019608795642853,
         "a": 0.0
     },
-    "m_ColorMode": 0
+    "m_ColorMode": 1
 }
 
 {

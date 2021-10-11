@@ -249,7 +249,6 @@ namespace Assets.Scripts
                     SetMaterialGhost(PlayerId, newPart);
                 else
                     newPart.SetActive(false);
-                
             }
             else
             {
@@ -304,7 +303,7 @@ namespace Assets.Scripts
             HasBeenDestroyed = true;
             Destroy(this.gameObject);
         }
-        private Light selectionLight;
+        //private Light selectionLight;
         private bool selectionChanged;
         public bool IsSelected { get; private set; }
         internal void SetSelected(bool selected)
@@ -318,11 +317,14 @@ namespace Assets.Scripts
                 {
                     if (IsSelected)
                     {
-                        selectionLight = HexGrid.CreateSelectionLight(gameObject);
+                        //selectionLight = HexGrid.CreateSelectionLight(gameObject);
+                        SetSelectColor(PlayerId, gameObject);
                     }
                     else
                     {
-                        Destroy(selectionLight);
+                        SetPlayerColor(HexGrid, PlayerId, gameObject);
+
+                        //Destroy(selectionLight);
                     }
                 }
             }
@@ -456,13 +458,44 @@ namespace Assets.Scripts
             }
         }
 
-        internal void SetMaterialGhost(int playerId, GameObject unit)
+        internal void SetSelectColor(int playerId, GameObject unit)
         {
-            return;
+
             for (int i = 0; i < unit.transform.childCount; i++)
             {
                 GameObject child = unit.transform.GetChild(i).gameObject;
-                if (!child.name.StartsWith("Mineral") && !child.name.StartsWith("Ammo") && !child.name.StartsWith("Item"))
+                if (!child.name.StartsWith("Mineral") && !child.name.StartsWith("Shield") && !child.name.StartsWith("Ammo") && !child.name.StartsWith("Item"))
+                    SetSelectColor(playerId, child);
+            }
+
+            MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
+            if (meshRenderer != null)
+            {
+                if (meshRenderer.materials.Length == 1)
+                {
+                    //Destroy(meshRenderer.material);
+                    //meshRenderer.material = HexGrid.GetMaterial("glow 1");
+
+                    //meshRenderer.material.shader = Shader.Find("HDRenderPipeline/glow");
+                    //meshRenderer.material.SetColor("_BaseColor", color);
+
+                    //Color color = new Color32(27, 34, 46, 0);
+                    //Color newColor = Color.HSVToRGB(1, 1, 1, true);
+
+                    //meshRenderer.material.SetFloat("is_selected", 1);
+                    meshRenderer.material.SetFloat("Darkness", 3.0f);
+                }
+            }
+
+        }
+
+        internal void SetMaterialGhost(int playerId, GameObject unit)
+        {
+            
+            for (int i = 0; i < unit.transform.childCount; i++)
+            {
+                GameObject child = unit.transform.GetChild(i).gameObject;
+                if (!child.name.StartsWith("Mineral") && !child.name.StartsWith("Shield") && !child.name.StartsWith("Ammo") && !child.name.StartsWith("Item"))
                     SetMaterialGhost(playerId, child);
             }
 
@@ -472,8 +505,9 @@ namespace Assets.Scripts
                 if (meshRenderer.materials.Length == 1)
                 {
                     Destroy(meshRenderer.material);                   
-                    meshRenderer.material = HexGrid.GetMaterial("PlayerTransparent");
+                    meshRenderer.material = HexGrid.GetMaterial("ghost 1");
                 }
+                /*
                 else
                 {
                     Material[] newMaterials = new Material[meshRenderer.materials.Length];
@@ -492,7 +526,7 @@ namespace Assets.Scripts
                         }
                     }
                     meshRenderer.materials = newMaterials;
-                }
+                }*/
             }
         }
 
@@ -513,27 +547,42 @@ namespace Assets.Scripts
             return null;
         }
 
-        internal static void SetPlayerColor(HexGrid hexGrid, int playerId, GameObject unit)
+        internal static Color GetPlayerColor(int playerId)
         {
+            
             Color color = Color.black;
             if (playerId == 1) ColorUtility.TryParseHtmlString("#FFA200", out color);
             if (playerId == 2) ColorUtility.TryParseHtmlString("#7D0054", out color);
             if (playerId == 3) ColorUtility.TryParseHtmlString("#1FD9D5", out color);
             if (playerId == 4) ColorUtility.TryParseHtmlString("#1F2ED9", out color);
 
+            return color;
+        }
 
-            Renderer renderer = unit.GetComponent<Renderer>();
-            renderer.material.SetColor("PlayerColor", color);
-
-            return;
-
+        internal static void SetPlayerColor(HexGrid hexGrid, int playerId, GameObject unit)
+        {
             for (int i = 0; i < unit.transform.childCount; i++)
             {
                 GameObject child = unit.transform.GetChild(i).gameObject;
-                if (!child.name.StartsWith("Mineral") && !child.name.StartsWith("Ammo") && !child.name.StartsWith("Item"))
+                if (!child.name.StartsWith("Mineral") && !child.name.StartsWith("Shield") && !child.name.StartsWith("Ammo") && !child.name.StartsWith("Item"))
                     SetPlayerColor(hexGrid, playerId, child);
             }
 
+
+            MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
+            if (meshRenderer != null)
+            {
+                if (meshRenderer.materials.Length == 1)
+                {
+                    Destroy(meshRenderer.material);
+                    meshRenderer.material = hexGrid.GetMaterial("UnitMaterial");
+                    meshRenderer.material.SetColor("PlayerColor", GetPlayerColor(playerId));
+                    meshRenderer.material.SetFloat("Darkness", 0.9f);
+                }
+            }
+            
+
+            /*
             MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
             if (meshRenderer != null)
             {
@@ -571,7 +620,7 @@ namespace Assets.Scripts
                     }
                     meshRenderer.materials = newMaterials;
                 }
-            }
+            }*/
         }
 
         public bool IsAssembler()

@@ -65,6 +65,7 @@
     <Compile Include="Assets\References\Engine\Ants\AntPart.cs" />
     <Compile Include="Assets\References\Engine\Ants\Ant.cs" />
     <Compile Include="Assets\References\Engine\Interface\Area.cs" />
+    <Compile Include="Assets\character shader pack\4_freeze\scripts\Ice_animation_control.cs" />
     <Compile Include="Assets\References\Engine\Ants\Pheromone.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\PathFinderFast.cs" />
     <Compile Include="Assets\References\Engine\Map\ListPool.cs" />
@@ -87,6 +88,8 @@
     <Compile Include="Assets\References\Engine\Ants\AntDestination.cs" />
     <Compile Include="Assets\Scripts\Engine1.cs" />
     <Compile Include="Assets\Scripts\Container1.cs" />
+    <Compile Include="Assets\character shader pack\6_petrify\scripts\Statue_animation_control.cs" />
+    <Compile Include="Assets\character shader pack\4_freeze\scripts\Ice_animation_vertical_control.cs" />
     <Compile Include="Assets\References\Engine\Ants\ControlAnt.cs" />
     <Compile Include="Assets\HexTiles-Nature\Scripts\HexGrid.cs" />
     <Compile Include="Assets\Scripts\Assembler1.cs" />
@@ -105,6 +108,7 @@
     <Compile Include="Assets\References\Engine\Control\Command.cs" />
     <Compile Include="Assets\References\Engine\Master\Game.cs" />
     <Compile Include="Assets\Scripts\HexGrid.cs" />
+    <Compile Include="Assets\character shader pack\scripts\Rotate_self.cs" />
     <Compile Include="Assets\References\Engine\Master\Bullet.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartWeapon.cs" />
     <Compile Include="Assets\Scripts\Command.cs" />
@@ -122,13 +126,16 @@
     <Compile Include="Assets\References\Engine\Master\Weapon.cs" />
     <Compile Include="Assets\References\Engine\Control\Attack.cs" />
     <Compile Include="Assets\HexTiles-Nature\Scripts\RotationSnapping.cs" />
+    <Compile Include="Assets\character shader pack\scripts\Switch_material.cs" />
     <Compile Include="Assets\References\Engine\Interface\GameModel.cs" />
     <Compile Include="Assets\Scripts\Weapon1.cs" />
     <Compile Include="Assets\References\Engine\Master\MapSector.cs" />
+    <Compile Include="Assets\character shader pack\scripts\Demo_control.cs" />
     <Compile Include="Assets\References\Engine\Control\Dispatcher.cs" />
     <Compile Include="Assets\References\Engine\Master\Extractor.cs" />
     <Compile Include="Assets\References\Engine\Interface\Tile.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartContainer.cs" />
+    <Compile Include="Assets\character shader pack\0_disslolve\script\Dissolve.cs" />
     <Compile Include="Assets\References\Engine\Control\Collect.cs" />
     <Compile Include="Assets\Scripts\Shell.cs" />
     <Compile Include="Assets\References\Engine\Master\Units.cs" />
@@ -139,6 +146,7 @@
     <Compile Include="Assets\References\Engine\Control\ControlNothing.cs" />
     <Compile Include="Assets\References\Engine\Interface\TileObject.cs" />
     <Compile Include="Assets\References\Engine\Master\Ability.cs" />
+    <Compile Include="Assets\character shader pack\6_petrify\scripts\Statue_base_control.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartEngine.cs" />
     <Compile Include="Assets\Scripts\GameCanvas.cs" />
     <Compile Include="Assets\References\Engine\Map\HexMapGenerator.cs" />
@@ -154,6 +162,7 @@
     <None Include="Assets\References\Newtonsoft.Json.dll" />
     <None Include="Assets\BrokenVector\LowPolyTreePack\README.txt" />
     <None Include="Assets\Polygonal Particles\Assets\Shaders\GradientBackgroundShader.shader" />
+    <None Include="Assets\character shader pack\1_cartoon\Lighting.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

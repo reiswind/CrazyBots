@@ -177,6 +177,20 @@ namespace Engine.Interface
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
+
+            // Build Fighter
+            blueprintCommand = new BlueprintCommand();
+
+            blueprintCommand.Name = "Bomber";
+            blueprintCommand.Layout = "UIBuild";
+            blueprintCommand.GameCommandType = GameCommandType.Build;
+
+            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem.BlueprintName = "Bomber";
+            blueprintCommandItem.Count = 1;
+            blueprintCommand.Units.Add(blueprintCommandItem);
+
+            Commands.Add(blueprintCommand);
         }
 
         public Blueprint FindBlueprint(string name)

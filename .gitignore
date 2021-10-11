@@ -10,3 +10,7 @@
 /.vs/CrazyBots/v16/*.suo
 /Temp
 /.vs/CrazyBots/v16/*.db
+/Assets/character shader pack
+/.vs/CrazyBots/v16/*.db-shm
+/.vs/CrazyBots/v16/*.db-wal
+/.vs/CrazyBots/v16/*.opendb
