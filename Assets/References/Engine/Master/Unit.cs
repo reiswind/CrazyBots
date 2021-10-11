@@ -100,10 +100,6 @@ namespace Engine.Master
         }
         public void ResetGameCommand()
         {
-            if (UnitId == "unit5")
-            {
-                int x = 0;
-            }
             CurrentGameCommand = null;
         }
 

@@ -47,11 +47,20 @@ namespace Assets.Scripts
 
 		private string remoteGameIndex;
 
+		private static HexGrid hexGrid;
+		public static HexGrid MainGrid
+        {
+            get
+            {
+				return hexGrid;
 
+			}
+        }
 		public MapInfo MapInfo;
 
 		internal void StartGame()
 		{
+			hexGrid = this;
 			if (GameSpeed == 0)
 				GameSpeed = 0.01f;
 

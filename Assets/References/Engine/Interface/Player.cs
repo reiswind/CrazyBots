@@ -761,7 +761,6 @@ namespace Engine.Interface
                 Units.Remove(unit.UnitId);
             }
 
-            int ccc = 0;
             foreach (Move move in moves)
             {
                 if (move.MoveType == MoveType.UpdateGround)

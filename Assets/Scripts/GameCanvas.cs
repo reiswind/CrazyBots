@@ -762,7 +762,7 @@ namespace Assets.Scripts
 
 
         private UnitBase selectedUnitFrame;
-        private GameCommand selectedGameCommand;
+        private Command selectedGameCommand;
         private Blueprint selectedBuildBlueprint;
         private GroundCell lastSelectedGroundCell;
 
@@ -1434,10 +1434,15 @@ namespace Assets.Scripts
                 if (hitByMouseClick != null)
                 {
                     if (hitByMouseClick.Command != null)
-                        selectedGameCommand = hitByMouseClick.Command.GameCommand;
+                    {
+                        if (selectedGameCommand != null)
+                            HideSelectedGameCommand();
+                        selectedGameCommand = hitByMouseClick.Command;
+                    }
                     else
+                    {
                         HideSelectedGameCommand();
-
+                    }
                     if (lastSelectedGroundCell != hitByMouseClick.GroundCell)
                     {
                         if (lastSelectedGroundCell != null)
@@ -1484,32 +1489,37 @@ namespace Assets.Scripts
         }
         private void HideSelectedGameCommand()
         {
-            foreach (UnitBase unitBase in selectedCommandUnits)
+            if (selectedGameCommand != null)
             {
-                unitBase.SetSelected(false);
+                selectedGameCommand.SetSelected(false);
+                selectedGameCommand = null;
             }
-            selectedGameCommand = null;
         }
-        private List<UnitBase> selectedCommandUnits = new List<UnitBase>();
+        //private List<UnitBase> selectedCommandUnits = new List<UnitBase>();
 
         private void DisplaySelectedGameCommand()
         {
-            if (selectedGameCommand.CommandComplete)
+            if (selectedGameCommand.GameCommand.CommandComplete)
             {
                 HideSelectedGameCommand();
                 
                 return;
             }
             HideAllParts();
-            headerText.text = selectedGameCommand.BlueprintCommand.Name;
-            headerSubText.text = selectedGameCommand.GameCommandType.ToString() + " " + selectedGameCommand.UnitId;
-            headerGroundText.text = selectedGameCommand.TargetPosition.X + ", " + selectedGameCommand.TargetPosition.Y;
+            selectedGameCommand.SetSelected(true);
+            GameCommand gameCommand =  selectedGameCommand.GameCommand;
 
+            headerText.text = gameCommand.BlueprintCommand.Name;
+            headerSubText.text = gameCommand.GameCommandType.ToString() + " " + gameCommand.UnitId;
+            headerGroundText.text = gameCommand.TargetPosition.X + ", " + gameCommand.TargetPosition.Y;
+
+            //selectedGameCommand.UpdateAttachedUnits(HexGrid);
+            /*
             List<UnitBase> allCommandUnits = new List<UnitBase>();
             allCommandUnits.AddRange(selectedCommandUnits);
 
             StringBuilder stringBuilder = new StringBuilder();
-            foreach (string unitId in selectedGameCommand.AttachedUnits)
+            foreach (string unitId in gameCommand.AttachedUnits)
             {
                 UnitBase unitBase = null;
                 if (unitId.StartsWith("Assembler"))
@@ -1535,8 +1545,8 @@ namespace Assets.Scripts
             {
                 unitBase.SetSelected(false);
             }
-
-            panelCommand.transform.Find("Partname").GetComponent<Text>().text = stringBuilder.ToString();
+            */
+            //panelCommand.transform.Find("Partname").GetComponent<Text>().text = stringBuilder.ToString();
             panelCommand.SetActive(true);
         }
 

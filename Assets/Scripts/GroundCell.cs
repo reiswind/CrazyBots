@@ -536,7 +536,7 @@ namespace Assets.Scripts
             }
             if (cellGameCommand == null)
             {
-                string layout = "BuildStructure";
+                string layout = "UIBuild";
                 if (!string.IsNullOrEmpty(gameCommand.BlueprintCommand.Layout))
                     layout = gameCommand.BlueprintCommand.Layout;
 
@@ -557,12 +557,14 @@ namespace Assets.Scripts
                 }
                 cellGameCommand.GhostUnit = unitBase;
 
+                UnitBase.SetPlayerColor(HexGrid, gameCommand.PlayerId, cellGameCommand.Command);
+
                 Command command = cellGameCommand.Command.GetComponent<Command>();
                 command.GameCommand = gameCommand;
 
                 Vector3 unitPos3 = transform.position;
                 if (gameCommand.GameCommandType == GameCommandType.Collect)
-                    unitPos3.y += 0.8f;
+                    unitPos3.y += 1.8f;
                 if (gameCommand.GameCommandType == GameCommandType.Build)
                     unitPos3.y += 2.5f;
                 cellGameCommand.Command.transform.position = unitPos3;

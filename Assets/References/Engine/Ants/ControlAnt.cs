@@ -209,6 +209,7 @@ namespace Engine.Control
                     GameCommand gameCommand = new GameCommand();
                     gameCommand.GameCommandType = GameCommandType.Build;
                     gameCommand.TargetPosition = tile.Pos;
+                    gameCommand.PlayerId = player.PlayerModel.Id;
                     gameCommand.TargetZone = zoneId;
 
                     foreach (BlueprintCommand blueprintCommand in player.Game.Blueprints.Commands)
@@ -1232,7 +1233,11 @@ namespace Engine.Control
                     }
                     if (bestAnt != null)
                     {
-                        // Assigen the build command to an assembler COMMAND-STEP2 BUILD-STEP2
+                        if (bestAnt.PlayerUnit.Unit.Owner.PlayerModel.Id != player.PlayerModel.Id)
+                        {
+                            int x = 0;
+                        }
+                        // Assign the build command to an assembler COMMAND-STEP2 BUILD-STEP2
                         bestAnt.PlayerUnit.Unit.SetGameCommand(gameCommand);
                         gameCommand.AttachedUnits.Add(bestAnt.PlayerUnit.Unit.UnitId);
                         completedCommands.Add(gameCommand);
@@ -1295,10 +1300,7 @@ namespace Engine.Control
             // Still open commands
             foreach (GameCommand gameCommand in player.GameCommands)
             {
-                if (gameCommand.GameCommandType == GameCommandType.Build)
-                {
-                    int x = 0;
-                }
+
                 if (gameCommand.GameCommandType == GameCommandType.Collect)
                 {
                     Pheromone pheromone = player.Game.Pheromones.FindAt(gameCommand.TargetPosition);
@@ -1306,7 +1308,6 @@ namespace Engine.Control
                     if (pheromone == null || pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Energy) == 0)
                     {
                         // Cannot send units there, build reactor
-                        int x = 0;
                     }
                     else
                     {
@@ -1326,6 +1327,7 @@ namespace Engine.Control
                         newCommand.GameCommandType = GameCommandType.Build;
                         newCommand.TargetPosition = gameCommand.TargetPosition;
                         newCommand.BlueprintCommand = blueprintCommand;
+                        newCommand.PlayerId = player.PlayerModel.Id;
                         newCommand.AttachToThisOnCompletion = gameCommand;
                         addedCommands.Add(newCommand);
 

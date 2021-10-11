@@ -116,8 +116,15 @@ namespace Engine.Ants
 
             bool upgrading = false;
 
+            List<Position> includedPositions = null;
+            if (Assembler.Unit.CurrentGameCommand != null)
+            {
+                // Just update... does not work
+                //includedPositions = new List<Position>();
+                //includedPositions.Add(Assembler.Unit.CurrentGameCommand.TargetPosition);
+            }
             List<Move> possiblemoves = new List<Move>();
-            Assembler.ComputePossibleMoves(possiblemoves, null, MoveFilter.Upgrade);
+            Assembler.ComputePossibleMoves(possiblemoves, includedPositions, MoveFilter.Upgrade);
             while (possiblemoves.Count > 0)
             {
                 int idx = player.Game.Random.Next(possiblemoves.Count);
@@ -132,6 +139,7 @@ namespace Engine.Ants
                 moves.Add(move);
                 return true;
             }
+            includedPositions = null;
 
             if (!upgrading)
             {
@@ -166,7 +174,7 @@ namespace Engine.Ants
                     }*/
                 }
 
-                List<Position> includedPositions = null;
+                
 
                 bool computePossibleMoves = true;
                 GameCommand passGameCommandToNewUnit = null;
@@ -281,6 +289,7 @@ namespace Engine.Ants
                                     newCommand.GameCommandType = GameCommandType.Build;
                                     newCommand.TargetPosition = selectedGameCommand.TargetPosition;
                                     newCommand.BlueprintCommand = blueprintCommand;
+                                    newCommand.PlayerId = player.PlayerModel.Id;
                                     newCommand.AttachToThisOnCompletion = selectedGameCommand;
 
                                     computePossibleMoves = false;
