@@ -135,7 +135,8 @@ namespace Assets.Scripts
                     
                     Vector3 v1 = transform.position;
 
-                    if (commandAttachedUnit.UnitBase.gameObject == null)
+                    if (commandAttachedUnit.UnitBase == null ||
+                        commandAttachedUnit.UnitBase.gameObject == null)
                     {
                         lr.endColor = Color.red;
                     }

@@ -96,10 +96,20 @@ namespace Engine.Control
             foreach (Position pos in player.VisiblePositions)
             {
                 Tile tile = player.Game.Map.GetTile(pos);
+                int mins = 0;
                 if (tile.Minerals > 0)
                 {
+                    mins = tile.Minerals;
+                }
+                if (tile.Unit != null && tile.Unit.Owner.PlayerModel.Id != player.PlayerModel.Id)
+                {
+                    // Count enemy unit a mineral resource
+                    mins += tile.Unit.CountMineral();
+                }
+                if (mins > 0)
+                { 
                     int sectorSize = 2; // player.Game.Map.SectorSize;
-                    float intensity = 0.3f * ((float)tile.Minerals);
+                    float intensity = 0.3f * ((float)mins);
 
                     int id = player.Game.Pheromones.DropStaticPheromones(player, pos, sectorSize, PheromoneType.Mineral, intensity, 0.01f);
                     staticMineralDeposits.Add(pos, id);
@@ -110,7 +120,7 @@ namespace Engine.Control
                         antCollect = new AntCollect();
                         AntCollects.Add(tile.ZoneId, antCollect);
                     }
-                    antCollect.Minerals += tile.Minerals;
+                    antCollect.Minerals += mins;
                 }
             }
 
@@ -1848,7 +1858,7 @@ namespace Engine.Control
             {
                 killedAnts.AddRange(lostAnts);
             }
-            // Execute all extrctor moves
+            // Execute 
             foreach (Ant ant in unmovedAnts)
             {
                 if (ant.AntPartExtractor != null)
@@ -1856,6 +1866,7 @@ namespace Engine.Control
                     if (ant.AntPartExtractor.Move(this, player, moves))
                     {
                         movableAnts.Remove(ant);
+                        continue;
                     }
                 }
                 if (ant.AntPartContainer != null)
@@ -1875,6 +1886,12 @@ namespace Engine.Control
                     {
                         int freeSpace = ant.AntPartContainer.Container.TileContainer.Capacity - ant.AntPartContainer.Container.TileContainer.Count;
                         antCollect.AllCollectables -= freeSpace;
+                    }
+
+                    if (CheckTransportMove(ant, moves))
+                    {
+                        movableAnts.Remove(ant);
+                        continue;
                     }
                 }
             }

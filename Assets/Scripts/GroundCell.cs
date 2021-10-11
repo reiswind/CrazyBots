@@ -564,9 +564,9 @@ namespace Assets.Scripts
 
                 Vector3 unitPos3 = transform.position;
                 if (gameCommand.GameCommandType == GameCommandType.Collect)
-                    unitPos3.y += 1.8f;
+                    unitPos3.y += 1.8f + (Random.value / 1);
                 if (gameCommand.GameCommandType == GameCommandType.Build)
-                    unitPos3.y += 2.5f;
+                    unitPos3.y += 2.5f + (Random.value / 1);
                 cellGameCommand.Command.transform.position = unitPos3;
 
                 cellGameCommands.Add(cellGameCommand);

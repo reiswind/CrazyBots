@@ -768,6 +768,17 @@ namespace Engine.Master
                         if (!changedGroundPositions.ContainsKey(transportTargetPos))
                             changedGroundPositions.Add(transportTargetPos, null);
                     }
+                    else
+                    {
+                        List<TileObject> tileObjects = new List<TileObject>();
+
+                        TileObject newTileObject = new TileObject();
+                        newTileObject.TileObjectType = TileObjectType.Mineral;
+                        newTileObject.Direction = Direction.C;
+                        tileObjects.Add(newTileObject);
+
+                        unit.AddTileObjects(tileObjects);
+                    }
                     finishedMoves.Add(move);
                 }
                 else if (move.MoveType == MoveType.Fire)
@@ -1271,17 +1282,15 @@ namespace Engine.Master
                     Unit sendingUnit = Map.Units.GetUnitAt(move.Positions[0]);
                     if (sendingUnit != null && sendingUnit.Container != null)
                     {
-                        // TODOMIN
-                        /*
-                        if (sendingUnit.Container != null && sendingUnit.Container.Mineral > 0)
+                        TileObject tileObject = sendingUnit.Container.TileContainer.RemoveTileObject(TileObjectType.Mineral);
+                        if (tileObject != null)
                         {
-                            sendingUnit.Container.Mineral--;
                             move.Stats = sendingUnit.CollectStats();
                         }
                         else
                         {
                             move.MoveType = MoveType.Skip;
-                        }*/
+                        }
 
                         if (!changedUnits.ContainsKey(sendingUnit.Pos))
                             changedUnits.Add(sendingUnit.Pos, sendingUnit);

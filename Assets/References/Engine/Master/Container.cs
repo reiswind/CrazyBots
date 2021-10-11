@@ -31,7 +31,7 @@ namespace Engine.Master
         {
             get
             {
-                return 7; // Level * 3;
+                return 12; // Level * 3;
             }
         }
         public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position> includedPositions, MoveFilter moveFilter)
@@ -95,7 +95,7 @@ namespace Engine.Master
                         move.Positions.Add(Unit.Pos);
                         move.Positions.Add(n.Pos);
 
-                        //possibleMoves.Add(move);
+                        possibleMoves.Add(move);
                     }
                 }
             }
