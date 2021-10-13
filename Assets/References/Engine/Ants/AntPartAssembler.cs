@@ -119,7 +119,7 @@ namespace Engine.Ants
             List<Position> includedPositions = null;
             if (Assembler.Unit.CurrentGameCommand != null && Ant.AntPartEngine != null)
             {
-                // If engine, move to target an upgrade then. Do not upgrade anything else.
+                // If engine, move to target and upgrade then. Do not upgrade anything else.
                 includedPositions = new List<Position>();
                 includedPositions.Add(Assembler.Unit.CurrentGameCommand.TargetPosition);
             }
@@ -146,6 +146,7 @@ namespace Engine.Ants
                 GameCommand selectedGameCommand = null;
 
                 if (Assembler.Unit.CurrentGameCommand != null &&
+                    !Assembler.Unit.CurrentGameCommand.WaitingForUnit &&
                     Assembler.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build)
                 {
                     selectedGameCommand = Assembler.Unit.CurrentGameCommand;
@@ -354,7 +355,13 @@ namespace Engine.Ants
                             passGameCommandToNewUnit.AttachedUnits.Clear();
                             passGameCommandToNewUnit.AttachedUnits.Add("Assembler-" + this.Ant.PlayerUnit.Unit.UnitId);
                         }
-                        Assembler.Unit.ResetGameCommand();
+                        if (selectedGameCommand != null)
+                        {
+                            selectedGameCommand.WaitingForUnit = true;
+                            // It has been build. Upgrading will happen, becuase unit is nearby
+                            //player.GameCommands.Remove(selectedGameCommand);
+                            //Assembler.Unit.ResetGameCommand();
+                        }
 
 #if OLDDD
                         if (move.UnitId == "Assembler")

@@ -122,6 +122,35 @@ namespace Engine.Interface
 
             Commands.Add(blueprintCommand);
 
+            // Attack
+            blueprintCommand = new BlueprintCommand();
+
+            blueprintCommand.Name = "Attack";
+            blueprintCommand.Layout = "UICollect";
+            blueprintCommand.GameCommandType = GameCommandType.Attack;
+
+            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem.BlueprintName = "Fighter";
+            blueprintCommandItem.Count = 1;
+            blueprintCommand.Units.Add(blueprintCommandItem);
+
+            Commands.Add(blueprintCommand);
+
+            // Defend
+            blueprintCommand = new BlueprintCommand();
+
+            blueprintCommand.Name = "Defend";
+            blueprintCommand.Layout = "UICollect";
+            blueprintCommand.GameCommandType = GameCommandType.Defend;
+
+            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem.BlueprintName = "Bomber";
+            blueprintCommandItem.Count = 1;
+            blueprintCommand.Units.Add(blueprintCommandItem);
+
+            Commands.Add(blueprintCommand);
+
+
             // Build outpost
             blueprintCommand = new BlueprintCommand();
 

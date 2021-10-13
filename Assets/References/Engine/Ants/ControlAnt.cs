@@ -1199,8 +1199,38 @@ namespace Engine.Control
             {
                 if (gameCommand.AttachedUnits.Count > 0)
                 {
-                    completedCommands.Add(gameCommand);
-                    continue;
+                    List<string> missingUnits = new List<string>();
+                    foreach (string unitId in gameCommand.AttachedUnits)
+                    {
+                        PlayerUnit playerUnit;
+                        if (player.Units.TryGetValue(unitId, out playerUnit))
+                        {
+                            if (playerUnit.Unit.CurrentGameCommand == null)
+                            {
+                                // Unit does not have this? Fix this error
+                                playerUnit.Unit.SetGameCommand(gameCommand);
+                            }
+                            else if (playerUnit.Unit.CurrentGameCommand != gameCommand)
+                            {
+                                // Unit has different command? Fix this error
+                                missingUnits.Add(unitId);
+                            }
+                        }
+                        else
+                        {
+                            // Assigned but does not exist? Fix this error
+                            if (unitId != "CommandId?" && !unitId.StartsWith("Assembler"))
+                                missingUnits.Add(unitId);
+                        }
+                    }
+                    foreach (string missingUnitId in missingUnits)
+                        gameCommand.AttachedUnits.Remove(missingUnitId);
+
+                    if (gameCommand.AttachedUnits.Count > 0)
+                    {
+                        completedCommands.Add(gameCommand);
+                        continue;
+                    }
                 }
                 if (gameCommand.GameCommandType == GameCommandType.Build)
                 {
@@ -1310,7 +1340,30 @@ namespace Engine.Control
             // Still open commands
             foreach (GameCommand gameCommand in player.GameCommands)
             {
+                if (gameCommand.GameCommandType == GameCommandType.Attack)
+                {
+                    if (gameCommand.AttachedUnits.Count > 0)
+                    {
+                        continue;
+                    }
 
+                    // Create a command to build a fighter that will collect the resources (COMMAND-STEP1)
+                    BlueprintCommand blueprintCommand = new BlueprintCommand();
+                    blueprintCommand.GameCommandType = GameCommandType.Build;
+                    blueprintCommand.Name = "BuildUnitForAttack";
+                    blueprintCommand.Units.AddRange(gameCommand.BlueprintCommand.Units);
+
+                    GameCommand newCommand = new GameCommand();
+
+                    newCommand.GameCommandType = GameCommandType.Build;
+                    newCommand.TargetPosition = gameCommand.TargetPosition;
+                    newCommand.BlueprintCommand = blueprintCommand;
+                    newCommand.PlayerId = player.PlayerModel.Id;
+                    newCommand.AttachToThisOnCompletion = gameCommand;
+                    addedCommands.Add(newCommand);
+
+                    gameCommand.AttachedUnits.Add("CommandId?");
+                }
                 if (gameCommand.GameCommandType == GameCommandType.Collect)
                 {
                     Pheromone pheromone = player.Game.Pheromones.FindAt(gameCommand.TargetPosition);

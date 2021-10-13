@@ -101,8 +101,7 @@ namespace Assets.Scripts
                     AddPlaceholders(child);
                 }
             }
-            emptyCubes.Clear();
-            emptyCubes.AddRange(mineralCubes);
+
             return true;
         }
 
@@ -116,6 +115,8 @@ namespace Assets.Scripts
             if (mineralCubes.Count == 0)
             {
                 AddPlaceholders(gameObject);
+                emptyCubes.Clear();
+                emptyCubes.AddRange(mineralCubes);
 
                 filled = 0;
                 max = mineralCubes.Count;

@@ -21,6 +21,7 @@ namespace Assets.Scripts
         Select,
         Build,
         Collect,
+        Attack,
         Unit
     }
 
@@ -678,6 +679,11 @@ namespace Assets.Scripts
                 canvasMode = CanvasMode.Collect;
                 executedBlueprintCommand = blueprintCommand;
             }
+            else if (blueprintCommand.GameCommandType == GameCommandType.Attack)
+            {
+                canvasMode = CanvasMode.Attack;
+                executedBlueprintCommand = blueprintCommand;
+            }
         }
 
         void OnClickBuild1()
@@ -1012,7 +1018,10 @@ namespace Assets.Scripts
             {
                 UpdateCollectMode();
             }
-            
+            else if (canvasMode == CanvasMode.Attack)
+            {
+                UpdateAttackMode();
+            }
         }
 
         private bool leftMouseButtonDown;
@@ -1078,19 +1087,13 @@ namespace Assets.Scripts
                     }
                     else
                     {
-                        // Build the temp. unit
                         GameCommand gameCommand = new GameCommand();
-                        //gameCommand.UnitId;
-                        gameCommand.TargetPosition = pos;
 
-                        if (selectedUnitButton == 1)
-                            gameCommand.GameCommandType = GameCommandType.Attack;
-                        else if (selectedUnitButton == 2)
-                            gameCommand.GameCommandType = GameCommandType.Defend;
-                        else if (selectedUnitButton == 3)
-                            gameCommand.GameCommandType = GameCommandType.Scout;
-                        else if (selectedUnitButton == 4)
-                            gameCommand.GameCommandType = GameCommandType.Collect;
+                        gameCommand.TargetPosition = pos;
+                        gameCommand.GameCommandType = executedBlueprintCommand.GameCommandType;
+                        gameCommand.BlueprintCommand = executedBlueprintCommand;
+                        gameCommand.GameCommandType = GameCommandType.Attack;
+
                         gameCommand.PlayerId = 1;
                         HexGrid.GameCommands.Add(pos, gameCommand);
 
@@ -1154,8 +1157,6 @@ namespace Assets.Scripts
                     lastSelectedGroundCell != null)
                 {
                     Position pos = lastSelectedGroundCell.Pos;
-                    //if (HexGrid.GameCommands.ContainsKey(pos))
-                    //    HexGrid.GameCommands.Remove(pos);
 
                     GameCommand gameCommand = new GameCommand();
                     gameCommand.TargetPosition = pos;
