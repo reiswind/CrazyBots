@@ -117,11 +117,11 @@ namespace Engine.Ants
             bool upgrading = false;
 
             List<Position> includedPositions = null;
-            if (Assembler.Unit.CurrentGameCommand != null)
+            if (Assembler.Unit.CurrentGameCommand != null && Ant.AntPartEngine != null)
             {
-                // Just update... does not work
-                //includedPositions = new List<Position>();
-                //includedPositions.Add(Assembler.Unit.CurrentGameCommand.TargetPosition);
+                // If engine, move to target an upgrade then. Do not upgrade anything else.
+                includedPositions = new List<Position>();
+                includedPositions.Add(Assembler.Unit.CurrentGameCommand.TargetPosition);
             }
             List<Move> possiblemoves = new List<Move>();
             Assembler.ComputePossibleMoves(possiblemoves, includedPositions, MoveFilter.Upgrade);

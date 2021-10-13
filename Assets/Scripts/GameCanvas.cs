@@ -1499,6 +1499,10 @@ namespace Assets.Scripts
 
         private void DisplaySelectedGameCommand()
         {
+            if (selectedGameCommand == null || selectedGameCommand.GameCommand == null)
+            {
+                return;
+            }
             if (selectedGameCommand.GameCommand.CommandComplete)
             {
                 HideSelectedGameCommand();

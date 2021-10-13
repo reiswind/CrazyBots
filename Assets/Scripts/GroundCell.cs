@@ -557,7 +557,25 @@ namespace Assets.Scripts
                 }
                 cellGameCommand.GhostUnit = unitBase;
 
-                UnitBase.SetPlayerColor(HexGrid, gameCommand.PlayerId, cellGameCommand.Command);
+                MeshRenderer meshRenderer = cellGameCommand.Command.GetComponent<MeshRenderer>();
+                if (meshRenderer != null)
+                {
+                    if (UnityEditor.EditorApplication.isPlaying)
+                    {
+                        if (meshRenderer.materials.Length == 1)
+                        {
+                            meshRenderer.material.SetColor("Color_main", UnitBase.GetPlayerColor(gameCommand.PlayerId));
+                            meshRenderer.material.SetColor("colorfresnel", UnitBase.GetPlayerColor(gameCommand.PlayerId));
+                        }
+                    }
+                    else
+                    {
+                        if (meshRenderer.sharedMaterials.Length == 1)
+                        {
+                            meshRenderer.sharedMaterial.SetColor("Color_main", UnitBase.GetPlayerColor(gameCommand.PlayerId));
+                        }
+                    }
+                }
 
                 Command command = cellGameCommand.Command.GetComponent<Command>();
                 command.GameCommand = gameCommand;
