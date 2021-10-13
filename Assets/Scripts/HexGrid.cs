@@ -60,11 +60,8 @@ namespace Assets.Scripts
         }
 		public MapInfo MapInfo;
 
-		internal bool GameStarted { get; set; }
 		internal void StartGame()
 		{
-			GameStarted = true;
-
 			RemoveAllChildren();
 
 			hexGrid = this;
@@ -166,7 +163,6 @@ namespace Assets.Scripts
 			}
 		}
 
-
 		private void InitResources()
 		{
 			InitMaterials();
@@ -200,7 +196,6 @@ namespace Assets.Scripts
 					bushResources.Add(key, allResources[key]);
 			}
 		}
-
 
 		public GameObject GetResource(string name)
 		{
@@ -451,9 +446,9 @@ namespace Assets.Scripts
 #endif
 		internal void RemoveAllChildren()
         {
-			for (int i = 0; i < transform.childCount; i++)
+			while (transform.childCount > 0)
 			{
-				GameObject child = transform.GetChild(i).gameObject;
+				GameObject child = transform.GetChild(0).gameObject;
 				DestroyImmediate(child);
 			}
 		}
@@ -1404,14 +1399,22 @@ namespace Assets.Scripts
 			UnitBase unit = InstantiatePrefab<UnitBase>(blueprint.Layout);
 
 			unit.HexGrid = this;
-			unit.CurrentPos = masterunit.Pos; ;
+			unit.CurrentPos = masterunit.Pos;
 
 			unit.PlayerId = masterunit.Owner.PlayerModel.Id;
 			unit.MoveUpdateStats = masterunit.CollectStats();
+			if (masterunit.UnderConstruction)
+            {
+				foreach (MoveUpdateUnitPart moveUpdateUnitPart in unit.MoveUpdateStats.UnitParts)
+                {
+					moveUpdateUnitPart.Exists = false;
+				}
+            }
+
 			unit.UnitId = masterunit.UnitId;
 			unit.gameObject.name = masterunit.UnitId;
 
-			unit.Assemble(false);
+			unit.Assemble(masterunit.UnderConstruction, masterunit.UnderConstruction);
 			unit.PutAtCurrentPosition(false);
 
 			Rigidbody rigidbody = unit.GetComponent<Rigidbody>();

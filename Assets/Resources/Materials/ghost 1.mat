@@ -67,13 +67,26 @@ Material:
         m_Texture: {fileID: 2800000, guid: 3ba61b963021d884ba2f7266dfdf69ca, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - Vector1_1D9A2AE: 0.01
     - Vector1_393DE20C: 0
     - Vector1_40249D74: -1
     - Vector1_ABD1713E: 0.122
     - Vector1_EFE64959: 100
-    - Vector1_F4D3A67B: 8.4
+    - Vector1_F4D3A67B: 14.2
     - Vector1_FEFF47F1: 0.44
     - _AlphaClip: 0
     - _Blend: 0
@@ -99,19 +112,19 @@ Material:
     - _float_metallic: 0.376
     - _float_occlusion: 1
     - _float_smoothness: 0.168
-    - _metallic: 0.046
+    - _metallic: 0.078
     - _noise_scale: 100
-    - _smooth: 0.842
+    - _smooth: 0.922
     - _threshold: 0.286
-    - float_alpha: 0.0932
+    - float_alpha: 0.0084
     - float_statue_level: 1
     - float_statue_threhold: 1
     m_Colors:
-    - Color_4641AC47: {r: 0, g: 12.268817, b: 4.8594136, a: 0}
-    - Color_62DC5747: {r: 23.968628, g: 0, b: 19.450981, a: 0}
+    - Color_4641AC47: {r: 0, g: 10.784121, b: 21.361254, a: 0}
+    - Color_62DC5747: {r: 76.15007, g: 76.15007, b: 76.15007, a: 0}
     - Color_6DF76E71: {r: 1024, g: 936.22864, b: 0, a: 0}
     - Color_9BE22665: {r: 50.833168, g: 35.624916, b: 0, a: 0}
-    - Color_FB151A2: {r: 0, g: 191.74902, b: 127.49804, a: 0}
+    - Color_FB151A2: {r: 56.030186, g: 66.01103, b: 140.07547, a: 0}
     - Vector2_4E715410: {r: 1, g: 1, b: 0, a: 0}
     - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

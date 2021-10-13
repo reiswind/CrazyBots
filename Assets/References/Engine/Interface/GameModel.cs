@@ -133,6 +133,10 @@ namespace Engine.Interface
         public bool EndlessAmmo { get; set; }
         [DataMember]
         public bool EndlessPower { get; set; }
+        [DataMember]
+        public bool UnderConstruction { get; set; }
+        [DataMember]
+        public int ContainerFilled { get; set; }
     }
 
     [DataContract]

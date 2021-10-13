@@ -104,6 +104,17 @@ namespace Engine.Master
                         thisUnit.CreateAllPartsFromBlueprint();
                         thisUnit.Pos = posOnMap;
 
+                        if (unitModel.ContainerFilled == 0)
+                        {
+                            if (thisUnit.Container != null)
+                                thisUnit.Container.TileContainer.Clear();
+                            if (thisUnit.Weapon != null)
+                                thisUnit.Weapon.TileContainer.Clear();
+                            if (thisUnit.Reactor != null)
+                                thisUnit.Reactor.TileContainer.Clear();
+                            if (thisUnit.Assembler != null)
+                                thisUnit.Assembler.TileContainer.Clear();
+                        }
                         // Turn into direction missing
                         thisUnit.Direction = Direction.C; // CalcDirection(move.Positions[0], move.Positions[1]);
                         thisUnit.Owner = Players[unitModel.PlayerId];
@@ -122,6 +133,10 @@ namespace Engine.Master
                             thisUnit.Weapon.EndlessAmmo = true;
                         if (unitModel.EndlessPower)
                             thisUnit.EndlessPower = true;
+                        if (unitModel.UnderConstruction)
+                            thisUnit.UnderConstruction = true;
+
+
 
                         t.Owner = unitModel.PlayerId;
                         ResetTile(t);

@@ -254,10 +254,10 @@ namespace Assets.Scripts
             {
                 SetPlayerColor(HexGrid, PlayerId, newPart);
             }
-            if (Application.isEditor)
-                DestroyImmediate (part.gameObject);
-            else
+            if (UnityEditor.EditorApplication.isPlaying)
                 Destroy(part.gameObject);
+            else
+                DestroyImmediate(part.gameObject);
             
             Rigidbody rigidbody = newPart.GetComponent<Rigidbody>();
             if (rigidbody != null)
@@ -494,42 +494,40 @@ namespace Assets.Scripts
 
         internal void SetMaterialGhost(int playerId, GameObject unit)
         {
-            
             for (int i = 0; i < unit.transform.childCount; i++)
             {
                 GameObject child = unit.transform.GetChild(i).gameObject;
-                if (!child.name.StartsWith("Mineral") && !child.name.StartsWith("Shield") && !child.name.StartsWith("Ammo") && !child.name.StartsWith("Item"))
-                    SetMaterialGhost(playerId, child);
+                SetMaterialGhost(playerId, child);
             }
-
-            MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
-            if (meshRenderer != null)
+            if (unit.name.StartsWith("Mineral") ||
+                unit.name.StartsWith("Shield") ||
+                unit.name.StartsWith("Ammo") || 
+                unit.name.StartsWith("Item"))
             {
-                if (meshRenderer.materials.Length == 1)
+                unit.SetActive(false);
+            }
+            else
+            { 
+                MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
+                if (meshRenderer != null)
                 {
-                    Destroy(meshRenderer.material);                   
-                    meshRenderer.material = HexGrid.GetMaterial("ghost 1");
-                }
-                /*
-                else
-                {
-                    Material[] newMaterials = new Material[meshRenderer.materials.Length];
-                    for (int i = 0; i < meshRenderer.materials.Length; i++)
+                    if (UnityEditor.EditorApplication.isPlaying)
                     {
-                        Material material = meshRenderer.materials[i];
-                        if (material.name.StartsWith("Player"))
+                        if (meshRenderer.materials.Length == 1)
                         {
-                            Destroy(material);
-                            newMaterials[i] = HexGrid.GetMaterial("PlayerTransparent");
-                        }
-                        else
-                        {
-                            Destroy(material);
-                            newMaterials[i] = HexGrid.GetMaterial("TransparentFrame");
+                            Destroy(meshRenderer.material);
+                            meshRenderer.material = HexGrid.GetMaterial("ghost 1");
                         }
                     }
-                    meshRenderer.materials = newMaterials;
-                }*/
+                    else
+                    {
+                        if (meshRenderer.sharedMaterials.Length == 1)
+                        {
+                            meshRenderer.sharedMaterial = HexGrid.GetMaterial("ghost 1");
+                        }
+
+                    }
+                }
             }
         }
 
@@ -564,10 +562,6 @@ namespace Assets.Scripts
 
         internal static void SetPlayerColor(HexGrid hexGrid, int playerId, GameObject unit)
         {
-            if (Application.isEditor)
-            {
-                return;
-            }
             for (int i = 0; i < unit.transform.childCount; i++)
             {
                 GameObject child = unit.transform.GetChild(i).gameObject;
@@ -579,55 +573,27 @@ namespace Assets.Scripts
             MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
             if (meshRenderer != null)
             {
-                if (meshRenderer.materials.Length == 1)
+                if (UnityEditor.EditorApplication.isPlaying)
                 {
-                    Destroy(meshRenderer.material);
-                    meshRenderer.material = hexGrid.GetMaterial("UnitMaterial");
-                    meshRenderer.material.SetColor("PlayerColor", GetPlayerColor(playerId));
-                    meshRenderer.material.SetFloat("Darkness", 0.9f);
-                }
-            }
-            
-
-            /*
-            MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
-            if (meshRenderer != null)
-            {
-                if (meshRenderer.materials.Length == 1)
-                {
-                    Destroy(meshRenderer.material);
-                    if (playerId == 0)
-                        meshRenderer.material = hexGrid.GetMaterial("Player0");
-                    if (playerId == 0) meshRenderer.material = hexGrid.GetMaterial("Player0");
-                    if (playerId == 1) meshRenderer.material = hexGrid.GetMaterial("Player1");
-                    if (playerId == 2) meshRenderer.material = hexGrid.GetMaterial("Player2");
-                    if (playerId == 3) meshRenderer.material = hexGrid.GetMaterial("Player3");
-                    if (playerId == 4) meshRenderer.material = hexGrid.GetMaterial("Player4");
+                    if (meshRenderer.materials.Length == 1)
+                    {
+                        Destroy(meshRenderer.material);
+                        meshRenderer.material = hexGrid.GetMaterial("UnitMaterial");
+                        meshRenderer.material.SetColor("PlayerColor", GetPlayerColor(playerId));
+                        meshRenderer.material.SetFloat("Darkness", 0.9f);
+                    }
                 }
                 else
                 {
-                    Material[] newMaterials = new Material[meshRenderer.materials.Length];
-                    for (int i = 0; i < meshRenderer.materials.Length; i++)
+                    if (meshRenderer.sharedMaterials.Length == 1)
                     {
-                        Material material = meshRenderer.materials[i];
-                        if (material.name.StartsWith("Player"))
-                        {
-                            Destroy(material);
-                            if (playerId == 0) newMaterials[i] = hexGrid.GetMaterial("Player0");
-                            if (playerId == 1) newMaterials[i] = hexGrid.GetMaterial("Player1");
-                            if (playerId == 2) newMaterials[i] = hexGrid.GetMaterial("Player2");
-                            if (playerId == 3) newMaterials[i] = hexGrid.GetMaterial("Player3");
-                            if (playerId == 4) newMaterials[i] = hexGrid.GetMaterial("Player4");
-                        }
-                        else
-                        {
-                            Destroy(material);
-                            newMaterials[i] = hexGrid.GetMaterial("MyFrame");
-                        }
+                        //Destroy(meshRenderer.material);
+                        meshRenderer.sharedMaterial = hexGrid.GetMaterial("UnitMaterial");
+                        meshRenderer.sharedMaterial.SetColor("PlayerColor", GetPlayerColor(playerId));
+                        meshRenderer.sharedMaterial.SetFloat("Darkness", 0.9f);
                     }
-                    meshRenderer.materials = newMaterials;
                 }
-            }*/
+            }
         }
 
         public bool IsAssembler()

@@ -19,9 +19,12 @@ namespace Assets.Scripts
 			{
 				changeMap = ChangeMap;
 
-				if (!hexGrid.GameStarted)
+				if (!UnityEditor.EditorApplication.isPlaying)
 				{
-					hexGrid.CreateMapInEditor();
+					if (changeMap == 0)
+						hexGrid.RemoveAllChildren();
+					else
+						hexGrid.CreateMapInEditor();
 				}
 			}
 			if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject())
