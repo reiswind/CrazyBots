@@ -157,7 +157,7 @@ namespace Assets.Scripts
                 newUnitBaseTileObject.TileObject = tileObject.Copy();
                 tileObjects.Add(newUnitBaseTileObject);
 
-                if (oneItemPerCube)
+                if (oneItemPerCube && emptyCubes.Count > 0)
                 {
                     newUnitBaseTileObject.Placeholder = emptyCubes[0];
                     emptyCubes.Remove(newUnitBaseTileObject.Placeholder);

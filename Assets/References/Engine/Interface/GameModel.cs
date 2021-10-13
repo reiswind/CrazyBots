@@ -74,6 +74,8 @@ namespace Engine.Interface
         Map Map { get; }
         Blueprints Blueprints { get; }
         List<Area> Areas { get; }
+
+        void CreateUnits();
     }
 
     [DataContract]
@@ -97,9 +99,6 @@ namespace Engine.Interface
         public override string ToString()
         {
             return Name;
-        }
-        public void Add(GameModel gamePart)
-        {
         }
 
         public IGameController CreateGame(int seed)

@@ -1,0 +1,143 @@
+{
+  "Name": "Test",
+  "MapWidth": 1,
+  "MapHeight": 1,
+  "Seeda": 3,
+  "MapType": "2",
+  "Players": [
+    {
+      "ControlLevel": 1,
+      "Id": 1,
+      "Zone": 0,
+	  "IsHuman": true,
+      "Name": "Green"
+    },
+    {
+      "ControlLevel": 1,
+      "Id": 2,
+      "Zone": 1,
+      "Name": "Red"
+    }
+  ],
+  "Units": [
+    
+	{
+      "Name": "Fighter",
+      "PlayerId": 1,
+      "Blueprint": "Fighter",
+	  "HoldPosition": true,
+	  "FireAtGround": false,
+	  "EndlessAmmo": true,
+	  "EndlessPower": true,
+      "Position": {
+        "X": -2,
+        "Y": -2
+      }
+    },
+	{
+      "Name": "Bomber",
+      "PlayerId": 1,
+      "Blueprint": "Bomber",
+	  "HoldPosition": true,
+	  "FireAtGround": false,
+	  "EndlessAmmo": true,
+	  "EndlessPower": true,
+      "Position": {
+        "X": -2,
+        "Y": -1
+      }
+    },
+	{
+      "Name": "Worker",
+      "PlayerId": 1,
+      "Blueprint": "Worker",
+	  "HoldPosition": true,
+	  "FireAtGround": false,
+	  "EndlessAmmo": true,
+	  "EndlessPower": true,
+      "Position": {
+        "X": -2,
+        "Y": 0
+      }
+    },
+	{
+      "Name": "Assembler",
+      "PlayerId": 1,
+      "Blueprint": "Assembler",
+	  "HoldPosition": true,
+	  "HoldFire": true,
+	  "EndlessAmmo": true,
+	  "EndlessPower": true,
+      "Position": {
+        "X": -2,
+        "Y": 1
+      }
+    },
+	{
+      "Name": "Container",
+      "PlayerId": 2,
+      "Blueprint": "Container",
+	  "HoldPosition": true,
+	  "HoldFire": true,
+	  "EndlessAmmo": true,
+	  "EndlessPower": true,
+      "Position": {
+        "X": -2,
+        "Y": 4
+      }
+    },
+	{
+      "Name": "Outpost",
+      "PlayerId": 2,
+      "Blueprint": "Outpost",
+	  "HoldPosition": true,
+	  "HoldFire": true,
+	  "EndlessAmmo": true,
+	  "EndlessPower": true,
+      "Position": {
+        "X": -2,
+        "Y": 3
+      }
+    },
+	{
+      "Name": "Reactor",
+      "PlayerId": 2,
+      "Blueprint": "Reactor",
+	  "HoldPosition": true,
+	  "HoldFire": true,
+	  "EndlessAmmo": true,
+	  "EndlessPower": true,
+      "Position": {
+        "X": -2,
+        "Y": 2
+      }
+    },
+	{
+      "Name": "Turret",
+      "PlayerId": 2,
+      "Blueprint": "Turret",
+	  "HoldPosition": true,
+	  "HoldFire": true,
+	  "EndlessAmmo": true,
+	  "EndlessPower": true,
+      "Position": {
+        "X": -2,
+        "Y": 1
+      }
+    },
+	{
+      "Name": "Factory",
+      "PlayerId": 2,
+      "Blueprint": "Factory",
+	  "HoldPosition": true,
+	  "HoldFire": true,
+	  "EndlessAmmo": true,
+	  "EndlessPower": true,
+      "Position": {
+        "X": -2,
+        "Y": 0
+      }
+    }
+
+  ]
+}

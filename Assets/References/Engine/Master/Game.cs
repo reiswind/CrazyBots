@@ -55,9 +55,7 @@ namespace Engine.Master
             {
                 Map.CreateTerrain(this);
             }
-            //Map.CreateZones();
-            
-
+            //CreateUnits();
 
             Map.GetTile(new Position(0, 0));
 
@@ -80,74 +78,63 @@ namespace Engine.Master
             playerModel.Name = "Neutral";
             NeutralPlayer = new Player(this, playerModel);
 
-            //Szenario1(newMoves);
-            //SzenarioShowUnits(newMoves);
             StartWithFactory(newMoves);
 
             initialized = true;
         }
 
-        private void StartWithFactory(List<Move> newMoves)
+        public void CreateUnits()
         {
-
-            foreach (Player player in Players.Values)
+            foreach (UnitModel unitModel in GameModel.Units)
             {
-                //Move move;
+                Player player = Players[unitModel.PlayerId];
 
-                // Factory
-                string newUnitId = GetNextUnitId("unit");
-
-                if (player.PlayerModel.ControlLevel == 1)
+                Position posOnMap = null;
+                if (player.StartZone != null)
                 {
-                    /*
-                    move = new Move();
-                    move.MoveType = MoveType.Add;
-                    move.PlayerId = player.PlayerModel.Id;
-                    move.UnitId = newUnitId + ":StartColony";
-                    move.Positions = new List<Position>();
-                    move.Positions.Add(player.PlayerModel.StartPosition);
-                    newMoves.Add(move);*/
-                }
-                else
-                {
-                    /*
-                    move = new Move();
-                    move.MoveType = MoveType.Add;
-                    move.PlayerId = player.PlayerModel.Id;
-                    move.UnitId = newUnitId + ":StartFactory";
-                    move.Positions = new List<Position>();
-                    move.Positions.Add(player.PlayerModel.StartPosition);
-                    newMoves.Add(move);
+                    posOnMap = new Position(player.StartZone.Center.X + unitModel.Position.X, player.StartZone.Center.Y + unitModel.Position.Y);
 
-                    Assemble assemble = new Assemble();
-                    assemble.Center = player.PlayerModel.StartPosition;
-                    assemble.PlayerId = player.PlayerModel.Id;
-                    assemble.Map = Map;
-                    assemble.AssignUnit(newUnitId);
-                    player.Commands.Add(assemble);
-                    */
-                    // Human player must set commands by himself
-
-                    if (player.PlayerModel.ControlLevel != 0)
+                    Tile t = Map.GetTile(posOnMap);
+                    if (t != null)
                     {
-                        /*
-                        Collect collect = new Collect();
-                        collect.Center = player.PlayerModel.StartPosition;
-                        collect.PlayerId = player.PlayerModel.Id;
-                        collect.Range = 5;
-                        collect.Map = Map;
+                        Unit thisUnit = new Unit(this, unitModel.Blueprint);
 
-                        CommandSource commandSource = new CommandSource();
-                        commandSource.Child = collect;
-                        commandSource.Parent = assemble;
-                        collect.CommandSources.Add(commandSource);
+                        thisUnit.Power = 20;
+                        thisUnit.MaxPower = 20;
+                        thisUnit.CreateAllPartsFromBlueprint();
+                        thisUnit.Pos = posOnMap;
 
-                        player.Commands.Add(collect);
-                        */
+                        // Turn into direction missing
+                        thisUnit.Direction = Direction.C; // CalcDirection(move.Positions[0], move.Positions[1]);
+                        thisUnit.Owner = Players[unitModel.PlayerId];
+
+                        if (Map.Units.GetUnitAt(thisUnit.Pos) == null)
+                            Map.Units.Add(thisUnit);
+
+                        if (unitModel.HoldPosition && thisUnit.Engine != null)
+                            thisUnit.Engine.HoldPosition = true;
+
+                        if (unitModel.FireAtGround && thisUnit.Weapon != null)
+                            thisUnit.Weapon.FireAtGround = true;
+                        if (unitModel.HoldFire && thisUnit.Weapon != null)
+                            thisUnit.Weapon.HoldFire = true;
+                        if (unitModel.EndlessAmmo && thisUnit.Weapon != null)
+                            thisUnit.Weapon.EndlessAmmo = true;
+                        if (unitModel.EndlessPower)
+                            thisUnit.EndlessPower = true;
+
+                        t.Owner = unitModel.PlayerId;
+                        ResetTile(t);
+                        foreach (Tile n in t.Neighbors)
+                            ResetTile(n);
                     }
                 }
-                //break;
             }
+        }
+
+
+        public void StartWithFactory(List<Move> newMoves)
+        {
             if (GameModel.Units != null)
             {
                 foreach (UnitModel unitModel in GameModel.Units)
@@ -187,7 +174,6 @@ namespace Engine.Master
                                 thisUnit.Weapon.EndlessAmmo = true;
                             if (unitModel.EndlessPower)
                                 thisUnit.EndlessPower = true;
-
 
                             Move move = new Move();
                             move.MoveType = MoveType.Add;

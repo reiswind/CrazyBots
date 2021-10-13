@@ -3,26 +3,28 @@ using UnityEngine.EventSystems;
 
 namespace Assets.Scripts
 {
+	[ExecuteInEditMode]
 	public class HexMapEditor : MonoBehaviour
 	{
 
-		public Color[] colors;
+		public int ChangeMap;
 
 		public HexGrid hexGrid;
 
-		private Color activeColor;
-
-		void Awake()
-		{
-			SelectColor(0);
-		}
-
+		private int changeMap;
+		
 		void Update()
 		{
-			if (
-				Input.GetMouseButton(0) &&
-				!EventSystem.current.IsPointerOverGameObject()
-			)
+			if (ChangeMap != changeMap)
+			{
+				changeMap = ChangeMap;
+
+				if (!hexGrid.GameStarted)
+				{
+					hexGrid.CreateMapInEditor();
+				}
+			}
+			if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject())
 			{
 				HandleInput();
 			}
@@ -37,11 +39,6 @@ namespace Assets.Scripts
 			if (Physics.Raycast(inputRay, out hit)) {
 				hexGrid.ColorCell(hit.point, activeColor);
 			}*/
-		}
-
-		public void SelectColor(int index)
-		{
-			activeColor = colors[index];
 		}
 	}
 }

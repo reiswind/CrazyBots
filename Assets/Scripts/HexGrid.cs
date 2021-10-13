@@ -25,6 +25,8 @@ namespace Assets.Scripts
 		public int gridHeight = 20;
 		public float GameSpeed = 0.01f;
 
+		public Button CreateItems;
+
 		internal Dictionary<Position, GroundCell> GroundCells { get; private set; }
 		internal Dictionary<string, UnitBase> BaseUnits { get; private set; }
 		internal Dictionary<Position, UnitBase> UnitsInBuild { get; private set; }
@@ -58,8 +60,13 @@ namespace Assets.Scripts
         }
 		public MapInfo MapInfo;
 
+		internal bool GameStarted { get; set; }
 		internal void StartGame()
 		{
+			GameStarted = true;
+
+			RemoveAllChildren();
+
 			hexGrid = this;
 			if (GameSpeed == 0)
 				GameSpeed = 0.01f;
@@ -107,6 +114,7 @@ namespace Assets.Scripts
 			InvokeRepeating(nameof(invoke), 0.5f, GameSpeed);
 		}
 
+
 		private Dictionary<string, GameObject> allResources = new Dictionary<string, GameObject>();
 		private Dictionary<string, GameObject> treeResources = new Dictionary<string, GameObject>();
 		private Dictionary<string, GameObject> leaveTreeResources = new Dictionary<string, GameObject>();
@@ -118,6 +126,7 @@ namespace Assets.Scripts
 
 		private void InitMaterials()
 		{
+			materialResources.Clear();
 			UnityEngine.Object[] allResources = Resources.LoadAll("Materials");
 			foreach (UnityEngine.Object resource in allResources)
 			{
@@ -163,10 +172,13 @@ namespace Assets.Scripts
 			InitMaterials();
 			InitParticless();
 
+			allResources.Clear();
+			treeResources.Clear();
+			leaveTreeResources.Clear();
+			rockResources.Clear();
+			bushResources.Clear();
 			InitResources(allResources, "Prefabs");
 
-			//InitResources(terrainResources, "Prefabs/Terrain");
-			//InitResources(terrainResources, "Prefabs/Items");
 			foreach (string key in allResources.Keys)
             {
 				if (key.StartsWith("Tree"))
@@ -187,9 +199,6 @@ namespace Assets.Scripts
 				if (key.StartsWith("Bush"))
 					bushResources.Add(key, allResources[key]);
 			}
-			//InitResources(unitResources, "Prefabs/Unit");
-			//InitResources(unitResources, "Prefabs/Buildings");
-			//InitResources(bushResources, "Prefabs/Bushes");
 		}
 
 
@@ -440,7 +449,61 @@ namespace Assets.Scripts
 			}
 		}
 #endif
-	
+		internal void RemoveAllChildren()
+        {
+			for (int i = 0; i < transform.childCount; i++)
+			{
+				GameObject child = transform.GetChild(i).gameObject;
+				DestroyImmediate(child);
+			}
+		}
+		internal void CreateMapInEditor()
+		{
+			Debug.Log("CreateMapInEditor");
+			RemoveAllChildren();
+
+			UnityEngine.Object gameModelContent = Resources.Load("Models/TestInEditor");
+			var serializer = new DataContractJsonSerializer(typeof(GameModel));
+			GameModel gameModel;
+			MemoryStream mem = new MemoryStream(Encoding.UTF8.GetBytes(gameModelContent.ToString()));
+			gameModel = (GameModel)serializer.ReadObject(mem);
+			InitResources();
+			if (gameModel.Seed.HasValue)
+			{
+				game = gameModel.CreateGame(gameModel.Seed.Value);
+			}
+			else
+			{
+				game = gameModel.CreateGame();
+				gameModel.Seed = game.Seed;
+			}
+			game.CreateUnits();
+
+			GameCommands = new Dictionary<Position, GameCommand>();
+			ActiveGameCommands = new Dictionary<Position, GameCommand>();
+			GroundCells = new Dictionary<Position, GroundCell>();
+			BaseUnits = new Dictionary<string, UnitBase>();
+			UnitsInBuild = new Dictionary<Position, UnitBase>();
+			hitByBullets = new List<HitByBullet>();
+
+			GameObject cellPrefab = GetResource("HexCell");
+			foreach (Tile t in game.Map.Tiles.Values)
+			{
+				if (!GroundCells.ContainsKey(t.Pos))
+				{
+					Move move = new Move();
+					move.Stats = new MoveUpdateStats();
+					game.Map.CollectGroundStats(t.Pos, move);
+					GroundCell hexCell = CreateCell(t.Pos, null, cellPrefab);
+					GroundCells.Add(t.Pos, hexCell);
+				}
+			}
+			foreach (Engine.Master.Unit unit in game.Map.Units.List.Values)
+            {
+				CreateUnit(unit);
+			}
+			Debug.Log("Tiles done");
+		}
 
 		public void CreateGame(GameModel gameModel)
 		{
@@ -458,6 +521,7 @@ namespace Assets.Scripts
 				game = gameModel.CreateGame();
 				gameModel.Seed = game.Seed;
 			}
+
 
 			GameCommands = new Dictionary<Position, GameCommand>();
 			ActiveGameCommands = new Dictionary<Position, GameCommand>();
@@ -1330,6 +1394,34 @@ namespace Assets.Scripts
 			return unit;
 		}
 
+		void CreateUnit(Engine.Master.Unit masterunit)
+		{
+			Blueprint blueprint = game.Blueprints.FindBlueprint(masterunit.Blueprint.Name);
+			if (blueprint == null)
+			{
+				return;
+			}
+			UnitBase unit = InstantiatePrefab<UnitBase>(blueprint.Layout);
+
+			unit.HexGrid = this;
+			unit.CurrentPos = masterunit.Pos; ;
+
+			unit.PlayerId = masterunit.Owner.PlayerModel.Id;
+			unit.MoveUpdateStats = masterunit.CollectStats();
+			unit.UnitId = masterunit.UnitId;
+			unit.gameObject.name = masterunit.UnitId;
+
+			unit.Assemble(false);
+			unit.PutAtCurrentPosition(false);
+
+			Rigidbody rigidbody = unit.GetComponent<Rigidbody>();
+			if (rigidbody != null)
+			{
+				rigidbody.Sleep();
+			}
+			BaseUnits.Add(masterunit.UnitId, unit);
+		}
+
 		void CreateUnit(Move move)
 		{
 			Blueprint blueprint = game.Blueprints.FindBlueprint(move.Stats.BlueprintName);
@@ -1414,11 +1506,18 @@ namespace Assets.Scripts
 			Vector2 gridPos = new Vector2(x, y);
 			Vector3 gridPos3 = CalcWorldPos(gridPos);
 
-			float height = stats.MoveUpdateGroundStat.Height;
-			gridPos3.y += height + 0.3f;
-			gameObjectCell.transform.localPosition = gridPos3;
-			groundCell.CreateDestructables();
-
+			if (stats == null)
+            {
+				gridPos3.y += 0.3f;
+				gameObjectCell.transform.localPosition = gridPos3;
+			}
+			else
+			{
+				float height = stats.MoveUpdateGroundStat.Height;
+				gridPos3.y += height + 0.3f;
+				gameObjectCell.transform.localPosition = gridPos3;
+				groundCell.CreateDestructables();
+			}
 			return groundCell;
 		}
 	}

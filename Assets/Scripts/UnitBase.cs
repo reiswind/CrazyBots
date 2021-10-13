@@ -254,7 +254,10 @@ namespace Assets.Scripts
             {
                 SetPlayerColor(HexGrid, PlayerId, newPart);
             }
-            Destroy(part.gameObject);
+            if (Application.isEditor)
+                DestroyImmediate (part.gameObject);
+            else
+                Destroy(part.gameObject);
             
             Rigidbody rigidbody = newPart.GetComponent<Rigidbody>();
             if (rigidbody != null)
@@ -561,6 +564,10 @@ namespace Assets.Scripts
 
         internal static void SetPlayerColor(HexGrid hexGrid, int playerId, GameObject unit)
         {
+            if (Application.isEditor)
+            {
+                return;
+            }
             for (int i = 0; i < unit.transform.childCount; i++)
             {
                 GameObject child = unit.transform.GetChild(i).gameObject;
