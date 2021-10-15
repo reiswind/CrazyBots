@@ -25,7 +25,7 @@ namespace Engine.Master
             else if (level == 2)
                 TileContainer.Capacity = 3;
             else if (level == 3)
-                TileContainer.Capacity = 10;
+                TileContainer.Capacity = 6;
 
             Level = level;
         }

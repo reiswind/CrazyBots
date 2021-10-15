@@ -779,6 +779,16 @@ namespace Engine.Master
                         tileObjects.Add(newTileObject);
 
                         unit.AddTileObjects(tileObjects);
+
+                        // Insert an update move, so the client knows that tileobjects have been added
+                        Move moveUpdate = new Move();
+                        moveUpdate.PlayerId = unit.Owner.PlayerModel.Id;
+                        moveUpdate.MoveType = MoveType.UpdateStats;
+                        moveUpdate.UnitId = unit.UnitId;
+                        moveUpdate.Positions = new List<Position>();
+                        moveUpdate.Positions.Add(unit.Pos);
+                        moveUpdate.Stats = unit.CollectStats();
+                        nextMoves.Add(moveUpdate);
                     }
                     finishedMoves.Add(move);
                 }

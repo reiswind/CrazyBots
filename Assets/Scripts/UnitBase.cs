@@ -525,7 +525,6 @@ namespace Assets.Scripts
                         {
                             meshRenderer.sharedMaterial = HexGrid.GetMaterial("ghost 1");
                         }
-
                     }
                 }
             }
@@ -568,7 +567,6 @@ namespace Assets.Scripts
                 if (!child.name.StartsWith("Mineral") && !child.name.StartsWith("Shield") && !child.name.StartsWith("Ammo") && !child.name.StartsWith("Item"))
                     SetPlayerColor(hexGrid, playerId, child);
             }
-
 
             MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
             if (meshRenderer != null)

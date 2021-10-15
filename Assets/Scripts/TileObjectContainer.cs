@@ -114,7 +114,11 @@ namespace Assets.Scripts
 
             if (mineralCubes.Count == 0)
             {
-                AddPlaceholders(gameObject);
+                if (capacity == 6)
+                {
+                    int x = 0;
+                }
+                    AddPlaceholders(gameObject);
                 emptyCubes.Clear();
                 emptyCubes.AddRange(mineralCubes);
 
