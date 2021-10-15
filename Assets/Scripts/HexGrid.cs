@@ -900,7 +900,7 @@ namespace Assets.Scripts
 						if (unit != null)
 							unit.Delete();
 						GroundCell hexCell = GroundCells[move.Positions[0]];
-						hexCell.SetAttack(false);
+						//hexCell.SetAttack(false);
 						UnitsInBuild.Remove(move.Positions[0]);
 					}
 				}

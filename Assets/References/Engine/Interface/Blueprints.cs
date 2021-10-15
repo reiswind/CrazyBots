@@ -126,7 +126,7 @@ namespace Engine.Interface
             blueprintCommand = new BlueprintCommand();
 
             blueprintCommand.Name = "Attack";
-            blueprintCommand.Layout = "UICollect";
+            blueprintCommand.Layout = "UIAttack";
             blueprintCommand.GameCommandType = GameCommandType.Attack;
 
             blueprintCommandItem = new BlueprintCommandItem();
@@ -140,7 +140,7 @@ namespace Engine.Interface
             blueprintCommand = new BlueprintCommand();
 
             blueprintCommand.Name = "Defend";
-            blueprintCommand.Layout = "UICollect";
+            blueprintCommand.Layout = "UIAttack";
             blueprintCommand.GameCommandType = GameCommandType.Defend;
 
             blueprintCommandItem = new BlueprintCommandItem();

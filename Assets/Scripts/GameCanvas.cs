@@ -630,7 +630,7 @@ namespace Assets.Scripts
                 gameCommand = HexGrid.ActiveGameCommands[lastSelectedGroundCell.Pos];
                 HexGrid.ActiveGameCommands.Remove(gameCommand.TargetPosition);
 
-                lastSelectedGroundCell.SetAttack(false);
+                //lastSelectedGroundCell.SetAttack(false);
 
                 gameCommand.GameCommandType = GameCommandType.Cancel;
                 HexGrid.GameCommands.Add(gameCommand.TargetPosition, gameCommand);
@@ -1071,7 +1071,6 @@ namespace Assets.Scripts
                         HexGrid.GameCommands.Remove(pos);
 
                     if (HexGrid.ActiveGameCommands.ContainsKey(pos))
-                    //if (HexGrid.UnitsInBuild.ContainsKey(pos))
                     {
                         // Remove it
                         HexGrid.ActiveGameCommands.Remove(pos);
@@ -1083,7 +1082,7 @@ namespace Assets.Scripts
                         gameCommand.PlayerId = 1;
                         HexGrid.GameCommands.Add(pos, gameCommand);
 
-                        lastSelectedGroundCell.SetAttack(false);
+                        //lastSelectedGroundCell.SetAttack(false);
                     }
                     else
                     {
@@ -1097,7 +1096,8 @@ namespace Assets.Scripts
                         gameCommand.PlayerId = 1;
                         HexGrid.GameCommands.Add(pos, gameCommand);
 
-                        lastSelectedGroundCell.SetAttack(true);
+                        lastSelectedGroundCell.UpdateCommands(gameCommand, null);
+                        //lastSelectedGroundCell.SetAttack(true);
                     }
                 }
             }

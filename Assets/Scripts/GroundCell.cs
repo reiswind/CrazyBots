@@ -564,6 +564,8 @@ namespace Assets.Scripts
                     {
                         if (meshRenderer.materials.Length == 1)
                         {
+                            //Destroy(meshRenderer.material);
+                            //meshRenderer.material = HexGrid.GetMaterial("UIMaterial");
                             meshRenderer.material.SetColor("Color_main", UnitBase.GetPlayerColor(gameCommand.PlayerId));
                             meshRenderer.material.SetColor("colorfresnel", UnitBase.GetPlayerColor(gameCommand.PlayerId));
                         }
@@ -582,27 +584,14 @@ namespace Assets.Scripts
 
                 Vector3 unitPos3 = transform.position;
                 if (gameCommand.GameCommandType == GameCommandType.Build)
-                    unitPos3.y += 2.5f + (Random.value / 1);
+                    unitPos3.y += 0.1f; // + (Random.value / 1);
+                else if (gameCommand.GameCommandType == GameCommandType.Attack)
+                    unitPos3.y -= 0.01f;
                 else
-                    unitPos3.y += 1.8f + (Random.value / 1);
+                    unitPos3.y += 0.01f; //1.8f + (Random.value / 1);
                 cellGameCommand.Command.transform.position = unitPos3;
 
                 cellGameCommands.Add(cellGameCommand);
-            }
-            foreach (string unitId in gameCommand.AttachedUnits)
-            {
-                //unit.UnitId
-            }
-        }
-
-        public bool IsAttack { get; private set; }
-        internal void SetAttack(bool selected)
-        {
-            if (IsAttack != selected)
-            {
-                IsAttack = selected;
-
-                transform.Find("Attack").gameObject.SetActive(IsAttack);
             }
         }
     }

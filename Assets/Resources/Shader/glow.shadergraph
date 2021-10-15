@@ -100,9 +100,6 @@
             "m_Id": "7185a3c4a4124d1a9f85c4bfc6bf3f22"
         },
         {
-            "m_Id": "1676898d80064298b121b098ddf18d1d"
-        },
-        {
             "m_Id": "1ad14459ab94472182d985275f55397f"
         }
     ],
@@ -352,9 +349,6 @@
                 "m_Id": "7185a3c4a4124d1a9f85c4bfc6bf3f22"
             },
             {
-                "m_Id": "1676898d80064298b121b098ddf18d1d"
-            },
-            {
                 "m_Id": "1ad14459ab94472182d985275f55397f"
             }
         ]
@@ -493,39 +487,6 @@
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
     "m_BareResource": false
-}
-
-{
-    "m_SGVersion": 0,
-    "m_Type": "UnityEditor.ShaderGraph.BlockNode",
-    "m_ObjectId": "1676898d80064298b121b098ddf18d1d",
-    "m_Group": {
-        "m_Id": ""
-    },
-    "m_Name": "SurfaceDescription.Alpha",
-    "m_DrawState": {
-        "m_Expanded": true,
-        "m_Position": {
-            "serializedVersion": "2",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 0.0,
-            "height": 0.0
-        }
-    },
-    "m_Slots": [
-        {
-            "m_Id": "5891923393fa46028ec6d59a6992fb33"
-        }
-    ],
-    "synonyms": [],
-    "m_Precision": 0,
-    "m_PreviewExpanded": true,
-    "m_PreviewMode": 0,
-    "m_CustomColors": {
-        "m_SerializableColors": []
-    },
-    "m_SerializedDescriptor": "SurfaceDescription.Alpha"
 }
 
 {
@@ -1186,21 +1147,6 @@
 
 {
     "m_SGVersion": 0,
-    "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
-    "m_ObjectId": "5891923393fa46028ec6d59a6992fb33",
-    "m_Id": 0,
-    "m_DisplayName": "Alpha",
-    "m_SlotType": 0,
-    "m_Hidden": false,
-    "m_ShaderOutputName": "Alpha",
-    "m_StageCapability": 2,
-    "m_Value": 1.0,
-    "m_DefaultValue": 1.0,
-    "m_Labels": []
-}
-
-{
-    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.PropertyNode",
     "m_ObjectId": "6259c32fb2bcf58bb524cd6d8d819551",
     "m_Group": {
@@ -1310,7 +1256,7 @@
     "m_DefaultRefNameVersion": 0,
     "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Color_335D905F",
-    "m_OverrideReferenceName": "",
+    "m_OverrideReferenceName": "colorfresnel",
     "m_GeneratePropertyBlock": true,
     "m_Precision": 0,
     "overrideHLSLDeclaration": false,
@@ -1542,7 +1488,7 @@
     "m_DefaultRefNameVersion": 0,
     "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Vector1_175D0329",
-    "m_OverrideReferenceName": "",
+    "m_OverrideReferenceName": "fresnel_strengh",
     "m_GeneratePropertyBlock": true,
     "m_Precision": 0,
     "overrideHLSLDeclaration": false,
@@ -1625,7 +1571,7 @@
     "m_DefaultRefNameVersion": 0,
     "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Vector1_EB08E6A3",
-    "m_OverrideReferenceName": "",
+    "m_OverrideReferenceName": "smoothness",
     "m_GeneratePropertyBlock": true,
     "m_Precision": 0,
     "overrideHLSLDeclaration": false,
@@ -1871,16 +1817,16 @@
     "m_DefaultRefNameVersion": 0,
     "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Color_C9A10623",
-    "m_OverrideReferenceName": "",
+    "m_OverrideReferenceName": "Color_main",
     "m_GeneratePropertyBlock": true,
     "m_Precision": 0,
     "overrideHLSLDeclaration": false,
     "hlslDeclarationOverride": 0,
     "m_Hidden": false,
     "m_Value": {
-        "r": 1.0,
-        "g": 1.0,
-        "b": 1.0,
+        "r": 0.1521480828523636,
+        "g": 0.6226415038108826,
+        "b": 0.13745102286338807,
         "a": 0.0
     },
     "m_ColorMode": 0
@@ -2103,7 +2049,7 @@
     "m_DefaultRefNameVersion": 0,
     "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Texture2D_3977A1BD",
-    "m_OverrideReferenceName": "",
+    "m_OverrideReferenceName": "_Texture2D",
     "m_GeneratePropertyBlock": true,
     "m_Precision": 0,
     "overrideHLSLDeclaration": false,
@@ -2214,7 +2160,7 @@
     "m_DefaultRefNameVersion": 0,
     "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Vector1_7834F05F",
-    "m_OverrideReferenceName": "",
+    "m_OverrideReferenceName": "metallic",
     "m_GeneratePropertyBlock": true,
     "m_Precision": 0,
     "overrideHLSLDeclaration": false,
@@ -2376,7 +2322,7 @@
     "m_DefaultRefNameVersion": 0,
     "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Texture2D_4076EC35",
-    "m_OverrideReferenceName": "",
+    "m_OverrideReferenceName": "Texture2D_normal_map",
     "m_GeneratePropertyBlock": true,
     "m_Precision": 0,
     "overrideHLSLDeclaration": false,
