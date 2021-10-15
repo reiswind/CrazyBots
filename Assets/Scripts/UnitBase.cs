@@ -575,8 +575,11 @@ namespace Assets.Scripts
                 {
                     if (meshRenderer.materials.Length == 1)
                     {
-                        //Destroy(meshRenderer.material);
-                        //meshRenderer.material = hexGrid.GetMaterial("UnitMaterial");
+                        if (meshRenderer.material.shader.name.Contains("Unitshader"))
+                        {
+                            Destroy(meshRenderer.material);
+                            meshRenderer.material = hexGrid.GetMaterial("UnitMaterial");
+                        }
                         meshRenderer.material.SetColor("PlayerColor", GetPlayerColor(playerId));
                         meshRenderer.material.SetFloat("Darkness", 0.9f);
                     }

@@ -1222,7 +1222,7 @@ namespace Engine.Master
                                     changedGroundPositions.Add(fromPos, null);
 
                                 if (otherUnit != null && !changedUnits.ContainsKey(otherUnit.Pos))
-                                    changedUnits.Add(otherUnit.Pos, unit);
+                                    changedUnits.Add(otherUnit.Pos, otherUnit);
 
                                 lastMoves.Add(move);
 

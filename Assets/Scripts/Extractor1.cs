@@ -7,6 +7,37 @@ namespace Assets.Scripts
 {
     public class Extractor1 : MonoBehaviour
     {
+        private void TransitOtherPart(HexGrid hexGrid, UnitBasePart otherUnitBasePart, TileObject extractedPart)
+        {
+            if (otherUnitBasePart.Level == 0)
+            {
+                TransitObject transitObject = new TransitObject();
+                transitObject.GameObject = otherUnitBasePart.Part;
+                transitObject.TargetPosition = transform.position;
+                transitObject.DestroyAtArrival = true;
+                transitObject.ScaleDown = true;
+                hexGrid.AddTransitTileObject(transitObject);
+            }
+            else if (extractedPart.TileObjectType == TileObjectType.PartContainer ||
+                     extractedPart.TileObjectType == TileObjectType.PartReactor)
+            {
+                string name = otherUnitBasePart.Name + "1";
+                GameObject newPart = HexGrid.MainGrid.InstantiatePrefab(name);
+                newPart.transform.position = otherUnitBasePart.Part.transform.position;
+                newPart.transform.SetParent(transform);
+                newPart.name = name;
+                UnitBase.SetPlayerColor(HexGrid.MainGrid, otherUnitBasePart.UnitBase.PlayerId, newPart);
+
+                // Transit one container part
+                TransitObject transitObject = new TransitObject();
+                transitObject.GameObject = newPart;
+                transitObject.TargetPosition = transform.position;
+                transitObject.DestroyAtArrival = true;
+                transitObject.ScaleDown = true;
+                hexGrid.AddTransitTileObject(transitObject);
+            }
+        }
+
         public void Extract(HexGrid hexGrid, Move move, UnitBase unit, UnitBase otherUnit)
         {
             bool found;
@@ -84,8 +115,9 @@ namespace Assets.Scripts
                             if (otherUnitBasePart.PartType == tileObject.TileObjectType)
                             {
                                 // Extract from friendly unit
-                                otherUnit.PartExtracted(tileObject.TileObjectType);
+                                TransitOtherPart(hexGrid, otherUnitBasePart, tileObject);
 
+                                /*
                                 if (otherUnitBasePart.Level == 0)
                                 {
                                     TransitObject transitObject = new TransitObject();
@@ -95,6 +127,7 @@ namespace Assets.Scripts
                                     transitObject.ScaleDown = true;
                                     hexGrid.AddTransitTileObject(transitObject);
                                 }
+                                */
                                 found = true;
                                 break;
                             }
@@ -142,8 +175,7 @@ namespace Assets.Scripts
                                             sourceTileObject.GameObject.SetActive(true);
                                             sourceTileObject.GameObject.transform.SetParent(transform, true);
                                         }
-                                        //unit.InsertGameTileObject(sourceTileObject);
-                                        
+
                                         Vector2 randomPos = Random.insideUnitCircle;
                                         Vector3 unitPos3 = otherUnitBasePart.Part.transform.position;
                                         unitPos3.x += (randomPos.x * 0.5f);
@@ -200,17 +232,7 @@ namespace Assets.Scripts
                             }
                             if (otherUnitBasePart.PartType == tileObject.TileObjectType)
                             {
-                                otherUnit.PartExtracted(tileObject.TileObjectType);
-
-                                if (otherUnitBasePart.Level == 0)
-                                {
-                                    TransitObject transitObject = new TransitObject();
-                                    transitObject.GameObject = otherUnitBasePart.Part;
-                                    transitObject.TargetPosition = transform.position;
-                                    transitObject.DestroyAtArrival = true;
-                                    transitObject.ScaleDown = true;
-                                    hexGrid.AddTransitTileObject(transitObject);
-                                }
+                                TransitOtherPart(hexGrid, otherUnitBasePart, tileObject);
                                 found = true;
                                 break;
                             }

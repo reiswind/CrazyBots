@@ -207,7 +207,7 @@ namespace Engine.Interface
 
             Commands.Add(blueprintCommand);
 
-            // Build Fighter
+            // Build Bomber
             blueprintCommand = new BlueprintCommand();
 
             blueprintCommand.Name = "Bomber";
@@ -216,6 +216,20 @@ namespace Engine.Interface
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Bomber";
+            blueprintCommandItem.Count = 1;
+            blueprintCommand.Units.Add(blueprintCommandItem);
+
+            Commands.Add(blueprintCommand);
+
+            // Build Worker
+            blueprintCommand = new BlueprintCommand();
+
+            blueprintCommand.Name = "Worker";
+            blueprintCommand.Layout = "UIBuild";
+            blueprintCommand.GameCommandType = GameCommandType.Build;
+
+            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem.BlueprintName = "Worker";
             blueprintCommandItem.Count = 1;
             blueprintCommand.Units.Add(blueprintCommandItem);
 
