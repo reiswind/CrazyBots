@@ -117,7 +117,6 @@ namespace Engine.Interface
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Worker";
-            blueprintCommandItem.Count = 1;
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
@@ -131,7 +130,6 @@ namespace Engine.Interface
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Fighter";
-            blueprintCommandItem.Count = 1;
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
@@ -145,7 +143,6 @@ namespace Engine.Interface
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Bomber";
-            blueprintCommandItem.Count = 1;
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
@@ -160,7 +157,6 @@ namespace Engine.Interface
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Outpost";
-            blueprintCommandItem.Count = 1;
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
@@ -174,7 +170,6 @@ namespace Engine.Interface
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Container";
-            blueprintCommandItem.Count = 1;
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
@@ -188,11 +183,11 @@ namespace Engine.Interface
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Turret";
-            blueprintCommandItem.Count = 1;
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
 
+            /*
             // Build Fighter
             blueprintCommand = new BlueprintCommand();
 
@@ -234,6 +229,7 @@ namespace Engine.Interface
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
+            */
         }
 
         public Blueprint FindBlueprint(string name)
@@ -268,8 +264,8 @@ namespace Engine.Interface
 
     public class BlueprintCommandItem
     {
+        public Direction Direction { get; set; }
         public string BlueprintName { get; set; }
-        public int Count { get; set; }
     }
 
     public class Blueprint

@@ -18,6 +18,7 @@ namespace Engine.Interface
         Defend,
         Scout,
         Cancel,
+        Move,
         Collect,
         Build,
         Extract,
@@ -37,6 +38,7 @@ namespace Engine.Interface
         public int TargetZone { get; set; }
         public string UnitId { get; set; } // Which unit to build, extract...
         public Position TargetPosition { get; set; }
+        public Position MoveToPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
         public BlueprintCommand BlueprintCommand { get; set; }
         public List<string> AttachedUnits { get; private set; }

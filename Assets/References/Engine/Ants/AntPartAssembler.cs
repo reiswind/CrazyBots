@@ -279,7 +279,6 @@ namespace Engine.Ants
                                         {
                                             BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
                                             blueprintCommandItem.BlueprintName = blueprint.Name;
-                                            blueprintCommandItem.Count = 1;
                                             blueprintCommand.Units.Add(blueprintCommandItem);
                                             break;
                                         }

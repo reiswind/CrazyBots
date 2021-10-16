@@ -1040,20 +1040,22 @@ namespace Assets.Scripts
 						if (newGameCommands == null)
 							newGameCommands = new List<GameCommand>();
 						newGameCommands.Clear();
-						newGameCommands.AddRange(GameCommands.Values);
-
-						foreach (KeyValuePair<Position, GameCommand> kv in GameCommands)
+						if (GameCommands.Count > 0)
 						{
-							if (kv.Value.GameCommandType == GameCommandType.Attack ||
-								kv.Value.GameCommandType == GameCommandType.Defend ||
-								kv.Value.GameCommandType == GameCommandType.Collect ||
-								kv.Value.GameCommandType == GameCommandType.Scout)
-							{
-								ActiveGameCommands.Add(kv.Key, kv.Value);
-							}
-						}
-						GameCommands.Clear();
+							newGameCommands.AddRange(GameCommands.Values);
 
+							foreach (KeyValuePair<Position, GameCommand> kv in GameCommands)
+							{
+								if (kv.Value.GameCommandType == GameCommandType.Attack ||
+									kv.Value.GameCommandType == GameCommandType.Defend ||
+									kv.Value.GameCommandType == GameCommandType.Collect ||
+									kv.Value.GameCommandType == GameCommandType.Scout)
+								{
+									ActiveGameCommands.Add(kv.Key, kv.Value);
+								}
+							}
+							GameCommands.Clear();
+						}
 						ProcessNewMoves();
 					}
 					catch (Exception)

@@ -646,9 +646,6 @@ namespace Engine.Master
             }
         }
 
-        
-
-
         private void ProcessLastMoves()
         {
             List<Move> nextMoves = new List<Move>();

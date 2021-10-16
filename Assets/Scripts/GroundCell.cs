@@ -553,7 +553,8 @@ namespace Assets.Scripts
         {
             CellGameCommand cellGameCommand = null;
 
-            if (gameCommand.GameCommandType == GameCommandType.Cancel)
+            if (gameCommand.GameCommandType == GameCommandType.Cancel ||
+                gameCommand.GameCommandType == GameCommandType.Move)
             {
                 foreach (CellGameCommand checkCellGameCommand in cellGameCommands)
                 {

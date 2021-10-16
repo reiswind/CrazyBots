@@ -18,6 +18,7 @@ namespace Assets.Scripts
         public GameCommand GameCommand { get; set; }
 
         private bool IsSelected { get; set; }
+        internal bool IsPreview { get; set; }
         public void SetSelected(bool value)
         {
             MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
@@ -151,7 +152,8 @@ namespace Assets.Scripts
                     }
                 }
             }
-            transform.Rotate(Vector3.up); // * Time.deltaTime);
+            if (!IsPreview)
+                transform.Rotate(Vector3.up); // * Time.deltaTime);
         }
     }
 }

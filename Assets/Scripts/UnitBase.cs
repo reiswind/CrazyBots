@@ -565,6 +565,18 @@ namespace Assets.Scripts
             return color;
         }
 
+        internal static void RemoveColider(GameObject unit)
+        {
+            for (int i = 0; i < unit.transform.childCount; i++)
+            {
+                GameObject child = unit.transform.GetChild(i).gameObject;
+                RemoveColider(child);
+            }
+            BoxCollider boxCollider = unit.GetComponent<BoxCollider>();
+            if (boxCollider != null)
+                boxCollider.enabled = false;
+        }
+
         internal static void SetPlayerColor(HexGrid hexGrid, int playerId, GameObject unit)
         {
             for (int i = 0; i < unit.transform.childCount; i++)
@@ -1223,16 +1235,25 @@ namespace Assets.Scripts
 
         public void ActivateUnit()
         {
-            if (Engine != null)
+            if (!IsActive)
             {
-                GameObject activeAnimation = FindChildNyName(gameObject, "ActiveAnimation");
-                if (activeAnimation != null)
+                if (Engine != null)
                 {
-                    activeAnimation.SetActive(true);
+                    GameObject activeAnimation = FindChildNyName(gameObject, "ActiveAnimation");
+                    if (activeAnimation != null)
+                    {
+                        activeAnimation.SetActive(true);
+                    }
+                    GameObject moveAnimation = FindChildNyName(gameObject, "MoveAnimation");
+                    if (moveAnimation != null)
+                    {
+                        moveAnimation.SetActive(true);
+                    }
+
+                    AboveGround = 0.1f;
                 }
-                AboveGround = 0.1f;
+                IsActive = true;
             }
-            IsActive = true;
         }
 
         public void DectivateUnit()
@@ -1245,7 +1266,11 @@ namespace Assets.Scripts
                 {
                     activeAnimation.SetActive(false);
                 }
-
+                GameObject moveAnimation = FindChildNyName(gameObject, "MoveAnimation");
+                if (moveAnimation != null)
+                {
+                    moveAnimation.SetActive(false);
+                }
                 Vector3 unitPos3 = transform.position;
                 unitPos3.y -= AboveGround;
                 transform.position = unitPos3;

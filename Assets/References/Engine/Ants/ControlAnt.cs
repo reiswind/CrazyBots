@@ -1141,9 +1141,24 @@ namespace Engine.Control
         {
             List<GameCommand> completedCommands = new List<GameCommand>();
             List<GameCommand> cancelCommands = new List<GameCommand>();
+            List<GameCommand> removeCommands = new List<GameCommand>();
 
             foreach (GameCommand gameCommand in player.GameCommands)
             {
+                if (gameCommand.GameCommandType == GameCommandType.Move)
+                {
+                    foreach (GameCommand moveGameCommand in player.GameCommands)
+                    {
+                        if (moveGameCommand.TargetPosition == gameCommand.TargetPosition)
+                        {
+                            moveGameCommand.TargetPosition = gameCommand.MoveToPosition;
+                            gameCommand.CommandComplete = true;
+                            completedCommands.Add(gameCommand);
+                            removeCommands.Add(gameCommand);
+                            break;
+                        }
+                    }
+                }
                 if (gameCommand.GameCommandType == GameCommandType.Cancel)
                 {
                     foreach (Ant ant in unmovedAnts)
@@ -1173,6 +1188,11 @@ namespace Engine.Control
 
                     completedCommands.Add(gameCommand);
                 }
+            }
+
+            foreach (GameCommand removeCommand in removeCommands)
+            {
+                player.GameCommands.Remove(removeCommand);
             }
 
             foreach (GameCommand cancelGameCommand in cancelCommands)
