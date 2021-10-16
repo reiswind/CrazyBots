@@ -706,280 +706,318 @@ namespace Assets.Scripts
 		private List<Position> updatedPositions = new List<Position>();
 		private List<Position> groundcellsWithCommands = new List<Position>();
 		private bool startPositionSet = false;
-
+		private int moveCounter;
 		private void ProcessNewMoves()
 		{
+			moveCounter++;
 			List<Position> newUpdatedPositions = new List<Position>();
 
-			if (MapInfo != null)
+			try
 			{
-				
-				foreach (Position pos in MapInfo.Pheromones.Keys)
-				{
-					MapPheromone mapPheromone = MapInfo.Pheromones[pos];
-					GroundCell hexCell = GroundCells[pos];
-					hexCell.UpdatePheromones(mapPheromone);
 
-					newUpdatedPositions.Add(pos);
-					updatedPositions.Remove(pos);
-				}
-				foreach (Position pos in updatedPositions)
+				if (MapInfo != null)
 				{
-					GroundCell hexCell = GroundCells[pos];
-					hexCell.UpdatePheromones(null);
-				}
-				
-				updatedPositions = newUpdatedPositions;
-				if (GroundCells.Count > 0)
-				{
-					foreach (Position pos in groundcellsWithCommands)
+					foreach (Position pos in MapInfo.Pheromones.Keys)
+					{
+						MapPheromone mapPheromone = MapInfo.Pheromones[pos];
+						GroundCell hexCell = GroundCells[pos];
+						hexCell.UpdatePheromones(mapPheromone);
+
+						newUpdatedPositions.Add(pos);
+						updatedPositions.Remove(pos);
+					}
+					foreach (Position pos in updatedPositions)
 					{
 						GroundCell hexCell = GroundCells[pos];
-						hexCell.UntouchCommands();
+						hexCell.UpdatePheromones(null);
 					}
 
-					foreach (MapPlayerInfo mapPlayerInfo in MapInfo.PlayerInfo.Values)
+					updatedPositions = newUpdatedPositions;
+					if (GroundCells.Count > 0)
 					{
-						if (mapPlayerInfo.GameCommands != null && mapPlayerInfo.GameCommands.Count > 0)
+						foreach (Position pos in groundcellsWithCommands)
 						{
-							foreach (GameCommand gameCommand in mapPlayerInfo.GameCommands)
-							{
-								if (gameCommand.TargetPosition != null)
-								{
-									GroundCell hexCell = GroundCells[gameCommand.TargetPosition];
-									hexCell.UpdateCommands(gameCommand, null);
+							GroundCell hexCell = GroundCells[pos];
+							hexCell.UntouchCommands();
+						}
 
-									if (!groundcellsWithCommands.Contains(gameCommand.TargetPosition))
-										groundcellsWithCommands.Add(gameCommand.TargetPosition);
+						foreach (MapPlayerInfo mapPlayerInfo in MapInfo.PlayerInfo.Values)
+						{
+							if (mapPlayerInfo.GameCommands != null && mapPlayerInfo.GameCommands.Count > 0)
+							{
+								foreach (GameCommand gameCommand in mapPlayerInfo.GameCommands)
+								{
+									if (gameCommand.TargetPosition != null)
+									{
+										GroundCell hexCell = GroundCells[gameCommand.TargetPosition];
+										hexCell.UpdateCommands(gameCommand, null);
+
+										if (!groundcellsWithCommands.Contains(gameCommand.TargetPosition))
+											groundcellsWithCommands.Add(gameCommand.TargetPosition);
+									}
 								}
 							}
 						}
-					}
-					List<Position> clearedPositions = new List<Position>();
-					foreach (Position pos in groundcellsWithCommands)
-					{
-						GroundCell hexCell = GroundCells[pos];
-						if (hexCell.ClearCommands())
+						List<Position> clearedPositions = new List<Position>();
+						foreach (Position pos in groundcellsWithCommands)
 						{
-							clearedPositions.Add(pos);
-						}
-					}
-					foreach (Position pos in clearedPositions)
-					{
-						groundcellsWithCommands.Remove(pos);
-					}
-				}
-
-				/* Update all
-				foreach (Position pos in GroundCells.Keys)
-				{
-					MapPheromone mapPheromone = null;
-					if (MapInfo.Pheromones.ContainsKey(pos))
-						mapPheromone = MapInfo.Pheromones[pos];
-
-					GroundCell hexCell = GroundCells[pos];
-					hexCell.UpdatePheromones(mapPheromone);
-				}*/
-			}
-			foreach (UnitBase unitBase in BaseUnits.Values)
-			{
-				if (unitBase.DestinationPos != null)
-				{
-					unitBase.CurrentPos = unitBase.DestinationPos;
-					unitBase.DestinationPos = null;
-					unitBase.PutAtCurrentPosition(true);
-				}				
-			}
-			// Finish all open hits
-			foreach (HitByBullet hitByBullet in hitByBullets)
-			{
-				HasBeenHit(hitByBullet);
-			}
-			hitByBullets.Clear();
-			FinishTransits();
-
-			foreach (Move move in newMoves)
-			{
-				if (move.MoveType == MoveType.Add)
-				{
-					if (BaseUnits.ContainsKey(move.UnitId))
-					{
-						// Happend in player view
-					}
-					else
-					{
-						// Gamestart
-						CreateUnit(move);
-					}
-				}
-				else if (move.MoveType == MoveType.Build)
-				{
-					// Build in game
-					CreateUnit(move);
-				}
-				else if (move.MoveType == MoveType.Hit)
-				{
-					if (move.UnitId == null)
-					{
-						HitMove(null, move);
-					}
-					else
-					{
-						if (BaseUnits.ContainsKey(move.UnitId))
-						{
-							UnitBase unit = BaseUnits[move.UnitId];
-							HitMove(unit, move);
-						}
-					}
-				}
-				else if (move.MoveType == MoveType.Fire)
-				{
-					if (BaseUnits.ContainsKey(move.UnitId))
-					{
-						UnitBase unit = BaseUnits[move.UnitId];
-						unit.Fire(move);
-					}
-				}
-				else if (move.MoveType == MoveType.Extract)
-				{
-					if (BaseUnits.ContainsKey(move.UnitId))
-					{
-						UnitBase unit = BaseUnits[move.UnitId];
-						UnitBase otherUnit = null; ;
-						if (move.OtherUnitId.StartsWith("unit"))
-							otherUnit = BaseUnits[move.OtherUnitId];
-						unit.Extract(move, unit, otherUnit);
-					}
-				}
-				else if (move.MoveType == MoveType.Transport)
-				{
-					if (BaseUnits.ContainsKey(move.UnitId))
-					{
-						UnitBase unit = BaseUnits[move.UnitId];
-						unit.Transport(move);
-					}
-				}
-				else if (move.MoveType == MoveType.UpdateStats)
-				{
-					bool skip = false;
-					foreach (HitByBullet hitByBullet in hitByBullets)
-					{
-						if (hitByBullet.TargetPosition == move.Positions[0])
-						{
-							hitByBullet.UpdateUnitStats = move.Stats;
-							skip = true;
-						}
-					}
-					if (!skip)
-					{
-						if (BaseUnits.ContainsKey(move.UnitId))
-						{
-							UnitBase unit = BaseUnits[move.UnitId];
-							if (unit.PlayerId != move.PlayerId)
+							GroundCell hexCell = GroundCells[pos];
+							if (hexCell.ClearCommands())
 							{
-								unit.ChangePlayer(move.PlayerId);
+								clearedPositions.Add(pos);
 							}
-							unit.UpdateStats(move.Stats);
 						}
-					}
-				}
-				else if (move.MoveType == MoveType.Move)
-				{
-					if (BaseUnits.ContainsKey(move.UnitId))
-					{
-						UnitBase unit = BaseUnits[move.UnitId];
-						unit.MoveTo(move.Positions[1]);
-					}
-				}
-				else if (move.MoveType == MoveType.CommandComplete)
-				{
-					if (UnitsInBuild.ContainsKey(move.Positions[0]))
-					{
-						// Remove Ghost from command
-						UnitBase unit = UnitsInBuild[move.Positions[0]];
-						if (unit != null)
-							unit.Delete();
-						GroundCell hexCell = GroundCells[move.Positions[0]];
-						//hexCell.SetAttack(false);
-						UnitsInBuild.Remove(move.Positions[0]);
-					}
-				}
-				else if (move.MoveType == MoveType.Upgrade)
-				{
-					if (BaseUnits.ContainsKey(move.UnitId))
-					{
-						UnitBase unit = BaseUnits[move.UnitId];
-						UnitBase upgradedUnit = BaseUnits[move.OtherUnitId];
-						unit.Upgrade(move, upgradedUnit);
-
-					}
-				}
-				else if (move.MoveType == MoveType.UpdateGround)
-				{
-					bool skip = false;
-					foreach (HitByBullet hitByBullet in hitByBullets)
-                    {
-						if (hitByBullet.TargetPosition == move.Positions[0])
-                        {
-							hitByBullet.UpdateGroundStats = move.Stats;
-							skip = true;
-						}
-                    }
-					if (!skip)
-					{
-						GroundCell hexCell;
-						if (GroundCells.TryGetValue(move.Positions[0], out hexCell))
+						foreach (Position pos in clearedPositions)
 						{
-							hexCell.Stats = move.Stats;
-							hexCell.UpdateGround();
+							groundcellsWithCommands.Remove(pos);
+						}
+					}
+
+					/* Update all
+					foreach (Position pos in GroundCells.Keys)
+					{
+						MapPheromone mapPheromone = null;
+						if (MapInfo.Pheromones.ContainsKey(pos))
+							mapPheromone = MapInfo.Pheromones[pos];
+
+						GroundCell hexCell = GroundCells[pos];
+						hexCell.UpdatePheromones(mapPheromone);
+					}*/
+				}
+
+			}
+			catch (Exception err)
+            {
+				Debug.Log("FATAL in ProcessMoves. Mapinfo" +  err.Message);
+				throw;
+            }
+
+			try
+			{
+				foreach (UnitBase unitBase in BaseUnits.Values)
+				{
+					if (unitBase.DestinationPos != null)
+					{
+						unitBase.CurrentPos = unitBase.DestinationPos;
+						unitBase.DestinationPos = null;
+						unitBase.PutAtCurrentPosition(true);
+					}
+				}
+				// Finish all open hits
+				foreach (HitByBullet hitByBullet in hitByBullets)
+				{
+					HasBeenHit(hitByBullet);
+				}
+				hitByBullets.Clear();
+				FinishTransits();
+			}
+			catch (Exception err)
+			{
+				Debug.Log("FATAL in ProcessMoves. Finish" + err.Message);
+				throw;
+			}
+			Move lastmove = null;
+			try
+			{
+				foreach (Move move in newMoves)
+				{
+					lastmove = move;
+
+					if (move.MoveType == MoveType.Add)
+					{
+						if (BaseUnits.ContainsKey(move.UnitId))
+						{
+							// Happend in player view
 						}
 						else
-                        {
-							GameObject cellPrefab = GetResource("HexCell");
-							hexCell = CreateCell(move.Positions[0], move.Stats, cellPrefab);
-							hexCell.Visible = false;
-							GroundCells.Add(move.Positions[0], hexCell);
+						{
+							// Gamestart
+							CreateUnit(move);
+						}
+					}
+					else if (move.MoveType == MoveType.Build)
+					{
+						// Build in game
+						CreateUnit(move);
+					}
+					else if (move.MoveType == MoveType.Hit)
+					{
+						if (move.UnitId == null)
+						{
+							HitMove(null, move);
+						}
+						else
+						{
+							if (BaseUnits.ContainsKey(move.UnitId))
+							{
+								UnitBase unit = BaseUnits[move.UnitId];
+								HitMove(unit, move);
+							}
+						}
+					}
+					else if (move.MoveType == MoveType.Fire)
+					{
+						if (BaseUnits.ContainsKey(move.UnitId))
+						{
+							UnitBase unit = BaseUnits[move.UnitId];
+							unit.Fire(move);
+						}
+					}
+					else if (move.MoveType == MoveType.Extract)
+					{
+						if (BaseUnits.ContainsKey(move.UnitId))
+						{
+							UnitBase unit = BaseUnits[move.UnitId];
+							UnitBase otherUnit = null; ;
+							if (move.OtherUnitId.StartsWith("unit"))
+								otherUnit = BaseUnits[move.OtherUnitId];
+							unit.Extract(move, unit, otherUnit);
+						}
+					}
+					else if (move.MoveType == MoveType.Transport)
+					{
+						if (BaseUnits.ContainsKey(move.UnitId))
+						{
+							UnitBase unit = BaseUnits[move.UnitId];
+							unit.Transport(move);
+						}
+					}
+					else if (move.MoveType == MoveType.UpdateStats)
+					{
+						bool skip = false;
+						foreach (HitByBullet hitByBullet in hitByBullets)
+						{
+							if (hitByBullet.TargetPosition == move.Positions[0])
+							{
+								hitByBullet.UpdateUnitStats = move.Stats;
+								skip = true;
+							}
+						}
+						if (!skip)
+						{
+							if (BaseUnits.ContainsKey(move.UnitId))
+							{
+								UnitBase unit = BaseUnits[move.UnitId];
+								if (unit.PlayerId != move.PlayerId)
+								{
+									unit.ChangePlayer(move.PlayerId);
+								}
+								unit.UpdateStats(move.Stats);
+							}
+						}
+					}
+					else if (move.MoveType == MoveType.Move)
+					{
+						if (BaseUnits.ContainsKey(move.UnitId))
+						{
+							UnitBase unit = BaseUnits[move.UnitId];
+							unit.MoveTo(move.Positions[1]);
+						}
+					}
+					else if (move.MoveType == MoveType.CommandComplete)
+					{
+						if (UnitsInBuild.ContainsKey(move.Positions[0]))
+						{
+							// Remove Ghost from command
+							UnitBase unit = UnitsInBuild[move.Positions[0]];
+							if (unit != null)
+								unit.Delete();
+							GroundCell hexCell = GroundCells[move.Positions[0]];
+							//hexCell.SetAttack(false);
+							UnitsInBuild.Remove(move.Positions[0]);
+						}
+					}
+					else if (move.MoveType == MoveType.Upgrade)
+					{
+						if (BaseUnits.ContainsKey(move.UnitId))
+						{
+							UnitBase unit = BaseUnits[move.UnitId];
+							UnitBase upgradedUnit = BaseUnits[move.OtherUnitId];
+							unit.Upgrade(move, upgradedUnit);
+
+						}
+					}
+					else if (move.MoveType == MoveType.UpdateGround)
+					{
+						bool skip = false;
+						foreach (HitByBullet hitByBullet in hitByBullets)
+						{
+							if (hitByBullet.TargetPosition == move.Positions[0])
+							{
+								hitByBullet.UpdateGroundStats = move.Stats;
+								skip = true;
+							}
+						}
+						if (!skip)
+						{
+							GroundCell hexCell;
+							if (GroundCells.TryGetValue(move.Positions[0], out hexCell))
+							{
+								hexCell.Stats = move.Stats;
+								hexCell.UpdateGround();
+							}
+							else
+							{
+								GameObject cellPrefab = GetResource("HexCell");
+								hexCell = CreateCell(move.Positions[0], move.Stats, cellPrefab);
+								hexCell.Visible = false;
+								GroundCells.Add(move.Positions[0], hexCell);
+							}
+						}
+					}
+					else if (move.MoveType == MoveType.Delete)
+					{
+						if (BaseUnits.ContainsKey(move.UnitId))
+						{
+							UnitBase unit = BaseUnits[move.UnitId];
+							bool isInHits = false;
+							foreach (HitByBullet hitByBullet in hitByBullets)
+							{
+								if (hitByBullet.TargetUnit == unit)
+								{
+									isInHits = true;
+								}
+							}
+							if (!isInHits)
+								unit.Delete();
+							BaseUnits.Remove(move.UnitId);
 						}
 					}
 				}
-				else if (move.MoveType == MoveType.Delete)
+				newMoves.Clear();
+			}
+			catch (Exception err)
+			{
+				Debug.Log("FATAL in ProcessMoves. " + moveCounter.ToString() + " Move " + lastmove.MoveType.ToString() + " Error_" + err.Message);
+				throw;
+			}
+
+			try
+			{
+
+				if (startPositionSet == false && GroundCells.Count > 0)
 				{
-					if (BaseUnits.ContainsKey(move.UnitId))
+					startPositionSet = true;
+					SelectStartPosition();
+
+					/* Debug all visible*/
+					foreach (GroundCell groundCell1 in GroundCells.Values)
 					{
-						UnitBase unit = BaseUnits[move.UnitId];
-						bool isInHits = false;
-						foreach (HitByBullet hitByBullet in hitByBullets)
-                        {
-							if (hitByBullet.TargetUnit == unit)
-                            {
-								isInHits = true;
-							}
-                        }
-						if (!isInHits)
-							unit.Delete();
-						BaseUnits.Remove(move.UnitId);
+						groundCell1.Visible = true;
+
 					}
+
+					//StartCoroutine(RenderSurroundingCells());
 				}
-			}
-			newMoves.Clear();
-
-			if (startPositionSet == false && GroundCells.Count > 0)
-			{
-				startPositionSet = true;
-				SelectStartPosition();
-
-				/* Debug all visible*/
-				foreach (GroundCell groundCell1 in GroundCells.Values)
+				if (startPositionSet)
 				{
-					groundCell1.Visible = true;
 
 				}
-
-				//StartCoroutine(RenderSurroundingCells());
 			}
-			if (startPositionSet)
+			catch (Exception err)
 			{
-				
+				Debug.Log("FATAL in ProcessMoves. SelectStartPosition" + err.Message);
+				throw;
 			}
 		}
 
@@ -997,24 +1035,31 @@ namespace Assets.Scripts
 			{
 				if (WaitForTurn.WaitOne(10))
 				{
-					if (newGameCommands == null)
-						newGameCommands = new List<GameCommand>();
-					newGameCommands.Clear();
-					newGameCommands.AddRange(GameCommands.Values);
-
-					foreach (KeyValuePair<Position, GameCommand> kv in GameCommands)
+					try
 					{
-						if (kv.Value.GameCommandType == GameCommandType.Attack ||
-							kv.Value.GameCommandType == GameCommandType.Defend ||
-							kv.Value.GameCommandType == GameCommandType.Collect ||
-							kv.Value.GameCommandType == GameCommandType.Scout)
-						{
-							ActiveGameCommands.Add(kv.Key, kv.Value);
-						}
-					}
-					GameCommands.Clear();
+						if (newGameCommands == null)
+							newGameCommands = new List<GameCommand>();
+						newGameCommands.Clear();
+						newGameCommands.AddRange(GameCommands.Values);
 
-					ProcessNewMoves();
+						foreach (KeyValuePair<Position, GameCommand> kv in GameCommands)
+						{
+							if (kv.Value.GameCommandType == GameCommandType.Attack ||
+								kv.Value.GameCommandType == GameCommandType.Defend ||
+								kv.Value.GameCommandType == GameCommandType.Collect ||
+								kv.Value.GameCommandType == GameCommandType.Scout)
+							{
+								ActiveGameCommands.Add(kv.Key, kv.Value);
+							}
+						}
+						GameCommands.Clear();
+
+						ProcessNewMoves();
+					}
+					catch (Exception)
+                    {
+						throw;
+                    }
 					WaitForDraw.Set();
 				}
 			}

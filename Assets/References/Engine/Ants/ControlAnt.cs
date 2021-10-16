@@ -1140,6 +1140,7 @@ namespace Engine.Control
         private void AttachGamecommands(Player player, List<Ant> unmovedAnts, List<Move> moves)
         {
             List<GameCommand> completedCommands = new List<GameCommand>();
+            List<GameCommand> cancelCommands = new List<GameCommand>();
 
             foreach (GameCommand gameCommand in player.GameCommands)
             {
@@ -1162,7 +1163,9 @@ namespace Engine.Control
                             }
                         }
                     }
+                    gameCommand.CommandComplete = true;
                     completedCommands.Add(gameCommand);
+                    cancelCommands.Add(gameCommand);
                 }
                 if (gameCommand.GameCommandType == GameCommandType.Extract)
                 {
@@ -1172,24 +1175,47 @@ namespace Engine.Control
                 }
             }
 
-            foreach (Ant ant in unmovedAnts)
+            foreach (GameCommand cancelGameCommand in cancelCommands)
             {
-                if (ant.PlayerUnit.Unit.CurrentGameCommand != null &&
-                    ant.PlayerUnit.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build)
+                foreach (GameCommand gameCommand in player.GameCommands)
                 {
-                    if (HasUnitBeenBuilt(player, ant.PlayerUnit.Unit.CurrentGameCommand, ant, moves))
+                    if (cancelGameCommand.TargetPosition == gameCommand.TargetPosition &&
+                        cancelGameCommand.PlayerId == gameCommand.PlayerId)
                     {
-                        //ant.PlayerUnit.Unit.CurrentGameCommand = null;
-                        ant.AbandonUnit(player);
+                        gameCommand.CommandCanceled = true;
+                        completedCommands.Add(gameCommand);
                     }
                 }
-                if (ant.GameCommandDuringCreation != null &&
-                    ant.GameCommandDuringCreation.GameCommandType == GameCommandType.Build)
+            }
+
+            foreach (Ant ant in unmovedAnts)
+            {
+                if (ant.PlayerUnit.Unit.CurrentGameCommand != null)
                 {
-                    if (HasUnitBeenBuilt(player, ant.GameCommandDuringCreation, ant, moves))
+                    if (ant.PlayerUnit.Unit.CurrentGameCommand.CommandCanceled)
+                        ant.PlayerUnit.Unit.ResetGameCommand();
+
+                    if (ant.PlayerUnit.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build)
                     {
-                        //ant.GameCommandDuringCreation = null;
-                        ant.AbandonUnit(player);
+                        if (HasUnitBeenBuilt(player, ant.PlayerUnit.Unit.CurrentGameCommand, ant, moves))
+                        {
+                            //ant.PlayerUnit.Unit.CurrentGameCommand = null;
+                            ant.AbandonUnit(player);
+                        }
+                    }
+                }
+                if (ant.GameCommandDuringCreation != null)
+                {
+                    if (ant.GameCommandDuringCreation.CommandCanceled)
+                        ant.GameCommandDuringCreation = null;
+
+                    if (ant.GameCommandDuringCreation.GameCommandType == GameCommandType.Build)
+                    {
+                        if (HasUnitBeenBuilt(player, ant.GameCommandDuringCreation, ant, moves))
+                        {
+                            //ant.GameCommandDuringCreation = null;
+                            ant.AbandonUnit(player);
+                        }
                     }
                 }
             }
@@ -1197,6 +1223,13 @@ namespace Engine.Control
             // Attach gamecommands to idle units
             foreach (GameCommand gameCommand in player.GameCommands)
             {
+                if (completedCommands.Contains(gameCommand))
+                    continue;
+                if (gameCommand.CommandCanceled || gameCommand.CommandComplete)
+                {
+                    completedCommands.Add(gameCommand);
+                    continue;
+                }
                 if (gameCommand.AttachedUnits.Count > 0)
                 {
                     List<string> missingUnits = new List<string>();
@@ -1330,16 +1363,14 @@ namespace Engine.Control
                 }
             }
 
-            foreach (GameCommand gameCommand in completedCommands)
-            {
-                //player.GameCommands.Remove(gameCommand);
-            }
-
             List<GameCommand> addedCommands = new List<GameCommand>();
 
             // Still open commands
             foreach (GameCommand gameCommand in player.GameCommands)
             {
+                if (completedCommands.Contains(gameCommand))
+                    continue;
+
                 if (gameCommand.GameCommandType == GameCommandType.Attack)
                 {
                     if (gameCommand.AttachedUnits.Count > 0)
@@ -1784,9 +1815,8 @@ namespace Engine.Control
                         {
                             if (ant.AntPartEngine != null)
                             {
-                                
                                 ant.MovesWithoutCommand++;
-                                if (ant.MovesWithoutCommand > 10 && ant.AntWorkerType != AntWorkerType.Fighter)
+                                if (ant.MovesWithoutCommand > 10) // && ant.AntWorkerType != AntWorkerType.Fighter)
                                     ant.AbandonUnit(player);
                             }
                         }

@@ -31,6 +31,7 @@ namespace Engine.Interface
             AttachedUnits = new List<string>();        
         }
         public bool CommandComplete { get; set; }
+        public bool CommandCanceled { get; set; }
         public bool WaitingForUnit { get; set; }
         public int PlayerId { get; set; }
         public int TargetZone { get; set; }

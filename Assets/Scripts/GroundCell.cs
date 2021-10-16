@@ -488,6 +488,19 @@ namespace Assets.Scripts
 
         private List<CellGameCommand> cellGameCommands = new List<CellGameCommand>();
 
+        private void DeleteCellGameCommand(CellGameCommand cellGameCommand)
+        {
+            if (cellGameCommand.GhostUnit != null)
+            {
+                cellGameCommand.GhostUnit.Delete();
+                cellGameCommand.GhostUnit = null;
+            }
+            if (cellGameCommand.Command != null)
+            {
+                Destroy(cellGameCommand.Command);
+                cellGameCommand.Command = null;
+            }
+        }
         public bool ClearCommands()
         {
             List<CellGameCommand> deletedCommands = new List<CellGameCommand>();
@@ -495,6 +508,8 @@ namespace Assets.Scripts
             {
                 if (cellGameCommand.Touched == false)
                 {
+                    DeleteCellGameCommand(cellGameCommand);
+                    /*
                     if (cellGameCommand.GhostUnit != null)
                     {
                         cellGameCommand.GhostUnit.Delete();
@@ -502,7 +517,7 @@ namespace Assets.Scripts
                     if (cellGameCommand.Command != null)
                     {
                         Destroy(cellGameCommand.Command);
-                    }
+                    }*/
                     deletedCommands.Add(cellGameCommand);
                 }
             }
@@ -520,24 +535,55 @@ namespace Assets.Scripts
                 cellGameCommand.Touched = false;
             }
         }
-        public void UpdateCommands(GameCommand gameCommand, UnitBase unitBase)
-        {
-            CellGameCommand cellGameCommand = null;
-            
 
+        public void RemoveGameCommand(GameCommand gameCommand)
+        {
             foreach (CellGameCommand checkCellGameCommand in cellGameCommands)
             {
                 if (checkCellGameCommand.GameCommand == gameCommand)
                 {
-                    cellGameCommand = checkCellGameCommand;
-                    cellGameCommand.Touched = true;
+                    DeleteCellGameCommand(checkCellGameCommand);
+                    cellGameCommands.Remove(checkCellGameCommand);
                     break;
+                }
+            }
+        }
+
+        public CellGameCommand UpdateCommands(GameCommand gameCommand, UnitBase unitBase)
+        {
+            CellGameCommand cellGameCommand = null;
+
+            if (gameCommand.GameCommandType == GameCommandType.Cancel)
+            {
+                foreach (CellGameCommand checkCellGameCommand in cellGameCommands)
+                {
+                    if (checkCellGameCommand.GameCommand.TargetPosition == gameCommand.TargetPosition &&
+                        checkCellGameCommand.GameCommand.PlayerId == gameCommand.PlayerId)
+                    {
+                        checkCellGameCommand.Touched = false;
+                    }
+                }
+                return null;
+            }
+            else
+            {
+                foreach (CellGameCommand checkCellGameCommand in cellGameCommands)
+                {
+                    if (checkCellGameCommand.GameCommand == gameCommand)
+                    {
+                        cellGameCommand = checkCellGameCommand;
+                        cellGameCommand.Touched = true;
+                        break;
+                    }
                 }
             }
             if (cellGameCommand == null)
             {
+                
                 string layout = "UIBuild";
-                if (!string.IsNullOrEmpty(gameCommand.BlueprintCommand.Layout))
+
+                if (gameCommand.BlueprintCommand != null &&
+                    !string.IsNullOrEmpty(gameCommand.BlueprintCommand.Layout))
                     layout = gameCommand.BlueprintCommand.Layout;
 
                 cellGameCommand = new CellGameCommand();
@@ -586,13 +632,14 @@ namespace Assets.Scripts
                 if (gameCommand.GameCommandType == GameCommandType.Build)
                     unitPos3.y += 0.1f; // + (Random.value / 1);
                 else if (gameCommand.GameCommandType == GameCommandType.Attack)
-                    unitPos3.y -= 0.01f;
+                    unitPos3.y += 0.51f;
                 else
                     unitPos3.y += 0.01f; //1.8f + (Random.value / 1);
                 cellGameCommand.Command.transform.position = unitPos3;
 
                 cellGameCommands.Add(cellGameCommand);
             }
+            return cellGameCommand;
         }
     }
 

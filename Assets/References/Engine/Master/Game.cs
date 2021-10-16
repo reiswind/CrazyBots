@@ -1764,13 +1764,20 @@ namespace Engine.Master
                     foreach (GameCommand gameCommand in gameCommands)
                     {
                         Player player = Players[gameCommand.PlayerId];
-                        player.GameCommands.Add(gameCommand);
-
-                        if (gameCommand.GameCommandType == GameCommandType.Extract)
+                        if (gameCommand.CommandComplete)
                         {
-                            Unit unit = Map.Units.FindUnit(gameCommand.UnitId);
-                            if (unit != null)
-                                unit.ExtractUnit();
+                            player.GameCommands.Remove(gameCommand);
+                        }
+                        else
+                        {
+                            player.GameCommands.Add(gameCommand);
+
+                            if (gameCommand.GameCommandType == GameCommandType.Extract)
+                            {
+                                Unit unit = Map.Units.FindUnit(gameCommand.UnitId);
+                                if (unit != null)
+                                    unit.ExtractUnit();
+                            }
                         }
                     }
                 }

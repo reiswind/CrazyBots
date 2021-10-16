@@ -222,8 +222,14 @@ namespace Assets.Scripts
                 SetPlayerColor(HexGrid, PlayerId, newPart);
                 unitBasePart.Part = newPart;
             }
+            else
+            {
+                unitBasePart.Part = null;
+            }
             if (oldPart != null)
+            {
                 Destroy(oldPart);
+            }
         }
 
         private void ReplacePart(Transform part, MoveUpdateUnitPart moveUpdateUnitPart, bool underConstruction)
@@ -1087,6 +1093,10 @@ namespace Assets.Scripts
 
         public void UpdateParts()
         {
+            if (MoveUpdateStats.BlueprintName == "Fighter")
+            {
+                int x = 0;
+            }
             Container = null;
             Extractor = null;
             Assembler = null;
@@ -1140,50 +1150,57 @@ namespace Assets.Scripts
                             if (!moveUpdateUnitPart.Exists)
                                 missingPartFound = true;
 
-                            Engine1 engine = unitBasePart.Part.GetComponent<Engine1>();
-                            if (engine != null)
+                            if (unitBasePart.Part == null)
                             {
-                                Engine = engine;
+                                int x = 0;
                             }
-                            Container1 container = unitBasePart.Part.GetComponent<Container1>();
-                            if (container != null)
+                            else
                             {
-                                Container = container;
-                                unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
-                            }
-                            Extractor1 extractor = unitBasePart.Part.GetComponent<Extractor1>();
-                            if (extractor != null)
-                                Extractor = extractor;
-                            Assembler1 assembler = unitBasePart.Part.GetComponent<Assembler1>();
-                            if (assembler != null)
-                            {
-                                Assembler = assembler;
-                                unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
-                            }
-                            Weapon1 weapon = unitBasePart.Part.GetComponent<Weapon1>();
-                            if (weapon != null)
-                            {
-                                Weapon = weapon;
-                                unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
-                                if (moveUpdateUnitPart.TileObjects != null)
+                                Engine1 engine = unitBasePart.Part.GetComponent<Engine1>();
+                                if (engine != null)
                                 {
-                                    weapon.UpdateContent(HexGrid, unitBasePart.TileObjectContainer);
+                                    Engine = engine;
                                 }
-                            }
-                            Reactor1 reactor = unitBasePart.Part.GetComponent<Reactor1>();
-                            if (reactor != null)
-                            {
-                                Reactor = reactor;
-                                unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
-                            }
-                            Armor armor = unitBasePart.Part.GetComponent<Armor>();
-                            if (armor != null)
-                            {
-                                Armor = armor;
-                                Transform shield = transform.Find("Shield");
-                                if (shield != null && IsVisible)
+                                Container1 container = unitBasePart.Part.GetComponent<Container1>();
+                                if (container != null)
                                 {
-                                    shield.gameObject.SetActive(moveUpdateUnitPart.ShieldActive == true);
+                                    Container = container;
+                                    unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
+                                }
+                                Extractor1 extractor = unitBasePart.Part.GetComponent<Extractor1>();
+                                if (extractor != null)
+                                    Extractor = extractor;
+                                Assembler1 assembler = unitBasePart.Part.GetComponent<Assembler1>();
+                                if (assembler != null)
+                                {
+                                    Assembler = assembler;
+                                    unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
+                                }
+                                Weapon1 weapon = unitBasePart.Part.GetComponent<Weapon1>();
+                                if (weapon != null)
+                                {
+                                    Weapon = weapon;
+                                    unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
+                                    if (moveUpdateUnitPart.TileObjects != null)
+                                    {
+                                        weapon.UpdateContent(HexGrid, unitBasePart.TileObjectContainer);
+                                    }
+                                }
+                                Reactor1 reactor = unitBasePart.Part.GetComponent<Reactor1>();
+                                if (reactor != null)
+                                {
+                                    Reactor = reactor;
+                                    unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
+                                }
+                                Armor armor = unitBasePart.Part.GetComponent<Armor>();
+                                if (armor != null)
+                                {
+                                    Armor = armor;
+                                    Transform shield = transform.Find("Shield");
+                                    if (shield != null && IsVisible)
+                                    {
+                                        shield.gameObject.SetActive(moveUpdateUnitPart.ShieldActive == true);
+                                    }
                                 }
                             }
                             break;
