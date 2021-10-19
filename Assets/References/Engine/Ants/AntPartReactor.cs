@@ -32,11 +32,11 @@ namespace Engine.Ants
             {
                 if (ant.PheromoneDepositEnergy != 0)
                 {
-                    Position pos = player.Game.Pheromones.Find(ant.PheromoneDepositEnergy, player, PheromoneType.Energy, 0.6f, 0.6f);
-                    if (pos != null)
+                    ulong pos = player.Game.Pheromones.Find(ant.PheromoneDepositEnergy, player, PheromoneType.Energy, 0.6f, 0.6f);
+                    if (pos != Position.Null)
                     {
                         Tile t = player.Game.GetTile(pos);
-                        List<Position> path = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, pos, ant.PlayerUnit.Unit);
+                        List<ulong> path = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, pos, ant.PlayerUnit.Unit);
                         if (path == null)
                         {
 

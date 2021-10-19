@@ -302,7 +302,7 @@ namespace Assets.Scripts
         {
             if (selectedUnitFrame != null)
             {
-                if (selectedUnitFrame.Temporary && selectedUnitFrame.CurrentPos != null)
+                if (selectedUnitFrame.Temporary && selectedUnitFrame.CurrentPos != Position.Null)
                 {
                     Destroy(selectedUnitFrame.gameObject);
                 }
@@ -881,7 +881,7 @@ namespace Assets.Scripts
 
                 if (hitByMouseClick.UnitFrame != null && hitByMouseClick.GroundCell == null)
                 {
-                    if (hitByMouseClick.UnitFrame.CurrentPos == null)
+                    if (hitByMouseClick.UnitFrame.CurrentPos == Position.Null)
                     {
                         Debug.Log("Raycast hit " + raycastHit.collider.gameObject.name);
                     }
@@ -936,7 +936,7 @@ namespace Assets.Scripts
 
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("P: " + gc.Pos.X + ", " + gc.Pos.Y);
+            sb.Append("P: " + Position.GetX(gc.Pos) + ", " + Position.GetY(gc.Pos));
 
             //sb.Append(" TI: " + gc.Stats.MoveUpdateGroundStat.TerrainTypeIndex);
             //sb.Append(" PI: " + gc.Stats.MoveUpdateGroundStat.PlantLevel);
@@ -1164,7 +1164,7 @@ namespace Assets.Scripts
             if (previewGameCommand != null && hitByMouseClick != null &&
                 hitByMouseClick.GroundCell != null)
             {
-                Debug.Log("preview " + hitByMouseClick.GroundCell.Pos.X + ", " + hitByMouseClick.GroundCell.Pos.Y);
+                Debug.Log("preview " + Position.GetX(hitByMouseClick.GroundCell.Pos) + ", " + Position.GetY(hitByMouseClick.GroundCell.Pos));
 
                 previewGameCommand.transform.SetParent(hitByMouseClick.GroundCell.transform, false);
 
@@ -1247,7 +1247,7 @@ namespace Assets.Scripts
                     lastSelectedGroundCell != null &&
                     CanCommandAt(lastSelectedGroundCell))
                 {
-                    Position pos = lastSelectedGroundCell.Pos;
+                    ulong pos = lastSelectedGroundCell.Pos;
                     if (HexGrid.GameCommands.ContainsKey(pos))
                         HexGrid.GameCommands.Remove(pos);
 
@@ -1353,7 +1353,7 @@ namespace Assets.Scripts
                 if (leftMouseButtonDown &&
                     lastSelectedGroundCell != null)
                 {
-                    Position pos = lastSelectedGroundCell.Pos;
+                    ulong pos = lastSelectedGroundCell.Pos;
 
                     GameCommand gameCommand = new GameCommand();
                     gameCommand.TargetPosition = pos;
@@ -1417,9 +1417,9 @@ namespace Assets.Scripts
                     // Preview
                     if (lastSelectedGroundCell == null || !CanBuildAt(lastSelectedGroundCell))
                     {
-                        if (selectedUnitFrame != null && selectedUnitFrame.CurrentPos != null)
+                        if (selectedUnitFrame != null && selectedUnitFrame.CurrentPos != Position.Null)
                         {
-                            selectedUnitFrame.CurrentPos = null;
+                            selectedUnitFrame.CurrentPos = Position.Null;
                             selectedUnitFrame.gameObject.SetActive(false);
                         }
                     }
@@ -1440,7 +1440,7 @@ namespace Assets.Scripts
                     lastSelectedGroundCell != null &&
                     CanBuildAt(lastSelectedGroundCell))
                 {
-                    Position pos = lastSelectedGroundCell.Pos;
+                    ulong pos = lastSelectedGroundCell.Pos;
                     selectedUnitFrame.CurrentPos = pos;
 
                     if (HexGrid.GameCommands.ContainsKey(pos))
@@ -1697,7 +1697,7 @@ namespace Assets.Scripts
 
             headerText.text = gameCommand.BlueprintCommand.Name;
             headerSubText.text = gameCommand.GameCommandType.ToString() + " " + gameCommand.UnitId;
-            headerGroundText.text = gameCommand.TargetPosition.X + ", " + gameCommand.TargetPosition.Y;
+            headerGroundText.text = Position.GetX(gameCommand.TargetPosition) + ", " + Position.GetY(gameCommand.TargetPosition);
 
             //selectedGameCommand.UpdateAttachedUnits(HexGrid);
             /*
@@ -1782,7 +1782,7 @@ namespace Assets.Scripts
                         {
                             MoveUpdateStatsCommand cmd = unit.MoveUpdateStats.MoveUpdateStatsCommand;
 
-                            headerSubText.text = cmd.GameCommandType.ToString() + " at " + cmd.TargetPosition.X + "," + cmd.TargetPosition.Y;
+                            headerSubText.text = cmd.GameCommandType.ToString() + " at " + Position.GetX(cmd.TargetPosition) + "," + Position.GetY(cmd.TargetPosition);
                         }
                     }
                     headerSubText.text += " " + unit.UnitId;
@@ -1934,7 +1934,7 @@ namespace Assets.Scripts
                 }
             }
 
-            if (unit.CurrentPos != null)
+            if (unit.CurrentPos != Position.Null)
             {
                 GroundCell gc;
                 if (HexGrid.GroundCells.TryGetValue(unit.CurrentPos, out gc))

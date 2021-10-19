@@ -61,7 +61,7 @@ namespace Engine.Control
 
         public override void AttachUnits(Dispatcher dispatcher, Player player, List<PlayerUnit> moveableUnits)
         {
-            Dictionary<Position, TileWithDistance> positionsToScount = CollectIncludedPositions();
+            Dictionary<ulong, TileWithDistance> positionsToScount = CollectIncludedPositions();
             List<PlayerUnit> unitsAlreadyInArea = CollectUnitsAlreadyInArea(player, Range);
 
             List<UnitType> currentDemandedUnitTypes = new List<UnitType>();

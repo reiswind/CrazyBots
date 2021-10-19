@@ -180,7 +180,7 @@ namespace Engine.Interface
 
     public class MoveUpdateStatsCommand
     {
-        public Position TargetPosition { get; set; }
+        public ulong TargetPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
     }
 
@@ -205,8 +205,10 @@ namespace Engine.Interface
 
         [DataMember]
         public bool MarkedForExtraction { get; set; }
-
+        [DataMember]
         public int Power { get; set; }
+        [DataMember]
+        public int Direction { get; set; }
     }
 
     [DataContract]
@@ -233,7 +235,7 @@ namespace Engine.Interface
         /// Fire = From at [0]
         /// </summary>
         [DataMember(EmitDefaultValue = false)]
-        public List<Position> Positions { get; set; }
+        public List<ulong> Positions { get; set; }
 
         /// <summary>
         /// Add=new Unitmodel
@@ -276,9 +278,9 @@ namespace Engine.Interface
             if (Positions != null)
             {                
                 if (Positions.Count >= 1)
-                    sb.Append (Positions[0].X + "," + Positions[0].Y);
+                    sb.Append (Position.GetX(Positions[0]) + "," + Position.GetY(Positions[0]));
                 if (Positions.Count >= 2)
-                    sb.Append (" to " + Positions[1].X + "," + Positions[1].Y);
+                    sb.Append (" to " + Position.GetX(Positions[1]) + "," + Position.GetY(Positions[1]));
             }
             if (OtherUnitId != null)
             {

@@ -9,7 +9,7 @@ namespace Engine.Control
 {
     public class ScoutPosition
     {
-        public Position Pos { get; set; }
+        public ulong Pos { get; set; }
         public int MovesNotVisited { get; set; }
     }
 
@@ -37,7 +37,7 @@ namespace Engine.Control
         }
 
         public List<ScoutPosition> ScoutingPositions = new List<ScoutPosition>();
-        public List<Position> VisiblePostitions = new List<Position>();
+        public List<ulong> VisiblePostitions = new List<ulong>();
 
         public void FindScoutingPositions(Dispatcher dispatcher, Player player)
         {
@@ -51,7 +51,7 @@ namespace Engine.Control
 
             bool otherTilesFound = false;
 
-            Dictionary<Position, TileWithDistance> positionsToScount = Map.EnumerateTiles(Center, Range);
+            Dictionary<ulong, TileWithDistance> positionsToScount = Map.EnumerateTiles(Center, Range);
             foreach (TileWithDistance t in positionsToScount.Values)
             {
                 if (VisiblePostitions.Contains(t.Pos))
@@ -103,7 +103,7 @@ namespace Engine.Control
 
             List<Position> unseenTiles = new List<Position>();
 
-            Dictionary<Position, TileWithDistance> positionsToScount = Map.EnumerateTiles(Center, Range);
+            Dictionary<ulong, TileWithDistance> positionsToScount = Map.EnumerateTiles(Center, Range);
             // Search +2 to get units move behind the border
             List<PlayerUnit> unitsAlreadyInArea = CollectUnitsAlreadyInArea(player, Range + 2);
 

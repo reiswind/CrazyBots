@@ -26,7 +26,7 @@ namespace Engine.Interface
             }
         }
 
-        public Position Pos
+        public ulong Pos
         {
             get
             {
@@ -72,7 +72,7 @@ namespace Engine.Interface
             {
                 return this.Unit.ToString();
             }
-            return "Tile: " + Pos.X + "," + Pos.Y + " : " + Distance;
+            return "Tile: " + Position.GetX(Pos) + "," + Position.GetY(Pos) + " : " + Distance;
         }
 
         public int Distance { get; set; }
@@ -119,7 +119,7 @@ namespace Engine.Interface
             return TileObjectType.None;
         }*/
 
-        internal Tile(Map map, Position pos)
+        internal Tile(Map map, ulong pos)
         {
             Map = map;
             Pos = pos;
@@ -306,11 +306,11 @@ namespace Engine.Interface
             return score;
         }
 
-        internal float GetScoreForPos(TileObject tileObject, Position position)
+        internal float GetScoreForPos(TileObject tileObject, ulong position)
         {
             float score = 0;
 
-            if (position != null)
+            if (position != Position.Null)
             {
                 Tile forwardTile = Map.GetTile(position);
                 if (forwardTile != null && forwardTile.TileContainer != null)
@@ -340,7 +340,7 @@ namespace Engine.Interface
 
             foreach (TileObject tileObject in tileObjects)
             {
-                Position pos = Ants.AntPartEngine.GetPositionInDirection(Pos, tileObject.Direction);
+                ulong pos = Ants.AntPartEngine.GetPositionInDirection(Pos, tileObject.Direction);
                 score += GetScoreForPos(tileObject, pos);
 
                 pos = Ants.AntPartEngine.GetPositionInDirection(Pos,TurnLeft( tileObject.Direction));
@@ -355,8 +355,8 @@ namespace Engine.Interface
 
         internal Map Map { get; set; }
 
-        public Position Pos { get; set; }
-        private List<Tile> neighbors;
+        public ulong Pos { get; set; }
+        //private List<Tile> neighbors;
 
         public double Height { get; set; }
 
@@ -402,14 +402,14 @@ namespace Engine.Interface
             }
         }
         
-        public bool CanMoveTo(Position from)
+        public bool CanMoveTo(ulong from)
         {
             return CanMoveTo(Map.GetTile(from));            
         }
 
-        public bool IsNeighbor(Position pos)
+        public bool IsNeighbor(ulong pos)
         {
-            foreach (Tile n in neighbors)
+            foreach (Tile n in Neighbors)
             {
                 if (n.Pos == pos)
                     return true;
@@ -456,106 +456,26 @@ namespace Engine.Interface
             {
                 return this.Unit.ToString();
             }
-            return "Tile: " + Pos.X + "," + Pos.Y;
+            return "Tile: " + Position.GetX(Pos) + "," + Position.GetY(Pos);
         }
 
-        private void AddCube (int q, int r, int s)
+        private void AddCube (List<Tile> neighbors, CubePosition n)
         {
-            CubePosition c1 = new CubePosition(q,r,s);
-            if (c1.IsValid(Map))
-            {
-                /*if (Math.Abs(c1.q) <= Map.Model.MapHeight &&
-                    Math.Abs(c1.r) <= Map.Model.MapHeight &&
-                    Math.Abs(c1.s) <= Map.Model.MapHeight)
-                {*/
-                Tile t = Map.GetTile(c1.Pos);
-                if (t != null)
-                    neighbors.Add(t);
-            }
-        }
-        /*
-        public Tile TileBelow
-        {
-            get
-            {
-                CubePosition cube = this.Pos.GetCubePosition();
-                CubePosition c1 = new CubePosition(cube.q, cube.r - 1, cube.s + 1);
-                if (c1.IsValid(Map))
-                {
-                    return Map.GetTile(c1.Pos);
-                }
-                return null;
-            }
-        }
-
-        public Tile TileBelowRight
-        {
-            get
-            {
-                CubePosition cube = this.Pos.GetCubePosition();
-                CubePosition c1 = new CubePosition(cube.q + 1, cube.r - 1, cube.s);
-                if (c1.IsValid(Map))
-                {
-                    return Map.GetTile(c1.Pos);
-                }
-                return null;
-            }
-        }*/
-        public void CreateCube(Dictionary<Position, Tile> createTiles, Dictionary<Position, Tile> tiles, int q, int r, int s)
-        {
-            CubePosition c1 = new CubePosition(q, r, s);
-            Tile t;
-            if (!tiles.TryGetValue(c1.Pos, out t))
-            {
-                t = new Tile(Map, c1.Pos);
-                tiles.Add(t.Pos, t);
-                createTiles.Add(t.Pos, t);
-            }
-            neighbors.Add(t);
-        }
-        public void CreateNeighborsxx(Dictionary<Position, Tile> createTiles, Dictionary<Position, Tile> tiles)
-        {
-            neighbors = new List<Tile>();
-
-            CubePosition cube = Pos.GetCubePosition();
-            CreateCube(createTiles, tiles, cube.q + 1, cube.r - 1, cube.s); // N 11,10
-            CreateCube(createTiles, tiles, cube.q + 1, cube.r, cube.s - 1); // NE 11,9
-            CreateCube(createTiles, tiles, cube.q, cube.r + 1, cube.s - 1); // NW 10,9
-
-            CreateCube(createTiles, tiles, cube.q - 1, cube.r, cube.s + 1); // S 9,10
-            CreateCube(createTiles, tiles, cube.q - 1, cube.r + 1, cube.s); // SE 9,9
-            CreateCube(createTiles, tiles, cube.q, cube.r - 1, cube.s + 1);
-
-        }
-        public void CreateNeighbors(Dictionary<Position, Tile> createTiles, Dictionary<Position, Tile> tiles)
-        {
-            neighbors = new List<Tile>();
-
-            CubePosition cube = Pos.GetCubePosition();
-            CreateCube(createTiles, tiles, cube.q + 1, cube.r - 1, cube.s);
-            CreateCube(createTiles, tiles, cube.q + 1, cube.r, cube.s - 1);
-            CreateCube(createTiles, tiles, cube.q, cube.r + 1, cube.s - 1);
-            CreateCube(createTiles, tiles, cube.q - 1, cube.r + 1, cube.s);
-            CreateCube(createTiles, tiles, cube.q - 1, cube.r, cube.s + 1);
-            CreateCube(createTiles, tiles, cube.q, cube.r - 1, cube.s + 1);
+            Tile t = Map.GetTile(n.Pos);
+            if (t != null)
+                neighbors.Add(t);
         }
 
         public List<Tile> Neighbors
         {
             get
             {
-                if (neighbors == null)
+                List<Tile> neighbors = new List<Tile>();
+
+                CubePosition tile = new CubePosition(Pos);
+                foreach (CubePosition n in tile.Neighbors)
                 {
-                    neighbors = new List<Tile>();
-
-                    CubePosition cube = this.Pos.GetCubePosition();
-                    AddCube(cube.q + 1, cube.r - 1, cube.s);
-                    AddCube(cube.q + 1, cube.r, cube.s - 1);
-                    AddCube(cube.q, cube.r + 1, cube.s - 1);
-                    AddCube(cube.q - 1, cube.r + 1, cube.s);
-                    AddCube(cube.q - 1, cube.r, cube.s + 1);
-                    AddCube(cube.q, cube.r - 1, cube.s + 1);
-
+                    AddCube(neighbors, n);
                 }
                 return neighbors;
             }

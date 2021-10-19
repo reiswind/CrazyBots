@@ -116,15 +116,15 @@ namespace Engine.Ants
 
             bool upgrading = false;
 
-            List<Position> includedPositions = null;
+            List<ulong> includePositions = null;
             if (Assembler.Unit.CurrentGameCommand != null && Ant.AntPartEngine != null)
             {
                 // If engine, move to target and upgrade then. Do not upgrade anything else.
-                includedPositions = new List<Position>();
-                includedPositions.Add(Assembler.Unit.CurrentGameCommand.TargetPosition);
+                includePositions = new List<ulong>();
+                includePositions.Add(Assembler.Unit.CurrentGameCommand.TargetPosition);
             }
             List<Move> possiblemoves = new List<Move>();
-            Assembler.ComputePossibleMoves(possiblemoves, includedPositions, MoveFilter.Upgrade);
+            Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Upgrade);
             while (possiblemoves.Count > 0)
             {
                 int idx = player.Game.Random.Next(possiblemoves.Count);
@@ -139,7 +139,7 @@ namespace Engine.Ants
                 moves.Add(move);
                 return true;
             }
-            includedPositions = null;
+            includePositions = null;
 
             if (!upgrading)
             {
@@ -165,7 +165,7 @@ namespace Engine.Ants
                             if (gameCommand.AttachedUnits.Count > 0)
                                 continue;
 
-                            double d = Assembler.Unit.Pos.GetDistanceTo(gameCommand.TargetPosition);
+                            double d = Assembler.Unit.Pos.GetDistanceTo(gameCommand.Targetulong);
                             if (bestGameCommand == null || d < bestDistance)
                             {
                                 bestDistance = d;
@@ -197,8 +197,8 @@ namespace Engine.Ants
                             }
                             else
                             {
-                                includedPositions = new List<Position>();
-                                includedPositions.Add(selectedGameCommand.TargetPosition);
+                                includePositions = new List<ulong>();
+                                includePositions.Add(selectedGameCommand.TargetPosition);
 
                                 finishCommandWhenCompleted = selectedGameCommand;
                             }
@@ -231,8 +231,8 @@ namespace Engine.Ants
                                 if (tile.IsNeighbor(selectedGameCommand.TargetPosition))
                                 {
                                     // No need to build an assembler. Just build the unit at this position
-                                    includedPositions = new List<Position>();
-                                    includedPositions.Add(selectedGameCommand.TargetPosition);
+                                    includePositions = new List<ulong>();
+                                    includePositions.Add(selectedGameCommand.TargetPosition);
                                 }
                                
                                 // Build this unit, it will move to the target COMMAND-STEP3
@@ -241,13 +241,13 @@ namespace Engine.Ants
                             }
                             else
                             {
-                                // Check if TargetPosition is neighbor!
+                                // Check if Targetulong is neighbor!
                                 Tile tile = player.Game.Map.GetTile(Ant.PlayerUnit.Unit.Pos);
                                 if (tile.IsNeighbor(selectedGameCommand.TargetPosition))
                                 {
                                     // No need to build an assembler. Just build the unit
-                                    includedPositions = new List<Position>();
-                                    includedPositions.Add(selectedGameCommand.TargetPosition);
+                                    includePositions = new List<ulong>();
+                                    includePositions.Add(selectedGameCommand.TargetPosition);
                                     finishCommandWhenCompleted = selectedGameCommand;
                                 }
                                 else
@@ -296,7 +296,7 @@ namespace Engine.Ants
 
                                     // Hack to create build assembler moves
                                     Assembler.Unit.SetGameCommand(newCommand);
-                                    Assembler.ComputePossibleMoves(possiblemoves, includedPositions, MoveFilter.Assemble);
+                                    Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Assemble);
 
                                     Assembler.Unit.SetGameCommand(selectedGameCommand);
                                     passGameCommandToNewUnit = newCommand;
@@ -307,7 +307,7 @@ namespace Engine.Ants
                 }
 
                 if (computePossibleMoves)
-                    Assembler.ComputePossibleMoves(possiblemoves, includedPositions, MoveFilter.Assemble);
+                    Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Assemble);
 
                 if (possiblemoves.Count > 0)
                 {
@@ -357,7 +357,8 @@ namespace Engine.Ants
                         if (selectedGameCommand != null)
                         {
                             selectedGameCommand.WaitingForUnit = true;
-                            // It has been build. Upgrading will happen, becuase unit is nearby
+
+                            // It has been build. Upgrading will happen, because unit is nearby
                             //player.GameCommands.Remove(selectedGameCommand);
                             //Assembler.Unit.ResetGameCommand();
                         }
@@ -367,7 +368,7 @@ namespace Engine.Ants
                         {
                             Ant ant = new Ant(control);
                             ant.AntWorkerType = AntWorkerType.Assembler;
-                            control.CreatedAnts.Add(move.Positions[1], ant);
+                            control.CreatedAnts.Add(move.ulongs[1], ant);
 
                             if (selectedGameCommand != null) // && selectedGameCommand.GameCommandType == GameCommandType.Build)
                             {
@@ -381,7 +382,7 @@ namespace Engine.Ants
                             Ant ant = new Ant(control);
                             ant.AntWorkerType = AntWorkerType.Worker;
                             control.NumberOfWorkers++;
-                            control.CreatedAnts.Add(move.Positions[1], ant);
+                            control.CreatedAnts.Add(move.ulongs[1], ant);
 
                             // This is the BUILD Command.
                             if (selectedGameCommand != null) // && selectedGameCommand.GameCommandType == GameCommandType.Collect)
@@ -399,7 +400,7 @@ namespace Engine.Ants
                                 {
                                     GameCommand attackMove = new GameCommand();
                                     attackMove.GameCommandType = GameCommandType.Move;
-                                    attackMove.TargetPosition = gameCommand.TargetPosition;
+                                    attackMove.Targetulong = gameCommand.Targetulong;
 
                                     antWorker.CurrentGameCommand = attackMove;
                                 }
@@ -410,7 +411,7 @@ namespace Engine.Ants
                             Ant ant = new Ant(control);
                             ant.AntWorkerType = AntWorkerType.Fighter;
                             control.NumberOfFighter++;
-                            control.CreatedAnts.Add(move.Positions[1], ant);
+                            control.CreatedAnts.Add(move.ulongs[1], ant);
 
                             if (selectedGameCommand != null) // && selectedGameCommand.GameCommandType == GameCommandType.Attack)
                             {
@@ -426,7 +427,7 @@ namespace Engine.Ants
                                 {
                                     GameCommand attackMove = new GameCommand();
                                     attackMove.GameCommandType = GameCommandType.AttackMove;
-                                    attackMove.TargetPosition = gameCommand.TargetPosition;
+                                    attackMove.Targetulong = gameCommand.Targetulong;
 
                                     antWorker.CurrentGameCommand = attackMove;
                                 }
@@ -437,7 +438,7 @@ namespace Engine.Ants
                             /*
                             AntWorker antWorker = new AntWorker(Control);
                             antWorker.AntWorkerType = AntWorkerType.None;
-                            Control.CreatedAnts.Add(move.Positions[1], antWorker);
+                            Control.CreatedAnts.Add(move.ulongs[1], antWorker);
 
                             if (selectedGameCommand != null)
                             {

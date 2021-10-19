@@ -26,7 +26,7 @@ namespace Engine.Interface
         public int ZoneId { get; set; }
         public int TotalMinerals { get; set; }
         public int MaxMinerals { get; set; }
-        public Position Center { get; set; }
+        public ulong Center { get; set; }
         public Player Player { get; set; }
 
         public bool IsUnderwater;
@@ -34,7 +34,7 @@ namespace Engine.Interface
 
         internal List<MapVegetation> Vegetation = new List<MapVegetation>();
 
-        public Dictionary<Position, Tile> Tiles { get; set; }
+        public Dictionary<ulong, Tile> Tiles { get; set; }
 
         private List<Tile> openTiles;
 
@@ -83,7 +83,7 @@ namespace Engine.Interface
         }
         */
 
-        public Position CreateTerrainTile(Map map)
+        public ulong CreateTerrainTile(Map map)
         {
             //if (map.OpenTileObjects.Count == 0)
             //    return null;
@@ -92,16 +92,16 @@ namespace Engine.Interface
             //    return null;
 
             if (openTiles == null)
-                return null;
+                return Position.Null;
 
             List<Tile> unopenTiles = new List<Tile>();
-            Position pos = null;
+            ulong pos = Position.Null;
 
             if (openTiles.Count > 0)
             {
                 TileFit randomTileFit = CreateRandomObjects(map);
                 if (randomTileFit == null || randomTileFit.TileObjects == null)
-                    return null;
+                    return Position.Null;
 
                 // Find best tile
                 List<TileFit> bestTilesFit = new List<TileFit>();
@@ -134,8 +134,8 @@ namespace Engine.Interface
                 {
                     if (tile.Pos != Center)
                     {
-                        if (!map.Game.changedGroundPositions.ContainsKey(tile.Pos))
-                            map.Game.changedGroundPositions.Add(tile.Pos, null);
+                        if (!map.Game.changedGroundulongs.ContainsKey(tile.Pos))
+                            map.Game.changedGroundulongs.Add(tile.Pos, null);
 
                         tile.IsOpenTile = false;
                         openTiles.Remove(tile);
@@ -207,13 +207,15 @@ namespace Engine.Interface
                     {
                         throw new Exception();
                     }
-                    if (!map.Game.changedGroundPositions.ContainsKey(bestTile.Pos))
-                        map.Game.changedGroundPositions.Add(bestTile.Pos, null);
+                    if (!map.Game.changedGroundulongs.ContainsKey(bestTile.Pos))
+                        map.Game.changedGroundulongs.Add(bestTile.Pos, null);
                     bestTile.IsOpenTile = false;
 
                     foreach (Tile n in bestTile.Neighbors)
                     {
-                        if (n.Pos.GetDistanceTo(Center) > 20)
+                        
+
+                        if (CubePosition.Distance(n.Pos, Center) > 20)
                             continue;
 
                         // Nothing under water
@@ -256,8 +258,8 @@ namespace Engine.Interface
                             }
                             if (allTilesEmpty)
                             {
-                                if (!map.Game.changedGroundPositions.ContainsKey(n.Pos))
-                                    map.Game.changedGroundPositions.Add(n.Pos, null);
+                                if (!map.Game.changedGroundulongs.ContainsKey(n.Pos))
+                                    map.Game.changedGroundulongs.Add(n.Pos, null);
 
                                 n.IsOpenTile = true;
                                 openTiles.Add(n);

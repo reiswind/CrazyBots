@@ -44,10 +44,10 @@ namespace Engine.Ants
             if (direction == Direction.NW) return Direction.N;
             return Direction.C;
         }
-
-        private Direction TurnToPos(Position pos)
+        /*
+        private Direction TurnToPos(ulong pos)
         {
-            Position curPos = Engine.Unit.Pos;
+            ulong curPos = Engine.Unit.Pos;
 
             if (curPos.X == pos.X)
             {
@@ -71,7 +71,7 @@ namespace Engine.Ants
                     return Direction.SW;
             }
             return Direction.C;
-        }
+        }*/
 
         internal static Direction TurnAround(Direction direction)
         {
@@ -84,82 +84,27 @@ namespace Engine.Ants
             return Direction.C;
         }
 
-        internal static Position GetPositionInDirection(Position pos, Direction direction)
+        internal static ulong GetPositionInDirection(ulong pos, Direction direction)
         {
-            Position next = null;
-            if (direction == Direction.N)
+            ulong next = Position.Null;
+            if (direction != Direction.C)
             {
-                //if (pos.Y > 0)
-                    next = new Position(pos.X, pos.Y - 1);
+                CubePosition cubeulong = new CubePosition(pos);
+                CubePosition n = cubeulong.GetNeighbor(direction);
+                if (n != null)
+                    next = n.Pos;
             }
-            else if (direction == Direction.S)
-            {
-                //if (pos.Y < 100)
-                    next = new Position(pos.X, pos.Y + 1);
-            }
-            else if (direction == Direction.NE)
-            {
-                if (pos.X % 2 != 0)
-                {
-                    //if (pos.X < 100)
-                        next = new Position(pos.X + 1, pos.Y);
-                }
-                else
-                {
-                    //if (pos.X < 100 && pos.Y > 0)
-                        next = new Position(pos.X + 1, pos.Y - 1);
-                }
-            }
-            else if (direction == Direction.SE)
-            {
-                if (pos.X % 2 == 0)
-                {
-                    //if (pos.X < 100)
-                        next = new Position(pos.X + 1, pos.Y);
-                }
-                else
-                {
-                    //if (pos.X < 100 && pos.Y < 100)
-                        next = new Position(pos.X + 1, pos.Y + 1);
-                }
-            }
-            else if (direction == Direction.NW)
-            {
-                if (pos.X % 2 != 0)
-                {
-                    //if (pos.X > 0)
-                        next = new Position(pos.X - 1, pos.Y);
-                }
-                else
-                {
-                    //if (pos.X > 0 && pos.Y > 0)
-                        next = new Position(pos.X - 1, pos.Y - 1);
-                }
-            }
-            else if (direction == Direction.SW)
-            {
-                if (pos.X % 2 == 0)
-                {
-                    //if (pos.X > 0)
-                        next = new Position(pos.X - 1, pos.Y);
-                }
-                else
-                {
-                    //if (pos.X > 0 && pos.Y < 100)
-                        next = new Position(pos.X - 1, pos.Y + 1);
-                }
-            }
-
             return next;
+            
         }
 
 
-        private Tile GetNextPosition(Player player, Position pos, Direction direction)
+        private Tile GetNextPosition(Player player, ulong pos, Direction direction)
         {
-            Position next = GetPositionInDirection(pos, direction);
+            ulong next = GetPositionInDirection(pos, direction);
             
             Tile t = null;
-            if (next != null)
+            if (next != Position.Null)
             {
                 t = player.Game.Map.GetTile(next);
                 if (t != null && !t.CanMoveTo(pos))
@@ -310,7 +255,7 @@ namespace Engine.Ants
             }
 
             // Follow trail if possible.
-            Position moveToPosition = null;
+            ulong moveToPosition = Position.Null;
             if (Ant.FollowThisRoute != null)
             {
                 if (Ant.FollowThisRoute.Count == 0)
@@ -322,7 +267,7 @@ namespace Engine.Ants
                     moveToPosition = Ant.FollowThisRoute[0];
                     if (control.IsOccupied(player, moves, moveToPosition))
                     {
-                        moveToPosition = null;
+                        moveToPosition = Position.Null;
                         Ant.FollowThisRoute = null;
                     }
                     else
@@ -334,7 +279,7 @@ namespace Engine.Ants
                 }
             }
 
-            if (moveToPosition == null)
+            if (moveToPosition == Position.Null)
             {
                 List<Tile> tiles = MakeForwardTilesList(player, cntrlUnit);
                 PheromoneType pheromoneType = PheromoneType.AwayFromEnergy;
@@ -435,12 +380,12 @@ namespace Engine.Ants
                 if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.Mineral)
                 {
                     moveToPosition = control.FindMineral(player, Ant);
-                    if (moveToPosition != null && control.IsOccupied(player, moves, moveToPosition))
+                    if (moveToPosition != Position.Null && control.IsOccupied(player, moves, moveToPosition))
                     {
-                        moveToPosition = null;
+                        moveToPosition = Position.Null;
                         Ant.FollowThisRoute = null;
                     }
-                    if (moveToPosition == null && cntrlUnit.Container != null && cntrlUnit.Container.TileContainer.Minerals > 0)
+                    if (moveToPosition == Position.Null && cntrlUnit.Container != null && cntrlUnit.Container.TileContainer.Minerals > 0)
                     {
                         // Return the mins
                         pheromoneType = PheromoneType.Container;
@@ -453,7 +398,7 @@ namespace Engine.Ants
                     {
                         moveToPosition = control.FindCommandTarget(player, Ant);
 
-                        if (moveToPosition == null)
+                        if (moveToPosition == Position.Null)
                         {
                             // Cannot reach target
                             Ant.StuckCounter++;
@@ -467,19 +412,19 @@ namespace Engine.Ants
                         pheromoneType = PheromoneType.Energy;
                     }
                     /*
-                    moveToPosition = Control.FindWork(player, this);
-                    if (moveToPosition != null && Control.IsOccupied(player, moves, moveToPosition))
+                    moveToulong = Control.FindWork(player, this);
+                    if (moveToulong != null && Control.IsOccupied(player, moves, moveToulong))
                     {
-                        moveToPosition = null;
+                        moveToulong = null;
                         FollowThisRoute = null;
                     }*/
                 }
                 if (isWorker && possibleTiles.Count == 0 && pheromoneType == PheromoneType.Container)
                 {
                     moveToPosition = control.FindContainer(player, Ant);
-                    if (moveToPosition != null && control.IsOccupied(player, moves, moveToPosition))
+                    if (moveToPosition != Position.Null && control.IsOccupied(player, moves, moveToPosition))
                     {
-                        moveToPosition = null;
+                        moveToPosition = Position.Null;
                         Ant.FollowThisRoute = null;
                     }
                 }
@@ -494,12 +439,12 @@ namespace Engine.Ants
                         if (movesCount != moves.Count)
                             return true;
                     }
-                    if (moveToPosition == null)
+                    if (moveToPosition == Position.Null)
                     {
                         moveToPosition = control.FindEnemy(player, Ant);
-                        if (moveToPosition != null && control.IsOccupied(player, moves, moveToPosition))
+                        if (moveToPosition != Position.Null && control.IsOccupied(player, moves, moveToPosition))
                         {
-                            moveToPosition = null;
+                            moveToPosition = Position.Null;
                             Ant.FollowThisRoute = null;
                         }
                     }
@@ -507,13 +452,13 @@ namespace Engine.Ants
                 if (possibleTiles.Count == 0 && pheromoneType == PheromoneType.Energy)
                 {
                     moveToPosition = control.FindReactor(player, Ant);
-                    if (moveToPosition != null && control.IsOccupied(player, moves, moveToPosition))
+                    if (moveToPosition != Position.Null && control.IsOccupied(player, moves, moveToPosition))
                     {
-                        moveToPosition = null;
+                        moveToPosition = Position.Null;
                         Ant.FollowThisRoute = null;
                     }
                 }
-                if (moveToPosition == null)
+                if (moveToPosition == Position.Null)
                 {
                     if (Ant.AntWorkerType == AntWorkerType.Fighter && possibleTiles.Count == 0)
                     {
@@ -543,7 +488,7 @@ namespace Engine.Ants
                     }
 
                     AntDestination moveToTile = null;
-                    while (possibleTiles.Count > 0 && moveToTile == null && moveToPosition == null)
+                    while (possibleTiles.Count > 0 && moveToTile == null && moveToPosition == Position.Null)
                     {
                         moveToTile = FindBest(player, possibleTiles);
                         if (moveToTile == null)
@@ -556,21 +501,21 @@ namespace Engine.Ants
                         }
                     }
 
-                    if (moveToTile == null && moveToPosition == null)
+                    if (moveToTile == null && moveToPosition == Position.Null)
                     {
                         if (pheromoneType == PheromoneType.AwayFromEnergy)
                         {
                             // out of reactor range
                             moveToPosition = control.FindReactor(player, Ant);
-                            if (moveToPosition != null && control.IsOccupied(player, moves, moveToPosition))
+                            if (moveToPosition != Position.Null && control.IsOccupied(player, moves, moveToPosition))
                             {
-                                moveToPosition = null;
+                                moveToPosition = Position.Null;
                                 Ant.FollowThisRoute = null;
                             }
                             else
                             {
-                                // Do not follow the route, cause first moveToPosition would be skippd. Otherwise, 
-                                if (moveToPosition != null && Ant.FollowThisRoute != null && Ant.FollowThisRoute.Count > 0)
+                                // Do not follow the route, cause first moveToulong would be skippd. Otherwise, 
+                                if (moveToPosition != Position.Null && Ant.FollowThisRoute != null && Ant.FollowThisRoute.Count > 0)
                                 {
                                     Ant.FollowThisRoute.Insert(0, moveToPosition);
                                 }
@@ -595,7 +540,7 @@ namespace Engine.Ants
                                 {
                                     // out of reactor range
                                     moveToPosition = control.FindReactor(player, Ant);
-                                    if (moveToPosition != null && control.IsOccupied(player, moves, moveToPosition))
+                                    if (moveToPosition != Position.Null && control.IsOccupied(player, moves, moveToPosition))
                                     {
                                         Ant.FollowThisRoute = null;
                                         cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
@@ -603,8 +548,8 @@ namespace Engine.Ants
                                     }
                                     else
                                     {
-                                        // Do not follow the route, cause first moveToPosition would be skippd. Otherwise, 
-                                        if (moveToPosition != null && Ant.FollowThisRoute != null && Ant.FollowThisRoute.Count > 0)
+                                        // Do not follow the route, cause first moveToulong would be skippd. Otherwise, 
+                                        if (moveToPosition != Position.Null && Ant.FollowThisRoute != null && Ant.FollowThisRoute.Count > 0)
                                         {
                                             Ant.FollowThisRoute.Insert(0, moveToPosition);
                                         }
@@ -643,13 +588,13 @@ namespace Engine.Ants
                     }
                 }*/
             }
-            if (moveToPosition != null && control.IsOccupied(player, moves, moveToPosition))
+            if (moveToPosition != Position.Null && control.IsOccupied(player, moves, moveToPosition))
             {
-                moveToPosition = null;
+                moveToPosition = Position.Null;
             }
 
             Move move = null;
-            if (moveToPosition != null)
+            if (moveToPosition != Position.Null)
             {
                 bool myPosFound = false;
                 Tile t = player.Game.Map.GetTile(moveToPosition);
@@ -672,7 +617,7 @@ namespace Engine.Ants
                     move.MoveType = MoveType.Move;
                     move.UnitId = cntrlUnit.UnitId;
                     move.PlayerId = player.PlayerModel.Id;
-                    move.Positions = new List<Position>();
+                    move.Positions = new List<ulong>();
                     move.Positions.Add(cntrlUnit.Pos);
                     move.Positions.Add(moveToPosition);
                     moves.Add(move);
@@ -701,7 +646,7 @@ namespace Engine.Ants
                 return false;
             }
 
-            if (cntrlUnit.Engine.HoldPosition)
+            if (cntrlUnit.Engine.Holdulong)
                 return false;
 
             if (cntrlUnit.UnderConstruction == false)
@@ -748,8 +693,8 @@ namespace Engine.Ants
                             move.MoveType = MoveType.CommandComplete;
                             move.UnitId = cntrlUnit.UnitId;
                             move.PlayerId = player.PlayerModel.Id;
-                            move.Positions = new List<Position>();
-                            move.Positions.Add(CurrentGameCommand.TargetPosition);
+                            move.ulongs = new List<ulong>();
+                            move.ulongs.Add(CurrentGameCommand.Targetulong);
                             moves.Add(move);
 
                             // Collect from here and do anything
@@ -764,15 +709,15 @@ namespace Engine.Ants
                             move.MoveType = MoveType.CommandComplete;
                             move.UnitId = cntrlUnit.UnitId;
                             move.PlayerId = player.PlayerModel.Id;
-                            move.Positions = new List<Position>();
-                            move.Positions.Add(CurrentGameCommand.TargetPosition);
+                            move.ulongs = new List<ulong>();
+                            move.ulongs.Add(CurrentGameCommand.Targetulong);
                             moves.Add(move);*/
 
                             // Stay until enemy
                             //WaitForEnemy = true;
                             // ...
 
-                            // Position reached, return to normal mode
+                            // ulong reached, return to normal mode
                             //CurrentGameCommand = null;
                         }
                     }
@@ -780,7 +725,7 @@ namespace Engine.Ants
                     else if (Ant.FollowThisRoute == null || Ant.FollowThisRoute.Count == 0)
                     {
                         // Compute route to target
-                        List<Position> positions = player.Game.FindPath(cntrlUnit.Pos, cntrlUnit.CurrentGameCommand.TargetPosition, cntrlUnit);
+                        List<ulong> positions = player.Game.FindPath(cntrlUnit.Pos, cntrlUnit.CurrentGameCommand.TargetPosition, cntrlUnit);
                         if (positions != null)
                         {
                             /*
@@ -788,7 +733,7 @@ namespace Engine.Ants
                             {
                                 if (positions.Count <= 2)
                                 {
-                                    BuildPositionReached = true;
+                                    BuildulongReached = true;
                                     return true;
                                 }
                                 else
@@ -797,7 +742,7 @@ namespace Engine.Ants
                                     positions.RemoveAt(positions.Count - 1);
                                 }
                             }*/
-                            Ant.FollowThisRoute = new List<Position>();
+                            Ant.FollowThisRoute = new List<ulong>();
                             for (int i = 1; i < positions.Count; i++)
                             {
                                 Ant.FollowThisRoute.Add(positions[i]);

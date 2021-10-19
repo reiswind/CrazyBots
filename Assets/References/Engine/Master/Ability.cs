@@ -23,7 +23,7 @@ namespace Engine.Master
         public int Level { get; set; }
         public TileObjectType PartType { get; set; }
 
-        public virtual void ComputePossibleMoves(List<Move> possibleMoves, List<Position> includedPositions, MoveFilter moveFilter)
+        public virtual void ComputePossibleMoves(List<Move> possibleMoves, List<ulong> includedulongs, MoveFilter moveFilter)
         {
 
         }

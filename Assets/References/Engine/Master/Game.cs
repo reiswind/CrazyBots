@@ -57,7 +57,7 @@ namespace Engine.Master
             }
             //CreateUnits();
 
-            Map.GetTile(new Position(0, 0));
+            Map.GetTile(Position.CreatePosition(0, 0));
 
             // TESTEXTRACT
 
@@ -89,10 +89,13 @@ namespace Engine.Master
             {
                 Player player = Players[unitModel.PlayerId];
 
-                Position posOnMap = null;
+                ulong posOnMap = Position.Null;
                 if (player.StartZone != null)
                 {
-                    posOnMap = new Position(player.StartZone.Center.X + unitModel.Position.X, player.StartZone.Center.Y + unitModel.Position.Y);
+                    ulong posInModel = Position.ParsePosition(unitModel.Position);
+                    posOnMap = Position.CreatePosition(
+                        Position.GetX(player.StartZone.Center) + Position.GetX(posInModel),
+                        Position.GetY(player.StartZone.Center) + Position.GetY(posInModel));
 
                     Tile t = Map.GetTile(posOnMap);
                     if (t != null)
@@ -116,14 +119,14 @@ namespace Engine.Master
                                 thisUnit.Assembler.TileContainer.Clear();
                         }
                         // Turn into direction missing
-                        thisUnit.Direction = Direction.C; // CalcDirection(move.Positions[0], move.Positions[1]);
+                        thisUnit.Direction = Direction.C; // CalcDirection(move.ulongs[0], move.ulongs[1]);
                         thisUnit.Owner = Players[unitModel.PlayerId];
 
                         if (Map.Units.GetUnitAt(thisUnit.Pos) == null)
                             Map.Units.Add(thisUnit);
 
                         if (unitModel.HoldPosition && thisUnit.Engine != null)
-                            thisUnit.Engine.HoldPosition = true;
+                            thisUnit.Engine.Holdulong = true;
 
                         if (unitModel.FireAtGround && thisUnit.Weapon != null)
                             thisUnit.Weapon.FireAtGround = true;
@@ -156,10 +159,14 @@ namespace Engine.Master
                 {
                     Player player = Players[unitModel.PlayerId];
 
-                    Position posOnMap = null;
+                    ulong posOnMap = Position.Null;
                     if (player.StartZone != null)
                     {
-                        posOnMap = new Position(player.StartZone.Center.X + unitModel.Position.X, player.StartZone.Center.Y + unitModel.Position.Y);
+                        //posOnMap = n ew ulong(player.StartZone.Center.X + unitModel.ulong.X, player.StartZone.Center.Y + unitModel.ulong.Y);
+                        ulong posInModel = Position.ParsePosition(unitModel.Position);
+                        posOnMap = Position.CreatePosition(
+                            Position.GetX(player.StartZone.Center) + Position.GetX(posInModel),
+                            Position.GetY(player.StartZone.Center) + Position.GetY(posInModel));
 
                         Tile t = Map.GetTile(posOnMap);
                         if (t != null)
@@ -172,14 +179,14 @@ namespace Engine.Master
                             thisUnit.Pos = posOnMap;
 
                             // Turn into direction missing
-                            thisUnit.Direction = Direction.C; // CalcDirection(move.Positions[0], move.Positions[1]);
+                            thisUnit.Direction = Direction.C; // CalcDirection(move.ulongs[0], move.ulongs[1]);
                             thisUnit.Owner = Players[unitModel.PlayerId];
 
                             if (Map.Units.GetUnitAt(thisUnit.Pos) == null)
                                 Map.Units.Add(thisUnit);
 
                             if (unitModel.HoldPosition && thisUnit.Engine != null)
-                                thisUnit.Engine.HoldPosition = true;
+                                thisUnit.Engine.Holdulong = true;
 
                             if (unitModel.FireAtGround && thisUnit.Weapon != null)
                                 thisUnit.Weapon.FireAtGround = true;
@@ -196,7 +203,7 @@ namespace Engine.Master
                             move.UnitId = thisUnit.UnitId;
                             move.OtherUnitId = unitModel.Blueprint;
                             move.Stats = thisUnit.CollectStats();
-                            move.Positions = new List<Position>();
+                            move.Positions = new List<ulong>();
                             move.Positions.Add(posOnMap);
                             newMoves.Add(move);
 
@@ -219,8 +226,8 @@ namespace Engine.Master
                 if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
                 {
                     remove.Add(tileObject);
-                    if (!changedGroundPositions.ContainsKey(t.Pos))
-                        changedGroundPositions.Add(t.Pos, null);
+                    if (!changedGroundulongs.ContainsKey(t.Pos))
+                        changedGroundulongs.Add(t.Pos, null);
                 }
             }
             foreach (TileObject tileObject in remove)
@@ -264,7 +271,7 @@ namespace Engine.Master
             Init(gameModel, seed);
         }
 
-        public Tile GetTile(Position p)
+        public Tile GetTile(ulong p)
         {
             return Map.GetTile(p);
         }
@@ -272,23 +279,23 @@ namespace Engine.Master
         public Pheromones Pheromones { get; set; }
 
         
-        public void ComputePossibleMoves(Position pos, List<Move> possibleMoves, List<Position> includedPositions, MoveFilter moveFilter)
+        public void ComputePossibleMoves(ulong pos, List<Move> possibleMoves, List<ulong> includedulongs, MoveFilter moveFilter)
         {
             Tile t = Map.GetTile(pos);
             if (t != null && t.Unit != null)
             {
-                t.Unit.ComputePossibleMoves(possibleMoves, includedPositions, moveFilter);
+                t.Unit.ComputePossibleMoves(possibleMoves, includedulongs, moveFilter);
             }
         }
 
-        public List<Position> FindPath(Position from, Position to, Unit unit)
+        public List<ulong> FindPath(ulong from, ulong to, Unit unit)
         {
             PathFinderFast pathFinder = new PathFinderFast(Map);
             pathFinder.IgnoreVisibility = true;
             return pathFinder.FindPath(unit, from, to);
         }
 
-        public Move MoveTo(Position from, Position to, Engine engine)
+        public Move MoveTo(ulong from, ulong to, Engine engine)
         {
             Tile t = Map.GetTile(from);
             if (t == null || t.Unit == null)
@@ -300,7 +307,7 @@ namespace Engine.Master
 
             PathFinderFast pathFinder = new PathFinderFast(Map);
             pathFinder.IgnoreVisibility = true;
-            List<Position> route = pathFinder.FindPath(unit, from, to);
+            List<ulong> route = pathFinder.FindPath(unit, from, to);
             if (route == null)
                 return null;
 
@@ -337,127 +344,7 @@ namespace Engine.Master
         private int MoveNr;
         private int CollisionCntr;
 
-        private Direction CalcDirection(Position fromGround, Position destinationGround)
-        {
-            //int angle = 0;
-            Direction direction = Direction.C;
-
-            // move right
-            if (fromGround.X < destinationGround.X)
-            {
-                if (fromGround.X % 2 != 0)
-                {
-                    if (fromGround.Y < destinationGround.Y)
-                    {
-                        // right down OK,
-                        //angle = 40;
-                        direction = Direction.SE;
-                    }
-                    if (fromGround.Y == destinationGround.Y)
-                    {
-                        // right up OK
-                        //angle = -40;
-                        direction = Direction.NE;
-                    }
-                    if (fromGround.Y > destinationGround.Y)
-                    {
-                        // never OK
-                        //angle = 0;
-                        direction = Direction.C;
-                    }
-                }
-                else
-                {
-                    if (fromGround.Y < destinationGround.Y)
-                    {
-                        // never OK
-                        //angle = 0;
-                        direction = Direction.C;
-                    }
-                    if (fromGround.Y == destinationGround.Y)
-                    {
-                        // right down OK
-                        //angle = 40;
-                        direction = Direction.SE;
-                    }
-                    if (fromGround.Y > destinationGround.Y)
-                    {
-                        // right up OK
-                        //angle = -40;
-                        direction = Direction.NE;
-                    }
-
-                }
-
-            }
-            // move left
-            if (fromGround.X > destinationGround.X)
-            {
-                if (fromGround.X % 2 != 0)
-                {
-                    if (fromGround.Y < destinationGround.Y)
-                    {
-                        // left down OK
-                        //angle = 140;
-                        direction = Direction.SW;
-                    }
-                    if (fromGround.Y == destinationGround.Y)
-                    {
-                        // left up OK
-                        //angle = 215;
-                        direction = Direction.NW;
-                    }
-                    if (fromGround.Y > destinationGround.Y)
-                    {
-                        // never
-                        //angle = 0;
-                        direction = Direction.C;
-                    }
-                }
-                else
-                {
-                    if (fromGround.Y < destinationGround.Y)
-                    {
-                        // never
-                        //angle = 0;
-                        direction = Direction.NE;
-                    }
-                    if (fromGround.Y == destinationGround.Y)
-                    {
-                        // left down OK
-                        //angle = 140;
-                        direction = Direction.SW;
-                    }
-                    if (fromGround.Y > destinationGround.Y)
-                    {
-                        // left up OK
-                        //angle = 215;
-                        direction = Direction.NW;
-                    }
-
-                }
-            }
-
-
-            if (fromGround.X == destinationGround.X)
-            {
-                if (fromGround.Y < destinationGround.Y)
-                {
-                    // OK
-                    //angle = 90;
-                    direction = Direction.S;
-                }
-                if (fromGround.Y > destinationGround.Y)
-                {
-                    // OK
-                    //angle = -90;
-                    direction = Direction.N;
-                }
-            }
-            return direction;
-        }
-
-        public void UpdateUnitPositions(List<Move> newMoves)
+        public void UpdateUnitulongs(List<Move> newMoves)
         {
             CollisionCntr++;
             if (CollisionCntr == 446)
@@ -488,7 +375,7 @@ namespace Engine.Master
                         {
                             Player player = Players[move.PlayerId];
 
-                            if (player.UnitsInBuild.ContainsKey(move.OtherUnitId)) //move.Positions[1]))
+                            if (player.UnitsInBuild.ContainsKey(move.OtherUnitId)) //move.ulongs[1]))
                             {
                                 // From under construction to real unit
                                 PlayerUnit playerUnit = player.UnitsInBuild[move.OtherUnitId];
@@ -516,8 +403,8 @@ namespace Engine.Master
                 }
                 if (move.MoveType == MoveType.Move || move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
                 {
-                    Position Destination;
-                    Position From;
+                    ulong Destination;
+                    ulong From;
 
                     From = move.Positions[0];
                     Destination = move.Positions[move.Positions.Count - 1];
@@ -586,16 +473,15 @@ namespace Engine.Master
                         move.Stats = thisUnit.CollectStats();
                         thisUnit.Pos = Destination;
                         if (move.Positions.Count > 1)
-                            thisUnit.Direction = CalcDirection(move.Positions[0], move.Positions[1]);
+                            thisUnit.Direction = CubePosition.CalcDirection(move.Positions[0], move.Positions[1]);
                         if (move.PlayerId > 0)
                             thisUnit.Owner = Players[move.PlayerId];
                     }
                     else
                     {
                         // Remove moving unit from map
-                        if (thisUnit != null && move.Positions.Count > 1)
-                            thisUnit.Direction = CalcDirection(move.Positions[0], move.Positions[1]);
-
+                        if (move.Positions.Count > 1)
+                            thisUnit.Direction = CubePosition.CalcDirection(move.Positions[0], move.Positions[1]);
                         Map.Units.Remove(From);
                     }
 
@@ -609,8 +495,8 @@ namespace Engine.Master
                     Tile t = Map.GetTile(Destination);
                     if (t.RemoveBio())
                     {
-                        if (!changedGroundPositions.ContainsKey(Destination))
-                            changedGroundPositions.Add(Destination, null);
+                        if (!changedGroundulongs.ContainsKey(Destination))
+                            changedGroundulongs.Add(Destination, null);
                     }
 
                     // is there a unit on the map?
@@ -625,7 +511,7 @@ namespace Engine.Master
             
             foreach (Unit addedUnit in addedUnits)
             {
-                if (addedUnit.Pos != null)
+                if (addedUnit.Pos != Position.Null)
                 {
                     if (addedUnit.IsGhost)
                     {
@@ -708,7 +594,7 @@ namespace Engine.Master
 
                             if (tileObjects.Count > 0)
                             {
-                                Position from = move.Positions[move.Positions.Count - 1];
+                                ulong from = move.Positions[move.Positions.Count - 1];
                                 Tile fromTile = Map.GetTile(from);
 
                                 foreach (TileObject tileObject in tileObjects)
@@ -722,7 +608,7 @@ namespace Engine.Master
                                 }
                                 Move updateGroundMove = new Move();
                                 updateGroundMove.MoveType = MoveType.UpdateGround;
-                                updateGroundMove.Positions = new List<Position>();
+                                updateGroundMove.Positions = new List<ulong>();
                                 updateGroundMove.Positions.Add(from);
                                 Map.CollectGroundStats(from, updateGroundMove);
                                 nextMoves.Add(updateGroundMove);
@@ -733,7 +619,7 @@ namespace Engine.Master
                             moveUpdate.PlayerId = unit.Owner.PlayerModel.Id;
                             moveUpdate.MoveType = MoveType.UpdateStats;
                             moveUpdate.UnitId = unit.UnitId;
-                            moveUpdate.Positions = new List<Position>();
+                            moveUpdate.Positions = new List<ulong>();
                             moveUpdate.Positions.Add(unit.Pos);
                             moveUpdate.Stats = unit.CollectStats();
                             nextMoves.Add(moveUpdate);
@@ -743,7 +629,7 @@ namespace Engine.Master
                 }
                 else if (move.MoveType == MoveType.Transport)
                 {
-                    Position transportTargetPos = move.Positions[move.Positions.Count - 1];
+                    ulong transportTargetPos = move.Positions[move.Positions.Count - 1];
                     Unit unit = Map.Units.GetUnitAt(transportTargetPos);
 
                     bool dropOnGround = false;
@@ -763,8 +649,8 @@ namespace Engine.Master
                         // Target died, transport to ground
                         Tile unitTile = GetTile(transportTargetPos);
 
-                        if (!changedGroundPositions.ContainsKey(transportTargetPos))
-                            changedGroundPositions.Add(transportTargetPos, null);
+                        if (!changedGroundulongs.ContainsKey(transportTargetPos))
+                            changedGroundulongs.Add(transportTargetPos, null);
                     }
                     else
                     {
@@ -782,7 +668,7 @@ namespace Engine.Master
                         moveUpdate.PlayerId = unit.Owner.PlayerModel.Id;
                         moveUpdate.MoveType = MoveType.UpdateStats;
                         moveUpdate.UnitId = unit.UnitId;
-                        moveUpdate.Positions = new List<Position>();
+                        moveUpdate.Positions = new List<ulong>();
                         moveUpdate.Positions.Add(unit.Pos);
                         moveUpdate.Stats = unit.CollectStats();
                         nextMoves.Add(moveUpdate);
@@ -823,14 +709,14 @@ namespace Engine.Master
 
         internal void HitByBullet(Move move, List<Move> nextMoves)
         {
-            Position pos = move.Positions[move.Positions.Count-1];
+            ulong pos = move.Positions[move.Positions.Count-1];
             Tile targetTile = GetTile(pos);
 
             TileObject tileObject = move.Stats.MoveUpdateGroundStat.TileObjects[0];
             targetTile.HitByBullet(tileObject);
 
-            if (!changedGroundPositions.ContainsKey(pos))
-                changedGroundPositions.Add(pos, null);
+            if (!changedGroundulongs.ContainsKey(pos))
+                changedGroundulongs.Add(pos, null);
 
             Unit targetUnit = targetTile.Unit;
             if (targetUnit != null)
@@ -892,7 +778,7 @@ namespace Engine.Master
                         Move deleteMove = new Move();
                         deleteMove.PlayerId = targetUnit.Owner.PlayerModel.Id;
                         deleteMove.MoveType = MoveType.Delete;
-                        deleteMove.Positions = new List<Position>();
+                        deleteMove.Positions = new List<ulong>();
                         deleteMove.Positions.Add(targetUnit.Pos);
                         deleteMove.UnitId = targetUnit.UnitId;
                         nextMoves.Add(deleteMove);
@@ -1068,7 +954,7 @@ namespace Engine.Master
                 if (move.MoveType == MoveType.Add)
                 {
                     int cnt = move.Positions.Count;
-                    Position p = move.Positions[cnt-1];
+                    ulong p = move.Positions[cnt-1];
                     Unit unit = Map.Units.GetUnitAt(p);
                     if (unit == null)
                     {
@@ -1082,7 +968,7 @@ namespace Engine.Master
                 if (move.MoveType == MoveType.Build)
                 {
                     int cnt = move.Positions.Count;
-                    Position p = move.Positions[cnt - 1];
+                    ulong p = move.Positions[cnt - 1];
                     /*
                     PlayerUnit playerUnit = player.UnitsInBuild[p];
                     if (playerUnit == null)
@@ -1096,7 +982,7 @@ namespace Engine.Master
                 }
                 if (move.MoveType == MoveType.Move)
                 {
-                    Position p = move.Positions[0];
+                    ulong p = move.Positions[0];
                     if (move.Positions.Count > 1)
                     {
                         p = move.Positions[move.Positions.Count-1];
@@ -1123,7 +1009,7 @@ namespace Engine.Master
                 if (move.MoveType == MoveType.Delete)
                 {
                     int cnt = move.Positions.Count;
-                    Position p = move.Positions[cnt - 1];
+                    ulong p = move.Positions[cnt - 1];
                     Unit unit = Map.Units.GetUnitAt(p);
                     if (unit != null)
                     {
@@ -1189,7 +1075,7 @@ namespace Engine.Master
                     {
                         bool extracted = false;
 
-                        Position fromPos = move.Positions[move.Positions.Count - 1];
+                        ulong fromPos = move.Positions[move.Positions.Count - 1];
                         Tile fromTile = Map.GetTile(fromPos);
 
                         Unit otherUnit = null;
@@ -1215,8 +1101,8 @@ namespace Engine.Master
 
                             if (extracted)
                             {
-                                if (!changedGroundPositions.ContainsKey(fromPos))
-                                    changedGroundPositions.Add(fromPos, null);
+                                if (!changedGroundulongs.ContainsKey(fromPos))
+                                    changedGroundulongs.Add(fromPos, null);
 
                                 if (otherUnit != null && !changedUnits.ContainsKey(otherUnit.Pos))
                                     changedUnits.Add(otherUnit.Pos, otherUnit);
@@ -1229,7 +1115,7 @@ namespace Engine.Master
                                     Move deleteMove = new Move();
                                     deleteMove.PlayerId = otherUnit.Owner.PlayerModel.Id;
                                     deleteMove.MoveType = MoveType.Delete;
-                                    deleteMove.Positions = new List<Position>();
+                                    deleteMove.Positions = new List<ulong>();
                                     deleteMove.Positions.Add(otherUnit.Pos);
                                     deleteMove.UnitId = otherUnit.UnitId;
                                     lastMoves.Add(deleteMove);
@@ -1479,14 +1365,14 @@ namespace Engine.Master
                 List<Move> acceptedMoves = new List<Move>();
 
                 // Remove moves that go to the same destination
-                Dictionary<Position, Move> moveToTargets = new Dictionary<Position, Move>();
+                Dictionary<ulong, Move> moveToTargets = new Dictionary<ulong, Move>();
                 foreach (Move move in newMoves)
                 {
                     // Any position that is currently being upgraded or a unit turns from ghost into real
                     // cannot be stepped on
                     if (move.MoveType == MoveType.Upgrade || move.MoveType == MoveType.Build)
                     {
-                        Position destination = move.Positions[move.Positions.Count - 1];
+                        ulong destination = move.Positions[move.Positions.Count - 1];
                         if (moveToTargets.ContainsKey(destination))
                         {
                             // Cannot execute move
@@ -1511,7 +1397,7 @@ namespace Engine.Master
                 {
                     if (move.MoveType == MoveType.Move || move.MoveType == MoveType.Add) // || move.MoveType == MoveType.Build)
                     {
-                        Position destination = move.Positions[move.Positions.Count - 1];
+                        ulong destination = move.Positions[move.Positions.Count - 1];
                         if (moveToTargets.ContainsKey(destination))
                         {
                             // (Hit) Could do nasty things, but for now, the unit does not move
@@ -1537,8 +1423,8 @@ namespace Engine.Master
                     if (/*move.MoveType == MoveType.Upgrade ||*/ move.MoveType == MoveType.Build)
                         continue;
 
-                    Position from = move.Positions[0];
-                    Position destination = move.Positions[move.Positions.Count - 1];
+                    ulong from = move.Positions[0];
+                    ulong destination = move.Positions[move.Positions.Count - 1];
                     Tile t = Map.GetTile(destination);
                     if (t == null)
                     {
@@ -1600,8 +1486,8 @@ namespace Engine.Master
             }
         }
 
-        internal Dictionary<Position, Tile> changedGroundPositions = new Dictionary<Position, Tile>();
-        internal Dictionary<Position, Unit> changedUnits = new Dictionary<Position, Unit>();
+        internal Dictionary<ulong, Tile> changedGroundulongs = new Dictionary<ulong, Tile>();
+        internal Dictionary<ulong, Unit> changedUnits = new Dictionary<ulong, Unit>();
         private Player NeutralPlayer;
 
         private void CreateTileObjects(int attempts)
@@ -1623,8 +1509,8 @@ namespace Engine.Master
                             tileObject.Direction = Direction.C;
                             tile.TileContainer.Add(tileObject);
                         }
-                        if (!changedGroundPositions.ContainsKey(tile.Pos))
-                            changedGroundPositions.Add(tile.Pos, null);
+                        if (!changedGroundulongs.ContainsKey(tile.Pos))
+                            changedGroundulongs.Add(tile.Pos, null);
                     }
                 }
             }
@@ -1635,12 +1521,12 @@ namespace Engine.Master
 
                 foreach (MapZone mapZone in Map.Zones.Values)
                 {
-                    Position pos = mapZone.CreateTerrainTile(Map);
-                    if (pos != null)
+                    ulong pos = mapZone.CreateTerrainTile(Map);
+                    if (pos != Position.Null)
                     {
                         oneSpace = true;
-                        if (!changedGroundPositions.ContainsKey(pos))
-                            changedGroundPositions.Add(pos, null);
+                        if (!changedGroundulongs.ContainsKey(pos))
+                            changedGroundulongs.Add(pos, null);
                     }
                     else
                     {
@@ -1654,16 +1540,16 @@ namespace Engine.Master
 
         private void AddChangedGroundInfoMoves(List<Move> moves)
         {
-            foreach (Position pos in changedGroundPositions.Keys)
+            foreach (ulong pos in changedGroundulongs.Keys)
             {
                 Move hitmove = new Move();
                 hitmove.MoveType = MoveType.UpdateGround;
-                hitmove.Positions = new List<Position>();
+                hitmove.Positions = new List<ulong>();
                 hitmove.Positions.Add(pos);
                 Map.CollectGroundStats(pos, hitmove);
                 moves.Add(hitmove);
             }
-            changedGroundPositions.Clear();
+            changedGroundulongs.Clear();
         }
 
         public List<Move> ProcessMove(int playerId, Move myMove, List<GameCommand> gameCommands)
@@ -1682,7 +1568,7 @@ namespace Engine.Master
                 }
 
                 changedUnits.Clear();
-                changedGroundPositions.Clear();
+                changedGroundulongs.Clear();
 
 
                 /*
@@ -1807,7 +1693,7 @@ namespace Engine.Master
 
                     LogMoves("New Moves after Collisions", MoveNr, newMoves);
 
-                    UpdateUnitPositions(newMoves);
+                    UpdateUnitulongs(newMoves);
 
                     ProcessNewMoves();
                 }
@@ -1851,7 +1737,7 @@ namespace Engine.Master
                     moveUpdate.PlayerId = unit.Owner.PlayerModel.Id;
                     moveUpdate.MoveType = MoveType.UpdateStats;
                     moveUpdate.UnitId = unit.UnitId;
-                    moveUpdate.Positions = new List<Position>();
+                    moveUpdate.Positions = new List<ulong>();
                     moveUpdate.Positions.Add(unit.Pos);
                     moveUpdate.Stats = unit.CollectStats();
                     lastMoves.Add(moveUpdate);
@@ -1924,15 +1810,15 @@ namespace Engine.Master
             return mapInfo;
         }
 
-        private List<Position> updatedPositions = new List<Position>();
+        private List<ulong> updatedulongs = new List<ulong>();
         private void ProcessBorders()
         {
-            List<Position> newUpdatedPositions = new List<Position>();
+            List<ulong> newUpdatedulongs = new List<ulong>();
 
-            foreach (Position pos in mapInfo.Pheromones.Keys)
+            foreach (ulong pos in mapInfo.Pheromones.Keys)
             {
-                newUpdatedPositions.Add(pos);
-                updatedPositions.Remove(pos);
+                newUpdatedulongs.Add(pos);
+                updatedulongs.Remove(pos);
 
                 MapPheromone mapPheromone = mapInfo.Pheromones[pos];
                 float highestEnergy = -1;
@@ -1953,35 +1839,35 @@ namespace Engine.Master
                 Tile t = Map.GetTile(pos);
                 if (highestEnergy > 0)
                 {
-                    if (t.Owner != highestPlayerId && !changedGroundPositions.ContainsKey(pos))
+                    if (t.Owner != highestPlayerId && !changedGroundulongs.ContainsKey(pos))
                     {
-                        changedGroundPositions.Add(pos, null);
+                        changedGroundulongs.Add(pos, null);
                         t.Owner = highestPlayerId;
                     }
                 }
                 else
                 {
-                    if (t.Owner != 0 && !changedGroundPositions.ContainsKey(pos))
+                    if (t.Owner != 0 && !changedGroundulongs.ContainsKey(pos))
                     {
-                        changedGroundPositions.Add(pos, null);
+                        changedGroundulongs.Add(pos, null);
                         t.Owner = 0;
                     }
                 }
             }
-            foreach (Position pos in updatedPositions)
+            foreach (ulong pos in updatedulongs)
             {
                 Tile t = Map.GetTile(pos);
                 if (t.Owner != 0 || t.IsBorder)
                 {
-                    if (!changedGroundPositions.ContainsKey(pos))
-                        changedGroundPositions.Add(pos, null);
+                    if (!changedGroundulongs.ContainsKey(pos))
+                        changedGroundulongs.Add(pos, null);
                     t.Owner = 0;
                     t.IsBorder = false;
                 }
             }
-            updatedPositions = newUpdatedPositions;
+            updatedulongs = newUpdatedulongs;
             
-            foreach (Position pos in newUpdatedPositions)
+            foreach (ulong pos in newUpdatedulongs)
             {
                 Tile t = Map.GetTile(pos);
                 bool isBorder = false;
@@ -1996,8 +1882,8 @@ namespace Engine.Master
                 if (t.IsBorder != isBorder)
                 {
                     t.IsBorder = isBorder;
-                    if (!changedGroundPositions.ContainsKey(pos))
-                        changedGroundPositions.Add(pos, null);
+                    if (!changedGroundulongs.ContainsKey(pos))
+                        changedGroundulongs.Add(pos, null);
                 }
             }
         }
@@ -2050,7 +1936,7 @@ namespace Engine.Master
 
                 foreach (Tile n in tile.Neighbors)
                 {
-                    //if (!VisiblePositions.Contains(n.Pos))
+                    //if (!Visibleulongs.Contains(n.Pos))
                     //    continue;
 
                     //if (!n.CanMoveTo())

@@ -91,7 +91,7 @@ namespace Engine.MapGenerator
 		}
 
 		/*
-		public static HexCoordinates FromPosition(Vector3 position)
+		public static HexCoordinates Fromulong(Vector3 position)
 		{
 			float x = position.x / HexMetrics.innerDiameter;
 			float y = -x;

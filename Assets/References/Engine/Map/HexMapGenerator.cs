@@ -989,7 +989,7 @@ namespace Engine.MapGenerator
 			temperature *= 1f - (cell.ViewElevation - waterLevel) /
 				(elevationMaximum - waterLevel + 1f);
 
-			float jitter = (float)Random.Next(); // HexMetrics.SampleNoise(cell.Position * 0.1f)[temperatureJitterChannel];
+			float jitter = (float)Random.Next(); // HexMetrics.SampleNoise(cell.ulong * 0.1f)[temperatureJitterChannel];
 
 			temperature += (jitter * 2f - 1f) * temperatureJitter;
 

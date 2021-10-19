@@ -10,18 +10,18 @@ namespace Engine.Master
 
     public class Units
     {
-        private Dictionary<Position, Unit> units;
-        public List<Unit> UnitsOnSamePosition;
+        private Dictionary<ulong, Unit> units;
+        public List<Unit> UnitsOnSameulong;
         public Map Map;
 
         public Units(Map map)
         {
             Map = map;
-            units = new Dictionary<Position, Unit>();
-            UnitsOnSamePosition = new List<Unit>();
+            units = new Dictionary<ulong, Unit>();
+            UnitsOnSameulong = new List<Unit>();
         }
 
-        public Dictionary<Position, Unit> List
+        public Dictionary<ulong, Unit> List
         {
             get { return units; }
         }
@@ -31,7 +31,7 @@ namespace Engine.Master
             units.Add(unit.Pos, unit);
         }
 
-        public void Remove(Position pos)
+        public void Remove(ulong pos)
         {
             if (units.ContainsKey(pos))
             {
@@ -57,7 +57,7 @@ namespace Engine.Master
         }
 
 
-        public void ChangePos(Position from, Position destination)
+        public void ChangePos(ulong from, ulong destination)
         {
             if (from == destination)
             {
@@ -88,7 +88,7 @@ namespace Engine.Master
             }
         }
 
-        public Unit GetUnitAt(Position pos)
+        public Unit GetUnitAt(ulong pos)
         {
             Unit unit;
             units.TryGetValue(pos, out unit);

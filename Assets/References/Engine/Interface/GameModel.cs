@@ -37,8 +37,8 @@ namespace Engine.Interface
         public int PlayerId { get; set; }
         public int TargetZone { get; set; }
         public string UnitId { get; set; } // Which unit to build, extract...
-        public Position TargetPosition { get; set; }
-        public Position MoveToPosition { get; set; }
+        public ulong TargetPosition { get; set; }
+        public ulong MoveToPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
         public BlueprintCommand BlueprintCommand { get; set; }
         public List<string> AttachedUnits { get; private set; }
@@ -68,13 +68,13 @@ namespace Engine.Interface
         MapInfo GetDebugMapInfo();
         List<Move> ProcessMove(int playerId, Move myMove, List<GameCommand> gameCommands);
 
-        void ComputePossibleMoves(Position pos, List<Move> possibleMoves, List<Position> includedPositions, MoveFilter moveFilter);
-        Move MoveTo(Position From, Position To, Master.Engine engine);
-        List<Position> FindPath(Position from, Position to, Unit unit);
+        void ComputePossibleMoves(ulong pos, List<Move> possibleMoves, List<ulong> includedulongs, MoveFilter moveFilter);
+        Move MoveTo(ulong From, ulong To, Master.Engine engine);
+        List<ulong> FindPath(ulong from, ulong to, Unit unit);
         Dictionary<int, Player> Players { get; }
         int Seed { get; }
         Random Random { get; }
-        Tile GetTile(Position p);
+        Tile GetTile(ulong p);
         Map Map { get; }
         Blueprints Blueprints { get; }
         List<Area> Areas { get; }
@@ -121,7 +121,7 @@ namespace Engine.Interface
         [DataMember]
         public int PlayerId { get; set; }
         [DataMember]
-        public Position Position { get; set; }
+        public string Position { get; set; }
         [DataMember]
         public string Parts { get; set; }
         [DataMember]

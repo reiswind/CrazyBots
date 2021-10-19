@@ -38,13 +38,13 @@ namespace Engine.Control
 
         public Command Command { get; set; }
         public PlayerUnit PlayerUnit { get; set; }
-        public Position Pos { get; set; }
+        public ulong Pos { get; set; }
     }
 
     public class DispatcherRequestExtract
     {
         public PlayerUnit Extractor { get; set; }
-        public Dictionary<Position, TileWithDistance> PossibleExtrationTiles { get; set; }
+        public Dictionary<ulong, TileWithDistance> PossibleExtrationTiles { get; set; }
     }
 
     public class Dispatcher
@@ -105,7 +105,7 @@ namespace Engine.Control
 
         public void ExtractStrayUnits(Player player, PlayerUnit extractorUnit, List<PlayerUnit> moveableUnits)
         {
-            Dictionary<Position, TileWithDistance> possibleExtrationTiles = extractorUnit.Unit.Extractor.CollectExtractionTiles();
+            Dictionary<ulong, TileWithDistance> possibleExtrationTiles = extractorUnit.Unit.Extractor.CollectExtractionTiles();
             if (possibleExtrationTiles.Count == 0)
                 return;
 
@@ -206,7 +206,7 @@ namespace Engine.Control
             // Make new unit.
             if (dispatcherRequestUnit.FavoriteUnits.Count == 0)
             {
-                List<Position> preferedPosition = new List<Position>();
+                List<ulong> preferedPosition = new List<ulong>();
 
                 if (dispatcherRequestUnit.UnitType.MinContainerLevel > 0)
                 {
@@ -581,7 +581,7 @@ namespace Engine.Control
 
                     if (dispatcherRequestUnit.UnitType.Matches(playerUnit))
                     {
-                        List<Position> path = GameController.FindPath(playerUnit.Unit.Pos, dispatcherRequestUnit.Command.Center, playerUnit.Unit);
+                        List<ulong> path = GameController.FindPath(playerUnit.Unit.Pos, dispatcherRequestUnit.Command.Center, playerUnit.Unit);
                         if (path != null && path.Count > 1)
                         {
                             PossiblePath possiblePath = new PossiblePath();
@@ -628,7 +628,7 @@ namespace Engine.Control
             }
         }
 
-        public void MoveUnit(Command command, PlayerUnit playerUnit, Position pos)
+        public void MoveUnit(Command command, PlayerUnit playerUnit, ulong pos)
         {
             // Check
 #if DEBUG
@@ -652,7 +652,7 @@ namespace Engine.Control
 
     public class PossiblePath
     {
-        public List<Position> Path { get; set; }
+        public List<ulong> Path { get; set; }
         public PlayerUnit PlayerUnit { get; set; }
     }
 

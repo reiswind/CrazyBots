@@ -102,7 +102,7 @@ namespace Assets.Scripts
 
         private Vector3 turnWeaponIntoDirection = Vector3.zero;
 
-        public void TurnTo(HexGrid hexGrid, Position pos)
+        public void TurnTo(HexGrid hexGrid, ulong pos)
         {
             GroundCell weaponTargetCell;
             weaponTargetCell = hexGrid.GroundCells[pos];
@@ -129,7 +129,7 @@ namespace Assets.Scripts
             hitByBullet = hexGrid.Fire(fireingUnit, anmo);
 
 
-            Position pos = move.Positions[move.Positions.Count - 1];
+            ulong pos = move.Positions[move.Positions.Count - 1];
 
             if (hexGrid.GroundCells.TryGetValue(pos, out weaponTargetCell))
             {

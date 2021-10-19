@@ -57,15 +57,15 @@ namespace Engine.Interface
 
         public List<PlayerMove> PossibleMoves = new List<PlayerMove>();
 
-        public List<Position> VisiblePositions;
+        public List<ulong> Visibleulongs;
         public override string ToString()
         {
             return Unit.ToString() + " [" + ExplorationValue + "]";
         }
 
-        static public int ComputeExplorationValue(Player player, Position pos, int visibilityRange)
+        static public int ComputeExplorationValue(Player player, ulong pos, int visibilityRange)
         {
-            List<Position> positions = new List<Position>();
+            List<ulong> positions = new List<ulong>();
             CollectVisiblePos(player.Game, pos, positions, visibilityRange);
 
             return ComputeExplorationValue(null, player, positions);
@@ -73,12 +73,12 @@ namespace Engine.Interface
 
         public void ComputeExplorationValue()
         {
-            this.ExplorationValue = ComputeExplorationValue(this, Unit.Owner, VisiblePositions);
+            this.ExplorationValue = ComputeExplorationValue(this, Unit.Owner, Visibleulongs);
         }
 
-        private static int ComputeExplorationValue(PlayerUnit notThis, Player player, List<Position> positions)
+        private static int ComputeExplorationValue(PlayerUnit notThis, Player player, List<ulong> positions)
         {
-            List<Position> seenPos = new List<Position>();
+            List<ulong> seenPos = new List<ulong>();
             seenPos.AddRange(positions);
             foreach (PlayerUnit playerUnit in player.Units.Values)
             {
@@ -86,9 +86,9 @@ namespace Engine.Interface
                     continue;
 
                 // Remove all pos that are seen by the other units
-                if (playerUnit.VisiblePositions != null)
+                if (playerUnit.Visibleulongs != null)
                 {
-                    foreach (Position p in playerUnit.VisiblePositions)
+                    foreach (ulong p in playerUnit.Visibleulongs)
                     {
                         seenPos.Remove(p);
                     }
@@ -98,9 +98,9 @@ namespace Engine.Interface
             }
             return seenPos.Count;
         }
-        internal void CollectVisiblePos(Position pos, List<Position> positions, bool keep)
+        internal void CollectVisiblePos(ulong pos, List<ulong> positions, bool keep)
         {
-            List<Position> calcPos = new List<Position>();
+            List<ulong> calcPos = new List<ulong>();
 
             int visibilityRange = 5;
             if (Unit.Reactor != null)
@@ -113,14 +113,14 @@ namespace Engine.Interface
             if (keep)
             {
                 this.ExplorationValue = 0;
-                this.VisiblePositions = calcPos;
+                this.Visibleulongs = calcPos;
             }
         }
 
-        internal static void CollectVisiblePos(Game game, Position pos, List<Position> positions, int visibilityRange)
+        internal static void CollectVisiblePos(Game game, ulong pos, List<ulong> positions, int visibilityRange)
         {
             List<TileWithDistance> openList = new List<TileWithDistance>();
-            Dictionary<Position, TileWithDistance> reachedTiles = new Dictionary<Position, TileWithDistance>();
+            Dictionary<ulong, TileWithDistance> reachedTiles = new Dictionary<ulong, TileWithDistance>();
 
             if (!positions.Contains(pos))
             {
@@ -178,8 +178,8 @@ namespace Engine.Interface
         // Unit that the player knows. Own and enemy
         public Dictionary<string, PlayerUnit> Units = new Dictionary<string, PlayerUnit>();
         public Dictionary<string, PlayerUnit> UnitsInBuild = new Dictionary<string, PlayerUnit>();
-        // Positions the player sees
-        public List<Position> VisiblePositions = new List<Position>();
+        // ulongs the player sees
+        public List<ulong> Visibleulongs = new List<ulong>();
 
         public bool CanProduceMoreUnits()
         {
@@ -187,7 +187,7 @@ namespace Engine.Interface
             /*
             if (NumberOfUnits > 10)
                 return false;
-            if (NumberOfUnits < 5 + this.VisiblePositions.Count / 20)
+            if (NumberOfUnits < 5 + this.Visibleulongs.Count / 20)
                 return true;
             return false;
             */
@@ -289,18 +289,18 @@ namespace Engine.Interface
         }
 
 
-        public Dictionary<Position, Tile> ForeignBorderTiles = new Dictionary<Position, Tile>();
+        public Dictionary<ulong, Tile> ForeignBorderTiles = new Dictionary<ulong, Tile>();
         
         public void UpdateAll(List<Move> returnMoves)
         {
             Move move;
-            if (this.VisiblePositions.Count > 0)
+            if (this.Visibleulongs.Count > 0)
             {
                 move = new Move();
                 move.MoveType = MoveType.VisibleTiles;
                 move.PlayerId = this.PlayerModel.Id;
-                move.Positions = new List<Position>();
-                move.Positions.AddRange(this.VisiblePositions);
+                move.Positions = new List<ulong>();
+                move.Positions.AddRange(this.Visibleulongs);
                 returnMoves.Add(move);
             }
             foreach (PlayerUnit playerUnit in Units.Values)
@@ -308,7 +308,7 @@ namespace Engine.Interface
                 move = new Move();
                 move.MoveType = MoveType.Add;
                 move.PlayerId = this.PlayerModel.Id;
-                move.Positions = new List<Position>();
+                move.Positions = new List<ulong>();
                 move.Positions.Add(playerUnit.Unit.Pos);
                 move.UnitId = playerUnit.Unit.UnitId;
                 move.Stats = playerUnit.Unit.CollectStats();
@@ -321,10 +321,10 @@ namespace Engine.Interface
         internal void ProcessMoves(List<Move> moves)
         {
             // Update postion of all units
-            Dictionary<Position, PlayerUnit> deletedUnits = new Dictionary<Position, PlayerUnit>();
-            List<Position> removedUnits = new List<Position>();
-            Dictionary<Position, PlayerUnit> movedAwayUnits = new Dictionary<Position, PlayerUnit>();
-            List<Position> changedUnits = new List<Position>();
+            Dictionary<ulong, PlayerUnit> deletedUnits = new Dictionary<ulong, PlayerUnit>();
+            List<ulong> removedUnits = new List<ulong>();
+            Dictionary<ulong, PlayerUnit> movedAwayUnits = new Dictionary<ulong, PlayerUnit>();
+            List<ulong> changedUnits = new List<ulong>();
             LastMoves = new List<Move>();
 
             moveNr++;
@@ -335,9 +335,9 @@ namespace Engine.Interface
             {
                 if (move.MoveType == MoveType.Move)
                 {
-                    if (move.Positions.Count > 1)
+                    if (move.ulongs.Count > 1)
                     {
-                        Position from = move.Positions[0];
+                        ulong from = move.ulongs[0];
                         if (this.Units.ContainsKey(from))
                         {
                             PlayerUnit unit = this.Units[from];
@@ -348,7 +348,7 @@ namespace Engine.Interface
                 }
                 if (move.MoveType == MoveType.Delete)
                 {
-                    Position from = move.Positions[move.Positions.Count-1];
+                    ulong from = move.ulongs[move.ulongs.Count-1];
                     if (this.Units.ContainsKey(from))
                     {
                         PlayerUnit playerUnit = this.Units[from];
@@ -359,13 +359,13 @@ namespace Engine.Interface
                 }
             }
             */
-            Dictionary<Position, PlayerUnit> addedUnits = new Dictionary<Position, PlayerUnit>();
-            Dictionary<Position, PlayerUnit> movedToUnits = new Dictionary<Position, PlayerUnit>();
+            Dictionary<ulong, PlayerUnit> addedUnits = new Dictionary<ulong, PlayerUnit>();
+            Dictionary<ulong, PlayerUnit> movedToUnits = new Dictionary<ulong, PlayerUnit>();
             foreach (Move move in moves)
             {
                 if (move.MoveType == MoveType.Add)
                 {
-                    Position to = move.Positions[move.Positions.Count - 1];
+                    ulong to = move.Positions[move.Positions.Count - 1];
                     if (this.Units.ContainsKey(move.UnitId))
                         throw new Exception();
                     Unit unit = Game.Map.Units.GetUnitAt(to);
@@ -380,7 +380,7 @@ namespace Engine.Interface
 
                 if (move.MoveType == MoveType.Build)
                 {
-                    Position to = move.Positions[move.Positions.Count - 1];
+                    ulong to = move.Positions[move.Positions.Count - 1];
                     // ignore, its a ghost
                     //if (this.Units.ContainsKey(to))
                     //    throw new Exception();
@@ -393,7 +393,7 @@ namespace Engine.Interface
                 }
                 if (move.MoveType == MoveType.Upgrade)
                 {
-                    Position to = move.Positions[move.Positions.Count - 1];
+                    ulong to = move.Positions[move.Positions.Count - 1];
                     if (move.PlayerId == PlayerModel.Id)
                     {
                         if (UnitsInBuild.ContainsKey(move.OtherUnitId))
@@ -408,7 +408,7 @@ namespace Engine.Interface
                 }
                 if (move.MoveType == MoveType.Move)
                 {
-                    Position to;
+                    ulong to;
                     if (move.Positions.Count == 1)
                     {
                         // Cloud not move this unit
@@ -425,7 +425,7 @@ namespace Engine.Interface
                             PlayerUnit playerUnit = new PlayerUnit(unit);
                             Units.Add(move.UnitId, playerUnit);*/
 
-                            Position from = move.Positions[0];
+                            ulong from = move.Positions[0];
                             movedAwayUnits.Add(from, playerUnit);
                             movedToUnits.Add(to, playerUnit);
                             changedUnits.Add(to);
@@ -434,7 +434,7 @@ namespace Engine.Interface
                 }
                 if (move.MoveType == MoveType.Delete)
                 {
-                    Position from = move.Positions[move.Positions.Count - 1];
+                    ulong from = move.Positions[move.Positions.Count - 1];
                     if (this.Units.ContainsKey(move.UnitId))
                     {
                         PlayerUnit playerUnit = this.Units[move.UnitId];
@@ -445,9 +445,9 @@ namespace Engine.Interface
                 }
             }
 
-            List<Position> previouslySeen = new List<Position>();
-            List<Position> newlySeen = new List<Position>();
-            foreach (Position pos in movedAwayUnits.Keys)
+            List<ulong> previouslySeen = new List<ulong>();
+            List<ulong> newlySeen = new List<ulong>();
+            foreach (ulong pos in movedAwayUnits.Keys)
             {
                 PlayerUnit playerUnit = movedAwayUnits[pos];
                 if (playerUnit.Unit.Owner.PlayerModel.Id == this.PlayerModel.Id)
@@ -486,18 +486,18 @@ namespace Engine.Interface
             Move hiddenTilesMove = new Move();
             hiddenTilesMove.PlayerId = this.PlayerModel.Id;
             hiddenTilesMove.MoveType = MoveType.HiddenTiles;
-            hiddenTilesMove.Positions = new List<Position>();
+            hiddenTilesMove.Positions = new List<ulong>();
 
-            foreach (Position oldPos in previouslySeen)
+            foreach (ulong oldPos in previouslySeen)
             {
                 // Not seen by another unit
                 if (!newlySeen.Contains(oldPos))
                 {
                     // Did we see that before?
-                    if (this.VisiblePositions.Contains(oldPos))
+                    if (this.Visibleulongs.Contains(oldPos))
                     {
                         // Now we do not see it any more
-                        VisiblePositions.Remove(oldPos);
+                        Visibleulongs.Remove(oldPos);
                         hiddenTilesMove.Positions.Add(oldPos);
                         
                         Unit unit = Game.Map.Units.GetUnitAt(oldPos);
@@ -523,13 +523,13 @@ namespace Engine.Interface
             Move newVisibleTilesMove = new Move();
             newVisibleTilesMove.PlayerId = this.PlayerModel.Id;
             newVisibleTilesMove.MoveType = MoveType.VisibleTiles;
-            newVisibleTilesMove.Positions = new List<Position>();
-            foreach (Position newPos in newlySeen)
+            newVisibleTilesMove.Positions = new List<ulong>();
+            foreach (ulong newPos in newlySeen)
             {
-                if (!this.VisiblePositions.Contains(newPos))
+                if (!this.Visibleulongs.Contains(newPos))
                 {
                     newVisibleTilesMove.Positions.Add(newPos);
-                    this.VisiblePositions.Add(newPos);
+                    this.Visibleulongs.Add(newPos);
 
                     Unit unit = Game.Map.Units.GetUnitAt(newPos);
                     if (unit != null && unit.Owner.PlayerModel.Id != this.PlayerModel.Id)
@@ -554,18 +554,18 @@ namespace Engine.Interface
             {
                 if (move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
                 {
-                    if (this.VisiblePositions.Contains(move.Positions[move.Positions.Count - 1]))
+                    if (this.Visibleulongs.Contains(move.Positions[move.Positions.Count - 1]))
                         LastMoves.Add(move);
                 }
                 else if (move.MoveType == MoveType.Move)
                 {
                     if (!newVisibleTilesMove.Positions.Contains(move.Positions[0]) &&
-                        this.VisiblePositions.Contains(move.Positions[0]))
+                        this.Visibleulongs.Contains(move.Positions[0]))
                     {
                         // If count is 1 unit could not be moved
                         if (move.Positions.Count > 1)
                         {
-                            if (this.VisiblePositions.Contains(move.Positions[1]))
+                            if (this.Visibleulongs.Contains(move.Positions[1]))
                             {
                                 if (movedAwayUnits.ContainsKey(move.Positions[0]))
                                 {
@@ -578,7 +578,7 @@ namespace Engine.Interface
                                     Move addMove = new Move();
                                     addMove.PlayerId = move.PlayerId;
                                     addMove.MoveType = MoveType.Add;
-                                    addMove.Positions = new List<Position>();
+                                    addMove.Positions = new List<ulong>();
                                     addMove.Positions.Add(move.Positions[1]);
                                     addMove.UnitId = move.UnitId;
                                     LastMoves.Add(addMove);
@@ -590,7 +590,7 @@ namespace Engine.Interface
                                 Move deleteMove = new Move();
                                 deleteMove.PlayerId = move.PlayerId;
                                 deleteMove.MoveType = MoveType.Delete;
-                                deleteMove.Positions = new List<Position>();
+                                deleteMove.Positions = new List<ulong>();
                                 deleteMove.Positions.Add(move.Positions[0]);
                                 deleteMove.UnitId = move.UnitId;
                                 LastMoves.Add(deleteMove);
@@ -599,7 +599,7 @@ namespace Engine.Interface
                     }
                     else if (move.Positions.Count > 1)
                     {
-                        if (this.VisiblePositions.Contains(move.Positions[1]))
+                        if (this.Visibleulongs.Contains(move.Positions[1]))
                         {
                             if (movedAwayUnits.ContainsKey(move.Positions[0]))
                             {
@@ -613,8 +613,8 @@ namespace Engine.Interface
                                 Move addMove = new Move();
                                 addMove.PlayerId = move.PlayerId;
                                 addMove.MoveType = MoveType.Add;
-                                addMove.Positions = new List<Position>();
-                                addMove.Positions.Add(move.Positions[1]);
+                                addMove.ulongs = new List<ulong>();
+                                addMove.ulongs.Add(move.ulongs[1]);
                                 addMove.UnitId = move.UnitId;
                                 LastMoves.Add(addMove);
                                 */
@@ -628,7 +628,7 @@ namespace Engine.Interface
                                 Move deleteMove = new Move();
                                 deleteMove.PlayerId = move.PlayerId;
                                 deleteMove.MoveType = MoveType.Delete;
-                                deleteMove.Positions = new List<Position>();
+                                deleteMove.Positions = new List<ulong>();
                                 deleteMove.Positions.Add(move.Positions[0]);
                                 deleteMove.UnitId = move.UnitId;
                                 LastMoves.Add(deleteMove);
@@ -649,17 +649,17 @@ namespace Engine.Interface
                 // Remove moves, the player cannot see
                 else if (move.MoveType == MoveType.Hit || move.MoveType == MoveType.UpdateStats)
                 {
-                    if (this.VisiblePositions.Contains(move.Positions[0]))
+                    if (this.Visibleulongs.Contains(move.Positions[0]))
                         LastMoves.Add(move);
                 }
                 else if (move.MoveType == MoveType.Fire)
                 {
-                    if (this.VisiblePositions.Contains(move.Positions[0]))
+                    if (this.Visibleulongs.Contains(move.Positions[0]))
                         LastMoves.Add(move);
                 }
                 else if (move.MoveType == MoveType.Transport)
                 {
-                    if (this.VisiblePositions.Contains(move.Positions[0]))
+                    if (this.Visibleulongs.Contains(move.Positions[0]))
                         LastMoves.Add(move);
                 }
             }
@@ -673,7 +673,7 @@ namespace Engine.Interface
                 if (unit.Owner.PlayerModel.Id == this.PlayerModel.Id)
                     continue;
 
-                if (VisiblePositions.Contains(unit.Pos))
+                if (Visibleulongs.Contains(unit.Pos))
                 {
                     // enemy unit is visible
                     if (addedUnits.ContainsKey(unit.Pos) || movedToUnits.ContainsKey(unit.Pos))
@@ -701,7 +701,7 @@ namespace Engine.Interface
                                 Move addMove = new Move();
                                 addMove.PlayerId = unit.Owner.PlayerModel.Id;
                                 addMove.MoveType = MoveType.Add;
-                                addMove.Positions = new List<Position>();
+                                addMove.Positions = new List<ulong>();
                                 addMove.Positions.Add(unit.Pos);
                                 addMove.UnitId = unit.UnitId;
                                 addMove.Stats = unit.CollectStats();
@@ -747,7 +747,7 @@ namespace Engine.Interface
                         Move deleteMove = new Move();
                         deleteMove.PlayerId = unit.Owner.PlayerModel.Id;
                         deleteMove.MoveType = MoveType.Delete;
-                        deleteMove.Positions = new List<Position>();
+                        deleteMove.Positions = new List<ulong>();
                         deleteMove.Positions.Add(unit.Pos);
                         deleteMove.UnitId = unit.UnitId;
                         if (Units.ContainsKey(unit.UnitId))
@@ -765,10 +765,10 @@ namespace Engine.Interface
             {
                 if (move.MoveType == MoveType.UpdateGround)
                 {
-                    Position pos = move.Positions[0];
+                    ulong pos = move.Positions[0];
                     Tile tile = Game.Map.GetTile(pos);
 
-                    if (VisiblePositions.Contains(pos))
+                    if (Visibleulongs.Contains(pos))
                     {
                         /*
                         if (tile.Minerals > 0)
@@ -801,12 +801,12 @@ namespace Engine.Interface
 
             foreach (PlayerUnit playerUnit in Units.Values)
             {
-                if (!VisiblePositions.Contains(playerUnit.Unit.Pos))
+                if (!Visibleulongs.Contains(playerUnit.Unit.Pos))
                     throw new Exception();
             }
             foreach (Unit unit in Game.Map.Units.List.Values)
             {
-                if (VisiblePositions.Contains(unit.Pos))
+                if (Visibleulongs.Contains(unit.Pos))
                 {
                     if (!Units.ContainsKey(unit.UnitId))
                     {

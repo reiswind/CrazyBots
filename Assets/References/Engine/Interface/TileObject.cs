@@ -141,16 +141,7 @@ namespace Engine.Interface
         public TileObjectType AcceptedTileObjectTypes { get; set; }
     }
 
-    public enum Direction
-    {
-        C,
-        N,
-        S,
-        NE,
-        NW,
-        SE,
-        SW
-    }
+
 
     public enum TileObjectKind
     {

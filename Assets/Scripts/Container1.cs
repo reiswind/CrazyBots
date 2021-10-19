@@ -20,7 +20,7 @@ namespace Assets.Scripts
             GameObject shellObject = Instantiate(shellprefab);
             Transport transport = shellObject.GetComponent<Transport>();
 
-            Position pos = move.Positions[move.Positions.Count - 1];
+            ulong pos = move.Positions[move.Positions.Count - 1];
 
             transport.HexGrid = hexGrid;
 

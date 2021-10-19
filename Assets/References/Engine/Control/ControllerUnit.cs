@@ -11,7 +11,7 @@ namespace Engine.Control
     public class ControllerUnit
     {
         public int PlayerId;
-        public Position Pos;
+        public ulong Pos;
         public string UnitId;
 
         internal ControllerUnit(Unit unit)

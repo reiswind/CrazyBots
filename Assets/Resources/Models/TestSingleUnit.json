@@ -23,10 +23,7 @@
 	  "FireAtGround": false,
 	  "EndlessAmmo": true,
 	  "EndlessPower": true,
-      "Position": {
-        "X": -2,
-        "Y": -2
-      }
+      "Position": "-2,-2"
     
     },
 	{
@@ -37,10 +34,7 @@
 	  "HoldFire": true,
 	  "EndlessAmmo": true,
 	  "EndlessPower": true,
-      "Position": {
-        "X": -2,
-        "Y": 4
-      }
+      "Position": "-2,4"
     }
 
   ]

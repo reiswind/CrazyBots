@@ -10,7 +10,7 @@ namespace Engine.Algorithms
 {
     internal class Bresehnham
     {
-        public static void CalcLineTo(List<Position> points, int x, int y, int x2, int y2)
+        public static void CalcLineTo(List<ulong> points, int x, int y, int x2, int y2)
         {
             int w = x2 - x;
             int h = y2 - y;
@@ -31,7 +31,7 @@ namespace Engine.Algorithms
             for (int i = 0; i <= longest; i++)
             {
 
-                points.Add(new Position(x, y));
+                points.Add(Position.CreatePosition(x, y));
                 //putpixel(x, y, color);
                 numerator += shortest;
                 if (!(numerator < longest))

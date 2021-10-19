@@ -31,12 +31,12 @@ namespace Engine.Master
                 return 0;
             }
         }
-        public Dictionary<Position, TileWithDistance> CollectExtractionTiles()
+        public Dictionary<ulong, TileWithDistance> CollectExtractionTiles()
         {
             return Unit.Game.Map.EnumerateTiles(Unit.Pos, MetalCollectionRange, false);
         }
 
-        public Dictionary<Position, TileWithDistance> CollectExtractableTiles()
+        public Dictionary<ulong, TileWithDistance> CollectExtractableTiles()
         {
             return Unit.Game.Map.EnumerateTiles(Unit.Pos, MetalCollectionRange, false, matcher: tile => 
             {
@@ -71,7 +71,7 @@ namespace Engine.Master
             });
         }
 
-        public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position> includedPositions, MoveFilter moveFilter)
+        public override void ComputePossibleMoves(List<Move> possibleMoves, List<ulong> includedulongs, MoveFilter moveFilter)
         {
             if ((moveFilter & MoveFilter.Extract) == 0)
                 return;
@@ -115,9 +115,9 @@ namespace Engine.Master
 
                     move.UnitId = Unit.UnitId;
                     move.OtherUnitId = "Dirt";
-                    move.Positions = new List<Position>();
-                    move.Positions.Add(Unit.Pos);
-                    move.Positions.Add(highest.Pos);
+                    move.ulongs = new List<ulong>();
+                    move.ulongs.Add(Unit.Pos);
+                    move.ulongs.Add(highest.Pos);
 
                     possibleMoves.Add(move);
 
@@ -136,7 +136,7 @@ namespace Engine.Master
             if (Unit.ExtractMe)
                 return;
 
-            Dictionary<Position, TileWithDistance> resultList = CollectExtractableTiles();
+            Dictionary<ulong, TileWithDistance> resultList = CollectExtractableTiles();
 
             foreach (TileWithDistance t in resultList.Values)
             {
@@ -153,7 +153,7 @@ namespace Engine.Master
 
                         move.UnitId = Unit.UnitId;
                         move.OtherUnitId = tileObject.TileObjectType.ToString();
-                        move.Positions = new List<Position>();
+                        move.Positions = new List<ulong>();
                         move.Positions.Add(Unit.Pos);
                         move.Positions.Add(t.Pos);
 
@@ -187,7 +187,7 @@ namespace Engine.Master
 
                             move.UnitId = Unit.UnitId;
                             move.OtherUnitId = t.Unit.UnitId;
-                            move.Positions = new List<Position>();
+                            move.Positions = new List<ulong>();
                             move.Positions.Add(Unit.Pos);
                             move.Positions.Add(t.Pos);
 
@@ -206,7 +206,7 @@ namespace Engine.Master
 
                                     move.UnitId = Unit.UnitId;
                                     move.OtherUnitId = t.Unit.UnitId;
-                                    move.Positions = new List<Position>();
+                                    move.Positions = new List<ulong>();
                                     move.Positions.Add(Unit.Pos);
                                     move.Positions.Add(t.Pos);
 
@@ -224,7 +224,7 @@ namespace Engine.Master
 
                                     move.UnitId = Unit.UnitId;
                                     move.OtherUnitId = t.Unit.UnitId;
-                                    move.Positions = new List<Position>();
+                                    move.Positions = new List<ulong>();
                                     move.Positions.Add(Unit.Pos);
                                     move.Positions.Add(t.Pos);
 
@@ -245,7 +245,7 @@ namespace Engine.Master
 
                             move.UnitId = Unit.UnitId;
                             move.OtherUnitId = t.Unit.UnitId;
-                            move.Positions = new List<Position>();
+                            move.Positions = new List<ulong>();
                             move.Positions.Add(Unit.Pos);
                             move.Positions.Add(t.Pos);
 

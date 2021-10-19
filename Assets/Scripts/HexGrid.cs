@@ -27,14 +27,14 @@ namespace Assets.Scripts
 
 		public Button CreateItems;
 
-		internal Dictionary<Position, GroundCell> GroundCells { get; private set; }
+		internal Dictionary<ulong, GroundCell> GroundCells { get; private set; }
 		internal Dictionary<string, UnitBase> BaseUnits { get; private set; }
-		internal Dictionary<Position, UnitBase> UnitsInBuild { get; private set; }
+		internal Dictionary<ulong, UnitBase> UnitsInBuild { get; private set; }
 
 
 		// Filled in UI Thread
-		internal Dictionary<Position, GameCommand> GameCommands { get; private set; }
-		internal Dictionary<Position, GameCommand> ActiveGameCommands { get; private set; }
+		internal Dictionary<ulong, GameCommand> GameCommands { get; private set; }
+		internal Dictionary<ulong, GameCommand> ActiveGameCommands { get; private set; }
 
 		// Shared with backgound thread
 		internal IGameController game;
@@ -365,9 +365,9 @@ namespace Assets.Scripts
 			return gameTileObject;
 		}
 
-		private List<Position> visiblePositions = new List<Position>();
-		private Position nextVisibleCenter;
-		public void UpdateVisibleCenter(Position pos)
+		private List<ulong> visiblePositions = new List<ulong>();
+		private ulong nextVisibleCenter;
+		public void UpdateVisibleCenter(ulong pos)
 		{
 			nextVisibleCenter = pos;
 		}
@@ -474,11 +474,11 @@ namespace Assets.Scripts
 			}
 			game.CreateUnits();
 
-			GameCommands = new Dictionary<Position, GameCommand>();
-			ActiveGameCommands = new Dictionary<Position, GameCommand>();
-			GroundCells = new Dictionary<Position, GroundCell>();
+			GameCommands = new Dictionary<ulong, GameCommand>();
+			ActiveGameCommands = new Dictionary<ulong, GameCommand>();
+			GroundCells = new Dictionary<ulong, GroundCell>();
 			BaseUnits = new Dictionary<string, UnitBase>();
-			UnitsInBuild = new Dictionary<Position, UnitBase>();
+			UnitsInBuild = new Dictionary<ulong, UnitBase>();
 			hitByBullets = new List<HitByBullet>();
 
 			GameObject cellPrefab = GetResource("HexCell");
@@ -518,11 +518,11 @@ namespace Assets.Scripts
 			}
 
 
-			GameCommands = new Dictionary<Position, GameCommand>();
-			ActiveGameCommands = new Dictionary<Position, GameCommand>();
-			GroundCells = new Dictionary<Position, GroundCell>();
+			GameCommands = new Dictionary<ulong, GameCommand>();
+			ActiveGameCommands = new Dictionary<ulong, GameCommand>();
+			GroundCells = new Dictionary<ulong, GroundCell>();
 			BaseUnits = new Dictionary<string, UnitBase>();
-			UnitsInBuild = new Dictionary<Position, UnitBase>();
+			UnitsInBuild = new Dictionary<ulong, UnitBase>();
 			hitByBullets = new List<HitByBullet>();
 
 			/*
@@ -703,21 +703,21 @@ namespace Assets.Scripts
 		{
 			windowClosed = true;
 		}
-		private List<Position> updatedPositions = new List<Position>();
-		private List<Position> groundcellsWithCommands = new List<Position>();
+		private List<ulong> updatedPositions = new List<ulong>();
+		private List<ulong> groundcellsWithCommands = new List<ulong>();
 		private bool startPositionSet = false;
 		private int moveCounter;
 		private void ProcessNewMoves()
 		{
 			moveCounter++;
-			List<Position> newUpdatedPositions = new List<Position>();
+			List<ulong> newUpdatedPositions = new List<ulong>();
 
 			try
 			{
 
 				if (MapInfo != null)
 				{
-					foreach (Position pos in MapInfo.Pheromones.Keys)
+					foreach (ulong pos in MapInfo.Pheromones.Keys)
 					{
 						MapPheromone mapPheromone = MapInfo.Pheromones[pos];
 						GroundCell hexCell = GroundCells[pos];
@@ -726,7 +726,7 @@ namespace Assets.Scripts
 						newUpdatedPositions.Add(pos);
 						updatedPositions.Remove(pos);
 					}
-					foreach (Position pos in updatedPositions)
+					foreach (ulong pos in updatedPositions)
 					{
 						GroundCell hexCell = GroundCells[pos];
 						hexCell.UpdatePheromones(null);
@@ -735,7 +735,7 @@ namespace Assets.Scripts
 					updatedPositions = newUpdatedPositions;
 					if (GroundCells.Count > 0)
 					{
-						foreach (Position pos in groundcellsWithCommands)
+						foreach (ulong pos in groundcellsWithCommands)
 						{
 							GroundCell hexCell = GroundCells[pos];
 							hexCell.UntouchCommands();
@@ -747,7 +747,7 @@ namespace Assets.Scripts
 							{
 								foreach (GameCommand gameCommand in mapPlayerInfo.GameCommands)
 								{
-									if (gameCommand.TargetPosition != null)
+									if (gameCommand.TargetPosition != Position.Null)
 									{
 										GroundCell hexCell = GroundCells[gameCommand.TargetPosition];
 										hexCell.UpdateCommands(gameCommand, null);
@@ -758,8 +758,8 @@ namespace Assets.Scripts
 								}
 							}
 						}
-						List<Position> clearedPositions = new List<Position>();
-						foreach (Position pos in groundcellsWithCommands)
+						List<ulong> clearedPositions = new List<ulong>();
+						foreach (ulong pos in groundcellsWithCommands)
 						{
 							GroundCell hexCell = GroundCells[pos];
 							if (hexCell.ClearCommands())
@@ -767,7 +767,7 @@ namespace Assets.Scripts
 								clearedPositions.Add(pos);
 							}
 						}
-						foreach (Position pos in clearedPositions)
+						foreach (ulong pos in clearedPositions)
 						{
 							groundcellsWithCommands.Remove(pos);
 						}
@@ -796,10 +796,10 @@ namespace Assets.Scripts
 			{
 				foreach (UnitBase unitBase in BaseUnits.Values)
 				{
-					if (unitBase.DestinationPos != null)
+					if (unitBase.DestinationPos != Position.Null)
 					{
 						unitBase.CurrentPos = unitBase.DestinationPos;
-						unitBase.DestinationPos = null;
+						unitBase.DestinationPos = Position.Null;
 						unitBase.PutAtCurrentPosition(true);
 					}
 				}
@@ -1044,7 +1044,7 @@ namespace Assets.Scripts
 						{
 							newGameCommands.AddRange(GameCommands.Values);
 
-							foreach (KeyValuePair<Position, GameCommand> kv in GameCommands)
+							foreach (KeyValuePair<ulong, GameCommand> kv in GameCommands)
 							{
 								if (kv.Value.GameCommandType == GameCommandType.Attack ||
 									kv.Value.GameCommandType == GameCommandType.Defend ||
@@ -1127,13 +1127,13 @@ namespace Assets.Scripts
 
 		public void HitMove(UnitBase hitUnit, Move move)
 		{
-			Position fireingPostion = move.Positions[0];
-			Position targetPostion = move.Positions[1];
+			ulong fireingPostion = move.Positions[0];
+			ulong targetPostion = move.Positions[1];
 
 			bool found = false;
 			foreach (HitByBullet hitByBullet in hitByBullets)
 			{
-				if (hitByBullet.FireingPosition == fireingPostion && hitByBullet.TargetPosition == null)
+				if (hitByBullet.FireingPosition == fireingPostion && hitByBullet.TargetPosition == Position.Null)
 				{
 					if (move.UnitId != null)
 					{
@@ -1513,35 +1513,27 @@ namespace Assets.Scripts
 			}
 		}
 
-		private Vector3 CalcWorldPos(Vector2 gridPos)
+		private Vector3 CalcWorldPos(GroundCell groundCell)
 		{
 			float gridSizeX = 1.50f;
 			float gridSizeY = 1.75f;
 			float halfGridSize = 0.86f;
 
-			float x = gridPos.x;
-			float y = gridPos.y;
+			int x = Position.GetX(groundCell.Pos);
+			int y = Position.GetY(groundCell.Pos);
 
-			if (x % 2 != 0 && y % 2 != 0)
-			{
-				return new Vector3((x * gridSizeX), 0, -(y * gridSizeY) - halfGridSize);
-			}
-			else if (x % 2 == 0 && y % 2 != 0)
-			{
-				return new Vector3((x * gridSizeX), 0, -(y * gridSizeY));
-			}
-			else if (x % 2 != 0 && y % 2 == 0)
-			{
+			if ((x & 1) == 0)
+            {
 				return new Vector3((x * gridSizeX), 0, -(y * gridSizeY) - halfGridSize);
 			}
 			return new Vector3((x * gridSizeX), 0, -y * gridSizeY);
 		}
 
 
-		private GroundCell CreateCell(Position pos, MoveUpdateStats stats, GameObject cellPrefabx)
+		private GroundCell CreateCell(ulong pos, MoveUpdateStats stats, GameObject cellPrefabx)
 		{
-			int x = pos.X;
-			int y = pos.Y;
+			int x = Position.GetX(pos);
+			int y = Position.GetY(pos);
 
 			GameObject gameObjectCell = Instantiate(cellPrefabx);
 			gameObjectCell.hideFlags = HideFlags.DontSave; //.enabled = false;	
@@ -1553,8 +1545,7 @@ namespace Assets.Scripts
 			groundCell.Stats = stats;
 			groundCell.Pos = pos;
 
-			Vector2 gridPos = new Vector2(x, y);
-			Vector3 gridPos3 = CalcWorldPos(gridPos);
+			Vector3 gridPos3 = CalcWorldPos(groundCell);
 
 			if (stats == null)
             {

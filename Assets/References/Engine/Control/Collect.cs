@@ -79,7 +79,7 @@ namespace Engine.Control
                                     if (nextTile == null || nextTile.Tile.TileContainer.Minerals == 0)
                                     {
                                         // Move that punk to metal
-                                        Dictionary<Position, TileWithDistance> tiles = Map.EnumerateTiles(Center, Range, true, matcher: tile =>
+                                        Dictionary<ulong, TileWithDistance> tiles = Map.EnumerateTiles(Center, Range, true, matcher: tile =>
                                         {
                                             if (!this.PosititionsInArea.ContainsKey(tile.Pos))
                                                 return false;

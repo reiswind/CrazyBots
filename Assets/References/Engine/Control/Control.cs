@@ -29,7 +29,7 @@ namespace Engine.Control
 
         }
         
-        public static bool FiredAt(Player player, List<Move> possibleMoves, Position destination)
+        public static bool FiredAt(Player player, List<Move> possibleMoves, ulong destination)
         {
             bool occupied = false;
 
@@ -66,7 +66,7 @@ namespace Engine.Control
             return false;
         }
 
-        public static bool IsOccupied(Player player, List<Move> moves, Position destination)
+        public static bool IsOccupied(Player player, List<Move> moves, ulong destination)
         {
             bool occupied = false;
 
@@ -233,7 +233,7 @@ namespace Engine.Control
 
                                 Assemble assemble = availableAssembler[0];
 
-                                List<Position> path = GameController.FindPath(assemble.Center, attack.Center, null);
+                                List<ulong> path = GameController.FindPath(assemble.Center, attack.Center, null);
                                 if (path != null && path.Count > 4)
                                 {
                                     // Start a little away from the fac
@@ -411,11 +411,11 @@ namespace Engine.Control
                     {
                         for (int i = 0; i < commandSource.Path.Count; i++)
                         {
-                            Position pos = commandSource.Path[i];
+                            ulong pos = commandSource.Path[i];
                             // 
                             if (pos == requestMove.PlayerUnit.Unit.Pos && i < commandSource.Path.Count-1)
                             {
-                                Position destination;
+                                ulong destination;
                                 destination = commandSource.Path[i + 1];
 
                                 Tile t = GameController.GetTile(destination);
@@ -425,7 +425,7 @@ namespace Engine.Control
                                     if (requestMove.Command.StuckCounter > 2)
                                     {
                                         // Recalc the unreachable path
-                                        List<Position> path = GameController.FindPath(commandSource.Parent.Center, commandSource.Child.Center, requestMove.PlayerUnit.Unit);
+                                        List<ulong> path = GameController.FindPath(commandSource.Parent.Center, commandSource.Child.Center, requestMove.PlayerUnit.Unit);
                                         if (path != null && path.Count > 4)
                                         {
                                             // Start a little away from the fac
@@ -450,7 +450,7 @@ namespace Engine.Control
                                 }
                                 else
                                 {
-                                    List<Position> route = new List<Position>(2);
+                                    List<ulong> route = new List<ulong>(2);
                                     route.Add(requestMove.PlayerUnit.Unit.Pos);
                                     route.Add(destination);
 

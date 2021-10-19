@@ -82,7 +82,7 @@ namespace Engine.Algorithms
 
         #region Methods
         void FindPathStop();
-        List<PathFinderNode> FindPath(Unit unit, Position start, Position end);
+        List<PathFinderNode> FindPath(Unit unit, ulong start, ulong end);
         #endregion
 
     }

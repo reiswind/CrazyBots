@@ -22,7 +22,7 @@ namespace Engine.Control
     {
         public Command Child { get; set; }
         public Command Parent { get; set; }
-        public List<Position> Path { get; set; }
+        public List<ulong> Path { get; set; }
     }
     public class Command
     {
@@ -44,7 +44,7 @@ namespace Engine.Control
 
         public List<UnitType> DemandedUnitTypes = new List<UnitType>();
 
-        public Position Center { get; set; }
+        public ulong Center { get; set; }
         public int Range { get; set; }
         public string CommandId { get;  set; }
         public string GroupId { get;  set; }
@@ -508,20 +508,20 @@ namespace Engine.Control
             return true;
         }
 
-        public Dictionary<Position, TileWithDistance> CollectIncludedPositions()
+        public Dictionary<ulong, TileWithDistance> CollectIncludedPositions()
         {
             // Filter?
             return Map.EnumerateTiles(Center, Range);
         }
 
-        public Dictionary<Position, TileWithDistance> CollectIncludedPositions(Position pos, int range)
+        public Dictionary<ulong, TileWithDistance> CollectIncludedPositions(ulong pos, int range)
         {
             // Filter?
             return Map.EnumerateTiles(pos, range);
         }
 
         protected List<PlayerUnit> EnemyUnits = new List<PlayerUnit>();
-        public Dictionary<Position, TileWithDistance> PosititionsInArea;
+        public Dictionary<ulong, TileWithDistance> PosititionsInArea;
 
         public List<PlayerUnit> CollectUnitsAlreadyInArea(Player player, int range)
         {

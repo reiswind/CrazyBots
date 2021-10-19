@@ -34,7 +34,7 @@ namespace Engine.Master
                 return 12; // Level * 3;
             }
         }
-        public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position> includedPositions, MoveFilter moveFilter)
+        public override void ComputePossibleMoves(List<Move> possibleMoves, List<ulong> includedulongs, MoveFilter moveFilter)
         {
             if ((moveFilter & MoveFilter.Transport) == 0)
                 return;
@@ -42,12 +42,12 @@ namespace Engine.Master
             if (TileContainer.TileObjects.Count() == 0)
                 return;
 
-            Dictionary<Position, TileWithDistance> tiles = Unit.Game.Map.EnumerateTiles(Unit.Pos, Range, false, matcher: tile =>
+            Dictionary<ulong, TileWithDistance> tiles = Unit.Game.Map.EnumerateTiles(Unit.Pos, Range, false, matcher: tile =>
             {
                 if (tile.Pos == Unit.Pos)
                     return true;
 
-                if (!Unit.Owner.VisiblePositions.Contains(tile.Pos))
+                if (!Unit.Owner.Visibleulongs.Contains(tile.Pos))
                     return false;
 
                 return true;
@@ -91,7 +91,7 @@ namespace Engine.Master
                         move.MoveType = MoveType.Transport;
                         move.UnitId = Unit.UnitId;
                         move.OtherUnitId = n.Unit.UnitId;
-                        move.Positions = new List<Position>();
+                        move.Positions = new List<ulong>();
                         move.Positions.Add(Unit.Pos);
                         move.Positions.Add(n.Pos);
 

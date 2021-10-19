@@ -62,10 +62,10 @@ namespace Engine.Master
     [DataContract]
     public class Unit
     {
-        private Position pos;
-        // Position before any moves have been processed
+        private ulong pos;
+        // ulong before any moves have been processed
         [DataMember]
-        public Position Pos
+        public ulong Pos
         {
             get
             {
@@ -680,7 +680,7 @@ namespace Engine.Master
             MoveUpdateStats stats = new MoveUpdateStats();
             stats.BlueprintName = Blueprint.Name;
             stats.MarkedForExtraction = ExtractMe;
-
+            stats.Direction = ((int)Direction);
             stats.UnitParts = new List<MoveUpdateUnitPart>();
             foreach (BlueprintPart blueprintPart in Blueprint.Parts)
             {
@@ -755,23 +755,23 @@ namespace Engine.Master
             return stats;
         }
 
-        public void ComputePossibleMoves(List<Move> possibleMoves, List<Position> includedPositions, MoveFilter moveFilter)
+        public void ComputePossibleMoves(List<Move> possibleMoves, List<ulong> includedulongs, MoveFilter moveFilter)
         {
             if (Assembler != null)
             {
-                Assembler.ComputePossibleMoves(possibleMoves, includedPositions, moveFilter);
+                Assembler.ComputePossibleMoves(possibleMoves, includedulongs, moveFilter);
             }
             if (Extractor != null)
             {
-                Extractor.ComputePossibleMoves(possibleMoves, includedPositions, moveFilter);
+                Extractor.ComputePossibleMoves(possibleMoves, includedulongs, moveFilter);
             }
             if (Weapon != null)
             {
-                Weapon.ComputePossibleMoves(possibleMoves, includedPositions, moveFilter);
+                Weapon.ComputePossibleMoves(possibleMoves, includedulongs, moveFilter);
             }
             if (Engine != null)
             {
-                Engine.ComputePossibleMoves(possibleMoves, includedPositions, moveFilter);
+                Engine.ComputePossibleMoves(possibleMoves, includedulongs, moveFilter);
             }
         }
 
@@ -1041,7 +1041,7 @@ namespace Engine.Master
                 unitinfo = "Reactor";
             if (this.Assembler != null)
                 unitinfo = "Assembler";
-            return UnitId + " " + Owner.PlayerModel.Name + ": " + pos.X + "," + pos.Y + unitinfo;
+            return UnitId + " " + Owner.PlayerModel.Name + ": " + Position.GetX(pos) + "," + Position.GetY(pos) + unitinfo;
         }
     }
 }

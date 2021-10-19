@@ -12,7 +12,7 @@ namespace Engine.Master
     {
         public override string Name { get { return "Engine"; } }
 
-        public bool HoldPosition { get; set; }
+        public bool Holdulong { get; set; }
         public int Range
         {
             get
@@ -29,18 +29,18 @@ namespace Engine.Master
             Level = level;
         }
 
-        public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position> includedPositions, MoveFilter moveFilter)
+        public override void ComputePossibleMoves(List<Move> possibleMoves, List<ulong> includedulongs, MoveFilter moveFilter)
         {
             if ((moveFilter & MoveFilter.Move) == 0)
                 return;
 
-            if (Unit.Power == 0 || HoldPosition)
+            if (Unit.Power == 0 || Holdulong)
                 return;
 
             // Never called by controls
             List<Tile> openList = new List<Tile>();
             List<Tile> reachedTiles = new List<Tile>();
-            List<Position> reachedPos = new List<Position>();
+            List<ulong> reachedPos = new List<ulong>();
 
             Tile startTile = Unit.Game.Map.GetTile(Unit.Pos);
             openList.Add(startTile);
@@ -52,7 +52,9 @@ namespace Engine.Master
                 openList.RemoveAt(0);
 
                 // Distance at all
-                double d = tile.Pos.GetDistanceTo(this.Unit.Pos);
+
+                //double d = tile.Pos.GetDistanceTo(this.Unit.Pos);
+                int d = CubePosition.Distance(tile.Pos, this.Unit.Pos);
                 if (d >= Range)
                     continue;
 
@@ -60,16 +62,17 @@ namespace Engine.Master
                 {
                     if (n.Pos == Unit.Pos)
                         continue;
-                    if (includedPositions != null)
+                    if (includedulongs != null)
                     {
-                        if (!includedPositions.Contains(n.Pos))
+                        if (!includedulongs.Contains(n.Pos))
                             continue;
                     }
                     if (!reachedTiles.Contains(n))
                     {
                         reachedTiles.Add(n);
 
-                        double d1 = n.Pos.GetDistanceTo(this.Unit.Pos);
+                        //double d1 = n.Pos.GetDistanceTo(this.Unit.Pos);
+                        int d1 = CubePosition.Distance(n.Pos, this.Unit.Pos);
                         if (d1 < Range)
                         {
                             openList.Add(n);
@@ -90,7 +93,7 @@ namespace Engine.Master
                                     move.Positions.RemoveAt(move.Positions.Count - 1);
                                 }
 
-                                Position finalPos = move.Positions[move.Positions.Count - 1];
+                                ulong finalPos = move.Positions[move.Positions.Count - 1];
                                 if (!reachedPos.Contains(finalPos))
                                 {
                                     reachedPos.Add(finalPos);

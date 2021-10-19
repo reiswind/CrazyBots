@@ -7,7 +7,7 @@ namespace Assets.Scripts
 {
     public class GroundCell : MonoBehaviour
     {
-        public Position Pos { get; set; }
+        public ulong Pos { get; set; }
 
         public HexGrid HexGrid { get; set; }
 

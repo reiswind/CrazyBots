@@ -34,7 +34,7 @@ namespace Assets.Scripts
 
     public class HitByBullet
     {
-        public HitByBullet(Position fireingPosition)
+        public HitByBullet(ulong fireingPosition)
         {
             FireingPosition = fireingPosition;
         }
@@ -43,8 +43,8 @@ namespace Assets.Scripts
         public float HitTime { get; set; }
         public TileObject Bullet { get; set; }
         public bool BulletImpact { get; set; }
-        public Position FireingPosition { get; set; }
-        public Position TargetPosition { get; set; }
+        public ulong FireingPosition { get; set; }
+        public ulong TargetPosition { get; set; }
         public MoveUpdateStats UpdateUnitStats { get; set; }
         public MoveUpdateStats UpdateGroundStats { get; set; }
     }
@@ -60,8 +60,8 @@ namespace Assets.Scripts
         }
 
         public HexGrid HexGrid { get; set; }
-        internal Position CurrentPos { get; set; }
-        internal Position DestinationPos { get; set; }
+        internal ulong CurrentPos { get; set; }
+        internal ulong DestinationPos { get; set; }
         internal int PlayerId { get; set; }
         internal string UnitId { get; set; }
         public MoveUpdateStats MoveUpdateStats { get; set; }
@@ -85,7 +85,7 @@ namespace Assets.Scripts
                 selectionChanged = false;
             }
 
-            if (DestinationPos != null)
+            if (DestinationPos != Position.Null)
             {
                 GroundCell targetCell;
                 if (HexGrid.GroundCells.TryGetValue(DestinationPos, out targetCell))
@@ -159,7 +159,7 @@ namespace Assets.Scripts
         }
 
 
-        public void MoveTo(Position pos)
+        public void MoveTo(ulong pos)
         {
             DestinationPos = pos;
 
