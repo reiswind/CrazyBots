@@ -911,6 +911,7 @@ namespace Assets.Scripts
 						if (BaseUnits.ContainsKey(move.UnitId))
 						{
 							UnitBase unit = BaseUnits[move.UnitId];
+							unit.Direction = (Direction) move.Stats.Direction;
 							unit.MoveTo(move.Positions[1]);
 						}
 					}
@@ -1483,7 +1484,7 @@ namespace Assets.Scripts
 
 			unit.HexGrid = this;
 			unit.CurrentPos = move.Positions[0];
-
+			unit.Direction = (Direction)move.Stats.Direction;
 			unit.PlayerId = move.PlayerId;
 			unit.MoveUpdateStats = move.Stats;
 			unit.UnitId = move.UnitId;

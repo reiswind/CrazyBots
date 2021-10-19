@@ -61,6 +61,8 @@ namespace Assets.Scripts
 
         public HexGrid HexGrid { get; set; }
         internal ulong CurrentPos { get; set; }
+        // Todo: turn into dir
+        internal Direction Direction { get; set; }
         internal ulong DestinationPos { get; set; }
         internal int PlayerId { get; set; }
         internal string UnitId { get; set; }
