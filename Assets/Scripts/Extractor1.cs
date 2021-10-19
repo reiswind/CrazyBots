@@ -12,7 +12,7 @@ namespace Assets.Scripts
             if (otherUnitBasePart.Level == 0)
             {
                 TransitObject transitObject = new TransitObject();
-                transitObject.GameObject = otherUnitBasePart.Part;
+                transitObject.GameObject = otherUnitBasePart.Part1;
                 transitObject.TargetPosition = transform.position;
                 transitObject.DestroyAtArrival = true;
                 transitObject.ScaleDown = true;
@@ -23,7 +23,7 @@ namespace Assets.Scripts
             {
                 string name = otherUnitBasePart.Name + "1";
                 GameObject newPart = HexGrid.MainGrid.InstantiatePrefab(name);
-                newPart.transform.position = otherUnitBasePart.Part.transform.position;
+                newPart.transform.position = otherUnitBasePart.Part1.transform.position;
                 newPart.transform.SetParent(transform);
                 newPart.name = name;
                 UnitBase.SetPlayerColor(HexGrid.MainGrid, otherUnitBasePart.UnitBase.PlayerId, newPart);
@@ -177,7 +177,7 @@ namespace Assets.Scripts
                                         }
 
                                         Vector2 randomPos = Random.insideUnitCircle;
-                                        Vector3 unitPos3 = otherUnitBasePart.Part.transform.position;
+                                        Vector3 unitPos3 = otherUnitBasePart.Part1.transform.position;
                                         unitPos3.x += (randomPos.x * 0.5f);
                                         unitPos3.z += (randomPos.y * 0.7f);
                                         sourceTileObject.GameObject.transform.position = unitPos3;
@@ -210,7 +210,7 @@ namespace Assets.Scripts
                                     if (otherTileObject.TileObject.TileObjectType == tileObject.TileObjectType)
                                     {
                                         TransitObject transitObject = new TransitObject();
-                                        transitObject.GameObject = otherUnitBasePart.Part;
+                                        transitObject.GameObject = otherUnitBasePart.Part1;
                                         transitObject.TargetPosition = transform.position;
                                         //transitObject.DestroyAtArrival = true;
                                         //transitObject.ScaleDown = true;

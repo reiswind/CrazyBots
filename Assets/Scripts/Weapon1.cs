@@ -47,12 +47,12 @@ namespace Assets.Scripts
 
         private GameObject ammoTileObject;
 
-        internal void UpdateContent(HexGrid hexGrid, TileObjectContainer tileObjectContainer)
+        internal void UpdateContent(GameObject parent, TileObjectContainer tileObjectContainer)
         {
-            GameObject weapon = UnitBase.FindChildNyName(this.gameObject, "Weapon");
+            GameObject weapon = UnitBase.FindChildNyName(parent, "Weapon");
             if (weapon != null)
             {
-                GameObject ammo = UnitBase.FindChildNyName(weapon, "Ammo");
+                GameObject ammo = UnitBase.FindChildNyName(parent, "Ammo");
                 if (ammo != null)
                 {
                     UnitBaseTileObject haveAmmo = GetAmmoTileObject(tileObjectContainer);
@@ -122,7 +122,7 @@ namespace Assets.Scripts
         {
             if (ammoTileObject == null)
             {
-                UpdateContent(hexGrid, tileObjectContainer);
+                //UpdateContent(hexGrid, tileObjectContainer);
             }
             TileObject anmo = move.Stats.MoveUpdateGroundStat.TileObjects[0];
 

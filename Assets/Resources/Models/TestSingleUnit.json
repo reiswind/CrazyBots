@@ -11,6 +11,13 @@
       "Zone": 0,
 	  "IsHuman": true,
       "Name": "Green"
+    },
+	{
+      "ControlLevel": 1,
+      "Id": 2,
+      "Zone": 1,
+	  "IsHuman": true,
+      "Name": "Red"
     }
   ],
   "Units": [
@@ -28,7 +35,7 @@
     },
 	{
       "Name": "Fighter",
-      "PlayerId": 1,
+      "PlayerId": 2,
       "Blueprint": "Container",
 	  "HoldPosition": true,
 	  "HoldFire": true,

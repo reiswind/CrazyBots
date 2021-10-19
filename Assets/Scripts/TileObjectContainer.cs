@@ -107,18 +107,20 @@ namespace Assets.Scripts
 
         private bool oneItemPerCube;
 
-        public void UpdateContent(UnitBase unitBase, GameObject gameObject, List<TileObject> otherTileObjects, int? capacity)
+        public void UpdateContent(UnitBase unitBase, GameObject gameObject1, GameObject gameObject2, GameObject gameObject3, List<TileObject> otherTileObjects, int? capacity)
         {
             if (!capacity.HasValue || (capacity.HasValue && capacity.Value <= 0))
                 return;
 
             if (mineralCubes.Count == 0)
             {
-                if (capacity == 6)
-                {
-                    int x = 0;
-                }
-                    AddPlaceholders(gameObject);
+                if (gameObject1 != null)
+                    AddPlaceholders(gameObject1);
+                if (gameObject2 != null)
+                    AddPlaceholders(gameObject2);
+                if (gameObject3 != null)
+                    AddPlaceholders(gameObject3);
+
                 emptyCubes.Clear();
                 emptyCubes.AddRange(mineralCubes);
 
@@ -167,7 +169,7 @@ namespace Assets.Scripts
                     newUnitBaseTileObject.Placeholder = emptyCubes[0];
                     emptyCubes.Remove(newUnitBaseTileObject.Placeholder);
                     
-                    newUnitBaseTileObject.GameObject = unitBase.HexGrid.CreateTileObject(gameObject.transform, newUnitBaseTileObject.TileObject);
+                    newUnitBaseTileObject.GameObject = unitBase.HexGrid.CreateTileObject(gameObject1.transform, newUnitBaseTileObject.TileObject);
                     newUnitBaseTileObject.GameObject.transform.position = newUnitBaseTileObject.Placeholder.transform.position;
                 }
             }

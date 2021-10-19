@@ -924,7 +924,6 @@ namespace Assets.Scripts
 							if (unit != null)
 								unit.Delete();
 							GroundCell hexCell = GroundCells[move.Positions[0]];
-							//hexCell.SetAttack(false);
 							UnitsInBuild.Remove(move.Positions[0]);
 						}
 					}
@@ -935,7 +934,6 @@ namespace Assets.Scripts
 							UnitBase unit = BaseUnits[move.UnitId];
 							UnitBase upgradedUnit = BaseUnits[move.OtherUnitId];
 							unit.Upgrade(move, upgradedUnit);
-
 						}
 					}
 					else if (move.MoveType == MoveType.UpdateGround)
@@ -1080,6 +1078,11 @@ namespace Assets.Scripts
 
 		public GameObject InstantiatePrefab(string name)
 		{
+			if (!allResources.ContainsKey(name))
+			{
+				Debug.Log("Missing Resource: " + name);
+				name = "Marker";
+			}
 			GameObject prefab = allResources[name];
 			GameObject instance = Instantiate(prefab);
 			return instance;
@@ -1412,7 +1415,6 @@ namespace Assets.Scripts
 			unit.name = blueprint.Name;
 			unit.Temporary = true;
 			unit.HexGrid = this;
-			unit.gameObject.SetActive(false);
 			unit.PlayerId = 1;
 
 			MoveUpdateStats stats = new MoveUpdateStats();
@@ -1427,6 +1429,7 @@ namespace Assets.Scripts
 				moveUpdateUnitPart.Exists = false;
 				moveUpdateUnitPart.PartType = blueprintPart.PartType;
 				moveUpdateUnitPart.Level = blueprintPart.Level;
+				moveUpdateUnitPart.CompleteLevel = blueprintPart.Level;
 				moveUpdateUnitPart.Capacity = blueprintPart.Capacity;
 
 				stats.UnitParts.Add(moveUpdateUnitPart);
@@ -1505,11 +1508,7 @@ namespace Assets.Scripts
 			}
 			else
 			{
-				Rigidbody rigidbody = unit.GetComponent<Rigidbody>();
-				if (rigidbody != null)
-				{
-					rigidbody.Sleep();
-				}
+				UnitBase.DeactivateRigidbody(unit.gameObject);
 				BaseUnits.Add(move.UnitId, unit);
 			}
 		}

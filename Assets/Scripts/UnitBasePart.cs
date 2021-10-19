@@ -24,7 +24,9 @@ namespace Assets.Scripts
         public int CompleteLevel { get; set; }
         public bool IsUnderConstruction { get; set; }
         public bool Destroyed { get; set; }
-        public GameObject Part { get; set; }
+        public GameObject Part1 { get; set; }
+        public GameObject Part2 { get; set; }
+        public GameObject Part3 { get; set; }
 
         public void Fire(Move move, Weapon1 weapon)
         {
@@ -35,7 +37,7 @@ namespace Assets.Scripts
 
         public void UpdateContent(List<TileObject> tileObjects, int? capacity)
         {
-            if (UnitBase.gameObject == null || Part.gameObject == null)
+            if (UnitBase.gameObject == null)
             {
 
             }
@@ -43,7 +45,8 @@ namespace Assets.Scripts
             {
                 try
                 {
-                    TileObjectContainer.UpdateContent(UnitBase, Part, tileObjects, capacity);
+                    if (Part1.gameObject != null)
+                        TileObjectContainer.UpdateContent(UnitBase, Part1, Part2, Part3, tileObjects, capacity);
                 }
                 catch (Exception)
                 {
