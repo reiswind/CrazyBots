@@ -25,13 +25,23 @@
 	{
       "Name": "Fighter",
       "PlayerId": 1,
-      "Blueprint": "Fighter",
+      "Blueprint": "Outpost",
 	  "HoldPosition": true,
 	  "FireAtGround": false,
 	  "EndlessAmmo": true,
 	  "EndlessPower": true,
       "Position": "-2,-2"
     
+    },
+	{
+      "Name": "Fighter",
+      "PlayerId": 2,
+      "Blueprint": "Container",
+	  "HoldPosition": true,
+	  "HoldFire": true,
+	  "EndlessAmmo": true,
+	  "EndlessPower": true,
+      "Position": "-2,4"
     }
 
   ]

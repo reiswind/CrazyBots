@@ -568,7 +568,9 @@ namespace Assets.Scripts
             {
                 foreach (CellGameCommand checkCellGameCommand in cellGameCommands)
                 {
-                    if (checkCellGameCommand.GameCommand == gameCommand)
+                    if (checkCellGameCommand.GameCommand.TargetPosition == gameCommand.TargetPosition &&
+                        checkCellGameCommand.GameCommand.PlayerId == gameCommand.PlayerId &&
+                        checkCellGameCommand.GameCommand.GameCommandType == gameCommand.GameCommandType)
                     {
                         cellGameCommand = checkCellGameCommand;
                         cellGameCommand.Touched = true;

@@ -23,82 +23,82 @@ namespace Engine.Interface
             // Outpost
             blueprint = new Blueprint();
             blueprint.Name = "Outpost";
-            blueprint.Layout = "Ground";
-            blueprint.Parts.Add(new BlueprintPart("S-Extractor"));
-            blueprint.Parts.Add(new BlueprintPart("S-Assembler", TileObjectType.PartAssembler, 1, 4));
-            blueprint.Parts.Add(new BlueprintPart("S-Container", 24));
-            blueprint.Parts.Add(new BlueprintPart("S-Reactor"));
+            blueprint.Layout = "S-Outpost";
+            blueprint.Parts.Add(new BlueprintPart("S-PartExtractor"));
+            blueprint.Parts.Add(new BlueprintPart("S-PartAssembler", TileObjectType.PartAssembler, 1, 4));
+            blueprint.Parts.Add(new BlueprintPart("S-PartContainer", 24));
+            blueprint.Parts.Add(new BlueprintPart("S-PartReactor"));
             Items.Add(blueprint);
 
             // Container
             blueprint = new Blueprint();
             blueprint.Name = "Container";
-            blueprint.Layout = "Ground";
-            blueprint.Parts.Add(new BlueprintPart("S-Extractor"));
-            blueprint.Parts.Add(new BlueprintPart("S-Container", TileObjectType.PartContainer, 3, 72));
+            blueprint.Layout = "S-Container";
+            blueprint.Parts.Add(new BlueprintPart("S-PartExtractor"));
+            blueprint.Parts.Add(new BlueprintPart("S-PartContainer", TileObjectType.PartContainer, 3, 72));
             Items.Add(blueprint);
 
             // Turret
             blueprint = new Blueprint();
             blueprint.Name = "Turret";
-            blueprint.Layout = "Ground";
-            blueprint.Parts.Add(new BlueprintPart("S-Extractor"));
-            blueprint.Parts.Add(new BlueprintPart("S-Weapon", TileObjectType.PartWeapon, 3, 6));
+            blueprint.Layout = "S-Turret";
+            blueprint.Parts.Add(new BlueprintPart("S-PartExtractor"));
+            blueprint.Parts.Add(new BlueprintPart("S-PartWeapon", TileObjectType.PartWeapon, 3, 6));
             Items.Add(blueprint);
 
             // Reactor
             blueprint = new Blueprint();
             blueprint.Name = "Reactor";
             blueprint.Layout = "Ground";
-            blueprint.Parts.Add(new BlueprintPart("S-Extractor"));
-            blueprint.Parts.Add(new BlueprintPart("S-Reactor", TileObjectType.PartReactor, 3, 6));
+            blueprint.Parts.Add(new BlueprintPart("S-PartExtractor"));
+            blueprint.Parts.Add(new BlueprintPart("S-PartReactor", TileObjectType.PartReactor, 3, 6));
             Items.Add(blueprint);
 
             // Factory
             blueprint = new Blueprint();
             blueprint.Name = "Factory";
             blueprint.Layout = "Ground";
-            blueprint.Parts.Add(new BlueprintPart("S-Extractor"));
-            blueprint.Parts.Add(new BlueprintPart("S-Assembler", TileObjectType.PartAssembler, 3, 6));
+            blueprint.Parts.Add(new BlueprintPart("S-PartExtractor"));
+            blueprint.Parts.Add(new BlueprintPart("S-PartAssembler", TileObjectType.PartAssembler, 3, 6));
             Items.Add(blueprint);
 
             // Worker to collect Minerals
             blueprint = new Blueprint();
             blueprint.Name = "Worker";
-            blueprint.Layout = "MovableUnitBigPart";
-            blueprint.Parts.Add(new BlueprintPart("Engine"));
-            blueprint.Parts.Add(new BlueprintPart("Container", 12));
-            blueprint.Parts.Add(new BlueprintPart("Extractor"));
-            blueprint.Parts.Add(new BlueprintPart("Armor"));
+            blueprint.Layout = "U-Worker";
+            blueprint.Parts.Add(new BlueprintPart("PartEngine"));
+            blueprint.Parts.Add(new BlueprintPart("PartContainer", 12));
+            blueprint.Parts.Add(new BlueprintPart("PartExtractor"));
+            blueprint.Parts.Add(new BlueprintPart("PartArmor"));
             Items.Add(blueprint);
 
             // Fighter
             blueprint = new Blueprint();
             blueprint.Name = "Fighter";
-            blueprint.Layout = "MovableUnitBigPart";
-            blueprint.Parts.Add(new BlueprintPart("Engine"));
-            blueprint.Parts.Add(new BlueprintPart("Weapon"));
-            blueprint.Parts.Add(new BlueprintPart("Extractor"));
-            blueprint.Parts.Add(new BlueprintPart("Armor"));
+            blueprint.Layout = "U-Fighter";
+            blueprint.Parts.Add(new BlueprintPart("PartEngine"));
+            blueprint.Parts.Add(new BlueprintPart("PartWeapon"));
+            blueprint.Parts.Add(new BlueprintPart("PartExtractor"));
+            blueprint.Parts.Add(new BlueprintPart("PartArmor"));
             Items.Add(blueprint);
 
             // Bomber
             blueprint = new Blueprint();
             blueprint.Name = "Bomber";
-            blueprint.Layout = "MovableUnitBigPart";
-            blueprint.Parts.Add(new BlueprintPart("Engine"));
-            blueprint.Parts.Add(new BlueprintPart("Weapon", TileObjectType.PartWeapon, 2, 3));
-            blueprint.Parts.Add(new BlueprintPart("Extractor"));
+            blueprint.Layout = "U-Bomber";
+            blueprint.Parts.Add(new BlueprintPart("PartEngine"));
+            blueprint.Parts.Add(new BlueprintPart("PartWeapon", TileObjectType.PartWeapon, 2, 3));
+            blueprint.Parts.Add(new BlueprintPart("PartExtractor"));
             Items.Add(blueprint);
 
             // Assembler (moving)
             blueprint = new Blueprint();
             blueprint.Name = "Assembler";
-            blueprint.Layout = "MovableUnitBigPart";
-            blueprint.Parts.Add(new BlueprintPart("Engine"));
-            blueprint.Parts.Add(new BlueprintPart("Assembler"));
-            blueprint.Parts.Add(new BlueprintPart("Extractor"));
-            blueprint.Parts.Add(new BlueprintPart("Armor"));
+            blueprint.Layout = "U-Assembler";
+            blueprint.Parts.Add(new BlueprintPart("PartEngine"));
+            blueprint.Parts.Add(new BlueprintPart("PartAssembler"));
+            blueprint.Parts.Add(new BlueprintPart("PartExtractor"));
+            blueprint.Parts.Add(new BlueprintPart("PartArmor"));
             Items.Add(blueprint);
 
 

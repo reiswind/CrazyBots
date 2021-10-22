@@ -424,62 +424,6 @@ namespace Assets.Scripts
         private int selectedUnitButton;
 
 
-        private bool IsAssemblerAt()
-        {
-            if (selectedUnitFrame != null &&
-                selectedUnitFrame.IsAssembler())
-                return true;
-
-            // Units with assembler can build
-            /*
-            if (groundCell != null &&
-                groundCell.Tile.Unit != null)
-            {
-                if (groundCell.Tile.Unit.Assembler == null)
-                    return false;
-
-                return true;
-
-            }*/
-            return false;
-        }
-
-        private bool IsUnitAt()
-        {
-            if (selectedUnitFrame != null)
-                return true;
-
-            // Units with assembler can build
-            /*
-            if (groundCell != null &&
-                groundCell.Tile.Unit != null)
-            {
-                return true;
-
-            }*/
-            return false;
-        }
-
-        private bool IsContainerAt()
-        {
-            if (selectedUnitFrame != null &&
-                selectedUnitFrame.IsContainer())
-                return true;
-
-            /*
-            // Units with assembler can build
-            if (groundCell != null &&
-                groundCell.Tile.Unit != null)
-            {
-                if (groundCell.Tile.Unit.Container == null)
-                    return false;
-
-                return true;
-
-            }*/
-            return false;
-        }
-
         private bool CanBuildAt(GroundCell groundCell)
         {
             if (groundCell != null)

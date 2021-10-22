@@ -753,7 +753,6 @@ MonoBehaviour:
   MineralText: {fileID: 906138935}
   UnitText: {fileID: 1515047643}
   PowerText: {fileID: 991802728}
-  HexGrid: {fileID: 1571186511}
   NormalCursor: {fileID: 2800000, guid: c2d7aae641629094787d0b9fdc0f7e74, type: 3}
   BuildCursor: {fileID: 2800000, guid: 59a1edb20d5fa474d83785634df042e9, type: 3}
   AttackCursor: {fileID: 2800000, guid: 0c0f3cff4fa320f469fbc89a9038d7da, type: 3}

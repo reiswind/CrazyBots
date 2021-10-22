@@ -98,7 +98,8 @@ namespace Assets.Scripts
                 for (int i = 0; i < container.transform.childCount; i++)
                 {
                     GameObject child = container.transform.GetChild(i).gameObject;
-                    AddPlaceholders(child);
+                    if (child.activeSelf)
+                        AddPlaceholders(child);
                 }
             }
 
@@ -107,7 +108,7 @@ namespace Assets.Scripts
 
         private bool oneItemPerCube;
 
-        public void UpdateContent(UnitBase unitBase, GameObject gameObject1, GameObject gameObject2, GameObject gameObject3, List<TileObject> otherTileObjects, int? capacity)
+        public void UpdateContent(UnitBase unitBase, GameObject gameObject1, List<TileObject> otherTileObjects, int? capacity)
         {
             if (!capacity.HasValue || (capacity.HasValue && capacity.Value <= 0))
                 return;
@@ -116,10 +117,6 @@ namespace Assets.Scripts
             {
                 if (gameObject1 != null)
                     AddPlaceholders(gameObject1);
-                if (gameObject2 != null)
-                    AddPlaceholders(gameObject2);
-                if (gameObject3 != null)
-                    AddPlaceholders(gameObject3);
 
                 emptyCubes.Clear();
                 emptyCubes.AddRange(mineralCubes);

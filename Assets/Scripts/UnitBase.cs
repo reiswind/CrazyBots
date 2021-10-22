@@ -25,6 +25,7 @@ namespace Assets.Scripts
 
         }
         public GameObject GameObject { get; set; }
+        public GameObject ActivateAtArrival { get; set; }
         public Vector3 TargetPosition { get; set; }
         public Quaternion TargetRotation { get; set; }
         public bool DestroyAtArrival { get; set; }
@@ -57,6 +58,7 @@ namespace Assets.Scripts
             UnitCommands = new List<UnitCommand>();
             UnitBaseParts = new List<UnitBasePart>();
             AboveGround = 0f;
+            TurnWeaponIntoDirection = Vector3.zero;
         }
 
         internal ulong CurrentPos { get; set; }
@@ -76,6 +78,7 @@ namespace Assets.Scripts
         internal bool HasBeenDestroyed { get; set; }
         internal bool IsVisible { get; set; }
 
+        internal Vector3 TurnWeaponIntoDirection { get; set; }
 
         // Update is called once per frame
         void Update()
@@ -85,7 +88,32 @@ namespace Assets.Scripts
                 UpdateWayPoints();
                 selectionChanged = false;
             }
+            if (TurnWeaponIntoDirection != Vector3.zero)
+            {
+                foreach (UnitBasePart unitBasePart in UnitBaseParts)
+                {
+                    if (unitBasePart.PartType == TileObjectType.PartWeapon)
+                    {
+                        float str; // = Mathf.Min(2f * Time.deltaTime, 1);
+                        str = 8f * Time.deltaTime;
 
+                        // Calculate a rotation a step closer to the target and applies rotation to this object
+                        Quaternion lookRotation = Quaternion.LookRotation(TurnWeaponIntoDirection);
+
+                        // Rotate the forward vector towards the target direction by one step
+                        Quaternion newrotation = Quaternion.Slerp(unitBasePart.Part.transform.rotation, lookRotation, str);
+                        unitBasePart.Part.transform.rotation = newrotation;
+
+                        float angle = Quaternion.Angle(lookRotation, newrotation);
+                        if (angle < 5)
+                        {
+                            unitBasePart.FireBullet();
+                            TurnWeaponIntoDirection = Vector3.zero;
+                        }
+                        break;
+                    }
+                }
+            }
             if (DestinationPos != Position.Null)
             {
                 GroundCell targetCell;
@@ -167,10 +195,11 @@ namespace Assets.Scripts
             GroundCell targetCell;
             if (HexGrid.MainGrid.GroundCells.TryGetValue(DestinationPos, out targetCell))
             {
+                /*
                 if (Weapon != null)
                 {
                     Weapon.TurnTo(DestinationPos);
-                }
+                }*/
                 if (IsVisible != targetCell.Visible)
                 {
                     IsVisible = targetCell.Visible;
@@ -192,214 +221,11 @@ namespace Assets.Scripts
             }
         }
 
-        private void UpdatePart(UnitBasePart unitBasePart, MoveUpdateUnitPart moveUpdateUnitPart)
-        {
-            GameObject oldPart = unitBasePart.Part1;
-            if (unitBasePart.Level > 0)
-            {
-                string name = GetPrefabName(moveUpdateUnitPart);
-
-                GameObject newPart = HexGrid.MainGrid.InstantiatePrefab(name);
-                newPart.transform.position = unitBasePart.Part1.transform.position;
-                newPart.transform.SetParent(transform);
-                newPart.name = name;
-
-                SetPlayerColor(PlayerId, newPart);
-                unitBasePart.Part1 = newPart;
-                if (moveUpdateUnitPart.TileObjects != null)
-                {
-                    unitBasePart.TileObjectContainer = new TileObjectContainer();
-                }
-            }
-            else
-            {
-                unitBasePart.Part1 = null;
-            }
-            if (oldPart != null)
-            {
-                Destroy(oldPart);
-            }
-        }
-
-        private string GetPrefabName(MoveUpdateUnitPart moveUpdateUnitPart, int? level = null)
-        {
-            string name;
-
-            if (!level.HasValue)
-                level = moveUpdateUnitPart.Level;
-            if (level == 0) 
-                level = 1;
-
-            if (moveUpdateUnitPart.CompleteLevel == 91)
-            {
-                name = moveUpdateUnitPart.Name + level;
-            }
-            else
-            {
-                name = moveUpdateUnitPart.Name + moveUpdateUnitPart.CompleteLevel + "-" + level;
-            }
-            return name;
-        }
-
-        private GameObject CreatePartGameObject(MoveUpdateUnitPart moveUpdateUnitPart, bool underConstruction, int? level = null)
-        {
-            string name = GetPrefabName(moveUpdateUnitPart, level);
-            GameObject newPart;
-            newPart = HexGrid.MainGrid.InstantiatePrefab(name);
-            newPart.transform.SetParent(transform);
-            newPart.name = name;
-
-            if (IsGhost)
-            {
-                SetMaterialGhost(PlayerId, newPart);
-                RemoveColider(newPart);
-            }
-            else if (underConstruction)
-            {
-                newPart.SetActive(false);
-                RemoveColider(newPart);
-            }
-            else
-            {
-                SetPlayerColor(PlayerId, newPart);
-            }
-            DeactivateRigidbody(newPart);
-            return newPart;
-        }
-
-        private UnitBasePart ReplacePart(Transform part, MoveUpdateUnitPart moveUpdateUnitPart, bool underConstruction)
-        {
-            UnitBasePart unitBasePart = null;
-            if (moveUpdateUnitPart.Level == 0)
-            {
-                // Hide the template
-                part.gameObject.SetActive(false);
-
-                unitBasePart = new UnitBasePart(this);
-                unitBasePart.Name = moveUpdateUnitPart.Name;
-                unitBasePart.PartType = moveUpdateUnitPart.PartType;
-                unitBasePart.Part1 = part.gameObject;
-                unitBasePart.Level = moveUpdateUnitPart.Level;
-                unitBasePart.CompleteLevel = moveUpdateUnitPart.CompleteLevel;
-                unitBasePart.IsUnderConstruction = underConstruction;
-
-                if (moveUpdateUnitPart.TileObjects != null)
-                {
-                    unitBasePart.TileObjectContainer = new TileObjectContainer();
-                    unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
-                }
-                UnitBaseParts.Add(unitBasePart);
-            }
-            else
-            {
-                foreach (UnitBasePart existingPart in UnitBaseParts)
-                {
-                    if (existingPart.PartType == moveUpdateUnitPart.PartType)
-                    {
-                        unitBasePart = existingPart;
-                        break;
-                    }
-                }
-                if (unitBasePart == null)
-                {
-                    unitBasePart = new UnitBasePart(this);
-                    unitBasePart.Name = moveUpdateUnitPart.Name;
-                    unitBasePart.PartType = moveUpdateUnitPart.PartType;
-                    unitBasePart.CompleteLevel = moveUpdateUnitPart.CompleteLevel;
-
-                    if (unitBasePart.CompleteLevel >= 1)
-                    {
-                        unitBasePart.Part1 = CreatePartGameObject(moveUpdateUnitPart, underConstruction, 1);
-                        unitBasePart.Part1.transform.position = part.transform.position;
-                    }
-                    if (unitBasePart.CompleteLevel >= 2)
-                    {
-                        unitBasePart.Part2 = CreatePartGameObject(moveUpdateUnitPart, underConstruction, 2);
-                        unitBasePart.Part2.transform.position = part.transform.position;
-                    }
-                    if (unitBasePart.CompleteLevel >= 3)
-                    {
-                        unitBasePart.Part3 = CreatePartGameObject(moveUpdateUnitPart, underConstruction, 3);
-                        unitBasePart.Part3.transform.position = part.transform.position;
-                    }
-
-                    // Destroy the placeholder
-                    if (UnityEditor.EditorApplication.isPlaying)
-                        Destroy(part.gameObject);
-                    else
-                        DestroyImmediate(part.gameObject);
-
-                    UnitBaseParts.Add(unitBasePart);
-                }
-                else
-                {
-                    GameObject newPart;
-
-                    newPart = CreatePartGameObject(moveUpdateUnitPart, underConstruction);
-                    newPart.transform.position = part.transform.position;
-                    newPart.transform.rotation = part.transform.rotation;
-                    
-                    unitBasePart.Level = moveUpdateUnitPart.Level;
-                    unitBasePart.IsUnderConstruction = underConstruction;
-
-                    if (unitBasePart.Level == 1)
-                    {
-                        // Destroy the template, replace with final part
-                        if (unitBasePart.Part1 != null)
-                        {
-                            if (UnityEditor.EditorApplication.isPlaying)
-                                Destroy(unitBasePart.Part1.gameObject);
-                            else
-                                DestroyImmediate(unitBasePart.Part1.gameObject);
-                        }
-                        unitBasePart.Part1 = newPart;
-                    }
-                    if (unitBasePart.Level == 2)
-                    {
-                        if (unitBasePart.Part2 != null)
-                        {
-                            if (UnityEditor.EditorApplication.isPlaying)
-                                Destroy(unitBasePart.Part2.gameObject);
-                            else
-                                DestroyImmediate(unitBasePart.Part2.gameObject);
-                        }
-                        unitBasePart.Part2 = newPart;
-                    }
-                    if (unitBasePart.Level == 3)
-                    {
-                        if (unitBasePart.Part3 != null)
-                        {
-                            if (UnityEditor.EditorApplication.isPlaying)
-                                Destroy(unitBasePart.Part3.gameObject);
-                            else
-                                DestroyImmediate(unitBasePart.Part3.gameObject);
-                        }
-                        unitBasePart.Part3 = newPart;
-                    }
-
-                }
-                if (moveUpdateUnitPart.TileObjects != null)
-                {
-                    unitBasePart.TileObjectContainer = new TileObjectContainer();
-                    unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
-                }
-                else
-                {
-                    if (moveUpdateUnitPart.TileObjects == null && unitBasePart.TileObjectContainer != null)
-                    {
-                        unitBasePart.TileObjectContainer = null;
-                    }
-                }
-            }
-            return unitBasePart;
-        }
-
         public void Delete()
         {
             HasBeenDestroyed = true;
             Destroy(this.gameObject);
         }
-        //private Light selectionLight;
         private bool selectionChanged;
         public bool IsSelected { get; private set; }
         internal void SetSelected(bool selected)
@@ -507,13 +333,13 @@ namespace Assets.Scripts
 
             foreach (UnitBasePart unitBasePart in UnitBaseParts)
             {
-                SetPlayerColor(PlayerId, unitBasePart.Part1);
+                SetPlayerColor(PlayerId, unitBasePart.Part);
             }
         }
 
         public void Extract(Move move, UnitBase unit, UnitBase otherUnit)
         {
-            if (IsVisible && Extractor != null)
+            if (IsVisible)
             {
                 Extractor.Extract(move, unit, otherUnit);
             }
@@ -521,36 +347,65 @@ namespace Assets.Scripts
 
         public void Upgrade(Move move, UnitBase upgradedUnit)
         {
-            if (IsVisible && Assembler != null)
+            if (IsVisible)
             {
                 MoveUpdateUnitPart moveUpdateUnitPart = move.Stats.UnitParts[0];
                 foreach (UnitBasePart upgradedBasePart in upgradedUnit.UnitBaseParts)
                 {
                     if (upgradedBasePart.PartType == moveUpdateUnitPart.PartType)
                     {
-                        Vector3 vector3 = upgradedBasePart.Part1.transform.position;
-                        Quaternion rotation = upgradedBasePart.Part1.transform.rotation;
-                        UnitBasePart lastPart = upgradedUnit.ReplacePart(upgradedBasePart.Part1.transform, moveUpdateUnitPart, false);
+                        GameObject upgradedPart = null;
+                        if (moveUpdateUnitPart.CompleteLevel > 1)
+                        {
+                            // Activate the main part
+                            GameObject upgradedMainPart;
 
-                        GameObject part;
-                        if (lastPart.Part3 != null)
-                            part = lastPart.Part3;
-                        else if (lastPart.Part2 != null)
-                            part = lastPart.Part2;
+                            upgradedMainPart = FindChildNyName(upgradedUnit.gameObject, moveUpdateUnitPart.Name + moveUpdateUnitPart.CompleteLevel);
+                            if (moveUpdateUnitPart.Level == 1)
+                            {
+                                upgradedMainPart.SetActive(true);
+                                for (int i = 0; i < upgradedMainPart.transform.childCount; i++)
+                                {
+                                    GameObject child = upgradedMainPart.transform.GetChild(i).gameObject;
+                                    child.SetActive(false);
+                                }
+
+                            }
+                            GameObject upgradedSubPart;
+                            for (int level = 1; level <= moveUpdateUnitPart.CompleteLevel; level++)
+                            {
+                                upgradedSubPart = FindChildNyName(upgradedMainPart, moveUpdateUnitPart.Name + moveUpdateUnitPart.CompleteLevel + "-" + level);
+                                if (upgradedSubPart != null)
+                                {
+                                    if (moveUpdateUnitPart.Level == level)
+                                    {
+                                        upgradedPart = upgradedSubPart;
+                                    }
+                                }
+                            }
+                        }
                         else
-                            part = lastPart.Part1;
+                        {
+                            upgradedPart = FindChildNyName(upgradedUnit.gameObject, moveUpdateUnitPart.Name + moveUpdateUnitPart.CompleteLevel);
+                        }
+                        if (upgradedPart != null)
+                        {
+                            GameObject upgradedPartClone = Instantiate(upgradedPart);
 
-                        TransitObject transitObject = new TransitObject();
-                        transitObject.GameObject = part;
-                        transitObject.TargetPosition = vector3;
-                        transitObject.TargetRotation = rotation;
+                            TransitObject transitObject = new TransitObject();
+                            transitObject.GameObject = upgradedPartClone;
+                            transitObject.TargetPosition = upgradedPart.transform.position;
+                            transitObject.DestroyAtArrival = true;
+                            transitObject.ActivateAtArrival = upgradedPart;
 
-                        // Reset current pos to assembler
-                        part.transform.position = transform.position;
-                        part.SetActive(true);
+                            // Reset current pos to assembler
+                            upgradedPartClone.transform.position = transform.position;
+                            upgradedPartClone.transform.rotation = upgradedPart.transform.rotation;
+                            upgradedPartClone.SetActive(true);
 
-                        // Move to position in unit
-                        HexGrid.MainGrid.AddTransitTileObject(transitObject);
+                            // Move to position in unit
+                            HexGrid.MainGrid.AddTransitTileObject(transitObject);
+                        }
                     }
                 }
             }
@@ -563,24 +418,16 @@ namespace Assets.Scripts
                 {
                     if (unitBasePart.PartType == TileObjectType.PartWeapon)
                     {
-                        unitBasePart.Fire(move, Weapon);
+                        unitBasePart.Fire(move);
+                        break;
                     }
                 }
             }
-            /*
-
-            if (Weapon != null)
-            {
-                Weapon.Fire(HexGrid, move);
-            }*/
         }
 
         public void Transport(Move move)
         {
-            if (Container != null)
-            {
-                Container.Transport(move);
-            }
+            Container.Transport(this, move);
         }
 
         internal void SetSelectColor(int playerId, GameObject unit)
@@ -771,311 +618,80 @@ namespace Assets.Scripts
             }
         }
 
-        public bool IsAssembler()
-        {
-            if (UnderConstruction) return false;
-            return Assembler != null && Engine == null;
-        }
-        public bool IsContainer()
-        {
-            if (UnderConstruction) return false;
-            return Container != null && Engine == null;
-        }
-
-        private Engine1 Engine;
-        private Assembler1 Assembler;
-        internal Container1 Container;
-        private Extractor1 Extractor;
-        private Weapon1 Weapon;
-        private Reactor1 Reactor;
-        private Armor Armor;
-
-        private GameObject AddPart(GameObject foundation, GameObject parent, MoveUpdateUnitPart moveUpdateUnitPart, bool underConstruction)
-        {
-            float y = 0.01f;
-            if (parent != null)
-            {
-                Renderer rend = parent.GetComponent<Renderer>();
-                y += parent.transform.position.y + rend.bounds.size.y; // + 0.1f;
-            }
-
-            string name = GetPrefabName(moveUpdateUnitPart);
-
-            // Replace
-            GameObject newPart = HexGrid.MainGrid.InstantiatePrefab(name);
-            Vector3 vector3 = transform.position;
-            vector3.y = y;
-            newPart.transform.position = vector3;
-            newPart.transform.SetParent(transform);
-            newPart.name = name;
-
-            if (underConstruction)
-            {
-                if (IsGhost)
-                    SetMaterialGhost(PlayerId, newPart);
-                else
-                    newPart.SetActive(false);
-            }
-            else
-            {
-                SetPlayerColor(PlayerId, newPart);
-            }
-            if (foundation != null)
-            {
-                /*
-                SpringJoint springJoint = newPart.AddComponent<SpringJoint>();
-                Rigidbody rigidbodyx = foundation.GetComponent<Rigidbody>();
-                springJoint.connectedBody = rigidbodyx;
-                springJoint.maxDistance = 2;
-                //springJoint.minDistance = 0.5f;
-                springJoint.enableCollision = true;
-                springJoint.breakForce = 5000f;
-                //springJoint.spring = 5000;
-                //springJoint.breakTorque = 0.0001f;,0
-                springJoint.autoConfigureConnectedAnchor = true;*/
-            }
-
-            Rigidbody rigidbody = newPart.GetComponent<Rigidbody>();
-            if (rigidbody != null)
-            {
-                if (underConstruction)
-                {
-                    rigidbody.Sleep();
-                }
-                else
-                {
-                    rigidbody.WakeUp();
-                }
-            }
-
-            return newPart;
-        }
-
-        public void AssembleBuilding()
-        {
-            if (MoveUpdateStats.UnitParts == null)
-                return;
-
-            GameObject lastObject = null;
-            GameObject foundation = null;
-
-            foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
-            {
-                if (moveUpdateUnitPart.PartType == TileObjectType.PartExtractor)
-                {
-                    lastObject = AddPart(foundation, lastObject, moveUpdateUnitPart, UnderConstruction);
-                    foundation = lastObject;
-                    AddBasePart(moveUpdateUnitPart, lastObject);
-                }
-                else //if (moveUpdateUnitPart.PartType == TileObjectType.PartContainer)
-                {
-                    lastObject = AddPart(foundation, lastObject, moveUpdateUnitPart, UnderConstruction);
-                    AddBasePart(moveUpdateUnitPart, lastObject);
-                    /*
-                    if (moveUpdateUnitPart.Level > 1)
-                    {
-                        lastObject = AddPart(foundation, lastObject, "ContainerPart", UnderConstruction);
-                        AddBasePart(moveUpdateUnitPart, lastObject);
-                    }
-                    if (moveUpdateUnitPart.Level > 2)
-                    {
-                        lastObject = AddPart(foundation, lastObject, "ContainerPart", UnderConstruction);
-                        AddBasePart(moveUpdateUnitPart, lastObject);
-                    }*/
-                }
-                /*
-                else if (moveUpdateUnitPart.PartType == TileObjectType.PartReactor)
-                {
-
-                    lastObject = AddPart(foundation, lastObject, moveUpdateUnitPart, UnderConstruction);
-                    AddBasePart(moveUpdateUnitPart, lastObject);
-                    
-                    if (moveUpdateUnitPart.Level == 2)
-                    {
-                        lastObject = AddPart(foundation, lastObject, "ReactorPart", UnderConstruction);
-                        AddBasePart(moveUpdateUnitPart, lastObject);
-                    }
-                    if (moveUpdateUnitPart.Level == 3)
-                    {
-                        lastObject = AddPart(foundation, lastObject, "ReactorPart", UnderConstruction);
-                        AddBasePart(moveUpdateUnitPart, lastObject);
-
-                        lastObject = AddPart(foundation, lastObject, "ReactorPart", UnderConstruction);
-                        AddBasePart(moveUpdateUnitPart, lastObject);
-
-                        lastObject = AddPart(foundation, lastObject, "ReactorPart", UnderConstruction);
-                        AddBasePart(moveUpdateUnitPart, lastObject);
-                    }
-                    
-                }
-                else if (moveUpdateUnitPart.PartType == TileObjectType.PartAssembler)
-                {
-                    lastObject = AddPart(foundation, lastObject, moveUpdateUnitPart, UnderConstruction);
-                    AddBasePart(moveUpdateUnitPart, lastObject);
-                    /*
-                    if (moveUpdateUnitPart.Level == 2)
-                    {
-                        lastObject = AddPart(foundation, lastObject, "AssemblerPart", UnderConstruction);
-                        AddBasePart(moveUpdateUnitPart, lastObject);
-
-                        lastObject = AddPart(foundation, lastObject, "Socket1", UnderConstruction);
-                        AddBasePart(moveUpdateUnitPart, lastObject);
-                    }
-                    if (moveUpdateUnitPart.Level == 3)
-                    {
-                        lastObject = AddPart(foundation, lastObject, "AssemblerPart", UnderConstruction);
-                        AddBasePart(moveUpdateUnitPart, lastObject);
-
-                        lastObject = AddPart(foundation, lastObject, "Socket1", UnderConstruction);
-                        AddBasePart(moveUpdateUnitPart, lastObject);
-
-                        lastObject = AddPart(foundation, lastObject, "Socket1", UnderConstruction);
-                        AddBasePart(moveUpdateUnitPart, lastObject);
-
-                    }
-                    */
-                
-
-            }
-            UpdateParts();
-        }
-
-        private void AddBasePart(MoveUpdateUnitPart moveUpdateUnitPart, GameObject gameObject)
-        {
-            UnitBasePart unitBasePart = new UnitBasePart(this);
-            unitBasePart.Name = moveUpdateUnitPart.Name;
-            unitBasePart.PartType = moveUpdateUnitPart.PartType;
-            unitBasePart.Part1 = gameObject;
-            unitBasePart.Level = moveUpdateUnitPart.Level;
-            unitBasePart.CompleteLevel = moveUpdateUnitPart.CompleteLevel;
-
-            unitBasePart.IsUnderConstruction = UnderConstruction;
-            UnitBaseParts.Add(unitBasePart);
-        }
-
-        public void PartExtracted(TileObjectType hitPart)
-        {
-            for (int i = UnitBaseParts.Count - 1; i >= 0; i--)
-            {
-                UnitBasePart unitBasePart = UnitBaseParts[i];
-                if (unitBasePart.PartType == hitPart)
-                {
-                    unitBasePart.Level--;
-                    if (unitBasePart.Level == 0)
-                    {
-                        /*
-                        GroundCell currentCell = HexGrid.GroundCells[CurrentPos];
-                        unitBasePart.Part.transform.SetParent(currentCell.transform, true);
-
-                        Rigidbody otherRigid = unitBasePart.Part.GetComponent<Rigidbody>();
-
-                        if (otherRigid != null)
-                        {
-                            otherRigid.isKinematic = false;
-
-                            Vector3 vector3 = new Vector3();
-                            vector3.y = 5;
-                            vector3.x = Random.value;
-                            vector3.z = Random.value;
-
-                            otherRigid.velocity = vector3;
-                            otherRigid.rotation = Random.rotation;
-                        }
-
-                        Container1 container = unitBasePart.Part.GetComponent<Container1>();
-                        if (container != null)
-                        {
-                            List<TileObject> tileObjects = new List<TileObject>();
-                            container.UpdateContent(HexGrid, tileObjects, 1);
-                        }*/
-
-                        unitBasePart.Destroyed = true;
-                        SetPlayerColor(0, unitBasePart.Part1);
-                        Destroy(unitBasePart.Part1, 8);
-                        UnitBaseParts.Remove(unitBasePart);
-                    }
-                    break;
-                }
-            }
-        }
-
         public UnitBasePart PartHitByShell(TileObjectType hitPart, MoveUpdateStats stats)
         {
             foreach (UnitBasePart unitBasePart in UnitBaseParts)
-            {                
+            {
                 if (unitBasePart.PartType == hitPart)
                 {
-                    if (unitBasePart.Level > 991)
+                    MoveUpdateUnitPart moveUpdateUnitPart = null;
+                    if (stats != null)
                     {
-                        UpdateStats(stats);
+                        foreach (MoveUpdateUnitPart checkUpdateUnitPart in stats.UnitParts)
+                        {
+                            if (checkUpdateUnitPart.PartType == unitBasePart.PartType)
+                            {
+                                moveUpdateUnitPart = checkUpdateUnitPart;
+                                break;
+                            }
+                        }
                     }
-                    else
+                    if (unitBasePart.TileObjectContainer != null)
                     {
-                        if (unitBasePart.TileObjectContainer != null)
+                        if (moveUpdateUnitPart != null &&
+                            moveUpdateUnitPart.Capacity.HasValue)
                         {
-                            unitBasePart.TileObjectContainer.Explode(transform);
-                            List<TileObject> tileObjects = new List<TileObject>();
-                            unitBasePart.UpdateContent(tileObjects, 1);
-                        }
-                        unitBasePart.Level = 0;
-                        GroundCell currentCell;
-
-                        if (HexGrid.MainGrid.GroundCells.TryGetValue(CurrentPos, out currentCell))
-                        {
-                            GameObject part;
-
-                            if (unitBasePart.Part3 != null)
-                            {
-                                part = unitBasePart.Part3;
-                                unitBasePart.Part3 = null;
-                            }
-                            else if (unitBasePart.Part2 != null)
-                            {
-                                part = unitBasePart.Part2;
-                                unitBasePart.Part2 = null;
-                            }
-                            else
-                            {
-                                part = unitBasePart.Part1;
-                                Destroy(unitBasePart.Part1, 8);
-                                unitBasePart.Part1 = null;
-                                unitBasePart.Destroyed = true;
-                                UnitBaseParts.Remove(unitBasePart);
-                            }
-
-                            SetPlayerColor(0, part);
-                            part.transform.SetParent(currentCell.transform, true);
-
-                            ActivateRigidbody(part);
-                        }
-
-                        /*
-                        Container1 container = unitBasePart.Part.GetComponent<Container1>();
-                        if (container != null)
-                        {
-                            List<TileObject> tileObjects = new List<TileObject>();
-                            container.UpdateContent(HexGrid, tileObjects, 1);
-                        }*/
-
-
-                        if (unitBasePart.PartType == TileObjectType.PartEngine) Engine = null;
-                        if (unitBasePart.PartType == TileObjectType.PartAssembler) Assembler = null;
-                        if (unitBasePart.PartType == TileObjectType.PartContainer) Container = null;
-                        if (unitBasePart.PartType == TileObjectType.PartExtractor) Extractor = null;
-                        if (unitBasePart.PartType == TileObjectType.PartWeapon) Weapon = null;
-                        if (unitBasePart.PartType == TileObjectType.PartReactor) Reactor = null;
-                        if (unitBasePart.PartType == TileObjectType.PartArmor) Armor = null;
-
-                        if (UnitBaseParts.Count == 0)
-                        {
-                            Delete();
+                            unitBasePart.TileObjectContainer.ExplodeExceedingCapacity(transform, moveUpdateUnitPart.Capacity.Value);
                         }
                         else
                         {
-                            GameObject smoke = FindChildNyName(gameObject, "SmokeEffect");
-                            if (smoke != null)
-                                smoke.SetActive(true);
+                            unitBasePart.TileObjectContainer.Explode(transform);
+                        }                        
+                    }
+
+                    GameObject hitGameObject;
+                    hitGameObject = unitBasePart.Part;
+
+                    if (moveUpdateUnitPart != null && moveUpdateUnitPart.CompleteLevel > 1)
+                    {
+                        hitGameObject = FindChildNyName(unitBasePart.Part, moveUpdateUnitPart.Name + moveUpdateUnitPart.CompleteLevel + "-" + (moveUpdateUnitPart.Level+1));
+                    }
+                    GroundCell currentCell;
+
+                    if (hitGameObject != null && HexGrid.MainGrid.GroundCells.TryGetValue(CurrentPos, out currentCell))
+                    {
+                        hitGameObject.SetActive(false);
+
+                        // Clone the part
+                        GameObject part = Instantiate(hitGameObject);
+
+                        Destroy(part, 8);
+
+                        unitBasePart.Destroyed = true;
+                        SetPlayerColor(0, part);
+                        part.transform.SetParent(currentCell.transform, true);
+
+                        ActivateRigidbody(part);
+                    }
+                    bool alive = false;
+                    foreach (UnitBasePart testBasePart in UnitBaseParts)
+                    {
+                        if (!testBasePart.Destroyed)
+                        {
+                            alive = true;
+                            break;
                         }
+                    }
+
+                    if (!alive)
+                    {
+                        Delete();
+                    }
+                    else
+                    {
+                        GameObject smoke = FindChildNyName(gameObject, "SmokeEffect");
+                        if (smoke != null)
+                            smoke.SetActive(true);
                     }
                     return unitBasePart;
                 }
@@ -1092,56 +708,7 @@ namespace Assets.Scripts
                 ParticleSystem particles= Instantiate(TankExplosionParticles, transform);
                 particles.Play();
             }
-            /*
-            ParticleSystem particleSource;
-
-            particleSource = HexGrid.MakeParticleSource("TankExplosion");
-            particleSource.transform.SetParent(transform, false);
-            particleSource.Play();
-            HexGrid.Destroy(particleSource, 2f);*/
         }
-        /*
-        public void HitByShell(Collision collision)
-        {
-            string hitPart = GetPartThatHasBeenHit();
-            if (hitPart == null)
-                return;
-
-            for (int i=unitBaseParts.Count-1; i >= 0; i--)
-            {
-                UnitBasePart unitBasePart = unitBaseParts[i];
-            //foreach (UnitBasePart unitBasePart in unitBaseParts)
-            //{
-                if (unitBasePart.PartType == hitPart)
-                {
-
-                    Rigidbody otherRigid = unitBasePart.Part.GetComponent<Rigidbody>();
-
-                    if (otherRigid != null)
-                    {
-                        otherRigid.isKinematic = false;
-
-
-                        otherRigid.rotation = Random.rotation;
-                        otherRigid.velocity = collision.relativeVelocity;
-                    }
-
-                    ParticleSystem particleSource;
-
-                    particleSource = HexGrid.MakeParticleSource("TankExplosion");
-                    particleSource.transform.SetParent(unitBasePart.Part.transform, false);
-                    particleSource.Play();
-                    HexGrid.Destroy(particleSource, 2f);
-
-                    unitBasePart.Destroyed = true;
-                    SetPlayerColor(HexGrid, 0, unitBasePart.Part);                
-                    Destroy(unitBasePart.Part, 3);
-                    unitBaseParts.Remove(unitBasePart);
-                    break;
-                }
-            }
-        }*/
-
 
         private bool IsBuilding()
         {
@@ -1171,140 +738,47 @@ namespace Assets.Scripts
             UnitBaseParts.Clear();
             UnderConstruction = underConstruction;
 
-            Transform engine;
-            Transform ground;
-            Transform bigPart;
-            Transform part1;
-            Transform part2;
+            // Find the basic parts
 
-            bool isBuilding = IsBuilding();
-            if (isBuilding)
+            foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
             {
-                ground = transform.Find("Extractor");
-                engine = null;
-                bigPart = transform.Find("Socket1");
-                part1 = transform.Find("Socket2");
-                part2 = transform.Find("Socket3");
+                GameObject part = FindChildNyName(gameObject, moveUpdateUnitPart.Name + moveUpdateUnitPart.CompleteLevel);
+                if (part != null)
+                {
+                    UnitBasePart unitBasePart = new UnitBasePart(this);
+                    unitBasePart.CompleteLevel = moveUpdateUnitPart.CompleteLevel;
+                    unitBasePart.IsUnderConstruction = underConstruction;
+                    unitBasePart.Level = moveUpdateUnitPart.Level;
+                    unitBasePart.Name = moveUpdateUnitPart.Name;
+                    unitBasePart.PartType = moveUpdateUnitPart.PartType;
+                    unitBasePart.Part = part;
+
+                    if (moveUpdateUnitPart.TileObjects != null)
+                    {
+                        unitBasePart.TileObjectContainer = new TileObjectContainer();
+                    }
+                    UnitBaseParts.Add(unitBasePart);
+                }
+            }
+            if (ghost)
+            {
+                SetMaterialGhost(PlayerId, gameObject);
+                DeactivateRigidbody(gameObject);
+                RemoveColider(gameObject);
+            }
+            else if (underConstruction)
+            {
+                SetPlayerColor(PlayerId, gameObject);
             }
             else
             {
-                engine = transform.Find("Engine");
-                ground = transform.Find("Ground");
-                bigPart = transform.Find("BigPart");
-                part1 = transform.Find("Part1");
-                part2 = transform.Find("Part2");
-            }
-            Transform sparePart = part1;
-
-            List<MoveUpdateUnitPart> remainingParts = new List<MoveUpdateUnitPart>();
-            if (MoveUpdateStats.UnitParts != null)
-                remainingParts.AddRange(MoveUpdateStats.UnitParts);
-
-            UnitBasePart addedBasePart;
-
-            // Find the basic parts
-            bool groundFound = false;
-            foreach (MoveUpdateUnitPart moveUpdateUnitPart in remainingParts)
-            {
-                if (engine != null && moveUpdateUnitPart.PartType == TileObjectType.PartEngine)
-                {
-                    ReplacePart(engine, moveUpdateUnitPart, underConstruction);
-                    remainingParts.Remove(moveUpdateUnitPart);
-                    groundFound = true;
-                    break;
-                }
-                else if (ground != null && moveUpdateUnitPart.PartType == TileObjectType.PartExtractor)
-                {
-                    addedBasePart = ReplacePart(ground, moveUpdateUnitPart, underConstruction);
-                    remainingParts.Remove(moveUpdateUnitPart);
-                    groundFound = true;
-
-                    if (isBuilding && addedBasePart.Part1 != null)
-                    {
-                        Renderer rend = addedBasePart.Part1.GetComponent<Renderer>();
-
-                        Vector3 vector3 = bigPart.transform.position;
-                        vector3.y = addedBasePart.Part1.transform.position.y + rend.bounds.size.y; // + 0.1f;
-                        bigPart.transform.position = vector3;
-                    }
-                    
-                    break;
-                }
-            }
-            if (groundFound == false)
-            {
-                if (engine != null)
-                    engine.gameObject.SetActive(false);
-                if (ground != null)
-                    ground.gameObject.SetActive(false);
-            }
-
-            // Place big parts
-            if (bigPart != null)
-            {
-                foreach (MoveUpdateUnitPart moveUpdateUnitPart in remainingParts)
-                {
-                    if (moveUpdateUnitPart.PartType == TileObjectType.PartContainer ||
-                        moveUpdateUnitPart.PartType == TileObjectType.PartWeapon ||
-                        moveUpdateUnitPart.PartType == TileObjectType.PartReactor ||
-                        moveUpdateUnitPart.PartType == TileObjectType.PartAssembler)
-                    {
-                        addedBasePart = ReplacePart(bigPart, moveUpdateUnitPart, underConstruction);
-                        remainingParts.Remove(moveUpdateUnitPart);
-
-                        if (isBuilding && addedBasePart.Part1 != null)
-                        {
-                            Renderer rend = addedBasePart.Part1.GetComponent<Renderer>();
-
-                            Vector3 vector3 = sparePart.transform.position;
-                            vector3.y = addedBasePart.Part1.transform.position.y + rend.bounds.size.y;
-                            sparePart.transform.position = vector3;
-                        }
-
-                        break;
-                    }
-                }
-            }
-            if (sparePart != null)
-            {
-                // Place remaining parts
-                foreach (MoveUpdateUnitPart moveUpdateUnitPart in remainingParts)
-                {
-                    addedBasePart = ReplacePart(sparePart, moveUpdateUnitPart, underConstruction);
-                    sparePart = part2;
-                    if (sparePart == null)
-                    {
-                        break;
-                    }
-                    if (isBuilding && addedBasePart.Part1 != null)
-                    {
-                        Renderer rend = addedBasePart.Part1.GetComponent<Renderer>();
-
-                        Vector3 vector3 = part2.transform.position;
-                        vector3.y = addedBasePart.Part1.transform.position.y + rend.bounds.size.y;
-                        part2.transform.position = vector3;
-                    }
-                }
-            }
-            if (sparePart != null)
-            {
-                sparePart.gameObject.SetActive(false);
-                if (sparePart != part2)
-                    part2.gameObject.SetActive(false);
+                SetPlayerColor(PlayerId, gameObject);
             }
             UpdateParts();
         }
 
         public void UpdateParts()
         {
-            Container = null;
-            Extractor = null;
-            Assembler = null;
-            Weapon = null;
-            Reactor = null;
-            Engine = null;
-            Armor = null;
-
             bool missingPartFound = false;
 
             foreach (UnitBasePart unitBasePart in UnitBaseParts)
@@ -1319,86 +793,52 @@ namespace Assets.Scripts
                             {
                                 // Change from transparent to reals
                                 unitBasePart.IsUnderConstruction = false;
-                                SetPlayerColor(PlayerId, unitBasePart.Part1);
                             }
+
                             if (unitBasePart.TileObjectContainer == null)
                                 unitBasePart.TileObjectContainer = new TileObjectContainer();
 
                             if (unitBasePart.Level > 0 &&
-                                unitBasePart.Level != moveUpdateUnitPart.Level )
+                                unitBasePart.Level != moveUpdateUnitPart.Level)
                             {
                                 if (moveUpdateUnitPart.Capacity.HasValue)
                                 {
                                     unitBasePart.TileObjectContainer.ExplodeExceedingCapacity(transform, moveUpdateUnitPart.Capacity.Value);
                                 }
                                 unitBasePart.Level = moveUpdateUnitPart.Level;
-                                UpdatePart(unitBasePart, moveUpdateUnitPart);
-
-                                // Modifies the UnitBaseParts array
-                                //ReplacePart(unitBasePart.Part.transform, moveUpdateUnitPart, false);
-
                             }
-
+                            else
+                            {
+                                if (moveUpdateUnitPart.Capacity.HasValue && unitBasePart.TileObjectContainer != null)
+                                {
+                                    unitBasePart.TileObjectContainer.UpdateContent(this, unitBasePart.Part, moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity.Value);
+                                }
+                            }
                             if (unitBasePart.Level < moveUpdateUnitPart.Level)
                             {
                                 unitBasePart.Level = moveUpdateUnitPart.Level;
                             }
-                            
-                            if (!moveUpdateUnitPart.Exists)
-                                missingPartFound = true;
-
-                            if (unitBasePart.Part1 == null)
+                            if (moveUpdateUnitPart.Exists)
                             {
-
                             }
                             else
                             {
-                                Engine1 engine = unitBasePart.Part1.GetComponent<Engine1>();
-                                if (engine != null)
+                                if (moveUpdateUnitPart.Level == 0)
                                 {
-                                    Engine = engine;
+                                    unitBasePart.Part.SetActive(false);
                                 }
-                                Container1 container = unitBasePart.Part1.GetComponent<Container1>();
-                                if (container != null)
-                                {
-                                    Container = container;
-                                    unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
-                                }
-                                Extractor1 extractor = unitBasePart.Part1.GetComponent<Extractor1>();
-                                if (extractor != null)
-                                    Extractor = extractor;
-                                Assembler1 assembler = unitBasePart.Part1.GetComponent<Assembler1>();
-                                if (assembler != null)
-                                {
-                                    Assembler = assembler;
-                                    unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
-                                }
-                                Weapon1 weapon = unitBasePart.Part1.GetComponent<Weapon1>();
-                                if (weapon != null)
-                                {
-                                    Weapon = weapon;
-                                    unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
-                                    if (moveUpdateUnitPart.TileObjects != null)
-                                    {
-                                        weapon.UpdateContent(gameObject, unitBasePart.TileObjectContainer);
-                                    }
-                                }
-                                Reactor1 reactor = unitBasePart.Part1.GetComponent<Reactor1>();
-                                if (reactor != null)
-                                {
-                                    Reactor = reactor;
-                                    unitBasePart.UpdateContent(moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity);
-                                }
-                                Armor armor = unitBasePart.Part1.GetComponent<Armor>();
-                                if (armor != null)
-                                {
-                                    Armor = armor;
-                                    Transform shield = transform.Find("Shield");
-                                    if (shield != null && IsVisible)
-                                    {
-                                        shield.gameObject.SetActive(moveUpdateUnitPart.ShieldActive == true);
-                                    }
-                                }
+                                missingPartFound = true;
+                            }
+
+                            Transform shield = transform.Find("Shield");
+                            if (shield != null && IsVisible)
+                            {
+                                shield.gameObject.SetActive(moveUpdateUnitPart.ShieldActive == true);
+                            }
+
+                            if (unitBasePart.PartType == TileObjectType.PartWeapon)
+                            {
+
                             }
                             break;
                         }
@@ -1422,21 +862,20 @@ namespace Assets.Scripts
         {
             if (!IsActive)
             {
-                if (Engine != null)
-                {
-                    GameObject activeAnimation = FindChildNyName(gameObject, "ActiveAnimation");
-                    if (activeAnimation != null)
-                    {
-                        activeAnimation.SetActive(true);
-                    }
-                    GameObject moveAnimation = FindChildNyName(gameObject, "MoveAnimation");
-                    if (moveAnimation != null)
-                    {
-                        moveAnimation.SetActive(true);
-                    }
 
-                    AboveGround = 0.1f;
+                GameObject activeAnimation = FindChildNyName(gameObject, "ActiveAnimation");
+                if (activeAnimation != null)
+                {
+                    activeAnimation.SetActive(true);
                 }
+                GameObject moveAnimation = FindChildNyName(gameObject, "MoveAnimation");
+                if (moveAnimation != null)
+                {
+                    moveAnimation.SetActive(true);
+                }
+
+                AboveGround = 0.1f;
+
                 IsActive = true;
             }
         }
@@ -1444,24 +883,23 @@ namespace Assets.Scripts
         public void DectivateUnit()
         {
             IsActive = false;
-            if (Engine != null)
-            {
-                GameObject activeAnimation = FindChildNyName(gameObject, "ActiveAnimation");
-                if (activeAnimation != null)
-                {
-                    activeAnimation.SetActive(false);
-                }
-                GameObject moveAnimation = FindChildNyName(gameObject, "MoveAnimation");
-                if (moveAnimation != null)
-                {
-                    moveAnimation.SetActive(false);
-                }
-                Vector3 unitPos3 = transform.position;
-                unitPos3.y -= AboveGround;
-                transform.position = unitPos3;
 
-                AboveGround = 0;
+            GameObject activeAnimation = FindChildNyName(gameObject, "ActiveAnimation");
+            if (activeAnimation != null)
+            {
+                activeAnimation.SetActive(false);
             }
+            GameObject moveAnimation = FindChildNyName(gameObject, "MoveAnimation");
+            if (moveAnimation != null)
+            {
+                moveAnimation.SetActive(false);
+            }
+            Vector3 unitPos3 = transform.position;
+            unitPos3.y -= AboveGround;
+            transform.position = unitPos3;
+
+            AboveGround = 0;
+
         }
     }
 
