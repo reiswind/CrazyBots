@@ -169,7 +169,7 @@ namespace Assets.Scripts
                     newUnitBaseTileObject.Placeholder = emptyCubes[0];
                     emptyCubes.Remove(newUnitBaseTileObject.Placeholder);
                     
-                    newUnitBaseTileObject.GameObject = unitBase.HexGrid.CreateTileObject(gameObject1.transform, newUnitBaseTileObject.TileObject);
+                    newUnitBaseTileObject.GameObject = HexGrid.MainGrid.CreateTileObject(gameObject1.transform, newUnitBaseTileObject.TileObject);
                     newUnitBaseTileObject.GameObject.transform.position = newUnitBaseTileObject.Placeholder.transform.position;
                 }
             }

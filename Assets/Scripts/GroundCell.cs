@@ -368,7 +368,7 @@ namespace Assets.Scripts
                 Vector3 position = transform.position;
                 position.y += 0.054f + (0.2f * highestEnergy);
                 markerEnergy.transform.position = position;
-                UnitBase.SetPlayerColor(HexGrid, Stats.MoveUpdateGroundStat.Owner, markerEnergy);
+                UnitBase.SetPlayerColor(Stats.MoveUpdateGroundStat.Owner, markerEnergy);
             }
 
             Vector3 vector3 = transform.localPosition;
@@ -536,7 +536,7 @@ namespace Assets.Scripts
             }
         }
 
-        public void RemoveGameCommand(GameCommand gameCommand)
+        public void RemoveGameCommand(MapGameCommand gameCommand)
         {
             foreach (CellGameCommand checkCellGameCommand in cellGameCommands)
             {
@@ -549,7 +549,7 @@ namespace Assets.Scripts
             }
         }
 
-        public CellGameCommand UpdateCommands(GameCommand gameCommand, UnitBase unitBase)
+        public CellGameCommand UpdateCommands(MapGameCommand gameCommand, UnitBase unitBase)
         {
             CellGameCommand cellGameCommand = null;
 
@@ -647,7 +647,7 @@ namespace Assets.Scripts
     public class CellGameCommand
     {
         public UnitBase GhostUnit { get; set; }
-        public GameCommand GameCommand { get; set; }
+        public MapGameCommand GameCommand { get; set; }
         public GameObject Command { get; set; }
         public bool Touched { get; set; }
     }

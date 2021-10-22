@@ -12,7 +12,7 @@ namespace Assets.Scripts
     {
         public UnitBase UnitFrame { get; set; }
         public GroundCell GroundCell { get; set; }
-        public GameCommand GameCommand { get; set; }
+        public MapGameCommand GameCommand { get; set; }
     }
 
     internal enum CanvasMode
@@ -644,7 +644,7 @@ namespace Assets.Scripts
         }
 
         private GameObject previewGameCommand;
-        private GameCommand movedGameCommand;
+        private MapGameCommand movedGameCommand;
 
         void MoveCommand()
         {
@@ -689,7 +689,7 @@ namespace Assets.Scripts
             // Just in case it has not been transmitted yet
             HexGrid.ActiveGameCommands.Remove(selectedGameCommand.TargetPosition);
 
-            GameCommand gameCommand = new GameCommand();
+            MapGameCommand gameCommand = new MapGameCommand();
 
             gameCommand.GameCommandType = GameCommandType.Cancel;
             gameCommand.TargetPosition = selectedGameCommand.TargetPosition;
@@ -709,7 +709,7 @@ namespace Assets.Scripts
         void MarkUnitForExtraction()
         {
             // Extract the unit
-            GameCommand gameCommand = new GameCommand();
+            MapGameCommand gameCommand = new MapGameCommand();
 
             gameCommand.UnitId = selectedUnitFrame.UnitId;
             gameCommand.TargetPosition = selectedUnitFrame.CurrentPos;
@@ -850,7 +850,7 @@ namespace Assets.Scripts
 
 
         private UnitBase selectedUnitFrame;
-        private GameCommand selectedGameCommand;
+        private MapGameCommand selectedGameCommand;
         private Blueprint selectedBuildBlueprint;
         private GroundCell lastSelectedGroundCell;
 
@@ -1192,7 +1192,7 @@ namespace Assets.Scripts
                         movedGameCommand != null &&
                         CanCommandAt(lastSelectedGroundCell))
                     {
-                        GameCommand gameCommand = new GameCommand();
+                        MapGameCommand gameCommand = new MapGameCommand();
 
                         gameCommand.TargetPosition = movedGameCommand.TargetPosition;
                         gameCommand.GameCommandType = movedGameCommand.GameCommandType;
@@ -1268,7 +1268,7 @@ namespace Assets.Scripts
                     }
                     else
                     {
-                        GameCommand gameCommand = new GameCommand();
+                        MapGameCommand gameCommand = new MapGameCommand();
 
                         gameCommand.TargetPosition = pos;
                         gameCommand.GameCommandType = executedBlueprintCommand.GameCommandType;
@@ -1355,7 +1355,7 @@ namespace Assets.Scripts
                 {
                     ulong pos = lastSelectedGroundCell.Pos;
 
-                    GameCommand gameCommand = new GameCommand();
+                    MapGameCommand gameCommand = new MapGameCommand();
                     gameCommand.TargetPosition = pos;
                     gameCommand.GameCommandType = executedBlueprintCommand.GameCommandType;
                     gameCommand.BlueprintCommand = executedBlueprintCommand;
@@ -1454,7 +1454,7 @@ namespace Assets.Scripts
                         HexGrid.UnitsInBuild.Remove(pos);
 
                         // Cancel the command
-                        GameCommand gameCommand = new GameCommand();
+                        MapGameCommand gameCommand = new MapGameCommand();
                         gameCommand.UnitId = selectedUnitFrame.MoveUpdateStats.BlueprintName;
                         gameCommand.TargetPosition = pos;
                         gameCommand.GameCommandType = GameCommandType.Cancel;
@@ -1464,7 +1464,7 @@ namespace Assets.Scripts
                     else
                     {
                         // Build the temp. unit
-                        GameCommand gameCommand = new GameCommand();
+                        MapGameCommand gameCommand = new MapGameCommand();
                         //gameCommand.UnitId = selectedUnitFrame.MoveUpdateStats.BlueprintName;
                         gameCommand.TargetPosition = pos;
                         gameCommand.GameCommandType = GameCommandType.Build;
@@ -1693,7 +1693,7 @@ namespace Assets.Scripts
             }
             HideAllParts();
             //selectedGameCommand.SetSelected(true);
-            GameCommand gameCommand =  selectedGameCommand;
+            MapGameCommand gameCommand =  selectedGameCommand;
 
             headerText.text = gameCommand.BlueprintCommand.Name;
             headerSubText.text = gameCommand.GameCommandType.ToString() + " " + gameCommand.UnitId;

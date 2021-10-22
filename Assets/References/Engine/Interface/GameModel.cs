@@ -66,7 +66,7 @@ namespace Engine.Interface
     public interface IGameController
     {
         MapInfo GetDebugMapInfo();
-        List<Move> ProcessMove(int playerId, Move myMove, List<GameCommand> gameCommands);
+        List<Move> ProcessMove(int playerId, Move myMove, List<MapGameCommand> gameCommands);
 
         void ComputePossibleMoves(ulong pos, List<Move> possibleMoves, List<ulong> includedulongs, MoveFilter moveFilter);
         Move MoveTo(ulong From, ulong To, Master.Engine engine);

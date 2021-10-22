@@ -26,7 +26,7 @@ namespace Assets.Scripts
                 newPart.transform.position = otherUnitBasePart.Part1.transform.position;
                 newPart.transform.SetParent(transform);
                 newPart.name = name;
-                UnitBase.SetPlayerColor(HexGrid.MainGrid, otherUnitBasePart.UnitBase.PlayerId, newPart);
+                UnitBase.SetPlayerColor(otherUnitBasePart.UnitBase.PlayerId, newPart);
 
                 // Transit one container part
                 TransitObject transitObject = new TransitObject();
@@ -38,7 +38,7 @@ namespace Assets.Scripts
             }
         }
 
-        public void Extract(HexGrid hexGrid, Move move, UnitBase unit, UnitBase otherUnit)
+        public void Extract(Move move, UnitBase unit, UnitBase otherUnit)
         {
             bool found;
 
@@ -54,7 +54,7 @@ namespace Assets.Scripts
 
                     GroundCell sourceCell; // = hexGrid.GroundCells[from];
 
-                    if (hexGrid.GroundCells.TryGetValue(from, out sourceCell))
+                    if (HexGrid.MainGrid.GroundCells.TryGetValue(from, out sourceCell))
                     {
                         found = false;
                         foreach (UnitBaseTileObject unitBaseTileObject in sourceCell.GameObjects)
@@ -67,14 +67,14 @@ namespace Assets.Scripts
                                     transitGameObject = unitBaseTileObject.GameObject;
 
                                     unitBaseTileObject.TileObject.TileObjectType = TileObjectType.TreeTrunk;
-                                    unitBaseTileObject.GameObject = hexGrid.CreateDestructable(sourceCell.transform, unitBaseTileObject.TileObject);
+                                    unitBaseTileObject.GameObject = HexGrid.MainGrid.CreateDestructable(sourceCell.transform, unitBaseTileObject.TileObject);
                                 }
                                 else if (tileObject.TileObjectType == TileObjectType.Bush)
                                 {
                                     transitGameObject = unitBaseTileObject.GameObject;
 
                                     unitBaseTileObject.TileObject.TileObjectType = TileObjectType.Gras;
-                                    unitBaseTileObject.GameObject = hexGrid.CreateDestructable(sourceCell.transform, unitBaseTileObject.TileObject);
+                                    unitBaseTileObject.GameObject = HexGrid.MainGrid.CreateDestructable(sourceCell.transform, unitBaseTileObject.TileObject);
                                 }
                                 else
                                 {
@@ -91,7 +91,7 @@ namespace Assets.Scripts
                                     transitObject.HideAtArrival = true;
                                     transitObject.ScaleDown = true;
 
-                                    hexGrid.AddTransitTileObject(transitObject);
+                                    HexGrid.MainGrid.AddTransitTileObject(transitObject);
                                 }
 
                                 found = true;
@@ -115,7 +115,7 @@ namespace Assets.Scripts
                             if (otherUnitBasePart.PartType == tileObject.TileObjectType)
                             {
                                 // Extract from friendly unit
-                                TransitOtherPart(hexGrid, otherUnitBasePart, tileObject);
+                                TransitOtherPart(HexGrid.MainGrid, otherUnitBasePart, tileObject);
 
                                 /*
                                 if (otherUnitBasePart.Level == 0)
@@ -164,9 +164,9 @@ namespace Assets.Scripts
                                         if (sourceTileObject.GameObject == null)
                                         {
                                             if (unit.Container != null)
-                                                sourceTileObject.GameObject = hexGrid.CreateTileObject(unit.Container.transform, tileObject);
+                                                sourceTileObject.GameObject = HexGrid.MainGrid.CreateTileObject(unit.Container.transform, tileObject);
                                             else
-                                                sourceTileObject.GameObject = hexGrid.CreateTileObject(unit.transform, tileObject);
+                                                sourceTileObject.GameObject = HexGrid.MainGrid.CreateTileObject(unit.transform, tileObject);
 
                                             sourceTileObject.GameObject.name = "xx" + tileObject.TileObjectType.ToString() + " to " + otherUnit.UnitId;
                                         }
@@ -186,7 +186,7 @@ namespace Assets.Scripts
                                         transitObject.GameObject = sourceTileObject.GameObject;
                                         transitObject.TargetPosition = transform.position;
                                         transitObject.HideAtArrival = true;
-                                        hexGrid.AddTransitTileObject(transitObject);
+                                        HexGrid.MainGrid.AddTransitTileObject(transitObject);
 
                                         found = true;
                                         break;
@@ -214,7 +214,7 @@ namespace Assets.Scripts
                                         transitObject.TargetPosition = transform.position;
                                         //transitObject.DestroyAtArrival = true;
                                         //transitObject.ScaleDown = true;
-                                        hexGrid.AddTransitTileObject(transitObject);
+                                        HexGrid.MainGrid.AddTransitTileObject(transitObject);
 
                                         /*
                                         TransitObject transitObject = new TransitObject();
@@ -232,7 +232,7 @@ namespace Assets.Scripts
                             }
                             if (otherUnitBasePart.PartType == tileObject.TileObjectType)
                             {
-                                TransitOtherPart(hexGrid, otherUnitBasePart, tileObject);
+                                TransitOtherPart(HexGrid.MainGrid, otherUnitBasePart, tileObject);
                                 found = true;
                                 break;
                             }

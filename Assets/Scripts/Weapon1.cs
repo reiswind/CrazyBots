@@ -61,11 +61,11 @@ namespace Assets.Scripts
                     {
                         GameObject shellprefab;
                         if (haveAmmo.TileObject.TileObjectType == TileObjectType.Mineral)
-                            shellprefab = hexGrid.GetResource("ShellMineral");
+                            shellprefab = HexGrid.MainGrid.GetResource("ShellMineral");
                         else if (haveAmmo.TileObject.TileObjectType == TileObjectType.Tree)
-                            shellprefab = hexGrid.GetResource("ShellTree");
+                            shellprefab = HexGrid.MainGrid.GetResource("ShellTree");
                         else
-                            shellprefab = hexGrid.GetResource("ShellTree");
+                            shellprefab = HexGrid.MainGrid.GetResource("ShellTree");
                         ammoTileObject = Instantiate(shellprefab, ammo.transform.position, ammo.transform.rotation, weapon.transform);
 
 
@@ -102,23 +102,22 @@ namespace Assets.Scripts
 
         private Vector3 turnWeaponIntoDirection = Vector3.zero;
 
-        public void TurnTo(HexGrid hexGrid, ulong pos)
+        public void TurnTo(ulong pos)
         {
             GroundCell weaponTargetCell;
-            weaponTargetCell = hexGrid.GroundCells[pos];
+            weaponTargetCell = HexGrid.MainGrid.GroundCells[pos];
 
             // Determine which direction to rotate towards
             turnWeaponIntoDirection = (weaponTargetCell.transform.position - transform.position).normalized;
             turnWeaponIntoDirection.y = 0;
         }
 
-        private HexGrid hexGrid;
         private GroundCell weaponTargetCell;
         private UnitBase fireingUnit;
 
         private HitByBullet hitByBullet;
 
-        public void Fire(HexGrid hexGrid, UnitBase fireingUnit, Move move, TileObjectContainer tileObjectContainer)
+        public void Fire(UnitBase fireingUnit, Move move, TileObjectContainer tileObjectContainer)
         {
             if (ammoTileObject == null)
             {
@@ -126,15 +125,14 @@ namespace Assets.Scripts
             }
             TileObject anmo = move.Stats.MoveUpdateGroundStat.TileObjects[0];
 
-            hitByBullet = hexGrid.Fire(fireingUnit, anmo);
+            hitByBullet = HexGrid.MainGrid.Fire(fireingUnit, anmo);
 
 
             ulong pos = move.Positions[move.Positions.Count - 1];
 
-            if (hexGrid.GroundCells.TryGetValue(pos, out weaponTargetCell))
+            if (HexGrid.MainGrid.GroundCells.TryGetValue(pos, out weaponTargetCell))
             {
                 this.fireingUnit = fireingUnit;
-                this.hexGrid = hexGrid;
 
                 // Determine which direction to rotate towards
                 turnWeaponIntoDirection = (weaponTargetCell.transform.position - transform.position).normalized;
@@ -198,7 +196,6 @@ namespace Assets.Scripts
                         //shell.transform.SetPositionAndRotation(launchPos, ammo.transform.rotation);
                         shell.FireingUnit = fireingUnit;
                         shell.HitByBullet = hitByBullet;
-                        shell.HexGrid = hexGrid;
                         ammoTileObject.transform.SetParent(weaponTargetCell.transform, true);
                         //ammo.transform.SetParent(shell.transform, false);
 

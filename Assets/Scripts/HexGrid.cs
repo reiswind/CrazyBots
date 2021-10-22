@@ -33,14 +33,14 @@ namespace Assets.Scripts
 
 
 		// Filled in UI Thread
-		internal Dictionary<ulong, GameCommand> GameCommands { get; private set; }
-		internal Dictionary<ulong, GameCommand> ActiveGameCommands { get; private set; }
+		internal Dictionary<ulong, MapGameCommand> GameCommands { get; private set; }
+		internal Dictionary<ulong, MapGameCommand> ActiveGameCommands { get; private set; }
 
 		// Shared with backgound thread
 		internal IGameController game;
 		private bool windowClosed;
 		private List<Move> newMoves;
-		private List<GameCommand> newGameCommands;
+		private List<MapGameCommand> newGameCommands;
 		internal EventWaitHandle WaitForTurn = new EventWaitHandle(false, EventResetMode.AutoReset);
 		internal EventWaitHandle WaitForDraw = new EventWaitHandle(false, EventResetMode.AutoReset);
 		private Thread computeMoves;
@@ -474,8 +474,8 @@ namespace Assets.Scripts
 			}
 			game.CreateUnits();
 
-			GameCommands = new Dictionary<ulong, GameCommand>();
-			ActiveGameCommands = new Dictionary<ulong, GameCommand>();
+			GameCommands = new Dictionary<ulong, MapGameCommand>();
+			ActiveGameCommands = new Dictionary<ulong, MapGameCommand>();
 			GroundCells = new Dictionary<ulong, GroundCell>();
 			BaseUnits = new Dictionary<string, UnitBase>();
 			UnitsInBuild = new Dictionary<ulong, UnitBase>();
@@ -518,8 +518,8 @@ namespace Assets.Scripts
 			}
 
 
-			GameCommands = new Dictionary<ulong, GameCommand>();
-			ActiveGameCommands = new Dictionary<ulong, GameCommand>();
+			GameCommands = new Dictionary<ulong, MapGameCommand>();
+			ActiveGameCommands = new Dictionary<ulong, MapGameCommand>();
 			GroundCells = new Dictionary<ulong, GroundCell>();
 			BaseUnits = new Dictionary<string, UnitBase>();
 			UnitsInBuild = new Dictionary<ulong, UnitBase>();
@@ -745,7 +745,7 @@ namespace Assets.Scripts
 						{
 							if (mapPlayerInfo.GameCommands != null && mapPlayerInfo.GameCommands.Count > 0)
 							{
-								foreach (GameCommand gameCommand in mapPlayerInfo.GameCommands)
+								foreach (MapGameCommand gameCommand in mapPlayerInfo.GameCommands)
 								{
 									if (gameCommand.TargetPosition != Position.Null)
 									{
@@ -1037,13 +1037,13 @@ namespace Assets.Scripts
 					try
 					{
 						if (newGameCommands == null)
-							newGameCommands = new List<GameCommand>();
+							newGameCommands = new List<MapGameCommand>();
 						newGameCommands.Clear();
 						if (GameCommands.Count > 0)
 						{
 							newGameCommands.AddRange(GameCommands.Values);
 
-							foreach (KeyValuePair<ulong, GameCommand> kv in GameCommands)
+							foreach (KeyValuePair<ulong, MapGameCommand> kv in GameCommands)
 							{
 								if (kv.Value.GameCommandType == GameCommandType.Attack ||
 									kv.Value.GameCommandType == GameCommandType.Defend ||
@@ -1414,7 +1414,6 @@ namespace Assets.Scripts
 			UnitBase unit = InstantiatePrefab<UnitBase>(blueprint.Layout);
 			unit.name = blueprint.Name;
 			unit.Temporary = true;
-			unit.HexGrid = this;
 			unit.PlayerId = 1;
 
 			MoveUpdateStats stats = new MoveUpdateStats();
@@ -1449,7 +1448,6 @@ namespace Assets.Scripts
 			}
 			UnitBase unit = InstantiatePrefab<UnitBase>(blueprint.Layout);
 
-			unit.HexGrid = this;
 			unit.CurrentPos = masterunit.Pos;
 
 			unit.PlayerId = masterunit.Owner.PlayerModel.Id;
@@ -1485,7 +1483,6 @@ namespace Assets.Scripts
 			}
 			UnitBase unit = InstantiatePrefab<UnitBase>(blueprint.Layout);
 
-			unit.HexGrid = this;
 			unit.CurrentPos = move.Positions[0];
 			unit.Direction = (Direction)move.Stats.Direction;
 			unit.PlayerId = move.PlayerId;

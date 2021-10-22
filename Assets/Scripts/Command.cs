@@ -15,7 +15,7 @@ namespace Assets.Scripts
 
     public class Command : MonoBehaviour
     {
-        public GameCommand GameCommand { get; set; }
+        public MapGameCommand GameCommand { get; set; }
 
         private bool IsSelected { get; set; }
         internal bool IsPreview { get; set; }

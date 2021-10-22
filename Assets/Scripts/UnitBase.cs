@@ -59,7 +59,6 @@ namespace Assets.Scripts
             AboveGround = 0f;
         }
 
-        public HexGrid HexGrid { get; set; }
         internal ulong CurrentPos { get; set; }
         // Todo: turn into dir
         internal Direction Direction { get; set; }
@@ -90,12 +89,12 @@ namespace Assets.Scripts
             if (DestinationPos != Position.Null)
             {
                 GroundCell targetCell;
-                if (HexGrid.GroundCells.TryGetValue(DestinationPos, out targetCell))
+                if (HexGrid.MainGrid.GroundCells.TryGetValue(DestinationPos, out targetCell))
                 {
                     Vector3 unitPos3 = targetCell.transform.localPosition;
-                    unitPos3.y += HexGrid.hexCellHeight + AboveGround;
+                    unitPos3.y += HexGrid.MainGrid.hexCellHeight + AboveGround;
 
-                    float speed = 1.75f / HexGrid.GameSpeed;
+                    float speed = 1.75f / HexGrid.MainGrid.GameSpeed;
                     float step = speed * Time.deltaTime;
 
                     transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
@@ -113,7 +112,7 @@ namespace Assets.Scripts
         void UpdateDirection(Vector3 position)
         {
             //float speed = 1.75f;
-            float speed = 3.5f / HexGrid.GameSpeed;
+            float speed = 3.5f / HexGrid.MainGrid.GameSpeed;
 
             // Determine which direction to rotate towards
             Vector3 targetDirection = position - transform.position;
@@ -136,20 +135,20 @@ namespace Assets.Scripts
         private float AboveGround { get; set; }
         public void PutAtCurrentPosition(bool update)
         {
-            transform.SetParent(HexGrid.transform, false);
+            transform.SetParent(HexGrid.MainGrid.transform, false);
 
             GroundCell targetCell;
-            if (HexGrid.GroundCells.TryGetValue(CurrentPos, out targetCell))
+            if (HexGrid.MainGrid.GroundCells.TryGetValue(CurrentPos, out targetCell))
             {
                 Vector3 unitPos3 = targetCell.transform.localPosition;
                 if (!update)
                 {
-                    unitPos3.y += HexGrid.hexCellHeight + AboveGround;
+                    unitPos3.y += HexGrid.MainGrid.hexCellHeight + AboveGround;
                     transform.position = unitPos3;
                 }
                 else
                 {
-                    unitPos3.y += HexGrid.hexCellHeight + AboveGround;
+                    unitPos3.y += HexGrid.MainGrid.hexCellHeight + AboveGround;
                     transform.position = unitPos3;
                 }
                 if (IsVisible = targetCell.Visible)
@@ -166,11 +165,11 @@ namespace Assets.Scripts
             DestinationPos = pos;
 
             GroundCell targetCell;
-            if (HexGrid.GroundCells.TryGetValue(DestinationPos, out targetCell))
+            if (HexGrid.MainGrid.GroundCells.TryGetValue(DestinationPos, out targetCell))
             {
                 if (Weapon != null)
                 {
-                    Weapon.TurnTo(HexGrid, DestinationPos);
+                    Weapon.TurnTo(DestinationPos);
                 }
                 if (IsVisible != targetCell.Visible)
                 {
@@ -200,12 +199,12 @@ namespace Assets.Scripts
             {
                 string name = GetPrefabName(moveUpdateUnitPart);
 
-                GameObject newPart = HexGrid.InstantiatePrefab(name);
+                GameObject newPart = HexGrid.MainGrid.InstantiatePrefab(name);
                 newPart.transform.position = unitBasePart.Part1.transform.position;
                 newPart.transform.SetParent(transform);
                 newPart.name = name;
 
-                SetPlayerColor(HexGrid, PlayerId, newPart);
+                SetPlayerColor(PlayerId, newPart);
                 unitBasePart.Part1 = newPart;
                 if (moveUpdateUnitPart.TileObjects != null)
                 {
@@ -246,7 +245,7 @@ namespace Assets.Scripts
         {
             string name = GetPrefabName(moveUpdateUnitPart, level);
             GameObject newPart;
-            newPart = HexGrid.InstantiatePrefab(name);
+            newPart = HexGrid.MainGrid.InstantiatePrefab(name);
             newPart.transform.SetParent(transform);
             newPart.name = name;
 
@@ -262,7 +261,7 @@ namespace Assets.Scripts
             }
             else
             {
-                SetPlayerColor(HexGrid, PlayerId, newPart);
+                SetPlayerColor(PlayerId, newPart);
             }
             DeactivateRigidbody(newPart);
             return newPart;
@@ -419,7 +418,7 @@ namespace Assets.Scripts
                     }
                     else
                     {
-                        SetPlayerColor(HexGrid, PlayerId, gameObject);
+                        SetPlayerColor(PlayerId, gameObject);
 
                         //Destroy(selectionLight);
                     }
@@ -456,9 +455,9 @@ namespace Assets.Scripts
                 {
                     if (unitCommand.GameObject == null)
                     {
-                        GroundCell targetCell = HexGrid.GroundCells[unitCommand.GameCommand.TargetPosition];
+                        GroundCell targetCell = HexGrid.MainGrid.GroundCells[unitCommand.GameCommand.TargetPosition];
 
-                        GameObject waypointPrefab = HexGrid.GetResource("Waypoint");
+                        GameObject waypointPrefab = HexGrid.MainGrid.GetResource("Waypoint");
 
                         unitCommand.GameObject = Instantiate(waypointPrefab, targetCell.transform, false);
                         unitCommand.GameObject.name = "Waypoint";
@@ -508,7 +507,7 @@ namespace Assets.Scripts
 
             foreach (UnitBasePart unitBasePart in UnitBaseParts)
             {
-                SetPlayerColor(HexGrid, PlayerId, unitBasePart.Part1);
+                SetPlayerColor(PlayerId, unitBasePart.Part1);
             }
         }
 
@@ -516,7 +515,7 @@ namespace Assets.Scripts
         {
             if (IsVisible && Extractor != null)
             {
-                Extractor.Extract(HexGrid, move, unit, otherUnit);
+                Extractor.Extract(move, unit, otherUnit);
             }
         }
 
@@ -551,7 +550,7 @@ namespace Assets.Scripts
                         part.SetActive(true);
 
                         // Move to position in unit
-                        HexGrid.AddTransitTileObject(transitObject);
+                        HexGrid.MainGrid.AddTransitTileObject(transitObject);
                     }
                 }
             }
@@ -580,7 +579,7 @@ namespace Assets.Scripts
         {
             if (Container != null)
             {
-                Container.Transport(HexGrid, move);
+                Container.Transport(move);
             }
         }
 
@@ -639,14 +638,14 @@ namespace Assets.Scripts
                         if (meshRenderer.materials.Length == 1)
                         {
                             Destroy(meshRenderer.material);
-                            meshRenderer.material = HexGrid.GetMaterial("ghost 1");
+                            meshRenderer.material = HexGrid.MainGrid.GetMaterial("ghost 1");
                         }
                     }
                     else
                     {
                         if (meshRenderer.sharedMaterials.Length == 1)
                         {
-                            meshRenderer.sharedMaterial = HexGrid.GetMaterial("ghost 1");
+                            meshRenderer.sharedMaterial = HexGrid.MainGrid.GetMaterial("ghost 1");
                         }
                     }
                 }
@@ -734,13 +733,13 @@ namespace Assets.Scripts
             }
         }
 
-        internal static void SetPlayerColor(HexGrid hexGrid, int playerId, GameObject unit)
+        internal static void SetPlayerColor(int playerId, GameObject unit)
         {
             for (int i = 0; i < unit.transform.childCount; i++)
             {
                 GameObject child = unit.transform.GetChild(i).gameObject;
                 if (!child.name.StartsWith("Mineral") && !child.name.StartsWith("Shield") && !child.name.StartsWith("Ammo") && !child.name.StartsWith("Item"))
-                    SetPlayerColor(hexGrid, playerId, child);
+                    SetPlayerColor(playerId, child);
             }
 
             MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
@@ -753,7 +752,7 @@ namespace Assets.Scripts
                         if (meshRenderer.material.shader.name.Contains("Unitshader"))
                         {
                             Destroy(meshRenderer.material);
-                            meshRenderer.material = hexGrid.GetMaterial("UnitMaterial");
+                            meshRenderer.material = HexGrid.MainGrid.GetMaterial("UnitMaterial");
                         }
                         meshRenderer.material.SetColor("PlayerColor", GetPlayerColor(playerId));
                         meshRenderer.material.SetFloat("Darkness", 0.9f);
@@ -803,7 +802,7 @@ namespace Assets.Scripts
             string name = GetPrefabName(moveUpdateUnitPart);
 
             // Replace
-            GameObject newPart = HexGrid.InstantiatePrefab(name);
+            GameObject newPart = HexGrid.MainGrid.InstantiatePrefab(name);
             Vector3 vector3 = transform.position;
             vector3.y = y;
             newPart.transform.position = vector3;
@@ -819,7 +818,7 @@ namespace Assets.Scripts
             }
             else
             {
-                SetPlayerColor(HexGrid, PlayerId, newPart);
+                SetPlayerColor(PlayerId, newPart);
             }
             if (foundation != null)
             {
@@ -991,7 +990,7 @@ namespace Assets.Scripts
                         }*/
 
                         unitBasePart.Destroyed = true;
-                        SetPlayerColor(HexGrid, 0, unitBasePart.Part1);
+                        SetPlayerColor(0, unitBasePart.Part1);
                         Destroy(unitBasePart.Part1, 8);
                         UnitBaseParts.Remove(unitBasePart);
                     }
@@ -1021,7 +1020,7 @@ namespace Assets.Scripts
                         unitBasePart.Level = 0;
                         GroundCell currentCell;
 
-                        if (HexGrid.GroundCells.TryGetValue(CurrentPos, out currentCell))
+                        if (HexGrid.MainGrid.GroundCells.TryGetValue(CurrentPos, out currentCell))
                         {
                             GameObject part;
 
@@ -1044,7 +1043,7 @@ namespace Assets.Scripts
                                 UnitBaseParts.Remove(unitBasePart);
                             }
 
-                            SetPlayerColor(HexGrid, 0, part);
+                            SetPlayerColor(0, part);
                             part.transform.SetParent(currentCell.transform, true);
 
                             ActivateRigidbody(part);
@@ -1320,7 +1319,7 @@ namespace Assets.Scripts
                             {
                                 // Change from transparent to reals
                                 unitBasePart.IsUnderConstruction = false;
-                                SetPlayerColor(HexGrid, PlayerId, unitBasePart.Part1);
+                                SetPlayerColor(PlayerId, unitBasePart.Part1);
                             }
                             if (unitBasePart.TileObjectContainer == null)
                                 unitBasePart.TileObjectContainer = new TileObjectContainer();

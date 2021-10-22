@@ -632,19 +632,7 @@ namespace Engine.Master
                     ulong transportTargetPos = move.Positions[move.Positions.Count - 1];
                     Unit unit = Map.Units.GetUnitAt(transportTargetPos);
 
-                    bool dropOnGround = false;
-
                     if (unit == null)
-                    {
-                        dropOnGround = true;
-                    }
-                    else
-                    {
-                        
-                        if (!changedUnits.ContainsKey(unit.Pos))
-                            changedUnits.Add(unit.Pos, unit);
-                    }
-                    if (dropOnGround)
                     {
                         // Target died, transport to ground
                         Tile unitTile = GetTile(transportTargetPos);
@@ -654,14 +642,8 @@ namespace Engine.Master
                     }
                     else
                     {
-                        List<TileObject> tileObjects = new List<TileObject>();
-
-                        TileObject newTileObject = new TileObject();
-                        newTileObject.TileObjectType = TileObjectType.Mineral;
-                        newTileObject.Direction = Direction.C;
-                        tileObjects.Add(newTileObject);
-
-                        unit.AddTileObjects(tileObjects);
+                        // Add transported items
+                        unit.AddTileObjects(move.Stats.MoveUpdateGroundStat.TileObjects);
 
                         // Insert an update move, so the client knows that tileobjects have been added
                         Move moveUpdate = new Move();
@@ -1179,7 +1161,11 @@ namespace Engine.Master
                         TileObject tileObject = sendingUnit.Container.TileContainer.RemoveTileObject(TileObjectType.Mineral);
                         if (tileObject != null)
                         {
-                            move.Stats = sendingUnit.CollectStats();
+                            //move.Stats = sendingUnit.CollectStats();
+                            move.Stats = new MoveUpdateStats();
+                            move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
+                            move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
+                            move.Stats.MoveUpdateGroundStat.TileObjects.Add(tileObject);
                         }
                         else
                         {
@@ -1552,7 +1538,7 @@ namespace Engine.Master
             changedGroundulongs.Clear();
         }
 
-        public List<Move> ProcessMove(int playerId, Move myMove, List<GameCommand> gameCommands)
+        public List<Move> ProcessMove(int playerId, Move myMove, List<MapGameCommand> gameCommands)
         {
             List<Move> returnMoves = new List<Move>();
             lock (GameModel)
@@ -1644,10 +1630,24 @@ namespace Engine.Master
 
                 if (gameCommands != null)
                 {
-                    foreach (GameCommand gameCommand in gameCommands)
+                    foreach (MapGameCommand mapGameCommand in gameCommands)
                     {
-                        Player player = Players[gameCommand.PlayerId];
-                        if (gameCommand.CommandComplete)
+                        GameCommand gameCommand = new GameCommand();
+
+                        foreach (string id in mapGameCommand.AttachedUnits)
+                            gameCommand.AttachedUnits.Add(id);
+                        gameCommand.BlueprintCommand = mapGameCommand.BlueprintCommand;
+                        gameCommand.CommandCanceled = mapGameCommand.CommandCanceled;
+                        gameCommand.CommandComplete = mapGameCommand.CommandComplete;
+                        gameCommand.GameCommandType = mapGameCommand.GameCommandType;
+                        gameCommand.MoveToPosition = mapGameCommand.MoveToPosition;
+                        gameCommand.PlayerId = mapGameCommand.PlayerId;
+                        gameCommand.TargetPosition = mapGameCommand.TargetPosition;
+                        gameCommand.TargetZone = mapGameCommand.TargetZone;
+                        gameCommand.WaitingForUnit = mapGameCommand.WaitingForUnit;
+
+                        Player player = Players[mapGameCommand.PlayerId];
+                        if (mapGameCommand.CommandComplete)
                         {
                             player.GameCommands.Remove(gameCommand);
                         }
@@ -1655,9 +1655,9 @@ namespace Engine.Master
                         {
                             player.GameCommands.Add(gameCommand);
 
-                            if (gameCommand.GameCommandType == GameCommandType.Extract)
+                            if (mapGameCommand.GameCommandType == GameCommandType.Extract)
                             {
-                                Unit unit = Map.Units.FindUnit(gameCommand.UnitId);
+                                Unit unit = Map.Units.FindUnit(mapGameCommand.UnitId);
                                 if (unit != null)
                                     unit.ExtractUnit();
                             }

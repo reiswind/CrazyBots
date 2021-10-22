@@ -22,7 +22,26 @@ namespace Engine.Interface
         public int TotalUnits { get; set; }
         public int TotalPower { get; set; }
 
-        public List<GameCommand> GameCommands { get; set; }
+        public List<MapGameCommand> GameCommands { get; set; }
+    }
+
+    public class MapGameCommand
+    {
+        public MapGameCommand()
+        {
+            AttachedUnits = new List<string>();
+        }
+        public bool CommandComplete { get; set; }
+        public bool CommandCanceled { get; set; }
+        public bool WaitingForUnit { get; set; }
+        public int PlayerId { get; set; }
+        public int TargetZone { get; set; }
+        public string UnitId { get; set; } // Which unit to build, extract...
+        public ulong TargetPosition { get; set; }
+        public ulong MoveToPosition { get; set; }
+        public GameCommandType GameCommandType { get; set; }
+        public BlueprintCommand BlueprintCommand { get; set; }
+        public List<string> AttachedUnits { get; private set; }
     }
 
     public class MapPheromoneItem
@@ -123,7 +142,28 @@ namespace Engine.Interface
                     Player player = game.Players[valuePair.Key];
                     MapPlayerInfo mapPlayerInfo = valuePair.Value;
 
-                    mapPlayerInfo.GameCommands = player.GameCommands;
+                    if (player.GameCommands != null)
+                    {
+                        mapPlayerInfo.GameCommands = new List<MapGameCommand>();
+                        foreach (GameCommand gameCommand in player.GameCommands)
+                        {
+                            MapGameCommand mapGameCommand = new MapGameCommand();
+
+                            foreach (string id in gameCommand.AttachedUnits)
+                                mapGameCommand.AttachedUnits.Add(id);
+                            mapGameCommand.BlueprintCommand = gameCommand.BlueprintCommand;
+                            mapGameCommand.CommandCanceled = gameCommand.CommandCanceled;
+                            mapGameCommand.CommandComplete = gameCommand.CommandComplete;
+                            mapGameCommand.GameCommandType = gameCommand.GameCommandType;
+                            mapGameCommand.MoveToPosition = gameCommand.MoveToPosition;
+                            mapGameCommand.PlayerId = gameCommand.PlayerId;
+                            mapGameCommand.TargetPosition = gameCommand.TargetPosition;
+                            mapGameCommand.TargetZone = gameCommand.TargetZone;
+                            mapGameCommand.WaitingForUnit = gameCommand.WaitingForUnit;
+
+                            mapPlayerInfo.GameCommands.Add(mapGameCommand);
+                        }
+                    }
                 }
             }
 
@@ -473,7 +513,7 @@ namespace Engine.Interface
             }
 
             // Add water border
-            map_radius = mapWidth + 0;
+            map_radius = mapWidth + 1;
             for (int q = -map_radius; q <= map_radius; q++)
             {
                 int r1 = Math.Max(-map_radius, -q - map_radius);

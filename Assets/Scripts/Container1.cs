@@ -9,24 +9,22 @@ namespace Assets.Scripts
 
     public class Container1 : MonoBehaviour
     {
-        public void Transport(HexGrid hexGrid, Move move)
+        public void Transport(Move move)
         {
             Vector3 launchPosition;
             launchPosition = transform.position;
             launchPosition.y += 1;
 
-            GameObject shellprefab = hexGrid.GetResource("Transport");
+            GameObject shellprefab = HexGrid.MainGrid.GetResource("Transport");
 
             GameObject shellObject = Instantiate(shellprefab);
             Transport transport = shellObject.GetComponent<Transport>();
 
             ulong pos = move.Positions[move.Positions.Count - 1];
 
-            transport.HexGrid = hexGrid;
-
             Vector3 targetPosition;
 
-            targetPosition = hexGrid.GroundCells[pos].transform.position;
+            targetPosition = HexGrid.MainGrid.GroundCells[pos].transform.position;
             targetPosition.y += 1;
 
             transport.TargetPosition = targetPosition;
