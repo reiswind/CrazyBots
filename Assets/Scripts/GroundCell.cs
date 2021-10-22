@@ -9,8 +9,6 @@ namespace Assets.Scripts
     {
         public ulong Pos { get; set; }
 
-        public HexGrid HexGrid { get; set; }
-
         public MoveUpdateStats Stats { get; set; }
 
         public bool ShowPheromones { get; set; }
@@ -28,7 +26,7 @@ namespace Assets.Scripts
                 {
                     visible = value;
 
-                    foreach (UnitBase unitbase in HexGrid.BaseUnits.Values)
+                    foreach (UnitBase unitbase in HexGrid.MainGrid.BaseUnits.Values)
                     {
                         if (unitbase.CurrentPos == Pos)
                         {
@@ -63,7 +61,7 @@ namespace Assets.Scripts
         {
             if (markerEnergy == null)
             {
-                GameObject markerPrefab = HexGrid.GetResource("Marker");
+                GameObject markerPrefab = HexGrid.MainGrid.GetResource("Marker");
                 markerEnergy = Instantiate(markerPrefab, transform, false);
                 markerEnergy.name = name + "-Energy";
 
@@ -409,7 +407,7 @@ namespace Assets.Scripts
 
                         GameObject destructable;
 
-                        destructable = HexGrid.CreateDestructable(transform, tileObject);
+                        destructable = HexGrid.MainGrid.CreateDestructable(transform, tileObject);
                         if (destructable != null)
                         {
                             destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
@@ -477,7 +475,7 @@ namespace Assets.Scripts
 
                 if (IsSelected)
                 {
-                    selectionLight = HexGrid.CreateSelectionLight(gameObject);
+                    selectionLight = HexGrid.MainGrid.CreateSelectionLight(gameObject);
                 }
                 else
                 {
@@ -590,14 +588,14 @@ namespace Assets.Scripts
                 cellGameCommand = new CellGameCommand();
                 cellGameCommand.GameCommand = gameCommand;
                 cellGameCommand.Touched = true;
-                cellGameCommand.Command = Instantiate(HexGrid.GetResource(layout), transform, false);
+                cellGameCommand.Command = Instantiate(HexGrid.MainGrid.GetResource(layout), transform, false);
 
                 if (unitBase == null && gameCommand.GameCommandType == GameCommandType.Build)
                 {
-                    Blueprint blueprint = HexGrid.game.Blueprints.FindBlueprint(gameCommand.BlueprintCommand.Units[0].BlueprintName);
+                    Blueprint blueprint = HexGrid.MainGrid.game.Blueprints.FindBlueprint(gameCommand.BlueprintCommand.Units[0].BlueprintName);
                     if (blueprint != null)
                     {
-                        unitBase = HexGrid.CreateTempUnit(blueprint);
+                        unitBase = HexGrid.MainGrid.CreateTempUnit(blueprint);
                         unitBase.CurrentPos = Pos;
                         unitBase.PutAtCurrentPosition(true);
                     }

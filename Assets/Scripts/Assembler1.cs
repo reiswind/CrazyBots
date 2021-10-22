@@ -7,7 +7,7 @@ namespace Assets.Scripts
 {
     public class Assembler1 : MonoBehaviour
     {
-        public void Assemble(HexGrid hexGrid, UnitBase unit, UnitBase upgradedUnit, Move move)
+        public void Assemble(UnitBase unit, UnitBase upgradedUnit, Move move)
         {
             MoveUpdateUnitPart moveUpdateUnitPart = move.Stats.UnitParts[0];
             foreach (UnitBasePart upgradedBasePart in upgradedUnit.UnitBaseParts)
@@ -24,7 +24,7 @@ namespace Assets.Scripts
                     upgradedBasePart.Part1.SetActive(true);
 
                     // Move to position in unit
-                    hexGrid.AddTransitTileObject(transitObject);
+                    HexGrid.MainGrid.AddTransitTileObject(transitObject);
                 }
             }
         }

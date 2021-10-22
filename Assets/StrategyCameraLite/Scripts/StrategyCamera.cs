@@ -168,10 +168,10 @@ public class StrategyCamera : MonoBehaviour
 				{
 					//Debug.Log(groundCell.Pos.X + "," + groundCell.Pos.Y);
 					ulong realPos = groundCell.Pos; //
-					//realPos.X = groundCell.Pos.X; // + 16;
-					//realPos.Y = groundCell.Pos.Y; // + 16;
+													//realPos.X = groundCell.Pos.X; // + 16;
+													//realPos.Y = groundCell.Pos.Y; // + 16;
 
-					groundCell.HexGrid.UpdateVisibleCenter(realPos);
+					Assets.Scripts.HexGrid.MainGrid.UpdateVisibleCenter(realPos);
 					
 				}
 			}

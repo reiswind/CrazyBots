@@ -1349,7 +1349,7 @@ namespace Assets.Scripts
 
                             if (unitBasePart.Part1 == null)
                             {
-                                int x = 0;
+
                             }
                             else
                             {

@@ -58,13 +58,17 @@ namespace Assets.Scripts
 
 			}
         }
+		public HexGrid()
+        {
+			hexGrid = this;
+		}
+
 		public MapInfo MapInfo;
 
 		internal void StartGame()
 		{
 			RemoveAllChildren();
 
-			hexGrid = this;
 			if (GameSpeed == 0)
 				GameSpeed = 0.01f;
 
@@ -1538,7 +1542,6 @@ namespace Assets.Scripts
 			gameObjectCell.name = "Ground " + x.ToString() + "," + y.ToString();
 
 			GroundCell groundCell = gameObjectCell.GetComponent<GroundCell>();
-			groundCell.HexGrid = this;
 			groundCell.Stats = stats;
 			groundCell.Pos = pos;
 
