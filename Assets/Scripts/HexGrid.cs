@@ -33,14 +33,13 @@ namespace Assets.Scripts
 
 
         // Filled in UI Thread
-        internal Dictionary<ulong, MapGameCommand> GameCommands { get; private set; }
-        internal Dictionary<ulong, MapGameCommand> ActiveGameCommands { get; private set; }
+        internal List<MapGameCommand> GameCommands { get; private set; }
 
         // Shared with backgound thread
         internal IGameController game;
         private bool windowClosed;
         private List<Move> newMoves;
-        private List<MapGameCommand> newGameCommands;
+        private List<MapGameCommand> newGameCommands; // Transfer 
         internal EventWaitHandle WaitForTurn = new EventWaitHandle(false, EventResetMode.AutoReset);
         internal EventWaitHandle WaitForDraw = new EventWaitHandle(false, EventResetMode.AutoReset);
         private Thread computeMoves;
@@ -502,8 +501,7 @@ namespace Assets.Scripts
             }
             game.CreateUnits();
 
-            GameCommands = new Dictionary<ulong, MapGameCommand>();
-            ActiveGameCommands = new Dictionary<ulong, MapGameCommand>();
+            GameCommands = new List<MapGameCommand>();
             GroundCells = new Dictionary<ulong, GroundCell>();
             BaseUnits = new Dictionary<string, UnitBase>();
             UnitsInBuild = new Dictionary<ulong, UnitBase>();
@@ -546,8 +544,7 @@ namespace Assets.Scripts
             }
 
 
-            GameCommands = new Dictionary<ulong, MapGameCommand>();
-            ActiveGameCommands = new Dictionary<ulong, MapGameCommand>();
+            GameCommands = new List<MapGameCommand>();
             GroundCells = new Dictionary<ulong, GroundCell>();
             BaseUnits = new Dictionary<string, UnitBase>();
             UnitsInBuild = new Dictionary<ulong, UnitBase>();
@@ -1069,18 +1066,7 @@ namespace Assets.Scripts
                         newGameCommands.Clear();
                         if (GameCommands.Count > 0)
                         {
-                            newGameCommands.AddRange(GameCommands.Values);
-
-                            foreach (KeyValuePair<ulong, MapGameCommand> kv in GameCommands)
-                            {
-                                if (kv.Value.GameCommandType == GameCommandType.Attack ||
-                                    kv.Value.GameCommandType == GameCommandType.Defend ||
-                                    kv.Value.GameCommandType == GameCommandType.Collect ||
-                                    kv.Value.GameCommandType == GameCommandType.Scout)
-                                {
-                                    ActiveGameCommands.Add(kv.Key, kv.Value);
-                                }
-                            }
+                            newGameCommands.AddRange(GameCommands);
                             GameCommands.Clear();
                         }
                         ProcessNewMoves();

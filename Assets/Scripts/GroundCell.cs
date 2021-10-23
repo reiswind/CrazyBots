@@ -39,6 +39,18 @@ namespace Assets.Scripts
             }
         }
 
+        public UnitBase FindUnit()
+        {
+            foreach (UnitBase unitbase in HexGrid.MainGrid.BaseUnits.Values)
+            {
+                if (unitbase.CurrentPos == Pos)
+                {
+                    return unitbase;
+                }
+            }
+            return null;
+        }
+
         internal List<UnitCommand> UnitCommands { get; private set; }
 
         public List<UnitBaseTileObject> GameObjects { get; private set; }
@@ -484,8 +496,8 @@ namespace Assets.Scripts
             }
         }
 
-        private List<CellGameCommand> cellGameCommands = new List<CellGameCommand>();
-
+        private List<CommandPreview> cellGameCommands = new List<CommandPreview>();
+        /*
         private void DeleteCellGameCommand(CellGameCommand cellGameCommand)
         {
             if (cellGameCommand.GhostUnit != null)
@@ -499,14 +511,16 @@ namespace Assets.Scripts
                 cellGameCommand.Command = null;
             }
         }
+        */
         public bool ClearCommands()
         {
-            List<CellGameCommand> deletedCommands = new List<CellGameCommand>();
-            foreach (CellGameCommand cellGameCommand in cellGameCommands)
+            List<CommandPreview> deletedCommands = new List<CommandPreview>();
+            foreach (CommandPreview cellGameCommand in cellGameCommands)
             {
                 if (cellGameCommand.Touched == false)
                 {
-                    DeleteCellGameCommand(cellGameCommand);
+                    cellGameCommand.Delete();
+                    //DeleteCellGameCommand(cellGameCommand);
                     /*
                     if (cellGameCommand.GhostUnit != null)
                     {
@@ -519,7 +533,7 @@ namespace Assets.Scripts
                     deletedCommands.Add(cellGameCommand);
                 }
             }
-            foreach (CellGameCommand deletedCellGameCommand in deletedCommands)
+            foreach (CommandPreview deletedCellGameCommand in deletedCommands)
             {
                 cellGameCommands.Remove(deletedCellGameCommand);
             }
@@ -528,7 +542,7 @@ namespace Assets.Scripts
 
         public void UntouchCommands()
         {
-            foreach (CellGameCommand cellGameCommand in cellGameCommands)
+            foreach (CommandPreview cellGameCommand in cellGameCommands)
             {
                 cellGameCommand.Touched = false;
             }
@@ -536,25 +550,26 @@ namespace Assets.Scripts
 
         public void RemoveGameCommand(MapGameCommand gameCommand)
         {
-            foreach (CellGameCommand checkCellGameCommand in cellGameCommands)
+            foreach (CommandPreview checkCellGameCommand in cellGameCommands)
             {
                 if (checkCellGameCommand.GameCommand == gameCommand)
                 {
-                    DeleteCellGameCommand(checkCellGameCommand);
+                    checkCellGameCommand.Delete();
+                    
                     cellGameCommands.Remove(checkCellGameCommand);
                     break;
                 }
             }
         }
 
-        public CellGameCommand UpdateCommands(MapGameCommand gameCommand, UnitBase unitBase)
+        public CommandPreview UpdateCommands(MapGameCommand gameCommand, CommandPreview commandPreview)
         {
-            CellGameCommand cellGameCommand = null;
+            CommandPreview cellGameCommand = null;
 
             if (gameCommand.GameCommandType == GameCommandType.Cancel ||
                 gameCommand.GameCommandType == GameCommandType.Move)
             {
-                foreach (CellGameCommand checkCellGameCommand in cellGameCommands)
+                foreach (CommandPreview checkCellGameCommand in cellGameCommands)
                 {
                     if (checkCellGameCommand.GameCommand.TargetPosition == gameCommand.TargetPosition &&
                         checkCellGameCommand.GameCommand.PlayerId == gameCommand.PlayerId)
@@ -566,7 +581,7 @@ namespace Assets.Scripts
             }
             else
             {
-                foreach (CellGameCommand checkCellGameCommand in cellGameCommands)
+                foreach (CommandPreview checkCellGameCommand in cellGameCommands)
                 {
                     if (checkCellGameCommand.GameCommand.TargetPosition == gameCommand.TargetPosition &&
                         checkCellGameCommand.GameCommand.PlayerId == gameCommand.PlayerId &&
@@ -580,71 +595,86 @@ namespace Assets.Scripts
             }
             if (cellGameCommand == null)
             {
-                
-                string layout = "UIBuild";
-
-                if (gameCommand.BlueprintCommand != null &&
-                    !string.IsNullOrEmpty(gameCommand.BlueprintCommand.Layout))
-                    layout = gameCommand.BlueprintCommand.Layout;
-
-                cellGameCommand = new CellGameCommand();
-                cellGameCommand.GameCommand = gameCommand;
-                cellGameCommand.Touched = true;
-                cellGameCommand.Command = Instantiate(HexGrid.MainGrid.GetResource(layout), transform, false);
-
-                if (unitBase == null && gameCommand.GameCommandType == GameCommandType.Build)
+                if (commandPreview == null)
                 {
-                    Blueprint blueprint = HexGrid.MainGrid.game.Blueprints.FindBlueprint(gameCommand.BlueprintCommand.Units[0].BlueprintName);
-                    if (blueprint != null)
-                    {
-                        unitBase = HexGrid.MainGrid.CreateTempUnit(blueprint);
-                        unitBase.CurrentPos = Pos;
-                        unitBase.PutAtCurrentPosition(true);
-                    }
-                }
-                cellGameCommand.GhostUnit = unitBase;
+                    cellGameCommand = new CommandPreview();
+                    cellGameCommand.GameCommand = gameCommand;
+                    cellGameCommand.CreateAtPosition(this);
 
-                MeshRenderer meshRenderer = cellGameCommand.Command.GetComponent<MeshRenderer>();
-                if (meshRenderer != null)
-                {
-                    if (UnityEditor.EditorApplication.isPlaying)
+                    /*
+                    string layout = "UIBuild";
+
+                    if (gameCommand.BlueprintCommand != null &&
+                        !string.IsNullOrEmpty(gameCommand.BlueprintCommand.Layout))
+                        layout = gameCommand.BlueprintCommand.Layout;
+
+                    cellGameCommand = new CommandPreview();
+                    cellGameCommand.GameCommand = gameCommand;
+                    cellGameCommand.Touched = true;
+                    cellGameCommand.Command = Instantiate(HexGrid.MainGrid.GetResource(layout), transform, false);
+
+                    if (gameCommand.GameCommandType == GameCommandType.Build)
                     {
-                        if (meshRenderer.materials.Length == 1)
+                        Blueprint blueprint = HexGrid.MainGrid.game.Blueprints.FindBlueprint(gameCommand.BlueprintCommand.Units[0].BlueprintName);
+                        if (blueprint != null)
                         {
-                            //Destroy(meshRenderer.material);
-                            //meshRenderer.material = HexGrid.GetMaterial("UIMaterial");
-                            meshRenderer.material.SetColor("Color_main", UnitBase.GetPlayerColor(gameCommand.PlayerId));
-                            meshRenderer.material.SetColor("colorfresnel", UnitBase.GetPlayerColor(gameCommand.PlayerId));
+                            UnitBase unitBase = HexGrid.MainGrid.CreateTempUnit(blueprint);
+                            unitBase.CurrentPos = Pos;
+                            unitBase.PutAtCurrentPosition(true);
+
+                            cellGameCommand.GhostUnit = unitBase;
                         }
-                    }
-                    else
-                    {
-                        if (meshRenderer.sharedMaterials.Length == 1)
-                        {
-                            meshRenderer.sharedMaterial.SetColor("Color_main", UnitBase.GetPlayerColor(gameCommand.PlayerId));
-                        }
-                    }
+                    } */
                 }
-
-                Command command = cellGameCommand.Command.GetComponent<Command>();
-                command.GameCommand = gameCommand;
-
-                Vector3 unitPos3 = transform.position;
-                if (gameCommand.GameCommandType == GameCommandType.Build)
-                    unitPos3.y += 0.1f; // + (Random.value / 1);
-                else if (gameCommand.GameCommandType == GameCommandType.Attack)
-                    unitPos3.y += 0.51f;
                 else
-                    unitPos3.y += 0.01f; //1.8f + (Random.value / 1);
-                cellGameCommand.Command.transform.position = unitPos3;
+                {
+                    cellGameCommand = commandPreview;
+                }
+                cellGameCommands.Add(cellGameCommand);
 
+                if (cellGameCommand.Command != null)
+                {
+                    MeshRenderer meshRenderer = cellGameCommand.Command.GetComponent<MeshRenderer>();
+                    if (meshRenderer != null)
+                    {
+                        if (UnityEditor.EditorApplication.isPlaying)
+                        {
+                            if (meshRenderer.materials.Length == 1)
+                            {
+                                //Destroy(meshRenderer.material);
+                                //meshRenderer.material = HexGrid.GetMaterial("UIMaterial");
+                                meshRenderer.material.SetColor("Color_main", UnitBase.GetPlayerColor(gameCommand.PlayerId));
+                                meshRenderer.material.SetColor("colorfresnel", UnitBase.GetPlayerColor(gameCommand.PlayerId));
+                            }
+                        }
+                        else
+                        {
+                            if (meshRenderer.sharedMaterials.Length == 1)
+                            {
+                                meshRenderer.sharedMaterial.SetColor("Color_main", UnitBase.GetPlayerColor(gameCommand.PlayerId));
+                            }
+                        }
+                    }
+
+                    //Command command = cellGameCommand.Command.GetComponent<Command>();
+                    //command.GameCommand = gameCommand;
+                    /*
+                    Vector3 unitPos3 = transform.position;
+                    if (gameCommand.GameCommandType == GameCommandType.Build)
+                        unitPos3.y += 0.1f; // + (Random.value / 1);
+                    else if (gameCommand.GameCommandType == GameCommandType.Attack)
+                        unitPos3.y += 0.51f;
+                    else
+                        unitPos3.y += 0.01f; //1.8f + (Random.value / 1);
+                    cellGameCommand.Command.transform.position = unitPos3;*/
+                }
                 cellGameCommands.Add(cellGameCommand);
             }
             return cellGameCommand;
         }
     }
 
-    public class CellGameCommand
+    public class CellGameCommandx
     {
         public UnitBase GhostUnit { get; set; }
         public MapGameCommand GameCommand { get; set; }

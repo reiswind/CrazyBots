@@ -251,7 +251,15 @@ namespace Assets.Scripts
                 }
             }
         }
-
+        public bool HasEngine()
+        {
+            foreach (UnitBasePart unitBasePart in UnitBaseParts)
+            {
+                if (unitBasePart.PartType == TileObjectType.PartEngine)
+                    return true;
+            }
+            return false;
+        }
         internal List<UnitCommand> UnitCommands { get; private set; }
 
         public void ClearWayPoints(GameCommandType gameCommandType)
