@@ -153,7 +153,12 @@ namespace Assets.Scripts
                 }
             }
             if (!IsPreview)
-                transform.Rotate(Vector3.up); // * Time.deltaTime);
+            {
+                if (GameCommand.GameCommandType == GameCommandType.Attack)
+                    transform.Rotate(Vector3.right);
+                else
+                    transform.Rotate(Vector3.up); // * Time.deltaTime);
+            }
         }
     }
 }
