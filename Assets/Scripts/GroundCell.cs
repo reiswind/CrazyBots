@@ -599,8 +599,9 @@ namespace Assets.Scripts
                 {
                     cellGameCommand = new CommandPreview();
                     cellGameCommand.GameCommand = gameCommand;
-                    cellGameCommand.CreateAtPosition(this);
-
+                    cellGameCommand.CreateCommandPreview();
+                    cellGameCommand.SetPosition(this);
+                    cellGameCommand.Touched = true;
                     /*
                     string layout = "UIBuild";
 
@@ -630,7 +631,6 @@ namespace Assets.Scripts
                 {
                     cellGameCommand = commandPreview;
                 }
-                cellGameCommands.Add(cellGameCommand);
 
                 if (cellGameCommand.Command != null)
                 {

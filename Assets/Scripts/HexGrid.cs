@@ -76,8 +76,8 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
             GameModel gameModel;
 
@@ -775,10 +775,13 @@ namespace Assets.Scripts
                                     if (gameCommand.TargetPosition != Position.Null)
                                     {
                                         GroundCell hexCell = GroundCells[gameCommand.TargetPosition];
-                                        hexCell.UpdateCommands(gameCommand, null);
+                                        CommandPreview commandPreview = hexCell.UpdateCommands(gameCommand, null);
 
-                                        if (!groundcellsWithCommands.Contains(gameCommand.TargetPosition))
-                                            groundcellsWithCommands.Add(gameCommand.TargetPosition);
+                                        if (commandPreview != null && commandPreview.GameCommand.TargetPosition != Position.Null)
+                                        {
+                                            if (!groundcellsWithCommands.Contains(commandPreview.GameCommand.TargetPosition))
+                                                groundcellsWithCommands.Add(commandPreview.GameCommand.TargetPosition);
+                                        }
                                     }
                                 }
                             }

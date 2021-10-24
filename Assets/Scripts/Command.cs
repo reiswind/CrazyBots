@@ -15,7 +15,7 @@ namespace Assets.Scripts
 
     public class Command : MonoBehaviour
     {
-        public MapGameCommand GameCommand { get; set; }
+        public CommandPreview CommandPreview { get; set; }
 
         private bool IsSelected { get; set; }
         internal bool IsPreview { get; set; }
@@ -61,7 +61,7 @@ namespace Assets.Scripts
             allCommandUnits.AddRange(selectedCommandUnits.Keys);
 
             StringBuilder stringBuilder = new StringBuilder();
-            foreach (string unitId in GameCommand.AttachedUnits)
+            foreach (string unitId in CommandPreview.GameCommand.AttachedUnits)
             {
                 UnitBase unitBase = null;
                 if (unitId.StartsWith("Assembler"))
@@ -98,6 +98,29 @@ namespace Assets.Scripts
                     commandAttachedUnit.UnitBase.SetSelected(false);
                 }
             }
+        }
+
+        void UpdateDirection(Vector3 position)
+        {
+            //float speed = 1.75f;
+            float speed = 3.5f / HexGrid.MainGrid.GameSpeed;
+
+            // Determine which direction to rotate towards
+            Vector3 targetDirection = position - transform.position;
+
+            // The step size is equal to speed times frame time.
+            float singleStep = speed * Time.deltaTime;
+
+            Vector3 forward = transform.forward;
+            // Rotate the forward vector towards the target direction by one step
+            Vector3 newDirection = Vector3.RotateTowards(forward, targetDirection, singleStep, 0.0f);
+            newDirection.y = 0;
+
+            // Draw a ray pointing at our target in
+            //Debug.DrawRay(transform.position, newDirection, Color.red);
+
+            // Calculate a rotation a step closer to the target and applies rotation to this object
+            transform.rotation = Quaternion.LookRotation(newDirection);
         }
 
         private void Update()
@@ -154,7 +177,7 @@ namespace Assets.Scripts
             }
             if (!IsPreview)
             {
-                if (GameCommand.GameCommandType == GameCommandType.Attack)
+                if (CommandPreview.GameCommand.GameCommandType == GameCommandType.Attack)
                     transform.Rotate(Vector3.right);
                 else
                     transform.Rotate(Vector3.up); // * Time.deltaTime);

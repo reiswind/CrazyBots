@@ -12,7 +12,7 @@ namespace Assets.Scripts
     {
         public UnitBase UnitFrame { get; set; }
         public GroundCell GroundCell { get; set; }
-        public MapGameCommand GameCommand { get; set; }
+        public CommandPreview CommandPreview { get; set; }
     }
 
     internal enum CanvasMode
@@ -286,10 +286,6 @@ namespace Assets.Scripts
             executedBlueprintCommand = null;
             movedGameCommand = null;
 
-            if (selectedGameCommand != null)
-            {
-                selectedGameCommand = null;
-            }
             if (currentCommandPreview != null)
             {
                 currentCommandPreview.Delete();
@@ -317,7 +313,6 @@ namespace Assets.Scripts
 
                 selectedUnitFrame = null;
             }
-            selectedBuildBlueprint = null;
         }
 
 
@@ -328,7 +323,7 @@ namespace Assets.Scripts
             Blueprint blueprint = HexGrid.MainGrid.game.Blueprints.FindBlueprint(bluePrintname);
             if (blueprint == null)
             {
-                selectedBuildBlueprint = null;
+
             }
             else
             {
@@ -352,7 +347,7 @@ namespace Assets.Scripts
                 {*/
                 UnselectUnitFrame();
                 SelectUnitFrame(HexGrid.MainGrid.CreateTempUnit(blueprint));
-                selectedBuildBlueprint = blueprint;
+
             }
         }
 
@@ -596,11 +591,14 @@ namespace Assets.Scripts
 
         void MoveCommand()
         {
+            /*
             if (selectedGameCommand == null)
                 return;
             movedGameCommand = selectedGameCommand;
             previewGameCommand = CreateCommandPreview(selectedGameCommand.BlueprintCommand);
+            */
         }
+        /*
         static GameObject CreateCommandPreview(BlueprintCommand blueprintCommand)
         {
             GameObject previewGameCommand;
@@ -628,7 +626,9 @@ namespace Assets.Scripts
             }
             return previewGameCommand;
         }
+        */
 
+        /*
         void CancelCommand()
         {
             if (selectedGameCommand == null)
@@ -652,7 +652,7 @@ namespace Assets.Scripts
 
             SetMode(CanvasMode.Select);
 
-        }
+        }*/
 
         void MarkUnitForExtraction()
         {
@@ -687,7 +687,6 @@ namespace Assets.Scripts
                 {
                     currentCommandPreview = new CommandPreview();
                     currentCommandPreview.CreateCommandForBuild(blueprintCommand);
-
                     SetMode(CanvasMode.CommandPreview);
                 }
                 /*
@@ -800,8 +799,6 @@ namespace Assets.Scripts
 
 
         private UnitBase selectedUnitFrame;
-        private MapGameCommand selectedGameCommand;
-        private Blueprint selectedBuildBlueprint;
         private GroundCell lastSelectedGroundCell;
 
         private HitByMouseClick GetClickedInfo()
@@ -811,45 +808,65 @@ namespace Assets.Scripts
 
             HitByMouseClick hitByMouseClick = null;
 
-            RaycastHit raycastHit;
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out raycastHit, Mathf.Infinity))
-            {
+            RaycastHit[] raycastHits = Physics.RaycastAll(Camera.main.ScreenPointToRay(Input.mousePosition));
+
+            if (raycastHits != null && raycastHits.Length > 0)
+            { 
                 hitByMouseClick = new HitByMouseClick();
 
-                Command command = raycastHit.collider.gameObject.GetComponent<Command>();
-                hitByMouseClick.GroundCell = raycastHit.collider.gameObject.GetComponent<GroundCell>();
-                hitByMouseClick.UnitFrame = GetUnitFrameFromRayCast(raycastHit);
-
-                if (command != null)
+                foreach (RaycastHit raycastHit in raycastHits)
+                //if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out raycastHit, Mathf.Infinity))
                 {
-                    hitByMouseClick.GameCommand = command.GameCommand;
-                    if (hitByMouseClick.GroundCell == null && hitByMouseClick.GameCommand != null)
+                    if (hitByMouseClick.GroundCell == null)
                     {
-                        hitByMouseClick.GroundCell = HexGrid.MainGrid.GroundCells[hitByMouseClick.GameCommand.TargetPosition];
-                    }
-                }
-
-                if (hitByMouseClick.UnitFrame != null && hitByMouseClick.GroundCell == null)
-                {
-                    if (hitByMouseClick.UnitFrame.CurrentPos == Position.Null)
-                    {
-                        Debug.Log("Raycast hit " + raycastHit.collider.gameObject.name);
-                    }
-                    else
-                    {
-                        hitByMouseClick.GroundCell = HexGrid.MainGrid.GroundCells[hitByMouseClick.UnitFrame.CurrentPos];
-                    }
-                }
-                else if (hitByMouseClick.UnitFrame == null && hitByMouseClick.GroundCell != null)
-                {
-                    foreach (UnitBase unitFrame in HexGrid.MainGrid.BaseUnits.Values)
-                    {
-                        if (unitFrame.CurrentPos == hitByMouseClick.GroundCell.Pos)
+                        hitByMouseClick.GroundCell = raycastHit.collider.gameObject.GetComponent<GroundCell>();
+                        if (hitByMouseClick.GroundCell != null)
                         {
-                            hitByMouseClick.UnitFrame = unitFrame;
-                            break;
+                            //Debug.Log("Raycast hit GroundCell " + Position.GetX(hitByMouseClick.GroundCell.Pos) + "," + Position.GetY(hitByMouseClick.GroundCell.Pos));
                         }
                     }
+                    if (hitByMouseClick.CommandPreview == null)
+                    {
+                        Command command = raycastHit.collider.gameObject.GetComponent<Command>();
+                        if (command != null)
+                            hitByMouseClick.CommandPreview = command.CommandPreview;
+                    }
+                    if (hitByMouseClick.UnitFrame == null)
+                    {
+                        hitByMouseClick.UnitFrame = GetUnitFrameFromRayCast(raycastHit);
+                    }
+                    /*
+                    if (command != null)
+                    {
+                        if (hitByMouseClick.GroundCell == null && hitByMouseClick.GameCommand != null)
+                        {
+                            hitByMouseClick.GroundCell = HexGrid.MainGrid.GroundCells[hitByMouseClick.GameCommand.TargetPosition];
+                        }
+                    }
+
+                    if (hitByMouseClick.UnitFrame != null && hitByMouseClick.GroundCell == null)
+                    {
+                        if (hitByMouseClick.UnitFrame.CurrentPos == Position.Null)
+                        {
+                            Debug.Log("Raycast hit " + raycastHit.collider.gameObject.name);
+                        }
+                        else
+                        {
+                            hitByMouseClick.GroundCell = HexGrid.MainGrid.GroundCells[hitByMouseClick.UnitFrame.CurrentPos];
+                        }
+                    }
+                    else if (hitByMouseClick.UnitFrame == null && hitByMouseClick.GroundCell != null)
+                    {
+                        foreach (UnitBase unitFrame in HexGrid.MainGrid.BaseUnits.Values)
+                        {
+                            if (unitFrame.CurrentPos == hitByMouseClick.GroundCell.Pos)
+                            {
+                                hitByMouseClick.UnitFrame = unitFrame;
+                                break;
+                            }
+                        }
+                    }
+                    */
                 }
             }
 
@@ -1064,18 +1081,21 @@ namespace Assets.Scripts
 
         private void UpdateCommandPreviewPosition(HitByMouseClick hitByMouseClick)
         {
-            currentCommandPreview.SetPosition(hitByMouseClick?.GroundCell);
-
-            if (previewGameCommand != null && hitByMouseClick != null &&
-                hitByMouseClick.GroundCell != null)
+            if (hitByMouseClick != null)
             {
-                Debug.Log("preview " + Position.GetX(hitByMouseClick.GroundCell.Pos) + ", " + Position.GetY(hitByMouseClick.GroundCell.Pos));
+                currentCommandPreview.SetPosition(hitByMouseClick.GroundCell);
 
-                previewGameCommand.transform.SetParent(hitByMouseClick.GroundCell.transform, false);
+                if (previewGameCommand != null && hitByMouseClick != null &&
+                    hitByMouseClick.GroundCell != null)
+                {
+                    Debug.Log("preview " + Position.GetX(hitByMouseClick.GroundCell.Pos) + ", " + Position.GetY(hitByMouseClick.GroundCell.Pos));
 
-                Vector3 unitPos3 = hitByMouseClick.GroundCell.transform.position;
-                unitPos3.y += 0.09f;
-                previewGameCommand.transform.position = unitPos3;
+                    previewGameCommand.transform.SetParent(hitByMouseClick.GroundCell.transform, false);
+
+                    Vector3 unitPos3 = hitByMouseClick.GroundCell.transform.position;
+                    unitPos3.y += 0.09f;
+                    previewGameCommand.transform.position = unitPos3;
+                }
             }
         }
 
@@ -1113,6 +1133,7 @@ namespace Assets.Scripts
                     }
                     else
                     {
+                        /*
                         if (hitByMouseClick.GameCommand != selectedGameCommand)
                         {
                             if (movedGameCommand != null)
@@ -1124,7 +1145,7 @@ namespace Assets.Scripts
                                 UnselectGameCommand();
                                 UpdateSelectMode();
                             }
-                        }
+                        }*/
                     }
                 }
             }
@@ -1136,7 +1157,7 @@ namespace Assets.Scripts
 
             HitByMouseClick hitByMouseClick = GetClickedInfo();
             UpdateCommandPreviewPosition(hitByMouseClick);
-            DisplayGameCommand(currentCommandPreview.GameCommand);
+            DisplayGameCommand(currentCommandPreview);
 
             if (leftMouseButtonDown && currentCommandPreview.CanExecute())
             {
@@ -1145,72 +1166,6 @@ namespace Assets.Scripts
                 currentCommandPreview = null;
 
                 SetMode(CanvasMode.Select);
-            }
-            return;
-
-            GroundCell selectGroundCell = null;
-            if (hitByMouseClick != null)
-            {
-                selectGroundCell = hitByMouseClick.GroundCell;
-            }
-            if (lastSelectedGroundCell != selectGroundCell)
-            {
-                //if (lastSelectedGroundCell != null)
-                //    lastSelectedGroundCell.SetSelected(false);
-                lastSelectedGroundCell = selectGroundCell;
-
-                if (leftMouseButtonDown &&
-                    lastSelectedGroundCell != null &&
-                    CanCommandAt(lastSelectedGroundCell))
-                {
-                    ulong pos = lastSelectedGroundCell.Pos;
-
-                    if (false)
-                    {
-                        // Remove it
-                        /*
-                        HexGrid.ActiveGameCommands.Remove(pos);
-
-                        // Cancel the command
-                        GameCommand gameCommand = new GameCommand();
-                        gameCommand.TargetPosition = pos;
-                        gameCommand.GameCommandType = GameCommandType.Cancel;
-                        gameCommand.PlayerId = 1;
-                        HexGrid.GameCommands.Add(pos, gameCommand);
-                        */
-                        //lastSelectedGroundCell.SetAttack(false);
-                    }
-                    else
-                    {
-                        MapGameCommand gameCommand = new MapGameCommand();
-
-                        gameCommand.TargetPosition = pos;
-                        gameCommand.GameCommandType = executedBlueprintCommand.GameCommandType;
-                        gameCommand.BlueprintCommand = executedBlueprintCommand;
-                        gameCommand.GameCommandType = GameCommandType.Attack;
-
-                        gameCommand.PlayerId = 1;
-                        HexGrid.MainGrid.GameCommands.Add( gameCommand);
-
-                        GroundCell groundCell = HexGrid.MainGrid.GroundCells[gameCommand.TargetPosition];
-                        CommandPreview cellGameCommand = groundCell.UpdateCommands(gameCommand, null);
-                        // XXX
-                        if (selectedBuildButton != 0)
-                        {
-                            UnselectButton(selectedBuildButton);
-                            selectedBuildButton = 0;
-                        }
-
-                        UnselectUnitFrame();
-                        UnselectGameCommand();
-                        selectedGameCommand = cellGameCommand.GameCommand;
-
-                        DisplaySelectedGameCommand();
-                        
-                        SetMode(CanvasMode.Command);
-                        
-                    }
-                }
             }
         }
 
@@ -1521,14 +1476,12 @@ namespace Assets.Scripts
             
             if (Input.GetMouseButtonDown(0))
             {
-                CanvasMode nextCanvasMode = canvasMode;
                 if (hitByMouseClick != null)
                 {
-                    if (hitByMouseClick.GameCommand != null)
+                    if (hitByMouseClick.CommandPreview != null)
                     {
                         UnselectGameCommand();
                         UnselectUnitFrame();
-                        selectedGameCommand = hitByMouseClick.GameCommand;
                         SetMode(CanvasMode.Command);
                     }
                     /*
@@ -1558,10 +1511,10 @@ namespace Assets.Scripts
                 {
                     DisplayUnitframe(hitByMouseClick.UnitFrame);
                 }
-                else if (hitByMouseClick.GameCommand != null)
+                else if (hitByMouseClick.CommandPreview != null)
                 {
                     HideAllParts();
-                    DisplayGameCommand(hitByMouseClick.GameCommand);
+                    DisplayGameCommand(hitByMouseClick.CommandPreview);
                 }
                 else if (hitByMouseClick.GroundCell != null)
                 {
@@ -1583,23 +1536,12 @@ namespace Assets.Scripts
             }
         }
 
-        private void DisplaySelectedGameCommand()
-        {
-            if (selectedGameCommand == null)
-            {
-                return;
-            }
-            if (selectedGameCommand.CommandComplete)
-            {
-                UnselectGameCommand();
 
-                return;
-            }
-            DisplayGameCommand(selectedGameCommand);
-        }
-        private void DisplayGameCommand(MapGameCommand gameCommand)
+        private void DisplayGameCommand(CommandPreview commandPreview)
         {
             HideAllParts();
+
+            MapGameCommand gameCommand = commandPreview.GameCommand;
 
             headerText.text = gameCommand.BlueprintCommand.Name;
             headerSubText.text = gameCommand.GameCommandType.ToString() + " " + gameCommand.UnitId;

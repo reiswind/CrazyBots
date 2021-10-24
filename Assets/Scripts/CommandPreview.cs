@@ -28,12 +28,15 @@ namespace Assets.Scripts
         {
             GameCommand.BlueprintCommand = blueprintCommand;
             GameCommand.GameCommandType = blueprintCommand.GameCommandType;
+            CreateCommandPreview();
         }
 
         public void Delete()
         {
             if (previewGameCommand != null)
-            {
+            {                
+                Command?.SetSelected(false);
+
                 HexGrid.Destroy(previewGameCommand);
                 previewGameCommand = null;
             }
@@ -112,12 +115,6 @@ namespace Assets.Scripts
                     positionok = CanCommandAt(groundCell);
                 if (positionok)
                 {
-                    if (GameCommand.TargetPosition == Position.Null)
-                    {
-                        // Create some things
-                        CreateCommandPreview();
-                    }
-
                     GameCommand.TargetPosition = groundCell.Pos;
                     UpdatePositions(groundCell);
                     previewGameCommand.SetActive(true);
@@ -136,12 +133,14 @@ namespace Assets.Scripts
             return GameCommand.TargetPosition != Position.Null;
         }
 
+        private static float aboveGround = 2.09f;
+
         private void UpdatePositions(GroundCell groundCell)
         {
             previewGameCommand.transform.SetParent(groundCell.transform, false);
 
             Vector3 unitPos3 = groundCell.transform.position;
-            unitPos3.y += 2.09f;
+            unitPos3.y += aboveGround;
             previewGameCommand.transform.position = unitPos3;
         }
 
@@ -156,22 +155,26 @@ namespace Assets.Scripts
             previewGameCommand = HexGrid.Instantiate(HexGrid.MainGrid.GetResource(layout));
 
             Command = previewGameCommand.GetComponent<Command>();
-            Command.GameCommand = GameCommand;
+            Command.CommandPreview = this;
         }
 
-        private void CreateCommandPreview()
+        public void CreateCommandPreview()
         {
             CreateCommandLogo();
             Command.IsPreview = true;
-            UnitBase.RemoveColider(previewGameCommand);
+            Command.SetSelected(true);
 
             foreach (BlueprintCommandItem blueprintCommandItem in GameCommand.BlueprintCommand.Units)
             {
                 Blueprint blueprint = HexGrid.MainGrid.game.Blueprints.FindBlueprint(blueprintCommandItem.BlueprintName);
                 UnitBase previewUnit = HexGrid.MainGrid.CreateTempUnit(blueprint);
                 previewUnit.DectivateUnit();
-                UnitBase.RemoveColider(previewUnit.gameObject);
                 previewUnit.transform.SetParent(previewGameCommand.transform, false);
+
+                Vector3 unitPos3 = previewGameCommand.transform.position;
+                unitPos3.y -= aboveGround;
+                previewUnit.transform.position = unitPos3;
+
                 previewUnit.gameObject.SetActive(true);
             }
         }

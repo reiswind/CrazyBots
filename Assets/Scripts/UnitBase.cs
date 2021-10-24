@@ -772,7 +772,6 @@ namespace Assets.Scripts
             {
                 SetMaterialGhost(PlayerId, gameObject);
                 DeactivateRigidbody(gameObject);
-                RemoveColider(gameObject);
             }
             else if (underConstruction)
             {
