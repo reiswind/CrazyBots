@@ -209,7 +209,7 @@ namespace Assets.Scripts
             }
         }
 
-        private string currentMaterialName;
+
 
         internal void SetGroundMaterial()
         {
@@ -323,7 +323,7 @@ namespace Assets.Scripts
 
             //if (currentMaterialName == null || currentMaterialName != materialName)
             {
-                currentMaterialName = materialName;
+
 
                 Renderer renderer = GetComponent<Renderer>();
                 renderer.material.SetColor("SurfaceColor", color);
@@ -387,6 +387,16 @@ namespace Assets.Scripts
 
             CreateDestructables();
             
+        }
+
+        internal GroundCell GetNeighbor(Direction direction)
+        {
+            CubePosition cubePosition = new CubePosition(Pos);
+            CubePosition n = cubePosition.GetNeighbor(direction);
+
+            GroundCell neighbor;
+            HexGrid.MainGrid.GroundCells.TryGetValue(n.Pos, out neighbor);
+            return neighbor;
         }
 
         internal void CreateDestructables()

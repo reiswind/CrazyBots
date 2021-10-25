@@ -46,6 +46,7 @@ namespace Engine.Ants
                             GameCommand gameCommand = new GameCommand();
                             gameCommand.GameCommandType = GameCommandType.Build;
                             gameCommand.TargetPosition = pos;
+                            gameCommand.DeleteWhenFinished = true;
                             gameCommand.UnitId = "Outpost";
 
                             foreach (BlueprintCommand blueprintCommand in player.Game.Blueprints.Commands)

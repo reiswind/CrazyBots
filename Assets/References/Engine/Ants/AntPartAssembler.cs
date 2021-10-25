@@ -291,6 +291,7 @@ namespace Engine.Ants
                                     newCommand.BlueprintCommand = blueprintCommand;
                                     newCommand.PlayerId = player.PlayerModel.Id;
                                     newCommand.AttachToThisOnCompletion = selectedGameCommand;
+                                    newCommand.DeleteWhenFinished = true;
 
                                     computePossibleMoves = false;
 

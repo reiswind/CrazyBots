@@ -7,7 +7,7 @@ namespace Assets.Scripts
 {
     public class UnitCommand
     {
-        public GameCommand GameCommand { get; set; }
+        public MapGameCommand GameCommand { get; set; }
         public GameObject GameObject { get; set; }
         public GroundCell TargetCell { get; set; }
         public UnitBase Owner { get; set; }
@@ -126,8 +126,10 @@ namespace Assets.Scripts
                     float step = speed * Time.deltaTime;
 
                     transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
-                    UpdateDirection(unitPos3);
-
+                    if (HasEngine())
+                    {
+                        UpdateDirection(unitPos3);
+                    }
                     if (IsVisible != targetCell.Visible)
                     {
                         IsVisible = targetCell.Visible;
@@ -178,6 +180,20 @@ namespace Assets.Scripts
                 {
                     unitPos3.y += HexGrid.MainGrid.hexCellHeight + AboveGround;
                     transform.position = unitPos3;
+                }
+                if (!HasEngine())
+                {
+                    Direction dir = Direction;
+                    if (dir == Direction.C)
+                        dir = Direction.N;
+
+                    GroundCell n = targetCell.GetNeighbor(dir);
+                    if (n != null)
+                    {
+                        Vector3 newDirection = Vector3.RotateTowards(transform.position, n.transform.position, 360, 0.0f);
+                        newDirection.y = 0;
+                        transform.rotation = Quaternion.LookRotation(newDirection);
+                    }
                 }
                 if (IsVisible = targetCell.Visible)
                 {

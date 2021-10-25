@@ -339,7 +339,8 @@ namespace Engine.Ants
             {
                 // Better create new command?
                 //player.GameCommands.Add(PlayerUnit.Unit.CurrentGameCommand);
-                if (PlayerUnit.Unit.CurrentGameCommand.CommandComplete)
+                if (PlayerUnit.Unit.CurrentGameCommand.CommandComplete &&
+                    PlayerUnit.Unit.CurrentGameCommand.DeleteWhenFinished)
                     player.GameCommands.Remove(PlayerUnit.Unit.CurrentGameCommand);
                 PlayerUnit.Unit.ResetGameCommand();
             }
@@ -347,7 +348,8 @@ namespace Engine.Ants
             {
                 // Better create new command?
                 //player.GameCommands.Add(GameCommandDuringCreation);
-                if (GameCommandDuringCreation.CommandComplete)
+                if (GameCommandDuringCreation.CommandComplete &&
+                    GameCommandDuringCreation.DeleteWhenFinished)
                     player.GameCommands.Remove(GameCommandDuringCreation);
                 GameCommandDuringCreation = null;
             }

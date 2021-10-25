@@ -155,6 +155,7 @@ namespace Engine.Control
                                 gameCommand.TargetPosition = mapZone.Center;
                                 gameCommand.PlayerId = player.PlayerModel.Id;
                                 gameCommand.BlueprintCommand = blueprintCommand;
+                                gameCommand.DeleteWhenFinished = true;
 
                                 player.GameCommands.Add(gameCommand);
                                 break;
@@ -170,7 +171,8 @@ namespace Engine.Control
                             gameCommand.TargetPosition == mapZone.Center)
                         {
                             gameCommand.CommandComplete = true;
-                            player.GameCommands.Remove(gameCommand);
+                            if (gameCommand.DeleteWhenFinished)
+                                player.GameCommands.Remove(gameCommand);
 
                             break;
                         }
@@ -221,6 +223,7 @@ namespace Engine.Control
                     gameCommand.TargetPosition = tile.Pos;
                     gameCommand.PlayerId = player.PlayerModel.Id;
                     gameCommand.TargetZone = zoneId;
+                    gameCommand.DeleteWhenFinished = true;
 
                     foreach (BlueprintCommand blueprintCommand in player.Game.Blueprints.Commands)
                     {
@@ -1125,8 +1128,8 @@ namespace Engine.Control
                     t.Unit.IsComplete() &&
                     t.Unit.Blueprint.Name == gameCommand.UnitId)
                 {
-                    gameCommand.CommandComplete = true;
-
+                   gameCommand.CommandComplete = true;
+                    
                     Move commandMove = new Move();
                     commandMove.MoveType = MoveType.CommandComplete;
                     if (ant != null)
@@ -1158,8 +1161,11 @@ namespace Engine.Control
                         {
                             moveGameCommand.TargetPosition = gameCommand.MoveToPosition;
                             gameCommand.CommandComplete = true;
+                            if (gameCommand.DeleteWhenFinished)
+                            {
+                                removeCommands.Add(gameCommand);
+                            }
                             completedCommands.Add(gameCommand);
-                            removeCommands.Add(gameCommand);
                             break;
                         }
                     }
@@ -1406,6 +1412,7 @@ namespace Engine.Control
                     blueprintCommand.GameCommandType = GameCommandType.Build;
                     blueprintCommand.Name = "BuildUnitForAttack";
                     blueprintCommand.Units.AddRange(gameCommand.BlueprintCommand.Units);
+                    
 
                     GameCommand newCommand = new GameCommand();
 
@@ -1414,6 +1421,7 @@ namespace Engine.Control
                     newCommand.BlueprintCommand = blueprintCommand;
                     newCommand.PlayerId = player.PlayerModel.Id;
                     newCommand.AttachToThisOnCompletion = gameCommand;
+                    newCommand.DeleteWhenFinished = true;
                     addedCommands.Add(newCommand);
 
                     gameCommand.AttachedUnits.Add("CommandId?");
@@ -1446,6 +1454,7 @@ namespace Engine.Control
                         newCommand.BlueprintCommand = blueprintCommand;
                         newCommand.PlayerId = player.PlayerModel.Id;
                         newCommand.AttachToThisOnCompletion = gameCommand;
+                        newCommand.DeleteWhenFinished = true;
                         addedCommands.Add(newCommand);
 
                         gameCommand.AttachedUnits.Add("CommandId?");
@@ -1486,7 +1495,7 @@ namespace Engine.Control
                 gameCommand.GameCommandType = GameCommandType.Build;
                 gameCommand.TargetPosition = t.Pos;
                 gameCommand.UnitId = "Outpost";
-
+                gameCommand.DeleteWhenFinished = true;
                 player.GameCommands.Add(gameCommand);
 
             }
@@ -1713,7 +1722,6 @@ namespace Engine.Control
                                             gameCommand.AttachToThisOnCompletion.AttachedUnits.Add(ant.PlayerUnit.Unit.UnitId);
                                             gameCommand.AttachToThisOnCompletion.WaitingForUnit = false;
                                             ant.PlayerUnit.Unit.SetGameCommand(gameCommand.AttachToThisOnCompletion);
-                                            
                                         }
                                         else
                                         {
@@ -1856,7 +1864,9 @@ namespace Engine.Control
                         // Report finished units
                         if (ant.FinishCommandWhenCompleted != null)
                         {
-                            player.GameCommands.Remove(ant.FinishCommandWhenCompleted);
+                            if (ant.FinishCommandWhenCompleted.DeleteWhenFinished)
+                                player.GameCommands.Remove(ant.FinishCommandWhenCompleted);
+
                             ant.FinishCommandWhenCompleted.CommandComplete = true;
                             ant.FinishCommandWhenCompleted = null;
                         }

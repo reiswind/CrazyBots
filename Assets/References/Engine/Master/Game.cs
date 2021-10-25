@@ -470,18 +470,24 @@ namespace Engine.Master
                             thisUnit.UnderConstruction = true;
                         }
                         move.UnitId = thisUnit.UnitId;
-                        move.Stats = thisUnit.CollectStats();
                         thisUnit.Pos = Destination;
-                        if (move.Positions.Count > 1)
+                        if (thisUnit.Engine != null && move.Positions.Count > 1)
                             thisUnit.Direction = CubePosition.CalcDirection(move.Positions[0], move.Positions[1]);
+                        else
+                            thisUnit.Direction = Direction.C;
+                        move.Stats = thisUnit.CollectStats();
+
                         if (move.PlayerId > 0)
                             thisUnit.Owner = Players[move.PlayerId];
                     }
                     else
                     {
                         // Remove moving unit from map
-                        if (move.Positions.Count > 1)
+                        if (thisUnit.Engine != null && move.Positions.Count > 1)
                             thisUnit.Direction = CubePosition.CalcDirection(move.Positions[0], move.Positions[1]);
+                        else
+                            thisUnit.Direction = Direction.C;
+                        move.Stats.Direction =(int)thisUnit.Direction;
                         Map.Units.Remove(From);
                     }
 
@@ -1637,6 +1643,7 @@ namespace Engine.Master
                         foreach (string id in mapGameCommand.AttachedUnits)
                             gameCommand.AttachedUnits.Add(id);
                         gameCommand.BlueprintCommand = mapGameCommand.BlueprintCommand;
+                        gameCommand.DeleteWhenFinished = mapGameCommand.DeleteWhenFinished;
                         gameCommand.CommandCanceled = mapGameCommand.CommandCanceled;
                         gameCommand.CommandComplete = mapGameCommand.CommandComplete;
                         gameCommand.GameCommandType = mapGameCommand.GameCommandType;

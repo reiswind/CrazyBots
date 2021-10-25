@@ -25,13 +25,14 @@ namespace Engine.Interface
         Pipeline
     }
 
-    public class GameCommand
+    internal class GameCommand
     {
         public GameCommand()
         {
             AttachedUnits = new List<string>();        
         }
         public bool CommandComplete { get; set; }
+        public bool DeleteWhenFinished { get; set; }
         public bool CommandCanceled { get; set; }
         public bool WaitingForUnit { get; set; }
         public int PlayerId { get; set; }

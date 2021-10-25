@@ -17,6 +17,7 @@ namespace Assets.Scripts
             GameCommand = new MapGameCommand();
             GameCommand.PlayerId = 1;
             GameCommand.TargetPosition = Position.Null;
+            GameCommand.DeleteWhenFinished = false;
         }
         
         public MapGameCommand GameCommand { get; set; }
@@ -174,6 +175,11 @@ namespace Assets.Scripts
                 Vector3 unitPos3 = previewGameCommand.transform.position;
                 unitPos3.y -= aboveGround;
                 previewUnit.transform.position = unitPos3;
+
+                Vector3 scaleChange;
+                scaleChange = new Vector3(0.01f, 0.01f, 0.01f);
+
+                previewUnit.gameObject.transform.localScale += scaleChange;
 
                 previewUnit.gameObject.SetActive(true);
             }

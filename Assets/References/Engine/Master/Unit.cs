@@ -92,9 +92,9 @@ namespace Engine.Master
         [DataMember]
         public string UnitId { get; set; }
 
-        public GameCommand CurrentGameCommand { get; private set; }
+        internal GameCommand CurrentGameCommand { get; private set; }
 
-        public void SetGameCommand(GameCommand gameCommand)
+        internal void SetGameCommand(GameCommand gameCommand)
         {
             CurrentGameCommand = gameCommand;
         }

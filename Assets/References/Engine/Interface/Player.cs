@@ -173,7 +173,7 @@ namespace Engine.Interface
         public List<Move> LastMoves;
 
         public List<Command> Commands = new List<Command>();
-        public List<GameCommand> GameCommands = new List<GameCommand>();
+        internal List<GameCommand> GameCommands = new List<GameCommand>();
 
         // Unit that the player knows. Own and enemy
         public Dictionary<string, PlayerUnit> Units = new Dictionary<string, PlayerUnit>();

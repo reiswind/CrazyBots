@@ -32,6 +32,7 @@ namespace Engine.Interface
             AttachedUnits = new List<string>();
         }
         public bool CommandComplete { get; set; }
+        public bool DeleteWhenFinished { get; set; }
         public bool CommandCanceled { get; set; }
         public bool WaitingForUnit { get; set; }
         public Direction Direction { get; set; }
@@ -155,6 +156,7 @@ namespace Engine.Interface
                             mapGameCommand.BlueprintCommand = gameCommand.BlueprintCommand;
                             mapGameCommand.CommandCanceled = gameCommand.CommandCanceled;
                             mapGameCommand.CommandComplete = gameCommand.CommandComplete;
+                            mapGameCommand.DeleteWhenFinished = gameCommand.DeleteWhenFinished;
                             mapGameCommand.GameCommandType = gameCommand.GameCommandType;
                             mapGameCommand.MoveToPosition = gameCommand.MoveToPosition;
                             mapGameCommand.PlayerId = gameCommand.PlayerId;
