@@ -158,6 +158,15 @@ namespace Assets.Scripts
             Command = previewGameCommand.GetComponent<Command>();
             Command.CommandPreview = this;
         }
+        public  bool IsSelected { get; private set; }
+        public void SetSelected(bool value)
+        {
+            if (value == false)
+            {
+                int x = 0;
+            }
+            previewGameCommand.SetActive(value);
+        }
 
         public void CreateCommandPreview()
         {

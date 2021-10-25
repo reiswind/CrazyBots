@@ -546,6 +546,7 @@ namespace Assets.Scripts
             foreach (CommandPreview deletedCellGameCommand in deletedCommands)
             {
                 cellGameCommands.Remove(deletedCellGameCommand);
+                HexGrid.MainGrid.CommandPreviews.Remove(deletedCellGameCommand);
             }
             return cellGameCommands.Count == 0;
         }
@@ -598,6 +599,7 @@ namespace Assets.Scripts
                         checkCellGameCommand.GameCommand.GameCommandType == gameCommand.GameCommandType)
                     {
                         cellGameCommand = checkCellGameCommand;
+                        cellGameCommand.GameCommand = gameCommand;
                         cellGameCommand.Touched = true;
                         break;
                     }
@@ -612,6 +614,7 @@ namespace Assets.Scripts
                     cellGameCommand.CreateCommandPreview();
                     cellGameCommand.SetPosition(this);
                     cellGameCommand.Touched = true;
+                    HexGrid.MainGrid.CommandPreviews.Add(cellGameCommand);
                     /*
                     string layout = "UIBuild";
 

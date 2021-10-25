@@ -30,16 +30,25 @@ namespace Assets.Scripts
         internal Dictionary<ulong, GroundCell> GroundCells { get; private set; }
         internal Dictionary<string, UnitBase> BaseUnits { get; private set; }
         internal Dictionary<ulong, UnitBase> UnitsInBuild { get; private set; }
+        /// <summary>
+        /// All human commands?
+        /// </summary>
+        internal List<CommandPreview> CommandPreviews { get; private set; }
 
 
-        // Filled in UI Thread
+        /// <summary>
+        /// Filled in UI Thread and transfered on next move
+        /// </summary>
         internal List<MapGameCommand> GameCommands { get; private set; }
+        /// <summary>
+        /// Transfer from Game to UI
+        /// </summary>
+        private List<MapGameCommand> newGameCommands;
 
         // Shared with backgound thread
         internal IGameController game;
         private bool windowClosed;
         private List<Move> newMoves;
-        private List<MapGameCommand> newGameCommands; // Transfer 
         internal EventWaitHandle WaitForTurn = new EventWaitHandle(false, EventResetMode.AutoReset);
         internal EventWaitHandle WaitForDraw = new EventWaitHandle(false, EventResetMode.AutoReset);
         private Thread computeMoves;
@@ -502,6 +511,7 @@ namespace Assets.Scripts
             game.CreateUnits();
 
             GameCommands = new List<MapGameCommand>();
+            CommandPreviews = new List<CommandPreview>();
             GroundCells = new Dictionary<ulong, GroundCell>();
             BaseUnits = new Dictionary<string, UnitBase>();
             UnitsInBuild = new Dictionary<ulong, UnitBase>();
@@ -545,6 +555,7 @@ namespace Assets.Scripts
 
 
             GameCommands = new List<MapGameCommand>();
+            CommandPreviews = new List<CommandPreview>();
             GroundCells = new Dictionary<ulong, GroundCell>();
             BaseUnits = new Dictionary<string, UnitBase>();
             UnitsInBuild = new Dictionary<ulong, UnitBase>();
@@ -1554,6 +1565,18 @@ namespace Assets.Scripts
             return new Vector3((x * gridSizeX), 0, -y * gridSizeY);
         }
 
+        public CommandPreview FindCommandForUnit(UnitBase unitBase)
+        {
+            foreach (CommandPreview mapGameCommand in CommandPreviews)
+            {
+                foreach (string unitId in mapGameCommand.GameCommand.AttachedUnits)
+                {
+                    if (unitId == unitBase.UnitId)
+                        return mapGameCommand;
+                }
+            }
+            return null;
+        }
 
         private GroundCell CreateCell(ulong pos, MoveUpdateStats stats, GameObject cellPrefabx)
         {

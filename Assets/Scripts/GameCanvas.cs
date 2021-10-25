@@ -653,7 +653,7 @@ namespace Assets.Scripts
             SetMode(CanvasMode.Select);
 
         }*/
-
+        /*
         void MarkUnitForExtraction()
         {
             // Extract the unit
@@ -666,7 +666,7 @@ namespace Assets.Scripts
             HexGrid.MainGrid.GameCommands.Add(gameCommand);
 
             selectedUnitFrame.MoveUpdateStats.MarkedForExtraction = true;
-        }
+        }*/
 
         private CommandPreview currentCommandPreview;
         private BlueprintCommand executedBlueprintCommand;
@@ -687,6 +687,7 @@ namespace Assets.Scripts
                 {
                     currentCommandPreview = new CommandPreview();
                     currentCommandPreview.CreateCommandForBuild(blueprintCommand);
+
                     SetMode(CanvasMode.CommandPreview);
                 }
                 /*
@@ -833,7 +834,15 @@ namespace Assets.Scripts
                     }
                     if (hitByMouseClick.UnitFrame == null)
                     {
-                        hitByMouseClick.UnitFrame = GetUnitFrameFromRayCast(raycastHit);
+                        UnitBase unitBase = GetUnitFrameFromRayCast(raycastHit);
+                        if (unitBase != null)
+                        {
+                            CommandPreview commandPreview = HexGrid.MainGrid.FindCommandForUnit(unitBase);
+                            if (commandPreview == null)
+                                hitByMouseClick.UnitFrame = unitBase;
+                            else
+                                hitByMouseClick.CommandPreview = commandPreview;
+                        }
                     }
                     /*
                     if (command != null)
@@ -1126,7 +1135,7 @@ namespace Assets.Scripts
                         gameCommand.PlayerId = 1;
                         gameCommand.MoveToPosition = lastSelectedGroundCell.Pos;
 
-                        HexGrid.MainGrid.GameCommands.Add(gameCommand);
+                        //HexGrid.MainGrid.GameCommands.Add(gameCommand);
 
                         UnselectGameCommand();
                         UpdateSelectMode();
@@ -1162,6 +1171,8 @@ namespace Assets.Scripts
             if (leftMouseButtonDown && currentCommandPreview.CanExecute())
             {
                 HexGrid.MainGrid.GameCommands.Add(currentCommandPreview.GameCommand);
+                HexGrid.MainGrid.CommandPreviews.Add(currentCommandPreview);
+
                 hitByMouseClick.GroundCell.UpdateCommands(currentCommandPreview.GameCommand, currentCommandPreview);
                 currentCommandPreview = null;
 
@@ -1222,6 +1233,7 @@ namespace Assets.Scripts
                 if (leftMouseButtonDown &&
                     lastSelectedGroundCell != null)
                 {
+                    /*
                     ulong pos = lastSelectedGroundCell.Pos;
 
                     MapGameCommand gameCommand = new MapGameCommand();
@@ -1235,7 +1247,7 @@ namespace Assets.Scripts
                     selectedUnitFrame = null;
 
                     // Build one per click
-                    SetMode( CanvasMode.Select);
+                    SetMode( CanvasMode.Select);*/
                 }
             }
         }
@@ -1320,15 +1332,17 @@ namespace Assets.Scripts
                         HexGrid.MainGrid.UnitsInBuild.Remove(pos);
 
                         // Cancel the command
+                        /*
                         MapGameCommand gameCommand = new MapGameCommand();
                         gameCommand.UnitId = selectedUnitFrame.MoveUpdateStats.BlueprintName;
                         gameCommand.TargetPosition = pos;
                         gameCommand.GameCommandType = GameCommandType.Cancel;
                         gameCommand.PlayerId = 1;
-                        HexGrid.MainGrid.GameCommands.Add( gameCommand);
+                        HexGrid.MainGrid.GameCommands.Add( gameCommand);*/
                     }
                     else
                     {
+                        /*
                         // Build the temp. unit
                         MapGameCommand gameCommand = new MapGameCommand();
                         //gameCommand.UnitId = selectedUnitFrame.MoveUpdateStats.BlueprintName;
@@ -1348,7 +1362,7 @@ namespace Assets.Scripts
 
                         // Build one per click
                         SetMode(CanvasMode.Select);
-
+                        */
                     }
                 }
 
@@ -1509,20 +1523,33 @@ namespace Assets.Scripts
             {
                 if (hitByMouseClick.UnitFrame != null)
                 {
+                    if (lastCommandPreview != null)
+                        lastCommandPreview.SetSelected(false);
                     DisplayUnitframe(hitByMouseClick.UnitFrame);
                 }
                 else if (hitByMouseClick.CommandPreview != null)
                 {
                     HideAllParts();
                     DisplayGameCommand(hitByMouseClick.CommandPreview);
+                    if (lastCommandPreview != hitByMouseClick.CommandPreview)
+                    {
+                        if (lastCommandPreview != null)
+                            lastCommandPreview.SetSelected(false);
+                        lastCommandPreview = hitByMouseClick.CommandPreview;
+                        hitByMouseClick.CommandPreview.SetSelected(true);
+                    }
                 }
                 else if (hitByMouseClick.GroundCell != null)
                 {
+                    if (lastCommandPreview != null)
+                        lastCommandPreview.SetSelected(false);
                     HideAllParts();
                     AppendGroundInfo(hitByMouseClick.GroundCell, true);
                 }
                 else
                 {
+                    if (lastCommandPreview != null)
+                        lastCommandPreview.SetSelected(false);
                     headerText.text = "";
                     headerSubText.text = "";
                     HideAllParts();
@@ -1535,7 +1562,7 @@ namespace Assets.Scripts
                 HideAllParts();
             }
         }
-
+        private CommandPreview lastCommandPreview;
 
         private void DisplayGameCommand(CommandPreview commandPreview)
         {

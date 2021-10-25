@@ -1715,6 +1715,14 @@ namespace Engine.Control
                                     {
                                         if (gameCommand.AttachToThisOnCompletion != null)
                                         {
+                                            string assemblerUnitId = unitid.Substring(10);
+                                            PlayerUnit assembler;
+                                            if (player.Units.TryGetValue(assemblerUnitId, out assembler))
+                                            {
+                                                // Unattach it from the assembling unit
+                                                assembler.Unit.ResetGameCommand();
+                                            }
+
                                             // Assembler complete. Complete the temp. build command and assign the original build command BUILD-STEP5
                                             gameCommand.CommandComplete = true;
 
@@ -1867,6 +1875,8 @@ namespace Engine.Control
                             if (ant.FinishCommandWhenCompleted.DeleteWhenFinished)
                                 player.GameCommands.Remove(ant.FinishCommandWhenCompleted);
 
+                            ant.FinishCommandWhenCompleted.AttachedUnits.Clear();
+                            ant.FinishCommandWhenCompleted.AttachedUnits.Add(ant.PlayerUnit.Unit.UnitId);
                             ant.FinishCommandWhenCompleted.CommandComplete = true;
                             ant.FinishCommandWhenCompleted = null;
                         }
