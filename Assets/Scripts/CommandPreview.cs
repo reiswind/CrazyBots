@@ -161,10 +161,6 @@ namespace Assets.Scripts
         public  bool IsSelected { get; private set; }
         public void SetSelected(bool value)
         {
-            if (value == false)
-            {
-                int x = 0;
-            }
             previewGameCommand.SetActive(value);
         }
 
@@ -181,6 +177,16 @@ namespace Assets.Scripts
                 previewUnit.DectivateUnit();
                 previewUnit.transform.SetParent(previewGameCommand.transform, false);
 
+                /*
+                Direction dir = Direction.NW;
+                
+                */
+                Vector3 newDirection = new Vector3(); // = Vector3.RotateTowards(previewUnit.transform.position, n.transform.position, 360, 0.0f);
+                
+
+                newDirection.x = -30;
+                previewUnit.transform.rotation = Quaternion.LookRotation(newDirection);
+                
                 Vector3 unitPos3 = previewGameCommand.transform.position;
                 unitPos3.y -= aboveGround;
                 previewUnit.transform.position = unitPos3;

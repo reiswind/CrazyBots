@@ -183,9 +183,10 @@ namespace Assets.Scripts
                 }
                 if (!HasEngine())
                 {
+                    /*
                     Direction dir = Direction;
                     if (dir == Direction.C)
-                        dir = Direction.N;
+                        dir = Direction.NW;
 
                     GroundCell n = targetCell.GetNeighbor(dir);
                     if (n != null)
@@ -193,7 +194,7 @@ namespace Assets.Scripts
                         Vector3 newDirection = Vector3.RotateTowards(transform.position, n.transform.position, 360, 0.0f);
                         newDirection.y = 0;
                         transform.rotation = Quaternion.LookRotation(newDirection);
-                    }
+                    }*/
                 }
                 if (IsVisible = targetCell.Visible)
                 {

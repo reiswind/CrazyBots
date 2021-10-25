@@ -701,8 +701,9 @@ namespace Engine.Ants
                             CurrentGameCommand = null;
                         }*/
 
-                        if (cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Defend) // AntWorkerType == AntWorkerType.Fighter)
+                        if (cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Attack) // AntWorkerType == AntWorkerType.Fighter)
                         {
+                            int x = 0;
                             // Command complete (Remove or keep?)
                             /*
                             Move move = new Move();

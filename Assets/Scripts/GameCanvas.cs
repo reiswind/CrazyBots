@@ -283,18 +283,17 @@ namespace Assets.Scripts
 
         private void UnselectGameCommand()
         {
-            executedBlueprintCommand = null;
             movedGameCommand = null;
+            if (lastCommandPreview != null)
+            {
+                lastCommandPreview.SetSelected(false);
+                lastCommandPreview = null;
+            }
 
             if (currentCommandPreview != null)
             {
                 currentCommandPreview.Delete();
                 currentCommandPreview = null;
-            }
-            if (previewGameCommand != null)
-            {
-                Destroy(previewGameCommand);
-                previewGameCommand = null;
             }
         }
 
@@ -314,6 +313,7 @@ namespace Assets.Scripts
                 selectedUnitFrame = null;
             }
         }
+
 
 
 
@@ -586,7 +586,6 @@ namespace Assets.Scripts
             selectedUnitFrame.Assemble(true);
         }
 
-        private GameObject previewGameCommand;
         private MapGameCommand movedGameCommand;
 
         void MoveCommand()
@@ -809,21 +808,30 @@ namespace Assets.Scripts
 
             HitByMouseClick hitByMouseClick = null;
 
+            //if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out raycastHit, Mathf.Infinity))
             RaycastHit[] raycastHits = Physics.RaycastAll(Camera.main.ScreenPointToRay(Input.mousePosition));
 
             if (raycastHits != null && raycastHits.Length > 0)
             { 
                 hitByMouseClick = new HitByMouseClick();
 
+                int num = 0;
                 foreach (RaycastHit raycastHit in raycastHits)
-                //if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out raycastHit, Mathf.Infinity))
                 {
+                    GroundCell debuggc = raycastHit.collider.gameObject.GetComponent<GroundCell>();
+                    if (debuggc != null)
+                        Debug.Log(num + " Raycast hit GroundCell " + Position.GetX(debuggc.Pos) + "," + Position.GetY(debuggc.Pos));
+                    UnitBase unitcc = raycastHit.collider.GetComponent<UnitBase>();
+                    if (unitcc != null)
+                        Debug.Log(num + " Raycast hit Unit " + unitcc.UnitId);
+                    num++;
+
                     if (hitByMouseClick.GroundCell == null)
                     {
                         hitByMouseClick.GroundCell = raycastHit.collider.gameObject.GetComponent<GroundCell>();
                         if (hitByMouseClick.GroundCell != null)
                         {
-                            //Debug.Log("Raycast hit GroundCell " + Position.GetX(hitByMouseClick.GroundCell.Pos) + "," + Position.GetY(hitByMouseClick.GroundCell.Pos));
+                            
                         }
                     }
                     if (hitByMouseClick.CommandPreview == null)
@@ -832,16 +840,20 @@ namespace Assets.Scripts
                         if (command != null)
                             hitByMouseClick.CommandPreview = command.CommandPreview;
                     }
-                    if (hitByMouseClick.UnitFrame == null)
+                    if (hitByMouseClick.UnitFrame == null && hitByMouseClick.CommandPreview == null)
                     {
                         UnitBase unitBase = GetUnitFrameFromRayCast(raycastHit);
                         if (unitBase != null)
                         {
                             CommandPreview commandPreview = HexGrid.MainGrid.FindCommandForUnit(unitBase);
                             if (commandPreview == null)
+                            {
                                 hitByMouseClick.UnitFrame = unitBase;
+                            }
                             else
-                                hitByMouseClick.CommandPreview = commandPreview;
+                            {
+                                hitByMouseClick.CommandPreview = commandPreview;                                
+                            }
                         }
                     }
                     /*
@@ -1093,7 +1105,7 @@ namespace Assets.Scripts
             if (hitByMouseClick != null)
             {
                 currentCommandPreview.SetPosition(hitByMouseClick.GroundCell);
-
+                /*
                 if (previewGameCommand != null && hitByMouseClick != null &&
                     hitByMouseClick.GroundCell != null)
                 {
@@ -1104,7 +1116,7 @@ namespace Assets.Scripts
                     Vector3 unitPos3 = hitByMouseClick.GroundCell.transform.position;
                     unitPos3.y += 0.09f;
                     previewGameCommand.transform.position = unitPos3;
-                }
+                }*/
             }
         }
 
@@ -1490,66 +1502,40 @@ namespace Assets.Scripts
             
             if (Input.GetMouseButtonDown(0))
             {
-                if (hitByMouseClick != null)
+                if (hitByMouseClick != null && hitByMouseClick.CommandPreview != null)
                 {
-                    if (hitByMouseClick.CommandPreview != null)
-                    {
-                        UnselectGameCommand();
-                        UnselectUnitFrame();
-                        SetMode(CanvasMode.Command);
-                    }
-                    /*
-                    else
-                    {
-                        UnselectGameCommand();
-
-                        if (lastSelectedGroundCell != hitByMouseClick.GroundCell)
-                        {
-
-                            lastSelectedGroundCell = hitByMouseClick.GroundCell;
-                        }
-
-                        if (selectedUnitFrame != hitByMouseClick.UnitFrame)
-                        {
-                            UnselectUnitFrame();
-                            SelectUnitFrame(hitByMouseClick.UnitFrame);
-                        }
-                    }
-                    SetMode(nextCanvasMode);
-                    */
+                    UnselectGameCommand();
+                    UnselectUnitFrame();
+                    SetMode(CanvasMode.Command);
                 }
             }
             if (hitByMouseClick != null)
             {
                 if (hitByMouseClick.UnitFrame != null)
                 {
-                    if (lastCommandPreview != null)
-                        lastCommandPreview.SetSelected(false);
+                    UnselectGameCommand();
                     DisplayUnitframe(hitByMouseClick.UnitFrame);
                 }
                 else if (hitByMouseClick.CommandPreview != null)
                 {
-                    HideAllParts();
-                    DisplayGameCommand(hitByMouseClick.CommandPreview);
                     if (lastCommandPreview != hitByMouseClick.CommandPreview)
                     {
-                        if (lastCommandPreview != null)
-                            lastCommandPreview.SetSelected(false);
+                        HideAllParts();
+                        UnselectGameCommand();
                         lastCommandPreview = hitByMouseClick.CommandPreview;
                         hitByMouseClick.CommandPreview.SetSelected(true);
                     }
+                    DisplayGameCommand(hitByMouseClick.CommandPreview);
                 }
                 else if (hitByMouseClick.GroundCell != null)
                 {
-                    if (lastCommandPreview != null)
-                        lastCommandPreview.SetSelected(false);
+                    UnselectGameCommand();
                     HideAllParts();
                     AppendGroundInfo(hitByMouseClick.GroundCell, true);
                 }
                 else
                 {
-                    if (lastCommandPreview != null)
-                        lastCommandPreview.SetSelected(false);
+                    UnselectGameCommand();
                     headerText.text = "";
                     headerSubText.text = "";
                     HideAllParts();
