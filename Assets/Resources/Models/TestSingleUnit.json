@@ -35,7 +35,7 @@
     },
 	{
       "Name": "Fighter",
-      "PlayerId": 2,
+      "PlayerId": 1,
       "Blueprint": "Container",
 	  "HoldPosition": true,
 	  "HoldFire": true,

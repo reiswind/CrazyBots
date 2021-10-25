@@ -187,7 +187,7 @@ namespace Engine.Interface
 
             Commands.Add(blueprintCommand);
 
-            
+            /*
             // Build Fighter
             blueprintCommand = new BlueprintCommand();
 
@@ -226,7 +226,7 @@ namespace Engine.Interface
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
-            
+            */
         }
 
         public Blueprint FindBlueprint(string name)

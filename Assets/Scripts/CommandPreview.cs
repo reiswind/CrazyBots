@@ -80,6 +80,23 @@ namespace Assets.Scripts
             return true;
         }
 
+        public void Execute()
+        {
+            if (displayPosition != Position.Null)
+            {
+                GameCommand.TargetPosition = displayPosition;
+                HexGrid.MainGrid.GameCommands.Add(GameCommand);
+                HexGrid.MainGrid.CommandPreviews.Add(this);
+
+                GroundCell gc;
+                if (HexGrid.MainGrid.GroundCells.TryGetValue(displayPosition, out gc))
+                {
+                    gc.UpdateCommands(GameCommand, this);
+                }
+                SetSelected(false);
+            }
+        }
+
         private bool CanCommandAt(GroundCell groundCell)
         {
             if (groundCell != null)
@@ -99,13 +116,15 @@ namespace Assets.Scripts
             UpdatePositions(groundCell);
         }
 
+        private ulong displayPosition;
+
         public void SetPosition(GroundCell groundCell)
         {
             if (groundCell == null)
             {
                 if (previewGameCommand != null)
                     previewGameCommand.SetActive(false);
-                GameCommand.TargetPosition = Position.Null;
+                displayPosition = Position.Null;
             }
             else
             {
@@ -116,7 +135,7 @@ namespace Assets.Scripts
                     positionok = CanCommandAt(groundCell);
                 if (positionok)
                 {
-                    GameCommand.TargetPosition = groundCell.Pos;
+                    displayPosition = groundCell.Pos;
                     UpdatePositions(groundCell);
                     previewGameCommand.SetActive(true);
                 }
@@ -124,14 +143,14 @@ namespace Assets.Scripts
                 {
                     if (previewGameCommand != null)
                         previewGameCommand.SetActive(false);
-                    GameCommand.TargetPosition = Position.Null;
+                    displayPosition = Position.Null;
                 }
             }
         }
 
         public bool CanExecute()
         {
-            return GameCommand.TargetPosition != Position.Null;
+            return displayPosition != Position.Null;
         }
 
         private static float aboveGround = 2.09f;
@@ -182,13 +201,15 @@ namespace Assets.Scripts
                 
                 */
                 Vector3 newDirection = new Vector3(); // = Vector3.RotateTowards(previewUnit.transform.position, n.transform.position, 360, 0.0f);
-                
-
                 newDirection.x = -30;
                 previewUnit.transform.rotation = Quaternion.LookRotation(newDirection);
                 
                 Vector3 unitPos3 = previewGameCommand.transform.position;
-                unitPos3.y -= aboveGround;
+                if (previewUnit.HasEngine())
+                    unitPos3.y -= aboveGround - 0.1f; // Unit Above Ground if active
+                else
+                    unitPos3.y -= aboveGround;
+
                 previewUnit.transform.position = unitPos3;
 
                 Vector3 scaleChange;

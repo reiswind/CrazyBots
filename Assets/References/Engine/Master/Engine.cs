@@ -12,7 +12,7 @@ namespace Engine.Master
     {
         public override string Name { get { return "Engine"; } }
 
-        public bool Holdulong { get; set; }
+        public bool HoldPosition { get; set; }
         public int Range
         {
             get
@@ -34,7 +34,7 @@ namespace Engine.Master
             if ((moveFilter & MoveFilter.Move) == 0)
                 return;
 
-            if (Unit.Power == 0 || Holdulong)
+            if (Unit.Power == 0 || HoldPosition)
                 return;
 
             // Never called by controls

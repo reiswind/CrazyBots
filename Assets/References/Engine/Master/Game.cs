@@ -126,7 +126,7 @@ namespace Engine.Master
                             Map.Units.Add(thisUnit);
 
                         if (unitModel.HoldPosition && thisUnit.Engine != null)
-                            thisUnit.Engine.Holdulong = true;
+                            thisUnit.Engine.HoldPosition = true;
 
                         if (unitModel.FireAtGround && thisUnit.Weapon != null)
                             thisUnit.Weapon.FireAtGround = true;
@@ -186,7 +186,7 @@ namespace Engine.Master
                                 Map.Units.Add(thisUnit);
 
                             if (unitModel.HoldPosition && thisUnit.Engine != null)
-                                thisUnit.Engine.Holdulong = true;
+                                thisUnit.Engine.HoldPosition = true;
 
                             if (unitModel.FireAtGround && thisUnit.Weapon != null)
                                 thisUnit.Weapon.FireAtGround = true;
