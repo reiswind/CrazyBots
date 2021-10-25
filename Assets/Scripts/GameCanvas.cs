@@ -815,9 +815,10 @@ namespace Assets.Scripts
             { 
                 hitByMouseClick = new HitByMouseClick();
 
-                int num = 0;
+                //int num = 0;
                 foreach (RaycastHit raycastHit in raycastHits)
                 {
+                    /*
                     GroundCell debuggc = raycastHit.collider.gameObject.GetComponent<GroundCell>();
                     if (debuggc != null)
                         Debug.Log(num + " Raycast hit GroundCell " + Position.GetX(debuggc.Pos) + "," + Position.GetY(debuggc.Pos));
@@ -825,7 +826,7 @@ namespace Assets.Scripts
                     if (unitcc != null)
                         Debug.Log(num + " Raycast hit Unit " + unitcc.UnitId);
                     num++;
-
+                    */
                     if (hitByMouseClick.GroundCell == null)
                     {
                         hitByMouseClick.GroundCell = raycastHit.collider.gameObject.GetComponent<GroundCell>();

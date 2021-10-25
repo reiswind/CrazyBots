@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4107294213743374750}
   - component: {fileID: 2226182406558188884}
   - component: {fileID: 3271857278224504814}
-  - component: {fileID: 5351948936720645640}
+  - component: {fileID: 4424592140515607620}
   m_Layer: 0
   m_Name: HexCell
   m_TagString: Id
@@ -96,8 +96,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4b59aa4d5d42a64496d4291a3283626, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!65 &5351948936720645640
-BoxCollider:
+--- !u!64 &4424592140515607620
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -106,6 +106,7 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1.7644792, y: 1.1657162, z: 2.062872}
-  m_Center: {x: -1.4319027e-11, y: -0.5828581, z: 0.0014106631}
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 7364931787972232934, guid: 4ddb07333a1770a42a59e0bf49def48e, type: 3}
