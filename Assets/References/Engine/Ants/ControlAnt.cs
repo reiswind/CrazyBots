@@ -213,7 +213,7 @@ namespace Engine.Control
                 return;
             }*/
 
-            int dispatcherRange = 12;
+            //int dispatcherRange = 12;
 
             List<Tile> possiblePositionsInZone = new List<Tile>();
             List<Tile> possibleNeighborsInZone = new List<Tile>();
@@ -296,7 +296,7 @@ namespace Engine.Control
                 if (pheromone == null || pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Energy) == 0)
                 {
                     // Cannot build here, no power
-                    int nopoer = 0;
+                    int nopower = 0;
                 }
                 else
                 {

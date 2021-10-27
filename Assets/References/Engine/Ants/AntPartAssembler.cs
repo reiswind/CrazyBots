@@ -150,15 +150,15 @@ namespace Engine.Ants
                 {
                     if (Assembler.Unit.CurrentGameCommand.CommandComplete)
                     {
-                        int whereisit = 0;
+                        //int whereisit = 0;
                     }
                     else if (Assembler.Unit.CurrentGameCommand.CommandCanceled)
                     {
-                        int whereisit = 0;
+                        //int whereisit = 0;
                     }
                     else if (Assembler.Unit.CurrentGameCommand.WaitingForUnit)
                     {
-                        int whereisit = 0;
+                        //int whereisit = 0;
                     }
                     else
                     {

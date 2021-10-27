@@ -32,6 +32,8 @@ namespace Assets.Scripts
         public MapGameCommand GameCommand { get; set; }
         public Command Command { get; set; }
         public bool Touched { get; set; }
+        internal bool IsPreview { get; set; }
+
         private GameObject previewGameCommand;
 
         public List<CommandAttachedUnit> PreviewUnits { get; set; }
@@ -125,19 +127,13 @@ namespace Assets.Scripts
                     gameCommand.MoveToPosition = displayPosition;
 
                     HexGrid.MainGrid.GameCommands.Add(gameCommand);
-                    
-                    /*
-                    GroundCell gc;
-                    if (HexGrid.MainGrid.GroundCells.TryGetValue(displayPosition, out gc))
-                    {
-                        UpdatePositions(gc);
-                    }
-                    */
                 }
                 else
                 {
-                    GameCommand.GameCommandType = GameCommandType.Attack;
-                    GameCommand.TargetPosition = displayPosition;   
+                    GameCommand.GameCommandType = GameCommand.BlueprintCommand.GameCommandType;
+                    GameCommand.TargetPosition = displayPosition;
+                    IsPreview = false;
+
                     HexGrid.MainGrid.GameCommands.Add(GameCommand);
                     HexGrid.MainGrid.CommandPreviews.Add(this);
 
@@ -243,7 +239,13 @@ namespace Assets.Scripts
         public void SetActive(bool value)
         {
             if (previewGameCommand != null)
-                previewGameCommand.SetActive(value);
+            {
+                for (int i = 0; i < previewGameCommand.transform.childCount; i++)
+                {
+                    GameObject child = previewGameCommand.transform.GetChild(i).gameObject;
+                    child.SetActive(value);
+                }
+            }
         }
 
         public bool ContainsUnit(UnitBase unitBase)
@@ -259,7 +261,7 @@ namespace Assets.Scripts
         public void CreateCommandPreview()
         {
             CreateCommandLogo();
-            Command.IsPreview = true;
+            IsPreview = true;
             Command.SetSelected(true);
 
             foreach (BlueprintCommandItem blueprintCommandItem in GameCommand.BlueprintCommand.Units)

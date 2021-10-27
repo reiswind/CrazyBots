@@ -1437,7 +1437,6 @@ namespace Engine.Master
                     //moveToTargets.Remove(move.Positions[move.Positions.Count - 1]);
                     //somethingChanged = true;
                     //break;
-                    int x = 0;
                 }
                 else if (t.Unit != null)
                 {
@@ -1469,7 +1468,6 @@ namespace Engine.Master
                     {
                         // (Hit) Could do nasty things, but for now, the unit does not move
                         //somethingChanged = true;
-                        int x = 0;
                     }
                     else
                     {

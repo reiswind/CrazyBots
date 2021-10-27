@@ -12,8 +12,6 @@ namespace Engine.Interface
     public enum GameCommandType
     {
         None,
-        //Move,
-        //AttackMove,
         Attack,
         Defend,
         Scout,
@@ -21,8 +19,7 @@ namespace Engine.Interface
         Move,
         Collect,
         Build,
-        Extract,
-        Pipeline
+        Extract
     }
 
     internal class GameCommand

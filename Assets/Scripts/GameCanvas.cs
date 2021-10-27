@@ -10,19 +10,45 @@ namespace Assets.Scripts
 {
     internal class HitByMouseClick
     {
-        public List<UnitBase> Units { get; set; }
+        public HitByMouseClick()
+        {
+            Units = new List<UnitBase>();
+        }
+
+        public List<UnitBase> Units { get; private set; }
         public GroundCell GroundCell { get; set; }
-        public CommandPreview CommandPreview { get; set; }
+        public CommandPreview CommandPreview { get; private set; }
+        public UnitBase UnitBase { get; private set; }
+
+        public void Update(CommandPreview commandPreview)
+        {
+            foreach (UnitBase unitBase in Units)
+            {
+                CommandPreview unitCommandPreview = HexGrid.MainGrid.FindCommandForUnit(unitBase);
+                if (unitCommandPreview != null)
+                {
+                    CommandPreview = unitCommandPreview;
+                    UnitBase = unitBase;
+                }
+                else
+                {
+                    // Just the first one
+                    UnitBase = unitBase;
+                }
+            }
+            
+            if (CommandPreview == null && commandPreview != null)
+            {
+                CommandPreview = commandPreview;
+            }
+        }
     }
 
     internal enum CanvasMode
     {
         None,
         Select,
-        Build,
-        Collect,
         CommandPreview,
-        Unit,
         Command
     }
 
@@ -50,8 +76,6 @@ namespace Assets.Scripts
         private Text[] actionText;
         private Button[] buttons;
         private Button[] actions;
-        //private Button buildButton;
-        //private Text buildButtonText;
 
         private GameObject panelEngine;
         private GameObject panelExtractor;
@@ -161,7 +185,6 @@ namespace Assets.Scripts
                 canvasMode = newCanvasMode;
 
                 UpdateCommandButtons();
-                //UnSelectTopButton();
 
                 SetActionText(1, canvasMode.ToString());
 
@@ -172,57 +195,12 @@ namespace Assets.Scripts
                     UnselectAction(3);
                     UnselectAction(4);
 
-                    //Cursor.SetCursor(NormalCursor, new Vector2(0, 0), CursorMode.Auto);
-
-                    //if (topSelectedSelectButton == 0)
-                    //    topSelectedSelectButton = 1;
                     UnselectButton(1);
-                }
-
-                if (canvasMode == CanvasMode.Unit)
-                {
-                    UnselectAction(1);
-                    SelectAction(2);
-                    UnselectAction(3);
-                    UnselectAction(4);
-
-                    //Cursor.SetCursor(AttackCursor, new Vector2(0, 0), CursorMode.Auto);
-
-                    /*
-                    if (topSelectedAttackButton == 0)
-                        topSelectedAttackButton = 1;
-                    SelectTopButton(topSelectedAttackButton);
-                    */
-                }
-                /*
-                if (canvasMode == CanvasMode.Mineral)
-                {
-                    UnselectAction(1);
-                    UnselectAction(2);
-                    SelectAction(3);
-                    UnselectAction(4);
-
-                    //Cursor.SetCursor(AttackCursor, new Vector2(0, 0), CursorMode.Auto);
-
-                }*/
-
-                if (canvasMode == CanvasMode.Build)
-                {
-                    UnselectAction(1);
-                    UnselectAction(2);
-                    SelectAction(3);
-                    UnselectAction(3);
-
-                    //Cursor.SetCursor(BuildCursor, new Vector2(0, 0), CursorMode.Auto);
-
-                    //if (topSelectedBuildButton == 0)
-                    //    topSelectedBuildButton = 1;
-                    //SelectTopButton(topSelectedBuildButton);
                 }
             }
             leftMouseButtonDown = false;
-
         }
+
         void OnClickAction1()
         {
             if (canvasMode != CanvasMode.Select)
@@ -233,18 +211,11 @@ namespace Assets.Scripts
 
         void OnClickAction2()
         {
-            if (canvasMode != CanvasMode.Unit)
-            {
-                SetMode(CanvasMode.Unit);
-            }
         }
 
         void OnClickAction3()
         {
-            if (canvasMode != CanvasMode.Build)
-            {
-                SetMode(CanvasMode.Build);
-            }
+
         }
 
         void OnClickAction4()
@@ -291,10 +262,14 @@ namespace Assets.Scripts
 
             if (currentCommandPreview != null)
             {
-                // Keep it, even if not selected
-                //currentCommandPreview.Delete();
-                currentCommandPreview.SetActive(false);
-                currentCommandPreview = null;
+                if (canvasMode != CanvasMode.Command)
+                {
+                    if (currentCommandPreview.IsPreview)
+                        currentCommandPreview.Delete();
+                    currentCommandPreview.SetSelected(false);
+                    currentCommandPreview.SetActive(false);
+                    currentCommandPreview = null;
+                }
             }
         }
 
@@ -312,43 +287,6 @@ namespace Assets.Scripts
                 }
 
                 selectedUnitFrame = null;
-            }
-        }
-
-
-
-
-        private void SelectBlueprint(string bluePrintname)
-        {
-
-            Blueprint blueprint = HexGrid.MainGrid.game.Blueprints.FindBlueprint(bluePrintname);
-            if (blueprint == null)
-            {
-
-            }
-            else
-            {
-                /*
-                if (IsAssemblerAt() ||
-                    IsContainerAt())
-                {
-                    selectedBuildBlueprint = null;
-
-                    // Can build only moveable units
-                    foreach (BlueprintPart blueprintPart in blueprint.Parts)
-                    {
-                        if (blueprintPart.PartType.StartsWith("Engine"))
-                        {
-                            selectedBuildBlueprint = blueprint;
-                            break;
-                        }
-                    }
-                }
-                else
-                {*/
-                UnselectUnitFrame();
-                SelectUnitFrame(HexGrid.MainGrid.CreateTempUnit(blueprint));
-
             }
         }
 
@@ -394,13 +332,6 @@ namespace Assets.Scripts
             GetAction(btn).image.sprite = ButtonBackground;
         }
 
-        private void SelectButton(int btn)
-        {
-            Button button = GetButton(btn);
-            button.image.sprite = SelectedButtonBackground;
-
-            SelectBlueprint(button.name);
-        }
         private void UnselectButton(int btn)
         {
             GetButton(btn).image.sprite = ButtonBackground;
@@ -415,59 +346,7 @@ namespace Assets.Scripts
             GetButton(btn).gameObject.SetActive(true);
         }
 
-        //private int topSelectedSelectButton;
-        //private int topSelectedAttackButton;
-        //private int topSelectedMineralsButton;
-        //private int topSelectedBuildButton;
-        //private int middleSelectedButton;
-
         private int selectedBuildButton;
-        private int selectedUnitButton;
-
-
-        private bool CanBuildAt(GroundCell groundCell)
-        {
-            if (groundCell != null)
-            {
-                // SAME as Tileobject
-                MoveUpdateGroundStat stats = groundCell.Stats.MoveUpdateGroundStat;
-                if (stats.IsUnderwater)
-                    return false;
-
-                int mins = 0;
-                foreach (TileObject tileObject in stats.TileObjects)
-                {
-                    if (tileObject.TileObjectType == TileObjectType.Mineral)
-                    {
-                        mins++;
-                    }
-                    else if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
-                        return false;
-                    else if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
-                        return false;
-                }
-
-                if (mins >= 20)
-                {
-                    return false;
-                }
-                return true;
-            }
-            return true;
-        }
-
-        private bool CanCommandAt(GroundCell groundCell)
-        {
-            if (groundCell == null)
-            {
-                foreach (TileObject tileObject in groundCell.Stats.MoveUpdateGroundStat.TileObjects)
-                {
-                    if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
-                        return false;
-                }
-            }
-            return true;
-        }
 
         private void UpdateCommandButtons()
         {
@@ -488,26 +367,20 @@ namespace Assets.Scripts
                 }
             }
 
-            if (canvasMode == CanvasMode.Unit)
-            {
-                SetButtonText(1, "(q) Attack");
-                SetButtonText(2, "(w) Defend");
-                SetButtonText(3, "(e) Scout");
-                SetButtonText(4, "(r) Collect");
-                HideButton(5);
-                HideButton(6);
-                HideButton(7);
-                HideButton(8);
-                HideButton(9);
-                HideButton(10);
-                HideButton(11);
-                HideButton(12);
-            }
             if (canvasMode == CanvasMode.Command)
             {
-                SetButtonText(1, "(q) Move");
-                SetButtonText(2, "(w) Attack");
-                SetButtonText(3, "(e) Reinforce");
+                if (currentCommandPreview.GameCommand.GameCommandType == GameCommandType.Build)
+                {
+                    // Cannot move buildings
+                    HideButton(1);
+                }
+                else
+                {
+                    SetButtonText(1, "(e) Move");
+                }
+                HideButton(2);
+                HideButton(3);
+                //SetButtonText(3, "(e) Reinforce");
                 SetButtonText(4, "(r) Cancel");
                 HideButton(5);
                 HideButton(6);
@@ -521,7 +394,7 @@ namespace Assets.Scripts
             if (canvasMode == CanvasMode.CommandPreview)
             {
                 SetButtonText(1, "(q) Rotate right");
-                SetButtonText(2, "(w) Rotate left");
+                SetButtonText(2, "(e) Rotate left");
                 HideButton(3);
                 HideButton(4);
                 HideButton(5);
@@ -533,59 +406,8 @@ namespace Assets.Scripts
                 HideButton(11);
                 HideButton(12);
             }
-
-            if (canvasMode == CanvasMode.Build)
-            {
-                SetButtonText(1, "(q) Factory", "Factory");
-                SetButtonText(2, "(w) Container", "Container");
-                SetButtonText(3, "(e) Reactor", "Reactor");
-                SetButtonText(4, "(e) Turret", "Turret");
-
-                SetButtonText(5, "(a) Outpost", "Outpost");
-
-                HideButton(6);
-                HideButton(7);
-                HideButton(8);
-                HideButton(9);
-                HideButton(10);
-                HideButton(11);
-                HideButton(12);
-
-                if (selectedBuildButton != 0)
-                {
-                    UnselectButton(selectedBuildButton);
-                    selectedBuildButton = 0;
-                }
-                selectedBuildButton = 0;
-            }
         }
 
-
-        void SelectActionUnit(int btn)
-        {
-            if (selectedUnitButton != btn)
-            {
-                if (selectedUnitButton != 0)
-                    UnselectButton(selectedUnitButton);
-
-                selectedUnitButton = btn;
-                SelectButton(btn);
-            }
-        }
-
-        void SelectBuildUnit(int btn)
-        {
-            if (selectedBuildButton != btn)
-            {
-                if (selectedBuildButton != 0)
-                    UnselectButton(selectedBuildButton);
-
-                selectedBuildButton = btn;
-                SelectButton(btn);
-            }
-            SelectBlueprint(GetButton(btn).name);
-            selectedUnitFrame.Assemble(true);
-        }
 
         void CancelCommand()
         {
@@ -604,75 +426,6 @@ namespace Assets.Scripts
                 SetMode(CanvasMode.CommandPreview);
             }
         }
-        /*
-        static GameObject CreateCommandPreview(BlueprintCommand blueprintCommand)
-        {
-            GameObject previewGameCommand;
-            string layout = "UIBuild";
-
-            if (blueprintCommand != null &&
-                !string.IsNullOrEmpty(blueprintCommand.Layout))
-                layout = blueprintCommand.Layout;
-
-            previewGameCommand = Instantiate(HexGrid.MainGrid.GetResource(layout));
-            UnitBase.RemoveColider(previewGameCommand);
-
-            Command command = previewGameCommand.GetComponent<Command>();
-            command.IsPreview = true;
-
-            foreach (BlueprintCommandItem blueprintCommandItem in blueprintCommand.Units)
-            {
-                Blueprint blueprint = HexGrid.MainGrid.game.Blueprints.FindBlueprint(blueprintCommandItem.BlueprintName);
-                UnitBase previewUnit = HexGrid.MainGrid.CreateTempUnit(blueprint);
-                previewUnit.DectivateUnit();
-
-                UnitBase.RemoveColider(previewUnit.gameObject);
-                previewUnit.gameObject.SetActive(true);
-                previewUnit.transform.SetParent(previewGameCommand.transform, false);
-            }
-            return previewGameCommand;
-        }
-        */
-
-        /*
-        void CancelCommand()
-        {
-            if (selectedGameCommand == null)
-                return;
-
-            // Just in case it has not been transmitted yet
-
-
-            MapGameCommand gameCommand = new MapGameCommand();
-
-            gameCommand.GameCommandType = GameCommandType.Cancel;
-            gameCommand.TargetPosition = selectedGameCommand.TargetPosition;
-            gameCommand.PlayerId = selectedGameCommand.PlayerId;
-
-            HexGrid.MainGrid.GameCommands.Add(gameCommand);
-
-            GroundCell groundCell = HexGrid.MainGrid.GroundCells[selectedGameCommand.TargetPosition];
-            groundCell.RemoveGameCommand(selectedGameCommand);
-
-            UnselectGameCommand();
-
-            SetMode(CanvasMode.Select);
-
-        }*/
-        /*
-        void MarkUnitForExtraction()
-        {
-            // Extract the unit
-            MapGameCommand gameCommand = new MapGameCommand();
-
-            gameCommand.UnitId = selectedUnitFrame.UnitId;
-            gameCommand.TargetPosition = selectedUnitFrame.CurrentPos;
-            gameCommand.GameCommandType = GameCommandType.Extract;
-            gameCommand.PlayerId = 1;
-            HexGrid.MainGrid.GameCommands.Add(gameCommand);
-
-            selectedUnitFrame.MoveUpdateStats.MarkedForExtraction = true;
-        }*/
 
         private CommandPreview currentCommandPreview;
 
@@ -786,7 +539,6 @@ namespace Assets.Scripts
         {
             ExecuteCommand(8);
         }
-
         void OnClickBuild9()
         {
             ExecuteCommand(9);
@@ -817,7 +569,7 @@ namespace Assets.Scripts
 
             //if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out raycastHit, Mathf.Infinity))
             RaycastHit[] raycastHits = Physics.RaycastAll(Camera.main.ScreenPointToRay(Input.mousePosition));
-
+            CommandPreview commandPreview = null;
             if (raycastHits != null && raycastHits.Length > 0)
             {
                 hitByMouseClick = new HitByMouseClick();
@@ -825,6 +577,7 @@ namespace Assets.Scripts
                 //int num = 0;
                 foreach (RaycastHit raycastHit in raycastHits)
                 {
+
                     /*
                     GroundCell debuggc = raycastHit.collider.gameObject.GetComponent<GroundCell>();
                     if (debuggc != null)
@@ -842,13 +595,13 @@ namespace Assets.Scripts
                             //Debug.Log("Raycast hit GroundCell " + Position.GetX(hitByMouseClick.GroundCell.Pos) + "," + Position.GetY(hitByMouseClick.GroundCell.Pos));
                         }
                     }
-                    if (hitByMouseClick.CommandPreview == null)
+                    if (commandPreview == null)
                     {
                         Command command = raycastHit.collider.gameObject.GetComponent<Command>();
                         if (command != null)
-                            hitByMouseClick.CommandPreview = command.CommandPreview;
+                            commandPreview = command.CommandPreview;
                     }
-                    if (hitByMouseClick.Units == null) // && hitByMouseClick.CommandPreview == null)
+                    //if (hitByMouseClick.Units == null) // && hitByMouseClick.CommandPreview == null)
                     {
                         UnitBase unitBase = GetUnitFrameFromRayCast(raycastHit);
                         if (unitBase != null)
@@ -859,14 +612,13 @@ namespace Assets.Scripts
                             else
                                 Debug.Log("Raycast hit Unit " + unitBase.UnitId);
                             */
-                            if (hitByMouseClick.Units == null)
-                                hitByMouseClick.Units = new List<UnitBase>();
+
                             hitByMouseClick.Units.Add(unitBase);
                         }
                     }
                 }
+                hitByMouseClick.Update(commandPreview);
             }
-
             return hitByMouseClick;
         }
 
@@ -936,7 +688,6 @@ namespace Assets.Scripts
             {
                 headerGroundText.text = sb.ToString();
             }
-
         }
 
         private void HideAllParts()
@@ -952,58 +703,25 @@ namespace Assets.Scripts
         }
 
 
-
         private void SelectUnitFrame(UnitBase unitBase)
         {
             if (unitBase != null)
             {
-                /*
-                if (unitBase.Temporary)
-                {
-                    buildButton.gameObject.SetActive(false);
-                }
-                else
-                {
-                    buildButton.gameObject.SetActive(true);
-                }*/
                 selectedUnitFrame = unitBase;
                 selectedUnitFrame.SetSelected(true);
             }
 
         }
 
-        /*
-        private void UnselectButtons()
-        {
-            if (topSelectedAttackButton != 0)
-            {
-                UnselectButton(topSelectedAttackButton);
-                topSelectedAttackButton = 0;
-            }
-            if (middleSelectedButton != 0)
-            {
-                UnselectButton(middleSelectedButton);
-                middleSelectedButton = 0;
-            }
-            UpdateCommandButtons();
-        }*/
-
         // Update is called once per frame
         void Update()
         {
+            UpdateHeader();
             ExecuteHotkeys();
 
             if (canvasMode == CanvasMode.Select)
             {
                 UpdateSelectMode();
-            }
-            else if (canvasMode == CanvasMode.Build)
-            {
-                UpdateBuildMode();
-            }
-            else if (canvasMode == CanvasMode.Collect)
-            {
-                UpdateCollectMode();
             }
             else if (canvasMode == CanvasMode.CommandPreview)
             {
@@ -1030,20 +748,20 @@ namespace Assets.Scripts
             }
             if (Input.GetMouseButtonDown(1))
             {
-                UnselectGameCommand();
-                UnselectUnitFrame();
 
                 if (canvasMode != CanvasMode.Select)
                 {
                     SetMode(CanvasMode.Select);
-
-                    if (lastSelectedGroundCell != null)
-                    {
-                        //lastSelectedGroundCell.SetSelected(false);
-                        lastSelectedGroundCell = null;
-                    }
-                    return true;
                 }
+                UnselectGameCommand();
+                UnselectUnitFrame();
+
+                if (lastSelectedGroundCell != null)
+                {
+                    lastSelectedGroundCell = null;
+                }
+                return true;
+
             }
             return false;
         }
@@ -1053,100 +771,10 @@ namespace Assets.Scripts
             if (hitByMouseClick != null && currentCommandPreview != null)
             {
                 currentCommandPreview.SetPosition(hitByMouseClick.GroundCell);
-                /*
-                if (previewGameCommand != null && hitByMouseClick != null &&
-                    hitByMouseClick.GroundCell != null)
-                {
-                    Debug.Log("preview " + Position.GetX(hitByMouseClick.GroundCell.Pos) + ", " + Position.GetY(hitByMouseClick.GroundCell.Pos));
-
-                    previewGameCommand.transform.SetParent(hitByMouseClick.GroundCell.transform, false);
-
-                    Vector3 unitPos3 = hitByMouseClick.GroundCell.transform.position;
-                    unitPos3.y += 0.09f;
-                    previewGameCommand.transform.position = unitPos3;
-                }*/
             }
         }
 
-        void UpdateCommandMode()
-        {
-            if (CheckMouseButtons()) return;
-
-            //currentCommandPreview.SetSelected(true);
-            DisplayGameCommand(currentCommandPreview);
-            UnselectUnitFrame();
-
-            HitByMouseClick hitByMouseClick = GetClickedInfo();
-            if (hitByMouseClick != null)
-            {
-                if (hitByMouseClick.Units != null)
-                {
-                    foreach (UnitBase unitBase in hitByMouseClick.Units)
-                    {
-                        if (currentCommandPreview.ContainsUnit(unitBase))
-                        {
-                            SelectUnitFrame(unitBase);
-                            //unitBase.SetSelected(true);
-                        }
-                        else
-                        {
-                            //unitBase.SetSelected(false);
-                        }
-                        /*
-                        if (hitByMouseClick.CommandPreview == currentCommandPreview && hitByMouseClick.Units != null)
-                        {
-                            hitByMouseClick.Units.SetSelected(true);
-                        }*/
-                    }
-                }
-            }
-            //UpdateCommandPreviewPosition(hitByMouseClick);
-
-            /*
-            if (leftMouseButtonDown)
-            {
-                if (hitByMouseClick != null)
-                {
-                    lastSelectedGroundCell = hitByMouseClick.GroundCell;
-
-                    if (leftMouseButtonDown &&
-                        lastSelectedGroundCell != null &&
-                        movedGameCommand != null &&
-                        CanCommandAt(lastSelectedGroundCell))
-                    {
-                        MapGameCommand gameCommand = new MapGameCommand();
-
-                        gameCommand.TargetPosition = movedGameCommand.TargetPosition;
-                        gameCommand.GameCommandType = movedGameCommand.GameCommandType;
-                        gameCommand.BlueprintCommand = movedGameCommand.BlueprintCommand;
-                        gameCommand.GameCommandType = GameCommandType.Move;
-                        gameCommand.PlayerId = 1;
-                        gameCommand.MoveToPosition = lastSelectedGroundCell.Pos;
-
-                        //HexGrid.MainGrid.GameCommands.Add(gameCommand);
-
-                        UnselectGameCommand();
-                        UpdateSelectMode();
-                    }
-                    else
-                    {
-                        
-                        if (hitByMouseClick.GameCommand != selectedGameCommand)
-                        {
-                            if (movedGameCommand != null)
-                            {
-
-                            }
-                            else
-                            {
-                                UnselectGameCommand();
-                                UpdateSelectMode();
-                            }
-                        }
-                    }
-                }
-            }*/
-        }
+       
 
         void UpdateCommandPreviewMode()
         {
@@ -1159,261 +787,69 @@ namespace Assets.Scripts
             if (leftMouseButtonDown && currentCommandPreview.CanExecute())
             {
                 currentCommandPreview.Execute();
-
-                //currentCommandPreview = null;
-
                 SetMode(CanvasMode.Command);
-            }
-        }
-
-        void UpdateCollectMode()
-        {
-            if (Input.GetMouseButtonDown(1))
-            {
-                if (selectedBuildButton != 0)
-                {
-                    UnselectButton(selectedBuildButton);
-                    selectedBuildButton = 0;
-                }
-                if (lastSelectedGroundCell != null)
-                {
-                    //lastSelectedGroundCell.SetSelected(false);
-                    lastSelectedGroundCell = null;
-                }
-            }
-
-            if (Input.GetMouseButtonDown(0))
-            {
-                leftMouseButtonDown = true;
-                lastSelectedGroundCell = null;
-            }
-            if (Input.GetMouseButtonUp(0))
-            {
-                leftMouseButtonDown = false;
-            }
-
-            HitByMouseClick hitByMouseClick = GetClickedInfo();
-
-            GroundCell selectGroundCell = null;
-            if (hitByMouseClick != null)
-            {
-                selectGroundCell = hitByMouseClick.GroundCell;
-            }
-            if (lastSelectedGroundCell != selectGroundCell)
-            {
-                //if (lastSelectedGroundCell != null)
-                //    lastSelectedGroundCell.SetSelected(false);
-                lastSelectedGroundCell = selectGroundCell;
-
-                if (!leftMouseButtonDown)
-                {
-                    // Preview
-                    if (lastSelectedGroundCell == null)
-                    {
-                    }
-                    else
-                    {
-                    }
-                }
-
-                if (leftMouseButtonDown &&
-                    lastSelectedGroundCell != null)
-                {
-                    /*
-                    ulong pos = lastSelectedGroundCell.Pos;
-
-                    MapGameCommand gameCommand = new MapGameCommand();
-                    gameCommand.TargetPosition = pos;
-                    gameCommand.GameCommandType = executedBlueprintCommand.GameCommandType;
-                    gameCommand.BlueprintCommand = executedBlueprintCommand;
-                    gameCommand.PlayerId = 1;
-                    HexGrid.MainGrid.GameCommands.Add(gameCommand);
-
-                    lastSelectedGroundCell.UpdateCommands(gameCommand, null);
-                    selectedUnitFrame = null;
-
-                    // Build one per click
-                    SetMode( CanvasMode.Select);*/
-                }
-            }
-        }
-
-        void UpdateBuildMode()
-        {
-            if (Input.GetMouseButtonDown(1))
-            {
-                if (selectedBuildButton != 0)
-                {
-                    UnselectButton(selectedBuildButton);
-                    selectedBuildButton = 0;
-                }
-
-                UnselectUnitFrame();
-                if (lastSelectedGroundCell != null)
-                {
-                    //lastSelectedGroundCell.SetSelected(false);
-                    lastSelectedGroundCell = null;
-                }
-            }
-
-            if (Input.GetMouseButtonDown(0))
-            {
-                leftMouseButtonDown = true;
-                lastSelectedGroundCell = null;
-            }
-            if (Input.GetMouseButtonUp(0))
-            {
-                leftMouseButtonDown = false;
-            }
-
-            HitByMouseClick hitByMouseClick = GetClickedInfo();
-
-            GroundCell selectGroundCell = null;
-            if (hitByMouseClick != null)
-            {
-                selectGroundCell = hitByMouseClick.GroundCell;
-            }
-            if (lastSelectedGroundCell != selectGroundCell)
-            {
-                //if (lastSelectedGroundCell != null)
-                //    lastSelectedGroundCell.SetSelected(false);
-                lastSelectedGroundCell = selectGroundCell;
-
-                if (!leftMouseButtonDown)
-                {
-                    // Preview
-                    if (lastSelectedGroundCell == null || !CanBuildAt(lastSelectedGroundCell))
-                    {
-                        if (selectedUnitFrame != null && selectedUnitFrame.CurrentPos != Position.Null)
-                        {
-                            selectedUnitFrame.CurrentPos = Position.Null;
-                            selectedUnitFrame.gameObject.SetActive(false);
-                        }
-                    }
-                    else
-                    {
-                        if (selectedUnitFrame != null &&
-                            selectedUnitFrame.CurrentPos != lastSelectedGroundCell.Pos)
-                        {
-                            selectedUnitFrame.CurrentPos = lastSelectedGroundCell.Pos;
-                            selectedUnitFrame.PutAtCurrentPosition(true);
-                            selectedUnitFrame.gameObject.SetActive(true);
-                        }
-                    }
-                }
-
-                if (leftMouseButtonDown &&
-                    selectedUnitFrame != null &&
-                    lastSelectedGroundCell != null &&
-                    CanBuildAt(lastSelectedGroundCell))
-                {
-                    ulong pos = lastSelectedGroundCell.Pos;
-                    selectedUnitFrame.CurrentPos = pos;
-
-                    if (HexGrid.MainGrid.UnitsInBuild.ContainsKey(pos))
-                    {
-                        // Remove it
-                        if (HexGrid.MainGrid.UnitsInBuild[pos] != null)
-                            HexGrid.MainGrid.UnitsInBuild[pos].Delete();
-                        HexGrid.MainGrid.UnitsInBuild.Remove(pos);
-
-                        // Cancel the command
-                        /*
-                        MapGameCommand gameCommand = new MapGameCommand();
-                        gameCommand.UnitId = selectedUnitFrame.MoveUpdateStats.BlueprintName;
-                        gameCommand.TargetPosition = pos;
-                        gameCommand.GameCommandType = GameCommandType.Cancel;
-                        gameCommand.PlayerId = 1;
-                        HexGrid.MainGrid.GameCommands.Add( gameCommand);*/
-                    }
-                    else
-                    {
-                        /*
-                        // Build the temp. unit
-                        MapGameCommand gameCommand = new MapGameCommand();
-                        //gameCommand.UnitId = selectedUnitFrame.MoveUpdateStats.BlueprintName;
-                        gameCommand.TargetPosition = pos;
-                        gameCommand.GameCommandType = GameCommandType.Build;
-                        gameCommand.BlueprintCommand = executedBlueprintCommand;
-                        gameCommand.PlayerId = 1;
-                        HexGrid.MainGrid.GameCommands.Add( gameCommand);
-
-                        HexGrid.MainGrid.UnitsInBuild.Add(pos, selectedUnitFrame);
-
-                        lastSelectedGroundCell.UpdateCommands(gameCommand, null);
-                        selectedUnitFrame = null;
-
-                        // Prepare next (not working)
-                        //SelectBuildUnit(selectedBuildButton);
-
-                        // Build one per click
-                        SetMode(CanvasMode.Select);
-                        */
-                    }
-                }
-
-            }
-            if (selectedUnitFrame != null)
-            {
-                //DisplaySelectedUnitframe();
             }
         }
 
         void ExecuteHotkeys()
         {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                SetMode(CanvasMode.Select);
+                SelectNothing();
+            }
             if (Input.GetKeyDown(KeyCode.T))
             {
-                OnClickAction1();
+                
             }
             if (Input.GetKeyDown(KeyCode.G))
             {
-                OnClickAction2();
+                
             }
             if (Input.GetKeyDown(KeyCode.B))
             {
-                OnClickAction3();
+                
             }
 
             if (Input.GetKeyDown(KeyCode.Q))
             {
-                OnClickBuild1();
+                
             }
             if (Input.GetKeyDown(KeyCode.W))
             {
-                OnClickBuild2();
+                
             }
             if (Input.GetKeyDown(KeyCode.E))
             {
-                OnClickBuild3();
+                if (canvasMode == CanvasMode.Command)
+                {
+                    MoveCommand();
+                }
             }
             if (Input.GetKeyDown(KeyCode.R))
             {
-                OnClickBuild4();
+                
             }
 
             if (Input.GetKeyDown(KeyCode.A))
             {
-                OnClickBuild5();
-                //OnClickBuild();
+                
             }
             if (Input.GetKeyDown(KeyCode.S))
             {
-                OnClickBuild6();
-                //OnClickBuild();
+                
             }
             if (Input.GetKeyDown(KeyCode.D))
             {
-                OnClickBuild7();
-                //OnClickBuild();
+                
             }
             if (Input.GetKeyDown(KeyCode.F))
             {
-                OnClickBuild8();
-                //OnClickBuild();
+                
             }
         }
 
-        void UpdateSelectMode()
+        void UpdateHeader()
         {
             if (HexGrid.MainGrid.MapInfo != null)
             {
@@ -1430,6 +866,10 @@ namespace Assets.Scripts
                     UIMineralText.text = "Dead" + HexGrid.MainGrid.MapInfo.TotalMetal.ToString(); ;
                 }
             }
+        }
+
+        void UpdateSelectMode()
+        {
 
             /*bool ctrl = Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
             
@@ -1476,99 +916,142 @@ namespace Assets.Scripts
 
             if (hitByMouseClick != null)
             {
-                CommandPreview pickedCommandPreview = null;
-                UnitBase pickedUnitBase = null;
-
-                if (hitByMouseClick.Units != null)
-                {
-                    foreach (UnitBase unitBase in hitByMouseClick.Units)
-                    {
-                        CommandPreview commandPreview = HexGrid.MainGrid.FindCommandForUnit(unitBase);
-                        if (commandPreview != null)
-                        {
-                            pickedCommandPreview = commandPreview;
-                            pickedUnitBase = unitBase;
-                        }
-                        else
-                        {
-                            // Just the first one
-                            pickedUnitBase = unitBase;
-                        }
-                    }
-                }
-                else if (hitByMouseClick.CommandPreview != null)
-                {
-                    pickedCommandPreview = hitByMouseClick.CommandPreview;
-                }
-
                 if (Input.GetMouseButtonDown(0))
                 {
-                    if (pickedCommandPreview != null)
-                    {
-                        //UnselectGameCommand();
-                        //UnselectUnitFrame();
-                        currentCommandPreview = pickedCommandPreview;
-                        currentCommandPreview.SetSelected(true);
-                        SetMode(CanvasMode.Command);
-                    }
+                    SelectWithLeftClick(hitByMouseClick);
                 }
                 else
                 {
-                    if (pickedCommandPreview != null)
-                    {
-                        UnselectUnitFrame();
-                        if (lastCommandPreview != pickedCommandPreview)
-                        {
-                            HideAllParts();
-                            UnselectGameCommand();
-                            lastCommandPreview = pickedCommandPreview;
-                            pickedCommandPreview.SetActive(true);
-                        }
-                        DisplayGameCommand(pickedCommandPreview);
-                    }
-                    else if (pickedUnitBase != null)
-                    {
-                        UnselectGameCommand();
-                        DisplayUnitframe(pickedUnitBase);
-                    }
-                    else if (hitByMouseClick.GroundCell != null)
-                    {
-                        UnselectGameCommand();
-                        UnselectUnitFrame();
-                        HideAllParts();
-                        AppendGroundInfo(hitByMouseClick.GroundCell, true);
-                    }
-                    else
-                    {
-                        UnselectGameCommand();
-                        UnselectUnitFrame();
-                        HideAllParts();
-                        headerText.text = "";
-                        headerSubText.text = "";
-                    }
+                    UpdateMouseOver(hitByMouseClick);
                 }
             }
             else
             {
+                SelectNothing();
+            }
+        }
+
+        void UpdateCommandMode()
+        {
+            if (CheckMouseButtons()) return;
+
+            DisplayGameCommand(currentCommandPreview);
+            UnselectUnitFrame();
+
+            HitByMouseClick hitByMouseClick = GetClickedInfo();
+            if (hitByMouseClick != null)
+            {
+                if (hitByMouseClick.Units != null)
+                {
+                    foreach (UnitBase unitBase in hitByMouseClick.Units)
+                    {
+                        if (currentCommandPreview.ContainsUnit(unitBase))
+                        {
+                            //SelectUnitFrame(unitBase);
+                        }
+                        else
+                        {
+                        }
+                    }
+                }
+                if (Input.GetMouseButtonDown(1) && hitByMouseClick.GroundCell != null)
+                {
+                    // Move with RMB
+                    /*
+                    currentCommandPreview.SelectMoveMode();
+                    currentCommandPreview.SetPosition(hitByMouseClick.GroundCell);
+                    currentCommandPreview.Execute();*/
+                }
+                if (Input.GetMouseButtonDown(0))
+                {
+                    SelectWithLeftClick(hitByMouseClick);
+                }
+                else
+                {
+                    UpdateMouseOver(hitByMouseClick);
+                }
+            }
+        }
+
+        private void SelectWithLeftClick(HitByMouseClick hitByMouseClick)
+        {
+            if (currentCommandPreview != hitByMouseClick.CommandPreview)
+            {
+                UnselectGameCommand();
+            }
+            if (hitByMouseClick.CommandPreview != null)
+            {
+                currentCommandPreview = hitByMouseClick.CommandPreview;
+                currentCommandPreview.SetSelected(true);
+                if (canvasMode == CanvasMode.Command)
+                    UpdateCommandButtons();
+                else
+                    SetMode(CanvasMode.Command);
+            }
+            else
+            {
+                SelectNothing();
+            }
+        }
+
+        private void UpdateMouseOver(HitByMouseClick hitByMouseClick)
+        {
+            if (hitByMouseClick.CommandPreview != null)
+            {
+                UnselectUnitFrame();
+                if (lastCommandPreview != hitByMouseClick.CommandPreview)
+                {
+                    HideAllParts();
+                    UnselectGameCommand();
+                    lastCommandPreview = hitByMouseClick.CommandPreview;
+                    lastCommandPreview.SetActive(true);
+                }
+                DisplayGameCommand(hitByMouseClick.CommandPreview);
+            }
+            else if (currentCommandPreview != null)
+            {
+                DisplayGameCommand(currentCommandPreview);
+            }
+            else if (hitByMouseClick.UnitBase != null)
+            {
+                UnselectGameCommand();
+                DisplayUnitframe(hitByMouseClick.UnitBase);
+            }
+            else if (hitByMouseClick.GroundCell != null)
+            {
                 UnselectGameCommand();
                 UnselectUnitFrame();
                 HideAllParts();
-                headerText.text = "";
-                headerSubText.text = "";
+                AppendGroundInfo(hitByMouseClick.GroundCell, true);
+            }
+            else
+            {
+                SelectNothing();
             }
         }
+
+        private void SelectNothing()
+        {
+            UnselectGameCommand();
+            UnselectUnitFrame();
+            HideAllParts();
+            headerText.text = "";
+            headerSubText.text = "";
+        }
+
         private CommandPreview lastCommandPreview;
 
         private void DisplayGameCommand(CommandPreview commandPreview)
         {
             HideAllParts();
+            if (commandPreview == null) return;
 
             MapGameCommand gameCommand = commandPreview.GameCommand;
 
             headerText.text = gameCommand.BlueprintCommand.Name;
             headerSubText.text = gameCommand.GameCommandType.ToString() + " " + gameCommand.UnitId;
             headerGroundText.text = Position.GetX(gameCommand.TargetPosition) + ", " + Position.GetY(gameCommand.TargetPosition);
-
+                 
             //selectedGameCommand.UpdateAttachedUnits(HexGrid);
             /*
             List<UnitBase> allCommandUnits = new List<UnitBase>();

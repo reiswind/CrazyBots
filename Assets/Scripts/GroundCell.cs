@@ -224,17 +224,17 @@ namespace Assets.Scripts
             }*/
             Color color = Color.black;
 
-            string materialName;
+            //string materialName;
             if (Stats.MoveUpdateGroundStat.IsUnderwater)
             {
-                materialName = "Water";
+                //materialName = "Water";
                 if (ColorUtility.TryParseHtmlString("#278BB2", out color))
                 {
                 }
             }
             else
             {
-                materialName = "Dirt";
+                //materialName = "Dirt";
 
                 /*
                 if (tileObject.TileObjectType == TileObjectType.Gras)
@@ -257,54 +257,54 @@ namespace Assets.Scripts
                 
                 if (Stats.MoveUpdateGroundStat.IsHill())
                 {
-                    materialName = "Hill";
+                    //materialName = "Hill";
                 }
                 else if (Stats.MoveUpdateGroundStat.IsRock())
                 {
-                    materialName = "Rock";
+                    //materialName = "Rock";
                 }
                 else if (Stats.MoveUpdateGroundStat.IsSand())
                 {
                     if (ColorUtility.TryParseHtmlString("#D3B396", out color))
                     {
                     }
-                    materialName = "Sand";
+                    //materialName = "Sand";
                 }
                 else if (Stats.MoveUpdateGroundStat.IsDarkSand())
                 {
                     if (ColorUtility.TryParseHtmlString("#9D7C68", out color))
                     {
                     }
-                    materialName = "DarkSand";
+                    //materialName = "DarkSand";
                 }
                 else if (Stats.MoveUpdateGroundStat.IsDarkWood())
                 {
-                    materialName = "DarkWood";
+                    //materialName = "DarkWood";
                 }
                 else if (Stats.MoveUpdateGroundStat.IsWood())
                 {
                     if (ColorUtility.TryParseHtmlString("#45502D", out color))
                     {
                     }
-                    materialName = "Wood";
+                    //materialName = "Wood";
                 }
                 else if (Stats.MoveUpdateGroundStat.IsLightWood())
                 {
                     if (ColorUtility.TryParseHtmlString("#60703C", out color))
                     {
                     }
-                    materialName = "LightWood"; 
+                    //materialName = "LightWood"; 
                 }
                 else if (Stats.MoveUpdateGroundStat.IsGrassDark())
                 {
                     if (ColorUtility.TryParseHtmlString("#6F803F", out color))
                     {
                     }
-                    materialName = "GrassDark";
+                    //materialName = "GrassDark";
                 }
                 else if (Stats.MoveUpdateGroundStat.IsGras())
                 {
-                    materialName = "Grass";
+                    //materialName = "Grass";
                 }
                 else
                 {
@@ -319,41 +319,8 @@ namespace Assets.Scripts
             {
                 //materialName = "DarkSand";
             }
-
-
-            //if (currentMaterialName == null || currentMaterialName != materialName)
-            {
-
-
-                Renderer renderer = GetComponent<Renderer>();
-                renderer.material.SetColor("SurfaceColor", color);
-
-
-
-                //MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
-                //if (meshRenderer != null)
-                {
-                    /*
-                    Material[] newMaterials = new Material[meshRenderer.materials.Length];
-                    for (int i = 0; i < meshRenderer.materials.Length; i++)
-                    {
-                        Material material = meshRenderer.materials[i];
-                        if (!material.name.StartsWith("Normal"))
-                        {
-                            Destroy(material);
-                            newMaterials[i] = HexGrid.GetMaterial(materialName);
-                        }
-                        else
-                        {
-                            newMaterials[i] = meshRenderer.materials[i];
-                            //Destroy(material);
-                            //newMaterials[i] = HexGrid.GetMaterial("GroundMat");
-                        }
-                    }
-                    meshRenderer.materials = newMaterials;
-                    */
-                }
-            }
+            Renderer renderer = GetComponent<Renderer>();
+            renderer.material.SetColor("SurfaceColor", color);
         }
 
         internal void UpdateGround()

@@ -13,7 +13,7 @@ namespace Assets.Scripts
         public CommandPreview CommandPreview { get; set; }
 
         private bool IsSelected { get; set; }
-        internal bool IsPreview { get; set; }
+
         public void SetSelected(bool value)
         {
             MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
@@ -36,7 +36,7 @@ namespace Assets.Scripts
             }
         }
 
-        /*
+        
         private Dictionary<UnitBase, CommandAttachedUnit> selectedCommandUnits = new Dictionary<UnitBase, CommandAttachedUnit>();
 
         private void RemoveAttachedUnits()
@@ -60,7 +60,7 @@ namespace Assets.Scripts
             StringBuilder stringBuilder = new StringBuilder();
             foreach (string unitId in CommandPreview.GameCommand.AttachedUnits)
             {
-                UnitBase unitBase = null;
+                UnitBase unitBase;
                 if (unitId.StartsWith("Assembler"))
                 {
                     unitBase = HexGrid.MainGrid.BaseUnits[unitId.Substring(10)];
@@ -77,7 +77,7 @@ namespace Assets.Scripts
                         CommandAttachedUnit commandAttachedUnit = new CommandAttachedUnit();
                         commandAttachedUnit.UnitBase = unitBase;
                         selectedCommandUnits.Add(unitBase, commandAttachedUnit);
-                        unitBase.SetSelected(true);
+                        //unitBase.SetSelected(true);
                     }
                 }
                 stringBuilder.Append(unitId);
@@ -92,11 +92,12 @@ namespace Assets.Scripts
                         Destroy(commandAttachedUnit.Line);
                         commandAttachedUnit.Line = null;
                     }
-                    commandAttachedUnit.UnitBase.SetSelected(false);
+                    //commandAttachedUnit.UnitBase.SetSelected(false);
+                    selectedCommandUnits.Remove(unitBase);
                 }
             }
         }
-        */
+        
         void UpdateDirection(Vector3 position)
         {
             //float speed = 1.75f;
@@ -124,7 +125,9 @@ namespace Assets.Scripts
         {
             if (IsSelected)
             {
-                foreach (CommandAttachedUnit commandAttachedUnit in CommandPreview.PreviewUnits)
+                UpdateAttachedUnits();
+
+                foreach (CommandAttachedUnit commandAttachedUnit in selectedCommandUnits.Values) //CommandPreview.PreviewUnits)
                 {
                     if (commandAttachedUnit.Line == null)
                     {
@@ -172,13 +175,14 @@ namespace Assets.Scripts
                     }
                 }
             }
-            if (!IsPreview)
+            /* Na... rotates all
+            if (!CommandPreview.IsPreview)
             {
                 if (CommandPreview.GameCommand.GameCommandType == GameCommandType.Attack)
                     transform.Rotate(Vector3.right);
                 else
                     transform.Rotate(Vector3.up); // * Time.deltaTime);
-            }
+            }*/
         }
     }
 }
