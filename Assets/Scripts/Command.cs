@@ -6,12 +6,7 @@ using UnityEngine;
 
 namespace Assets.Scripts
 {
-    internal class CommandAttachedUnit
-    {
-        public UnitBase UnitBase { get; set; }
-        public GameObject Line { get; set; }
 
-    }
 
     public class Command : MonoBehaviour
     {
@@ -29,17 +24,19 @@ namespace Assets.Scripts
                     IsSelected = value;
                     if (value)
                     {
-                        UpdateAttachedUnits();
+                        //UpdateAttachedUnits();
                         meshRenderer.material.SetFloat("Darkness", 3.0f);
                     }
                     else
                     {
-                        RemoveAttachedUnits();
+                        //RemoveAttachedUnits();
                         meshRenderer.material.SetFloat("Darkness", 1.0f);
                     }
                 }
             }
         }
+
+        /*
         private Dictionary<UnitBase, CommandAttachedUnit> selectedCommandUnits = new Dictionary<UnitBase, CommandAttachedUnit>();
 
         private void RemoveAttachedUnits()
@@ -99,7 +96,7 @@ namespace Assets.Scripts
                 }
             }
         }
-
+        */
         void UpdateDirection(Vector3 position)
         {
             //float speed = 1.75f;
@@ -127,7 +124,7 @@ namespace Assets.Scripts
         {
             if (IsSelected)
             {
-                foreach (CommandAttachedUnit commandAttachedUnit in selectedCommandUnits.Values)
+                foreach (CommandAttachedUnit commandAttachedUnit in CommandPreview.PreviewUnits)
                 {
                     if (commandAttachedUnit.Line == null)
                     {

@@ -709,6 +709,16 @@ namespace Assets.Scripts
                     Move nextMove = new Move();
                     nextMove.MoveType = MoveType.None;
 
+                    if (newGameCommands != null)
+                    {
+                        foreach (MapGameCommand gameCommand in newGameCommands)
+                        {
+                            if (gameCommand.GameCommandType == GameCommandType.Move)
+                            {
+                                UpdateMoveCommand(gameCommand);
+                            }
+                        }
+                    }
                     List<Move> current = game.ProcessMove(id, nextMove, newGameCommands);
                     newGameCommands = null;
 
@@ -743,6 +753,26 @@ namespace Assets.Scripts
         private List<ulong> groundcellsWithCommands = new List<ulong>();
         private bool startPositionSet = false;
         private int moveCounter;
+
+        public void UpdateMoveCommand(MapGameCommand gameCommand)
+        {
+            CommandPreview commandPreview = null;
+
+            groundcellsWithCommands.Remove(gameCommand.TargetPosition);
+            GroundCell gc;
+            if (HexGrid.MainGrid.GroundCells.TryGetValue(gameCommand.TargetPosition, out gc))
+            {
+                commandPreview = gc.RemoveGameCommand(gameCommand);
+            }
+            commandPreview.GameCommand.TargetPosition = gameCommand.MoveToPosition;
+            groundcellsWithCommands.Add(gameCommand.MoveToPosition);
+
+            if (HexGrid.MainGrid.GroundCells.TryGetValue(gameCommand.MoveToPosition, out gc))
+            {
+                gc.UpdateMoveCommand(commandPreview);
+            }
+        }
+
         private void ProcessNewMoves()
         {
             moveCounter++;

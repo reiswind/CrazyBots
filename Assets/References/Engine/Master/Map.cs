@@ -44,6 +44,20 @@ namespace Engine.Interface
         public GameCommandType GameCommandType { get; set; }
         public BlueprintCommand BlueprintCommand { get; set; }
         public List<string> AttachedUnits { get; private set; }
+
+        public override string ToString()
+        {
+            string s = GameCommandType.ToString() + " at " + Position.GetX(TargetPosition) + "," + Position.GetY(TargetPosition);
+            if (CommandCanceled) s += " Canceld";
+            if (CommandComplete) s += " Complete";
+            if (WaitingForUnit) s += " Waiting";
+            foreach (string id in AttachedUnits)
+            {
+                s += id;
+                s += " ";
+            }
+            return s;
+        }
     }
 
     public class MapPheromoneItem

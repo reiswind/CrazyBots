@@ -559,18 +559,24 @@ namespace Assets.Scripts
             }
         }
 
-        public void RemoveGameCommand(MapGameCommand gameCommand)
+        public CommandPreview RemoveGameCommand(MapGameCommand gameCommand)
         {
             foreach (CommandPreview checkCellGameCommand in cellGameCommands)
             {
-                if (checkCellGameCommand.GameCommand == gameCommand)
+                if (checkCellGameCommand.GameCommand.TargetPosition == gameCommand.TargetPosition &&
+                    //checkCellGameCommand.GameCommand.GameCommandType == gameCommand.GameCommandType && Attack -> Move
+                    checkCellGameCommand.GameCommand.PlayerId == gameCommand.PlayerId)
                 {
-                    checkCellGameCommand.Delete();
-                    
                     cellGameCommands.Remove(checkCellGameCommand);
-                    break;
+                    return checkCellGameCommand;
                 }
             }
+            return null;
+        }
+
+        public void UpdateMoveCommand(CommandPreview commandPreview)
+        {
+            cellGameCommands.Add(commandPreview);
         }
 
         public CommandPreview UpdateCommands(MapGameCommand gameCommand, CommandPreview commandPreview)

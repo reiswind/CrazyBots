@@ -1245,10 +1245,7 @@ namespace Engine.Control
                         {
                             moveGameCommand.TargetPosition = gameCommand.MoveToPosition;
                             gameCommand.CommandComplete = true;
-                            if (gameCommand.DeleteWhenFinished)
-                            {
-                                removeCommands.Add(gameCommand);
-                            }
+                            removeCommands.Add(gameCommand);
                             completedCommands.Add(gameCommand);
                             break;
                         }
