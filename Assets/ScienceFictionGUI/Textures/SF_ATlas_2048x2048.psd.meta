@@ -528,6 +528,7 @@ TextureImporter:
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -3238,6 +3239,133 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      Map_Overlay_01: 21300060
+      Main_Frame_Scroll_01: 21300072
+      Resources_Icon_02: 21300288
+      Action_Bar_Skill_01: 21300328
+      Main_Screen_Overlay_01: 21300014
+      Setting_Select_02: 21300226
+      Main_Frame_Button_06: 21300120
+      Main_Frame_Quest_01: 21300050
+      Settings_Graphics_03: 21300092
+      Settings_Video_01: 21300114
+      Main_Frame_Corner_01: 21300048
+      Map_Zoom_In_01: 21300038
+      Login_Screen_Quit_02: 21300194
+      Main_Frame_Scroll_02: 21300074
+      Setting_Slider_Bar_01: 21300320
+      Setting_Select_Arrow_03: 21300206
+      Inventory_Scroll_01: 21300106
+      Main_Frame_Boarder_01: 21300332
+      Main_Frame_Square_02: 21300066
+      Corner_1: 21300004
+      Exp_Bar_02: 21300252
+      Inventory_Square_01: 21300230
+      Portrait_Bar_02: 21300296
+      Map_Enemy_01: 21300028
+      Inventory_Credit_03: 21300236
+      Settings_Interface_03: 21300312
+      Main_Frame_Button_04: 21300104
+      Settings_Controls_02: 21300316
+      Setting_CheckBox_01: 21300214
+      Bottom_Banner_Teleport_01: 21300272
+      Setting_Slider_01: 21300188
+      Map_Character_01: 21300034
+      Setting_Corner_01: 21300190
+      Bottom_Banner_Trophies_01: 21300266
+      Inventory_Credit_01: 21300232
+      Title_Bar_Setting_01: 21300010
+      Main_Screen_Corner_01: 21300250
+      Main_Frame_Square_01: 21300064
+      Map_Corner_Top_01: 21300026
+      Portrait_Bar_03: 21300298
+      Settings_Controls_03: 21300318
+      Settings_General_03: 21300080
+      Main_Frame_Arrow_02: 21300056
+      Bottom_Banner_Square_01: 21300258
+      Main_Frame_Button_03: 21300082
+      Settings_Video_02: 21300116
+      Map_Zoom_Out_01: 21300040
+      Setting_SliderButton_03: 21300186
+      Setting_Scroll_02: 21300244
+      Main_Frame_Overlay_02: 21300036
+      Settings_Video_03: 21300118
+      Bottom_Banner_QuestLog_01: 21300264
+      Main_Frame_Character_01: 21300282
+      Inventory_Scroll_02: 21300094
+      Map_Quest_01: 21300022
+      Bottom_Banner_Square_02: 21300260
+      Inventory_Corner_01: 21300238
+      Portrait_Bar_01: 21300294
+      Main_Frame_Button_05: 21300306
+      Settings_Overlay_2: 21300334
+      Main_Frame_Close_01: 21300018
+      Title_Bar_Close_01: 21300012
+      Setting_CheckBox_02: 21300216
+      Portrait_01: 21300284
+      Setting_SliderButton_01: 21300182
+      Bottom_Banner_Settings_01: 21300262
+      Setting_Button_02: 21300302
+      Settings_Graphics_02: 21300090
+      Settings_General_01: 21300076
+      Setting_Select_Arrow_02: 21300204
+      Resources_Icon_03: 21300290
+      Resources_Icon_04: 21300292
+      Login_Screen_TextInput_01: 21300044
+      Login_Screen_Quit_01: 21300122
+      Settings_Audio_01: 21300124
+      Map_NPC_01: 21300030
+      Setting_Toggle_01: 21300196
+      Bottom_Banner_Character_01: 21300270
+      Main_Frame_Overlay_01: 21300046
+      Title_Bar_02: 21300280
+      Setting_Button_01: 21300300
+      Setting_Text_Field_01: 21300322
+      Bottom_Banner_Inventory_01: 21300268
+      Corner_2: 21300008
+      Setting_Overlay_01: 21300192
+      Settings_Interface_01: 21300308
+      Setting_Toggle_02: 21300198
+      Bottom_Banner_01: 21300276
+      Setting_SliderButton_02: 21300184
+      Main_Frame_Corner_02: 21300058
+      Setting_Toggle_03: 21300200
+      Map_Net_01: 21300042
+      Map_Frame_01: 21300020
+      Settings_Audio_02: 21300126
+      Login_Screen_Login_02: 21300096
+      Setting_Select_Arrow_01: 21300202
+      Main_Frame_01: 21300016
+      Resources_Icon_01: 21300286
+      Exp_Bar_01: 21300246
+      Main_Frame_Button_01: 21300054
+      Settings_General_02: 21300078
+      Inventory_Close_01: 21300086
+      Level_Up_01: 21300324
+      Bottom_Banner_02: 21300278
+      Top_Banner_01: 21300000
+      Main_Frame_Arrow_01: 21300052
+      Main_Frame_Button_02: 21300070
+      Setting_Scroll_01: 21300242
+      Setting_Close_02: 21300222
+      Action_Bar_Skill_02: 21300326
+      Settings_Interface_02: 21300310
+      Settings_Audio_03: 21300128
+      Setting_Select_01: 21300212
+      Inventory_Credit_02: 21300234
+      Setting_Close_03: 21300224
+      Top_Banner_02: 21300006
+      Settings_Controls_01: 21300314
+      Inventory_Frame_01: 21300084
+      Title_Bar_01: 21300002
+      Login_Screen_Login_01: 21300062
+      Main_Frame_Square_03: 21300068
+      Setting_CheckBox_03: 21300218
+      Map_Corner_Bot_01: 21300032
+      Settings_Graphics_01: 21300088
+      Setting_Enter_Text_01: 21300330
+      Setting_Close_01: 21300220
   spritePackingTag: 
   pSDRemoveMatte: 1
   pSDShowRemoveMatteOption: 1
