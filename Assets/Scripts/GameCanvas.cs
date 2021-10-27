@@ -348,6 +348,22 @@ namespace Assets.Scripts
 
         private int selectedBuildButton;
 
+        private bool IsMovable(BlueprintCommand blueprintCommand)
+        {
+            foreach (BlueprintCommandItem blueprintCommandItem in blueprintCommand.Units)
+            {
+                Blueprint blueprint = HexGrid.MainGrid.game.Blueprints.FindBlueprint(blueprintCommandItem.BlueprintName);
+                foreach (BlueprintPart blueprintPart in blueprint.Parts)
+                {
+                    if (blueprintPart.PartType == TileObjectType.PartEngine)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         private void UpdateCommandButtons()
         {
             if (canvasMode == CanvasMode.Select)
@@ -357,8 +373,11 @@ namespace Assets.Scripts
                 {
                     foreach (BlueprintCommand blueprintCommand in HexGrid.MainGrid.game.Blueprints.Commands)
                     {
-                        SetButtonText(idx, blueprintCommand.Name);
-                        idx++;
+                        if (blueprintCommand.GameCommandType != GameCommandType.Build || !IsMovable(blueprintCommand))
+                        {
+                            SetButtonText(idx, blueprintCommand.Name);
+                            idx++;
+                        }
                     }
                 }
                 while (idx <= 12)
@@ -382,14 +401,24 @@ namespace Assets.Scripts
                 HideButton(3);
                 //SetButtonText(3, "(e) Reinforce");
                 SetButtonText(4, "(r) Cancel");
-                HideButton(5);
-                HideButton(6);
-                HideButton(7);
-                HideButton(8);
-                HideButton(9);
-                HideButton(10);
-                HideButton(11);
-                HideButton(12);
+
+                int idx = 5;
+                if (HexGrid.MainGrid.game != null)
+                {
+                    foreach (BlueprintCommand blueprintCommand in HexGrid.MainGrid.game.Blueprints.Commands)
+                    {
+                        if (blueprintCommand.GameCommandType == GameCommandType.Build && IsMovable(blueprintCommand))
+                        {
+                            SetButtonText(idx, blueprintCommand.Name);
+                            idx++;
+                        }
+                        if (idx >= 12) break;
+                    }
+                }
+                while (idx <= 12)
+                {
+                    HideButton(idx++);
+                }
             }
             if (canvasMode == CanvasMode.CommandPreview)
             {
