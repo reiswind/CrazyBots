@@ -49,7 +49,7 @@ namespace Engine.Interface
             // Reactor
             blueprint = new Blueprint();
             blueprint.Name = "Reactor";
-            blueprint.Layout = "Ground";
+            blueprint.Layout = "S-Reactor";
             blueprint.Parts.Add(new BlueprintPart("S-PartExtractor"));
             blueprint.Parts.Add(new BlueprintPart("S-PartReactor", TileObjectType.PartReactor, 3, 6));
             Items.Add(blueprint);
@@ -57,7 +57,7 @@ namespace Engine.Interface
             // Factory
             blueprint = new Blueprint();
             blueprint.Name = "Factory";
-            blueprint.Layout = "Ground";
+            blueprint.Layout = "S-Factory";
             blueprint.Parts.Add(new BlueprintPart("S-PartExtractor"));
             blueprint.Parts.Add(new BlueprintPart("S-PartAssembler", TileObjectType.PartAssembler, 3, 6));
             Items.Add(blueprint);
@@ -174,7 +174,7 @@ namespace Engine.Interface
 
             Commands.Add(blueprintCommand);
 
-            // Build Container
+            // Build Turret
             blueprintCommand = new BlueprintCommand();
 
             blueprintCommand.Name = "Turret";
@@ -183,6 +183,33 @@ namespace Engine.Interface
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Turret";
+            blueprintCommand.Units.Add(blueprintCommandItem);
+
+            Commands.Add(blueprintCommand);
+
+            // Build Reactor
+            blueprintCommand = new BlueprintCommand();
+
+            blueprintCommand.Name = "Reactor";
+            blueprintCommand.Layout = "UIBuild";
+            blueprintCommand.GameCommandType = GameCommandType.Build;
+
+            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem.BlueprintName = "Reactor";
+            blueprintCommand.Units.Add(blueprintCommandItem);
+
+            Commands.Add(blueprintCommand);
+
+
+            // Build Assembler
+            blueprintCommand = new BlueprintCommand();
+
+            blueprintCommand.Name = "Factory";
+            blueprintCommand.Layout = "UIBuild";
+            blueprintCommand.GameCommandType = GameCommandType.Build;
+
+            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem.BlueprintName = "Factory";
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);

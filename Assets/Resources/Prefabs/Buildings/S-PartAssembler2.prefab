@@ -586,7 +586,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2159458480882868437}
   m_Layer: 0
-  m_Name: S-Assembler3-3
+  m_Name: S-PartAssembler2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
