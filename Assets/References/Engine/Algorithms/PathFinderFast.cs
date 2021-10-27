@@ -303,7 +303,7 @@ namespace Engine.Algorithms
                     {
                         if (!IgnoreVisibility)
                         {
-                            if (unit != null && !unit.Owner.Visibleulongs.Contains(n.Pos))
+                            if (unit != null && !unit.Owner.VisiblePositions.Contains(n.Pos))
                                 continue;
                         }
                         //mNewLocationX = (ushort)n.Pos.X;  //(ushort) (mLocationX + mDirection[i,0]);
@@ -327,7 +327,8 @@ namespace Engine.Algorithms
                             }
                         }
 
-                        if (n.Pos != end && !n.CanMoveTo(t))
+                        //if (n.Pos != end && !n.CanMoveTo(t))
+                        if (!n.CanMoveTo(t)) // Include ende pos
                         {
                             continue;
                         }

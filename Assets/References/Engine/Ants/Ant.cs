@@ -334,11 +334,21 @@ namespace Engine.Ants
                 PheromoneWaypointMineral = 0;
             }
             // Another ant has to take this task
+            if (FinishCommandWhenCompleted != null)
+            {
+                FinishCommandWhenCompleted.WaitingForUnit = false;
+
+                FinishCommandWhenCompleted = null;
+            }
+
             if (PlayerUnit != null &&
                 PlayerUnit.Unit.CurrentGameCommand != null)
             {
-                // Better create new command?
-                //player.GameCommands.Add(PlayerUnit.Unit.CurrentGameCommand);
+                if (PlayerUnit.Unit.CurrentGameCommand.WaitingForUnit)
+                {
+                    PlayerUnit.Unit.CurrentGameCommand.WaitingForUnit = false;
+                }
+
                 if (PlayerUnit.Unit.CurrentGameCommand.CommandComplete &&
                     PlayerUnit.Unit.CurrentGameCommand.DeleteWhenFinished)
                     player.GameCommands.Remove(PlayerUnit.Unit.CurrentGameCommand);
@@ -346,8 +356,10 @@ namespace Engine.Ants
             }
             if (GameCommandDuringCreation != null)
             {
-                // Better create new command?
-                //player.GameCommands.Add(GameCommandDuringCreation);
+                if (GameCommandDuringCreation.WaitingForUnit)
+                {
+                    GameCommandDuringCreation.WaitingForUnit = false;
+                }
                 if (GameCommandDuringCreation.CommandComplete &&
                     GameCommandDuringCreation.DeleteWhenFinished)
                     player.GameCommands.Remove(GameCommandDuringCreation);

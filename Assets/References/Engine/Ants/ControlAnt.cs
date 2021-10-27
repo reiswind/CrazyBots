@@ -93,7 +93,7 @@ namespace Engine.Control
             }
             staticMineralDeposits.Clear();
 
-            foreach (ulong pos in player.Visibleulongs)
+            foreach (ulong pos in player.VisiblePositions)
             {
                 Tile tile = player.Game.Map.GetTile(pos);
                 int mins = 0;
@@ -201,7 +201,7 @@ namespace Engine.Control
                 }
             }
 
-
+            /*
             int idx = player.Game.Random.Next(mapZone.Tiles.Count);
             Tile tile = mapZone.Tiles.Values.ToArray()[idx];
 
@@ -211,38 +211,122 @@ namespace Engine.Control
             {
                 // Cannot build here
                 return;
-            }
+            }*/
 
-            //foreach (Tile tile in mapZone.Tiles.Values)
+            int dispatcherRange = 12;
+
+            List<Tile> possiblePositionsInZone = new List<Tile>();
+            List<Tile> possibleNeighborsInZone = new List<Tile>();
+            foreach (Tile tileInZone in mapZone.Tiles.Values)
             {
-                if (tile.Unit == null && tile.CanBuild())
+                if (!tileInZone.CanBuild())
+                    continue;
+                if (tileInZone.Unit != null)
                 {
-                    // Simple the first one BUILD-STEP1 (KI: Select fixed blueprint)
-                    GameCommand gameCommand = new GameCommand();
-                    gameCommand.GameCommandType = GameCommandType.Build;
-                    gameCommand.TargetPosition = tile.Pos;
-                    gameCommand.PlayerId = player.PlayerModel.Id;
-                    gameCommand.TargetZone = zoneId;
-                    gameCommand.DeleteWhenFinished = true;
-
-                    foreach (BlueprintCommand blueprintCommand in player.Game.Blueprints.Commands)
+                    if (tileInZone.Unit.IsComplete() &&
+                        !tileInZone.Unit.ExtractMe &&
+                        tileInZone.Unit.Container != null &&
+                        tileInZone.Unit.Engine == null &&
+                        tileInZone.Unit.Owner.PlayerModel.Id == player.PlayerModel.Id)
                     {
-                        if (blueprintCommand.Name == "Container")
+                        // Already a Container in zone.
+                        foreach (Tile n in tileInZone.Neighbors)
                         {
-                            gameCommand.BlueprintCommand = blueprintCommand;
-                            break;
+                            if (!n.CanBuild())
+                                continue;
+                            if (n.Unit != null)
+                                continue;
+
+                            if (!possibleNeighborsInZone.Contains(n))
+                                possibleNeighborsInZone.Add(n);
                         }
                     }
+                    continue;
+                }
+                
+                possiblePositionsInZone.Add(tileInZone);
+            }
 
-                    if (gameCommand.BlueprintCommand != null)
+            ulong buildPosition = Position.Null;
+            if (possibleNeighborsInZone != null && possibleNeighborsInZone.Count > 0)
+            {
+                // Build next to an existing container
+                buildPosition = possibleNeighborsInZone[0].Pos;
+            }
+            else
+            {
+                List<ulong> bestPositions = null;
+                foreach (Ant antContainer in Ants.Values)
+                {
+                    if (antContainer != null &&
+                        !antContainer.UnderConstruction &&
+                        antContainer.PlayerUnit.Unit.Container != null)
                     {
-                        player.GameCommands.Add(gameCommand);
+                        // Not too far away
+                        int d = CubePosition.Distance(mapZone.Center, antContainer.PlayerUnit.Unit.Pos);
+                        if (d > 16) continue;
+
+                        foreach (Tile tileInZone in possiblePositionsInZone)
+                        {
+                            List<ulong> positions = player.Game.FindPath(antContainer.PlayerUnit.Unit.Pos, tileInZone.Pos, antContainer.PlayerUnit.Unit);
+                            if (positions != null && positions.Count > 8)
+                            {
+                                if (bestPositions == null || bestPositions.Count > positions?.Count)
+                                {
+                                    bestPositions = positions;
+                                }
+                            }
+                        }
                     }
-                    //break;
+                }
+
+                if (bestPositions != null)
+                {
+                    buildPosition = bestPositions[bestPositions.Count - 1];
+                }
+            }
+
+            
+            if (buildPosition != Position.Null)
+            {
+                Tile tile = player.Game.Map.GetTile(buildPosition);
+
+                // outside?
+                Pheromone pheromone = player.Game.Pheromones.FindAt(tile.Pos);
+                if (pheromone == null || pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Energy) == 0)
+                {
+                    // Cannot build here, no power
+                    int nopoer = 0;
+                }
+                else
+                {
+                    if (tile.Unit == null && tile.CanBuild())
+                    {
+                        // Simple the first one BUILD-STEP1 (KI: Select fixed blueprint)
+                        GameCommand gameCommand = new GameCommand();
+                        gameCommand.GameCommandType = GameCommandType.Build;
+                        gameCommand.TargetPosition = tile.Pos;
+                        gameCommand.PlayerId = player.PlayerModel.Id;
+                        gameCommand.TargetZone = zoneId;
+                        gameCommand.DeleteWhenFinished = true;
+
+                        foreach (BlueprintCommand blueprintCommand in player.Game.Blueprints.Commands)
+                        {
+                            if (blueprintCommand.Name == "Container")
+                            {
+                                gameCommand.BlueprintCommand = blueprintCommand;
+                                break;
+                            }
+                        }
+
+                        if (gameCommand.BlueprintCommand != null)
+                        {
+                            player.GameCommands.Add(gameCommand);
+                        }
+                    }
                 }
             }
         }
-
 
         public static bool HasMoved(List<Move> moves, Unit unit)
         {
@@ -388,49 +472,49 @@ namespace Engine.Control
             }
             return id;
         }*/
-        /*
-        public int MineralsFound(Player player, ulong pos, bool isStatic)
-        {
-            int id;
-            if (!isStatic && mineralsDeposits.ContainsKey(pos))
+            /*
+            public int MineralsFound(Player player, ulong pos, bool isStatic)
             {
-                id = mineralsDeposits[pos];
-                //player.Game.Pheromones.UpdatePheromones(id, 1);
-                if (isStatic)
-                    id = 0;
-            }
-            else
-            {
-                if (isStatic)
+                int id;
+                if (!isStatic && mineralsDeposits.ContainsKey(pos))
                 {
-                    id = player.Game.Pheromones.DropPheromones(player, pos, 3, PheromoneType.Mineral, 0.5f, true, 0.5f);
-                    staticMineralDeposits.Add(pos, id);
+                    id = mineralsDeposits[pos];
+                    //player.Game.Pheromones.UpdatePheromones(id, 1);
+                    if (isStatic)
+                        id = 0;
                 }
                 else
                 {
-                    id = player.Game.Pheromones.DropPheromones(player, pos, 3, PheromoneType.Mineral, 1, false);
-                    mineralsDeposits.Add(pos, id);
+                    if (isStatic)
+                    {
+                        id = player.Game.Pheromones.DropPheromones(player, pos, 3, PheromoneType.Mineral, 0.5f, true, 0.5f);
+                        staticMineralDeposits.Add(pos, id);
+                    }
+                    else
+                    {
+                        id = player.Game.Pheromones.DropPheromones(player, pos, 3, PheromoneType.Mineral, 1, false);
+                        mineralsDeposits.Add(pos, id);
+                    }
                 }
-            }
-            return id;
-        }*/
+                return id;
+            }*/
 
-        /*
-        public void WorkFound(Player player, ulong pos)
-        {
-            if (workDeposits.ContainsKey(pos))
+            /*
+            public void WorkFound(Player player, ulong pos)
             {
-                // Update
-                //player.Game.Pheromones.UpdatePheromones(workDeposits[pos], 1);
-            }
-            else
-            {
-                int id = player.Game.Pheromones.DropPheromones(player, pos, 3, PheromoneType.Work, 1, false);
-                workDeposits.Add(pos, id);
-            }
-        }*/
+                if (workDeposits.ContainsKey(pos))
+                {
+                    // Update
+                    //player.Game.Pheromones.UpdatePheromones(workDeposits[pos], 1);
+                }
+                else
+                {
+                    int id = player.Game.Pheromones.DropPheromones(player, pos, 3, PheromoneType.Work, 1, false);
+                    workDeposits.Add(pos, id);
+                }
+            }*/
 
-        private void UpdateContainerDeposits(Player player, Ant ant)
+            private void UpdateContainerDeposits(Player player, Ant ant)
         {
             int range = 0;
             float intensity = 0;
@@ -572,7 +656,7 @@ namespace Engine.Control
 
         public ulong FindReactor(Player player, Ant antWorker)
         {
-            List<ulong> bestulongs = null;
+            List<ulong> bestPositions = null;
 
             foreach (Ant ant in Ants.Values)
             {
@@ -586,32 +670,32 @@ namespace Engine.Control
                 //if (d < 28)
                 {
                     List<ulong> positions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, posFactory, antWorker.PlayerUnit.Unit);
-                    if (bestulongs == null || bestulongs.Count > positions?.Count)
+                    if (bestPositions == null || bestPositions.Count > positions?.Count)
                     {
-                        bestulongs = positions;
+                        bestPositions = positions;
                     }
                 }
             }
-            return MakePathFromulongs(bestulongs, antWorker);
+            return MakePathFromPositions(bestPositions, antWorker);
         }
 
         public ulong FindCommandTarget(Player player, Ant antWorker)
         {
             // Compute route to target
-            List<ulong> bestulongs = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, antWorker.PlayerUnit.Unit.CurrentGameCommand.TargetPosition, antWorker.PlayerUnit.Unit);
-            if (bestulongs != null && antWorker.AntWorkerType == AntWorkerType.Assembler)
+            List<ulong> bestPositions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, antWorker.PlayerUnit.Unit.CurrentGameCommand.TargetPosition, antWorker.PlayerUnit.Unit);
+            if (bestPositions != null && antWorker.AntWorkerType == AntWorkerType.Assembler)
             {
-                if (bestulongs.Count <= 2)
+                if (bestPositions.Count <= 2)
                 {
                     return Position.Null;
                 }
                 else
                 {
                     // Move only next to target       
-                    bestulongs.RemoveAt(bestulongs.Count - 1);
+                    bestPositions.RemoveAt(bestPositions.Count - 1);
                 }
             }            
-            return MakePathFromulongs(bestulongs, antWorker);
+            return MakePathFromPositions(bestPositions, antWorker);
         }
     
 
@@ -627,18 +711,18 @@ namespace Engine.Control
                 return false;
             });
 
-            List<ulong> bestulongs = null;
+            List<ulong> bestPositions = null;
 
             foreach (TileWithDistance t in tiles.Values)
             {
                 List<ulong> positions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, t.Pos, antWorker.PlayerUnit.Unit);
-                if (bestulongs == null || bestulongs.Count > positions?.Count)
+                if (bestPositions == null || bestPositions.Count > positions?.Count)
                 {
-                    bestulongs = positions;
+                    bestPositions = positions;
                     //break;
                 }
             }
-            if (bestulongs == null)
+            if (bestPositions == null)
             {                
                 foreach (Ant ant in Ants.Values)
                 {
@@ -660,16 +744,16 @@ namespace Engine.Control
                             List<ulong> positions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, posFactory, antWorker.PlayerUnit.Unit);
                             if (positions != null && positions.Count > 2)
                             {
-                                if (bestulongs == null || bestulongs.Count > positions?.Count)
+                                if (bestPositions == null || bestPositions.Count > positions?.Count)
                                 {
-                                    bestulongs = positions;
+                                    bestPositions = positions;
                                 }
                             }
                         }
                     }
                 }
             }
-            return MakePathFromulongs(bestulongs, antWorker);
+            return MakePathFromPositions(bestPositions, antWorker);
         }
 
         public ulong FindWork(Player player, Ant ant)
@@ -691,25 +775,25 @@ namespace Engine.Control
 
             foreach (TileWithDistance t in tiles.Values)
             {*/
-            List<ulong> bestulongs = null;
+            List<ulong> bestPositions = null;
             foreach (PlayerUnit playerUnit in player.UnitsInBuild.Values)
             {
                 List<ulong> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, playerUnit.Unit.Pos, ant.PlayerUnit.Unit);
-                if (bestulongs == null || bestulongs.Count > positions?.Count)
+                if (bestPositions == null || bestPositions.Count > positions?.Count)
                 {
-                    bestulongs = positions;
+                    bestPositions = positions;
                 }
             }
-            if (bestulongs == null)
+            if (bestPositions == null)
             {
                 foreach (Ant otherAnt in Ants.Values)
                 {
                     if (otherAnt.PlayerUnit.Unit.UnderConstruction)
                     {
                         List<ulong> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, otherAnt.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit);
-                        if (bestulongs == null || bestulongs.Count > positions?.Count)
+                        if (bestPositions == null || bestPositions.Count > positions?.Count)
                         {
-                            bestulongs = positions;
+                            bestPositions = positions;
                         }
                     }
                 }
@@ -734,11 +818,11 @@ namespace Engine.Control
                     }
                 }
             }*/
-            return MakePathFromulongs(bestulongs, ant);
+            return MakePathFromPositions(bestPositions, ant);
         }
         
 
-        private List<ulong> FindMineralForCommand(Player player, Ant ant, List<ulong> bestulongs)
+        private List<ulong> FindMineralForCommand(Player player, Ant ant, List<ulong> bestPositions)
         {
             Dictionary<ulong, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.CurrentGameCommand.TargetPosition, player.Game.Map.SectorSize, false, matcher: tile =>
             {
@@ -746,15 +830,15 @@ namespace Engine.Control
                     (tile.Unit != null && (tile.Unit.ExtractMe || tile.Unit.Owner.PlayerModel.Id == 0)))
                 {
                     List<ulong> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, tile.Pos, ant.PlayerUnit.Unit);
-                    if (bestulongs == null || bestulongs.Count > positions?.Count)
+                    if (bestPositions == null || bestPositions.Count > positions?.Count)
                     {
-                        bestulongs = positions;
+                        bestPositions = positions;
                     }
                 }
                 return false;
             });
 
-            return bestulongs;
+            return bestPositions;
         }
 
         /// <summary>
@@ -762,31 +846,31 @@ namespace Engine.Control
         /// </summary>
         /// <param name="player"></param>
         /// <param name="ant"></param>
-        /// <param name="bestulongs"></param>
+        /// <param name="bestPositions"></param>
         /// <returns></returns>
-        private List<ulong> FindMineralOnMap(Player player, Ant ant, List<ulong> bestulongs)
+        private List<ulong> FindMineralOnMap(Player player, Ant ant, List<ulong> bestPositions)
         {
             // TEST
             //return bestulongs;
 
             
-            foreach (ulong pos in player.Visibleulongs) // TileWithDistance t in tiles.Values)
+            foreach (ulong pos in player.VisiblePositions) // TileWithDistance t in tiles.Values)
             {
                 Tile tile = player.Game.Map.GetTile(pos);
                 if (tile.Minerals > 0 ||
                     (tile.Unit != null && (tile.Unit.ExtractMe || tile.Unit.Owner.PlayerModel.Id == 0)))
                 {
                     List<ulong> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, tile.Pos, ant.PlayerUnit.Unit);
-                    if (bestulongs == null || bestulongs.Count > positions?.Count)
+                    if (bestPositions == null || bestPositions.Count > positions?.Count)
                     {
-                        bestulongs = positions;
+                        bestPositions = positions;
                     }
                 }
             }
-            return bestulongs;
+            return bestPositions;
         }
 
-        private List<ulong> FindMineralDeposit(Player player, Ant ant, List<ulong> bestulongs)
+        private List<ulong> FindMineralDeposit(Player player, Ant ant, List<ulong> bestPositions)
         {
             foreach (ulong pos in staticMineralDeposits.Keys)
             {
@@ -798,14 +882,14 @@ namespace Engine.Control
                     List<ulong> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, pos, ant.PlayerUnit.Unit);
                     if (positions != null && positions.Count > 2)
                     {
-                        if (bestulongs == null || bestulongs.Count > positions?.Count)
+                        if (bestPositions == null || bestPositions.Count > positions?.Count)
                         {
-                            bestulongs = positions;
+                            bestPositions = positions;
                         }
                     }
                 }
             }
-            if (bestulongs == null)
+            if (bestPositions == null)
             {
                 // Check own markers
                 foreach (ulong pos in mineralsDeposits.Keys)
@@ -818,18 +902,18 @@ namespace Engine.Control
                         List<ulong> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, pos, ant.PlayerUnit.Unit);
                         if (positions != null && positions.Count > 2)
                         {
-                            if (bestulongs == null || bestulongs.Count > positions?.Count)
+                            if (bestPositions == null || bestPositions.Count > positions?.Count)
                             {
-                                bestulongs = positions;
+                                bestPositions = positions;
                             }
                         }
                     }
                 }
             }
-            return bestulongs;
+            return bestPositions;
         }
 
-        private List<ulong> FindMineralContainer(Player player, Ant ant, List<ulong> bestulongs)
+        private List<ulong> FindMineralContainer(Player player, Ant ant, List<ulong> bestPositions)
         {
             // Look for Container with mineraly to refill
             foreach (Ant antContainer in Ants.Values)
@@ -842,37 +926,37 @@ namespace Engine.Control
                     List<ulong> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, antContainer.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit);
                     if (positions != null && positions.Count > 2)
                     {
-                        if (bestulongs == null || bestulongs.Count > positions?.Count)
+                        if (bestPositions == null || bestPositions.Count > positions?.Count)
                         {
-                            bestulongs = positions;
+                            bestPositions = positions;
                         }
                     }
                 }
             }
-            return bestulongs;
+            return bestPositions;
         }
 
-        private ulong MakePathFromulongs(List<ulong> bestulongs, Ant ant)
+        private ulong MakePathFromPositions(List<ulong> bestPositions, Ant ant)
         {
             ant.FollowThisRoute = null;
 
-            if (bestulongs != null)
+            if (bestPositions != null)
             {
-                if (bestulongs.Count > 1)
+                if (bestPositions.Count > 1)
                 {
-                    if (bestulongs.Count > 2)
+                    if (bestPositions.Count > 2)
                     {
                         ant.FollowThisRoute = new List<ulong>();
-                        for (int i = 2; i < bestulongs.Count - 1; i++)
+                        for (int i = 2; i < bestPositions.Count - 1; i++)
                         {
-                            ant.FollowThisRoute.Add(bestulongs[i]);
+                            ant.FollowThisRoute.Add(bestPositions[i]);
                         }
                     }
-                    return bestulongs[1];
+                    return bestPositions[1];
                 }
-                else if (bestulongs.Count == 1)
+                else if (bestPositions.Count == 1)
                 {
-                    return bestulongs[0];
+                    return bestPositions[0];
                 }
             }
             return Position.Null;
@@ -880,37 +964,37 @@ namespace Engine.Control
 
         public ulong FindMineral(Player player, Ant ant)
         {
-            List<ulong> bestulongs = null;
+            List<ulong> bestPositions = null;
 
             if (ant.AntWorkerType == AntWorkerType.Worker)
             {
                 if (ant.PlayerUnit.Unit.CurrentGameCommand != null)
                 {
-                    bestulongs = FindMineralForCommand(player, ant, bestulongs);
+                    bestPositions = FindMineralForCommand(player, ant, bestPositions);
                 }
                 else
                 {
-                    bestulongs = FindMineralOnMap(player, ant, bestulongs);
-                    bestulongs = FindMineralDeposit(player, ant, bestulongs);
+                    bestPositions = FindMineralOnMap(player, ant, bestPositions);
+                    bestPositions = FindMineralDeposit(player, ant, bestPositions);
                 }
             }
             else if (ant.AntWorkerType == AntWorkerType.Fighter)
             {
-                bestulongs = FindMineralOnMap(player, ant, bestulongs);
+                bestPositions = FindMineralOnMap(player, ant, bestPositions);
                 //if (bestulongs == null)
-                    bestulongs = FindMineralDeposit(player, ant, bestulongs);
+                    bestPositions = FindMineralDeposit(player, ant, bestPositions);
                 //if (bestulongs == null)
-                    bestulongs = FindMineralContainer(player, ant, bestulongs);
+                    bestPositions = FindMineralContainer(player, ant, bestPositions);
             }
             else
             {
-                bestulongs = FindMineralContainer(player, ant, bestulongs);
+                bestPositions = FindMineralContainer(player, ant, bestPositions);
                 //if (bestulongs == null)
-                    bestulongs = FindMineralOnMap(player, ant, bestulongs);
+                    bestPositions = FindMineralOnMap(player, ant, bestPositions);
                 //if (bestulongs == null)                
-                    bestulongs = FindMineralDeposit(player, ant, bestulongs);
+                    bestPositions = FindMineralDeposit(player, ant, bestPositions);
             }
-            return MakePathFromulongs(bestulongs, ant);
+            return MakePathFromPositions(bestPositions, ant);
         }
 
         public ulong LevelGround(List<Move> moves, Player player, Ant ant)
@@ -1073,7 +1157,7 @@ namespace Engine.Control
                     }
                 }
             }
-            return MakePathFromulongs(bestulongs, ant);
+            return MakePathFromPositions(bestulongs, ant);
         }
 
         internal void UpdateUnitCounters(Ant ant)

@@ -26,7 +26,9 @@ namespace Engine.Master
             if (Level == 2) TileContainer.Capacity = 60;
             if (Level == 3) TileContainer.Capacity = 220;
         }
-
+        /// <summary>
+        /// Transport Range
+        /// </summary>
         public int Range
         {
             get
@@ -47,7 +49,7 @@ namespace Engine.Master
                 if (tile.Pos == Unit.Pos)
                     return true;
 
-                if (!Unit.Owner.Visibleulongs.Contains(tile.Pos))
+                if (!Unit.Owner.VisiblePositions.Contains(tile.Pos))
                     return false;
 
                 return true;

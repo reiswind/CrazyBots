@@ -760,8 +760,8 @@ namespace Engine.Interface
             if (Zones.Count <= 1)
                 return;
 
-            if (zoneCounter == 0)
-                zoneCounter = 1;
+            //if (zoneCounter == 0)
+            //    zoneCounter = 1;
 
             int max = Zones.Count;
             while (max-- > 0)
@@ -770,27 +770,35 @@ namespace Engine.Interface
                 MapZone mapZone = zoneItem.Value;
 
                 if (++zoneCounter >= Zones.Count)
-                    zoneCounter = 1;
+                    zoneCounter = 0;
 
-                if (mapZone.Tiles != null && mapZone.Tiles.Count > 0 &&
-                    (mapZone.MaxMinerals == -1 || mapZone.TotalMinerals < mapZone.MaxMinerals))
+                if (mapZone.Tiles != null && mapZone.Tiles.Count > 0 && mapZone.MaxMinerals > 0)
                 {
-                    int idx = Game.Random.Next(mapZone.Tiles.Count);
-
-                    Tile t = mapZone.Tiles.ElementAt(idx).Value;
-                    if (t != null && t.Minerals < 20)
+                    int totalMins = 0;
+                    foreach (Tile tile in mapZone.Tiles.Values)
                     {
-                        if (t.Unit != null && t.Unit.Engine == null)
-                        {
-                            // Dont drop on buildings
-                        }
-                        else
-                        {
-                            if (!Game.changedGroundulongs.ContainsKey(t.Pos))
-                                Game.changedGroundulongs.Add(t.Pos, null);
+                        totalMins += tile.Minerals;
+                    }
+                    if (totalMins < mapZone.MaxMinerals)
+                    {
 
-                            t.TileContainer.Add(tileObject);
-                            break;
+                        int idx = Game.Random.Next(mapZone.Tiles.Count);
+
+                        Tile t = mapZone.Tiles.ElementAt(idx).Value;
+                        if (t != null && t.Minerals < 20)
+                        {
+                            if (t.Unit != null && t.Unit.Engine == null)
+                            {
+                                // Dont drop on buildings
+                            }
+                            else
+                            {
+                                if (!Game.changedGroundulongs.ContainsKey(t.Pos))
+                                    Game.changedGroundulongs.Add(t.Pos, null);
+
+                                t.TileContainer.Add(tileObject);
+                                break;
+                            }
                         }
                     }
                 }

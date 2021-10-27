@@ -1350,14 +1350,16 @@ namespace Engine.Master
             }
 
             bool somethingChanged = true;
+            List<Move> acceptedMoves = new List<Move>();
+            Dictionary<ulong, Move> moveToTargets = new Dictionary<ulong, Move>();
 
             while (somethingChanged)
             {
                 somethingChanged = false;
-                List<Move> acceptedMoves = new List<Move>();
+                
 
                 // Remove moves that go to the same destination
-                Dictionary<ulong, Move> moveToTargets = new Dictionary<ulong, Move>();
+                
                 foreach (Move move in newMoves)
                 {
                     // Any position that is currently being upgraded or a unit turns from ghost into real
@@ -1393,7 +1395,9 @@ namespace Engine.Master
                         if (moveToTargets.ContainsKey(destination))
                         {
                             // (Hit) Could do nasty things, but for now, the unit does not move
+                            newMoves.Remove(move);
                             somethingChanged = true;
+                            break;
                         }
                         else
                         {
@@ -1409,73 +1413,77 @@ namespace Engine.Master
                         acceptedMoves.Add(move);
                     }
                 }
+            }
 
-                foreach (Move move in moveToTargets.Values)
+            
+            foreach (Move move in moveToTargets.Values)
+            {
+                if (/*move.MoveType == MoveType.Upgrade ||*/ move.MoveType == MoveType.Build)
+                    continue;
+
+                ulong from = move.Positions[0];
+                ulong destination = move.Positions[move.Positions.Count - 1];
+                Tile t = Map.GetTile(destination);
+                if (t == null)
                 {
-                    if (/*move.MoveType == MoveType.Upgrade ||*/ move.MoveType == MoveType.Build)
-                        continue;
-
-                    ulong from = move.Positions[0];
-                    ulong destination = move.Positions[move.Positions.Count - 1];
-                    Tile t = Map.GetTile(destination);
-                    if (t == null)
+                    // Moved outside?
+                    throw new Exception("bah");
+                }
+                else if (!t.CanMoveTo(from))
+                {
+                    // Move to invalid pos
+                    // Happend with bad startup pos
+                    //throw new Exception("how dare you");
+                    //moveToTargets.Remove(move.Positions[move.Positions.Count - 1]);
+                    //somethingChanged = true;
+                    //break;
+                    int x = 0;
+                }
+                else if (t.Unit != null)
+                {
+                    bool unitBlocked = true;
+                    if (move.MoveType == MoveType.Upgrade)
                     {
-                        // Moved outside?
-                        throw new Exception("bah");
-                    }
-                    else if (!t.CanMoveTo(from))
-                    {
-                        // Move to invalid pos
-                        // Happend with bad startup pos
-                        //throw new Exception("how dare you");
-                        moveToTargets.Remove(move.Positions[move.Positions.Count - 1]);
-                        somethingChanged = true;
-                        break;
-                    }
-                    else if (t.Unit != null)
-                    {
-                        bool unitBlocked = true;
-                        if (move.MoveType == MoveType.Upgrade)
+                        // Upgrde this unit is ok
+                        if (t.Unit.UnitId == move.OtherUnitId)
                         {
-                            // Upgrde this unit is ok
-                            if (t.Unit.UnitId == move.OtherUnitId)
-                            {
-                                unitBlocked = false;
-                                acceptedMoves.Add(move);
-                            }
-                        }
-                        else
-                        {
-                            // Move onto another unit? Check if this unit goes away
-                            foreach (Move unitMove in moveToTargets.Values)
-                            {
-                                if ((unitMove.MoveType == MoveType.Move || unitMove.MoveType == MoveType.Build || unitMove.MoveType == MoveType.Add) && t.Unit.UnitId == unitMove.UnitId)
-                                {
-                                    // This unit moves away, so it is ok
-                                    acceptedMoves.Add(move);
-                                    unitBlocked = false;
-                                    break;
-                                }
-                            }
-                        }
-                        if (unitBlocked == true)
-                        {
-                            // (Hit) Could do nasty things, but for now, the unit does not move
-                            somethingChanged = true;
-                        }
-                        else
-                        {
-                            //
+                            unitBlocked = false;
+                            acceptedMoves.Add(move);
                         }
                     }
                     else
                     {
-                        acceptedMoves.Add(move);
+                        // Move onto another unit? Check if this unit goes away
+                        foreach (Move unitMove in moveToTargets.Values)
+                        {
+                            if ((unitMove.MoveType == MoveType.Move || unitMove.MoveType == MoveType.Build || unitMove.MoveType == MoveType.Add) && t.Unit.UnitId == unitMove.UnitId)
+                            {
+                                // This unit moves away, so it is ok
+                                acceptedMoves.Add(move);
+                                unitBlocked = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (unitBlocked == true)
+                    {
+                        // (Hit) Could do nasty things, but for now, the unit does not move
+                        //somethingChanged = true;
+                        int x = 0;
+                    }
+                    else
+                    {
+                        //
                     }
                 }
-                newMoves.Clear();
-                newMoves.AddRange(acceptedMoves);
+                else
+                {
+                    acceptedMoves.Add(move);
+                }
             }
+            newMoves.Clear();
+            newMoves.AddRange(acceptedMoves);
+
         }
 
         internal Dictionary<ulong, Tile> changedGroundulongs = new Dictionary<ulong, Tile>();

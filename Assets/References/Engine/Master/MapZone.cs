@@ -24,7 +24,7 @@ namespace Engine.Interface
     public class MapZone
     {
         public int ZoneId { get; set; }
-        public int TotalMinerals { get; set; }
+        //public int TotalMinerals { get; set; }
         public int MaxMinerals { get; set; }
         public ulong Center { get; set; }
         public Player Player { get; set; }

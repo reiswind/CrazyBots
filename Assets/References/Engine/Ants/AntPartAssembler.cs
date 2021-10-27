@@ -146,10 +146,24 @@ namespace Engine.Ants
                 GameCommand selectedGameCommand = null;
 
                 if (Assembler.Unit.CurrentGameCommand != null &&
-                    !Assembler.Unit.CurrentGameCommand.WaitingForUnit &&
                     Assembler.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build)
                 {
-                    selectedGameCommand = Assembler.Unit.CurrentGameCommand;
+                    if (Assembler.Unit.CurrentGameCommand.CommandComplete)
+                    {
+                        int whereisit = 0;
+                    }
+                    else if (Assembler.Unit.CurrentGameCommand.CommandCanceled)
+                    {
+                        int whereisit = 0;
+                    }
+                    else if (Assembler.Unit.CurrentGameCommand.WaitingForUnit)
+                    {
+                        int whereisit = 0;
+                    }
+                    else
+                    {
+                        selectedGameCommand = Assembler.Unit.CurrentGameCommand;
+                    }
                 }
                 else
                 {
@@ -354,16 +368,14 @@ namespace Engine.Ants
                             ant.GameCommandDuringCreation = passGameCommandToNewUnit;
                             passGameCommandToNewUnit.AttachedUnits.Clear();
                             passGameCommandToNewUnit.AttachedUnits.Add("Assembler-" + this.Ant.PlayerUnit.Unit.UnitId);
-                        }
-                        if (selectedGameCommand != null)
-                        {
-                            selectedGameCommand.WaitingForUnit = true;
 
-                            // It has been build. Upgrading will happen, because unit is nearby
-                            //player.GameCommands.Remove(selectedGameCommand);
-                            //Assembler.Unit.ResetGameCommand();
-                        }
+                            if (selectedGameCommand != null)
+                            {
+                                selectedGameCommand.WaitingForUnit = true;
 
+                                // It has been build. Upgrading will happen, because unit is nearby
+                            }
+                        }
 #if OLDDD
                         if (move.UnitId == "Assembler")
                         {
