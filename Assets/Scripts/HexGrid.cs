@@ -657,10 +657,14 @@ namespace Assets.Scripts
             else
             {
                 string body = "";
+
+                if (GameCommands != null && GameCommands.Count > 0)
+                    body = JsonConvert.SerializeObject(GameCommands);
+
                 using (UnityWebRequest www = UnityWebRequest.Post(serverUrl + "GameMove/" + remoteGameIndex, body))
                 {
                     yield return www.SendWebRequest();
-
+                    GameCommands.Clear();
                     if (www.result == UnityWebRequest.Result.ProtocolError)
                     {
                         Debug.Log(www.error);
