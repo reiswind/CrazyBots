@@ -623,7 +623,7 @@ namespace Assets.Scripts
                     MeshRenderer meshRenderer = cellGameCommand.Command.GetComponent<MeshRenderer>();
                     if (meshRenderer != null)
                     {
-                        if (UnityEditor.EditorApplication.isPlaying)
+                        if (HexMapEditor.IsPlaying)
                         {
                             if (meshRenderer.materials.Length == 1)
                             {

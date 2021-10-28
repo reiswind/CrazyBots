@@ -2,25 +2,11 @@ using Engine.Interface;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
+
 
 namespace Assets.Scripts
 {
-# if EDITOR
-#else
-    namespace UnityEditor
-    {
-        class EditorApplication
-        {
-            public static bool isPlaying
-            {
-                get
-                {
-                    return false;
-                }
-            }
-        }
-    }
-    #endif
     public class UnitCommand
     {
         public MapGameCommand GameCommand { get; set; }
@@ -521,7 +507,7 @@ namespace Assets.Scripts
                 MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
                 if (meshRenderer != null)
                 {
-                    if (UnityEditor.EditorApplication.isPlaying)
+                    if (HexMapEditor.IsPlaying)
                     {
                         if (meshRenderer.materials.Length == 1)
                         {
@@ -633,7 +619,7 @@ namespace Assets.Scripts
             MeshRenderer meshRenderer = unit.GetComponent<MeshRenderer>();
             if (meshRenderer != null)
             {
-                if (UnityEditor.EditorApplication.isPlaying)
+                if (HexMapEditor.IsPlaying)
                 {
                     if (meshRenderer.materials.Length == 1)
                     {

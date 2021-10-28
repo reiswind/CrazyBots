@@ -6,7 +6,14 @@ namespace Assets.Scripts
 	[ExecuteInEditMode]
 	public class HexMapEditor : MonoBehaviour
 	{
-
+		public static bool IsPlaying
+		{
+			get
+			{
+				return UnityEditor.EditorApplication.isPlaying;
+				//return true; For WebGl
+			}
+		}
 		public int ChangeMap;
 
 		public HexGrid hexGrid;
@@ -19,7 +26,7 @@ namespace Assets.Scripts
 			{
 				changeMap = ChangeMap;
 
-				if (!UnityEditor.EditorApplication.isPlaying)
+				if (!HexMapEditor.IsPlaying)
 				{
 					if (changeMap == 0)
 						hexGrid.RemoveAllChildren();

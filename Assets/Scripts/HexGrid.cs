@@ -1551,6 +1551,7 @@ namespace Assets.Scripts
                 return;
             }
             UnitBase unit = InstantiatePrefab<UnitBase>(blueprint.Layout);
+            if (unit == null) return;
 
             unit.CurrentPos = move.Positions[0];
             unit.Direction = (Direction)move.Stats.Direction;
