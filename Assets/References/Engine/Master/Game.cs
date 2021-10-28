@@ -344,7 +344,7 @@ namespace Engine.Master
         private int MoveNr;
         private int CollisionCntr;
 
-        public void UpdateUnitulongs(List<Move> newMoves)
+        public void UpdateUnitPositions(List<Move> newMoves)
         {
             CollisionCntr++;
             if (CollisionCntr == 446)
@@ -1397,6 +1397,9 @@ namespace Engine.Master
                             // (Hit) Could do nasty things, but for now, the unit does not move
                             newMoves.Remove(move);
                             somethingChanged = true;
+
+                            moveToTargets.Clear();
+                            acceptedMoves.Clear();
                             break;
                         }
                         else
@@ -1561,8 +1564,9 @@ namespace Engine.Master
                     return returnMoves;
                 }
 
-                if (MoveNr == 29)
+                if (MoveNr == 393)
                 {
+                    int x = 0;
                 }
 
                 changedUnits.Clear();
@@ -1706,7 +1710,7 @@ namespace Engine.Master
 
                     LogMoves("New Moves after Collisions", MoveNr, newMoves);
 
-                    UpdateUnitulongs(newMoves);
+                    UpdateUnitPositions(newMoves);
 
                     ProcessNewMoves();
                 }

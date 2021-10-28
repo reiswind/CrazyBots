@@ -261,6 +261,11 @@ namespace Engine.Interface
                 return Position.CreatePosition(col, row);
             }
         }
+
+        public override string ToString()
+        {
+            return "Pos: " + Position.GetX(Pos) + "," + Position.GetY(Pos);
+        }
     }
 
     public struct FractionalHex

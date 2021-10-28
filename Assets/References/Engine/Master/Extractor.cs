@@ -215,9 +215,42 @@ namespace Engine.Master
                             }
                             else
                             {
-                                if (Unit.Weapon != null || Unit.Assembler != null)
+                                if (Unit.Assembler != null && t.Unit.Container != null)
                                 {
-                                    // Fighter or assembler extract from container
+                                    bool possibleItem = false;
+                                    foreach (TileObject tileObject in t.Unit.Container.TileContainer.TileObjects)
+                                    {
+                                        if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
+                                            continue;
+
+                                        if (Unit.IsSpaceForTileObject(tileObject))
+                                        {
+                                            possibleItem = true;
+                                            break;
+                                        }
+                                    }
+                                    if (possibleItem)
+                                    {
+                                        Move move = new Move();
+
+                                        move.MoveType = MoveType.Extract;
+
+                                        move.UnitId = Unit.UnitId;
+                                        move.OtherUnitId = t.Unit.UnitId;
+                                        move.Positions = new List<ulong>();
+                                        move.Positions.Add(Unit.Pos);
+                                        move.Positions.Add(t.Pos);
+
+                                        possibleMoves.Add(move);
+                                    }
+                                    else
+                                    {
+                                        int x = 0;
+                                    }
+                                }
+                                if (Unit.Weapon != null)
+                                {
+                                    // Fighter extract from container
                                     Move move = new Move();
 
                                     move.MoveType = MoveType.Extract;

@@ -376,10 +376,11 @@ namespace Engine.Ants
     {
         public int Minerals { get; set; }
         public int AllCollectables { get; set; }
+        public int TotalCapacity { get; set; }
 
         public override string ToString()
         {
-            return "Mins: " + Minerals;
+            return "Mins: " + Minerals + " " + AllCollectables + "/" + TotalCapacity;
         }
     }
 

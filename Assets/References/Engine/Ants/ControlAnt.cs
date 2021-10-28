@@ -187,8 +187,23 @@ namespace Engine.Control
         {
             if (player.PlayerModel.IsHuman)
                 return;
-
             MapZone mapZone = player.Game.Map.Zones[zoneId];
+
+            /*
+            foreach (Tile tileInZone in mapZone.Tiles.Values)
+            {
+                if (!tileInZone.CanBuild())
+                    continue;
+                if (tileInZone.Unit != null &&
+                    tileInZone.Unit.Container != null &&
+                    tileInZone.Unit.Container.Level == 3 &&
+                    (tileInZone.Unit.Container.TileContainer.Capacity - tileInZone.Unit.Container.TileContainer.Count > 10))
+                {
+                    // Duplicate container check failed. If multiple container appear
+                    
+                }
+            }
+            */
 
             foreach (GameCommand gameCommand in player.GameCommands)
             {
@@ -201,132 +216,162 @@ namespace Engine.Control
                 }
             }
 
-            /*
-            int idx = player.Game.Random.Next(mapZone.Tiles.Count);
-            Tile tile = mapZone.Tiles.Values.ToArray()[idx];
+            // List of nearby containers
+            List<Ant> neighborContainers = new List<Ant>();
+            List<Ant> neighborAssemblers = new List<Ant>();
 
-            Pheromone pheromone = player.Game.Pheromones.FindAt(tile.Pos);
-
-            if (pheromone == null || pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Energy) == 0)
+            foreach (Ant ant in Ants.Values)
             {
-                // Cannot build here
-                return;
-            }*/
-
-            //int dispatcherRange = 12;
-
-            List<Tile> possiblePositionsInZone = new List<Tile>();
-            List<Tile> possibleNeighborsInZone = new List<Tile>();
-            foreach (Tile tileInZone in mapZone.Tiles.Values)
-            {
-                if (!tileInZone.CanBuild())
-                    continue;
-                if (tileInZone.Unit != null)
+                if (ant != null &&
+                    !ant.UnderConstruction)
                 {
-                    if (tileInZone.Unit.IsComplete() &&
-                        !tileInZone.Unit.ExtractMe &&
-                        tileInZone.Unit.Container != null &&
-                        tileInZone.Unit.Engine == null &&
-                        tileInZone.Unit.Owner.PlayerModel.Id == player.PlayerModel.Id)
-                    {
-                        // Already a Container in zone.
-                        foreach (Tile n in tileInZone.Neighbors)
-                        {
-                            if (!n.CanBuild())
-                                continue;
-                            if (n.Unit != null)
-                                continue;
-
-                            if (!possibleNeighborsInZone.Contains(n))
-                                possibleNeighborsInZone.Add(n);
-                        }
-                    }
-                    continue;
-                }
-                
-                possiblePositionsInZone.Add(tileInZone);
-            }
-
-            ulong buildPosition = Position.Null;
-            if (possibleNeighborsInZone != null && possibleNeighborsInZone.Count > 0)
-            {
-                // Build next to an existing container
-                buildPosition = possibleNeighborsInZone[0].Pos;
-            }
-            else
-            {
-                List<ulong> bestPositions = null;
-                foreach (Ant antContainer in Ants.Values)
-                {
-                    if (antContainer != null &&
-                        !antContainer.UnderConstruction &&
-                        antContainer.PlayerUnit.Unit.Container != null)
+                    if (ant.PlayerUnit.Unit.Assembler != null && ant.PlayerUnit.Unit.Engine == null)
                     {
                         // Not too far away
-                        int d = CubePosition.Distance(mapZone.Center, antContainer.PlayerUnit.Unit.Pos);
-                        if (d > 16) continue;
+                        int d = CubePosition.Distance(mapZone.Center, ant.PlayerUnit.Unit.Pos);
+                        if (d > 20) continue;
 
-                        foreach (Tile tileInZone in possiblePositionsInZone)
-                        {
-                            List<ulong> positions = player.Game.FindPath(antContainer.PlayerUnit.Unit.Pos, tileInZone.Pos, antContainer.PlayerUnit.Unit);
-                            if (positions != null && positions.Count > 8)
-                            {
-                                if (bestPositions == null || bestPositions.Count > positions?.Count)
-                                {
-                                    bestPositions = positions;
-                                }
-                            }
-                        }
+                        neighborAssemblers.Add(ant);
+                    }
+                    if (ant.PlayerUnit.Unit.Container != null && ant.PlayerUnit.Unit.Engine == null)
+                    {
+                        // Not too far away
+                        int d = CubePosition.Distance(mapZone.Center, ant.PlayerUnit.Unit.Pos);
+                        if (d > 20) continue;
+
+                        neighborContainers.Add(ant);
                     }
                 }
+            }
+            
 
-                if (bestPositions != null)
+            int bestScore = 0;
+            List<ulong> possibleBuildLocations = new List<ulong>();
+
+            List<ulong> suggestedBuildLocations = new List<ulong>();
+            suggestedBuildLocations.Add(mapZone.Center);
+
+            CubePosition center = new CubePosition(mapZone.Center);
+            AddBuildLocation(suggestedBuildLocations, center, Direction.S);
+            AddBuildLocation(suggestedBuildLocations, center, Direction.SE);
+            AddBuildLocation(suggestedBuildLocations, center, Direction.SW);
+            AddBuildLocation(suggestedBuildLocations, center, Direction.N);
+            AddBuildLocation(suggestedBuildLocations, center, Direction.NW);
+            AddBuildLocation(suggestedBuildLocations, center, Direction.NE);
+
+            foreach (ulong suggestedBuildLocation in suggestedBuildLocations)
+            {
+                foreach (Ant ant in neighborContainers)
                 {
-                    buildPosition = bestPositions[bestPositions.Count - 1];
+                    // Draw a line from each container
+                    CubePosition to = new CubePosition(suggestedBuildLocation);
+                    CubePosition from = new CubePosition(ant.PlayerUnit.Unit.Pos);
+
+                    List<CubePosition> line = FractionalHex.HexLinedraw(from, to);
+                    if (line == null || line.Count < 5)
+                    {
+                        // Minimal distance
+                        continue;
+                    }
+                    for (int n=5; n < line.Count; n++)
+                    {
+                        Tile tile = player.Game.Map.GetTile(line[n].Pos);
+                        if (tile.ZoneId != mapZone.ZoneId)
+                            continue;
+
+                        if (!tile.CanBuild())
+                            continue;
+                        if (tile.Unit != null)
+                            continue;
+
+                        // Is it in powered zone?
+                        Pheromone pheromone = player.Game.Pheromones.FindAt(tile.Pos);
+                        if (pheromone == null || pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Energy) == 0)
+                        {
+                            // Cannot build here, no power
+                            continue;
+                        }
+
+                        // Can the location be reached?
+                        bool pathPossible = false;
+                        foreach (Ant antAssembler in neighborAssemblers)
+                        {
+                            List<ulong> positions = player.Game.FindPath(antAssembler.PlayerUnit.Unit.Pos, tile.Pos, null);
+                            if (positions == null)
+                                continue;
+                            pathPossible = true;
+                            break;
+                        }
+                        if (!pathPossible)
+                            continue;
+
+                        // Count number of containers in range
+                        int score = 0;
+                        foreach (Ant antContainer in neighborContainers)
+                        {
+                            // Not too far away
+                            int d = CubePosition.Distance(tile.Pos, antContainer.PlayerUnit.Unit.Pos);
+                            if (d <= 12)
+                                score++;
+                        }
+                        if (score > bestScore)
+                        {
+                            possibleBuildLocations.Clear();
+                            bestScore = score;
+                            possibleBuildLocations.Add(tile.Pos);
+                            // Check this position and so on
+                            //buildPosition = line[n].Pos;
+                            //break;
+                        }
+                        else if (score == bestScore)
+                        {
+                            possibleBuildLocations.Add(tile.Pos);
+                        }
+                    }
+
+                    
                 }
             }
 
-            
-            if (buildPosition != Position.Null)
+            if (possibleBuildLocations.Count > 0)
             {
-                Tile tile = player.Game.Map.GetTile(buildPosition);
+                // pick a rondom of the best
+                int idx = player.Game.Random.Next(possibleBuildLocations.Count);
+                ulong buildPosition = possibleBuildLocations[idx];
 
-                // outside?
-                Pheromone pheromone = player.Game.Pheromones.FindAt(tile.Pos);
-                if (pheromone == null || pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Energy) == 0)
+                // Simple the first one BUILD-STEP1 (KI: Select fixed blueprint)
+                GameCommand gameCommand = new GameCommand();
+                gameCommand.GameCommandType = GameCommandType.Build;
+                gameCommand.TargetPosition = buildPosition;
+                gameCommand.PlayerId = player.PlayerModel.Id;
+                gameCommand.TargetZone = zoneId;
+                gameCommand.DeleteWhenFinished = true;
+
+                foreach (BlueprintCommand blueprintCommand in player.Game.Blueprints.Commands)
                 {
-                    // Cannot build here, no power
-                    int nopower = 0;
-                }
-                else
-                {
-                    if (tile.Unit == null && tile.CanBuild())
+                    if (blueprintCommand.Name == "Container")
                     {
-                        // Simple the first one BUILD-STEP1 (KI: Select fixed blueprint)
-                        GameCommand gameCommand = new GameCommand();
-                        gameCommand.GameCommandType = GameCommandType.Build;
-                        gameCommand.TargetPosition = tile.Pos;
-                        gameCommand.PlayerId = player.PlayerModel.Id;
-                        gameCommand.TargetZone = zoneId;
-                        gameCommand.DeleteWhenFinished = true;
-
-                        foreach (BlueprintCommand blueprintCommand in player.Game.Blueprints.Commands)
-                        {
-                            if (blueprintCommand.Name == "Container")
-                            {
-                                gameCommand.BlueprintCommand = blueprintCommand;
-                                break;
-                            }
-                        }
-
-                        if (gameCommand.BlueprintCommand != null)
-                        {
-                            player.GameCommands.Add(gameCommand);
-                        }
+                        gameCommand.BlueprintCommand = blueprintCommand;
+                        break;
                     }
+                }
+
+                if (gameCommand.BlueprintCommand != null)
+                {
+                    player.GameCommands.Add(gameCommand);
                 }
             }
         }
+
+        public void AddBuildLocation(List<ulong> suggestedBuildLocations, CubePosition cubePosition, Direction direction)
+        {
+            CubePosition ndir = cubePosition;
+
+            for (int i = 0; i < 8; i++)
+                ndir = ndir.GetNeighbor(direction);
+            suggestedBuildLocations.Add(ndir.Pos);
+        }
+
 
         public static bool HasMoved(List<Move> moves, Unit unit)
         {
@@ -2083,23 +2128,6 @@ namespace Engine.Control
                 }
                 if (ant.AntPartContainer != null)
                 {
-                    Tile tile = player.Game.Map.GetTile(ant.PlayerUnit.Unit.Pos);
-                    AntCollect antCollect;
-                    if (!exceedingMinerals.TryGetValue(tile.ZoneId, out antCollect))
-                    {
-                        antCollect = new AntCollect();
-                        exceedingMinerals.Add(tile.ZoneId, antCollect);
-                    }
-                    if (ant.AntPartEngine != null)
-                    {
-                        antCollect.AllCollectables += ant.AntPartContainer.Container.TileContainer.Count;
-                    }
-                    else
-                    {
-                        int freeSpace = ant.AntPartContainer.Container.TileContainer.Capacity - ant.AntPartContainer.Container.TileContainer.Count;
-                        antCollect.AllCollectables -= freeSpace;
-                    }
-
                     if (CheckTransportMove(ant, moves))
                     {
                         movableAnts.Remove(ant);
@@ -2180,11 +2208,54 @@ namespace Engine.Control
                 Ants.Remove(ant.PlayerUnit.Unit.UnitId);
             }
 
+            // Count capacities 
+            foreach (Ant ant in Ants.Values)
+            {
+               
+                if (ant.AntPartContainer != null)
+                {
+                    Tile tile = player.Game.Map.GetTile(ant.PlayerUnit.Unit.Pos);
+                    AntCollect antCollect;
+                    if (!exceedingMinerals.TryGetValue(tile.ZoneId, out antCollect))
+                    {
+                        antCollect = new AntCollect();
+                        exceedingMinerals.Add(tile.ZoneId, antCollect);
+                    }
+                    if (ant.AntPartEngine != null)
+                    {
+                        antCollect.AllCollectables += ant.AntPartContainer.Container.TileContainer.Count;
+                    }
+                    else
+                    {
+                        antCollect.TotalCapacity += ant.AntPartContainer.Container.TileContainer.Capacity - ant.AntPartContainer.Container.TileContainer.Count;
+                    }
+                }
+            }
+
+            foreach (GameCommand gameCommand in player.GameCommands)
+            {
+                if (gameCommand.GameCommandType == GameCommandType.Build)
+                {
+                    foreach (BlueprintCommandItem blueprintCommandItem in gameCommand.BlueprintCommand.Units)
+                    {
+                        if (blueprintCommandItem.BlueprintName == "Container")
+                        {
+                            AntCollect antCollect;
+                            if (exceedingMinerals.TryGetValue(gameCommand.TargetZone, out antCollect))
+                            {
+                                // Container in build
+                                antCollect.TotalCapacity += 72;
+                            }
+                        }
+                    }
+                }
+            }
             foreach (KeyValuePair<int, AntCollect> keypair in exceedingMinerals)
             {
                 int zoneId = keypair.Key;
                 AntCollect antCollect = keypair.Value;
-                if (antCollect.AllCollectables > 5)
+
+                if (antCollect.TotalCapacity < 10 && antCollect.AllCollectables > 5)
                 {
                     CreateCommandForContainerInZone(player, zoneId);
                 }

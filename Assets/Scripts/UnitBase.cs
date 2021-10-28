@@ -5,6 +5,22 @@ using UnityEngine;
 
 namespace Assets.Scripts
 {
+# if EDITOR
+#else
+    namespace UnityEditor
+    {
+        class EditorApplication
+        {
+            public static bool isPlaying
+            {
+                get
+                {
+                    return false;
+                }
+            }
+        }
+    }
+    #endif
     public class UnitCommand
     {
         public MapGameCommand GameCommand { get; set; }

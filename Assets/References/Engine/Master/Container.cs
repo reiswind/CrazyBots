@@ -44,6 +44,10 @@ namespace Engine.Master
             if (TileContainer.TileObjects.Count() == 0)
                 return;
 
+            // For now: Only Minerals are transported
+            if (TileContainer.Minerals == 0)
+                return;
+
             Dictionary<ulong, TileWithDistance> tiles = Unit.Game.Map.EnumerateTiles(Unit.Pos, Range, false, matcher: tile =>
             {
                 if (tile.Pos == Unit.Pos)
@@ -58,6 +62,10 @@ namespace Engine.Master
 
             foreach (TileWithDistance n in tiles.Values)
             {
+                // Do not transport to direct neighbors, there should be an extractor
+                if (n.Distance <= 1)
+                    continue;
+
                 if (n.Unit != null && 
                     n.Unit.Owner.PlayerModel.Id != 0 && 
                     n.Unit.Owner == Unit.Owner &&
