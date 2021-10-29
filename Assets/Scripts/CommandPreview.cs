@@ -49,7 +49,7 @@ namespace Assets.Scripts
         {
             if (previewGameCommand != null)
             {                
-                Command?.SetSelected(false);
+                //Command?.SetSelected(false);
 
                 HexGrid.Destroy(previewGameCommand);
                 previewGameCommand = null;
@@ -230,11 +230,10 @@ namespace Assets.Scripts
             Command = previewGameCommand.GetComponent<Command>();
             Command.CommandPreview = this;
         }
-        public  bool IsSelected { get; private set; }
+        public bool IsSelected { get { return Command.IsSelected; } }
         public void SetSelected(bool value)
         {
-            IsSelected = value;
-            Command.SetSelected(IsSelected);
+            Command.SetSelected(value);
         }
         public void SetActive(bool value)
         {
@@ -262,7 +261,6 @@ namespace Assets.Scripts
         {
             CreateCommandLogo();
             IsPreview = true;
-            Command.SetSelected(true);
 
             foreach (BlueprintCommandItem blueprintCommandItem in GameCommand.BlueprintCommand.Units)
             {
@@ -306,6 +304,13 @@ namespace Assets.Scripts
 
                 PreviewUnits.Add(commandAttachedUnit);
             }
+        }
+        public override string ToString()
+        {
+            if (GameCommand != null)
+                return GameCommand.ToString();
+
+            return base.ToString();
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Assets.Scripts
     {
         public CommandPreview CommandPreview { get; set; }
 
-        private bool IsSelected { get; set; }
+        public bool IsSelected { get; private set; }
 
         public void SetSelected(bool value)
         {
@@ -136,27 +136,27 @@ namespace Assets.Scripts
                         commandAttachedUnit.Line = Instantiate(waypointPrefab, transform, false);
                         commandAttachedUnit.Line.name = "Waypoint";
                     }
-                    
 
+                    commandAttachedUnit.Line.SetActive(true);
                     var lr = commandAttachedUnit.Line.GetComponent<LineRenderer>();
 
-                        /*
-                        if (com unitCommand.GameCommand.GameCommandType == GameCommandType.Attack)
-                        {
-                            //lr.startWidth = 0.1f;
-                            lr.startColor = Color.red;
-                            //lr.endWidth = 0.1f;
-                            lr.endColor = Color.red;
-                        }
+                    /*
+                    if (com unitCommand.GameCommand.GameCommandType == GameCommandType.Attack)
+                    {
+                        //lr.startWidth = 0.1f;
+                        lr.startColor = Color.red;
+                        //lr.endWidth = 0.1f;
+                        lr.endColor = Color.red;
+                    }
 
-                        if (unitCommand.GameCommand.GameCommandType == GameCommandType.Collect)
-                        {
-                            //lr.startWidth = 0.1f;
-                            lr.startColor = Color.green;
-                            //lr.endWidth = 0.1f;
-                            lr.endColor = Color.green;
-                        }*/
-                    
+                    if (unitCommand.GameCommand.GameCommandType == GameCommandType.Collect)
+                    {
+                        //lr.startWidth = 0.1f;
+                        lr.startColor = Color.green;
+                        //lr.endWidth = 0.1f;
+                        lr.endColor = Color.green;
+                    }*/
+
                     Vector3 v1 = transform.position;
 
                     if (commandAttachedUnit.UnitBase == null ||
@@ -183,6 +183,15 @@ namespace Assets.Scripts
                 else
                     transform.Rotate(Vector3.up); // * Time.deltaTime);
             }*/
+
+            else
+            {
+                foreach (CommandAttachedUnit commandAttachedUnit in selectedCommandUnits.Values) //CommandPreview.PreviewUnits)
+                {
+                    if (commandAttachedUnit.Line != null)
+                        commandAttachedUnit.Line.SetActive(false);
+                }
+            }
         }
     }
 }
