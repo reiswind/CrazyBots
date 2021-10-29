@@ -19,6 +19,7 @@ namespace Engine.Interface
         Move,
         Collect,
         Build,
+        AddUnits,
         Extract
     }
 

@@ -560,7 +560,7 @@ namespace Assets.Scripts
                 {
                     cellGameCommand = new CommandPreview();
                     cellGameCommand.GameCommand = gameCommand;
-                    cellGameCommand.CreateCommandPreview();
+                    cellGameCommand.CreateCommandPreview(this);
                     cellGameCommand.SetActive(false);
                     cellGameCommand.SetPosition(this);
                     cellGameCommand.Touched = true;

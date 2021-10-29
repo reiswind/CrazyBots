@@ -25,6 +25,51 @@ namespace Engine.Interface
         public List<MapGameCommand> GameCommands { get; set; }
     }
 
+    public class MapBlueprintCommandItem
+    {
+        public CubePosition CubePosition { get; set; }
+        public Direction Direction { get; set; }
+        public string BlueprintName { get; set; }
+    }
+
+    public class MapBlueprintCommand
+    {
+        public MapBlueprintCommand()
+        {
+            Units = new List<MapBlueprintCommandItem>();
+        }
+        public string Name { get; set; }
+        public string Layout { get; set; }
+
+        public GameCommandType GameCommandType { get; set; }
+
+        public List<MapBlueprintCommandItem> Units { get; private set; }
+
+        internal BlueprintCommand Copy()
+        {
+            BlueprintCommand mapBlueprintCommand = new BlueprintCommand();
+
+            mapBlueprintCommand.GameCommandType = GameCommandType;
+            mapBlueprintCommand.Layout = Layout;
+            mapBlueprintCommand.Name = Name;
+            foreach (MapBlueprintCommandItem mapBlueprintCommandItem in Units)
+            {
+                BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
+                blueprintCommandItem.BlueprintName = mapBlueprintCommandItem.BlueprintName;
+                blueprintCommandItem.Direction = mapBlueprintCommandItem.Direction;
+                blueprintCommandItem.CubePosition = mapBlueprintCommandItem.CubePosition;
+                mapBlueprintCommand.Units.Add(blueprintCommandItem);
+            }
+            return mapBlueprintCommand;
+        }
+
+        public override string ToString()
+        {
+            return Name;
+        }
+    }
+
+
     public class MapGameCommand
     {
         public MapGameCommand()
@@ -42,7 +87,7 @@ namespace Engine.Interface
         public ulong TargetPosition { get; set; }
         public ulong MoveToPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
-        public BlueprintCommand BlueprintCommand { get; set; }
+        public MapBlueprintCommand BlueprintCommand { get; set; }
         public List<string> AttachedUnits { get; private set; }
 
         public override string ToString()
@@ -167,7 +212,8 @@ namespace Engine.Interface
 
                             foreach (string id in gameCommand.AttachedUnits)
                                 mapGameCommand.AttachedUnits.Add(id);
-                            mapGameCommand.BlueprintCommand = gameCommand.BlueprintCommand;
+
+                            mapGameCommand.BlueprintCommand = gameCommand.BlueprintCommand.Copy();
                             mapGameCommand.CommandCanceled = gameCommand.CommandCanceled;
                             mapGameCommand.CommandComplete = gameCommand.CommandComplete;
                             mapGameCommand.DeleteWhenFinished = gameCommand.DeleteWhenFinished;

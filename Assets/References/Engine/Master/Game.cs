@@ -1652,7 +1652,8 @@ namespace Engine.Master
 
                         foreach (string id in mapGameCommand.AttachedUnits)
                             gameCommand.AttachedUnits.Add(id);
-                        gameCommand.BlueprintCommand = mapGameCommand.BlueprintCommand;
+
+                        gameCommand.BlueprintCommand = mapGameCommand.BlueprintCommand.Copy();
                         gameCommand.DeleteWhenFinished = mapGameCommand.DeleteWhenFinished;
                         gameCommand.CommandCanceled = mapGameCommand.CommandCanceled;
                         gameCommand.CommandComplete = mapGameCommand.CommandComplete;

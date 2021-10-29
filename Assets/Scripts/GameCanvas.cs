@@ -451,6 +451,14 @@ namespace Assets.Scripts
             }
         }
 
+        void AddUnitCommand(string bluePrint)
+        {
+            if (currentCommandPreview != null)
+            {
+                currentCommandPreview.AddUnitCommand(bluePrint);
+                SetMode(CanvasMode.CommandPreview);
+            }
+        }
         void MoveCommand()
         {
             if (currentCommandPreview != null)
@@ -478,7 +486,7 @@ namespace Assets.Scripts
                 //if (blueprintCommand.GameCommandType == GameCommandType.Build)
                 {
                     currentCommandPreview = new CommandPreview();
-                    currentCommandPreview.CreateCommandForBuild(blueprintCommand);
+                    currentCommandPreview.CreateCommandForBuild(blueprintCommand.Copy());
 
                     SetMode(CanvasMode.CommandPreview);
                 }
@@ -506,6 +514,10 @@ namespace Assets.Scripts
                 else if (btn == 4)
                 {
                     CancelCommand();
+                }
+                else if (btn == 5)
+                {
+                    AddUnitCommand("Fighter");
                 }
             }
         }
@@ -781,10 +793,6 @@ namespace Assets.Scripts
             }
             if (Input.GetMouseButtonDown(1))
             {
-                if (canvasMode != CanvasMode.Select)
-                {
-                    SetMode(CanvasMode.Select);
-                }
                 SelectNothing();
                 if (lastSelectedGroundCell != null)
                 {
@@ -1059,8 +1067,17 @@ namespace Assets.Scripts
         private void SelectNothing()
         {
             ShowNothing();
-            CloseCommandPreview();
-            SetMode(CanvasMode.Select);
+
+            if (currentCommandPreview != null && currentCommandPreview.IsInSubCommandMode)
+            {
+                currentCommandPreview.CancelSubCommand();
+                SetMode(CanvasMode.Command);
+            }
+            else
+            {
+                CloseCommandPreview();
+                SetMode(CanvasMode.Select);
+            }
         }
 
         private CommandPreview lastCommandPreview;

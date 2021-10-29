@@ -117,6 +117,7 @@ namespace Engine.Interface
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Worker";
+            blueprintCommandItem.CubePosition = new CubePosition();
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
@@ -130,6 +131,7 @@ namespace Engine.Interface
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Fighter";
+            blueprintCommandItem.CubePosition = new CubePosition();
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
@@ -143,6 +145,7 @@ namespace Engine.Interface
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Bomber";
+            blueprintCommandItem.CubePosition = new CubePosition();
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
@@ -280,6 +283,24 @@ namespace Engine.Interface
 
         public List<BlueprintCommandItem> Units { get; private set; }
 
+        public MapBlueprintCommand Copy()
+        {
+            MapBlueprintCommand mapBueprintCommand = new MapBlueprintCommand();
+
+            mapBueprintCommand.GameCommandType = GameCommandType;
+            mapBueprintCommand.Layout = Layout;
+            mapBueprintCommand.Name = Name;
+            foreach (BlueprintCommandItem mapBlueprintCommandItem in Units)
+            {
+                MapBlueprintCommandItem blueprintCommandItem = new MapBlueprintCommandItem();
+                blueprintCommandItem.BlueprintName = mapBlueprintCommandItem.BlueprintName;
+                blueprintCommandItem.Direction = mapBlueprintCommandItem.Direction;
+                blueprintCommandItem.CubePosition = mapBlueprintCommandItem.CubePosition;
+                mapBueprintCommand.Units.Add(blueprintCommandItem);
+            }
+            return mapBueprintCommand;
+        }
+
         public override string ToString()
         {
             return Name;
@@ -288,6 +309,7 @@ namespace Engine.Interface
 
     public class BlueprintCommandItem
     {
+        public CubePosition CubePosition { get; set; }
         public Direction Direction { get; set; }
         public string BlueprintName { get; set; }
     }

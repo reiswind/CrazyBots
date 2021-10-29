@@ -38,11 +38,11 @@ namespace Assets.Scripts
 
         public List<CommandAttachedUnit> PreviewUnits { get; set; }
 
-        public void CreateCommandForBuild(BlueprintCommand blueprintCommand)
+        public void CreateCommandForBuild(MapBlueprintCommand blueprintCommand)
         {
             GameCommand.BlueprintCommand = blueprintCommand;
             GameCommand.GameCommandType = blueprintCommand.GameCommandType;
-            CreateCommandPreview();
+            
         }
 
         public void Delete()
@@ -96,7 +96,49 @@ namespace Assets.Scripts
         private bool isMoveMode;
         public void SelectMoveMode()
         {
+            
             isMoveMode = true;
+        }
+
+        private UnitBase addPreviewUnit;
+        public void AddUnitCommand(string bluePrint)
+        {
+            Blueprint blueprint = HexGrid.MainGrid.game.Blueprints.FindBlueprint(bluePrint);
+            addPreviewUnit = HexGrid.MainGrid.CreateTempUnit(blueprint);
+            addPreviewUnit.DectivateUnit();
+            addPreviewUnit.transform.SetParent(previewGameCommand.transform, false);
+
+            GameObject previewUnitMarker = HexGrid.MainGrid.InstantiatePrefab("GroundFrame");
+            previewUnitMarker.transform.SetParent(addPreviewUnit.transform, false);
+
+            Vector3 unitPos3 = addPreviewUnit.transform.position;
+            unitPos3.y -= 0.1f;
+            previewUnitMarker.transform.position = unitPos3;
+        }
+        public void CancelSubCommand()
+        {
+            if (isMoveMode)
+            {
+                GroundCell gc;
+                if (HexGrid.MainGrid.GroundCells.TryGetValue(GameCommand.TargetPosition, out gc))
+                {
+                    SetPosition(gc);
+                }
+                isMoveMode = false;
+            }
+            if (addPreviewUnit != null)
+            {
+                addPreviewUnit.Delete();
+                addPreviewUnit = null;
+            }
+        }
+
+        public bool IsInSubCommandMode
+        {
+            get
+            {
+                return isMoveMode || addPreviewUnit != null;
+            }
         }
 
         public void CancelCommand()
@@ -111,12 +153,53 @@ namespace Assets.Scripts
 
             HexGrid.MainGrid.GameCommands.Add(gameCommand);
         }
-
+        public bool CanExecute()
+        {
+            if (addPreviewUnit == null)
+            {
+                return displayPosition != Position.Null;
+            }
+            else
+            {
+                return displayPosition != Position.Null;
+            }
+        }
         public void Execute()
         {
             if (displayPosition != Position.Null)
             {
-                if (isMoveMode)
+                if (addPreviewUnit != null)
+                {
+                    // Add unit
+                    MapGameCommand gameCommand = new MapGameCommand();
+
+                    gameCommand.TargetPosition = GameCommand.TargetPosition;
+                    gameCommand.GameCommandType = GameCommandType.AddUnits;
+                    gameCommand.BlueprintCommand = GameCommand.BlueprintCommand;
+                    gameCommand.PlayerId = 1;
+
+                    CubePosition cubePosition = new CubePosition(displayPosition);
+                    CubePosition commandCenter = new CubePosition(GameCommand.TargetPosition);
+                    CubePosition relative = commandCenter.Subtract(cubePosition);
+
+                    MapBlueprintCommandItem blueprintCommandItem = new MapBlueprintCommandItem();
+                    blueprintCommandItem.BlueprintName = "Fighter";
+                    blueprintCommandItem.Direction = Direction.N; //??
+                    blueprintCommandItem.CubePosition = relative;
+                    gameCommand.BlueprintCommand.Units.Add(blueprintCommandItem);
+
+                    addPreviewUnit.Delete();
+                    addPreviewUnit = null;
+
+                    //HexGrid.MainGrid.GameCommands.Add(gameCommand);
+                    GroundCell gc;
+                    if (HexGrid.MainGrid.GroundCells.TryGetValue(GameCommand.TargetPosition, out gc))
+                    {
+                        CreateCommandPreview(gc);
+                    }
+                    
+                }
+                else if (isMoveMode)
                 {
                     MapGameCommand gameCommand = new MapGameCommand();
 
@@ -127,6 +210,7 @@ namespace Assets.Scripts
                     gameCommand.MoveToPosition = displayPosition;
 
                     HexGrid.MainGrid.GameCommands.Add(gameCommand);
+                    // Preview remains, the real gamecomand should be at the same position
                 }
                 else
                 {
@@ -158,50 +242,79 @@ namespace Assets.Scripts
             }
             return true;
         }
+        /*
         public void CreateAtPosition(GroundCell groundCell)
         {
             if (previewGameCommand == null)
                 CreateCommandLogo();
             UpdatePositions(groundCell);
-        }
+        }*/
 
         private ulong displayPosition;
 
         public void SetPosition(GroundCell groundCell)
         {
-            if (groundCell == null)
+            if (previewGameCommand == null)
             {
-                if (previewGameCommand != null)
-                    previewGameCommand.SetActive(false);
-                displayPosition = Position.Null;
+                CreateCommandPreview(groundCell);
+            }
+            if (addPreviewUnit != null)
+            {
+                if(groundCell == null)
+                {
+                    addPreviewUnit.gameObject.SetActive(false);
+                    displayPosition = Position.Null;
+                }
+                else
+                {
+                    bool positionok;
+                    positionok = CanCommandAt(groundCell);
+                    if (positionok)
+                    {
+                        addPreviewUnit.transform.SetParent(groundCell.transform, false);
+                        addPreviewUnit.gameObject.SetActive(true);
+                        displayPosition = groundCell.Pos;
+                    }
+                    else
+                    {
+                        addPreviewUnit.gameObject.SetActive(false);
+                        displayPosition = Position.Null;
+                    }
+                }
             }
             else
             {
-                bool positionok;
-                if (GameCommand.GameCommandType == GameCommandType.Build)
-                    positionok = CanBuildAt(groundCell);
-                else
-                    positionok = CanCommandAt(groundCell);
-                if (positionok)
-                {
-                    displayPosition = groundCell.Pos;
-                    UpdatePositions(groundCell);
-                    if (previewGameCommand != null)
-                        previewGameCommand.SetActive(true);
-                }
-                else
+                if (groundCell == null)
                 {
                     if (previewGameCommand != null)
                         previewGameCommand.SetActive(false);
                     displayPosition = Position.Null;
                 }
+                else
+                {
+                    bool positionok;
+                    if (GameCommand.GameCommandType == GameCommandType.Build)
+                        positionok = CanBuildAt(groundCell);
+                    else
+                        positionok = CanCommandAt(groundCell);
+                    if (positionok)
+                    {
+                        displayPosition = groundCell.Pos;
+                        UpdatePositions(groundCell);
+                        if (previewGameCommand != null)
+                            previewGameCommand.SetActive(true);
+                    }
+                    else
+                    {
+                        if (previewGameCommand != null)
+                            previewGameCommand.SetActive(false);
+                        displayPosition = Position.Null;
+                    }
+                }
             }
         }
 
-        public bool CanExecute()
-        {
-            return displayPosition != Position.Null;
-        }
+
 
         private static float aboveGround = 2.09f;
 
@@ -225,15 +338,27 @@ namespace Assets.Scripts
                 !string.IsNullOrEmpty(GameCommand.BlueprintCommand.Layout))
                 layout = GameCommand.BlueprintCommand.Layout;
 
+            if (previewGameCommand != null)
+            {
+                HexGrid.Destroy(previewGameCommand);
+            }
             previewGameCommand = HexGrid.Instantiate(HexGrid.MainGrid.GetResource(layout));
 
             Command = previewGameCommand.GetComponent<Command>();
             Command.CommandPreview = this;
         }
-        public bool IsSelected { get { return Command.IsSelected; } }
+        public bool IsSelected
+        {
+            get
+            {
+                if (Command == null) return false;
+                return Command.IsSelected;
+            }
+        }
         public void SetSelected(bool value)
         {
-            Command.SetSelected(value);
+            if (Command != null)
+                Command.SetSelected(value);
         }
         public void SetActive(bool value)
         {
@@ -257,14 +382,14 @@ namespace Assets.Scripts
             return false;
         }
 
-        public void CreateCommandPreview()
+        public void CreateCommandPreview(GroundCell groundCell)
         {
             CreateCommandLogo();
             IsPreview = true;
+            UpdatePositions(groundCell);
 
-            foreach (BlueprintCommandItem blueprintCommandItem in GameCommand.BlueprintCommand.Units)
+            foreach (MapBlueprintCommandItem blueprintCommandItem in GameCommand.BlueprintCommand.Units)
             {
-
                 Blueprint blueprint = HexGrid.MainGrid.game.Blueprints.FindBlueprint(blueprintCommandItem.BlueprintName);
                 UnitBase previewUnit = HexGrid.MainGrid.CreateTempUnit(blueprint);
                 previewUnit.DectivateUnit();
@@ -286,6 +411,15 @@ namespace Assets.Scripts
                     unitPos3.y -= aboveGround - 0.1f; // Unit Above Ground if active
                 else
                     unitPos3.y -= aboveGround;
+
+                CubePosition groundCubePos = new CubePosition(groundCell.Pos);
+                CubePosition unitCubePos = groundCubePos.Add(blueprintCommandItem.CubePosition);
+                GroundCell gc;
+                if (HexGrid.MainGrid.GroundCells.TryGetValue(unitCubePos.Pos, out gc))
+                {
+                    unitPos3.x += groundCell.transform.position.x - gc.transform.position.x;
+                    unitPos3.z += groundCell.transform.position.z - gc.transform.position.z;
+                }
 
                 previewUnit.transform.position = unitPos3;
 
