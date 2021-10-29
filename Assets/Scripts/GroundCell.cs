@@ -637,7 +637,7 @@ namespace Assets.Scripts
                         {
                             if (meshRenderer.sharedMaterials.Length == 1)
                             {
-                                meshRenderer.sharedMaterial.SetColor("Color_main", UnitBase.GetPlayerColor(gameCommand.PlayerId));
+                                //meshRenderer.sharedMaterial.SetColor("Color_main", UnitBase.GetPlayerColor(gameCommand.PlayerId));
                             }
                         }
                     }

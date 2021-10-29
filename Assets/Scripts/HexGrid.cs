@@ -79,7 +79,6 @@ namespace Assets.Scripts
 
             if (GameSpeed == 0)
                 GameSpeed = 0.01f;
-
             //gridCanvas = GetComponentInChildren<Canvas>();
 
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");

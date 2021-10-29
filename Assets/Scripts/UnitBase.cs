@@ -512,14 +512,18 @@ namespace Assets.Scripts
                         if (meshRenderer.materials.Length == 1)
                         {
                             Destroy(meshRenderer.material);
-                            meshRenderer.material = HexGrid.MainGrid.GetMaterial("ghost 1");
+                            meshRenderer.material = HexGrid.MainGrid.GetMaterial("Outline");
+                            meshRenderer.material.SetColor("PlayerColor", GetPlayerColor(playerId));                            
+                            meshRenderer.material.SetFloat("Darkness", 0.9f);
                         }
                     }
                     else
                     {
                         if (meshRenderer.sharedMaterials.Length == 1)
                         {
-                            meshRenderer.sharedMaterial = HexGrid.MainGrid.GetMaterial("ghost 1");
+                            meshRenderer.sharedMaterial = HexGrid.MainGrid.GetMaterial("Outline");
+                            //meshRenderer.sharedMaterial.SetColor("PlayerColor", GetPlayerColor(playerId));
+                            //meshRenderer.sharedMaterial.SetFloat("Darkness", 0.9f);
                         }
                     }
                 }
@@ -545,9 +549,10 @@ namespace Assets.Scripts
 
         internal static Color GetPlayerColor(int playerId)
         {
-            
+
             Color color = Color.black;
-            if (playerId == 1) ColorUtility.TryParseHtmlString("#FFA200", out color);
+            //if (playerId == 1) ColorUtility.TryParseHtmlString("#FFA200", out color);
+            if (playerId == 1) ColorUtility.TryParseHtmlString("#0606AD", out color);
             if (playerId == 2) ColorUtility.TryParseHtmlString("#7D0054", out color);
             if (playerId == 3) ColorUtility.TryParseHtmlString("#1FD9D5", out color);
             if (playerId == 4) ColorUtility.TryParseHtmlString("#1F2ED9", out color);
@@ -628,6 +633,7 @@ namespace Assets.Scripts
                             Destroy(meshRenderer.material);
                             meshRenderer.material = HexGrid.MainGrid.GetMaterial("UnitMaterial");
                         }
+                        
                         meshRenderer.material.SetColor("PlayerColor", GetPlayerColor(playerId));
                         meshRenderer.material.SetFloat("Darkness", 0.9f);
                     }
@@ -638,8 +644,8 @@ namespace Assets.Scripts
                     {
                         //Destroy(meshRenderer.material);
                         //meshRenderer.sharedMaterial = hexGrid.GetMaterial("UnitMaterial");
-                        meshRenderer.sharedMaterial.SetColor("PlayerColor", GetPlayerColor(playerId));
-                        meshRenderer.sharedMaterial.SetFloat("Darkness", 0.9f);
+                        //meshRenderer.sharedMaterial.SetColor("PlayerColor", GetPlayerColor(playerId));
+                        //meshRenderer.sharedMaterial.SetFloat("Darkness", 0.9f);
                     }
                 }
             }

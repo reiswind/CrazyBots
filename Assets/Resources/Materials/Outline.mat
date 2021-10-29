@@ -20,8 +20,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: glow 1
-  m_Shader: {fileID: -6465566751694194690, guid: fe51722219d62724eb4564617a3d3559, type: 3}
+  m_Name: Outline
+  m_Shader: {fileID: -6465566751694194690, guid: ee33988f79563e64588fe6df9d2deb9a, type: 3}
   m_ShaderKeywords: _NORMALMAP_TANGENT_SPACE
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -320,11 +320,11 @@ Material:
     - _ZTestModeDistortion: 4
     - _ZTestTransparent: 4
     - _ZWrite: 1
-    - fresnel_strengh: 2
+    - fresnel_strengh: 0.96
     - ice_level: 0
     - is_selected: 1
-    - metallic: 0.25
-    - smoothness: 0.85
+    - metallic: 0
+    - smoothness: 0
     m_Colors:
     - Color_11936B7C: {r: 30.209383, g: 26.571604, b: 14.551116, a: 0}
     - Color_335D905F: {r: 0, g: 6.954221, b: 10.243966, a: 0}
@@ -334,6 +334,7 @@ Material:
     - Color_C9AD2068: {r: 0.0036642822, g: 0.0049115275, b: 0.0050117923, a: 0}
     - Color_FF25E5FB: {r: 1.8010964, g: 2.670157, b: 2.6636355, a: 0}
     - Color_main: {r: 0.15214807, g: 0.62264144, b: 0.13745096, a: 0}
+    - PlayerColor: {r: 0, g: 0, b: 1, a: 1}
     - Vector2_7A17492F: {r: 2, g: 2, b: 0, a: 0}
     - Vector2_92E06CBD: {r: 1, g: 1, b: 0, a: 0}
     - Vector2_E4CA34D5: {r: 2, g: 2, b: 0, a: 0}
@@ -353,7 +354,8 @@ Material:
     - _UVDetailsMappingMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMaskEmissive: {r: 1, g: 0, b: 0, a: 0}
-    - colorfresnel: {r: 1.964832, g: 0.6561798, b: 0.6561798, a: 0}
+    - colorfresnel: {r: 1, g: 1, b: 1, a: 1}
+    - xxxx: {r: 0.47058824, g: 0.48235294, b: 0.5058824, a: 0.4392157}
   m_BuildTextureStacks: []
 --- !u!114 &5676617978073745963
 MonoBehaviour:
