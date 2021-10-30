@@ -84,8 +84,8 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
             GameModel gameModel;
 
@@ -693,8 +693,7 @@ namespace Assets.Scripts
             {
                 while (!windowClosed)
                 {
-                    long iTicks = DateTime.Now.Ticks;
-                    DateTime tStart = DateTime.Now;
+
 
                     while (!windowClosed)
                     {
@@ -722,8 +721,18 @@ namespace Assets.Scripts
                             }
                         }
                     }
+
+                    long iTicks = DateTime.Now.Ticks;
+                    DateTime tStart = DateTime.Now;
+
                     List<Move> current = game.ProcessMove(id, nextMove, newGameCommands);
                     newGameCommands = null;
+
+                    double mstotal = (DateTime.Now - tStart).TotalMilliseconds;
+                    if (mstotal > 500)
+                        Debug.Log("Move Time: " + mstotal);
+
+                    //Debug.Log("Move Time: " + (DateTime.Now.Ticks - iTicks).ToString());
 
                     if (newMoves.Count > 0)
                     {
@@ -786,6 +795,7 @@ namespace Assets.Scripts
 
                 if (MapInfo != null)
                 {
+                    /*
                     foreach (ulong pos in MapInfo.Pheromones.Keys)
                     {
                         MapPheromone mapPheromone = MapInfo.Pheromones[pos];
@@ -800,7 +810,7 @@ namespace Assets.Scripts
                         GroundCell hexCell = GroundCells[pos];
                         hexCell.UpdatePheromones(null);
                     }
-
+                    */
                     updatedPositions = newUpdatedPositions;
                     if (GroundCells.Count > 0)
                     {

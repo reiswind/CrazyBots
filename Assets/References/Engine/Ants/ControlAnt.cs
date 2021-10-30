@@ -93,6 +93,7 @@ namespace Engine.Control
             }
             staticMineralDeposits.Clear();
 
+
             foreach (ulong pos in player.VisiblePositions)
             {
                 Tile tile = player.Game.Map.GetTile(pos);
@@ -2209,9 +2210,9 @@ namespace Engine.Control
             }
 
             // Count capacities 
+            
             foreach (Ant ant in Ants.Values)
             {
-               
                 if (ant.AntPartContainer != null)
                 {
                     Tile tile = player.Game.Map.GetTile(ant.PlayerUnit.Unit.Pos);

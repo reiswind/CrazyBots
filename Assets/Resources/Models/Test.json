@@ -9,13 +9,13 @@
       "ControlLevel": 1,
       "Id": 1,
       "Zone": 1,
-      "Name": "Green"
+      "Name": "Player1"
     },
     {
       "ControlLevel": 1,
       "Id": 2,
       "Zone": 3,
-      "Name": "Red"
+      "Name": "Player2"
     },
     {
       "ControlLevel": 1,

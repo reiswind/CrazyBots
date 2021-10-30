@@ -558,7 +558,7 @@ namespace Assets.Scripts
             if (playerId == 1) ColorUtility.TryParseHtmlString("#0606AD", out color);
             if (playerId == 2) ColorUtility.TryParseHtmlString("#7D0054", out color);
             if (playerId == 3) ColorUtility.TryParseHtmlString("#1FD9D5", out color);
-            if (playerId == 4) ColorUtility.TryParseHtmlString("#1F2ED9", out color);
+            if (playerId == 4) ColorUtility.TryParseHtmlString("#1FD92B", out color);
 
             return color;
         }
