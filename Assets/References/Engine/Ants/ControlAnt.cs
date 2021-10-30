@@ -76,7 +76,12 @@ namespace Engine.Control
                     }
                 }
             }
+            DateTime start = DateTime.Now;
             CreateCommands(player);
+            if ((DateTime.Now - start).TotalMilliseconds > 20)
+            {
+                int x = 0;
+            }
         }
 
         private Dictionary<int, AntCollect> AntCollects = new Dictionary<int, AntCollect>();
@@ -787,6 +792,15 @@ namespace Engine.Control
                         int d = CubePosition.Distance(posFactory, antWorker.PlayerUnit.Unit.Pos);
                         if (d < 18)
                         {
+                            if (bestPositions != null)
+                            {
+                                if (bestPositions.Count < d)
+                                {
+                                    // No need to look further
+                                    continue;
+                                }
+                            }
+
                             List<ulong> positions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, posFactory, antWorker.PlayerUnit.Unit);
                             if (positions != null && positions.Count > 2)
                             {
@@ -896,8 +910,8 @@ namespace Engine.Control
         /// <returns></returns>
         private List<ulong> FindMineralOnMap(Player player, Ant ant, List<ulong> bestPositions)
         {
-            // TEST
-            //return bestulongs;
+            // NOT GOOD! TO MUCH TIME
+            return null;
 
             
             foreach (ulong pos in player.VisiblePositions) // TileWithDistance t in tiles.Values)
@@ -918,6 +932,7 @@ namespace Engine.Control
 
         private List<ulong> FindMineralDeposit(Player player, Ant ant, List<ulong> bestPositions)
         {
+            // ALSO BAD
             foreach (ulong pos in staticMineralDeposits.Keys)
             {
                 // Distance at all
@@ -925,6 +940,15 @@ namespace Engine.Control
                 int d = CubePosition.Distance(pos, ant.PlayerUnit.Unit.Pos);
                 if (d < 18)
                 {
+                    if (bestPositions != null)
+                    {
+                        if (bestPositions.Count < d)
+                        {
+                            // No need to look further
+                            continue;
+                        }
+                    }
+
                     List<ulong> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, pos, ant.PlayerUnit.Unit);
                     if (positions != null && positions.Count > 2)
                     {
@@ -945,6 +969,15 @@ namespace Engine.Control
                     int d = CubePosition.Distance(pos, ant.PlayerUnit.Unit.Pos);
                     if (d < 5)
                     {
+                        if (bestPositions != null)
+                        {
+                            if (bestPositions.Count < d)
+                            {
+                                // No need to look further
+                                continue;
+                            }
+                        }
+
                         List<ulong> positions = player.Game.FindPath(ant.PlayerUnit.Unit.Pos, pos, ant.PlayerUnit.Unit);
                         if (positions != null && positions.Count > 2)
                         {
@@ -1590,7 +1623,7 @@ namespace Engine.Control
             }
             player.GameCommands.AddRange(addedCommands);
         }
-
+        /*
         private void BuildReactor(Player player)
         {
             List<Tile> possibleulongs = new List<Tile>();
@@ -1627,7 +1660,7 @@ namespace Engine.Control
 
             }
         }
-
+        */
 
         public bool CheckTransportMove(Ant ant, List<Move> moves)
         {
@@ -1763,8 +1796,10 @@ namespace Engine.Control
 
         public List<Move> Turn(Player player)
         {
+            DateTime start = DateTime.Now;
+            
             moveNr++;
-            if (moveNr > 28)
+            if (moveNr == 106)
             {
 
             }
@@ -2022,7 +2057,7 @@ namespace Engine.Control
                             // First time the unit is complete
                             if (ant.PlayerUnit.Unit.Engine == null)
                             {
-                                ConnectNearbyAnts(ant);
+                                //ConnectNearbyAnts(ant);
                             }
                             ant.UnderConstruction = false;
                         }
@@ -2150,7 +2185,7 @@ namespace Engine.Control
 
             movableAnts.Clear();           
             unmovedAnts.Clear();
-
+            
             while (unmovedAnts.Count > 0)
             {
                 foreach (Ant ant in unmovedAnts)
@@ -2194,6 +2229,7 @@ namespace Engine.Control
                                 movableAnts.Remove(ant);
                             }
                         }
+                        
                     }
                 }
                 unmovedAnts.Clear();
@@ -2210,7 +2246,7 @@ namespace Engine.Control
             }
 
             // Count capacities 
-            
+
             foreach (Ant ant in Ants.Values)
             {
                 if (ant.AntPartContainer != null)
@@ -2261,6 +2297,14 @@ namespace Engine.Control
                     CreateCommandForContainerInZone(player, zoneId);
                 }
             }
+
+            double timeTaken = (DateTime.Now - start).TotalMilliseconds;
+            if (timeTaken > 100)
+            {
+
+                int thisMoveNr = moveNr;
+            }
+
             return moves;
         }
     }

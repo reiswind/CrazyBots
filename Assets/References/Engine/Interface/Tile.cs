@@ -128,6 +128,7 @@ namespace Engine.Interface
         }
         public TileContainer TileContainer { get; private set; }
 
+        /*
         internal int Count(TileObjectType tileObjectType)
         {
             int count = 0;
@@ -139,7 +140,7 @@ namespace Engine.Interface
                 }
             }
             return count;
-        }
+        }*/
 
         internal void HitByBullet(TileObject bulletTileObject)
         {
@@ -415,8 +416,31 @@ namespace Engine.Interface
                     return true;
             }
             return false;
-        }        
+        }
+        public bool CanBuildForMove()
+        {
+            if (IsUnderwater)
+                return false;
 
+            int mins = 0;
+            foreach (TileObject tileObject in TileContainer.TileObjects)
+            {
+                if (tileObject.TileObjectType == TileObjectType.Mineral)
+                {
+                    mins++;
+                }
+                else if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
+                    return false;
+                else if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
+                    return false;
+            }
+
+            if (mins >= 20)
+            {
+                return false;
+            }
+            return true;
+        }
         public bool CanBuild()
         {
             if (IsUnderwater)
@@ -448,7 +472,7 @@ namespace Engine.Interface
             {
                 return false;
             }
-            return CanBuild();
+            return CanBuildForMove();
         }
         public override string ToString()
         {
@@ -466,16 +490,21 @@ namespace Engine.Interface
                 neighbors.Add(t);
         }
 
+        private List<Tile> neighbors;
+
         public List<Tile> Neighbors
         {
             get
             {
-                List<Tile> neighbors = new List<Tile>();
-
-                CubePosition tile = new CubePosition(Pos);
-                foreach (CubePosition n in tile.Neighbors)
+                if (neighbors == null)
                 {
-                    AddCube(neighbors, n);
+                    neighbors = new List<Tile>();
+
+                    CubePosition tile = new CubePosition(Pos);
+                    foreach (CubePosition n in tile.Neighbors)
+                    {
+                        AddCube(neighbors, n);
+                    }
                 }
                 return neighbors;
             }

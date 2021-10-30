@@ -1417,7 +1417,7 @@ namespace Engine.Master
                     }
                 }
             }
-
+            List<Move> revokedMoves = new List<Move>();
             
             foreach (Move move in moveToTargets.Values)
             {
@@ -1430,7 +1430,7 @@ namespace Engine.Master
                 if (t == null)
                 {
                     // Moved outside?
-                    throw new Exception("bah");
+                    revokedMoves.Add(move);
                 }
                 else if (!t.CanMoveTo(from))
                 {
@@ -1440,6 +1440,7 @@ namespace Engine.Master
                     //moveToTargets.Remove(move.Positions[move.Positions.Count - 1]);
                     //somethingChanged = true;
                     //break;
+                    revokedMoves.Add(move);
                 }
                 else if (t.Unit != null)
                 {
@@ -1458,6 +1459,9 @@ namespace Engine.Master
                         // Move onto another unit? Check if this unit goes away
                         foreach (Move unitMove in moveToTargets.Values)
                         {
+                            if (revokedMoves.Contains(unitMove))
+                                continue;
+
                             if ((unitMove.MoveType == MoveType.Move || unitMove.MoveType == MoveType.Build || unitMove.MoveType == MoveType.Add) && t.Unit.UnitId == unitMove.UnitId)
                             {
                                 // This unit moves away, so it is ok
@@ -1469,6 +1473,7 @@ namespace Engine.Master
                     }
                     if (unitBlocked == true)
                     {
+                        revokedMoves.Add(move);
                         // (Hit) Could do nasty things, but for now, the unit does not move
                         //somethingChanged = true;
                     }
@@ -1564,7 +1569,7 @@ namespace Engine.Master
                     return returnMoves;
                 }
 
-                if (MoveNr == 393)
+                if (MoveNr == 367)
                 {
                     int x = 0;
                 }

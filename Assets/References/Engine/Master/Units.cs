@@ -10,18 +10,18 @@ namespace Engine.Master
 
     public class Units
     {
-        private Dictionary<ulong, Unit> units;
+        private SortedDictionary<ulong, Unit> units;
         public List<Unit> UnitsOnSameulong;
         public Map Map;
 
         public Units(Map map)
         {
             Map = map;
-            units = new Dictionary<ulong, Unit>();
+            units = new SortedDictionary<ulong, Unit>();
             UnitsOnSameulong = new List<Unit>();
         }
 
-        public Dictionary<ulong, Unit> List
+        public SortedDictionary<ulong, Unit> List
         {
             get { return units; }
         }
