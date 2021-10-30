@@ -549,8 +549,11 @@ namespace Assets.Scripts
 
         internal static Color GetPlayerColor(int playerId)
         {
-
             Color color = Color.black;
+            //ColorUtility.TryParseHtmlString("#7D0054", out color);
+            //return color;
+
+            
             //if (playerId == 1) ColorUtility.TryParseHtmlString("#FFA200", out color);
             if (playerId == 1) ColorUtility.TryParseHtmlString("#0606AD", out color);
             if (playerId == 2) ColorUtility.TryParseHtmlString("#7D0054", out color);

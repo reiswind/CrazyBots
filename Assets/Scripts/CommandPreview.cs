@@ -403,7 +403,7 @@ namespace Assets.Scripts
                 
                 */
                 Vector3 newDirection = new Vector3(); // = Vector3.RotateTowards(previewUnit.transform.position, n.transform.position, 360, 0.0f);
-                newDirection.x = -30;
+                newDirection.x = 0;
                 previewUnit.transform.rotation = Quaternion.LookRotation(newDirection);
                 
                 Vector3 unitPos3 = previewGameCommand.transform.position;
@@ -413,12 +413,17 @@ namespace Assets.Scripts
                     unitPos3.y -= aboveGround;
 
                 CubePosition groundCubePos = new CubePosition(groundCell.Pos);
-                CubePosition unitCubePos = groundCubePos.Add(blueprintCommandItem.CubePosition);
+                CubePosition unitCubePos;
+                if (blueprintCommandItem.CubePosition == null)
+                    unitCubePos = groundCubePos;
+                else
+                    unitCubePos = groundCubePos.Add(blueprintCommandItem.CubePosition);
+
                 GroundCell gc;
                 if (HexGrid.MainGrid.GroundCells.TryGetValue(unitCubePos.Pos, out gc))
                 {
-                    unitPos3.x += groundCell.transform.position.x - gc.transform.position.x;
-                    unitPos3.z += groundCell.transform.position.z - gc.transform.position.z;
+                    //unitPos3.x += groundCell.transform.position.x - gc.transform.position.x;
+                    //unitPos3.z += groundCell.transform.position.z - gc.transform.position.z;
                 }
 
                 previewUnit.transform.position = unitPos3;

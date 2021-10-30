@@ -72,6 +72,7 @@
     <Compile Include="Assets\References\Engine\Ants\AntPartAssembler.cs" />
     <Compile Include="Assets\References\Engine\Map\HexCell.cs" />
     <Compile Include="Assets\References\Engine\Control\Storage.cs" />
+    <Compile Include="Assets\character shader pack\scripts\Selected_effect_mouse_click.cs" />
     <Compile Include="Assets\StrategyCameraLite\Scripts\StrategyCamera.cs" />
     <Compile Include="Assets\References\Engine\Map\HexMetrics.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartExtractor.cs" />
@@ -118,6 +119,7 @@
     <Compile Include="Assets\References\Engine\Control\Control.cs" />
     <Compile Include="Assets\Scripts\UnitBasePart.cs" />
     <Compile Include="Assets\References\Engine\Ants\MineralDeposit.cs" />
+    <Compile Include="Assets\character shader pack\scripts\Selected_effect_touch.cs" />
     <Compile Include="Assets\References\Engine\Master\Weapon.cs" />
     <Compile Include="Assets\References\Engine\Control\Attack.cs" />
     <Compile Include="Assets\HexTiles-Nature\Scripts\RotationSnapping.cs" />
@@ -128,6 +130,7 @@
     <Compile Include="Assets\References\Engine\Control\Dispatcher.cs" />
     <Compile Include="Assets\References\Engine\Master\Extractor.cs" />
     <Compile Include="Assets\References\Engine\Interface\Tile.cs" />
+    <Compile Include="Assets\character shader pack\scripts\Selected_effect_mouse_hover.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartContainer.cs" />
     <Compile Include="Assets\character shader pack\0_disslolve\script\Dissolve.cs" />
     <Compile Include="Assets\References\Engine\Control\Collect.cs" />

@@ -1867,7 +1867,7 @@
     "m_DefaultRefNameVersion": 0,
     "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Color_C9A10623",
-    "m_OverrideReferenceName": "Color_main",
+    "m_OverrideReferenceName": "PlayerColor",
     "m_GeneratePropertyBlock": true,
     "m_UseCustomSlotLabel": false,
     "m_CustomSlotLabel": "",
