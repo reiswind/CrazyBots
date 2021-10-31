@@ -39,7 +39,7 @@ namespace Engine.Ants
         public void Demand(AntPart antPart, AntNetworkDemandType antNetworkDemandType, float urgency)
         {
             return;
-
+            /*
             foreach (AntNetworkConnect antTargetNetworkConnect in Connections)
             {
                 foreach (AntNetworkConnect antSourceNetworkConnect in antTargetNetworkConnect.AntPartSource.AntNetworkNode.Connections)
@@ -74,7 +74,7 @@ namespace Engine.Ants
                 }
             
             }
-
+            */
         }
     }
 

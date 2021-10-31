@@ -1570,7 +1570,7 @@ namespace Engine.Master
 
                 if (MoveNr == 367)
                 {
-                    int x = 0;
+
                 }
 
                 changedUnits.Clear();

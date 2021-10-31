@@ -76,17 +76,11 @@ namespace Engine.Ants
                     }
                 }
             }
-            DateTime start = DateTime.Now;
-            CreateCommands(player);
-            if ((DateTime.Now - start).TotalMilliseconds > 20)
-            {
-                int x = 0;
-            }
         }
 
         private Dictionary<int, AntCollect> AntCollects = new Dictionary<int, AntCollect>();
 
-        public void CreateCommands(Player player)
+        public void UpdatePheromones(Player player)
         {
             AntCollects.Clear();
 
@@ -144,7 +138,7 @@ namespace Engine.Ants
                     antCollect.Minerals += mins;
                 }
             }
-            
+
             foreach (ulong pos in minerals)
             {
                 MineralDeposit mineralDeposit = staticMineralDeposits[pos];
@@ -152,15 +146,8 @@ namespace Engine.Ants
                 staticMineralDeposits.Remove(pos);
             }
 
-
-            if (player.PlayerModel.IsHuman)
-                return;
-
-            foreach (int id in staticContainerDeposits.Values)
-            {
-                player.Game.Pheromones.DeletePheromones(id);
-            }
-            staticContainerDeposits.Clear();
+            minerals = new List<ulong>();
+            minerals.AddRange(staticContainerDeposits.Keys);
 
             foreach (Ant ant in Ants.Values)
             {
@@ -171,14 +158,90 @@ namespace Engine.Ants
                 {
                     int sectorSize = player.Game.Map.SectorSize;
                     float intensity = 0.1f;
+                    ulong pos = ant.PlayerUnit.Unit.Pos;
 
-                    int id = player.Game.Pheromones.DropStaticPheromones(player, ant.PlayerUnit.Unit.Pos, sectorSize, PheromoneType.Container, intensity, 0.01f);
-                    staticContainerDeposits.Add(ant.PlayerUnit.Unit.Pos, id);
+                    MineralDeposit mineralDeposit;
+                    if (minerals.Contains(pos))
+                    {
+                        minerals.Remove(pos);
+                        mineralDeposit = staticContainerDeposits[pos];
+
+                        if (intensity > mineralDeposit.Intensitiy + 0.1f || intensity < mineralDeposit.Intensitiy - 0.1f)
+                        {
+                            // update
+                            player.Game.Pheromones.UpdatePheromones(mineralDeposit.DepositId, intensity, 0.01f);
+                            mineralDeposit.Intensitiy = intensity;
+                        }
+                    }
+                    else
+                    {
+                        mineralDeposit = new MineralDeposit();
+                        mineralDeposit.Intensitiy = intensity;
+                        mineralDeposit.Pos = pos;
+                        mineralDeposit.DepositId = player.Game.Pheromones.DropStaticPheromones(player, ant.PlayerUnit.Unit.Pos, sectorSize, PheromoneType.Container, intensity, 0.01f);
+                        staticContainerDeposits.Add(ant.PlayerUnit.Unit.Pos, mineralDeposit);
+                    }
 
                 }
             }
+            foreach (ulong pos in minerals)
+            {
+                MineralDeposit mineralDeposit = staticContainerDeposits[pos];
+                player.Game.Pheromones.DeletePheromones(mineralDeposit.DepositId);
+                staticContainerDeposits.Remove(pos);
+            }
 
 
+            minerals = new List<ulong>();
+            minerals.AddRange(staticReactorDeposits.Keys);
+
+            foreach (Ant ant in Ants.Values)
+            {
+                if (ant.PlayerUnit != null &&
+                    ant.PlayerUnit.Unit.IsComplete() &&
+                    ant.AntPartEngine == null &&
+                    ant.AntPartReactor != null)
+                {
+                    if (ant.PlayerUnit.Unit.Reactor.AvailablePower > 0)
+                    {
+                        float intensity = 1f;
+                        ulong pos = ant.PlayerUnit.Unit.Pos;
+
+                        MineralDeposit mineralDeposit;
+                        if (minerals.Contains(pos))
+                        {
+                            minerals.Remove(pos);
+                            mineralDeposit = staticReactorDeposits[pos];
+
+                            if (intensity > mineralDeposit.Intensitiy + 0.1f || intensity < mineralDeposit.Intensitiy - 0.1f)
+                            {
+                                // update
+                                player.Game.Pheromones.UpdatePheromones(mineralDeposit.DepositId, intensity);
+                                mineralDeposit.Intensitiy = intensity;
+                            }
+                        }
+                        else
+                        {
+                            mineralDeposit = new MineralDeposit();
+                            mineralDeposit.Intensitiy = intensity;
+                            mineralDeposit.Pos = pos;
+                            mineralDeposit.DepositId = player.Game.Pheromones.DropStaticPheromones(player, ant.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit.Reactor.Range, PheromoneType.Energy, intensity);
+                            //player.Game.Pheromones.DropStaticPheromones(player, ant.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit.Reactor.Range, PheromoneType.Energy, 1); //, 0.2f);
+                            staticReactorDeposits.Add(ant.PlayerUnit.Unit.Pos, mineralDeposit);
+                        }
+                    }
+                }
+            }
+            foreach (ulong pos in minerals)
+            {
+                MineralDeposit mineralDeposit = staticReactorDeposits[pos];
+                player.Game.Pheromones.DeletePheromones(mineralDeposit.DepositId);
+                staticReactorDeposits.Remove(pos);
+            }
+
+        }
+        public void CreateCommands(Player player)
+        {
             foreach (KeyValuePair<int, AntCollect> value in AntCollects)
             {
                 int zoneId = value.Key;
@@ -519,13 +582,14 @@ namespace Engine.Ants
             return false;
         }
 
-        private Dictionary<ulong, MineralDeposit> mineralsDeposits = new Dictionary<ulong, MineralDeposit>();
+        //private Dictionary<ulong, MineralDeposit> mineralsDeposits = new Dictionary<ulong, MineralDeposit>();
         private Dictionary<ulong, MineralDeposit> staticMineralDeposits = new Dictionary<ulong, MineralDeposit>();
-        private Dictionary<ulong, int> staticContainerDeposits = new Dictionary<ulong, int>();
+        private Dictionary<ulong, MineralDeposit> staticContainerDeposits = new Dictionary<ulong, MineralDeposit>();
+        private Dictionary<ulong, MineralDeposit> staticReactorDeposits = new Dictionary<ulong, MineralDeposit>();
         //private Dictionary<ulong, int> workDeposits = new Dictionary<ulong, int>();
+        //private Dictionary<ulong, int> enemyDeposits = new Dictionary<ulong, int>();
 
-        private Dictionary<ulong, int> enemyDeposits = new Dictionary<ulong, int>();
-
+        /*
         public void RemoveEnemyFound(Player player, int id)
         {
             foreach (ulong pos in enemyDeposits.Keys)
@@ -538,7 +602,7 @@ namespace Engine.Ants
 
             }
             player.Game.Pheromones.DeletePheromones(id);
-        }
+        }*/
         /*
         public void RemoveMineralsFound(Player player, int id)
         {
@@ -614,8 +678,8 @@ namespace Engine.Ants
                     workDeposits.Add(pos, id);
                 }
             }*/
-
-            private void UpdateContainerDeposits(Player player, Ant ant)
+            /*
+        private void UpdateContainerDeposits(Player player, Ant ant)
         {
             int range = 0;
             float intensity = 0;
@@ -669,7 +733,7 @@ namespace Engine.Ants
                 player.Game.Pheromones.DeletePheromones(ant.PheromoneDepositNeedMinerals);
                 ant.PheromoneDepositNeedMinerals = 0;
             }
-        }
+        }*/
 
         public bool IsUpgrading(Player player, List<Move> moves, Move move)
         {
@@ -758,7 +822,7 @@ namespace Engine.Ants
         public ulong FindReactor(Player player, Ant antWorker)
         {
             return Position.Null;
-
+            /*
             List<ulong> bestPositions = null;
 
             foreach (Ant ant in Ants.Values)
@@ -780,6 +844,7 @@ namespace Engine.Ants
                 }
             }
             return MakePathFromPositions(bestPositions, antWorker);
+            */
         }
 
         public ulong FindCommandTarget(Player player, Ant antWorker)
@@ -805,6 +870,7 @@ namespace Engine.Ants
         public ulong FindContainer(Player player, Ant antWorker)
         {
             return Position.Null;
+            /*
             Dictionary<ulong, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(antWorker.PlayerUnit.Unit.Pos, 3, false, matcher: tile =>
             {
                 // If engine is not null, could be a friendly unit that needs refuel.
@@ -867,11 +933,13 @@ namespace Engine.Ants
                 }
             }
             return MakePathFromPositions(bestPositions, antWorker);
+            */
         }
 
         private List<ulong> FindMineralForCommand(Player player, Ant ant, List<ulong> bestPositions)
         {
             return null;
+            /*
             Dictionary<ulong, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.CurrentGameCommand.TargetPosition, player.Game.Map.SectorSize, false, matcher: tile =>
             {
                 if (tile.Minerals > 0 ||
@@ -887,6 +955,7 @@ namespace Engine.Ants
             });
 
             return bestPositions;
+            */
         }
 
         /// <summary>
@@ -900,7 +969,7 @@ namespace Engine.Ants
         {
             // NOT GOOD! TO MUCH TIME
             return null;
-
+            /*
             
             foreach (ulong pos in player.VisiblePositions) // TileWithDistance t in tiles.Values)
             {
@@ -916,11 +985,13 @@ namespace Engine.Ants
                 }
             }
             return bestPositions;
+            */
         }
 
         private List<ulong> FindMineralDeposit(Player player, Ant ant, List<ulong> bestPositions)
         {
             return null;
+            /*
             // ALSO BAD
             foreach (ulong pos in staticMineralDeposits.Keys)
             {
@@ -978,12 +1049,13 @@ namespace Engine.Ants
                     }
                 }
             }
-            return bestPositions;
+            return bestPositions;*/
         }
 
         private List<ulong> FindMineralContainer(Player player, Ant ant, List<ulong> bestPositions)
         {
             return null;
+            /*
             // Look for Container with mineraly to refill
             foreach (Ant antContainer in Ants.Values)
             {
@@ -1003,6 +1075,7 @@ namespace Engine.Ants
                 }
             }
             return bestPositions;
+            */
         }
 
         private ulong MakePathFromPositions(List<ulong> bestPositions, Ant ant)
@@ -1034,7 +1107,7 @@ namespace Engine.Ants
         public ulong FindMineral(Player player, Ant ant)
         {
             return Position.Null;
-
+            /*
             List<ulong> bestPositions = null;
 
             if (ant.AntWorkerType == AntWorkerType.Worker)
@@ -1066,6 +1139,7 @@ namespace Engine.Ants
                     bestPositions = FindMineralDeposit(player, ant, bestPositions);
             }
             return MakePathFromPositions(bestPositions, ant);
+            */
         }
 
         public ulong LevelGround(List<Move> moves, Player player, Ant ant)
@@ -1189,6 +1263,7 @@ namespace Engine.Ants
         public ulong FindEnemy(Player player, Ant ant)
         {
             return Position.Null;
+            /*
             Dictionary<ulong, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(ant.PlayerUnit.Unit.Pos, 3, false, matcher: tile =>
             {
                 if (tile.Unit != null &&
@@ -1230,6 +1305,7 @@ namespace Engine.Ants
                 }
             }
             return MakePathFromPositions(bestulongs, ant);
+            */
         }
 
         internal void UpdateUnitCounters(Ant ant)
@@ -1787,37 +1863,9 @@ namespace Engine.Ants
         public MapPlayerInfo MapPlayerInfo { get; set; }
         internal Dictionary<int, AntCollect> exceedingMinerals = new Dictionary<int, AntCollect>();
 
-        public List<Move> Turn(Player player)
+        private void UpdateAntList(Player player)
         {
-            DateTime start = DateTime.Now;
-            
-            moveNr++;
-            if (moveNr == 106)
-            {
-
-            }
-
-            // Returned moves
-            List<Move> moves = new List<Move>();
-
-            MapInfo mapInfo = player.Game.GetDebugMapInfo();
-
-            if (!mapInfo.PlayerInfo.ContainsKey(player.PlayerModel.Id))
-            {
-                // Player is dead, no more units
-                return moves;
-            }
-            if (mapInfo.PlayerInfo.Count == 1)
-            {
-                // Only one Player left. Won the game.
-            }
-
-            MapPlayerInfo = mapInfo.PlayerInfo[player.PlayerModel.Id];
-
-            exceedingMinerals.Clear();
-
-            // List of all units that can be moved
-            List<PlayerUnit> moveableUnits = new List<PlayerUnit>();
+            //List<PlayerUnit> moveableUnits = new List<PlayerUnit>();
 
             foreach (Ant ant in Ants.Values)
             {
@@ -1830,7 +1878,7 @@ namespace Engine.Ants
                 if (cntrlUnit.Owner.PlayerModel.Id == PlayerModel.Id)
                 {
                     playerUnit.PossibleMoves.Clear();
-                    moveableUnits.Add(playerUnit);
+                    //moveableUnits.Add(playerUnit);
 
                     if (Ants.ContainsKey(cntrlUnit.UnitId))
                     {
@@ -1930,12 +1978,12 @@ namespace Engine.Ants
 
                                 if (playerUnit.Unit.Blueprint.Name == "Assembler")
                                     antWorker.AntWorkerType = AntWorkerType.Assembler;
-                                else if (playerUnit.Unit.Blueprint.Name == "Fighter" || playerUnit.Unit.Blueprint.Name == "Bomber") 
+                                else if (playerUnit.Unit.Blueprint.Name == "Fighter" || playerUnit.Unit.Blueprint.Name == "Bomber")
                                     antWorker.AntWorkerType = AntWorkerType.Fighter;
                                 else if (playerUnit.Unit.Blueprint.Name == "Worker")
                                     antWorker.AntWorkerType = AntWorkerType.Worker;
                                 Ants.Add(cntrlUnit.UnitId, antWorker);
-                            }                         
+                            }
                             else if (playerUnit.Unit.Blueprint.Name == "Outpost" ||
                                      playerUnit.Unit.Blueprint.Name == "Factory")
                             {
@@ -1944,7 +1992,7 @@ namespace Engine.Ants
                                 antFactory.Alive = true;
                                 Ants.Add(cntrlUnit.UnitId, antFactory);
                             }
-                            else 
+                            else
                             {
                                 Ant ant = new Ant(this, playerUnit);
                                 ant.Alive = true;
@@ -1962,9 +2010,42 @@ namespace Engine.Ants
                     player.Game.Pheromones.DropPheromones(player, cntrlUnit.Pos, 15, PheromoneType.Enemy, 0.05f);
                 }
             }
+        }
+
+        public List<Move> Turn(Player player)
+        {
+            DateTime start = DateTime.Now;
+            
+            moveNr++;
+            if (moveNr == 106)
+            {
+
+            }
+
+            // Returned moves
+            List<Move> moves = new List<Move>();
+
+            MapInfo mapInfo = player.Game.GetDebugMapInfo();
+
+            if (!mapInfo.PlayerInfo.ContainsKey(player.PlayerModel.Id))
+            {
+                // Player is dead, no more units
+                return moves;
+            }
+            if (mapInfo.PlayerInfo.Count == 1)
+            {
+                // Only one Player left. Won the game.
+            }
+
+            MapPlayerInfo = mapInfo.PlayerInfo[player.PlayerModel.Id];
+
+            exceedingMinerals.Clear();
+
+            // List of all units that can be moved
+            UpdateAntList(player);
 
             CreatedAnts.Clear();
-
+            
             NumberOfWorkers = 0;
             NumberOfFighter = 0;
             NumberOfAssembler = 0;
@@ -2056,26 +2137,6 @@ namespace Engine.Ants
                         }
                         UpdateUnitCounters(ant);
 
-                        ant.UpdateContainerDeposits(player);
-
-                        if (ant.PlayerUnit.Unit.Reactor != null)
-                        {
-                            if (ant.PheromoneDepositEnergy == 0)
-                            {
-                                if (ant.PlayerUnit.Unit.Reactor.AvailablePower > 0)
-                                {
-                                    ant.PheromoneDepositEnergy = player.Game.Pheromones.DropStaticPheromones(player, ant.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit.Reactor.Range, PheromoneType.Energy, 1); //, 0.2f);
-                                }
-                            }
-                            else
-                            {
-                                if (ant.PlayerUnit.Unit.Reactor.AvailablePower == 0)
-                                {
-                                    player.Game.Pheromones.DeletePheromones(ant.PheromoneDepositEnergy);
-                                    ant.PheromoneDepositEnergy = 0;
-                                }
-                            }
-                        }
                         movableAnts.Add(ant);
                     }
                     else if (ant.PlayerUnit.Unit.UnderConstruction)
@@ -2128,9 +2189,13 @@ namespace Engine.Ants
             }
             unmovedAnts.AddRange(movableAnts);
 
+            UpdatePheromones(player);
+            if (!player.PlayerModel.IsHuman)
+                CreateCommands(player);
+
             // DEBUG! 
             //if (NumberOfWorkers > 0) CreateCommandForContainerInZone(player, player.StartZone.ZoneId);
-            
+
             if (MapPlayerInfo.TotalPower == 0)
             {
                 // Sacrifice a unit

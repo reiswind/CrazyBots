@@ -124,7 +124,7 @@ namespace Assets.Scripts
                     CreateMarker();
                 }
 
-                
+                /*
                 if (mapPheromone.IntensityContainer > 0)
                 {
                     Vector3 position = transform.position;
@@ -139,8 +139,8 @@ namespace Assets.Scripts
                     position.x += 0.1f;
                     markerToHome.transform.position = position;
                 }
-
-                
+                */
+                /*
                 if (mapPheromone.IntensityToMineral > 0)
                 {
                     Vector3 position = transform.position;
@@ -159,7 +159,7 @@ namespace Assets.Scripts
                     position.x += 0.2f;
                     markerToMineral.transform.position = position;
                 }
-                
+                */
                 /*
                 if (mapPheromone.IntensityToEnemy > 0)
                 {
@@ -176,7 +176,7 @@ namespace Assets.Scripts
                     markerToEnemy.transform.position = position;
                 }*/
 
-                /*
+                
                 float highestEnergy = -1;
                 int highestPlayerId = 0;
 
@@ -205,7 +205,7 @@ namespace Assets.Scripts
                     position.y -= 1;
                     markerToEnemy.transform.position = position;
                 }
-                */
+                
             }
         }
 

@@ -688,9 +688,10 @@ namespace Engine.Ants
                 }
                 bool calcPath = true;
 
-                if (cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Collect)
+                if (
+                    cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Collect)
                 {
-                    if (cntrlUnit.Container.TileContainer.IsFreeSpace)
+                    if (cntrlUnit.Container != null && cntrlUnit.Container.TileContainer.IsFreeSpace)
                     {
                         // Move to target area
                         int d = CubePosition.Distance(cntrlUnit.CurrentGameCommand.TargetPosition, cntrlUnit.Pos);

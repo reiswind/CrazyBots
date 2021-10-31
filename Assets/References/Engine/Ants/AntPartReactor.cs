@@ -23,6 +23,7 @@ namespace Engine.Ants
         {
             return "AntPartReactor";
         }
+        /*
         public bool CheckBuildReactorMove(Player player, Ant ant, List<Move> moves)
         {
             bool unitMoved = false;
@@ -64,7 +65,7 @@ namespace Engine.Ants
             }
             return unitMoved;
         }
-
+        */
         public override bool Move(ControlAnt control, Player player, List<Move> moves)
         {
             /*

@@ -369,7 +369,7 @@ namespace Engine.Interface
         {  
             get
             {
-                if (mineralCache == -1)
+                //if (mineralCache == -1)
                     mineralCache = TileContainer.Minerals;
                 return mineralCache;
             }

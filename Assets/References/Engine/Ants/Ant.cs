@@ -259,10 +259,10 @@ namespace Engine.Ants
         public PlayerUnit PlayerUnit { get; set; }
         public ControlAnt Control { get; set; }
 
-        public int PheromoneDepositEnergy { get; set; }
-        public int PheromoneDepositNeedMinerals { get; set; }
-        public int PheromoneWaypointMineral { get; set; }
-        public int PheromoneWaypointAttack { get; set; }
+        //public int PheromoneDepositEnergy { get; set; }
+        //public int PheromoneDepositNeedMinerals { get; set; }
+        //public int PheromoneWaypointMineral { get; set; }
+        //public int PheromoneWaypointAttack { get; set; }
         public bool BuildPositionReached { get; set; }
         public void AbandonUnit(Player player)
         {
@@ -297,9 +297,7 @@ namespace Engine.Ants
             }
             return moved;
         }
-        public virtual void UpdateContainerDeposits(Player player)
-        {
-        }
+
         public virtual void OnDestroy(Player player)
         {
             if (PlayerUnit != null)
@@ -313,6 +311,7 @@ namespace Engine.Ants
             {
                 antPart.OnDestroy(player);
             }
+            /*
             if (PheromoneDepositEnergy != 0)
             {
                 player.Game.Pheromones.DeletePheromones(PheromoneDepositEnergy);
@@ -332,7 +331,7 @@ namespace Engine.Ants
             {
                 player.Game.Pheromones.DeletePheromones(PheromoneWaypointMineral);
                 PheromoneWaypointMineral = 0;
-            }
+            }*/
             // Another ant has to take this task
             if (FinishCommandWhenCompleted != null)
             {
