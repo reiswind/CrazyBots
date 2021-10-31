@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -53,9 +53,6 @@
     <UnityVersion>2021.2.0f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Assets\References\Engine\Map\HexDirection.cs" />
     <Compile Include="Assets\References\Engine\Interface\Player.cs" />
     <Compile Include="Assets\Scripts\TileObjectContainer.cs" />
@@ -71,7 +68,6 @@
     <Compile Include="Assets\StrategyCameraLite\Example\Scripts\HelpUI.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartAssembler.cs" />
     <Compile Include="Assets\References\Engine\Map\HexCell.cs" />
-    <Compile Include="Assets\References\Engine\Control\Storage.cs" />
     <Compile Include="Assets\character shader pack\scripts\Selected_effect_mouse_click.cs" />
     <Compile Include="Assets\StrategyCameraLite\Scripts\StrategyCamera.cs" />
     <Compile Include="Assets\References\Engine\Map\HexMetrics.cs" />
@@ -101,8 +97,6 @@
     <Compile Include="Assets\References\Engine\Master\Assembler.cs" />
     <Compile Include="Assets\HexTiles-Nature\Scripts\OLD\ModifyWaterUV.cs" />
     <Compile Include="Assets\References\Engine\Master\Radar.cs" />
-    <Compile Include="Assets\References\Engine\Control\ControllerUnit.cs" />
-    <Compile Include="Assets\References\Engine\Control\Command.cs" />
     <Compile Include="Assets\References\Engine\Master\Game.cs" />
     <Compile Include="Assets\Scripts\HexGrid.cs" />
     <Compile Include="Assets\character shader pack\scripts\Rotate_self.cs" />
@@ -111,36 +105,30 @@
     <Compile Include="Assets\Scripts\Command.cs" />
     <Compile Include="Assets\References\Engine\Interface\Blueprints.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntNetwork.cs" />
-    <Compile Include="Assets\References\Engine\Control\Assemble.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\HighResolutionTime.cs" />
     <Compile Include="Assets\References\Engine\Master\Map.cs" />
     <Compile Include="Assets\References\Engine\Map\HexEdgeType.cs" />
     <Compile Include="Assets\References\Engine\Interface\Position.cs" />
-    <Compile Include="Assets\References\Engine\Control\Control.cs" />
     <Compile Include="Assets\Scripts\UnitBasePart.cs" />
     <Compile Include="Assets\References\Engine\Ants\MineralDeposit.cs" />
     <Compile Include="Assets\character shader pack\scripts\Selected_effect_touch.cs" />
     <Compile Include="Assets\References\Engine\Master\Weapon.cs" />
-    <Compile Include="Assets\References\Engine\Control\Attack.cs" />
     <Compile Include="Assets\HexTiles-Nature\Scripts\RotationSnapping.cs" />
     <Compile Include="Assets\character shader pack\scripts\Switch_material.cs" />
     <Compile Include="Assets\References\Engine\Interface\GameModel.cs" />
     <Compile Include="Assets\References\Engine\Master\MapSector.cs" />
     <Compile Include="Assets\character shader pack\scripts\Demo_control.cs" />
-    <Compile Include="Assets\References\Engine\Control\Dispatcher.cs" />
     <Compile Include="Assets\References\Engine\Master\Extractor.cs" />
     <Compile Include="Assets\References\Engine\Interface\Tile.cs" />
     <Compile Include="Assets\character shader pack\scripts\Selected_effect_mouse_hover.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartContainer.cs" />
     <Compile Include="Assets\character shader pack\0_disslolve\script\Dissolve.cs" />
-    <Compile Include="Assets\References\Engine\Control\Collect.cs" />
     <Compile Include="Assets\Scripts\Shell.cs" />
     <Compile Include="Assets\References\Engine\Master\Units.cs" />
     <Compile Include="Assets\References\Engine\Master\Unit.cs" />
     <Compile Include="Assets\Scripts\UnitBase.cs" />
     <Compile Include="Assets\HexTiles-Nature\Scripts\OLD\HexTileGrid.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\IPathFinder.cs" />
-    <Compile Include="Assets\References\Engine\Control\ControlNothing.cs" />
     <Compile Include="Assets\References\Engine\Interface\TileObject.cs" />
     <Compile Include="Assets\References\Engine\Master\Ability.cs" />
     <Compile Include="Assets\character shader pack\6_petrify\scripts\Statue_base_control.cs" />
@@ -148,8 +136,7 @@
     <Compile Include="Assets\Scripts\GameCanvas.cs" />
     <Compile Include="Assets\References\Engine\Map\HexMapGenerator.cs" />
     <Compile Include="Assets\References\Engine\Master\MapZone.cs" />
-    <Compile Include="Assets\References\Engine\Control\UnitType.cs" />
-    <Compile Include="Assets\References\Engine\Control\Scout.cs" />
+    <Compile Include="Assets\References\Engine\Interface\UnitType.cs" />
     <Compile Include="Assets\Scripts\Extractor.cs" />
     <Compile Include="Assets\References\Engine\Master\Engine.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\PriorityQueueB.cs" />

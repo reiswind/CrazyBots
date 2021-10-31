@@ -1,6 +1,6 @@
 ﻿
 using Engine.Ants;
-using Engine.Control;
+
 using Engine.Master;
 using System;
 using System.Collections.Generic;
@@ -36,8 +36,6 @@ namespace Engine.Interface
         {
             Move = move;
         }
-
-        public Command Command { get; set; }
 
         public Move Move { get; private set; }
         public string NewUnitId { get; set; }
@@ -172,7 +170,6 @@ namespace Engine.Interface
         public PlayerModel PlayerModel { get; set; }
         public List<Move> LastMoves;
 
-        public List<Command> Commands = new List<Command>();
         internal List<GameCommand> GameCommands = new List<GameCommand>();
 
         // Unit that the player knows. Own and enemy
@@ -203,53 +200,6 @@ namespace Engine.Interface
             return true;
         }
 
-        public bool IsAttached(string unitId, Command anyOtherThanThis)
-        {
-            foreach (Command command in Commands)
-            {
-                if (command == anyOtherThanThis)
-                    continue;
-
-                if (command.AssignedUnits.Contains(unitId))
-                    return true;
-            }
-            return false;
-        }
-
-        public void DeleteCommand(string commandId)
-        {
-            // Remove all references
-            foreach (Command command in Commands)
-            {
-                foreach (CommandSource commandSource in command.CommandSources)
-                {
-                    if (commandSource.Child.CommandId == commandId)
-                    {
-                        command.CommandSources.Remove(commandSource);
-                        break;
-                    }
-                }
-                foreach (CommandSource commandSource in command.CommandSources)
-                {
-                    if (commandSource.Parent.CommandId == commandId)
-                    {
-                        command.CommandSources.Remove(commandSource);
-                        break;
-                    }
-                }
-            }
-            // Remove the command
-
-            foreach (Command command in Commands)
-            {
-                if (command.CommandId == commandId)
-                {
-                    Commands.Remove(command);
-                    break;
-                }
-            }
-        }
-
         public int NumberOfUnits
         {
             get
@@ -268,24 +218,7 @@ namespace Engine.Interface
         {
             Game = game;
             PlayerModel = playerModel;
-
-            if (playerModel.ControlLevel == 1)
-            {
-                Control = new ControlAnt(game, playerModel, game.GameModel);
-            }
-            else
-            {
-                Control = new ControlLevelI(game, playerModel, game.GameModel);
-            }
-            /*
-            else if (playerModel.ControlLevel == 2)
-                Control = new ControlLevelII(game, playerModel, game.GameModel); */
-            //else if (playerModel.ControlLevel == 3)
-            //    Control = new ControlLevelIII(game, playerModel, game.GameModel);
-            /*else if (playerModel.ControlLevel == 4)
-                Control = new ControlLevel4(game, playerModel, game.GameModel);
-            else if (playerModel.ControlLevel == 5)
-                Control = new ControlLevel5(game, playerModel, game.GameModel);*/
+            Control = new ControlAnt(game, playerModel, game.GameModel);
         }
 
 

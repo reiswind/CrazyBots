@@ -44,6 +44,7 @@ namespace Assets.Scripts
         /// Transfer from Game to UI
         /// </summary>
         private List<MapGameCommand> newGameCommands;
+        internal System.Random Random { get; private set; }
 
         // Shared with backgound thread
         internal IGameController game;
@@ -76,7 +77,7 @@ namespace Assets.Scripts
         internal void StartGame()
         {
             RemoveAllChildren();
-
+            Random = new System.Random();
             if (GameSpeed == 0)
                 GameSpeed = 0.01f;
             //gridCanvas = GetComponentInChildren<Canvas>();
@@ -287,26 +288,26 @@ namespace Assets.Scripts
             {
                 if (tileObject.TileObjectKind == TileObjectKind.LeaveTree)
                 {
-                    int idx = game.Random.Next(leaveTreeResources.Count);
+                    int idx = Random.Next(leaveTreeResources.Count);
                     prefab = leaveTreeResources.Values.ElementAt(idx);
                     y = prefab.transform.position.y;
                 }
                 else
                 {
-                    int idx = game.Random.Next(treeResources.Count);
+                    int idx = Random.Next(treeResources.Count);
                     prefab = treeResources.Values.ElementAt(idx);
                     y = prefab.transform.position.y;
                 }
             }
             else if (tileObject.TileObjectType == TileObjectType.Bush)
             {
-                int idx = game.Random.Next(bushResources.Count);
+                int idx = Random.Next(bushResources.Count);
                 prefab = bushResources.Values.ElementAt(idx);
                 y = prefab.transform.position.y;
             }
             else if (tileObject.TileObjectType == TileObjectType.Rock)
             {
-                int idx = game.Random.Next(rockResources.Count);
+                int idx = Random.Next(rockResources.Count);
                 prefab = rockResources.Values.ElementAt(idx);
                 y = prefab.transform.position.y;
             }

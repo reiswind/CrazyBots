@@ -1,6 +1,5 @@
 ﻿using Engine.Algorithms;
 using Engine.Ants;
-using Engine.Control;
 using Engine.Interface;
 using Newtonsoft.Json;
 using System;
@@ -247,7 +246,7 @@ namespace Engine.Master
         }
 
         private int seed;
-        public Random Random { get; private set; }
+        internal Random Random { get; private set; }
         public int Seed
         {
             get
@@ -1782,11 +1781,6 @@ namespace Engine.Master
 
                         if (player.Control != null)
                             player.Control.ProcessMoves(player, player.LastMoves);
-                    }
-                    if (player.NumberOfUnits == 0 && player.Commands.Count > 0)
-                    {
-                        // This player is dead.
-                        player.Commands.Clear();
                     }
                 }
 

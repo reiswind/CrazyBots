@@ -1,5 +1,5 @@
 ﻿using Engine.Algorithms;
-using Engine.Ants;
+
 using Engine.Interface;
 using Engine.Master;
 using System;
@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Engine.Control
+namespace Engine.Ants
 {
     internal class ControlAnt : IControl
     {

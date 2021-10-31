@@ -86,7 +86,7 @@ namespace Engine.Interface
         List<ulong> FindPath(ulong from, ulong to, Unit unit);
         Dictionary<int, Player> Players { get; }
         int Seed { get; }
-        Random Random { get; }
+        //Random Random { get; }
         Tile GetTile(ulong p);
         Map Map { get; }
         Blueprints Blueprints { get; }

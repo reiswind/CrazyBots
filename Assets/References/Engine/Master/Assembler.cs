@@ -1,4 +1,4 @@
-﻿using Engine.Control;
+﻿
 using Engine.Interface;
 using System;
 using System.Collections.Generic;
@@ -118,19 +118,6 @@ namespace Engine.Master
             return move;
         }
 
-        public bool HandleRequestUnit(PlayerUnit playerUnit, DispatcherRequestUnit dispatcherRequestUnit, Move move)
-        {
-            Tile tile = playerUnit.Unit.Owner.Game.Map.GetTile(move.Positions[1]);
-
-            if (DoesMoveMinRequest(move, dispatcherRequestUnit.UnitType, tile.Unit))
-            {
-                playerUnit.PossibleMoves.Add(new PlayerMove(move));
-
-                // Take first option or random but dicide here
-                return true;
-            }
-            return false;
-        }
 
         public static bool DoesMoveMinRequest(Move move, UnitType unitType, Unit unit)
         {
