@@ -124,11 +124,11 @@ namespace Assets.Scripts
                     CreateMarker();
                 }
 
-                /*
-                if (mapPheromone.IntensityToWork > 0)
+                
+                if (mapPheromone.IntensityContainer > 0)
                 {
                     Vector3 position = transform.position;
-                    position.y += 0.054f + (0.2f * mapPheromone.IntensityToWork);
+                    position.y += 0.054f + (0.2f * mapPheromone.IntensityContainer);
                     position.x += 0.1f;
                     markerToHome.transform.position = position;
                 }
@@ -138,7 +138,7 @@ namespace Assets.Scripts
                     position.y -= 1;
                     position.x += 0.1f;
                     markerToHome.transform.position = position;
-                }*/
+                }
 
                 
                 if (mapPheromone.IntensityToMineral > 0)
@@ -159,7 +159,7 @@ namespace Assets.Scripts
                     position.x += 0.2f;
                     markerToMineral.transform.position = position;
                 }
-
+                
                 /*
                 if (mapPheromone.IntensityToEnemy > 0)
                 {

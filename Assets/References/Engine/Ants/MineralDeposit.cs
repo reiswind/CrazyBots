@@ -11,6 +11,7 @@ namespace Engine.Ants
     {
         public ulong Pos { get; set; }
         public int Minerals { get; set; }
+        public float Intensitiy { get; set; }
         public int DepositId { get; set; }
     }
 }

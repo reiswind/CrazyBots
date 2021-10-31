@@ -364,11 +364,14 @@ namespace Engine.Interface
         // Debug
         public bool IsOpenTile { get; set; }
 
+        private int mineralCache = -1;
         public int Minerals
         {  
             get
             {
-                return TileContainer.Minerals;
+                if (mineralCache == -1)
+                    mineralCache = TileContainer.Minerals;
+                return mineralCache;
             }
         }
         public int ZoneId { get; set; }

@@ -136,38 +136,41 @@ namespace Engine.Master
             if (Unit.ExtractMe)
                 return;
 
+            bool enemyfound = false;
             Dictionary<ulong, TileWithDistance> resultList = CollectExtractableTiles();
 
             foreach (TileWithDistance t in resultList.Values)
             {
-                foreach (TileObject tileObject in t.Tile.TileContainer.TileObjects)
+                if (!enemyfound)
                 {
-                    if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
-                        continue;
-
-                    if (Unit.IsSpaceForTileObject(tileObject))
+                    foreach (TileObject tileObject in t.Tile.TileContainer.TileObjects)
                     {
-                        Move move = new Move();
+                        if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
+                            continue;
 
-                        move.MoveType = MoveType.Extract;
+                        if (Unit.IsSpaceForTileObject(tileObject))
+                        {
+                            Move move = new Move();
 
-                        move.UnitId = Unit.UnitId;
-                        move.OtherUnitId = tileObject.TileObjectType.ToString();
-                        move.Positions = new List<ulong>();
-                        move.Positions.Add(Unit.Pos);
-                        move.Positions.Add(t.Pos);
+                            move.MoveType = MoveType.Extract;
 
-                        move.Stats = new MoveUpdateStats();
-                        move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
-                        move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
+                            move.UnitId = Unit.UnitId;
+                            move.OtherUnitId = tileObject.TileObjectType.ToString();
+                            move.Positions = new List<ulong>();
+                            move.Positions.Add(Unit.Pos);
+                            move.Positions.Add(t.Pos);
 
-                        TileObject tileObjectCopy = tileObject.Copy();
-                        move.Stats.MoveUpdateGroundStat.TileObjects.Add(tileObjectCopy);
+                            move.Stats = new MoveUpdateStats();
+                            move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
+                            move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
 
-                        possibleMoves.Add(move);
+                            TileObject tileObjectCopy = tileObject.Copy();
+                            move.Stats.MoveUpdateGroundStat.TileObjects.Add(tileObjectCopy);
+
+                            possibleMoves.Add(move);
+                        }
                     }
                 }
-
                 if (t.Pos == Unit.Pos)
                 {
                     // Extract from ourselves? Not.
@@ -175,7 +178,7 @@ namespace Engine.Master
                 else if (t.Unit != null)
                 {
                     // Extract from tile with unit?
-                    if (Unit.Owner.PlayerModel.Id == t.Unit.Owner.PlayerModel.Id)
+                    if (!enemyfound && Unit.Owner.PlayerModel.Id == t.Unit.Owner.PlayerModel.Id)
                     {
                         // Extract from own unit?
                         if (t.Unit.ExtractMe)
@@ -271,6 +274,10 @@ namespace Engine.Master
                         // Cannot extract if enemy shield is up
                         if (t.Unit.Armor == null || !t.Unit.Armor.ShieldActive)
                         {
+                            // If it is possible to extract from enemy, do it. Nothing else.
+                            possibleMoves.Clear();
+                            enemyfound = true;
+
                             // Extract from enemy? Always an option
                             Move move = new Move();
 

@@ -164,7 +164,7 @@ namespace Engine.Ants
             //else if (pheromoneType == PheromoneType.ToFood) { a = 0.5f; b = 0.8f; }
             //else { a = 0.5f; b = 0.8f; }
 
-            float best_str = 0.01f;     // Best pheromone strength
+            float best_str = 0.001f;     // Best pheromone strength
 
             foreach (AntDestination destination in possibleTiles)
             {
@@ -686,16 +686,40 @@ namespace Engine.Ants
                     if (cntrlUnit.Pos == cntrlUnit.CurrentGameCommand.TargetPosition)
                         return true;
                 }
-                if (Ant.FollowThisRoute == null || Ant.FollowThisRoute.Count == 0)
+                bool calcPath = true;
+
+                if (cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Collect)
                 {
-                    // Compute route to target
-                    List<ulong> positions = player.Game.FindPath(cntrlUnit.Pos, cntrlUnit.CurrentGameCommand.TargetPosition, cntrlUnit);
-                    if (positions != null)
+                    if (cntrlUnit.Container.TileContainer.IsFreeSpace)
                     {
-                        Ant.FollowThisRoute = new List<ulong>();
-                        for (int i = 1; i < positions.Count; i++)
+                        // Move to target area
+                        int d = CubePosition.Distance(cntrlUnit.CurrentGameCommand.TargetPosition, cntrlUnit.Pos);
+                        if (d < player.Game.Map.SectorSize)
                         {
-                            Ant.FollowThisRoute.Add(positions[i]);
+                            calcPath = false;
+                            Ant.FollowThisRoute = null;
+                        }
+                    }
+                    else
+                    {
+                        // Find container
+                        calcPath = false;
+                        Ant.FollowThisRoute = null;
+                    }
+                }
+                if (calcPath)
+                {
+                    if (Ant.FollowThisRoute == null || Ant.FollowThisRoute.Count == 0)
+                    {
+                        // Compute route to target
+                        List<ulong> positions = player.Game.FindPath(cntrlUnit.Pos, cntrlUnit.CurrentGameCommand.TargetPosition, cntrlUnit);
+                        if (positions != null)
+                        {
+                            Ant.FollowThisRoute = new List<ulong>();
+                            for (int i = 1; i < positions.Count; i++)
+                            {
+                                Ant.FollowThisRoute.Add(positions[i]);
+                            }
                         }
                     }
                 }
