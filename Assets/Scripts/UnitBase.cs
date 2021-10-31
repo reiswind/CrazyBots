@@ -735,15 +735,16 @@ namespace Assets.Scripts
             return null;
         }
 
-        public ParticleSystem TankExplosionParticles;
+        //public ParticleSystem TankExplosionParticles;
 
         public void HitByShell()
         {
+            /*
             if (TankExplosionParticles != null)
             {
                 ParticleSystem particles= Instantiate(TankExplosionParticles, transform);
                 particles.Play();
-            }
+            }*/
         }
 
         private bool IsBuilding()

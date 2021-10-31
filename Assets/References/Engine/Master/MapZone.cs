@@ -43,11 +43,6 @@ namespace Engine.Interface
             Tile startTile = map.GetTile(Center);
             if (startTile != null)
             {
-                if (startTile.TileContainer.Count == 0)
-                {
-                    //List<TileObject> tileObjects = CrxeateRandomObjects(map);
-                    //startTile.TileContainer.AddRange(tileObjects);
-                }
                 openTiles = new List<Tile>();
 
                 startTile.IsOpenTile = true;
@@ -200,7 +195,7 @@ namespace Engine.Interface
 
                         bestTile.Height += map.Game.Random.NextDouble() / 50;
                     }
-                    bestTile.TileContainer.AddRange(bestTileFit.TileObjects);
+                    bestTile.AddRange(bestTileFit.TileObjects);
                     pos = bestTile.Pos;
 
                     if (!openTiles.Remove(bestTile))
@@ -250,7 +245,7 @@ namespace Engine.Interface
                             */
 
                             bool allTilesEmpty = true;
-                            foreach (TileObject tileObject in n.TileContainer.TileObjects)
+                            foreach (TileObject tileObject in n.TileObjects)
                             {
                                 //if (TileObject.IsTileObjectTypeGrow(tileObject.TileObjectType))
                                 if (tileObject.TileObjectType != TileObjectType.Mineral)

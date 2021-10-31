@@ -147,15 +147,16 @@ namespace Engine.Interface
 
         internal void ComputeMapInfo(Game game, List<Move> moves)
         {
+            
             foreach (Pheromone pheromone in game.Pheromones.AllPhromones)
             {
                 MapPheromone mapPheromone = new MapPheromone();
                 mapPheromone.Pos = pheromone.Pos;
 
-                mapPheromone.IntensityContainer = pheromone.GetIntensityF(0, PheromoneType.Container);
-                mapPheromone.IntensityToMineral = pheromone.GetIntensityF(0, PheromoneType.Mineral);
-                mapPheromone.IntensityToEnemy = pheromone.GetIntensityF(0, PheromoneType.Enemy);
-                mapPheromone.IntensityToWork = pheromone.GetIntensityF(0, PheromoneType.Work);
+                //mapPheromone.IntensityContainer = pheromone.GetIntensityF(0, PheromoneType.Container);
+                //mapPheromone.IntensityToMineral = pheromone.GetIntensityF(0, PheromoneType.Mineral);
+                //mapPheromone.IntensityToEnemy = pheromone.GetIntensityF(0, PheromoneType.Enemy);
+                //mapPheromone.IntensityToWork = pheromone.GetIntensityF(0, PheromoneType.Work);
                 
 
                 foreach (PheromoneItem pheromoneItem in pheromone.PheromoneItems)
@@ -856,7 +857,7 @@ namespace Engine.Interface
                                 if (!Game.changedGroundulongs.ContainsKey(t.Pos))
                                     Game.changedGroundulongs.Add(t.Pos, null);
 
-                                t.TileContainer.Add(tileObject);
+                                t.Add(tileObject);
                                 break;
                             }
                         }
@@ -958,7 +959,7 @@ namespace Engine.Interface
             moveUpdateGroundStat.IsBorder = t.IsBorder;
             moveUpdateGroundStat.IsUnderwater = t.IsUnderwater;
             moveUpdateGroundStat.TileObjects = new List<TileObject>();
-            moveUpdateGroundStat.TileObjects.AddRange(t.TileContainer.TileObjects);
+            moveUpdateGroundStat.TileObjects.AddRange(t.TileObjects);
             moveUpdateGroundStat.Height = (float)t.Height;
             moveUpdateGroundStat.IsOpenTile = t.IsOpenTile;
             moveUpdateGroundStat.ZoneId = t.ZoneId;

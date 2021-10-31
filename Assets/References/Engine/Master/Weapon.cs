@@ -36,9 +36,9 @@ namespace Engine.Master
             {
                 if (Unit.Power == 0)
                     return false;
-                if (TileContainer != null && TileContainer.Loaded > 0)
+                if (TileContainer != null && TileContainer.Count > 0)
                     return true;
-                if (Unit.Container != null && Unit.Container.TileContainer.Loaded > 0)
+                if (Unit.Container != null && Unit.Container.TileContainer.Count > 0)
                     return true;
                 return false;
             }
@@ -80,9 +80,9 @@ namespace Engine.Master
                 // Cannot fire on ground
                 if (n.Unit == null)
                 {
-                    if (n.Tile.TileContainer.Loaded > 0)
+                    if (n.Tile.Count > 0)
                     {
-                        foreach (TileObject tileObject in n.Tile.TileContainer.TileObjects)
+                        foreach (TileObject tileObject in n.Tile.TileObjects)
                         {
                             if (tileObject.Direction == Direction.C && tileObject.TileObjectType != TileObjectType.Mineral)
                                 continue;

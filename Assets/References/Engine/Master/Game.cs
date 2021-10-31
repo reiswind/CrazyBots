@@ -220,7 +220,7 @@ namespace Engine.Master
         {
             List<TileObject> remove = new List<TileObject>();
 
-            foreach (TileObject tileObject in t.TileContainer.TileObjects)
+            foreach (TileObject tileObject in t.TileObjects)
             {
                 if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
                 {
@@ -232,7 +232,7 @@ namespace Engine.Master
             foreach (TileObject tileObject in remove)
             {
                 Map.AddOpenTileObject(tileObject);
-                t.TileContainer.Remove(tileObject);
+                t.Remove(tileObject);
             }
         }
 
@@ -607,7 +607,7 @@ namespace Engine.Master
                                     // Drop Minerals on the floor, distribute anything else on the map
                                     // (No Trees in Buildings)
                                     if (tileObject.TileObjectType == TileObjectType.Mineral)
-                                        fromTile.TileContainer.Add(tileObject);
+                                        fromTile.Add(tileObject);
                                     else
                                         Map.AddOpenTileObject(tileObject);
                                 }
@@ -743,7 +743,7 @@ namespace Engine.Master
                             }
                             else
                             {
-                                targetTile.TileContainer.Add(tileObject);
+                                targetTile.Add(tileObject);
                             }
                         }
                     }
@@ -754,7 +754,7 @@ namespace Engine.Master
                     // Part turns into mineral on ground
                     hitPartTileObject.TileObjectType = TileObjectType.Mineral;
                     hitPartTileObject.Direction = Direction.C;
-                    targetTile.TileContainer.Add(hitPartTileObject);
+                    targetTile.Add(hitPartTileObject);
 
                     if (targetUnit.IsDead())
                     {
@@ -1512,7 +1512,7 @@ namespace Engine.Master
                             TileObject tileObject = new TileObject();
                             tileObject.TileObjectType = TileObjectType.Water;
                             tileObject.Direction = Direction.C;
-                            tile.TileContainer.Add(tileObject);
+                            tile.Add(tileObject);
                         }
                         if (!changedGroundulongs.ContainsKey(tile.Pos))
                             changedGroundulongs.Add(tile.Pos, null);

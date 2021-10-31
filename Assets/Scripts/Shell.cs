@@ -120,7 +120,7 @@ namespace Assets.Scripts
                 // Play the particle system.
                 if (HitGroundExplosionParticles != null)
                 {
-                    ParticleSystem particles = Instantiate(HitGroundExplosionParticles, transform);
+                    ParticleSystem particles = Instantiate(HitGroundExplosionParticles, hitUnit.transform);
                     particles.Play();
                 }                
 

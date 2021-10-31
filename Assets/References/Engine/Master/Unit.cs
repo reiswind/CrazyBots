@@ -617,26 +617,26 @@ namespace Engine.Master
         {
             if (Weapon != null)
             {
-                if (Weapon.TileContainer != null && Weapon.TileContainer.Loaded < Weapon.TileContainer.Capacity)
+                if (Weapon.TileContainer != null && Weapon.TileContainer.Count < Weapon.TileContainer.Capacity)
                 {
                     return true;
                 }
             }
             if (Assembler != null)
             {
-                if (Assembler.TileContainer != null && Assembler.TileContainer.Loaded < Assembler.TileContainer.Capacity)
+                if (Assembler.TileContainer != null && Assembler.TileContainer.Count < Assembler.TileContainer.Capacity)
                 {
                     return true;
                 }
             }
             if (Reactor != null)
             {
-                if (Reactor.TileContainer != null && Reactor.TileContainer.Loaded < Reactor.TileContainer.Capacity)
+                if (Reactor.TileContainer != null && Reactor.TileContainer.Count < Reactor.TileContainer.Capacity)
                 {
                     return true;
                 }
             }
-            if (Container != null && Container.TileContainer.Loaded < Container.TileContainer.Capacity)
+            if (Container != null && Container.TileContainer.Count < Container.TileContainer.Capacity)
             {
                 return true;
             }

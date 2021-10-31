@@ -303,7 +303,7 @@ namespace Engine.Ants
 
                     if (pheromoneType != PheromoneType.Energy && cntrlUnit.Container != null)
                     {
-                        if (cntrlUnit.Container.TileContainer.Loaded == 0)
+                        if (cntrlUnit.Container.TileContainer.Count == 0)
                         {
                             pheromoneType = PheromoneType.Mineral;
                         }
@@ -324,7 +324,7 @@ namespace Engine.Ants
                                 float intensityContainer = pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Container);
                                 float intensityMineral = pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Mineral);
 
-                                float loaded = ((float)cntrlUnit.Container.TileContainer.Loaded / cntrlUnit.Container.TileContainer.Capacity);
+                                float loaded = ((float)cntrlUnit.Container.TileContainer.Count / cntrlUnit.Container.TileContainer.Capacity);
                                 intensityContainer *= loaded;
 
                                 if (intensityContainer > intensityMineral)

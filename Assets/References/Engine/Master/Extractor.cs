@@ -58,9 +58,9 @@ namespace Engine.Master
                         return true;
                     }
                 }
-                if (tile.Tile.TileContainer != null)
+                if (tile.Tile.HasTileObjects)
                 {
-                    foreach (TileObject tileObject in tile.Tile.TileContainer.TileObjects)
+                    foreach (TileObject tileObject in tile.Tile.TileObjects)
                     {
                         if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
                             return true;
@@ -143,7 +143,7 @@ namespace Engine.Master
             {
                 if (!enemyfound)
                 {
-                    foreach (TileObject tileObject in t.Tile.TileContainer.TileObjects)
+                    foreach (TileObject tileObject in t.Tile.TileObjects)
                     {
                         if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
                             continue;
@@ -248,7 +248,7 @@ namespace Engine.Master
                                     }
                                     else
                                     {
-                                        int x = 0;
+                                        
                                     }
                                 }
                                 if (Unit.Weapon != null)

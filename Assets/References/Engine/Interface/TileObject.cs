@@ -121,14 +121,6 @@ namespace Engine.Interface
             }
         }
 
-        public int Loaded
-        {
-            get
-            {
-                return TileObjects.Count(); // Mineral + Dirt;
-            }
-        }
-
         public bool IsFreeSpace
         {
             get

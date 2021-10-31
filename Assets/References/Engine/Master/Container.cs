@@ -76,23 +76,23 @@ namespace Engine.Master
                     // Fill only container buildings
                     if (n.Unit.Engine == null && 
                         n.Unit.Container != null &&
-                        n.Unit.Container.TileContainer.Loaded < n.Unit.Container.TileContainer.Capacity &&
-                        n.Unit.Container.TileContainer.Loaded < TileContainer.Loaded - 1)
+                        n.Unit.Container.TileContainer.Count < n.Unit.Container.TileContainer.Capacity &&
+                        n.Unit.Container.TileContainer.Count < TileContainer.Count - 1)
                         transport = true;
 
                     if (n.Unit.Engine == null && 
                         n.Unit.Assembler != null &&
-                        n.Unit.Assembler.TileContainer.Loaded < n.Unit.Assembler.TileContainer.Capacity)
+                        n.Unit.Assembler.TileContainer.Count < n.Unit.Assembler.TileContainer.Capacity)
                         transport = true;
 
                     if (n.Unit.Engine == null &&
                         n.Unit.Reactor != null &&
-                        n.Unit.Reactor.TileContainer.Loaded < n.Unit.Reactor.TileContainer.Capacity)
+                        n.Unit.Reactor.TileContainer.Count < n.Unit.Reactor.TileContainer.Capacity)
                         transport = true;
 
                     if (n.Unit.Engine == null &&
                         n.Unit.Weapon != null &&
-                        n.Unit.Weapon.TileContainer.Loaded < n.Unit.Weapon.TileContainer.Capacity)
+                        n.Unit.Weapon.TileContainer.Count < n.Unit.Weapon.TileContainer.Capacity)
                         transport = true;
 
                     if (transport)

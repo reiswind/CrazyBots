@@ -3,6 +3,7 @@ using Engine.Interface;
 using Engine.Master;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -107,18 +108,6 @@ namespace Engine.Interface
 
     public class Tile
     {
-        /*
-        public static TileObjectType GetObjectType(string id)
-        {
-            if (id == "Mineral") return TileObjectType.Mineral;
-            if (id == "Dirt") return TileObjectType.Dirt;
-            if (id == "Gras") return TileObjectType.Gras;
-            if (id == "Bush") return TileObjectType.Bush;
-            if (id == "Tree") return TileObjectType.Tree;
-            if (id == "Sand") return TileObjectType.Sand;
-            return TileObjectType.None;
-        }*/
-
         internal Tile(Map map, ulong pos)
         {
             Map = map;
@@ -126,21 +115,31 @@ namespace Engine.Interface
 
             TileContainer = new TileContainer();
         }
-        public TileContainer TileContainer { get; private set; }
+        private TileContainer TileContainer { get; set; }
 
-        /*
-        internal int Count(TileObjectType tileObjectType)
+        public int Count
         {
-            int count = 0;
-            foreach (TileObject tileObject in TileContainer.TileObjects)
+            get
             {
-                if (tileObject.TileObjectType == tileObjectType)
-                {
-                    count++;
-                }
+                return TileContainer.Count;
             }
-            return count;
-        }*/
+        }
+        public bool HasTileObjects
+        {
+            get
+            {
+                return TileContainer != null;
+            }
+        }
+
+        public ReadOnlyCollection<TileObject> TileObjects 
+        { 
+            get 
+            { 
+                return TileContainer.TileObjects; 
+            } 
+        }
+
 
         internal void HitByBullet(TileObject bulletTileObject)
         {
@@ -159,6 +158,7 @@ namespace Engine.Interface
                 {
                     // Minerals stay on hit tile
                     TileContainer.Add(bulletTileObject);
+                    UpdateCache();
                 }
             }
             RemoveBio();
@@ -174,6 +174,7 @@ namespace Engine.Interface
                     tileObject.TileObjectType == TileObjectType.TreeTrunk)
                 {
                     TileContainer.Remove(tileObject);
+                    UpdateCache();
                     changed = true;
                     break;
                 }
@@ -203,7 +204,7 @@ namespace Engine.Interface
                     {
                         TileContainer.Remove(tileObject);
                     }
-
+                    UpdateCache();
                     break;
                 }
             }
@@ -357,20 +358,64 @@ namespace Engine.Interface
         internal Map Map { get; set; }
 
         public ulong Pos { get; set; }
-        //private List<Tile> neighbors;
 
         public double Height { get; set; }
 
         // Debug
         public bool IsOpenTile { get; set; }
 
-        private int mineralCache = -1;
+        public void Remove(TileObject tileObject)
+        {
+            TileContainer.Remove(tileObject);
+            UpdateCache();
+        }
+        public void Add(TileObject tileObject)
+        {
+            TileContainer.Add(tileObject);
+            UpdateCache();
+        }
+        public void AddRange(List<TileObject> tileObjects)
+        {
+            TileContainer.AddRange(tileObjects);
+            UpdateCache();
+        }
+
+        private void UpdateCache()
+        {
+            mineralCache = TileContainer.Minerals;
+
+            canBuild = true;
+            if (mineralCache >= 20)
+            {
+                canBuild = false;
+            }
+
+            if (IsUnderwater)
+                canBuild = false;
+
+            foreach (TileObject tileObject in TileContainer.TileObjects)
+            {
+                if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
+                {
+                    canBuild = false;
+                    break;
+                }
+                else if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
+                {
+                    canBuild = false;
+                    break;
+                }
+            }
+
+        }
+
+        private int mineralCache;
+        private bool canBuild;
+
         public int Minerals
         {  
             get
-            {
-                //if (mineralCache == -1)
-                    mineralCache = TileContainer.Minerals;
+            {  
                 return mineralCache;
             }
         }
@@ -381,22 +426,6 @@ namespace Engine.Interface
         public int Owner { get; set; }
 
         public bool IsBorder { get; set; }
-
-
-
-        public bool HasCollectableTileObjects
-        {
-            get
-            {
-                foreach (TileObject tileObject in TileContainer.TileObjects)
-                {
-                    if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
-                        return true;
-                }
-                return false;
-            }
-        }
-
 
         internal Unit Unit
         {
@@ -446,27 +475,7 @@ namespace Engine.Interface
         }
         public bool CanBuild()
         {
-            if (IsUnderwater)
-                return false;
-
-            int mins = 0;
-            foreach (TileObject tileObject in TileContainer.TileObjects)
-            {
-                if (tileObject.TileObjectType == TileObjectType.Mineral)
-                {
-                    mins++;
-                }
-                else if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
-                    return false;
-                else if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
-                    return false;
-            }
-
-            if (mins >= 20)
-            {
-                return false;
-            }
-            return true;
+            return canBuild;
         }
 
         public bool CanMoveTo(Tile from)
@@ -475,7 +484,7 @@ namespace Engine.Interface
             {
                 return false;
             }
-            return CanBuildForMove();
+            return canBuild; // CanBuildForMove();
         }
         public override string ToString()
         {
