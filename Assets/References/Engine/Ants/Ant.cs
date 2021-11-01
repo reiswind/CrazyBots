@@ -298,15 +298,27 @@ namespace Engine.Ants
             return moved;
         }
 
-        public virtual void OnDestroy(Player player)
+        internal void RemoveAntFromAllCommands(Player player)
         {
             if (PlayerUnit != null)
             {
                 foreach (GameCommand gameCommand in player.GameCommands)
                 {
-                    gameCommand.AttachedUnits.Remove(PlayerUnit.Unit.UnitId);
+                    foreach (GameCommandItem blueprintCommandItem in gameCommand.GameCommandItems)
+                    {
+                        if (blueprintCommandItem.AttachedUnitId == PlayerUnit.Unit.UnitId)
+                        {
+                            blueprintCommandItem.AttachedUnitId = null;
+                        }
+                    }
                 }
             }
+        }
+
+        public virtual void OnDestroy(Player player)
+        {
+            PlayerUnit.Unit.ResetGameCommand();
+            //RemoveAntFromAllCommands(player);
             foreach (AntPart antPart in AntParts)
             {
                 antPart.OnDestroy(player);
@@ -333,11 +345,12 @@ namespace Engine.Ants
                 PheromoneWaypointMineral = 0;
             }*/
             // Another ant has to take this task
-            if (FinishCommandWhenCompleted != null)
+            /*
+            if (PlayerUnit.Unit.FinishCommandWhenCompleted != null)
             {
-                FinishCommandWhenCompleted.WaitingForUnit = false;
+                PlayerUnit.Unit.FinishCommandWhenCompleted.WaitingForUnit = false;
 
-                FinishCommandWhenCompleted = null;
+                PlayerUnit.Unit.FinishCommandWhenCompleted = null;
             }
 
             if (PlayerUnit != null &&
@@ -364,10 +377,11 @@ namespace Engine.Ants
                     player.GameCommands.Remove(GameCommandDuringCreation);
                 GameCommandDuringCreation = null;
             }
+            */
         }
 
         internal GameCommand GameCommandDuringCreation;
-        internal GameCommand FinishCommandWhenCompleted;
+
         public AntWorkerType AntWorkerType { get; set; }
     }
 

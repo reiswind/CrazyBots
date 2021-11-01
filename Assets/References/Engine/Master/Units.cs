@@ -9,25 +9,28 @@ namespace Engine.Master
 
     public class Units
     {
-        private SortedDictionary<ulong, Unit> units;
-        public List<Unit> UnitsOnSameulong;
+        private Dictionary<ulong, Unit> units;
+        private Dictionary<string, Unit> unitsById;
         public Map Map;
 
         public Units(Map map)
         {
             Map = map;
-            units = new SortedDictionary<ulong, Unit>();
-            UnitsOnSameulong = new List<Unit>();
+            units = new Dictionary<ulong, Unit>();
+            unitsById = new Dictionary<string, Unit>();
         }
 
-        public SortedDictionary<ulong, Unit> List
+        public Dictionary<ulong, Unit> List
         {
             get { return units; }
         }
         
         public void Add(Unit unit)
         {
-            units.Add(unit.Pos, unit);
+            if (!unitsById.ContainsKey(unit.UnitId))
+                unitsById.Add(unit.UnitId, unit);
+            if (unit.Pos != Position.Null)
+                units.Add(unit.Pos, unit);
         }
 
         public void Remove(ulong pos)
@@ -43,50 +46,6 @@ namespace Engine.Master
             }
         }
 
-        public bool IsAlive(Unit unitInQuestion)
-        {
-            foreach (Unit unit in units.Values)
-            {
-                if (unit == unitInQuestion)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-
-        public void ChangePos(ulong from, ulong destination)
-        {
-            if (from == destination)
-            {
-                return;
-            }
-
-            Unit unitAt = null;
-            
-            if (units.TryGetValue(from, out unitAt))
-            {
-                if (!units.Remove(from))
-                    throw new Exception("unexpected");
-            }
-            else
-            {
-                throw new Exception("unexpected");
-            }
-
-            unitAt.Pos = destination;
-
-            if (units.ContainsKey(destination))
-            {
-                throw new Exception("unexpected");
-            }
-            else
-            {
-                units.Add(destination, unitAt);
-            }
-        }
-
         public Unit GetUnitAt(ulong pos)
         {
             Unit unit;
@@ -96,12 +55,9 @@ namespace Engine.Master
 
         public Unit FindUnit(string unitId)
         {
-            foreach (Unit unit in units.Values)
-            {
-                if (unit.UnitId == unitId)
-                    return unit;
-            }
-            return null;
+            Unit unit;
+            unitsById.TryGetValue(unitId, out unit);
+            return unit;
         }
     }
 

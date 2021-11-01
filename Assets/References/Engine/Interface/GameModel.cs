@@ -22,38 +22,56 @@ namespace Engine.Interface
         AddUnits,
         Extract
     }
-
+    internal class GameCommandItem
+    {
+        internal GameCommandItem(GameCommand gamecommand, BlueprintCommandItem blueprintCommandItem)
+        {
+            GameCommand = gamecommand;
+            BlueprintCommandItem = blueprintCommandItem;
+        }
+        // Runtime info
+        internal string AttachedUnitId { get; set; }
+        internal BlueprintCommandItem BlueprintCommandItem { get; private set; }
+        internal GameCommand GameCommand { get; private set; }
+        internal string FactoryUnitId { get; set; }
+    }
     internal class GameCommand
     {
-        public GameCommand()
+        public GameCommand(BlueprintCommand blueprintCommand)
         {
-            AttachedUnits = new List<string>();        
+            BlueprintCommand = blueprintCommand;
+            GameCommandItems = new List<GameCommandItem>();
+            GameCommandType = blueprintCommand.GameCommandType;
+            foreach (BlueprintCommandItem blueprintCommandItem in blueprintCommand.Units)
+            {
+                GameCommandItem gameCommandItem = new GameCommandItem(this, blueprintCommandItem);
+                GameCommandItems.Add(gameCommandItem);
+            }
         }
         public bool CommandComplete { get; set; }
         public bool DeleteWhenFinished { get; set; }
         public bool CommandCanceled { get; set; }
-        public bool WaitingForUnit { get; set; }
         public int PlayerId { get; set; }
         public int TargetZone { get; set; }
-        public string UnitId { get; set; } // Which unit to build, extract...
         public ulong TargetPosition { get; set; }
         public ulong MoveToPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
-        public BlueprintCommand BlueprintCommand { get; set; }
-        public List<string> AttachedUnits { get; private set; }
-
-        internal GameCommand AttachToThisOnCompletion { get; set; }
+        public BlueprintCommand BlueprintCommand { get; private set; }
+        public List<GameCommandItem> GameCommandItems { get; private set; }
 
         public override string ToString()
         {
             string s = GameCommandType.ToString() + " at " + Position.GetX(TargetPosition) + "," + Position.GetY(TargetPosition);
             if (CommandCanceled) s += " Canceld";
             if (CommandComplete) s += " Complete";
-            if (WaitingForUnit) s += " Waiting";
-            foreach (string id in AttachedUnits)
+
+            foreach (GameCommandItem blueprintCommandItem in GameCommandItems)
             {
-                s += id;
+                s += blueprintCommandItem.BlueprintCommandItem.BlueprintName;
                 s += " ";
+                if (blueprintCommandItem.FactoryUnitId != null)
+                    s += " Factory" + blueprintCommandItem.FactoryUnitId;
+                s += "\r\n";
             }
             return s;
         }
@@ -75,23 +93,19 @@ namespace Engine.Interface
         None
     }
 
-
     public interface IGameController
     {
         MapInfo GetDebugMapInfo();
         List<Move> ProcessMove(int playerId, Move myMove, List<MapGameCommand> gameCommands);
 
         void ComputePossibleMoves(ulong pos, List<Move> possibleMoves, List<ulong> includedulongs, MoveFilter moveFilter);
-        Move MoveTo(ulong From, ulong To, Master.Engine engine);
+        //Move MoveTo(ulong From, ulong To, Master.Engine engine);
         List<ulong> FindPath(ulong from, ulong to, Unit unit);
         Dictionary<int, Player> Players { get; }
         int Seed { get; }
-        //Random Random { get; }
         Tile GetTile(ulong p);
         Map Map { get; }
         Blueprints Blueprints { get; }
-        List<Area> Areas { get; }
-
         void CreateUnits();
     }
 

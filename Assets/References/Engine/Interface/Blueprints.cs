@@ -283,6 +283,24 @@ namespace Engine.Interface
 
         public List<BlueprintCommandItem> Units { get; private set; }
 
+        public BlueprintCommand CopySelf()
+        {
+            BlueprintCommand mapBueprintCommand = new BlueprintCommand();
+
+            mapBueprintCommand.GameCommandType = GameCommandType;
+            mapBueprintCommand.Layout = Layout;
+            mapBueprintCommand.Name = Name;
+            foreach (BlueprintCommandItem mapBlueprintCommandItem in Units)
+            {
+                BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
+                blueprintCommandItem.BlueprintName = mapBlueprintCommandItem.BlueprintName;
+                blueprintCommandItem.Direction = mapBlueprintCommandItem.Direction;
+                blueprintCommandItem.CubePosition = mapBlueprintCommandItem.CubePosition;
+                mapBueprintCommand.Units.Add(blueprintCommandItem);
+            }
+            return mapBueprintCommand;
+        }
+
         public MapBlueprintCommand Copy()
         {
             MapBlueprintCommand mapBueprintCommand = new MapBlueprintCommand();

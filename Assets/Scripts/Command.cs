@@ -58,8 +58,9 @@ namespace Assets.Scripts
             allCommandUnits.AddRange(selectedCommandUnits.Keys);
 
             StringBuilder stringBuilder = new StringBuilder();
-            foreach (string unitId in CommandPreview.GameCommand.AttachedUnits)
+            foreach (MapGameCommandItem mapGameCommandItem in CommandPreview.GameCommand.GameCommandItems)
             {
+                string unitId = mapGameCommandItem.AttachedUnitId;
                 UnitBase unitBase;
                 if (unitId.StartsWith("Assembler"))
                 {

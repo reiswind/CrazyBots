@@ -200,7 +200,6 @@ namespace Engine.Master
                             move.MoveType = MoveType.Add;
                             move.PlayerId = unitModel.PlayerId;
                             move.UnitId = thisUnit.UnitId;
-                            move.OtherUnitId = unitModel.Blueprint;
                             move.Stats = thisUnit.CollectStats();
                             move.Positions = new List<ulong>();
                             move.Positions.Add(posOnMap);
@@ -372,6 +371,8 @@ namespace Engine.Master
                         }
                         if (newUnit == null)
                         {
+                            throw new Exception("errr");
+                            /*
                             Player player = Players[move.PlayerId];
 
                             if (player.UnitsInBuild.ContainsKey(move.OtherUnitId)) //move.ulongs[1]))
@@ -381,7 +382,7 @@ namespace Engine.Master
                                 newUnit = playerUnit.Unit;
                                 playerUnit.Unit.IsGhost = false;
                                 addedUnits.Add(playerUnit.Unit);
-                            }
+                            }*/
                         }
                         if (newUnit != null)
                         {
@@ -409,8 +410,14 @@ namespace Engine.Master
                     Destination = move.Positions[move.Positions.Count - 1];
 
                     Unit thisUnit;
-
-                    thisUnit = Map.Units.GetUnitAt(From);
+                    if (move.MoveType == MoveType.Build)
+                    {
+                        thisUnit = Map.Units.FindUnit(move.UnitId);
+                    }
+                    else
+                    {
+                        thisUnit = Map.Units.GetUnitAt(From);
+                    }
                     if (move.MoveType == MoveType.Move && move.Stats == null)
                         move.Stats = thisUnit.CollectStats();
 
@@ -451,13 +458,10 @@ namespace Engine.Master
                             move.UnitId = move.UnitId.Replace("Remove", "");
                             thisUnit.ExtractMe = markForExtraction;
                         }*/
-                        thisUnit = new Unit(this, move.UnitId);
+                       
 
-                        //if (thisUnit.Container != null && containerNetal.HasValue)
-                        ///    thisUnit.Container.Mineral = containerNetal.Value;
 
-                        thisUnit.Power = 20;
-                        thisUnit.MaxPower = 20;
+
                         if (move.MoveType == MoveType.Add)
                         {
                             thisUnit.CreateAllPartsFromBlueprint();
@@ -518,6 +522,7 @@ namespace Engine.Master
             {
                 if (addedUnit.Pos != Position.Null)
                 {
+                    /*
                     if (addedUnit.IsGhost)
                     {
                         if (addedUnit.Owner.UnitsInBuild.ContainsKey(addedUnit.UnitId))
@@ -529,10 +534,10 @@ namespace Engine.Master
                         addedUnit.Owner.UnitsInBuild.Add(addedUnit.UnitId, playerUnit);
                     }
                     else
-                    {
+                    {*/
                         if (Map.Units.GetUnitAt(addedUnit.Pos) == null)
                             Map.Units.Add(addedUnit);
-                    }
+                    //}
                 }
             }
         }
@@ -1348,97 +1353,84 @@ namespace Engine.Master
 
             }
 
-            bool somethingChanged = true;
             List<Move> acceptedMoves = new List<Move>();
             Dictionary<ulong, Move> moveToTargets = new Dictionary<ulong, Move>();
 
-            while (somethingChanged)
+            // Remove moves that go to the same destination
+            /*
+            foreach (Move move in newMoves)
             {
-                somethingChanged = false;
-                
-
-                // Remove moves that go to the same destination
-                
-                foreach (Move move in newMoves)
+                // Any position that is currently being upgraded or a unit turns from ghost into real
+                // cannot be stepped on
+                if (move.MoveType == MoveType.Upgrade) // || move.MoveType == MoveType.Build)
                 {
-                    // Any position that is currently being upgraded or a unit turns from ghost into real
-                    // cannot be stepped on
-                    if (move.MoveType == MoveType.Upgrade || move.MoveType == MoveType.Build)
+                    ulong destination = move.Positions[move.Positions.Count - 1];
+                    if (moveToTargets.ContainsKey(destination))
                     {
-                        ulong destination = move.Positions[move.Positions.Count - 1];
-                        if (moveToTargets.ContainsKey(destination))
+                        // Cannot execute move
+                        Tile t = Map.GetTile(destination);
+                        if (t.Unit != null)
                         {
-                            // Cannot execute move
-                            Tile t = Map.GetTile(destination);
-                            if (t.Unit != null)
-                            {
-                                // Double upgrade, its ok
-                            }
-                            else
-                            {
-                                // Double upgrade, its ok
-                            }
+                            // Double upgrade, its ok
                         }
                         else
                         {
-                            moveToTargets.Add(destination, move);
+                            // Double upgrade, its ok
                         }
-                    }
-                }
-
-                foreach (Move move in newMoves)
-                {
-                    if (move.MoveType == MoveType.Move || move.MoveType == MoveType.Add) // || move.MoveType == MoveType.Build)
-                    {
-                        ulong destination = move.Positions[move.Positions.Count - 1];
-                        if (moveToTargets.ContainsKey(destination))
-                        {
-                            // (Hit) Could do nasty things, but for now, the unit does not move
-                            newMoves.Remove(move);
-                            somethingChanged = true;
-
-                            moveToTargets.Clear();
-                            acceptedMoves.Clear();
-                            break;
-                        }
-                        else
-                        {
-                            moveToTargets.Add(destination, move);
-                        }
-                    }
-                    else if (move.MoveType == MoveType.Upgrade)
-                    {
-
                     }
                     else
                     {
-                        acceptedMoves.Add(move);
+                        moveToTargets.Add(destination, move);
                     }
                 }
+            }*/
+
+            foreach (Move move in newMoves)
+            {
+                if (move.MoveType == MoveType.Move || move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
+                {
+                    ulong destination = move.Positions[move.Positions.Count - 1];
+                    if (moveToTargets.ContainsKey(destination))
+                    {
+                        // (Hit) Could do nasty things, but for now, the unit does not move
+                        newMoves.Remove(move);
+
+                        moveToTargets.Clear();
+                        acceptedMoves.Clear();
+                        break;
+                    }
+                    else
+                    {
+                        moveToTargets.Add(destination, move);
+                    }
+                }
+                else
+                {
+                    acceptedMoves.Add(move);
+                }
             }
+            
             List<Move> revokedMoves = new List<Move>();
             
             foreach (Move move in moveToTargets.Values)
             {
-                if (/*move.MoveType == MoveType.Upgrade ||*/ move.MoveType == MoveType.Build)
-                    continue;
-
                 ulong from = move.Positions[0];
                 ulong destination = move.Positions[move.Positions.Count - 1];
                 Tile t = Map.GetTile(destination);
                 if (t == null)
                 {
                     // Moved outside?
+                    if (move.MoveType == MoveType.Build)
+                        Map.Units.Remove(from);
+
                     revokedMoves.Add(move);
                 }
                 else if (!t.CanMoveTo(from))
                 {
                     // Move to invalid pos
-                    // Happend with bad startup pos
-                    //throw new Exception("how dare you");
-                    //moveToTargets.Remove(move.Positions[move.Positions.Count - 1]);
-                    //somethingChanged = true;
-                    //break;
+                    if (move.MoveType == MoveType.Build)
+                        Map.Units.Remove(from);
+
                     revokedMoves.Add(move);
                 }
                 else if (t.Unit != null)
@@ -1472,9 +1464,11 @@ namespace Engine.Master
                     }
                     if (unitBlocked == true)
                     {
+                        if (move.MoveType == MoveType.Build)
+                            Map.Units.Remove(from);
+
                         revokedMoves.Add(move);
                         // (Hit) Could do nasty things, but for now, the unit does not move
-                        //somethingChanged = true;
                     }
                     else
                     {
@@ -1652,12 +1646,8 @@ namespace Engine.Master
                 {
                     foreach (MapGameCommand mapGameCommand in gameCommands)
                     {
-                        GameCommand gameCommand = new GameCommand();
+                        GameCommand gameCommand = new GameCommand(mapGameCommand.BlueprintCommand.Copy());
 
-                        foreach (string id in mapGameCommand.AttachedUnits)
-                            gameCommand.AttachedUnits.Add(id);
-
-                        gameCommand.BlueprintCommand = mapGameCommand.BlueprintCommand.Copy();
                         gameCommand.DeleteWhenFinished = mapGameCommand.DeleteWhenFinished;
                         gameCommand.CommandCanceled = mapGameCommand.CommandCanceled;
                         gameCommand.CommandComplete = mapGameCommand.CommandComplete;
@@ -1666,7 +1656,6 @@ namespace Engine.Master
                         gameCommand.PlayerId = mapGameCommand.PlayerId;
                         gameCommand.TargetPosition = mapGameCommand.TargetPosition;
                         gameCommand.TargetZone = mapGameCommand.TargetZone;
-                        gameCommand.WaitingForUnit = mapGameCommand.WaitingForUnit;
 
                         Player player = Players[mapGameCommand.PlayerId];
                         if (mapGameCommand.CommandComplete)
@@ -1679,9 +1668,9 @@ namespace Engine.Master
 
                             if (mapGameCommand.GameCommandType == GameCommandType.Extract)
                             {
-                                Unit unit = Map.Units.FindUnit(mapGameCommand.UnitId);
-                                if (unit != null)
-                                    unit.ExtractUnit();
+                                //Unit unit = Map.Units.FindUnit(mapGameCommand.UnitId);
+                                //if (unit != null)
+                                //    unit.ExtractUnit();
                             }
                         }
                     }
@@ -1729,24 +1718,6 @@ namespace Engine.Master
 
                 foreach (Player player in Players.Values)
                 {
-                    /*
-                    if (player.PlayerModel.Id == playerId)
-                    {
-                        player.ProcessMoves(lastMoves);
-                        returnMoves = player.LastMoves;
-                    }
-                    else
-                    {
-                        player.ProcessMoves(lastMoves);
-                        
-                        if (player.Control != null)
-                            player.Control.ProcessMoves(player, player.LastMoves);
-                    }
-                    if (player.NumberOfUnits == 0 && player.Commands.Count > 0)
-                    {
-                        // This player is dead.
-                        player.Commands.Clear();
-                    }*/
                     ConsumePower(player, lastMoves);
                 }
 
@@ -1808,17 +1779,6 @@ namespace Engine.Master
                 MoveNr++;
             }
             return returnMoves;
-            /*
-            var mySortedList = new SortedList<MoveType, Move>(new MoveTypeComparer());
-
-            // Sort moves
-            foreach (Move move in returnMoves)
-            {
-                mySortedList.Add(move.MoveType, move);
-            }
-            // Check if a unit moves to a occupied place
-            return mySortedList.Values.ToList();
-            */
         }
         private MapInfo mapInfo;
 
@@ -1827,7 +1787,7 @@ namespace Engine.Master
             return mapInfo;
         }
 
-        private List<ulong> updatedulongs = new List<ulong>();
+        private List<ulong> updatedPositions = new List<ulong>();
         private void ProcessBorders()
         {
             List<ulong> newUpdatedulongs = new List<ulong>();
@@ -1835,7 +1795,7 @@ namespace Engine.Master
             foreach (ulong pos in mapInfo.Pheromones.Keys)
             {
                 newUpdatedulongs.Add(pos);
-                updatedulongs.Remove(pos);
+                updatedPositions.Remove(pos);
 
                 MapPheromone mapPheromone = mapInfo.Pheromones[pos];
                 float highestEnergy = -1;
@@ -1871,7 +1831,7 @@ namespace Engine.Master
                     }
                 }
             }
-            foreach (ulong pos in updatedulongs)
+            foreach (ulong pos in updatedPositions)
             {
                 Tile t = Map.GetTile(pos);
                 if (t.Owner != 0 || t.IsBorder)
@@ -1882,7 +1842,7 @@ namespace Engine.Master
                     t.IsBorder = false;
                 }
             }
-            updatedulongs = newUpdatedulongs;
+            updatedPositions = newUpdatedulongs;
             
             foreach (ulong pos in newUpdatedulongs)
             {

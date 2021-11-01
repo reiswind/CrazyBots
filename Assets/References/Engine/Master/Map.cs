@@ -74,35 +74,45 @@ namespace Engine.Interface
     {
         public MapGameCommand()
         {
-            AttachedUnits = new List<string>();
+            GameCommandItems = new List<MapGameCommandItem>();
         }
         public bool CommandComplete { get; set; }
         public bool DeleteWhenFinished { get; set; }
         public bool CommandCanceled { get; set; }
-        public bool WaitingForUnit { get; set; }
+
         public Direction Direction { get; set; }
         public int PlayerId { get; set; }
         public int TargetZone { get; set; }
-        public string UnitId { get; set; } // Which unit to build, extract...
         public ulong TargetPosition { get; set; }
         public ulong MoveToPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
         public MapBlueprintCommand BlueprintCommand { get; set; }
-        public List<string> AttachedUnits { get; private set; }
-
+        public List<MapGameCommandItem> GameCommandItems { get; private set; }
         public override string ToString()
         {
             string s = GameCommandType.ToString() + " at " + Position.GetX(TargetPosition) + "," + Position.GetY(TargetPosition);
             if (CommandCanceled) s += " Canceld";
             if (CommandComplete) s += " Complete";
-            if (WaitingForUnit) s += " Waiting";
-            foreach (string id in AttachedUnits)
+            foreach (MapGameCommandItem id in GameCommandItems)
             {
-                s += id;
+                s += id.AttachedUnitId;
                 s += " ";
             }
             return s;
         }
+    }
+    public class MapGameCommandItem
+    {
+        internal MapGameCommandItem(MapGameCommand gamecommand, BlueprintCommandItem blueprintCommandItem)
+        {
+            GameCommand = gamecommand;
+            BlueprintCommandItem = blueprintCommandItem;
+        }
+        // Runtime info
+        public string AttachedUnitId { get; set; }
+        public BlueprintCommandItem BlueprintCommandItem { get; private set; }
+        public MapGameCommand GameCommand { get; private set; }
+        public string FactoryUnitId { get; set; }
     }
 
     public class MapPheromoneItem
@@ -211,9 +221,6 @@ namespace Engine.Interface
                         {
                             MapGameCommand mapGameCommand = new MapGameCommand();
 
-                            foreach (string id in gameCommand.AttachedUnits)
-                                mapGameCommand.AttachedUnits.Add(id);
-
                             mapGameCommand.BlueprintCommand = gameCommand.BlueprintCommand.Copy();
                             mapGameCommand.CommandCanceled = gameCommand.CommandCanceled;
                             mapGameCommand.CommandComplete = gameCommand.CommandComplete;
@@ -223,8 +230,14 @@ namespace Engine.Interface
                             mapGameCommand.PlayerId = gameCommand.PlayerId;
                             mapGameCommand.TargetPosition = gameCommand.TargetPosition;
                             mapGameCommand.TargetZone = gameCommand.TargetZone;
-                            mapGameCommand.WaitingForUnit = gameCommand.WaitingForUnit;
 
+                            foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
+                            {
+                                MapGameCommandItem mapGameCommandItem = new MapGameCommandItem(mapGameCommand, gameCommandItem.BlueprintCommandItem);
+                                mapGameCommandItem.AttachedUnitId = gameCommandItem.AttachedUnitId;
+                                mapGameCommandItem.FactoryUnitId = gameCommandItem.FactoryUnitId;
+                                mapGameCommand.GameCommandItems.Add(mapGameCommandItem);
+                            }
                             mapPlayerInfo.GameCommands.Add(mapGameCommand);
                         }
                     }

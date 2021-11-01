@@ -70,8 +70,10 @@ namespace Engine.Master
             move.Positions.Add(Unit.Pos);
             move.Positions.Add(pos);
             move.PlayerId = Unit.Owner.PlayerModel.Id;
-            move.UnitId = productCode;
             move.OtherUnitId = Unit.UnitId;
+
+            move.Stats = new MoveUpdateStats();
+            move.Stats.BlueprintName = productCode;
 
             return move;
         }
@@ -250,8 +252,9 @@ namespace Engine.Master
             if (!CanProduce())
                 return;
 
+            
             Dictionary<ulong, TileWithDistance> neighbors = CollectOutputulongs();
-
+            /*
             foreach (TileWithDistance neighbor in neighbors.Values)
             {
                 if (!CanBuildAt(neighbor))
@@ -290,7 +293,7 @@ namespace Engine.Master
                         }
                     }
                 }
-            }
+            }*/
             foreach (TileWithDistance neighbor in neighbors.Values)
             {
                 if (!CanBuildAt(neighbor))
@@ -324,14 +327,14 @@ namespace Engine.Master
                             }
                             else
                             {
-                                foreach (BlueprintCommandItem blueprintCommandItem in Unit.CurrentGameCommand.BlueprintCommand.Units)
+                                //foreach (BlueprintCommandItem blueprintCommandItem in Unit.CurrentGameCommand.BlueprintCommand.Units)
                                 {
                                     // Can units in command
-                                    foreach (Blueprint blueprint in Unit.Owner.Game.Blueprints.Items)
+                                    //foreach (Blueprint blueprint in Unit.Owner.Game.Blueprints.Items)
                                     {
-                                        if (blueprint.Name == blueprintCommandItem.BlueprintName)
+                                        //if (blueprint.Name == blueprintCommandItem.BlueprintName)
                                         {
-                                            possibleMoves.Add(CreateAssembleMove(neighbor.Pos, blueprint.Name));
+                                            possibleMoves.Add(CreateAssembleMove(neighbor.Pos, Unit.CurrentGameCommand.BlueprintCommandItem.BlueprintName));
                                         }
                                     }
                                 }

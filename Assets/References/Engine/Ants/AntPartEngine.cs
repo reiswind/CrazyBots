@@ -654,47 +654,14 @@ namespace Engine.Ants
 
             if (cntrlUnit.CurrentGameCommand != null)
             {
-                //bool loadFirst = false;
-                // only if filled!
-                /*
-                if (cntrlUnit.Weapon != null && cntrlUnit.Weapon.Container.Mineral < cntrlUnit.Weapon.Container.Capacity)
-                    loadFirst = true;
-                if (cntrlUnit.Assembler != null && cntrlUnit.Assembler.Container.Mineral < cntrlUnit.Assembler.Container.Capacity)
-                    loadFirst = true;
-                */
-                //if (!loadFirst)
-
-                if (cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Build)
-                {
-                    if (cntrlUnit.Assembler != null && cntrlUnit.Assembler.CanProduce())
-                    {
-                        Tile t = player.Game.Map.GetTile(cntrlUnit.Pos);
-                        foreach (Tile n in t.Neighbors)
-                        {
-                            if (n.Pos == cntrlUnit.CurrentGameCommand.TargetPosition)
-                            {
-                                // Next to build target
-                                Ant.FollowThisRoute = null;
-                                Ant.BuildPositionReached = true;
-                                return true;
-                            }
-                        }
-                    }
-                }
-                if (cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Attack)
-                {
-                    if (cntrlUnit.Pos == cntrlUnit.CurrentGameCommand.TargetPosition)
-                        return true;
-                }
                 bool calcPath = true;
 
-                if (
-                    cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Collect)
+                if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
                 {
                     if (cntrlUnit.Container != null && cntrlUnit.Container.TileContainer.IsFreeSpace)
                     {
                         // Move to target area
-                        int d = CubePosition.Distance(cntrlUnit.CurrentGameCommand.TargetPosition, cntrlUnit.Pos);
+                        int d = CubePosition.Distance(cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition, cntrlUnit.Pos);
                         if (d < player.Game.Map.SectorSize)
                         {
                             calcPath = false;
@@ -708,12 +675,47 @@ namespace Engine.Ants
                         Ant.FollowThisRoute = null;
                     }
                 }
+                if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Attack)
+                {
+                    if (cntrlUnit.Pos == cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition)
+                        return true;
+                }
+                if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Build)
+                {
+                    if (cntrlUnit.Assembler != null && cntrlUnit.Assembler.CanProduce())
+                    {
+                        Tile t = player.Game.Map.GetTile(cntrlUnit.Pos);
+                        foreach (Tile n in t.Neighbors)
+                        {
+                            if (n.Pos == cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition)
+                            {
+                                // Next to build target
+                                Ant.FollowThisRoute = null;
+                                Ant.BuildPositionReached = true;
+                                return true;
+                            }
+                        }
+                    }
+                }
+                
                 if (calcPath)
                 {
                     if (Ant.FollowThisRoute == null || Ant.FollowThisRoute.Count == 0)
                     {
                         // Compute route to target
-                        List<ulong> positions = player.Game.FindPath(cntrlUnit.Pos, cntrlUnit.CurrentGameCommand.TargetPosition, cntrlUnit);
+                        List<ulong> positions = player.Game.FindPath(cntrlUnit.Pos, cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition, cntrlUnit);
+                        if (positions == null && cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
+                        {
+                            // Must not be exact
+                            Tile t = player.Game.Map.GetTile(cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition);
+                            foreach (Tile n in t.Neighbors)
+                            {
+                                positions = player.Game.FindPath(cntrlUnit.Pos, n.Pos, cntrlUnit);
+                                if (positions != null)
+                                    break;
+                            }
+                        }
+
                         if (positions != null)
                         {
                             Ant.FollowThisRoute = new List<ulong>();

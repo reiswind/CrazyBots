@@ -85,8 +85,8 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
             GameModel gameModel;
 
@@ -1613,9 +1613,9 @@ namespace Assets.Scripts
         {
             foreach (CommandPreview mapGameCommand in CommandPreviews)
             {
-                foreach (string unitId in mapGameCommand.GameCommand.AttachedUnits)
+                foreach (MapGameCommandItem mapGameCommandItem in mapGameCommand.GameCommand.GameCommandItems)
                 {
-                    if (unitId == unitBase.UnitId)
+                    if (mapGameCommandItem.AttachedUnitId == unitBase.UnitId)
                         return mapGameCommand;
                 }
             }

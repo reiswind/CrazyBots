@@ -13,8 +13,13 @@ namespace Engine.Interface
     {
         None,
         Skip,
-
+        /// <summary>
+        /// Place unit at start of game
+        /// </summary>
         Add,
+        /// <summary>
+        /// Create units in game
+        /// </summary>
         Build,
         Upgrade,
         Move,
@@ -182,6 +187,9 @@ namespace Engine.Interface
     {
         public ulong TargetPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
+        public string AttachedUnitId { get; set; }
+        public string FactoryUnitId { get; set; }
+        public BlueprintCommandItem BlueprintCommandItem { get; set; }
     }
 
     public class MoveUpdateStats

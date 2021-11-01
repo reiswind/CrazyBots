@@ -92,15 +92,22 @@ namespace Engine.Master
         [DataMember]
         public string UnitId { get; set; }
 
-        internal GameCommand CurrentGameCommand { get; private set; }
+        internal GameCommandItem CurrentGameCommand { get; private set; }
 
-        internal void SetGameCommand(GameCommand gameCommand)
+        internal void SetGameCommand(GameCommandItem gameCommand)
         {
             CurrentGameCommand = gameCommand;
         }
         public void ResetGameCommand()
         {
-            CurrentGameCommand = null;
+            if (CurrentGameCommand != null)
+            {
+                if (CurrentGameCommand.AttachedUnitId == UnitId)
+                    CurrentGameCommand.AttachedUnitId = null;
+                if (CurrentGameCommand.FactoryUnitId == UnitId)
+                    CurrentGameCommand.FactoryUnitId = null;
+                CurrentGameCommand = null;
+            }
         }
 
         public int Power { get; set; }
@@ -475,140 +482,13 @@ namespace Engine.Master
         public Unit(Game game, string startCode)
         {
             Game = game;
-
+            Pos = Position.Null;
+            Power = 20;
+            MaxPower = 20;
             Blueprint = game.Blueprints.FindBlueprint(startCode);
             if (Blueprint != null)
             {
                 UnitId = game.GetNextUnitId("unit");
-                UnderConstruction = true;
-            }
-            else
-            {
-                int p = startCode.IndexOf(':');
-                if (p > 0)
-                {
-                    UnitId = startCode.Substring(0, p);
-                    startCode = startCode.Substring(p + 1);
-                }
-                else
-                {
-                    UnitId = game.GetNextUnitId("unit");
-                }
-                string unitCode = "";
-
-                string[] parts;
-                if (startCode == "Engine")
-                {
-                    unitCode = "1";
-                }
-                else if (startCode == "Armor")
-                {
-                    unitCode = "0;1";
-                }
-                else if (startCode == "Weapon")
-                {
-                    unitCode = "0;0;1";
-                }
-                else if (startCode == "Assembler")
-                {
-                    unitCode = "0;0;0;1";
-                }
-                else if (startCode == "Extractor")
-                {
-                    unitCode = "0;0;0;0;1";
-                }
-                else if (startCode == "Container")
-                {
-                    unitCode = "0;0;0;0;0;1";
-                }
-                else if (startCode == "Reactor")
-                {
-                    unitCode = "0;0;0;0;0;0;1";
-                }
-                else if (startCode == "Radar")
-                {
-                    unitCode = "0;0;0;0;0;0;0;1";
-                }
-                else if (startCode == "StartFactory")
-                {
-                    unitCode = "1;0;0;1;1;1;0";
-                }
-                else if (startCode == "StartColony")
-                {
-                    unitCode = "0;0;0;1;1;1;1";
-                }
-                else if (startCode == "StartContainer")
-                {
-                    unitCode = "0;1;0;0;0;3";
-                }
-                else
-                {
-                    unitCode = startCode;
-                }
-                parts = unitCode.Split(';');
-
-                int level;
-                if (parts.Length >= 1)
-                {
-                    level = Convert.ToInt32(parts[0]);
-                    if (level > 0)
-                        this.Engine = new Engine(this, level);
-                }
-                if (parts.Length >= 2)
-                {
-                    level = Convert.ToInt32(parts[1]);
-                    if (level > 0)
-                        this.Armor = new Armor(this, level);
-                }
-                if (parts.Length >= 3)
-                {
-                    level = Convert.ToInt32(parts[2]);
-                    if (level > 0)
-                        this.Weapon = new Weapon(this, level);
-                }
-                if (parts.Length >= 4)
-                {
-                    level = Convert.ToInt32(parts[3]);
-                    if (level > 0)
-                        Assembler = new Assembler(this, level);
-                }
-                if (parts.Length >= 5)
-                {
-                    level = Convert.ToInt32(parts[4]);
-                    if (level > 0)
-                        Extractor = new Extractor(this, level);
-                }
-                if (parts.Length >= 6)
-                {
-                    if (parts[5].StartsWith("F"))
-                        level = Convert.ToInt32(parts[5].Substring(1));
-                    else
-                        level = Convert.ToInt32(parts[5]);
-                    if (level > 0)
-                    {
-                        Container = new Container(this, level);
-
-                        //if (startCode == "StartFactory" || startCode == "StartColony")
-                        if (parts[5].StartsWith("F"))
-                        {
-                            // TODOMIN
-                            //Container.Mineral = Container.Capacity;
-                            //Container.Capacity = 100000;
-                        }
-                    }
-                }
-                if (parts.Length >= 7)
-                {
-                    level = Convert.ToInt32(parts[6]);
-                    if (level > 0)
-                        Reactor = new Reactor(this, level);
-                }
-                if (parts.Length >= 8)
-                {
-                    level = Convert.ToInt32(parts[7]);
-                    if (level > 0)
-                        Radar = new Radar(this, level);
-                }
                 UnderConstruction = true;
             }
         }
@@ -748,8 +628,12 @@ namespace Engine.Master
             if (CurrentGameCommand != null)
             {
                 stats.MoveUpdateStatsCommand = new MoveUpdateStatsCommand();
-                stats.MoveUpdateStatsCommand.GameCommandType = CurrentGameCommand.GameCommandType;
-                stats.MoveUpdateStatsCommand.TargetPosition = CurrentGameCommand.TargetPosition;
+                stats.MoveUpdateStatsCommand.GameCommandType = CurrentGameCommand.GameCommand.GameCommandType;
+                stats.MoveUpdateStatsCommand.TargetPosition = CurrentGameCommand.GameCommand.TargetPosition;
+                stats.MoveUpdateStatsCommand.AttachedUnitId = CurrentGameCommand.AttachedUnitId;
+                stats.MoveUpdateStatsCommand.FactoryUnitId = CurrentGameCommand.FactoryUnitId;
+                stats.MoveUpdateStatsCommand.BlueprintCommandItem = CurrentGameCommand.BlueprintCommandItem;
+
             }
 
             return stats;
@@ -1034,14 +918,7 @@ namespace Engine.Master
 
         public override string ToString()
         {
-            string unitinfo = " ";
-            if (this.Container != null)
-                unitinfo = "Container";
-            if (this.Reactor != null)
-                unitinfo = "Reactor";
-            if (this.Assembler != null)
-                unitinfo = "Assembler";
-            return UnitId + " " + Owner.PlayerModel.Name + ": " + Position.GetX(pos) + "," + Position.GetY(pos) + unitinfo;
+            return UnitId + " " + Owner.PlayerModel.Name + ": " + Position.GetX(pos) + "," + Position.GetY(pos) + " " + Blueprint.Name;
         }
     }
 }

@@ -60,7 +60,7 @@ namespace Engine.Interface
         {
             return Unit.ToString() + " [" + ExplorationValue + "]";
         }
-
+        /*
         static public int ComputeExplorationValue(Player player, ulong pos, int visibilityRange)
         {
             List<ulong> positions = new List<ulong>();
@@ -95,7 +95,7 @@ namespace Engine.Interface
                     return 0;
             }
             return seenPos.Count;
-        }
+        }*/
         internal void CollectVisiblePos(ulong pos, List<ulong> positions, bool keep)
         {
             List<ulong> calcPos = new List<ulong>();
@@ -174,7 +174,7 @@ namespace Engine.Interface
 
         // Unit that the player knows. Own and enemy
         public Dictionary<string, PlayerUnit> Units = new Dictionary<string, PlayerUnit>();
-        public Dictionary<string, PlayerUnit> UnitsInBuild = new Dictionary<string, PlayerUnit>();
+        //public Dictionary<string, PlayerUnit> UnitsInBuild = new Dictionary<string, PlayerUnit>();
         // ulongs the player sees
         public List<ulong> VisiblePositions = new List<ulong>();
 
@@ -319,7 +319,15 @@ namespace Engine.Interface
                     //    throw new Exception();
                     if (move.PlayerId == PlayerModel.Id)
                     {
-                        PlayerUnit playerUnit = UnitsInBuild[move.UnitId];
+                        Unit unit = Game.Map.Units.GetUnitAt(to);
+                        PlayerUnit playerUnit = new PlayerUnit(unit);
+                        Units.Add(move.UnitId, playerUnit);
+                        if (unit != null)
+                        {
+                            addedUnits.Add(to, playerUnit);
+                            changedUnits.Add(to);
+                        }
+                        //PlayerUnit playerUnit = Game.Map UnitsInBuild[move.UnitId];
                         ///UnitsInBuild.Remove(move.UnitId);
                         ///Units.Add(playerUnit.Unit.UnitId, playerUnit);
                     }
@@ -329,6 +337,7 @@ namespace Engine.Interface
                     ulong to = move.Positions[move.Positions.Count - 1];
                     if (move.PlayerId == PlayerModel.Id)
                     {
+                        /*
                         if (UnitsInBuild.ContainsKey(move.OtherUnitId))
                         {
                             PlayerUnit playerUnit = UnitsInBuild[move.OtherUnitId];
@@ -336,7 +345,7 @@ namespace Engine.Interface
                             Units.Add(playerUnit.Unit.UnitId, playerUnit);
                             changedUnits.Add(to);
                             UnitsInBuild.Remove(move.OtherUnitId);
-                        }
+                        }*/
                     }
                 }
                 if (move.MoveType == MoveType.Move)
