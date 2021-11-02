@@ -86,6 +86,22 @@ namespace Assets.Scripts
             tileObjects.Remove(unitBaseTileObject);
         }
 
+        public static void HidePlaceholders(GameObject container)
+        {
+            if (container.name.StartsWith("Mineral") || container.name.StartsWith("Item"))
+            {
+                container.SetActive(false);
+            }
+            else
+            {
+                for (int i = 0; i < container.transform.childCount; i++)
+                {
+                    GameObject child = container.transform.GetChild(i).gameObject;
+                    HidePlaceholders(child);
+                }
+            }
+        }
+
         private bool AddPlaceholders(GameObject container)
         {
             if (container.name.StartsWith("Mineral") || container.name.StartsWith("Item"))
@@ -98,8 +114,16 @@ namespace Assets.Scripts
                 for (int i = 0; i < container.transform.childCount; i++)
                 {
                     GameObject child = container.transform.GetChild(i).gameObject;
-                    if (child.activeSelf)
+                    if (child.name.StartsWith("Mineral") || child.name.StartsWith("Item"))
+                    {
                         AddPlaceholders(child);
+                        child.SetActive(false);
+                    }
+                    else
+                    {
+                        if (child.activeSelf)
+                            AddPlaceholders(child);
+                    }
                 }
             }
 
@@ -146,6 +170,8 @@ namespace Assets.Scripts
                     {
                         if (otherTileObject.TileObjectType == unitBaseTileObject.TileObject.TileObjectType)
                         {
+                            if (unitBaseTileObject.Placeholder != null) // && unitBaseTileObject.Placeholder.activeSelf == false)
+                                unitBaseTileObject.Placeholder.SetActive(true);
                             unassignedTileObjects.Remove(otherTileObject);
                             assignedGameTileObjects.Remove(unitBaseTileObject);
                             unassignedGameTileObjects.Remove(unitBaseTileObject);

@@ -404,7 +404,7 @@ namespace Assets.Scripts
                 */
                 Vector3 newDirection = new Vector3(); // = Vector3.RotateTowards(previewUnit.transform.position, n.transform.position, 360, 0.0f);
                 newDirection.x = 0;
-                //previewUnit.transform.rotation = Quaternion.LookRotation(newDirection);
+                previewUnit.transform.rotation = Quaternion.LookRotation(newDirection);
                 
                 Vector3 unitPos3 = previewGameCommand.transform.position;
                 if (previewUnit.HasEngine())

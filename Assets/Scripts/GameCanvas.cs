@@ -22,6 +22,7 @@ namespace Assets.Scripts
 
         public void Update(CommandPreview commandPreview)
         {
+            
             foreach (UnitBase unitBase in Units)
             {
                 CommandPreview unitCommandPreview = HexGrid.MainGrid.FindCommandForUnit(unitBase);
@@ -29,14 +30,14 @@ namespace Assets.Scripts
                 {
                     CommandPreview = unitCommandPreview;
                     UnitBase = unitBase;
-                }
-                else
-                {
-                    // Just the first one
-                    UnitBase = unitBase;
+                    break;
                 }
             }
-            
+            if (UnitBase == null && Units.Count > 0)
+            {
+                // Just the first one
+                UnitBase = Units[0];
+            }
             if (CommandPreview == null && commandPreview != null)
             {
                 CommandPreview = commandPreview;
@@ -76,7 +77,7 @@ namespace Assets.Scripts
         private Text[] actionText;
         private Button[] buttons;
         private Button[] actions;
-
+        private Transform panelParts;
         private GameObject panelEngine;
         private GameObject panelExtractor;
         private GameObject panelContainer;
@@ -114,7 +115,7 @@ namespace Assets.Scripts
             buildButton.onClick.AddListener(OnClickExtract);
             buildButtonText = buildButton.transform.Find("Text").GetComponent<Text>();
             */
-            Transform panelParts = panelItem.Find("PanelParts");
+            panelParts = panelItem.Find("PanelParts");
 
             panelEngine = panelParts.Find("PanelEngine").gameObject;
             panelExtractor = panelParts.Find("PanelExtractor").gameObject;
@@ -737,6 +738,15 @@ namespace Assets.Scripts
 
         private void HideAllParts()
         {
+            for (int i = 0; i < panelParts.childCount; i++)
+            {
+                GameObject child = panelParts.transform.GetChild(i).gameObject;
+                if (child.name.StartsWith("Panel"))
+                    child.SetActive(false);
+                else
+                    Destroy(child);
+            }
+            /*
             panelEngine.SetActive(false);
             panelExtractor.SetActive(false);
             panelContainer.SetActive(false);
@@ -745,6 +755,7 @@ namespace Assets.Scripts
             panelWeapon.SetActive(false);
             panelReactor.SetActive(false);
             panelCommand.SetActive(false);
+            */
         }
 
 
@@ -814,6 +825,7 @@ namespace Assets.Scripts
             {
                 currentCommandPreview.SetPosition(hitByMouseClick.GroundCell);
             }
+            HideAllParts();
             DisplayGameCommand(currentCommandPreview);
 
             if (leftMouseButtonDown && currentCommandPreview.CanExecute())
@@ -1014,7 +1026,7 @@ namespace Assets.Scripts
                 if (hitByMouseClick.CommandPreview != null)
                 {
                     HideAllParts();
-                    UnselectUnitFrame();
+                    
                     if (lastCommandPreview != hitByMouseClick.CommandPreview)
                     {
                         if (lastCommandPreview != null)
@@ -1031,15 +1043,19 @@ namespace Assets.Scripts
                         lastCommandPreview = hitByMouseClick.CommandPreview;
                         lastCommandPreview.SetActive(true);
                     }
-                    DisplayGameCommand(lastCommandPreview);
+                    
+                    if (hitByMouseClick.UnitBase == null)
+                    {
+                        DisplayGameCommand(lastCommandPreview);
+                    }
+                    else
+                    {
+                        DisplayUnitframe(hitByMouseClick.UnitBase);
+                    }
                 }
-                /*
-                else if (currentCommandPreview != null)
-                {
-                    DisplayGameCommand(currentCommandPreview);
-                }*/
                 else if (hitByMouseClick.UnitBase != null)
                 {
+                    HideAllParts();
                     UnselectGameCommand();
                     DisplayUnitframe(hitByMouseClick.UnitBase);
                 }
@@ -1082,52 +1098,30 @@ namespace Assets.Scripts
 
         private CommandPreview lastCommandPreview;
 
-        private void DisplayGameCommand(CommandPreview commandPreview)
+        private void DisplayUpdateStatsCommand(MoveUpdateStatsCommand moveUpdateStatsCommand)
         {
-            HideAllParts();
+            GameObject commandPart = Instantiate(panelCommand, panelParts);
+            commandPart.transform.Find("Partname").GetComponent<Text>().text = moveUpdateStatsCommand.GameCommandType.ToString() + " at " + Position.GetX(moveUpdateStatsCommand.TargetPosition) + "," + Position.GetY(moveUpdateStatsCommand.TargetPosition);
+            commandPart.transform.Find("Content").GetComponent<Text>().text = moveUpdateStatsCommand.BlueprintCommandItem.BlueprintName;
+            commandPart.SetActive(commandPart);
+        }
+
+        private void DisplayGameCommand(CommandPreview commandPreview)
+        {            
             if (commandPreview == null) return;
 
             MapGameCommand gameCommand = commandPreview.GameCommand;
+            headerText.text = gameCommand.GameCommandType.ToString() ;
+            headerSubText.text = gameCommand.BlueprintCommand.Name + " at: " + Position.GetX(gameCommand.TargetPosition) + ", " + Position.GetY(gameCommand.TargetPosition);
+            headerGroundText.text = " Sel: " + commandPreview.IsSelected.ToString();
 
-            headerText.text = gameCommand.BlueprintCommand.Name;
-            headerSubText.text = gameCommand.GameCommandType.ToString() + " Sel: " + commandPreview.IsSelected.ToString();
-            headerGroundText.text = Position.GetX(gameCommand.TargetPosition) + ", " + Position.GetY(gameCommand.TargetPosition);
-                 
-            //selectedGameCommand.UpdateAttachedUnits(HexGrid);
-            /*
-            List<UnitBase> allCommandUnits = new List<UnitBase>();
-            allCommandUnits.AddRange(selectedCommandUnits);
-
-            StringBuilder stringBuilder = new StringBuilder();
-            foreach (string unitId in gameCommand.AttachedUnits)
+            foreach (MapGameCommandItem gameCommandItem in gameCommand.GameCommandItems)
             {
-                UnitBase unitBase = null;
-                if (unitId.StartsWith("Assembler"))
-                {
-                    unitBase = HexGrid.BaseUnits[unitId.Substring(10)];
-                }
-                else
-                {
-                    HexGrid.BaseUnits.TryGetValue(unitId, out unitBase);
-                }
-                if (unitBase != null)
-                {
-                    allCommandUnits.Remove(unitBase);
-                    if (!selectedCommandUnits.Contains(unitBase))
-                    {
-                        selectedCommandUnits.Add(unitBase);
-                        unitBase.SetSelected(true);
-                    }
-                }
-                stringBuilder.Append(unitId);
+                GameObject commandPart = Instantiate(panelCommand, panelParts);
+                commandPart.transform.Find("Partname").GetComponent<Text>().text = gameCommandItem.BlueprintCommandItem.BlueprintName;
+                commandPart.transform.Find("Content").GetComponent<Text>().text = gameCommandItem.AttachedUnitId;
+                commandPart.SetActive(commandPart);
             }
-            foreach (UnitBase unitBase in allCommandUnits)
-            {
-                unitBase.SetSelected(false);
-            }
-            */
-            //panelCommand.transform.Find("Partname").GetComponent<Text>().text = stringBuilder.ToString();
-            panelCommand.SetActive(true);
         }
 
         private void DisplayUnitframe(UnitBase unit)
@@ -1138,14 +1132,11 @@ namespace Assets.Scripts
             }
             if (unit.MoveUpdateStats == null)
             {
-                HideAllParts();
             }
             else
             {
                 if (unit.MoveUpdateStats != null)
                 {
-                    HideAllParts();
-
                     headerText.text = unit.MoveUpdateStats.BlueprintName;
 
                     if (unit.HasBeenDestroyed)
@@ -1165,22 +1156,14 @@ namespace Assets.Scripts
                         headerSubText.text = "MarkedForExtraction";
                     }
 
-                    else
-                    {
-                        if (unit.MoveUpdateStats.MoveUpdateStatsCommand == null)
-                        {
-                            headerSubText.text = "";
-                        }
-                        else
-                        {
-                            MoveUpdateStatsCommand cmd = unit.MoveUpdateStats.MoveUpdateStatsCommand;
-
-                            headerSubText.text = cmd.GameCommandType.ToString() + " at " + Position.GetX(cmd.TargetPosition) + "," + Position.GetY(cmd.TargetPosition);
-                        }
-                    }
                     headerSubText.text += " " + unit.UnitId;
 
                     headerSubText.text += " Power: " + unit.MoveUpdateStats.Power;
+
+                    if (unit.MoveUpdateStats.MoveUpdateStatsCommand != null)
+                    {
+                        DisplayUpdateStatsCommand(unit.MoveUpdateStats.MoveUpdateStatsCommand);
+                    }
 
                     string state;
 

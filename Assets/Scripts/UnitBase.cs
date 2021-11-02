@@ -417,6 +417,8 @@ namespace Assets.Scripts
                         }
                         if (upgradedPart != null)
                         {
+                            TileObjectContainer.HidePlaceholders(upgradedPart);
+
                             GameObject upgradedPartClone = Instantiate(upgradedPart);
 
                             TransitObject transitObject = new TransitObject();
@@ -816,7 +818,10 @@ namespace Assets.Scripts
         public void UpdateParts()
         {
             bool missingPartFound = false;
-
+            if (UnitId == "unit2")
+            {
+                int x = 0;
+            }
             foreach (UnitBasePart unitBasePart in UnitBaseParts)
             {
                 if (MoveUpdateStats.UnitParts != null)
