@@ -199,7 +199,7 @@ namespace Assets.Scripts
                     UnselectButton(1);
                 }
             }
-            leftMouseButtonDown = false;
+            //leftMouseButtonDown = false;
         }
 
         void OnClickAction1()
@@ -795,15 +795,19 @@ namespace Assets.Scripts
         {
             if (Input.GetMouseButtonDown(0))
             {
+                Debug.Log("LEFT MOUSE DOWN");
                 leftMouseButtonDown = true;
                 lastSelectedGroundCell = null;
             }
             if (Input.GetMouseButtonUp(0))
             {
+                Debug.Log("LEFT MOUSE UP");
                 leftMouseButtonDown = false;
             }
             if (Input.GetMouseButtonDown(1))
             {
+                Debug.Log("RIGHT MOUSE DOWN");
+
                 SelectNothing();
                 if (lastSelectedGroundCell != null)
                 {
@@ -828,21 +832,21 @@ namespace Assets.Scripts
             HideAllParts();
             DisplayGameCommand(currentCommandPreview);
 
-            if (leftMouseButtonDown && currentCommandPreview.CanExecute())
+            if (Input.GetMouseButtonDown(0) && currentCommandPreview.CanExecute())
             {
                 currentCommandPreview.Execute();
 
                 BlueprintCommand blueprintCommandCopy = currentCommandPreview.GameCommand.BlueprintCommand.Copy();
 
-                //
-                //currentCommandPreview = new CommandPreview();
-                //currentCommandPreview.CreateCommandForBuild(blueprintCommandCopy.Copy());
+                
+                currentCommandPreview = new CommandPreview();
+                currentCommandPreview.CreateCommandForBuild(blueprintCommandCopy.Copy());
                 //SetMode(CanvasMode.CommandPreview);
 
                 // Select executed command
-                currentCommandPreview.SetSelected(true);
-                lastCommandPreview = currentCommandPreview;
-                SetMode(CanvasMode.Command);
+                //currentCommandPreview.SetSelected(true);
+                //lastCommandPreview = currentCommandPreview;
+                //SetMode(CanvasMode.Command);
             }
         }
 
@@ -973,6 +977,7 @@ namespace Assets.Scripts
             {
                 if (Input.GetMouseButtonDown(0))
                 {
+                    Debug.Log("LEFT MOUSE DOWN PRESSED");
                     SelectWithLeftClick(hitByMouseClick);
                 }
             }
