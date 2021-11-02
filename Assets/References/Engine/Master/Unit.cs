@@ -109,6 +109,13 @@ namespace Engine.Master
                 CurrentGameCommand = null;
             }
         }
+        public void ClearGameCommand()
+        {
+            if (CurrentGameCommand != null)
+            {
+                CurrentGameCommand = null;
+            }
+        }
 
         public int Power { get; set; }
         public bool EndlessPower { get; set; }

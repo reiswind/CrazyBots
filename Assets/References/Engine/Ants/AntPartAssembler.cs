@@ -100,6 +100,7 @@ namespace Engine.Ants
             {
 
                 GameCommandItem selectedGameCommand = Ant.PlayerUnit.Unit.CurrentGameCommand;
+                GameCommandItem passGameCommandToNewUnit = null;
                 /*
                 if (Assembler.Unit.CurrentGameCommand != null &&
                     Assembler.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build)
@@ -150,17 +151,8 @@ namespace Engine.Ants
                         else
                         {
                             // Structure: Build unit or an assembler that moves there 
-                            Blueprint commandBluePrint = null;
+                            Blueprint commandBluePrint;
                             commandBluePrint = player.Game.Blueprints.FindBlueprint(selectedGameCommand.BlueprintCommandItem.BlueprintName);
-
-                            if (selectedGameCommand.AttachedUnitId == null)
-                            {
-                                //commandBluePrint = player.Game.Blueprints.FindBlueprint(selectedGameCommand.BlueprintCommand.Units[0].BlueprintName);
-                            }
-                            else
-                            {
-                                //commandBluePrint = player.Game.Blueprints.FindBlueprint(selectedGameCommand.AttachedUnitId);
-                            }
 
                             bool engineFound = false;
                             foreach (BlueprintPart blueprintPart in commandBluePrint.Parts)
@@ -180,14 +172,14 @@ namespace Engine.Ants
                                     includePositions = new List<ulong>();
                                     includePositions.Add(selectedGameCommand.GameCommand.TargetPosition);
                                 }
-                               
+
                                 // Build this unit, it will move to the target COMMAND-STEP3
-                                //passGameCommandToNewUnit = selectedGameCommand.AttachToThisOnCompletion;
+                                passGameCommandToNewUnit = selectedGameCommand; //.AttachToThisOnCompletion;
                                 //finishCommandWhenCompleted = selectedGameCommand;
                             }
                             else
                             {
-                                // Check if Targetulong is neighbor!
+                                // Check if TargetPosition is neighbor!
                                 Tile tile = player.Game.Map.GetTile(Ant.PlayerUnit.Unit.Pos);
                                 if (tile.IsNeighbor(selectedGameCommand.GameCommand.TargetPosition))
                                 {
@@ -198,6 +190,7 @@ namespace Engine.Ants
                                 }
                                 else
                                 {
+
                                     // If not neighbor, need to build an assembler to move there BUILD-STEP3
                                     BlueprintCommand blueprintCommand = new BlueprintCommand();
                                     blueprintCommand.GameCommandType = GameCommandType.Build;
@@ -249,7 +242,7 @@ namespace Engine.Ants
                                     Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Assemble);
 
                                     Assembler.Unit.SetGameCommand(selectedGameCommand);
-                                    //passGameCommandToNewUnit = newCommand;
+                                    passGameCommandToNewUnit = selectedGameCommand;
                                 }
                             }
                         }
@@ -279,12 +272,20 @@ namespace Engine.Ants
 
                         Unit createdUnit = new Unit(player.Game, move.Stats.BlueprintName);
                         player.Game.Map.Units.Add(createdUnit);
-                        
-                        createdUnit.SetGameCommand(selectedGameCommand);
-                        selectedGameCommand.AttachedUnitId = createdUnit.UnitId;
-                        selectedGameCommand.FactoryUnitId = null;
-                        Ant.PlayerUnit.Unit.ResetGameCommand();
 
+                        Ant.PlayerUnit.Unit.ClearGameCommand();
+
+                        // Pass the command
+                        if (passGameCommandToNewUnit != null)
+                        {
+                            passGameCommandToNewUnit.AttachedUnitId = null;
+                            passGameCommandToNewUnit.FactoryUnitId = createdUnit.UnitId;
+                            createdUnit.SetGameCommand(passGameCommandToNewUnit);
+                        }
+                        else
+                        {
+                            selectedGameCommand.AttachedUnitId = createdUnit.UnitId;
+                        }
                         move.UnitId = createdUnit.UnitId;
                         moves.Add(move);
 

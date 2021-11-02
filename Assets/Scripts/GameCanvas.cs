@@ -831,6 +831,15 @@ namespace Assets.Scripts
             if (leftMouseButtonDown && currentCommandPreview.CanExecute())
             {
                 currentCommandPreview.Execute();
+
+                BlueprintCommand blueprintCommandCopy = currentCommandPreview.GameCommand.BlueprintCommand.Copy();
+
+                //
+                //currentCommandPreview = new CommandPreview();
+                //currentCommandPreview.CreateCommandForBuild(blueprintCommandCopy.Copy());
+                //SetMode(CanvasMode.CommandPreview);
+
+                // Select executed command
                 currentCommandPreview.SetSelected(true);
                 lastCommandPreview = currentCommandPreview;
                 SetMode(CanvasMode.Command);

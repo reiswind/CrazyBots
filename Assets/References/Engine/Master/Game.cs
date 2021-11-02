@@ -364,40 +364,22 @@ namespace Engine.Master
                     else
                     {
                         Unit newUnit = Map.Units.GetUnitAt(move.Positions[1]);
-                        if (newUnit != null && newUnit.UnitId != move.OtherUnitId)
-                        {
-                            // The unit to upgrade is no longer there
-                            newUnit = null;
-                        }
-                        if (newUnit == null)
+                        if (newUnit == null || newUnit.UnitId != move.OtherUnitId)
                         {
                             throw new Exception("errr");
-                            /*
-                            Player player = Players[move.PlayerId];
-
-                            if (player.UnitsInBuild.ContainsKey(move.OtherUnitId)) //move.ulongs[1]))
-                            {
-                                // From under construction to real unit
-                                PlayerUnit playerUnit = player.UnitsInBuild[move.OtherUnitId];
-                                newUnit = playerUnit.Unit;
-                                playerUnit.Unit.IsGhost = false;
-                                addedUnits.Add(playerUnit.Unit);
-                            }*/
                         }
-                        if (newUnit != null)
-                        {
-                            TileObject tileObject = factory.Assembler.ConsumeMineralForUnit();
-                            if (tileObject != null)
-                            {
-                                newUnit.Upgrade(move, tileObject);
 
-                                if (!changedUnits.ContainsKey(newUnit.Pos))
-                                    changedUnits.Add(newUnit.Pos, newUnit);
-                            }
-                            else
-                            {
-                                move.MoveType = MoveType.Skip;
-                            }
+                        TileObject tileObject = factory.Assembler.ConsumeMineralForUnit();
+                        if (tileObject != null)
+                        {
+                            newUnit.Upgrade(move, tileObject);
+
+                            if (!changedUnits.ContainsKey(newUnit.Pos))
+                                changedUnits.Add(newUnit.Pos, newUnit);
+                        }
+                        else
+                        {
+                            move.MoveType = MoveType.Skip;
                         }
                     }
                 }
@@ -428,40 +410,14 @@ namespace Engine.Master
                             Unit factory = Map.Units.GetUnitAt(move.Positions[0]);
                             if (factory == null || factory.Assembler == null)
                             {
+                                if (move.MoveType == MoveType.Build)
+                                {
+                                    thisUnit.ResetGameCommand();
+                                }
                                 move.MoveType = MoveType.Skip;
                                 continue;
                             }
                         }
-
-                        // New units will be added here
-                        //int? containerNetal = null;
-
-                        /*
-                        if (move.UnitId.Contains(":Remove"))
-                        {
-                            bool markForExtraction = false;
-                            // 
-                            if (move.UnitId.EndsWith("Reactor"))
-                                thisUnit.Reactor = null;
-                            else if (move.UnitId.EndsWith("Engine"))
-                            {
-                                markForExtraction = true;
-                                thisUnit.Engine = null;
-                            }
-                            else if (move.UnitId.EndsWith("Container"))
-                            {
-                                containerNetal = thisUnit.Container.Mineral;
-                                thisUnit.Container = null;
-                            }
-                            else
-                                throw new Exception();
-                            move.UnitId = move.UnitId.Replace("Remove", "");
-                            thisUnit.ExtractMe = markForExtraction;
-                        }*/
-                       
-
-
-
                         if (move.MoveType == MoveType.Add)
                         {
                             thisUnit.CreateAllPartsFromBlueprint();
@@ -490,12 +446,9 @@ namespace Engine.Master
                             thisUnit.Direction = CubePosition.CalcDirection(move.Positions[0], move.Positions[1]);
                         else
                             thisUnit.Direction = Direction.C;
-                        move.Stats.Direction =(int)thisUnit.Direction;
+                        move.Stats.Direction = (int)thisUnit.Direction;
                         Map.Units.Remove(From);
                     }
-
-                    if (thisUnit == null)
-                        throw new Exception("wrong");
 
                     // Update new pos
                     thisUnit.Pos = Destination;
@@ -507,37 +460,15 @@ namespace Engine.Master
                         if (!changedGroundulongs.ContainsKey(Destination))
                             changedGroundulongs.Add(Destination, null);
                     }
-
-                    // is there a unit on the map?
-                    /* Could be, but may move later so no error
-                    Unit otherUnit = Map.Units.GetUnitAt(Destination);
-                    if (otherUnit != null)
-                    {
-                        throw new Exception("Handle collisions failed");
-                    }*/
                 }
             }
-            
+
             foreach (Unit addedUnit in addedUnits)
             {
                 if (addedUnit.Pos != Position.Null)
                 {
-                    /*
-                    if (addedUnit.IsGhost)
-                    {
-                        if (addedUnit.Owner.UnitsInBuild.ContainsKey(addedUnit.UnitId))
-                        {
-                            // Duplicate build order
-                            addedUnit.Owner.UnitsInBuild.Remove(addedUnit.UnitId);
-                        }
-                        PlayerUnit playerUnit = new PlayerUnit(addedUnit);
-                        addedUnit.Owner.UnitsInBuild.Add(addedUnit.UnitId, playerUnit);
-                    }
-                    else
-                    {*/
-                        if (Map.Units.GetUnitAt(addedUnit.Pos) == null)
-                            Map.Units.Add(addedUnit);
-                    //}
+                    if (Map.Units.GetUnitAt(addedUnit.Pos) == null)
+                        Map.Units.Add(addedUnit);
                 }
             }
         }
@@ -1384,32 +1315,43 @@ namespace Engine.Master
                     }
                 }
             }*/
-
-            foreach (Move move in newMoves)
+            bool somethingChanged = true;
+            while (somethingChanged)
             {
-                if (move.MoveType == MoveType.Move || move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
-                {
-                    ulong destination = move.Positions[move.Positions.Count - 1];
-                    if (moveToTargets.ContainsKey(destination))
-                    {
-                        // (Hit) Could do nasty things, but for now, the unit does not move
-                        newMoves.Remove(move);
+                somethingChanged = false;
 
-                        moveToTargets.Clear();
-                        acceptedMoves.Clear();
-                        break;
+                foreach (Move move in newMoves)
+                {
+                    if (move.MoveType == MoveType.Move || move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
+                    {
+                        ulong destination = move.Positions[move.Positions.Count - 1];
+                        if (moveToTargets.ContainsKey(destination))
+                        {
+                            if (move.MoveType == MoveType.Build)
+                            {
+                                Unit unit = Map.Units.FindUnit(move.UnitId);
+                                if (unit != null)
+                                    unit.ResetGameCommand();
+                            }
+                            // (Hit) Could do nasty things, but for now, the unit does not move
+                            newMoves.Remove(move);
+
+                            moveToTargets.Clear();
+                            acceptedMoves.Clear();
+                            somethingChanged = true;
+                            break;
+                        }
+                        else
+                        {
+                            moveToTargets.Add(destination, move);
+                        }
                     }
                     else
                     {
-                        moveToTargets.Add(destination, move);
+                        acceptedMoves.Add(move);
                     }
                 }
-                else
-                {
-                    acceptedMoves.Add(move);
-                }
             }
-            
             List<Move> revokedMoves = new List<Move>();
             
             foreach (Move move in moveToTargets.Values)
@@ -1469,6 +1411,12 @@ namespace Engine.Master
 
                         revokedMoves.Add(move);
                         // (Hit) Could do nasty things, but for now, the unit does not move
+                        if (move.MoveType == MoveType.Build)
+                        {
+                            Unit unit = Map.Units.FindUnit(move.UnitId);
+                            if (unit != null)
+                                unit.ResetGameCommand();
+                        }
                     }
                     else
                     {

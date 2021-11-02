@@ -170,8 +170,6 @@ namespace Assets.Scripts
                     {
                         if (otherTileObject.TileObjectType == unitBaseTileObject.TileObject.TileObjectType)
                         {
-                            if (unitBaseTileObject.Placeholder != null) // && unitBaseTileObject.Placeholder.activeSelf == false)
-                                unitBaseTileObject.Placeholder.SetActive(true);
                             unassignedTileObjects.Remove(otherTileObject);
                             assignedGameTileObjects.Remove(unitBaseTileObject);
                             unassignedGameTileObjects.Remove(unitBaseTileObject);

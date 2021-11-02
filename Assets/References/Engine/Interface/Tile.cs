@@ -380,8 +380,10 @@ namespace Engine.Interface
             UpdateCache();
         }
 
+        private bool cacheUpdated;
         private void UpdateCache()
         {
+            cacheUpdated = true;
             mineralCache = TileContainer.Minerals;
 
             canBuild = true;
@@ -395,12 +397,7 @@ namespace Engine.Interface
 
             foreach (TileObject tileObject in TileContainer.TileObjects)
             {
-                if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
-                {
-                    canBuild = false;
-                    break;
-                }
-                else if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
+                if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
                 {
                     canBuild = false;
                     break;
@@ -416,6 +413,10 @@ namespace Engine.Interface
         {  
             get
             {  
+                if (!cacheUpdated)
+                {
+                    UpdateCache();
+                }
                 return mineralCache;
             }
         }
@@ -475,6 +476,11 @@ namespace Engine.Interface
         }
         public bool CanBuild()
         {
+            if (!cacheUpdated)
+            {
+                UpdateCache();
+            }
+
             return canBuild;
         }
 
@@ -483,6 +489,10 @@ namespace Engine.Interface
             if (from.Pos != Pos && from.Height + 0.4f < Height )
             {
                 return false;
+            }
+            if (!cacheUpdated)
+            {
+                UpdateCache();
             }
             return canBuild; // CanBuildForMove();
         }

@@ -61,27 +61,30 @@ namespace Assets.Scripts
             foreach (MapGameCommandItem mapGameCommandItem in CommandPreview.GameCommand.GameCommandItems)
             {
                 string unitId = mapGameCommandItem.AttachedUnitId;
-                UnitBase unitBase;
-                if (unitId.StartsWith("Assembler"))
+                if (unitId != null)
                 {
-                    unitBase = HexGrid.MainGrid.BaseUnits[unitId.Substring(10)];
-                }
-                else
-                {
-                    HexGrid.MainGrid.BaseUnits.TryGetValue(unitId, out unitBase);
-                }
-                if (unitBase != null)
-                {
-                    allCommandUnits.Remove(unitBase);
-                    if (!selectedCommandUnits.ContainsKey(unitBase))
+                    UnitBase unitBase;
+                    if (unitId.StartsWith("Assembler"))
                     {
-                        CommandAttachedUnit commandAttachedUnit = new CommandAttachedUnit();
-                        commandAttachedUnit.UnitBase = unitBase;
-                        selectedCommandUnits.Add(unitBase, commandAttachedUnit);
-                        //unitBase.SetSelected(true);
+                        unitBase = HexGrid.MainGrid.BaseUnits[unitId.Substring(10)];
                     }
+                    else
+                    {
+                        HexGrid.MainGrid.BaseUnits.TryGetValue(unitId, out unitBase);
+                    }
+                    if (unitBase != null)
+                    {
+                        allCommandUnits.Remove(unitBase);
+                        if (!selectedCommandUnits.ContainsKey(unitBase))
+                        {
+                            CommandAttachedUnit commandAttachedUnit = new CommandAttachedUnit();
+                            commandAttachedUnit.UnitBase = unitBase;
+                            selectedCommandUnits.Add(unitBase, commandAttachedUnit);
+                            //unitBase.SetSelected(true);
+                        }
+                    }
+                    stringBuilder.Append(unitId);
                 }
-                stringBuilder.Append(unitId);
             }
             foreach (UnitBase unitBase in allCommandUnits)
             {

@@ -684,6 +684,8 @@ namespace Engine.Ants
                 {
                     if (cntrlUnit.Assembler != null && cntrlUnit.Assembler.CanProduce())
                     {
+                        Ant.BuildPositionReached = false;
+
                         Tile t = player.Game.Map.GetTile(cntrlUnit.Pos);
                         foreach (Tile n in t.Neighbors)
                         {
@@ -692,7 +694,7 @@ namespace Engine.Ants
                                 // Next to build target
                                 Ant.FollowThisRoute = null;
                                 Ant.BuildPositionReached = true;
-                                return true;
+                                return false;
                             }
                         }
                     }

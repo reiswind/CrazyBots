@@ -394,12 +394,17 @@ namespace Engine.Ants
                             continue;
 
                         // Is it in powered zone?
+                        if (tile.Owner != player.PlayerModel.Id)
+                            continue;
+
+                        // Is it in powered zone?
+                        /*
                         Pheromone pheromone = player.Game.Pheromones.FindAt(tile.Pos);
                         if (pheromone == null || pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Energy) == 0)
                         {
                             // Cannot build here, no power
                             continue;
-                        }
+                        }*/
 
                         // Can the location be reached?
                         bool pathPossible = false;
@@ -837,23 +842,26 @@ namespace Engine.Ants
 
         public ulong FindCommandTarget(Player player, Ant antWorker)
         {
-            return Position.Null;
-            /*
-            // Compute route to target
-            List<ulong> bestPositions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, antWorker.PlayerUnit.Unit.CurrentGameCommand.TargetPosition, antWorker.PlayerUnit.Unit);
-            if (bestPositions != null && antWorker.AntWorkerType == AntWorkerType.Assembler)
+            List<ulong> bestPositions = null;
+            if (antWorker.PlayerUnit.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Build)
             {
-                if (bestPositions.Count <= 2)
+                // Need neighbor pos
+                Tile t = player.Game.Map.GetTile(antWorker.PlayerUnit.Unit.CurrentGameCommand.GameCommand.TargetPosition);
+                foreach (Tile n in t.Neighbors)
                 {
-                    return Position.Null;
+                    bestPositions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, n.Pos, antWorker.PlayerUnit.Unit);
+                    if (bestPositions != null)
+                    {
+                        break;
+                    }
                 }
-                else
-                {
-                    // Move only next to target       
-                    bestPositions.RemoveAt(bestPositions.Count - 1);
-                }
-            }            
-            return MakePathFromPositions(bestPositions, antWorker);*/
+            }
+            else
+            {
+                // Compute route to target
+                bestPositions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, antWorker.PlayerUnit.Unit.CurrentGameCommand.GameCommand.TargetPosition, antWorker.PlayerUnit.Unit);
+            }
+            return MakePathFromPositions(bestPositions, antWorker);
         }
     
 
@@ -1486,8 +1494,31 @@ namespace Engine.Ants
 
                 foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
                 {
+                    bool requestAssembler = false;
+
+                    if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build &&
+                        gameCommandItem.AttachedUnitId != null && gameCommandItem.FactoryUnitId == null)
+                    {
+                        // Check if the unit to be build is there
+                        Unit unit = player.Game.Map.Units.FindUnit(gameCommandItem.AttachedUnitId);
+                        if (unit == null)
+                        {
+                            requestAssembler = true;
+                        }
+                        else
+                        {
+                            if (!unit.IsComplete())
+                            {
+                                requestAssembler = true;
+                            }
+                        }
+                    }
                     if (gameCommandItem.AttachedUnitId == null && gameCommandItem.FactoryUnitId == null)
                     {
+                        requestAssembler = true;
+                    }
+                    if (requestAssembler)
+                    { 
                         // Find a factory
                         bestAnt = null;
                         bestDistance = 0;
@@ -2039,7 +2070,7 @@ namespace Engine.Ants
                             if (ant.AntPartEngine != null)
                             {
                                 ant.MovesWithoutCommand++;
-                                if (ant.MovesWithoutCommand > 10) // && ant.AntWorkerType != AntWorkerType.Fighter)
+                                if (ant.MovesWithoutCommand > 100) // && ant.AntWorkerType != AntWorkerType.Fighter)
                                     ant.AbandonUnit(player);
                             }
                         }
@@ -2072,6 +2103,14 @@ namespace Engine.Ants
 
                         if (ant.UnderConstruction)
                         {
+                            if (ant.PlayerUnit.Unit.CurrentGameCommand != null)
+                            {
+                                if (ant.PlayerUnit.Unit.CurrentGameCommand.FactoryUnitId != null)
+                                {
+                                    if (ant.PlayerUnit.Unit.CurrentGameCommand.FactoryUnitId != ant.PlayerUnit.Unit.UnitId)
+                                        ant.PlayerUnit.Unit.CurrentGameCommand.FactoryUnitId = null;
+                                }
+                            }
                             // First time the unit is complete
                             if (ant.PlayerUnit.Unit.Engine == null)
                             {
@@ -2091,7 +2130,7 @@ namespace Engine.Ants
                         if (ant.StuckCounter > 10)
                         {
                             // Noone builds, abandon
-                            ant.AbandonUnit(player);
+                            //ant.AbandonUnit(player);
                         }
                         else
                         {

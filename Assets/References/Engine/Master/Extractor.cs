@@ -416,12 +416,13 @@ namespace Engine.Master
                     capacity -= minsInContainer;
 
                     // friendly unit
-                    while (capacity-- > 0)
+                    while (capacity > 0)
                     {
                         if (!otherUnit.RemoveTileObjects(removeTileObjects, 1, TileObjectType.All, unit))
                         {
                             break;
                         }
+                        capacity--;
                     }
 
                     if (otherUnit.ExtractMe && !otherUnit.IsDead() && capacity > 0)
