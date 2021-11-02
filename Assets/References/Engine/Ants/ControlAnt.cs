@@ -39,9 +39,16 @@ namespace Engine.Ants
             {
                 if (move.MoveType == MoveType.Build)
                 {
-                    PlayerUnit createdUnit = player.Units[move.UnitId];
-                    Ant ant = new Ant(this, createdUnit);
-                    Ants.Add(createdUnit.Unit.UnitId, ant);
+                    if (player.Units.ContainsKey(move.UnitId))
+                    {
+                        PlayerUnit createdUnit = player.Units[move.UnitId];
+                        Ant ant = new Ant(this, createdUnit);
+                        Ants.Add(createdUnit.Unit.UnitId, ant);
+                    }
+                    else
+                    {
+                        // Why not?
+                    }
                     /*
                     ulong pos = move.Positions[move.Positions.Count - 1];
                     if (player.Units.ContainsKey(move.UnitId))
@@ -398,13 +405,12 @@ namespace Engine.Ants
                             continue;
 
                         // Is it in powered zone?
-                        /*
                         Pheromone pheromone = player.Game.Pheromones.FindAt(tile.Pos);
                         if (pheromone == null || pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Energy) == 0)
                         {
                             // Cannot build here, no power
                             continue;
-                        }*/
+                        }
 
                         // Can the location be reached?
                         bool pathPossible = false;

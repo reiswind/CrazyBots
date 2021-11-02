@@ -662,10 +662,14 @@ namespace Engine.Ants
                     {
                         // Move to target area
                         int d = CubePosition.Distance(cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition, cntrlUnit.Pos);
-                        if (d < player.Game.Map.SectorSize)
+                        if (d < (player.Game.Map.SectorSize / 2))
                         {
                             calcPath = false;
                             Ant.FollowThisRoute = null;
+                        }
+                        else
+                        {
+
                         }
                     }
                     else

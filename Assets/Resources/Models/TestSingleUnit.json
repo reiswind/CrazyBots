@@ -9,7 +9,7 @@
       "ControlLevel": 1,
       "Id": 1,
       "Zone": 0,
-	  "IsHuman": true,
+	  "IsHumant": true,
       "Name": "Green"
     },
 	{
@@ -35,7 +35,7 @@
     },
 	{
       "Name": "Fighter",
-      "PlayerId": 1,
+      "PlayerId": 2,
       "Blueprint": "Container",
 	  "HoldPosition": true,
 	  "HoldFire": true,

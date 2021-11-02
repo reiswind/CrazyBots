@@ -836,17 +836,24 @@ namespace Assets.Scripts
             {
                 currentCommandPreview.Execute();
 
-                BlueprintCommand blueprintCommandCopy = currentCommandPreview.GameCommand.BlueprintCommand.Copy();
+                if (currentCommandPreview.IsInSubCommandMode)
+                {
+                    // Select executed command
+                    currentCommandPreview.SetSelected(true);
+                    lastCommandPreview = currentCommandPreview;
+                    SetMode(CanvasMode.Command);
+                }
+                else
+                {
+                    // Reapeat command
+                    currentCommandPreview.SetSelected(false);
+                    currentCommandPreview.SetActive(false);
 
-                
-                currentCommandPreview = new CommandPreview();
-                currentCommandPreview.CreateCommandForBuild(blueprintCommandCopy.Copy());
-                //SetMode(CanvasMode.CommandPreview);
+                    BlueprintCommand blueprintCommandCopy = currentCommandPreview.GameCommand.BlueprintCommand.Copy();
 
-                // Select executed command
-                //currentCommandPreview.SetSelected(true);
-                //lastCommandPreview = currentCommandPreview;
-                //SetMode(CanvasMode.Command);
+                    currentCommandPreview = new CommandPreview();
+                    currentCommandPreview.CreateCommandForBuild(blueprintCommandCopy.Copy());
+                }
             }
         }
 

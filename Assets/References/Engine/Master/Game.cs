@@ -430,7 +430,7 @@ namespace Engine.Master
                         }
                         move.UnitId = thisUnit.UnitId;
                         thisUnit.Pos = Destination;
-                        if (thisUnit.Engine != null && move.Positions.Count > 1)
+                        if (move.Positions.Count > 1)
                             thisUnit.Direction = CubePosition.CalcDirection(move.Positions[0], move.Positions[1]);
                         else
                             thisUnit.Direction = Direction.C;

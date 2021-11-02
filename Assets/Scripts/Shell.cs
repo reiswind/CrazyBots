@@ -23,7 +23,8 @@ namespace Assets.Scripts
             while (transform.parent != null)
             {
                 unitBase = transform.parent.GetComponent<UnitBase>();
-                if (unitBase != null) return unitBase;
+                if (unitBase != null && !unitBase.IsGhost)
+                    return unitBase;
                 if (transform.parent == null)
                     break;
                 transform = transform.parent;
