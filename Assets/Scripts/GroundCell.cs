@@ -25,16 +25,11 @@ namespace Assets.Scripts
                 if (visible != value)
                 {
                     visible = value;
-
-                    foreach (UnitBase unitbase in HexGrid.MainGrid.BaseUnits.Values)
+                    UnitBase unitbase = FindUnit();
+                    if (unitbase != null)
                     {
-                        if (unitbase.CurrentPos == Pos)
-                        {
-                            unitbase.IsVisible = visible;
-                        }
+                        unitbase.IsVisible = visible;
                     }
-
-                    gameObject.SetActive(visible);
                 }
             }
         }
@@ -60,13 +55,39 @@ namespace Assets.Scripts
         private GameObject markerToMineral;
         private GameObject markerToEnemy;
 
+        private float diffuse;
+        private float targetDiffuse;
+
         public GroundCell()
         {
             GameObjects = new List<UnitBaseTileObject>();
-
             UnitCommands = new List<UnitCommand>();
             ShowPheromones = false;
             visible = true;
+            targetDiffuse = 0.1f;
+            diffuse = 0.1f;
+        }
+
+        public void Update()
+        {
+            if (targetDiffuse < (diffuse+0.03f) || targetDiffuse > (diffuse - 0.03f))
+            {
+                diffuse = Mathf.Lerp(diffuse, targetDiffuse, 0.03f);
+
+                // Set color
+                Renderer renderer = GetComponent<Renderer>();
+
+                renderer.material.SetFloat("Darkness", diffuse);
+                foreach (UnitBaseTileObject unitBaseTileObject1 in GameObjects)
+                {
+                    if (unitBaseTileObject1.GameObject != null)
+                    {
+                        renderer = unitBaseTileObject1.GameObject.GetComponent<Renderer>();
+                        if (renderer != null)
+                            renderer.material.SetFloat("Darkness", diffuse);
+                    }
+                }
+            }
         }
 
         private void CreateMarker()
@@ -321,6 +342,8 @@ namespace Assets.Scripts
             }
             Renderer renderer = GetComponent<Renderer>();
             renderer.material.SetColor("SurfaceColor", color);
+
+
         }
 
         internal void UpdateGround()
@@ -368,6 +391,14 @@ namespace Assets.Scripts
 
         internal void CreateDestructables()
         {
+            if (Visible)
+            {
+                targetDiffuse = 0.8f;
+            }
+            else
+            {
+                targetDiffuse = 0.4f;
+            }
             SetGroundMaterial();
             
             List<UnitBaseTileObject> allTileObjects = new List<UnitBaseTileObject>();
@@ -408,23 +439,6 @@ namespace Assets.Scripts
 
                         GameObjects.Add(unitBaseTileObject);
                     }
-                }
-            }
-
-            // Set color
-            Renderer renderer = GetComponent<Renderer>();
-            float diffuse = 0.8f;
-            if (Stats.MoveUpdateGroundStat.VisibilityMask == 0)
-                diffuse = 0.2f;
-
-            renderer.material.SetFloat("Darkness", diffuse);
-            foreach (UnitBaseTileObject unitBaseTileObject1 in GameObjects)
-            {
-                if (unitBaseTileObject1.GameObject != null)
-                {
-                    renderer = unitBaseTileObject1.GameObject.GetComponent<Renderer>();
-                    if (renderer != null)
-                        renderer.material.SetFloat("Darkness", diffuse);
                 }
             }
 
@@ -514,6 +528,8 @@ namespace Assets.Scripts
             }
             return null;
         }
+
+
 
         public void UpdateMoveCommand(CommandPreview commandPreview)
         {

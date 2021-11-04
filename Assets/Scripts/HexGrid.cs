@@ -29,7 +29,7 @@ namespace Assets.Scripts
 
         internal Dictionary<ulong, GroundCell> GroundCells { get; private set; }
         internal Dictionary<string, UnitBase> BaseUnits { get; private set; }
-        internal Dictionary<ulong, UnitBase> UnitsInBuild { get; private set; }
+        
         /// <summary>
         /// All human commands?
         /// </summary>
@@ -85,8 +85,8 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
             GameModel gameModel;
 
@@ -514,7 +514,7 @@ namespace Assets.Scripts
             CommandPreviews = new List<CommandPreview>();
             GroundCells = new Dictionary<ulong, GroundCell>();
             BaseUnits = new Dictionary<string, UnitBase>();
-            UnitsInBuild = new Dictionary<ulong, UnitBase>();
+            //UnitsInBuild = new Dictionary<ulong, UnitBase>();
             hitByBullets = new List<HitByBullet>();
 
             GameObject cellPrefab = GetResource("HexCell");
@@ -558,7 +558,7 @@ namespace Assets.Scripts
             CommandPreviews = new List<CommandPreview>();
             GroundCells = new Dictionary<ulong, GroundCell>();
             BaseUnits = new Dictionary<string, UnitBase>();
-            UnitsInBuild = new Dictionary<ulong, UnitBase>();
+            //UnitsInBuild = new Dictionary<ulong, UnitBase>();
             hitByBullets = new List<HitByBullet>();
 
             /*
@@ -882,7 +882,7 @@ namespace Assets.Scripts
                     {
                         unitBase.CurrentPos = unitBase.DestinationPos;
                         unitBase.DestinationPos = Position.Null;
-                        unitBase.PutAtCurrentPosition(true);
+                        unitBase.PutAtCurrentPosition(true, false);
                     }
                 }
                 // Finish all open hits
@@ -999,6 +999,7 @@ namespace Assets.Scripts
                     }
                     else if (move.MoveType == MoveType.CommandComplete)
                     {
+                        /*
                         if (UnitsInBuild.ContainsKey(move.Positions[0]))
                         {
                             // Remove Ghost from command
@@ -1007,7 +1008,7 @@ namespace Assets.Scripts
                                 unit.Delete();
                             GroundCell hexCell = GroundCells[move.Positions[0]];
                             UnitsInBuild.Remove(move.Positions[0]);
-                        }
+                        }*/
                     }
                     else if (move.MoveType == MoveType.Upgrade)
                     {
@@ -1035,13 +1036,13 @@ namespace Assets.Scripts
                             if (GroundCells.TryGetValue(move.Positions[0], out hexCell))
                             {
                                 hexCell.Stats = move.Stats;
+                                hexCell.Visible = move.Stats.MoveUpdateGroundStat.VisibilityMask != 0;
                                 hexCell.UpdateGround();
                             }
                             else
                             {
                                 GameObject cellPrefab = GetResource("HexCell");
                                 hexCell = CreateCell(move.Positions[0], move.Stats, cellPrefab);
-                                hexCell.Visible = false;
                                 GroundCells.Add(move.Positions[0], hexCell);
                             }
                         }
@@ -1082,11 +1083,12 @@ namespace Assets.Scripts
                     SelectStartPosition();
 
                     /* Debug all visible*/
+                    /*
                     foreach (GroundCell groundCell1 in GroundCells.Values)
                     {
                         groundCell1.Visible = true;
 
-                    }
+                    }*/
 
                     //StartCoroutine(RenderSurroundingCells());
                 }
@@ -1546,7 +1548,7 @@ namespace Assets.Scripts
             unit.gameObject.name = masterunit.UnitId;
 
             unit.Assemble(masterunit.UnderConstruction, masterunit.UnderConstruction);
-            unit.PutAtCurrentPosition(false);
+            unit.PutAtCurrentPosition(false, true);
 
             Rigidbody rigidbody = unit.GetComponent<Rigidbody>();
             if (rigidbody != null)
@@ -1574,7 +1576,7 @@ namespace Assets.Scripts
             unit.gameObject.name = move.UnitId;
 
             unit.Assemble(move.MoveType == MoveType.Build);
-            unit.PutAtCurrentPosition(false);
+            unit.PutAtCurrentPosition(false, true);
 
             if (move.Positions.Count > 1)
             {
@@ -1640,11 +1642,14 @@ namespace Assets.Scripts
 
             if (stats == null)
             {
+                groundCell.Visible = true;
                 gridPos3.y += 0.3f;
                 gameObjectCell.transform.localPosition = gridPos3;
             }
             else
             {
+                groundCell.Visible = stats.MoveUpdateGroundStat.VisibilityMask != 0;
+
                 float height = stats.MoveUpdateGroundStat.Height;
                 gridPos3.y += height + 0.3f;
                 gameObjectCell.transform.localPosition = gridPos3;

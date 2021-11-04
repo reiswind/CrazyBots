@@ -343,6 +343,24 @@ namespace Engine.Interface
 
         public List<BlueprintPart> Parts { get; private set; }
 
+        private bool? isMovable;
+        public bool IsMoveable()
+        {
+            if (!isMovable.HasValue)
+            {
+                isMovable = false;
+                foreach (BlueprintPart blueprintPart in Parts)
+                {
+                    if (blueprintPart.PartType == TileObjectType.PartEngine)
+                    {
+                        isMovable = true;
+                        break;
+                    }
+                }    
+            
+            }
+            return isMovable.Value;
+        }
         public override string ToString()
         {
             return Name;

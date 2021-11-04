@@ -78,7 +78,23 @@ namespace Assets.Scripts
         internal bool Temporary { get; set; }
         internal bool UnderConstruction { get; set; }
         internal bool HasBeenDestroyed { get; set; }
-        internal bool IsVisible { get; set; }
+
+        //private bool isVisible;
+        internal bool IsVisible
+        {
+            get
+            {
+                return gameObject.activeSelf;
+            }
+            set
+            {
+                if (gameObject.activeSelf != value)
+                {
+                    //isVisible = value;
+                    gameObject.SetActive(value);
+                }
+            }
+        }
 
         internal Vector3 TurnWeaponIntoDirection { get; set; }
 
@@ -165,7 +181,7 @@ namespace Assets.Scripts
         }
 
         private float AboveGround { get; set; }
-        public void PutAtCurrentPosition(bool update)
+        public void PutAtCurrentPosition(bool update, bool updateVisibility)
         {
             transform.SetParent(HexGrid.MainGrid.transform, false);
 
@@ -198,10 +214,10 @@ namespace Assets.Scripts
                         transform.rotation = Quaternion.LookRotation(newDirection);
                     }*/
                 }
-                if (IsVisible = targetCell.Visible)
+
+                if (updateVisibility || IsVisible != targetCell.Visible)
                 {
                     IsVisible = targetCell.Visible;
-                    gameObject.SetActive(targetCell.Visible);
                 }
             }
         }
@@ -219,11 +235,8 @@ namespace Assets.Scripts
                 {
                     Weapon.TurnTo(DestinationPos);
                 }*/
-                if (IsVisible != targetCell.Visible)
-                {
-                    IsVisible = targetCell.Visible;
-                    gameObject.SetActive(targetCell.Visible);
-                }
+
+                IsVisible = targetCell.Visible;
             }
         }
 
@@ -456,12 +469,14 @@ namespace Assets.Scripts
 
         public void Transport(Move move)
         {
-            Container.Transport(this, move);
+            if (IsVisible)
+            {
+                Container.Transport(this, move);
+            }
         }
 
         internal void SetSelectColor(int playerId, GameObject unit)
         {
-
             for (int i = 0; i < unit.transform.childCount; i++)
             {
                 GameObject child = unit.transform.GetChild(i).gameObject;
