@@ -224,8 +224,8 @@ namespace Engine.Master
                 if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
                 {
                     remove.Add(tileObject);
-                    if (!changedGroundulongs.ContainsKey(t.Pos))
-                        changedGroundulongs.Add(t.Pos, null);
+                    if (!changedGroundPositions.ContainsKey(t.Pos))
+                        changedGroundPositions.Add(t.Pos, null);
                 }
             }
             foreach (TileObject tileObject in remove)
@@ -293,6 +293,7 @@ namespace Engine.Master
             return pathFinder.FindPath(unit, from, to);
         }
 
+        /*
         public Move MoveTo(ulong from, ulong to, Engine engine)
         {
             Tile t = Map.GetTile(from);
@@ -331,7 +332,7 @@ namespace Engine.Master
             move.UnitId = t.Unit.UnitId;
 
             return move;
-        }
+        }*/
 
         private bool initialized;
         private List<Move> lastMoves = new List<Move>();
@@ -339,7 +340,7 @@ namespace Engine.Master
 
         public Dictionary<int,Player> Players { get; set; }
 
-        private int MoveNr;
+        public int MoveNr { get; private set; }
         private int CollisionCntr;
 
         public void UpdateUnitPositions(List<Move> newMoves)
@@ -457,8 +458,8 @@ namespace Engine.Master
                     Tile t = Map.GetTile(Destination);
                     if (t.RemoveBio())
                     {
-                        if (!changedGroundulongs.ContainsKey(Destination))
-                            changedGroundulongs.Add(Destination, null);
+                        if (!changedGroundPositions.ContainsKey(Destination))
+                            changedGroundPositions.Add(Destination, null);
                     }
                 }
             }
@@ -551,7 +552,7 @@ namespace Engine.Master
                                 updateGroundMove.MoveType = MoveType.UpdateGround;
                                 updateGroundMove.Positions = new List<ulong>();
                                 updateGroundMove.Positions.Add(from);
-                                Map.CollectGroundStats(from, updateGroundMove);
+                                CollectGroundStats(from, updateGroundMove);
                                 nextMoves.Add(updateGroundMove);
                             }
 
@@ -576,10 +577,10 @@ namespace Engine.Master
                     if (unit == null)
                     {
                         // Target died, transport to ground
-                        Tile unitTile = GetTile(transportTargetPos);
+                        Tile unitTile = Map.GetTile(transportTargetPos);
 
-                        if (!changedGroundulongs.ContainsKey(transportTargetPos))
-                            changedGroundulongs.Add(transportTargetPos, null);
+                        if (!changedGroundPositions.ContainsKey(transportTargetPos))
+                            changedGroundPositions.Add(transportTargetPos, null);
                     }
                     else
                     {
@@ -633,13 +634,13 @@ namespace Engine.Master
         internal void HitByBullet(Move move, List<Move> nextMoves)
         {
             ulong pos = move.Positions[move.Positions.Count-1];
-            Tile targetTile = GetTile(pos);
+            Tile targetTile = Map.GetTile(pos);
 
             TileObject tileObject = move.Stats.MoveUpdateGroundStat.TileObjects[0];
             targetTile.HitByBullet(tileObject);
 
-            if (!changedGroundulongs.ContainsKey(pos))
-                changedGroundulongs.Add(pos, null);
+            if (!changedGroundPositions.ContainsKey(pos))
+                changedGroundPositions.Add(pos, null);
 
             Unit targetUnit = targetTile.Unit;
             if (targetUnit != null)
@@ -1024,8 +1025,8 @@ namespace Engine.Master
 
                             if (extracted)
                             {
-                                if (!changedGroundulongs.ContainsKey(fromPos))
-                                    changedGroundulongs.Add(fromPos, null);
+                                if (!changedGroundPositions.ContainsKey(fromPos))
+                                    changedGroundPositions.Add(fromPos, null);
 
                                 if (otherUnit != null && !changedUnits.ContainsKey(otherUnit.Pos))
                                     changedUnits.Add(otherUnit.Pos, otherUnit);
@@ -1433,7 +1434,7 @@ namespace Engine.Master
 
         }
 
-        internal Dictionary<ulong, Tile> changedGroundulongs = new Dictionary<ulong, Tile>();
+        internal Dictionary<ulong, Tile> changedGroundPositions = new Dictionary<ulong, Tile>();
         internal Dictionary<ulong, Unit> changedUnits = new Dictionary<ulong, Unit>();
         private Player NeutralPlayer;
 
@@ -1456,8 +1457,8 @@ namespace Engine.Master
                             tileObject.Direction = Direction.C;
                             tile.Add(tileObject);
                         }
-                        if (!changedGroundulongs.ContainsKey(tile.Pos))
-                            changedGroundulongs.Add(tile.Pos, null);
+                        if (!changedGroundPositions.ContainsKey(tile.Pos))
+                            changedGroundPositions.Add(tile.Pos, null);
                     }
                 }
             }
@@ -1472,8 +1473,8 @@ namespace Engine.Master
                     if (pos != Position.Null)
                     {
                         oneSpace = true;
-                        if (!changedGroundulongs.ContainsKey(pos))
-                            changedGroundulongs.Add(pos, null);
+                        if (!changedGroundPositions.ContainsKey(pos))
+                            changedGroundPositions.Add(pos, null);
                     }
                     else
                     {
@@ -1487,17 +1488,60 @@ namespace Engine.Master
 
         private void AddChangedGroundInfoMoves(List<Move> moves)
         {
-            foreach (ulong pos in changedGroundulongs.Keys)
+            foreach (ulong pos in changedGroundPositions.Keys)
             {
                 Move hitmove = new Move();
                 hitmove.MoveType = MoveType.UpdateGround;
                 hitmove.Positions = new List<ulong>();
                 hitmove.Positions.Add(pos);
-                Map.CollectGroundStats(pos, hitmove);
+                CollectGroundStats(pos, hitmove);
                 moves.Add(hitmove);
             }
-            changedGroundulongs.Clear();
+            changedGroundPositions.Clear();
         }
+
+        public void CollectGroundStats(ulong pos, Move move, List<TileObject> tileObjects)
+        {
+            CollectGroundStats(pos, move);
+            if (tileObjects != null)
+            {
+                move.Stats.MoveUpdateGroundStat.TileObjects.Clear();
+                foreach (TileObject tileObject in tileObjects)
+                {
+                    TileObject newTileObject = tileObject.Copy();
+                    move.Stats.MoveUpdateGroundStat.TileObjects.Add(newTileObject);
+                }
+            }
+        }
+
+        public void CollectGroundStats(ulong pos, Move move)
+        {
+            if (move.Stats == null)
+                move.Stats = new MoveUpdateStats();
+
+            if (move.Stats.MoveUpdateGroundStat == null)
+                move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
+
+            MoveUpdateGroundStat moveUpdateGroundStat = move.Stats.MoveUpdateGroundStat;
+
+            Tile t = GetTile(pos);
+            moveUpdateGroundStat.Owner = t.Owner;
+
+            Player player;
+            if (Players.TryGetValue(1, out player))
+            {
+                if (player.IsVisible(pos))
+                    moveUpdateGroundStat.VisibilityMask = 1;
+            }
+            moveUpdateGroundStat.IsBorder = t.IsBorder;
+            moveUpdateGroundStat.IsUnderwater = t.IsUnderwater;
+            moveUpdateGroundStat.TileObjects = new List<TileObject>();
+            moveUpdateGroundStat.TileObjects.AddRange(t.TileObjects);
+            moveUpdateGroundStat.Height = (float)t.Height;
+            moveUpdateGroundStat.IsOpenTile = t.IsOpenTile;
+            moveUpdateGroundStat.ZoneId = t.ZoneId;
+        }
+
 
         public List<Move> ProcessMove(int playerId, Move myMove, List<MapGameCommand> gameCommands)
         {
@@ -1516,7 +1560,7 @@ namespace Engine.Master
                 }
 
                 changedUnits.Clear();
-                changedGroundulongs.Clear();
+                changedGroundPositions.Clear();
 
 
                 /*
@@ -1604,6 +1648,8 @@ namespace Engine.Master
                         gameCommand.PlayerId = mapGameCommand.PlayerId;
                         gameCommand.TargetPosition = mapGameCommand.TargetPosition;
                         gameCommand.TargetZone = mapGameCommand.TargetZone;
+                        gameCommand.Status = mapGameCommand.Status;
+                        gameCommand.Radius = mapGameCommand.Radius;
 
                         Player player = Players[mapGameCommand.PlayerId];
                         if (mapGameCommand.CommandComplete)
@@ -1684,8 +1730,6 @@ namespace Engine.Master
                     lastMoves.Add(moveUpdate);
                 }
 
-                // Add changed ground info
-                AddChangedGroundInfoMoves(lastMoves);
 
                 foreach (Player player in Players.Values)
                 {
@@ -1702,6 +1746,8 @@ namespace Engine.Master
                             player.Control.ProcessMoves(player, player.LastMoves);
                     }
                 }
+                // Add changed ground info
+                AddChangedGroundInfoMoves(lastMoves);
 
                 //CreateAreas();
                 if (playerId == 0)
@@ -1764,17 +1810,17 @@ namespace Engine.Master
                 Tile t = Map.GetTile(pos);
                 if (highestEnergy > 0)
                 {
-                    if (t.Owner != highestPlayerId && !changedGroundulongs.ContainsKey(pos))
+                    if (t.Owner != highestPlayerId && !changedGroundPositions.ContainsKey(pos))
                     {
-                        changedGroundulongs.Add(pos, null);
+                        changedGroundPositions.Add(pos, null);
                         t.Owner = highestPlayerId;
                     }
                 }
                 else
                 {
-                    if (t.Owner != 0 && !changedGroundulongs.ContainsKey(pos))
+                    if (t.Owner != 0 && !changedGroundPositions.ContainsKey(pos))
                     {
-                        changedGroundulongs.Add(pos, null);
+                        changedGroundPositions.Add(pos, null);
                         t.Owner = 0;
                     }
                 }
@@ -1784,8 +1830,8 @@ namespace Engine.Master
                 Tile t = Map.GetTile(pos);
                 if (t.Owner != 0 || t.IsBorder)
                 {
-                    if (!changedGroundulongs.ContainsKey(pos))
-                        changedGroundulongs.Add(pos, null);
+                    if (!changedGroundPositions.ContainsKey(pos))
+                        changedGroundPositions.Add(pos, null);
                     t.Owner = 0;
                     t.IsBorder = false;
                 }
@@ -1807,8 +1853,8 @@ namespace Engine.Master
                 if (t.IsBorder != isBorder)
                 {
                     t.IsBorder = isBorder;
-                    if (!changedGroundulongs.ContainsKey(pos))
-                        changedGroundulongs.Add(pos, null);
+                    if (!changedGroundPositions.ContainsKey(pos))
+                        changedGroundPositions.Add(pos, null);
                 }
             }
         }
@@ -1867,7 +1913,7 @@ namespace Engine.Master
                     //if (!n.CanMoveTo())
                     //    continue;
 
-                    TileWithDistance neighborsTile = new TileWithDistance(GetTile(n.Pos), tile.Distance + 1);
+                    TileWithDistance neighborsTile = new TileWithDistance(Map.GetTile(n.Pos), tile.Distance + 1);
                     if (neighborsTile.Distance > startArea.Range)
                         continue;
 

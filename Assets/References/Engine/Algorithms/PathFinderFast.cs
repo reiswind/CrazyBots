@@ -303,8 +303,8 @@ namespace Engine.Algorithms
                     {
                         if (!IgnoreVisibility)
                         {
-                            if (unit != null && !unit.Owner.VisiblePositions.Contains(n.Pos))
-                                continue;
+                            //if (unit != null && !unit.Owner.VisiblePositions.Contains(n.Pos))
+                            //    continue;
                         }
                         //mNewLocationX = (ushort)n.Pos.X;  //(ushort) (mLocationX + mDirection[i,0]);
                         //mNewLocationY = (ushort)n.Pos.Y; // (ushort) (mLocationY + mDirection[i,1]);

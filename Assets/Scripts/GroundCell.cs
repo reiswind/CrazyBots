@@ -413,20 +413,18 @@ namespace Assets.Scripts
 
             // Set color
             Renderer renderer = GetComponent<Renderer>();
-            if (Stats.MoveUpdateGroundStat.Owner != 0)
-                renderer.material.SetFloat("Darkness", 0.8f);
-            else
-                renderer.material.SetFloat("Darkness", 0.2f);
+            float diffuse = 0.8f;
+            if (Stats.MoveUpdateGroundStat.VisibilityMask == 0)
+                diffuse = 0.2f;
+
+            renderer.material.SetFloat("Darkness", diffuse);
             foreach (UnitBaseTileObject unitBaseTileObject1 in GameObjects)
             {
                 if (unitBaseTileObject1.GameObject != null)
                 {
                     renderer = unitBaseTileObject1.GameObject.GetComponent<Renderer>();
-
-                    if (Stats.MoveUpdateGroundStat.Owner != 0)
-                        renderer.material.SetFloat("Darkness", 0.8f);
-                    else
-                        renderer.material.SetFloat("Darkness", 0.2f);
+                    if (renderer != null)
+                        renderer.material.SetFloat("Darkness", diffuse);
                 }
             }
 

@@ -323,64 +323,8 @@ namespace Engine.Ants
             {
                 antPart.OnDestroy(player);
             }
-            /*
-            if (PheromoneDepositEnergy != 0)
-            {
-                player.Game.Pheromones.DeletePheromones(PheromoneDepositEnergy);
-                PheromoneDepositEnergy = 0;
-            }
-            if (PheromoneDepositNeedMinerals != 0)
-            {
-                player.Game.Pheromones.DeletePheromones(PheromoneDepositNeedMinerals);
-                PheromoneDepositNeedMinerals = 0;
-            }
-            if (PheromoneWaypointAttack != 0)
-            {
-                player.Game.Pheromones.DeletePheromones(PheromoneWaypointAttack);
-                PheromoneWaypointAttack = 0;
-            }
-            if (PheromoneWaypointMineral != 0)
-            {
-                player.Game.Pheromones.DeletePheromones(PheromoneWaypointMineral);
-                PheromoneWaypointMineral = 0;
-            }*/
-            // Another ant has to take this task
-            /*
-            if (PlayerUnit.Unit.FinishCommandWhenCompleted != null)
-            {
-                PlayerUnit.Unit.FinishCommandWhenCompleted.WaitingForUnit = false;
-
-                PlayerUnit.Unit.FinishCommandWhenCompleted = null;
-            }
-
-            if (PlayerUnit != null &&
-                PlayerUnit.Unit.CurrentGameCommand != null)
-            {
-                if (PlayerUnit.Unit.CurrentGameCommand.WaitingForUnit)
-                {
-                    PlayerUnit.Unit.CurrentGameCommand.WaitingForUnit = false;
-                }
-
-                if (PlayerUnit.Unit.CurrentGameCommand.CommandComplete &&
-                    PlayerUnit.Unit.CurrentGameCommand.DeleteWhenFinished)
-                    player.GameCommands.Remove(PlayerUnit.Unit.CurrentGameCommand);
-                PlayerUnit.Unit.ResetGameCommand();
-            }
-            if (GameCommandDuringCreation != null)
-            {
-                if (GameCommandDuringCreation.WaitingForUnit)
-                {
-                    GameCommandDuringCreation.WaitingForUnit = false;
-                }
-                if (GameCommandDuringCreation.CommandComplete &&
-                    GameCommandDuringCreation.DeleteWhenFinished)
-                    player.GameCommands.Remove(GameCommandDuringCreation);
-                GameCommandDuringCreation = null;
-            }
-            */
+            
         }
-
-        internal GameCommand GameCommandDuringCreation;
 
         public AntWorkerType AntWorkerType { get; set; }
     }

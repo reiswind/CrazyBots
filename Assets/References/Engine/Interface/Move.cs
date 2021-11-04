@@ -67,6 +67,8 @@ namespace Engine.Interface
         [DataMember]
         public int Owner { get; set; }
         [DataMember]
+        public int VisibilityMask { get; set; }
+        [DataMember]
         public bool IsBorder { get; set; }
         /*
         [DataMember(EmitDefaultValue = false)]

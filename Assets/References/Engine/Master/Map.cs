@@ -79,7 +79,8 @@ namespace Engine.Interface
         public bool CommandComplete { get; set; }
         public bool DeleteWhenFinished { get; set; }
         public bool CommandCanceled { get; set; }
-
+        public string Status { get; set; }
+        public int Radius { get; set; }
         public Direction Direction { get; set; }
         public int PlayerId { get; set; }
         public int TargetZone { get; set; }
@@ -230,6 +231,8 @@ namespace Engine.Interface
                             mapGameCommand.PlayerId = gameCommand.PlayerId;
                             mapGameCommand.TargetPosition = gameCommand.TargetPosition;
                             mapGameCommand.TargetZone = gameCommand.TargetZone;
+                            mapGameCommand.Status = gameCommand.Status;
+                            mapGameCommand.Radius = gameCommand.Radius;
 
                             foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
                             {
@@ -283,7 +286,7 @@ namespace Engine.Interface
         public Dictionary<ulong, MapSector> Sectors = new Dictionary<ulong, MapSector>();
         public Dictionary<ulong, Tile> LargeMapTiles = new Dictionary<ulong, Tile>();
         public Dictionary<MapGenerator.HexCell, MapSector> HexCellSectors = new Dictionary<MapGenerator.HexCell, MapSector>();
-        public Dictionary<ulong, Tile> Tiles = new Dictionary<ulong, Tile>();
+        public SortedDictionary<ulong, Tile> Tiles = new SortedDictionary<ulong, Tile>();
 
         public Units Units { get; private set; }
 
@@ -867,8 +870,8 @@ namespace Engine.Interface
                             }
                             else
                             {
-                                if (!Game.changedGroundulongs.ContainsKey(t.Pos))
-                                    Game.changedGroundulongs.Add(t.Pos, null);
+                                if (!Game.changedGroundPositions.ContainsKey(t.Pos))
+                                    Game.changedGroundPositions.Add(t.Pos, null);
 
                                 t.Add(tileObject);
                                 break;
@@ -943,48 +946,7 @@ namespace Engine.Interface
 
         //private HeightMap terrain;
 
-        public void CollectGroundStats(ulong pos, Move move, List<TileObject> tileObjects)
-        {
-            CollectGroundStats(pos, move);
-            if (tileObjects != null)
-            {
-                move.Stats.MoveUpdateGroundStat.TileObjects.Clear();
-                foreach (TileObject tileObject in tileObjects)
-                {
-                    TileObject newTileObject = tileObject.Copy();
-                    move.Stats.MoveUpdateGroundStat.TileObjects.Add(newTileObject);
-                }
-            }
-        }
-        
-        public void CollectGroundStats(ulong pos, Move move)
-        {
-            if (move.Stats == null)
-                move.Stats = new MoveUpdateStats();
-
-            if (move.Stats.MoveUpdateGroundStat == null)
-                move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
-
-            MoveUpdateGroundStat moveUpdateGroundStat = move.Stats.MoveUpdateGroundStat;
-
-            Tile t = GetTile(pos);
-            moveUpdateGroundStat.Owner = t.Owner;
-            moveUpdateGroundStat.IsBorder = t.IsBorder;
-            moveUpdateGroundStat.IsUnderwater = t.IsUnderwater;
-            moveUpdateGroundStat.TileObjects = new List<TileObject>();
-            moveUpdateGroundStat.TileObjects.AddRange(t.TileObjects);
-            moveUpdateGroundStat.Height = (float)t.Height;
-            moveUpdateGroundStat.IsOpenTile = t.IsOpenTile;
-            moveUpdateGroundStat.ZoneId = t.ZoneId;
-            //moveUpdateGroundStat.TerrainTypeIndex = t.TerrainTypeIndex;
-            //moveUpdateGroundStat.PlantLevel = t.PlantLevel;
-
-            //MoveUpdateStats moveUpdateStats;
-            //moveUpdateStats = new MoveUpdateStats();
-            //moveUpdateStats.MoveUpdateGroundStat = moveUpdateGroundStat;
-            
-        }
-
+       
         /*
         private HeightMap GenerateTerrain(int? seed = null)
         {

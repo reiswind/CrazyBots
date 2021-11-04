@@ -49,20 +49,6 @@ namespace Engine.Ants
                     {
                         // Why not?
                     }
-                    /*
-                    ulong pos = move.Positions[move.Positions.Count - 1];
-                    if (player.Units.ContainsKey(move.UnitId))
-                    {
-                        PlayerUnit playerUnit = player.Units[move.UnitId];
-                        Ant ant = Ants[playerUnit.Unit.UnitId] as Ant;
-                        if (ant != null)
-                        {
-                            player.UnitsInBuild.Remove(playerUnit.Unit.UnitId);
-                            ant.PlayerUnit.Unit.Assembler.Build(move.Stats.BlueprintName);
-                        }
-                        move.MoveType = MoveType.Skip;
-                    }*/
-                    
                 }
                 else if (move.MoveType == MoveType.Upgrade)
                 {
@@ -85,7 +71,7 @@ namespace Engine.Ants
             List<ulong> minerals = new List<ulong>();
             minerals.AddRange(staticMineralDeposits.Keys);
 
-            foreach (ulong pos in player.VisiblePositions)
+            foreach (ulong pos in player.VisiblePositions.Keys)
             {
                 Tile tile = player.Game.Map.GetTile(pos);
                 int mins = 0;
@@ -224,7 +210,6 @@ namespace Engine.Ants
                             mineralDeposit.Intensitiy = intensity;
                             mineralDeposit.Pos = pos;
                             mineralDeposit.DepositId = player.Game.Pheromones.DropStaticPheromones(player, ant.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit.Reactor.Range, PheromoneType.Energy, intensity);
-                            //player.Game.Pheromones.DropStaticPheromones(player, ant.PlayerUnit.Unit.Pos, ant.PlayerUnit.Unit.Reactor.Range, PheromoneType.Energy, 1); //, 0.2f);
                             staticReactorDeposits.Add(ant.PlayerUnit.Unit.Pos, mineralDeposit);
                         }
                     }
@@ -260,6 +245,14 @@ namespace Engine.Ants
                     }
                     if (!commandActive)
                     {
+                        // Is it in powered zone?
+                        Pheromone pheromone = player.Game.Pheromones.FindAt(mapZone.Center);
+                        if (pheromone == null || pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Energy) == 0)
+                        {
+                            // Cannot build here, no power
+                            continue;
+                        }
+
                         // Create a command to collect the resources
                         foreach (BlueprintCommand blueprintCommand in player.Game.Blueprints.Commands)
                         {
@@ -269,32 +262,17 @@ namespace Engine.Ants
 
                                 gameCommand.GameCommandType = GameCommandType.Collect;
                                 gameCommand.TargetZone = zoneId;
+                                gameCommand.Radius = 4;
                                 gameCommand.TargetPosition = mapZone.Center;
                                 gameCommand.PlayerId = player.PlayerModel.Id;
                                 gameCommand.DeleteWhenFinished = true;
+                                gameCommand.Status = "Created";
 
                                 player.GameCommands.Add(gameCommand);
                                 break;
                             }
                         }
                     }
-                }
-                else
-                {
-                    foreach (GameCommand gameCommand in player.GameCommands)
-                    {
-                        if (gameCommand.GameCommandType == GameCommandType.Collect &&
-                            gameCommand.TargetPosition == mapZone.Center)
-                        {
-                            gameCommand.CommandComplete = true;
-                            if (gameCommand.DeleteWhenFinished)
-                                player.GameCommands.Remove(gameCommand);
-
-                            break;
-                        }
-
-                    }
-
                 }
             }
         }
@@ -1409,22 +1387,19 @@ namespace Engine.Ants
                     {
                         if (ant.PlayerUnit.Unit.CurrentGameCommand != null)
                         {
-                            //if (ant.PlayerUnit.Unit.CurrentGameCommand.TargetPosition == gameCommand.TargetPosition)
-                            {
-                                ant.PlayerUnit.Unit.ResetGameCommand();
-                            }
-                        }
-                        if (ant.GameCommandDuringCreation != null)
-                        {
-                            if (ant.GameCommandDuringCreation.TargetPosition == gameCommand.TargetPosition)
-                            {
-                                ant.GameCommandDuringCreation = null;
-                            }
+                            ant.PlayerUnit.Unit.ResetGameCommand();
                         }
                     }
                     gameCommand.CommandComplete = true;
                     completedCommands.Add(gameCommand);
                     cancelCommands.Add(gameCommand);
+                }
+                if (gameCommand.GameCommandType == GameCommandType.Collect)
+                {
+                    if (gameCommand.IncludedPositions == null)
+                    {
+                        gameCommand.IncludedPositions = player.Game.Map.EnumerateTiles(gameCommand.TargetPosition, gameCommand.Radius, true);
+                    }
                 }
                 if (gameCommand.GameCommandType == GameCommandType.Extract)
                 {
@@ -1613,6 +1588,21 @@ namespace Engine.Ants
                     }*/
                 }
             }
+            foreach (GameCommand gameCommand in completedCommands)
+            {
+                if (gameCommand.DeleteWhenFinished)
+                {
+                    foreach (Ant ant in Ants.Values)
+                    {
+                        if (ant.PlayerUnit.Unit.CurrentGameCommand != null &&
+                            ant.PlayerUnit.Unit.CurrentGameCommand.GameCommand == gameCommand)
+                        {
+                            ant.PlayerUnit.Unit.ResetGameCommand();
+                        }
+                    }
+                    player.GameCommands.Remove(gameCommand);
+                }
+            }
 #if open
             List<GameCommand> addedCommands = new List<GameCommand>();
 
@@ -1694,7 +1684,7 @@ namespace Engine.Ants
             }
             player.GameCommands.AddRange(addedCommands);
 #endif
-        }
+            }
         /*
         private void BuildReactor(Player player)
         {
@@ -1856,8 +1846,6 @@ namespace Engine.Ants
 
         private void UpdateAntList(Player player)
         {
-            //List<PlayerUnit> moveableUnits = new List<PlayerUnit>();
-
             foreach (Ant ant in Ants.Values)
             {
                 ant.MoveAttempts = 0;
@@ -1868,9 +1856,6 @@ namespace Engine.Ants
                 Unit cntrlUnit = playerUnit.Unit;
                 if (cntrlUnit.Owner.PlayerModel.Id == PlayerModel.Id)
                 {
-                    playerUnit.PossibleMoves.Clear();
-                    //moveableUnits.Add(playerUnit);
-
                     if (Ants.ContainsKey(cntrlUnit.UnitId))
                     {
                         Ant ant = Ants[cntrlUnit.UnitId];

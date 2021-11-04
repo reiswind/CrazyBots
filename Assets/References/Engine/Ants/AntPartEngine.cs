@@ -338,6 +338,13 @@ namespace Engine.Ants
                                 }
                             }
                         }
+                        if (cntrlUnit.CurrentGameCommand != null && 
+                            cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect &&
+                            pheromoneType == PheromoneType.Mineral)
+                        {
+                            // Controlled by gamecommand
+                            return true;
+                        }
                         /*
                         if (cntrlUnit.Container != null && cntrlUnit.Container.IsFreeSpace)
                         {
@@ -635,6 +642,67 @@ namespace Engine.Ants
             return move != null;
         }
 
+        private void FindPathForCollect(Player player, Unit cntrlUnit)
+        {
+            if (cntrlUnit.CurrentGameCommand == null)
+                return;
+
+            // Create a list 
+            Dictionary<int, List<Tile>> sortedPositions = new Dictionary<int, List<Tile>>();
+
+            foreach (TileWithDistance tileWithDistance in cntrlUnit.CurrentGameCommand.GameCommand.IncludedPositions.Values)
+            {
+                if (cntrlUnit.Pos == tileWithDistance.Pos)
+                    continue;
+
+                // For now
+                if (tileWithDistance.Minerals == 0)
+                    continue;
+
+                // Is it in powered zone?
+                Pheromone pheromone = player.Game.Pheromones.FindAt(tileWithDistance.Pos);
+                if (pheromone == null || pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Energy) == 0)
+                {
+                    // no power
+                    continue;
+                }
+
+                int d = CubePosition.Distance(cntrlUnit.Pos, tileWithDistance.Pos);
+
+                List<Tile> tiles;
+                if (sortedPositions.ContainsKey(d))
+                {
+                    tiles = sortedPositions[d];
+                }
+                else
+                {
+                    tiles = new List<Tile>();
+                    sortedPositions.Add(d, tiles);
+                }
+                tiles.Add(tileWithDistance.Tile);
+            }
+            foreach (List<Tile> tiles in sortedPositions.Values)
+            {
+                foreach (Tile tile in tiles)
+                {
+                    List<ulong> positions = player.Game.FindPath(cntrlUnit.Pos, tile.Pos, cntrlUnit);
+                    if (positions != null)
+                    {
+                        Ant.FollowThisRoute = new List<ulong>();
+                        for (int i = 1; i < positions.Count - 1; i++)
+                        {
+                            Ant.FollowThisRoute.Add(positions[i]);
+                        }
+                        cntrlUnit.CurrentGameCommand.GameCommand.CommandComplete = false;
+                        cntrlUnit.CurrentGameCommand.GameCommand.Status = "Collecting";
+                        return;
+                    }
+
+                }
+            }
+            cntrlUnit.CurrentGameCommand.GameCommand.Status = "OutOfResources";
+            cntrlUnit.CurrentGameCommand.GameCommand.CommandComplete = true;
+        }
 
         public override bool Move(ControlAnt control, Player player, List<Move> moves)
         {
@@ -658,25 +726,10 @@ namespace Engine.Ants
 
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
                 {
+                    calcPath = false;
                     if (cntrlUnit.Container != null && cntrlUnit.Container.TileContainer.IsFreeSpace)
                     {
-                        // Move to target area
-                        int d = CubePosition.Distance(cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition, cntrlUnit.Pos);
-                        if (d < (player.Game.Map.SectorSize / 2))
-                        {
-                            calcPath = false;
-                            Ant.FollowThisRoute = null;
-                        }
-                        else
-                        {
-
-                        }
-                    }
-                    else
-                    {
-                        // Find container
-                        calcPath = false;
-                        Ant.FollowThisRoute = null;
+                        FindPathForCollect(player, cntrlUnit);
                     }
                 }
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Attack)

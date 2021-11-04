@@ -129,8 +129,8 @@ namespace Engine.Interface
                 {
                     if (tile.Pos != Center)
                     {
-                        if (!map.Game.changedGroundulongs.ContainsKey(tile.Pos))
-                            map.Game.changedGroundulongs.Add(tile.Pos, null);
+                        if (!map.Game.changedGroundPositions.ContainsKey(tile.Pos))
+                            map.Game.changedGroundPositions.Add(tile.Pos, null);
 
                         tile.IsOpenTile = false;
                         openTiles.Remove(tile);
@@ -202,8 +202,8 @@ namespace Engine.Interface
                     {
                         throw new Exception();
                     }
-                    if (!map.Game.changedGroundulongs.ContainsKey(bestTile.Pos))
-                        map.Game.changedGroundulongs.Add(bestTile.Pos, null);
+                    if (!map.Game.changedGroundPositions.ContainsKey(bestTile.Pos))
+                        map.Game.changedGroundPositions.Add(bestTile.Pos, null);
                     bestTile.IsOpenTile = false;
 
                     foreach (Tile n in bestTile.Neighbors)
@@ -253,8 +253,8 @@ namespace Engine.Interface
                             }
                             if (allTilesEmpty)
                             {
-                                if (!map.Game.changedGroundulongs.ContainsKey(n.Pos))
-                                    map.Game.changedGroundulongs.Add(n.Pos, null);
+                                if (!map.Game.changedGroundPositions.ContainsKey(n.Pos))
+                                    map.Game.changedGroundPositions.Add(n.Pos, null);
 
                                 n.IsOpenTile = true;
                                 openTiles.Add(n);

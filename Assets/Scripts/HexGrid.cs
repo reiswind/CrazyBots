@@ -524,7 +524,7 @@ namespace Assets.Scripts
                 {
                     Move move = new Move();
                     move.Stats = new MoveUpdateStats();
-                    game.Map.CollectGroundStats(t.Pos, move);
+                    game.CollectGroundStats(t.Pos, move, null);
                     GroundCell hexCell = CreateCell(t.Pos, null, cellPrefab);
                     GroundCells.Add(t.Pos, hexCell);
                 }

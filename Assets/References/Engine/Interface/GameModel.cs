@@ -48,16 +48,20 @@ namespace Engine.Interface
                 GameCommandItems.Add(gameCommandItem);
             }
         }
+        public string Status { get; set; }
         public bool CommandComplete { get; set; }
         public bool DeleteWhenFinished { get; set; }
         public bool CommandCanceled { get; set; }
         public int PlayerId { get; set; }
         public int TargetZone { get; set; }
+        public int Radius { get; set; }
         public ulong TargetPosition { get; set; }
         public ulong MoveToPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
         public BlueprintCommand BlueprintCommand { get; private set; }
         public List<GameCommandItem> GameCommandItems { get; private set; }
+
+        internal Dictionary<ulong, TileWithDistance> IncludedPositions { get; set; }
 
         public override string ToString()
         {
@@ -107,6 +111,7 @@ namespace Engine.Interface
         Map Map { get; }
         Blueprints Blueprints { get; }
         void CreateUnits();
+        void CollectGroundStats(ulong pos, Move move, List<TileObject> tileObjects);
     }
 
     [DataContract]

@@ -49,7 +49,7 @@ namespace Engine.Interface
         /// <summary>
         /// z
         /// </summary>
-        public int S { get; private set; } 
+        public int S { get; private set; }
 
         /*
         public void MoveRightDown(Map map, int range)
@@ -112,8 +112,39 @@ namespace Engine.Interface
                 S--;
             }
         }*/
+        public CubePosition Move(Direction direction, int lenght)
+        {
+            CubePosition cubePosition = this;
+            while (lenght-- > 0)
+                cubePosition = cubePosition.GetNeighbor(direction);
+            return cubePosition;
+        }
 
+        public List<CubePosition> DrawLine(ulong pos)
+        {
+            CubePosition to = new CubePosition(pos);
+            return DrawLine(to);
+        }
+        public List<CubePosition> DrawLine(CubePosition to)
+        { 
+            List<CubePosition> line = FractionalHex.HexLinedraw(this, to);
+            return line;
+        }
+        public List<CubePosition> CreateRing(int radius)
+        {
+            List<CubePosition> results = new List<CubePosition>();
+            CubePosition cube = Move(Direction.NW, radius);
 
+            for (int i = 0; i < 6; i++)
+            {
+                for (int j = 0; j < radius; j++)
+                {
+                    results.Add(cube);
+                    cube = cube.GetNeighbor(i);
+                }
+            }
+            return results;
+        }
 
         public CubePosition Add(CubePosition b)
         {

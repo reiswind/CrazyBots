@@ -393,7 +393,7 @@ namespace Engine.Master
             }
 
             move.Stats = new MoveUpdateStats();
-            Unit.Game.Map.CollectGroundStats(otherUnit.Pos, move, removeTileObjects);
+            Unit.Game.CollectGroundStats(otherUnit.Pos, move, removeTileObjects);
             
             if (otherUnit.IsDead())
             {
@@ -457,7 +457,7 @@ namespace Engine.Master
 
             // The removed tileobjects will be in the move until the next move
             move.Stats = unit.CollectStats();
-            Unit.Game.Map.CollectGroundStats(unit.Pos, move, removeTileObjects);
+            Unit.Game.CollectGroundStats(unit.Pos, move, removeTileObjects);
 
             bool didRemove = removeTileObjects.Count > 0;
 

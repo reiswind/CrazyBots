@@ -53,8 +53,9 @@ namespace Engine.Master
                 if (tile.Pos == Unit.Pos)
                     return true;
 
-                if (!Unit.Owner.VisiblePositions.Contains(tile.Pos))
-                    return false;
+                // Sure? Why?
+                //if (!Unit.Owner.VisiblePositions.Contains(tile.Pos))
+                //    return false;
 
                 return true;
             });

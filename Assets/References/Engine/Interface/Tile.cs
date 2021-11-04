@@ -395,19 +395,25 @@ namespace Engine.Interface
             if (IsUnderwater)
                 canBuild = false;
 
+            canMove = canBuild;
             foreach (TileObject tileObject in TileContainer.TileObjects)
             {
                 if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
                 {
                     canBuild = false;
+                    canMove = false;
                     break;
                 }
+                if (tileObject.TileObjectType != TileObjectType.Mineral && TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
+                {
+                    canMove = false;
+                }
             }
-
         }
 
         private int mineralCache;
         private bool canBuild;
+        private bool canMove;
 
         public int Minerals
         {  
@@ -494,7 +500,7 @@ namespace Engine.Interface
             {
                 UpdateCache();
             }
-            return canBuild; // CanBuildForMove();
+            return canMove; // CanBuildForMove();
         }
         public override string ToString()
         {
