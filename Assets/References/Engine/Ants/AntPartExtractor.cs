@@ -31,6 +31,7 @@ namespace Engine.Ants
             }
             else
             {
+
                 // only if enemy is close...
                 if (cntrlUnit.Extractor != null && cntrlUnit.Extractor.CanExtract)
                 {
@@ -42,10 +43,15 @@ namespace Engine.Ants
                         List<Move> mineralmoves = new List<Move>();
                         foreach (Move mineralMove in possiblemoves)
                         {
-                            /*
-                            if (mineralMove.OtherUnitId == "Mineral")
-                                mineralmoves.Add(mineralMove);
-                            if (mineralMove.OtherUnitId.StartsWith("unit"))*/
+                            if (Ant.AntWorkerType == AntWorkerType.Worker && Ant.PlayerUnit.Unit.CurrentGameCommand == null)
+                            {
+                                // Worker will only extract minerals if no command is attached.
+                                if (mineralMove.Stats.MoveUpdateGroundStat.TileObjects[0].TileObjectType != TileObjectType.Mineral)
+                                {
+                                    continue;
+                                }
+                            }
+
                             // Everything
                             mineralmoves.Add(mineralMove);
                         }

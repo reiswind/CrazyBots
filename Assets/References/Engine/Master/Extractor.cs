@@ -38,8 +38,19 @@ namespace Engine.Master
 
         public Dictionary<ulong, TileWithDistance> CollectExtractableTiles()
         {
+            Dictionary<ulong, TileWithDistance> includePositions = null;
+            if (Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
+            {
+                includePositions = Unit.CurrentGameCommand.GameCommand.IncludedPositions;
+            }
+
             return Unit.Game.Map.EnumerateTiles(Unit.Pos, MetalCollectionRange, false, matcher: tile => 
             {
+                if (includePositions != null && !includePositions.ContainsKey(tile.Pos))
+                {
+                    // If command is active, extract only in the area
+                    return false;
+                }
                 if (tile.Unit != null)
                 {
                     if (tile.Unit.Owner.PlayerModel.Id != Unit.Owner.PlayerModel.Id)
