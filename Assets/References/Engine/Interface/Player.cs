@@ -30,18 +30,6 @@ namespace Engine.Interface
         }
     }
 
-    public class PlayerMove 
-    {
-        public PlayerMove(Move move)
-        {
-            Move = move;
-        }
-
-        public Move Move { get; private set; }
-        public string NewUnitId { get; set; }
-
-    }
-
     public class PlayerUnit
     {
         public Unit Unit { get; set; }
@@ -56,70 +44,14 @@ namespace Engine.Interface
         {
             return Unit.ToString();
         }
-        /*
-        internal void CollectVisiblePos(ulong pos, List<ulong> positions, bool keep)
-        {
-            List<ulong> calcPos = new List<ulong>();
-
-            int visibilityRange = 4;
-            if (Unit.Reactor != null)
-            {
-                //visibilityRange = 4; // Unit.Reactor.Range;
-            }
-
-            CollectVisiblePos(this.Unit.Game, pos, calcPos, visibilityRange);
-            positions.AddRange(calcPos);
-        }
-
-        internal static void CollectVisiblePos(Game game, ulong pos, List<ulong> positions, int visibilityRange)
-        {
-            List<TileWithDistance> openList = new List<TileWithDistance>();
-            Dictionary<ulong, TileWithDistance> reachedTiles = new Dictionary<ulong, TileWithDistance>();
-
-            if (!positions.Contains(pos))
-            {
-                positions.Add(pos);
-            }
-
-            Tile startTile = game.Map.GetTile(pos);
-            if (startTile == null) return;
-
-            TileWithDistance start = new TileWithDistance(startTile, 0);
-
-            openList.Add(start);
-
-            while (openList.Count > 0)
-            {
-                TileWithDistance tile = openList[0];
-                openList.RemoveAt(0);
-
-                if (tile.Distance > visibilityRange)
-                    continue;
-                if (!positions.Contains(tile.Pos))
-                {
-                    positions.Add(tile.Pos);
-                }
-                foreach (Tile n in tile.Neighbors)
-                {
-                    if (!reachedTiles.ContainsKey(n.Pos))
-                    {
-                        TileWithDistance neighborsTile = new TileWithDistance(game.Map.GetTile(n.Pos), tile.Distance + 1);
-                        reachedTiles.Add(neighborsTile.Pos, neighborsTile);
-
-                        if (neighborsTile.Distance <= visibilityRange)
-                        {
-                            openList.Add(neighborsTile);
-                        }
-                    }
-                }
-            }
-        }*/
     }
+
     public class PlayerVisibleInfo
     {
         public ulong Pos { get; set; }
         public int LastUpdated { get; set; }
     }
+
     public class Player
     {
         public Game Game { get; set; }
@@ -134,8 +66,7 @@ namespace Engine.Interface
 
         // Unit that the player knows. Own and enemy
         public Dictionary<string, PlayerUnit> Units = new Dictionary<string, PlayerUnit>();
-        //public Dictionary<string, PlayerUnit> UnitsInBuild = new Dictionary<string, PlayerUnit>();
-        // ulongs the player sees
+        
         public Dictionary<ulong, PlayerVisibleInfo> VisiblePositions = new Dictionary<ulong, PlayerVisibleInfo>();
 
         public bool IsVisible(ulong pos)
@@ -178,17 +109,6 @@ namespace Engine.Interface
             }
         }
 
-        public bool WonThisGame()
-        {
-            foreach (Unit unit in Game.Map.Units.List.Values)
-            {
-                if (unit.Owner.PlayerModel.Id != 0 &&
-                    unit.Owner.PlayerModel.Id != this.PlayerModel.Id)
-                    return false;
-            }
-            return true;
-        }
-
         public Player(Game game, PlayerModel playerModel)
         {
             Game = game;
@@ -225,10 +145,6 @@ namespace Engine.Interface
             }*/
         }
 
-
-
-        //private int moveNr;
-
         internal void ProcessMoves(List<Move> moves)
         {
             // Update postion of all units
@@ -237,9 +153,6 @@ namespace Engine.Interface
             Dictionary<ulong, PlayerUnit> movedAwayUnits = new Dictionary<ulong, PlayerUnit>();
             List<ulong> changedUnits = new List<ulong>();
             LastMoves = new List<Move>();
-
-            //moveNr++;
-            
             
             Dictionary<ulong, PlayerUnit> addedUnits = new Dictionary<ulong, PlayerUnit>();
             Dictionary<ulong, PlayerUnit> movedToUnits = new Dictionary<ulong, PlayerUnit>();
@@ -258,8 +171,6 @@ namespace Engine.Interface
                         addedUnits.Add(to, playerUnit);
                         changedUnits.Add(to);
                     }
-
-                    //CollectVisiblePos(playerUnit);
                 }
 
                 if (move.MoveType == MoveType.Build)
@@ -283,15 +194,7 @@ namespace Engine.Interface
                     ulong to = move.Positions[move.Positions.Count - 1];
                     if (move.PlayerId == PlayerModel.Id)
                     {
-                        /*
-                        if (UnitsInBuild.ContainsKey(move.OtherUnitId))
-                        {
-                            PlayerUnit playerUnit = UnitsInBuild[move.OtherUnitId];
-                            addedUnits.Add(to, playerUnit);
-                            Units.Add(playerUnit.Unit.UnitId, playerUnit);
-                            changedUnits.Add(to);
-                            UnitsInBuild.Remove(move.OtherUnitId);
-                        }*/
+
                     }
                 }
                 if (move.MoveType == MoveType.Move)
@@ -308,17 +211,11 @@ namespace Engine.Interface
                         if (this.Units.ContainsKey(move.UnitId))
                         {
                             PlayerUnit playerUnit = Units[move.UnitId];
-                            /*
-                            Unit unit = Game.Map.Units.GetUnitAt(to);
-                            PlayerUnit playerUnit = new PlayerUnit(unit);
-                            Units.Add(move.UnitId, playerUnit);*/
 
                             ulong from = move.Positions[0];
                             movedAwayUnits.Add(from, playerUnit);
                             movedToUnits.Add(to, playerUnit);
                             changedUnits.Add(to);
-
-                            //CollectVisiblePos(playerUnit);
                         }
                     }
                 }
@@ -334,8 +231,7 @@ namespace Engine.Interface
                     }
                 }
             }
-            //Dictionary<ulong, PlayerVisibleInfo> previousVisibleTiles = VisiblePositions;
-            //VisiblePositions = new Dictionary<ulong, PlayerVisibleInfo>();
+
             foreach (PlayerUnit playerUnit1 in Units.Values)
             {
                 if (playerUnit1.Unit.Owner.PlayerModel.Id == PlayerModel.Id)
@@ -735,9 +631,8 @@ namespace Engine.Interface
                 }
             }
         }
-#endif
 
-            public int Count(Type unitType)
+        public int Count(Type unitType)
         {
             int cnt = 0;
             foreach (Unit unit in Game.Map.Units.List.Values)
@@ -750,6 +645,7 @@ namespace Engine.Interface
             }
             return cnt;
         }
+#endif
 
         public override string ToString()
         {
