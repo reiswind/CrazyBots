@@ -488,8 +488,17 @@ namespace Engine.Ants
                         }
                         else
                         {
-                            // Worker hangs around at home
-                            pheromoneType = PheromoneType.Energy;
+
+                            if (cntrlUnit.Container.TileContainer.Count == 0)
+                            {
+                                // Scout
+                                pheromoneType = PheromoneType.AwayFromEnergy;
+                            }
+                            else
+                            {
+                                // Worker hangs around at home
+                                pheromoneType = PheromoneType.Energy;
+                            }
                             possibleTiles = ComputePossibleTiles(player, tiles, pheromoneType);
                         }
                     }

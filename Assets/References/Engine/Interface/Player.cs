@@ -48,8 +48,15 @@ namespace Engine.Interface
 
     public class PlayerVisibleInfo
     {
+        public Unit Unit { get; set; }
+        public int NumberOfCollectables { get; set; }
         public ulong Pos { get; set; }
         public int LastUpdated { get; set; }
+
+        public override string ToString()
+        {
+            return Position.GetX(Pos) + "," + Position.GetY(Pos) + " Col: " + NumberOfCollectables;
+        }
     }
 
     public class Player
@@ -68,6 +75,7 @@ namespace Engine.Interface
         public Dictionary<string, PlayerUnit> Units = new Dictionary<string, PlayerUnit>();
         
         public Dictionary<ulong, PlayerVisibleInfo> VisiblePositions = new Dictionary<ulong, PlayerVisibleInfo>();
+        public Dictionary<ulong, PlayerVisibleInfo> Discoveries = new Dictionary<ulong, PlayerVisibleInfo>();
 
         public bool IsVisible(ulong pos)
         {
@@ -88,22 +96,32 @@ namespace Engine.Interface
             {
                 visibilityRange = 4; // Unit.Reactor.Range;
             }
+
             Dictionary<ulong, TileWithDistance> tiles = Game.Map.EnumerateTiles(playerUnit.Unit.Pos, visibilityRange, true);
             foreach (TileWithDistance tileWithDistance in tiles.Values)
             {
                 PlayerVisibleInfo playerVisibleInfo;
                 if (VisiblePositions.TryGetValue(tileWithDistance.Pos, out playerVisibleInfo))
                 {
-
+                    if (playerVisibleInfo.NumberOfCollectables != tileWithDistance.Tile.NumberOfCollectables)
+                    {
+                        Discoveries.Add(tileWithDistance.Pos, playerVisibleInfo);
+                    }
                 }
                 else
                 {
                     playerVisibleInfo = new PlayerVisibleInfo();
                     VisiblePositions.Add(tileWithDistance.Pos, playerVisibleInfo);
 
+                    if (tileWithDistance.Tile.NumberOfCollectables > 0)
+                        Discoveries.Add(tileWithDistance.Pos, playerVisibleInfo);
+
                     if (!Game.changedGroundPositions.ContainsKey(tileWithDistance.Pos))
                         Game.changedGroundPositions.Add(tileWithDistance.Pos, tileWithDistance.Tile);
                 }
+                playerVisibleInfo.NumberOfCollectables = tileWithDistance.Tile.NumberOfCollectables;
+                playerVisibleInfo.Unit = tileWithDistance.Tile.Unit;
+
                 playerVisibleInfo.Pos = tileWithDistance.Pos;
                 playerVisibleInfo.LastUpdated = Game.MoveNr + 1;
             }
@@ -232,6 +250,7 @@ namespace Engine.Interface
                 }
             }
 
+            Discoveries.Clear();
             foreach (PlayerUnit playerUnit1 in Units.Values)
             {
                 if (playerUnit1.Unit.Owner.PlayerModel.Id == PlayerModel.Id)

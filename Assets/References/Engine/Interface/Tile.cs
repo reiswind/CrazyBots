@@ -385,6 +385,7 @@ namespace Engine.Interface
         {
             cacheUpdated = true;
             mineralCache = TileContainer.Minerals;
+            numberOfCollectablesCache = 0;
 
             canBuild = true;
             if (mineralCache >= 20)
@@ -404,17 +405,31 @@ namespace Engine.Interface
                     canMove = false;
                     break;
                 }
-                if (tileObject.TileObjectType != TileObjectType.Mineral && TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
+                if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
                 {
-                    canMove = false;
+                    numberOfCollectablesCache++;
+                    if (tileObject.TileObjectType != TileObjectType.Mineral)
+                        canMove = false;
                 }
             }
         }
 
         private int mineralCache;
+        private int numberOfCollectablesCache;
         private bool canBuild;
         private bool canMove;
 
+        public int NumberOfCollectables
+        {
+            get
+            {
+                if (!cacheUpdated)
+                {
+                    UpdateCache();
+                }
+                return numberOfCollectablesCache;
+            }
+        }
         public int Minerals
         {  
             get

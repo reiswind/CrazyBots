@@ -62,17 +62,33 @@ namespace Engine.Ants
             }
         }
 
-        private Dictionary<int, AntCollect> AntCollects = new Dictionary<int, AntCollect>();
+        public void CreateCommands(Player player)
+        {
+            if (player.Discoveries.Count > 0)
+            {
+                foreach (PlayerVisibleInfo playerVisibleInfo in player.Discoveries.Values)
+                {
+                    if (playerVisibleInfo.NumberOfCollectables > 2)
+                    {
+                        // Collect it
+                        CreateCollectCommand(player, playerVisibleInfo.Pos);
+                    }
+                }
+            }
+        }
 
         public void UpdatePheromones(Player player)
         {
-            AntCollects.Clear();
+
+            //AntCollects.Clear();
 
             List<ulong> minerals = new List<ulong>();
             minerals.AddRange(staticMineralDeposits.Keys);
 
             foreach (ulong pos in player.VisiblePositions.Keys)
             {
+                break;
+
                 Tile tile = player.Game.Map.GetTile(pos);
                 int mins = 0;
                 if (tile.Minerals > 0)
@@ -113,13 +129,14 @@ namespace Engine.Ants
 
                         staticMineralDeposits.Add(pos, mineralDeposit);
                     }
+                    /*
                     AntCollect antCollect;
                     if (!AntCollects.TryGetValue(tile.ZoneId, out antCollect))
                     {
                         antCollect = new AntCollect();
                         AntCollects.Add(tile.ZoneId, antCollect);
                     }
-                    antCollect.Minerals += mins;
+                    antCollect.Minerals += mins;*/
                 }
             }
 
@@ -165,7 +182,6 @@ namespace Engine.Ants
                         mineralDeposit.DepositId = player.Game.Pheromones.DropStaticPheromones(player, ant.PlayerUnit.Unit.Pos, sectorSize, PheromoneType.Container, intensity, 0.01f);
                         staticContainerDeposits.Add(ant.PlayerUnit.Unit.Pos, mineralDeposit);
                     }
-
                 }
             }
             foreach (ulong pos in minerals)
@@ -174,7 +190,6 @@ namespace Engine.Ants
                 player.Game.Pheromones.DeletePheromones(mineralDeposit.DepositId);
                 staticContainerDeposits.Remove(pos);
             }
-
 
             minerals = new List<ulong>();
             minerals.AddRange(staticReactorDeposits.Keys);
@@ -223,58 +238,54 @@ namespace Engine.Ants
             }
 
         }
-        public void CreateCommands(Player player)
+        public void CreateCollectCommand(Player player, ulong pos)
         {
-            foreach (KeyValuePair<int, AntCollect> value in AntCollects)
+
+            bool commandActive = false;
+            foreach (GameCommand gameCommand in player.GameCommands)
             {
-                int zoneId = value.Key;
-                MapZone mapZone = player.Game.Map.Zones[zoneId];
-                AntCollect antCollect = value.Value;
-
-                if (antCollect.Minerals > 5)
+                if (gameCommand.GameCommandType == GameCommandType.Collect) // && gameCommand.TargetPosition == pos)
                 {
-                    bool commandActive = false;
-                    foreach (GameCommand gameCommand in player.GameCommands)
+                    if (gameCommand.IncludedPositions.ContainsKey(pos))
                     {
-                        if (gameCommand.GameCommandType == GameCommandType.Collect &&
-                            gameCommand.TargetPosition == mapZone.Center)
-                        {
-                            commandActive = true;
-                            break;
-                        }
-                    }
-                    if (!commandActive)
-                    {
-                        // Is it in powered zone?
-                        Pheromone pheromone = player.Game.Pheromones.FindAt(mapZone.Center);
-                        if (pheromone == null || pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Energy) == 0)
-                        {
-                            // Cannot build here, no power
-                            continue;
-                        }
-
-                        // Create a command to collect the resources
-                        foreach (BlueprintCommand blueprintCommand in player.Game.Blueprints.Commands)
-                        {
-                            if (blueprintCommand.GameCommandType == GameCommandType.Collect)
-                            {
-                                GameCommand gameCommand = new GameCommand(blueprintCommand);
-
-                                gameCommand.GameCommandType = GameCommandType.Collect;
-                                gameCommand.TargetZone = zoneId;
-                                gameCommand.Radius = 4;
-                                gameCommand.TargetPosition = mapZone.Center;
-                                gameCommand.PlayerId = player.PlayerModel.Id;
-                                gameCommand.DeleteWhenFinished = true;
-                                gameCommand.Status = "Created";
-
-                                player.GameCommands.Add(gameCommand);
-                                break;
-                            }
-                        }
+                        commandActive = true;
+                        break;
                     }
                 }
             }
+            if (!commandActive)
+            {
+                // Is it in powered zone?
+                Pheromone pheromone = player.Game.Pheromones.FindAt(pos);
+                if (pheromone == null || pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Energy) == 0)
+                {
+                    // Cannot build here, no power
+                    return;
+                }
+
+                // Create a command to collect the resources
+                foreach (BlueprintCommand blueprintCommand in player.Game.Blueprints.Commands)
+                {
+                    if (blueprintCommand.GameCommandType == GameCommandType.Collect)
+                    {
+                        GameCommand gameCommand = new GameCommand(blueprintCommand);
+
+                        gameCommand.GameCommandType = GameCommandType.Collect;
+                        //gameCommand.TargetZone = zoneId;
+                        gameCommand.Radius = 4;
+                        gameCommand.TargetPosition = pos;
+                        gameCommand.PlayerId = player.PlayerModel.Id;
+                        gameCommand.DeleteWhenFinished = true;
+                        gameCommand.Status = "Created";
+
+                        gameCommand.IncludedPositions = player.Game.Map.EnumerateTiles(gameCommand.TargetPosition, gameCommand.Radius, true);
+
+                        player.GameCommands.Add(gameCommand);
+                        break;
+                    }
+                }
+            }
+
         }
 
         public void CreateCommandForContainerInZone(Player player, int zoneId)
@@ -1396,10 +1407,7 @@ namespace Engine.Ants
                 }
                 if (gameCommand.GameCommandType == GameCommandType.Collect)
                 {
-                    if (gameCommand.IncludedPositions == null)
-                    {
-                        gameCommand.IncludedPositions = player.Game.Map.EnumerateTiles(gameCommand.TargetPosition, gameCommand.Radius, true);
-                    }
+
                 }
                 if (gameCommand.GameCommandType == GameCommandType.Extract)
                 {
@@ -1475,7 +1483,7 @@ namespace Engine.Ants
 
                 foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
                 {
-                    bool requestAssembler = false;
+                    bool requestUnit = false;
 
                     if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build &&
                         gameCommandItem.AttachedUnitId != null && gameCommandItem.FactoryUnitId == null)
@@ -1484,21 +1492,51 @@ namespace Engine.Ants
                         Unit unit = player.Game.Map.Units.FindUnit(gameCommandItem.AttachedUnitId);
                         if (unit == null)
                         {
-                            requestAssembler = true;
+                            requestUnit = true;
                         }
                         else
                         {
                             if (!unit.IsComplete())
                             {
-                                requestAssembler = true;
+                                requestUnit = true;
                             }
                         }
                     }
                     if (gameCommandItem.AttachedUnitId == null && gameCommandItem.FactoryUnitId == null)
                     {
-                        requestAssembler = true;
+                        requestUnit = true;
                     }
-                    if (requestAssembler)
+                    if (requestUnit)
+                    {
+                        // Find a existing unit that can do it
+                        foreach (Ant ant in unmovedAnts)
+                        {
+                            if (ant.PlayerUnit.Unit.CurrentGameCommand == null && !ant.PlayerUnit.Unit.UnderConstruction && !ant.PlayerUnit.Unit.ExtractMe)
+                            {
+                                if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build)
+                                {
+                                    if (ant.PlayerUnit.Unit.Blueprint.Name == "Assembler")
+                                    {
+                                        gameCommandItem.FactoryUnitId = ant.PlayerUnit.Unit.UnitId;
+                                        ant.PlayerUnit.Unit.SetGameCommand(gameCommandItem);
+                                        requestUnit = false;
+                                    }
+                                }
+                                else
+                                {
+                                    if (ant.PlayerUnit.Unit.Blueprint.Name == gameCommandItem.BlueprintCommandItem.BlueprintName)
+                                    {
+                                        gameCommandItem.AttachedUnitId = ant.PlayerUnit.Unit.UnitId;
+                                        ant.PlayerUnit.Unit.SetGameCommand(gameCommandItem);
+                                        requestUnit = false;
+                                    }
+                                }
+                            }
+                            if (requestUnit == false)
+                                break;
+                        }
+                    }
+                    if (requestUnit)
                     { 
                         // Find a factory
                         bestAnt = null;
@@ -2165,8 +2203,9 @@ namespace Engine.Ants
 
             UpdatePheromones(player);
             if (!player.PlayerModel.IsHuman)
+            {
                 CreateCommands(player);
-
+            }
             // DEBUG! 
             //if (NumberOfWorkers > 0) CreateCommandForContainerInZone(player, player.StartZone.ZoneId);
 

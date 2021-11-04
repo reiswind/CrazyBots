@@ -870,6 +870,10 @@ namespace Engine.Interface
                                     if (tile.Minerals < 10)
                                     {
                                         tile.Add(tileObject);
+
+                                        if (!Game.changedGroundPositions.ContainsKey(tile.Pos))
+                                            Game.changedGroundPositions.Add(tile.Pos, null);
+
                                         placed = true;
                                         break;
                                     }
@@ -881,6 +885,9 @@ namespace Engine.Interface
                                             Tile n = tile.Neighbors[idx];
                                             if (n.Minerals < 10)
                                             {
+                                                if (!Game.changedGroundPositions.ContainsKey(n.Pos))
+                                                    Game.changedGroundPositions.Add(n.Pos, null);
+
                                                 n.Add(tileObject);
                                                 placed = true;
                                                 break;
