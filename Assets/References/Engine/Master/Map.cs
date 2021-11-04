@@ -164,12 +164,11 @@ namespace Engine.Interface
                 MapPheromone mapPheromone = new MapPheromone();
                 mapPheromone.Pos = pheromone.Pos;
 
-                //mapPheromone.IntensityContainer = pheromone.GetIntensityF(0, PheromoneType.Container);
-                //mapPheromone.IntensityToMineral = pheromone.GetIntensityF(0, PheromoneType.Mineral);
-                //mapPheromone.IntensityToEnemy = pheromone.GetIntensityF(0, PheromoneType.Enemy);
-                //mapPheromone.IntensityToWork = pheromone.GetIntensityF(0, PheromoneType.Work);
+                mapPheromone.IntensityContainer = pheromone.GetIntensityF(0, PheromoneType.Container);
+                mapPheromone.IntensityToMineral = pheromone.GetIntensityF(0, PheromoneType.Mineral);
+                mapPheromone.IntensityToEnemy = pheromone.GetIntensityF(0, PheromoneType.Enemy);
+                mapPheromone.IntensityToWork = pheromone.GetIntensityF(0, PheromoneType.Work);
                 
-
                 foreach (PheromoneItem pheromoneItem in pheromone.PheromoneItems)
                 {
                     MapPheromoneItem mapPheromoneItem = new MapPheromoneItem();
@@ -183,7 +182,6 @@ namespace Engine.Interface
                 }
                 Pheromones.Add(mapPheromone.Pos, mapPheromone);
             }
-
 
             foreach (Tile t in game.Map.Tiles.Values)
             {
@@ -308,6 +306,15 @@ namespace Engine.Interface
             }
             if (tileObject.TileObjectType == TileObjectType.Mineral)
             {
+                if (excessTilesObjects.Count > 0)
+                {
+                    List<TileObject> otherList = new List<TileObject>();
+                    otherList.AddRange(excessTilesObjects);
+                    foreach (TileObject excessObject in otherList)
+                    {
+                        DistributeTileObject(excessObject);
+                    }
+                }
                 DistributeTileObject(tileObject);
             }
             else
@@ -832,6 +839,11 @@ namespace Engine.Interface
             }
         }*/
 
+        private List<TileObject> excessTilesObjects = new List<TileObject>();
+        public void ClearExcessMins()
+        {
+            excessTilesObjects.Clear();
+        }
         public void DistributeTileObject(TileObject tileObject)
         {
             if (Zones.Count <= 1)
@@ -839,6 +851,8 @@ namespace Engine.Interface
 
             //if (zoneCounter == 0)
             //    zoneCounter = 1;
+            if (!excessTilesObjects.Contains(tileObject))
+                excessTilesObjects.Add(tileObject);
 
             int max = Zones.Count;
             while (max-- > 0)
@@ -870,6 +884,7 @@ namespace Engine.Interface
                                     if (tile.Minerals < 10)
                                     {
                                         tile.Add(tileObject);
+                                        excessTilesObjects.Remove(tileObject);
 
                                         if (!Game.changedGroundPositions.ContainsKey(tile.Pos))
                                             Game.changedGroundPositions.Add(tile.Pos, null);
@@ -889,6 +904,8 @@ namespace Engine.Interface
                                                     Game.changedGroundPositions.Add(n.Pos, null);
 
                                                 n.Add(tileObject);
+                                                excessTilesObjects.Remove(tileObject);
+
                                                 placed = true;
                                                 break;
                                             }
@@ -905,7 +922,7 @@ namespace Engine.Interface
                             // Any random position
                             int idx = Game.Random.Next(mapZone.Tiles.Count);
                             Tile t = mapZone.Tiles.ElementAt(idx).Value;
-                            if (t != null && t.Minerals < 20)
+                            if (t != null && !t.IsUnderwater && t.Minerals < 20)
                             {
                                 if (t.Unit != null && t.Unit.Engine == null)
                                 {
@@ -916,6 +933,7 @@ namespace Engine.Interface
                                     if (!Game.changedGroundPositions.ContainsKey(t.Pos))
                                         Game.changedGroundPositions.Add(t.Pos, null);
 
+                                    excessTilesObjects.Remove(tileObject);
                                     t.Add(tileObject);
                                     break;
                                 }

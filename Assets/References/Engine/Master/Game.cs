@@ -68,6 +68,8 @@ namespace Engine.Master
 
                 Map.DistributeTileObject(tileObject);
             }
+            // Clear overflow minerals
+            Map.ClearExcessMins();
         }
 
         private void Initialize(List<Move> newMoves)
@@ -286,11 +288,11 @@ namespace Engine.Master
             }
         }
 
-        public List<ulong> FindPath(ulong from, ulong to, Unit unit)
+        public List<ulong> FindPath(ulong from, ulong to, Unit unit, bool ignoreIfToIsOccupied = false)
         {
             PathFinderFast pathFinder = new PathFinderFast(Map);
             pathFinder.IgnoreVisibility = true;
-            return pathFinder.FindPath(unit, from, to);
+            return pathFinder.FindPath(unit, from, to, ignoreIfToIsOccupied);
         }
 
         /*
@@ -1624,7 +1626,7 @@ namespace Engine.Master
                             // last move. Update the players unit list (delete moves are called double in this case)
                             foreach (Player player in Players.Values)
                             {
-                                player.ProcessMoves(lastMoves);
+                                player.ProcessMoves(lastMoves, true);
                                 if (player.Control != null)
                                     player.Control.ProcessMoves(player, player.LastMoves);
                             }
@@ -1735,12 +1737,12 @@ namespace Engine.Master
                 {
                     if (player.PlayerModel.Id == playerId)
                     {
-                        player.ProcessMoves(lastMoves);
+                        player.ProcessMoves(lastMoves, false);
                         returnMoves = player.LastMoves;
                     }
                     else
                     {
-                        player.ProcessMoves(lastMoves);
+                        player.ProcessMoves(lastMoves, false);
 
                         if (player.Control != null)
                             player.Control.ProcessMoves(player, player.LastMoves);

@@ -106,6 +106,7 @@ namespace Engine.Interface
                     if (playerVisibleInfo.NumberOfCollectables != tileWithDistance.Tile.NumberOfCollectables)
                     {
                         Discoveries.Add(tileWithDistance.Pos, playerVisibleInfo);
+                        //UnityEngine.Debug.Log("Update discovery at " + Position.GetString(tileWithDistance.Pos));
                     }
                 }
                 else
@@ -114,8 +115,10 @@ namespace Engine.Interface
                     VisiblePositions.Add(tileWithDistance.Pos, playerVisibleInfo);
 
                     if (tileWithDistance.Tile.NumberOfCollectables > 0)
+                    {
+                        //UnityEngine.Debug.Log("New discovery at " + Position.GetString(tileWithDistance.Pos));
                         Discoveries.Add(tileWithDistance.Pos, playerVisibleInfo);
-
+                    }
                     if (!Game.changedGroundPositions.ContainsKey(tileWithDistance.Pos))
                         Game.changedGroundPositions.Add(tileWithDistance.Pos, tileWithDistance.Tile);
                 }
@@ -163,7 +166,7 @@ namespace Engine.Interface
             }*/
         }
 
-        internal void ProcessMoves(List<Move> moves)
+        internal void ProcessMoves(List<Move> moves, bool finishLastMoves)
         {
             // Update postion of all units
             Dictionary<ulong, PlayerUnit> deletedUnits = new Dictionary<ulong, PlayerUnit>();
@@ -249,28 +252,30 @@ namespace Engine.Interface
                     }
                 }
             }
-
-            Discoveries.Clear();
-            foreach (PlayerUnit playerUnit1 in Units.Values)
+            if (!finishLastMoves)
             {
-                if (playerUnit1.Unit.Owner.PlayerModel.Id == PlayerModel.Id)
+                Discoveries.Clear();
+                foreach (PlayerUnit playerUnit1 in Units.Values)
                 {
-                    CollectVisiblePos(playerUnit1);
+                    if (playerUnit1.Unit.Owner.PlayerModel.Id == PlayerModel.Id)
+                    {
+                        CollectVisiblePos(playerUnit1);
+                    }
                 }
-            }
-            List<ulong> hidePositions = new List<ulong>();
-            foreach (PlayerVisibleInfo playerVisibleInfo in VisiblePositions.Values)
-            {
-                if (playerVisibleInfo.LastUpdated < Game.MoveNr)
+                List<ulong> hidePositions = new List<ulong>();
+                foreach (PlayerVisibleInfo playerVisibleInfo in VisiblePositions.Values)
                 {
-                    hidePositions.Add(playerVisibleInfo.Pos);
+                    if (playerVisibleInfo.LastUpdated < Game.MoveNr)
+                    {
+                        hidePositions.Add(playerVisibleInfo.Pos);
+                    }
                 }
-            }
-            foreach (ulong pos in hidePositions)
-            {
-                VisiblePositions.Remove(pos);
-                if (!Game.changedGroundPositions.ContainsKey(pos))
-                    Game.changedGroundPositions.Add(pos, null);
+                foreach (ulong pos in hidePositions)
+                {
+                    VisiblePositions.Remove(pos);
+                    if (!Game.changedGroundPositions.ContainsKey(pos))
+                        Game.changedGroundPositions.Add(pos, null);
+                }
             }
 #if OLDVISIBLE
             List<ulong> previouslySeen = new List<ulong>();

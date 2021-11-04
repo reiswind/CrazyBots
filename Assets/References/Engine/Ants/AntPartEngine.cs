@@ -664,8 +664,8 @@ namespace Engine.Ants
                 if (cntrlUnit.Pos == tileWithDistance.Pos)
                     continue;
 
-                // For now
-                if (tileWithDistance.Minerals == 0)
+                // Collect all
+                if (tileWithDistance.Tile.NumberOfCollectables == 0)
                     continue;
 
                 // Is it in powered zone?
@@ -673,7 +673,7 @@ namespace Engine.Ants
                 if (pheromone == null || pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Energy) == 0)
                 {
                     // no power
-                    continue;
+                    //continue;
                 }
 
                 int d = CubePosition.Distance(cntrlUnit.Pos, tileWithDistance.Pos);
@@ -694,8 +694,41 @@ namespace Engine.Ants
             {
                 foreach (Tile tile in tiles)
                 {
-                    List<ulong> positions = player.Game.FindPath(cntrlUnit.Pos, tile.Pos, cntrlUnit);
-                    if (positions != null)
+                    /*
+
+                    CubePosition cubePosition = new CubePosition(cntrlUnit.Pos);
+                    List< CubePosition> cubePositions = cubePosition.DrawLine(tile.Pos);
+                    if (cubePositions != null)
+                    {
+                        bool pathFound = true;
+
+                        Tile from = player.Game.Map.GetTile(cntrlUnit.Pos);
+
+                        Ant.FollowThisRoute = new List<ulong>();
+                        for (int i = 1; i < cubePositions.Count; i++)
+                        {
+                            Tile t = player.Game.Map.GetTile(cubePositions[i].Pos);
+                            if (from.CanMoveTo(t))
+                            {
+                                Ant.FollowThisRoute.Add(cubePositions[i].Pos);
+                                from = t;
+                            }
+                            else
+                            {
+                                pathFound = false;
+                                break;
+                            }
+                        }
+                        if (pathFound)
+                        {
+                            cntrlUnit.CurrentGameCommand.GameCommand.CommandComplete = false;
+                            cntrlUnit.CurrentGameCommand.GameCommand.Status = "Collecting";
+                            return;
+                        }
+                    }*/
+                    
+                    List<ulong> positions = player.Game.FindPath(cntrlUnit.Pos, tile.Pos, cntrlUnit, true);
+                    if (positions != null && positions.Count >= 3)
                     {
                         Ant.FollowThisRoute = new List<ulong>();
                         for (int i = 1; i < positions.Count - 1; i++)

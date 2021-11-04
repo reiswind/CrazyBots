@@ -218,7 +218,7 @@ namespace Engine.Algorithms
 
 
 
-        public List<ulong> FindPath(Unit unit, ulong start, ulong end)
+        public List<ulong> FindPath(Unit unit, ulong start, ulong end, bool ignoreIfToIsOccupied = false)
         {
             //lock(this)
             {
@@ -327,12 +327,17 @@ namespace Engine.Algorithms
                             }
                         }
 
-                        //if (n.Pos != end && !n.CanMoveTo(t))
-                        if (!n.CanMoveTo(t)) // Include ende pos
+                        if (n.Pos == end && ignoreIfToIsOccupied)
                         {
-                            continue;
+                            // Ignore ende pos
                         }
-
+                        else
+                        {
+                            if (!n.CanMoveTo(t)) // Include ende pos
+                            {
+                                continue;
+                            }
+                        }
                         // Unbreakeable?
                         //if (mGrid[mNewLocationX, mNewLocationY] == 0)
                         //    continue;

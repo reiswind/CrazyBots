@@ -1435,38 +1435,6 @@ namespace Engine.Ants
                 }
             }
 
-            foreach (Ant ant in unmovedAnts)
-            {
-                /*
-                if (ant.PlayerUnit.Unit.CurrentGameCommand != null)
-                {
-                    if (ant.PlayerUnit.Unit.CurrentGameCommand.CommandCanceled)
-                        ant.PlayerUnit.Unit.ResetGameCommand();
-
-                    if (ant.PlayerUnit.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build)
-                    {
-                        if (HasUnitBeenBuilt(player, ant.PlayerUnit.Unit.CurrentGameCommand, ant, moves))
-                        {
-                            //ant.PlayerUnit.Unit.CurrentGameCommand = null;
-                            ant.AbandonUnit(player);
-                        }
-                    }
-                }
-                if (ant.GameCommandDuringCreation != null)
-                {
-                    if (ant.GameCommandDuringCreation.CommandCanceled)
-                        ant.GameCommandDuringCreation = null;
-
-                    if (ant.GameCommandDuringCreation.GameCommandType == GameCommandType.Build)
-                    {
-                        if (HasUnitBeenBuilt(player, ant.GameCommandDuringCreation, ant, moves))
-                        {
-                            //ant.GameCommandDuringCreation = null;
-                            ant.AbandonUnit(player);
-                        }
-                    }
-                }*/
-            }
             Ant bestAnt;
             int bestDistance;
 
@@ -2012,7 +1980,7 @@ namespace Engine.Ants
                 }
                 else
                 {
-                    player.Game.Pheromones.DropPheromones(player, cntrlUnit.Pos, 15, PheromoneType.Enemy, 0.05f);
+                    //player.Game.Pheromones.DropPheromones(player, cntrlUnit.Pos, 15, PheromoneType.Enemy, 0.05f);
                 }
             }
         }
@@ -2137,7 +2105,19 @@ namespace Engine.Ants
                                 if (ant.PlayerUnit.Unit.CurrentGameCommand.FactoryUnitId != null)
                                 {
                                     if (ant.PlayerUnit.Unit.CurrentGameCommand.FactoryUnitId != ant.PlayerUnit.Unit.UnitId)
-                                        ant.PlayerUnit.Unit.CurrentGameCommand.FactoryUnitId = null;
+                                    {
+                                        PlayerUnit factoryUnit;
+                                        if (player.Units.TryGetValue(ant.PlayerUnit.Unit.CurrentGameCommand.FactoryUnitId, out factoryUnit))
+                                        {
+                                            factoryUnit.Unit.ResetGameCommand();
+                                        }
+                                        if (ant.PlayerUnit.Unit.Blueprint.Name == "Assembler")
+                                        {
+                                            ant.PlayerUnit.Unit.CurrentGameCommand.AttachedUnitId = null;
+                                            ant.PlayerUnit.Unit.CurrentGameCommand.FactoryUnitId = ant.PlayerUnit.Unit.UnitId;
+                                        }
+                                        //ant.PlayerUnit.Unit.CurrentGameCommand.FactoryUnitId = null;
+                                    }
                                 }
                             }
                             // First time the unit is complete

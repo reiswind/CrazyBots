@@ -34,6 +34,11 @@ namespace Engine.Interface
         internal BlueprintCommandItem BlueprintCommandItem { get; private set; }
         internal GameCommand GameCommand { get; private set; }
         internal string FactoryUnitId { get; set; }
+
+        public override string ToString()
+        {
+            return GameCommand.ToString();
+        }
     }
     internal class GameCommand
     {
@@ -104,7 +109,7 @@ namespace Engine.Interface
 
         void ComputePossibleMoves(ulong pos, List<Move> possibleMoves, List<ulong> includedulongs, MoveFilter moveFilter);
         //Move MoveTo(ulong From, ulong To, Master.Engine engine);
-        List<ulong> FindPath(ulong from, ulong to, Unit unit);
+        List<ulong> FindPath(ulong from, ulong to, Unit unit, bool ignoreIfToIsOccupied = false);
         Dictionary<int, Player> Players { get; }
         int Seed { get; }
         Tile GetTile(ulong p);

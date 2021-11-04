@@ -94,6 +94,10 @@ namespace Engine.Master
 
         internal GameCommandItem CurrentGameCommand { get; private set; }
 
+        internal void SetTempGameCommand(GameCommandItem gameCommand)
+        {
+            CurrentGameCommand = gameCommand;
+        }        
         internal void SetGameCommand(GameCommandItem gameCommand)
         {
             CurrentGameCommand = gameCommand;

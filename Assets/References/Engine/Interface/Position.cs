@@ -394,6 +394,11 @@ namespace Engine.Interface
             ulong uy = position & 0x000000000000ffff;
             return (int)uy;
         }
+
+        public static string GetString(ulong pos)
+        {
+            return GetX(pos) + "," + GetY(pos);
+        }
         public static ulong Null
         {
             get

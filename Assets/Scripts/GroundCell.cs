@@ -62,7 +62,7 @@ namespace Assets.Scripts
         {
             GameObjects = new List<UnitBaseTileObject>();
             UnitCommands = new List<UnitCommand>();
-            ShowPheromones = false;
+            ShowPheromones = true;
             visible = true;
             targetDiffuse = 0.1f;
             diffuse = 0.1f;
@@ -145,7 +145,7 @@ namespace Assets.Scripts
                     CreateMarker();
                 }
 
-                /*
+                
                 if (mapPheromone.IntensityContainer > 0)
                 {
                     Vector3 position = transform.position;
@@ -160,7 +160,7 @@ namespace Assets.Scripts
                     position.x += 0.1f;
                     markerToHome.transform.position = position;
                 }
-                */
+                
                 /*
                 if (mapPheromone.IntensityToMineral > 0)
                 {
@@ -197,7 +197,7 @@ namespace Assets.Scripts
                     markerToEnemy.transform.position = position;
                 }*/
 
-                
+                /*
                 float highestEnergy = -1;
                 int highestPlayerId = 0;
 
@@ -226,7 +226,7 @@ namespace Assets.Scripts
                     position.y -= 1;
                     markerToEnemy.transform.position = position;
                 }
-                
+                */
             }
         }
 

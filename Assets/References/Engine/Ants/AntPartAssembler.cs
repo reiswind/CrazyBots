@@ -146,6 +146,7 @@ namespace Engine.Ants
                                 includePositions.Add(selectedGameCommand.GameCommand.TargetPosition);
 
                                 //finishCommandWhenCompleted = selectedGameCommand;
+                                passGameCommandToNewUnit = selectedGameCommand;
                             }
                         }
                         else
@@ -187,6 +188,8 @@ namespace Engine.Ants
                                     includePositions = new List<ulong>();
                                     includePositions.Add(selectedGameCommand.GameCommand.TargetPosition);
                                     //finishCommandWhenCompleted = selectedGameCommand;
+
+                                    passGameCommandToNewUnit = selectedGameCommand;
                                 }
                                 else
                                 {
@@ -238,10 +241,10 @@ namespace Engine.Ants
                                     
                                     // Hack to create build assembler moves
                                     
-                                    Assembler.Unit.SetGameCommand(gameCommandItem);
+                                    Assembler.Unit.SetTempGameCommand(gameCommandItem);
                                     Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Assemble);
 
-                                    Assembler.Unit.SetGameCommand(selectedGameCommand);
+                                    Assembler.Unit.SetTempGameCommand(selectedGameCommand);
                                     passGameCommandToNewUnit = selectedGameCommand;
                                 }
                             }
@@ -273,13 +276,14 @@ namespace Engine.Ants
                         Unit createdUnit = new Unit(player.Game, move.Stats.BlueprintName);
                         player.Game.Map.Units.Add(createdUnit);
 
-                        Ant.PlayerUnit.Unit.ClearGameCommand();
+                        // Too early, unit just started to build
+                        //Ant.PlayerUnit.Unit.ClearGameCommand();
 
                         // Pass the command
                         if (passGameCommandToNewUnit != null)
                         {
-                            passGameCommandToNewUnit.AttachedUnitId = null;
-                            passGameCommandToNewUnit.FactoryUnitId = createdUnit.UnitId;
+                            passGameCommandToNewUnit.AttachedUnitId = createdUnit.UnitId;
+                            //passGameCommandToNewUnit.FactoryUnitId = createdUnit.UnitId // Remains until unit is complete!;
                             createdUnit.SetGameCommand(passGameCommandToNewUnit);
                         }
                         else
