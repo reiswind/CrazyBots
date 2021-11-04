@@ -397,7 +397,7 @@ namespace Assets.Scripts
             }
             else
             {
-                targetDiffuse = 0.4f;
+                targetDiffuse = 0.3f;
             }
             SetGroundMaterial();
             

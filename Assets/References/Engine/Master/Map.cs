@@ -858,25 +858,63 @@ namespace Engine.Interface
                     }
                     if (totalMins < mapZone.MaxMinerals)
                     {
-
-                        int idx = Game.Random.Next(mapZone.Tiles.Count);
-
-                        Tile t = mapZone.Tiles.ElementAt(idx).Value;
-                        if (t != null && t.Minerals < 20)
+                        int rnd = Game.Random.Next(10);
+                        if (rnd != 0)
                         {
-                            if (t.Unit != null && t.Unit.Engine == null)
+                            bool placed = false;
+                            // Put it next to another
+                            foreach (Tile tile in mapZone.Tiles.Values)
                             {
-                                // Dont drop on buildings
+                                if (tile.Minerals > 0)
+                                {
+                                    if (tile.Minerals < 10)
+                                    {
+                                        tile.Add(tileObject);
+                                        placed = true;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        for (int i = 0; i < 4 && !placed; i++)
+                                        {
+                                            int idx = Game.Random.Next(tile.Neighbors.Count);
+                                            Tile n = tile.Neighbors[idx];
+                                            if (n.Minerals < 10)
+                                            {
+                                                n.Add(tileObject);
+                                                placed = true;
+                                                break;
+                                            }
+                                        }
+                                    }                                                                        
+                                }
+                                if (placed) break;
                             }
-                            else
+                            if (!placed)
+                                rnd = 0;
+                        }
+                        if (rnd == 0)
+                        {
+                            // Any random position
+                            int idx = Game.Random.Next(mapZone.Tiles.Count);
+                            Tile t = mapZone.Tiles.ElementAt(idx).Value;
+                            if (t != null && t.Minerals < 20)
                             {
-                                if (!Game.changedGroundPositions.ContainsKey(t.Pos))
-                                    Game.changedGroundPositions.Add(t.Pos, null);
+                                if (t.Unit != null && t.Unit.Engine == null)
+                                {
+                                    // Dont drop on buildings
+                                }
+                                else
+                                {
+                                    if (!Game.changedGroundPositions.ContainsKey(t.Pos))
+                                        Game.changedGroundPositions.Add(t.Pos, null);
 
-                                t.Add(tileObject);
-                                break;
+                                    t.Add(tileObject);
+                                    break;
+                                }
                             }
                         }
+                        
                     }
                 }
             }
