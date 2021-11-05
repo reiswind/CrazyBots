@@ -27,7 +27,7 @@ namespace Engine.Interface
             }
         }
 
-        public ulong Pos
+        public Position2 Pos
         {
             get
             {
@@ -73,7 +73,7 @@ namespace Engine.Interface
             {
                 return this.Unit.ToString();
             }
-            return "Tile: " + Position.GetX(Pos) + "," + Position.GetY(Pos) + " : " + Distance;
+            return "Tile: " + Pos.ToString() + " : " + Distance;
         }
 
         public int Distance { get; set; }
@@ -108,7 +108,7 @@ namespace Engine.Interface
 
     public class Tile
     {
-        internal Tile(Map map, ulong pos)
+        internal Tile(Map map, Position2 pos)
         {
             Map = map;
             Pos = pos;
@@ -308,11 +308,11 @@ namespace Engine.Interface
             return score;
         }
 
-        internal float GetScoreForPos(TileObject tileObject, ulong position)
+        internal float GetScoreForPos(TileObject tileObject, Position2 position)
         {
             float score = 0;
 
-            if (position != Position.Null)
+            if (position != Position2.Null)
             {
                 Tile forwardTile = Map.GetTile(position);
                 if (forwardTile != null && forwardTile.TileContainer != null)
@@ -342,7 +342,7 @@ namespace Engine.Interface
 
             foreach (TileObject tileObject in tileObjects)
             {
-                ulong pos = Ants.AntPartEngine.GetPositionInDirection(Pos, tileObject.Direction);
+                Position2 pos = Ants.AntPartEngine.GetPositionInDirection(Pos, tileObject.Direction);
                 score += GetScoreForPos(tileObject, pos);
 
                 pos = Ants.AntPartEngine.GetPositionInDirection(Pos,TurnLeft( tileObject.Direction));
@@ -357,7 +357,7 @@ namespace Engine.Interface
 
         internal Map Map { get; set; }
 
-        public ulong Pos { get; set; }
+        public Position2 Pos { get; set; }
 
         public double Height { get; set; }
 
@@ -457,12 +457,12 @@ namespace Engine.Interface
             }
         }
         
-        public bool CanMoveTo(ulong from)
+        public bool CanMoveTo(Position2 from)
         {
             return CanMoveTo(Map.GetTile(from));            
         }
 
-        public bool IsNeighbor(ulong pos)
+        public bool IsNeighbor(Position2 pos)
         {
             foreach (Tile n in Neighbors)
             {
@@ -523,10 +523,10 @@ namespace Engine.Interface
             {
                 return this.Unit.ToString();
             }
-            return "Tile: " + Position.GetX(Pos) + "," + Position.GetY(Pos);
+            return "Tile: " + Pos.ToString();
         }
 
-        private void AddCube (List<Tile> neighbors, CubePosition n)
+        private void AddCube (List<Tile> neighbors, Position3 n)
         {
             Tile t = Map.GetTile(n.Pos);
             if (t != null)
@@ -543,8 +543,8 @@ namespace Engine.Interface
                 {
                     neighbors = new List<Tile>();
 
-                    CubePosition tile = new CubePosition(Pos);
-                    foreach (CubePosition n in tile.Neighbors)
+                    Position3 tile = new Position3(Pos);
+                    foreach (Position3 n in tile.Neighbors)
                     {
                         AddCube(neighbors, n);
                     }

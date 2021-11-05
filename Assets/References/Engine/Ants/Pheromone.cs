@@ -21,7 +21,7 @@ namespace Engine.Ants
 
     public class Pheromones
     {
-        private Dictionary<ulong, Pheromone> Items = new Dictionary<ulong, Pheromone>();
+        private Dictionary<Position2, Pheromone> Items = new Dictionary<Position2, Pheromone>();
         public int Age { get; private set; }
 
         public void Clear()
@@ -42,7 +42,7 @@ namespace Engine.Ants
             Items.Add(pheromone.Pos, pheromone);
         }
 
-        public PheromoneItem Deposit(Player player, ulong pos, PheromoneType pheromoneType, float intensity, bool isStatic)
+        public PheromoneItem Deposit(Player player, Position2 pos, PheromoneType pheromoneType, float intensity, bool isStatic)
         {
             Pheromone pheromone;
 
@@ -59,9 +59,9 @@ namespace Engine.Ants
             return pheromone.Deposit(player.PlayerModel.Id, intensity, pheromoneType, isStatic);
         }
 
-        public Pheromone FindAt(ulong pos)
+        public Pheromone FindAt(Position2 pos)
         {
-            if (pos != Position.Null && Items.ContainsKey(pos))
+            if (pos != Position2.Null && Items.ContainsKey(pos))
                 return Items[pos];
             return null;
         }
@@ -137,7 +137,7 @@ namespace Engine.Ants
             }
         }
 
-        public ulong Find(int id, Player player, PheromoneType pheromoneType, float minDistance, float minValue)
+        public Position2 Find(int id, Player player, PheromoneType pheromoneType, float minDistance, float minValue)
         {
             PheromoneStack pheromoneStack = pheromoneStacks[id];
             foreach (PheromoneStackItem pheromoneStackItem in pheromoneStack.PheromoneItems)
@@ -159,12 +159,12 @@ namespace Engine.Ants
                     }
                 }
             }
-            return Position.Null;
+            return Position2.Null;
         }
 
-        public void DropPheromones(Player player, ulong pos, int range, PheromoneType pheromoneType, float intensity, float minIntensity = 0)
+        public void DropPheromones(Player player, Position2 pos, int range, PheromoneType pheromoneType, float intensity, float minIntensity = 0)
         {
-            Dictionary<ulong, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(pos, range, true);
+            Dictionary<Position2, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(pos, range, true);
             foreach (TileWithDistance tileWithDistance in tiles.Values)
             {
                 float totaldistance = range - tileWithDistance.Distance;
@@ -196,7 +196,7 @@ namespace Engine.Ants
         }
 
 
-        public int DropStaticPheromones(Player player, ulong pos, int range, PheromoneType pheromoneType, float intensity, float minIntensity = 0)
+        public int DropStaticPheromones(Player player, Position2 pos, int range, PheromoneType pheromoneType, float intensity, float minIntensity = 0)
         {
             PheromoneStack pheromoneStack = new PheromoneStack();
 
@@ -204,7 +204,7 @@ namespace Engine.Ants
             int counter = PheromoneStack.pheromoneStackCounter;
             pheromoneStacks.Add(counter, pheromoneStack);
 
-            Dictionary<ulong, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(pos, range, true);
+            Dictionary<Position2, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(pos, range, true);
             foreach (TileWithDistance tileWithDistance in tiles.Values)
             {
                 float totaldistance = range - tileWithDistance.Distance;
@@ -335,7 +335,7 @@ namespace Engine.Ants
 
     public class Pheromone
     {
-        public ulong Pos { get; set; }
+        public Position2 Pos { get; set; }
         public List<PheromoneItem> PheromoneItems { get; private set; }
 
         //public float IntensityFood { get; set; }

@@ -26,7 +26,7 @@ namespace Engine.Interface
             Map = map;
         }
         /*
-        internal Tile GetClosestTile(ulong pos, Dictionary<ulong, Tile> tiles)
+        internal Tile GetClosestTile(Position2 pos, Dictionary<Position2, Tile> tiles)
         {
             Tile closestTile = null;
             double closestDistance = 0;
@@ -62,15 +62,15 @@ namespace Engine.Interface
         }
 
         public int AreaNr;
-        public Dictionary<ulong, Tile> Tiles = new Dictionary<ulong, Tile>();
+        public Dictionary<Position2, Tile> Tiles = new Dictionary<Position2, Tile>();
         /// <summary>
         /// Tiles next to another player
         /// </summary>
-        public Dictionary<ulong, Tile> BorderTiles = new Dictionary<ulong, Tile>();
+        public Dictionary<Position2, Tile> BorderTiles = new Dictionary<Position2, Tile>();
         /// <summary>
         /// Tiles into nowhere
         /// </summary>
-        public Dictionary<ulong, Tile> ForeignBorderTiles = new Dictionary<ulong, Tile>();
+        public Dictionary<Position2, Tile> ForeignBorderTiles = new Dictionary<Position2, Tile>();
         
         public List<PlayerUnit> Units = new List<PlayerUnit>();
         public int PlayerId;

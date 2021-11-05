@@ -11,7 +11,7 @@ namespace Engine.Interface
     public class MapSector
     {
         public HexCell HexCell { get; set; }
-        public ulong Center { get; set; }
+        public Position2 Center { get; set; }
 
         public bool InsideHexagon(float x, float y)
         {

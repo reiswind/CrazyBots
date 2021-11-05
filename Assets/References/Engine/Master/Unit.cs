@@ -62,10 +62,10 @@ namespace Engine.Master
     [DataContract]
     public class Unit
     {
-        private ulong pos;
-        // ulong before any moves have been processed
+        private Position2 pos;
+        // Position2 before any moves have been processed
         [DataMember]
-        public ulong Pos
+        public Position2 Pos
         {
             get
             {
@@ -493,7 +493,7 @@ namespace Engine.Master
         public Unit(Game game, string startCode)
         {
             Game = game;
-            Pos = Position.Null;
+            Pos = Position2.Null;
             Power = 20;
             MaxPower = 20;
             Blueprint = game.Blueprints.FindBlueprint(startCode);
@@ -650,23 +650,23 @@ namespace Engine.Master
             return stats;
         }
 
-        public void ComputePossibleMoves(List<Move> possibleMoves, List<ulong> includedulongs, MoveFilter moveFilter)
+        public void ComputePossibleMoves(List<Move> possibleMoves, List<Position2> includedPosition2s, MoveFilter moveFilter)
         {
             if (Assembler != null)
             {
-                Assembler.ComputePossibleMoves(possibleMoves, includedulongs, moveFilter);
+                Assembler.ComputePossibleMoves(possibleMoves, includedPosition2s, moveFilter);
             }
             if (Extractor != null)
             {
-                Extractor.ComputePossibleMoves(possibleMoves, includedulongs, moveFilter);
+                Extractor.ComputePossibleMoves(possibleMoves, includedPosition2s, moveFilter);
             }
             if (Weapon != null)
             {
-                Weapon.ComputePossibleMoves(possibleMoves, includedulongs, moveFilter);
+                Weapon.ComputePossibleMoves(possibleMoves, includedPosition2s, moveFilter);
             }
             if (Engine != null)
             {
-                Engine.ComputePossibleMoves(possibleMoves, includedulongs, moveFilter);
+                Engine.ComputePossibleMoves(possibleMoves, includedPosition2s, moveFilter);
             }
         }
 
@@ -929,7 +929,7 @@ namespace Engine.Master
 
         public override string ToString()
         {
-            return UnitId + " " + Owner.PlayerModel.Name + ": " + Position.GetX(pos) + "," + Position.GetY(pos) + " " + Blueprint.Name;
+            return UnitId + " " + Owner.PlayerModel.Name + ": " + pos.ToString() + " " + Blueprint.Name;
         }
     }
 }

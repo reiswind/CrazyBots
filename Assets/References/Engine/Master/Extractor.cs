@@ -31,14 +31,14 @@ namespace Engine.Master
                 return 0;
             }
         }
-        public Dictionary<ulong, TileWithDistance> CollectExtractionTiles()
+        public Dictionary<Position2, TileWithDistance> CollectExtractionTiles()
         {
             return Unit.Game.Map.EnumerateTiles(Unit.Pos, MetalCollectionRange, false);
         }
 
-        public Dictionary<ulong, TileWithDistance> CollectExtractableTiles()
+        public Dictionary<Position2, TileWithDistance> CollectExtractableTiles()
         {
-            Dictionary<ulong, TileWithDistance> includePositions = null;
+            Dictionary<Position2, TileWithDistance> includePositions = null;
             if (Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
             {
                 includePositions = Unit.CurrentGameCommand.GameCommand.IncludedPositions;
@@ -82,7 +82,7 @@ namespace Engine.Master
             });
         }
 
-        public override void ComputePossibleMoves(List<Move> possibleMoves, List<ulong> includedulongs, MoveFilter moveFilter)
+        public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position2> includedPosition2s, MoveFilter moveFilter)
         {
             if ((moveFilter & MoveFilter.Extract) == 0)
                 return;
@@ -126,9 +126,9 @@ namespace Engine.Master
 
                     move.UnitId = Unit.UnitId;
                     move.OtherUnitId = "Dirt";
-                    move.ulongs = new List<ulong>();
-                    move.ulongs.Add(Unit.Pos);
-                    move.ulongs.Add(highest.Pos);
+                    move.Position2s = new List<Position2>();
+                    move.Position2s.Add(Unit.Pos);
+                    move.Position2s.Add(highest.Pos);
 
                     possibleMoves.Add(move);
 
@@ -148,7 +148,7 @@ namespace Engine.Master
                 return;
 
             bool enemyfound = false;
-            Dictionary<ulong, TileWithDistance> resultList = CollectExtractableTiles();
+            Dictionary<Position2, TileWithDistance> resultList = CollectExtractableTiles();
 
             foreach (TileWithDistance t in resultList.Values)
             {
@@ -167,7 +167,7 @@ namespace Engine.Master
 
                             move.UnitId = Unit.UnitId;
                             move.OtherUnitId = tileObject.TileObjectType.ToString();
-                            move.Positions = new List<ulong>();
+                            move.Positions = new List<Position2>();
                             move.Positions.Add(Unit.Pos);
                             move.Positions.Add(t.Pos);
 
@@ -201,7 +201,7 @@ namespace Engine.Master
 
                             move.UnitId = Unit.UnitId;
                             move.OtherUnitId = t.Unit.UnitId;
-                            move.Positions = new List<ulong>();
+                            move.Positions = new List<Position2>();
                             move.Positions.Add(Unit.Pos);
                             move.Positions.Add(t.Pos);
 
@@ -220,7 +220,7 @@ namespace Engine.Master
 
                                     move.UnitId = Unit.UnitId;
                                     move.OtherUnitId = t.Unit.UnitId;
-                                    move.Positions = new List<ulong>();
+                                    move.Positions = new List<Position2>();
                                     move.Positions.Add(Unit.Pos);
                                     move.Positions.Add(t.Pos);
 
@@ -251,7 +251,7 @@ namespace Engine.Master
 
                                         move.UnitId = Unit.UnitId;
                                         move.OtherUnitId = t.Unit.UnitId;
-                                        move.Positions = new List<ulong>();
+                                        move.Positions = new List<Position2>();
                                         move.Positions.Add(Unit.Pos);
                                         move.Positions.Add(t.Pos);
 
@@ -271,7 +271,7 @@ namespace Engine.Master
 
                                     move.UnitId = Unit.UnitId;
                                     move.OtherUnitId = t.Unit.UnitId;
-                                    move.Positions = new List<ulong>();
+                                    move.Positions = new List<Position2>();
                                     move.Positions.Add(Unit.Pos);
                                     move.Positions.Add(t.Pos);
 
@@ -296,7 +296,7 @@ namespace Engine.Master
 
                             move.UnitId = Unit.UnitId;
                             move.OtherUnitId = t.Unit.UnitId;
-                            move.Positions = new List<ulong>();
+                            move.Positions = new List<Position2>();
                             move.Positions.Add(Unit.Pos);
                             move.Positions.Add(t.Pos);
 

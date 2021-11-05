@@ -29,7 +29,7 @@ namespace Engine.Master
             Level = level;
         }
 
-        public override void ComputePossibleMoves(List<Move> possibleMoves, List<ulong> includedulongs, MoveFilter moveFilter)
+        public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position2> includedPosition2s, MoveFilter moveFilter)
         {
             if ((moveFilter & MoveFilter.Move) == 0)
                 return;
@@ -40,7 +40,7 @@ namespace Engine.Master
             // Never called by controls
             List<Tile> openList = new List<Tile>();
             List<Tile> reachedTiles = new List<Tile>();
-            List<ulong> reachedPos = new List<ulong>();
+            List<Position2> reachedPos = new List<Position2>();
 
             Tile startTile = Unit.Game.Map.GetTile(Unit.Pos);
             openList.Add(startTile);
@@ -54,7 +54,7 @@ namespace Engine.Master
                 // Distance at all
 
                 //double d = tile.Pos.GetDistanceTo(this.Unit.Pos);
-                int d = CubePosition.Distance(tile.Pos, this.Unit.Pos);
+                int d = Position3.Distance(tile.Pos, this.Unit.Pos);
                 if (d >= Range)
                     continue;
 
@@ -62,9 +62,9 @@ namespace Engine.Master
                 {
                     if (n.Pos == Unit.Pos)
                         continue;
-                    if (includedulongs != null)
+                    if (includedPosition2s != null)
                     {
-                        if (!includedulongs.Contains(n.Pos))
+                        if (!includedPosition2s.Contains(n.Pos))
                             continue;
                     }
                     if (!reachedTiles.Contains(n))
@@ -72,7 +72,7 @@ namespace Engine.Master
                         reachedTiles.Add(n);
 
                         //double d1 = n.Pos.GetDistanceTo(this.Unit.Pos);
-                        int d1 = CubePosition.Distance(n.Pos, this.Unit.Pos);
+                        int d1 = Position3.Distance(n.Pos, this.Unit.Pos);
                         if (d1 < Range)
                         {
                             openList.Add(n);
@@ -93,7 +93,7 @@ namespace Engine.Master
                                     move.Positions.RemoveAt(move.Positions.Count - 1);
                                 }
 
-                                ulong finalPos = move.Positions[move.Positions.Count - 1];
+                                Position2 finalPos = move.Positions[move.Positions.Count - 1];
                                 if (!reachedPos.Contains(finalPos))
                                 {
                                     reachedPos.Add(finalPos);

@@ -71,11 +71,11 @@ namespace Engine.Ants
         {
             bool upgrading = false;
 
-            List<ulong> includePositions = null;
+            List<Position2> includePositions = null;
             if (Assembler.Unit.CurrentGameCommand != null && Ant.AntPartEngine != null)
             {
                 // If engine, move to target and upgrade then. Do not upgrade anything else.
-                includePositions = new List<ulong>();
+                includePositions = new List<Position2>();
                 includePositions.Add(Assembler.Unit.CurrentGameCommand.GameCommand.TargetPosition);
             }
             List<Move> possiblemoves = new List<Move>();
@@ -142,7 +142,7 @@ namespace Engine.Ants
                             }
                             else
                             {
-                                includePositions = new List<ulong>();
+                                includePositions = new List<Position2>();
                                 includePositions.Add(selectedGameCommand.GameCommand.TargetPosition);
 
                                 //finishCommandWhenCompleted = selectedGameCommand;
@@ -170,7 +170,7 @@ namespace Engine.Ants
                                 if (tile.IsNeighbor(selectedGameCommand.GameCommand.TargetPosition))
                                 {
                                     // No need to build an assembler. Just build the unit at this position
-                                    includePositions = new List<ulong>();
+                                    includePositions = new List<Position2>();
                                     includePositions.Add(selectedGameCommand.GameCommand.TargetPosition);
                                 }
 
@@ -185,7 +185,7 @@ namespace Engine.Ants
                                 if (tile.IsNeighbor(selectedGameCommand.GameCommand.TargetPosition))
                                 {
                                     // No need to build an assembler. Just build the unit
-                                    includePositions = new List<ulong>();
+                                    includePositions = new List<Position2>();
                                     includePositions.Add(selectedGameCommand.GameCommand.TargetPosition);
                                     //finishCommandWhenCompleted = selectedGameCommand;
 

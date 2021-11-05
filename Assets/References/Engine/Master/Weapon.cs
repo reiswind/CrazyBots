@@ -55,7 +55,7 @@ namespace Engine.Master
             }
         }
 
-        public override void ComputePossibleMoves(List<Move> possibleMoves, List<ulong> includedulongs, MoveFilter moveFilter)
+        public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position2> includedPosition2s, MoveFilter moveFilter)
         {
             if ((moveFilter & MoveFilter.Fire) == 0)
                 return;
@@ -63,7 +63,7 @@ namespace Engine.Master
             if (!WeaponLoaded || HoldFire)
                 return;
 
-            Dictionary<ulong, TileWithDistance> tiles = Unit.Game.Map.EnumerateTiles(Unit.Pos, Range , false, matcher: tile =>
+            Dictionary<Position2, TileWithDistance> tiles = Unit.Game.Map.EnumerateTiles(Unit.Pos, Range , false, matcher: tile =>
             {
                 if (tile.Pos == Unit.Pos)
                     return true;
@@ -96,7 +96,7 @@ namespace Engine.Master
                                 move.MoveType = MoveType.Fire;
                                 move.UnitId = Unit.UnitId;
                                 move.OtherUnitId = tileObject.TileObjectType.ToString();
-                                move.Positions = new List<ulong>();
+                                move.Positions = new List<Position2>();
                                 move.Positions.Add(Unit.Pos);
                                 move.Positions.Add(n.Tile.Pos);
 
@@ -113,7 +113,7 @@ namespace Engine.Master
                         move.MoveType = MoveType.Fire;
                         move.UnitId = Unit.UnitId;
                         //move.OtherUnitId = tileObject.TileObjectType.ToString();
-                        move.Positions = new List<ulong>();
+                        move.Positions = new List<Position2>();
                         move.Positions.Add(Unit.Pos);
                         move.Positions.Add(n.Tile.Pos);
 
@@ -135,7 +135,7 @@ namespace Engine.Master
                         move.MoveType = MoveType.Fire;
                         move.UnitId = Unit.UnitId;
                         move.OtherUnitId = null;
-                        move.Positions = new List<ulong>();
+                        move.Positions = new List<Position2>();
                         move.Positions.Add(Unit.Pos);
                         move.Positions.Add(n.Pos);
 

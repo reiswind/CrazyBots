@@ -60,17 +60,17 @@ namespace Engine.Interface
         public int PlayerId { get; set; }
         public int TargetZone { get; set; }
         public int Radius { get; set; }
-        public ulong TargetPosition { get; set; }
-        public ulong MoveToPosition { get; set; }
+        public Position2 TargetPosition { get; set; }
+        public Position2 MoveToPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
         public BlueprintCommand BlueprintCommand { get; private set; }
         public List<GameCommandItem> GameCommandItems { get; private set; }
 
-        internal Dictionary<ulong, TileWithDistance> IncludedPositions { get; set; }
+        internal Dictionary<Position2, TileWithDistance> IncludedPositions { get; set; }
 
         public override string ToString()
         {
-            string s = GameCommandType.ToString() + " at " + Position.GetX(TargetPosition) + "," + Position.GetY(TargetPosition);
+            string s = GameCommandType.ToString() + " at " + TargetPosition.ToString();
             if (CommandCanceled) s += " Canceld";
             if (CommandComplete) s += " Complete";
 
@@ -107,16 +107,16 @@ namespace Engine.Interface
         MapInfo GetDebugMapInfo();
         List<Move> ProcessMove(int playerId, Move myMove, List<MapGameCommand> gameCommands);
 
-        void ComputePossibleMoves(ulong pos, List<Move> possibleMoves, List<ulong> includedulongs, MoveFilter moveFilter);
-        //Move MoveTo(ulong From, ulong To, Master.Engine engine);
-        List<ulong> FindPath(ulong from, ulong to, Unit unit, bool ignoreIfToIsOccupied = false);
+        void ComputePossibleMoves(Position2 pos, List<Move> possibleMoves, List<Position2> includedPosition2s, MoveFilter moveFilter);
+        //Move MoveTo(Position2 From, Position2 To, Master.Engine engine);
+        List<Position2> FindPath(Position2 from, Position2 to, Unit unit, bool ignoreIfToIsOccupied = false);
         Dictionary<int, Player> Players { get; }
         int Seed { get; }
-        Tile GetTile(ulong p);
+        Tile GetTile(Position2 p);
         Map Map { get; }
         Blueprints Blueprints { get; }
         void CreateUnits();
-        void CollectGroundStats(ulong pos, Move move, List<TileObject> tileObjects);
+        void CollectGroundStats(Position2 pos, Move move, List<TileObject> tileObjects);
     }
 
     [DataContract]

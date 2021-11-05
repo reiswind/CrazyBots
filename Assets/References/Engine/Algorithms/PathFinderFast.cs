@@ -71,7 +71,7 @@ namespace Engine.Algorithms
 
         // Heap variables are initializated to default, but I like to do it anyway
         //private byte[,]                         mGrid                   = null;
-        private PriorityQueueB<ulong>             mOpen                   = null;
+        private PriorityQueueB<Position2>             mOpen                   = null;
         private List<PathFinderNode>            mClose                  = new List<PathFinderNode>();
         private bool                            mStop                   = false;
         private bool                            mStopped                = true;
@@ -88,14 +88,14 @@ namespace Engine.Algorithms
         private double                          mCompletedTime          = 0;
         private bool                            mDebugProgress          = false;
         private bool                            mDebugFoundPath         = false;
-        private Dictionary<ulong, PathFinderNodeFast> mCalcGrid;
+        private Dictionary<Position2, PathFinderNodeFast> mCalcGrid;
         private byte                            mOpenNodeValue          = 1;
         private byte                            mCloseNodeValue         = 2;
         
         //Promoted local variables to member variables to avoid recreation between calls
         private int                             mH                      = 0;
-        private ulong                        mLocation;
-        private ulong                        mNewLocation;
+        private Position2                        mLocation;
+        private Position2                        mNewLocation;
         //private ushort                          mLocationX              = 0;
         //private ushort                          mLocationY              = 0;
         //private ushort                          mNewLocationX           = 0;
@@ -107,7 +107,7 @@ namespace Engine.Algorithms
         //private ushort                          mGridYLog2              = 0;
         private bool                            mFound                  = false;
         //private sbyte[,]                        mDirection              = new sbyte[8,2]{{0,-1} , {1,0}, {0,1}, {-1,0}, {1,-1}, {1,1}, {-1,1}, {-1,-1}};
-        private ulong                        mEndLocation;
+        private Position2                        mEndLocation;
         private int                             mNewG                   = 0;
         private Map map;
         public PathFinderFast(Map map)
@@ -131,9 +131,9 @@ namespace Engine.Algorithms
                 */
             //if (mCalcGrid == null || mCalcGrid.Length != (mGridX * mGridY))
             //    mCalcGrid = new PathFinderNodeFast[mGridX * mGridY];
-            mCalcGrid = new Dictionary<ulong, PathFinderNodeFast>();
+            mCalcGrid = new Dictionary<Position2, PathFinderNodeFast>();
 
-            mOpen   = new PriorityQueueB<ulong>(new ComparePFNodeMatrix(mCalcGrid));
+            mOpen   = new PriorityQueueB<Position2>(new ComparePFNodeMatrix(mCalcGrid));
         }
 
         public bool Stopped
@@ -218,7 +218,7 @@ namespace Engine.Algorithms
 
 
 
-        public List<ulong> FindPath(Unit unit, ulong start, ulong end, bool ignoreIfToIsOccupied = false)
+        public List<Position2> FindPath(Unit unit, Position2 start, Position2 end, bool ignoreIfToIsOccupied = false)
         {
             //lock(this)
             {
@@ -252,8 +252,8 @@ namespace Engine.Algorithms
 
                 mCalcGrid[mLocation].G         = 0;
                 mCalcGrid[mLocation].F         = mHEstimate;
-                mCalcGrid[mLocation].PX = Position.GetX(start); //.X;
-                mCalcGrid[mLocation].PY = Position.GetY(start); //.Y;
+                mCalcGrid[mLocation].PX = start.X; //.X;
+                mCalcGrid[mLocation].PY = start.Y; //.Y;
                 mCalcGrid[mLocation].Status    = mOpenNodeValue;
 
                 int maxDepth = 1000;
@@ -293,7 +293,7 @@ namespace Engine.Algorithms
                     }
 
                     if (mPunishChangeDirection)
-                        mHoriz = (Position.GetX(mLocation) - mCalcGrid[mLocation].PX);
+                        mHoriz = (mLocation.X - mCalcGrid[mLocation].PX);
 
                     //Lets calculate each successors
                     Tile t = map.GetTile(mLocation);
@@ -372,8 +372,8 @@ namespace Engine.Algorithms
                                 continue;
                         }
 
-                        mCalcGrid[mNewLocation].PX      = Position.GetX(mLocation);
-                        mCalcGrid[mNewLocation].PY      = Position.GetY(mLocation);
+                        mCalcGrid[mNewLocation].PX      = mLocation.X;
+                        mCalcGrid[mNewLocation].PY      = mLocation.Y;
                         mCalcGrid[mNewLocation].G       = mNewG;
 
                         switch(mFormula)
@@ -399,16 +399,16 @@ namespace Engine.Algorithms
                             case HeuristicFormula.Custom1:
                                 break;
                             case HeuristicFormula.CubeDistance:
-                                mH = CubePosition.Distance(mNewLocation, end);
+                                mH = Position3.Distance(mNewLocation, end);
                                 break;
 
                         }
                         if (mTieBreaker)
                         {
-                            int dx1 = Position.GetX(mLocation) - Position.GetX(end);
-                            int dy1 = Position.GetY(mLocation) - Position.GetY(end);
-                            int dx2 = Position.GetX(start) - Position.GetX(end);
-                            int dy2 = Position.GetY(start) - Position.GetY(end);
+                            int dx1 = mLocation.X - end.X;
+                            int dy1 = mLocation.Y - end.Y;
+                            int dx2 = start.X - end.X;
+                            int dy2 = start.Y - end.Y;
                             int cross = Math.Abs(dx1 * dy2 - dx2 * dy1);
                             mH = (int) (mH + cross * 0.001);
                         }
@@ -448,8 +448,8 @@ namespace Engine.Algorithms
                 if (mFound)
                 {
                     mClose.Clear();
-                    int posX = Position.GetX(end);
-                    int posY = Position.GetY(end);
+                    int posX = end.X;
+                    int posY = end.Y;
 
                     //PathFinderNodeFast fNodeTmp = mCalcGrid[(end.Y << mGridYLog2) + end.X];
                     PathFinderNodeFast fNodeTmp = mCalcGrid[end];
@@ -459,8 +459,8 @@ namespace Engine.Algorithms
                     fNode.H  = 0;
                     fNode.PX = fNodeTmp.PX;
                     fNode.PY = fNodeTmp.PY;
-                    fNode.X  = Position.GetX(end);
-                    fNode.Y  = Position.GetY(end);
+                    fNode.X  = end.X;
+                    fNode.Y  = end.Y;
 
                     while(fNode.X != fNode.PX || fNode.Y != fNode.PY)
                     {
@@ -472,7 +472,7 @@ namespace Engine.Algorithms
                         posX = fNode.PX;
                         posY = fNode.PY;
                         //fNodeTmp = mCalcGrid[(posY << mGridYLog2) + posX];
-                        ulong pos = Position.CreatePosition(posX, posY);
+                        Position2 pos = new Position2(posX, posY);
                         if (!mCalcGrid.ContainsKey(pos))
                             mCalcGrid.Add(pos, new PathFinderNodeFast());
                         fNodeTmp = mCalcGrid[pos];
@@ -493,16 +493,16 @@ namespace Engine.Algorithms
 
                     mStopped = true;
 
-                    List<ulong> route = new List<ulong>();
+                    List<Position2> route = new List<Position2>();
                     if (mClose != null && mClose.Count > 0)
                     {
                         Move move = new Move();
                         move.MoveType = MoveType.Move;
-                        move.Positions = new List<ulong>();
+                        move.Positions = new List<Position2>();
 
                         for (int ndx = mClose.Count - 1; ndx >= 0; ndx--)
                         {
-                            route.Add(Position.CreatePosition(mClose[ndx].X, mClose[ndx].Y));
+                            route.Add(new Position2(mClose[ndx].X, mClose[ndx].Y));
                         }
                     }
                     return route;
@@ -514,21 +514,21 @@ namespace Engine.Algorithms
         #endregion
 
         #region Inner Classes
-        internal class ComparePFNodeMatrix : IComparer<ulong>
+        internal class ComparePFNodeMatrix : IComparer<Position2>
         {
             #region Variables Declaration
-            Dictionary<ulong, PathFinderNodeFast> mMatrix;
+            Dictionary<Position2, PathFinderNodeFast> mMatrix;
             #endregion
 
             #region Constructors
-            public ComparePFNodeMatrix(Dictionary<ulong, PathFinderNodeFast> matrix)
+            public ComparePFNodeMatrix(Dictionary<Position2, PathFinderNodeFast> matrix)
             {
                 mMatrix = matrix;
             }
             #endregion
 
             #region IComparer Members
-            public int Compare(ulong a, ulong b)
+            public int Compare(Position2 a, Position2 b)
             {
                 
                 if (mMatrix[a].F > mMatrix[b].F)

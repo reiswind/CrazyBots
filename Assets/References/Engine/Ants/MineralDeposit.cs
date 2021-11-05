@@ -9,7 +9,7 @@ namespace Engine.Ants
 {
     class MineralDeposit
     {
-        public ulong Pos { get; set; }
+        public Position2 Pos { get; set; }
         public int Minerals { get; set; }
         public float Intensitiy { get; set; }
         public int DepositId { get; set; }

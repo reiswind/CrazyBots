@@ -187,7 +187,7 @@ namespace Engine.Interface
 
     public class MoveUpdateStatsCommand
     {
-        public ulong TargetPosition { get; set; }
+        public Position2 TargetPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
         public string AttachedUnitId { get; set; }
         public string FactoryUnitId { get; set; }
@@ -245,7 +245,7 @@ namespace Engine.Interface
         /// Fire = From at [0]
         /// </summary>
         [DataMember(EmitDefaultValue = false)]
-        public List<ulong> Positions { get; set; }
+        public List<Position2> Positions { get; set; }
 
         /// <summary>
         /// Add=new Unitmodel
@@ -288,9 +288,9 @@ namespace Engine.Interface
             if (Positions != null)
             {                
                 if (Positions.Count >= 1)
-                    sb.Append (Position.GetX(Positions[0]) + "," + Position.GetY(Positions[0]));
+                    sb.Append (Positions[0].ToString());
                 if (Positions.Count >= 2)
-                    sb.Append (" to " + Position.GetX(Positions[1]) + "," + Position.GetY(Positions[1]));
+                    sb.Append (" to " + Positions[1].ToString());
             }
             if (OtherUnitId != null)
             {

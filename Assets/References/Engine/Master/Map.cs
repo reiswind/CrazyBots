@@ -27,7 +27,7 @@ namespace Engine.Interface
 
     public class MapBlueprintCommandItem
     {
-        public CubePosition CubePosition { get; set; }
+        public Position3 CubePosition { get; set; }
         public Direction Direction { get; set; }
         public string BlueprintName { get; set; }
     }
@@ -84,14 +84,14 @@ namespace Engine.Interface
         public Direction Direction { get; set; }
         public int PlayerId { get; set; }
         public int TargetZone { get; set; }
-        public ulong TargetPosition { get; set; }
-        public ulong MoveToPosition { get; set; }
+        public Position2 TargetPosition { get; set; }
+        public Position2 MoveToPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
         public MapBlueprintCommand BlueprintCommand { get; set; }
         public List<MapGameCommandItem> GameCommandItems { get; private set; }
         public override string ToString()
         {
-            string s = GameCommandType.ToString() + " at " + Position.GetX(TargetPosition) + "," + Position.GetY(TargetPosition);
+            string s = GameCommandType.ToString() + " at " + TargetPosition.ToString();
             if (CommandCanceled) s += " Canceld";
             if (CommandComplete) s += " Complete";
             foreach (MapGameCommandItem id in GameCommandItems)
@@ -134,7 +134,7 @@ namespace Engine.Interface
         {
             PheromoneItems = new List<MapPheromoneItem>();
         }
-        public ulong Pos { get; set; }
+        public Position2 Pos { get; set; }
         public float IntensityToWork { get; set; }
         public float IntensityContainer { get; set; }
         public float IntensityToMineral { get; set; }
@@ -147,14 +147,14 @@ namespace Engine.Interface
         public MapInfo()
         {
             PlayerInfo = new Dictionary<int, MapPlayerInfo>();
-            Pheromones = new Dictionary<ulong, MapPheromone>();
+            Pheromones = new Dictionary<Position2, MapPheromone>();
         }
         public int TotalMetal { get; set; }
 
 
         public Dictionary<int, MapPlayerInfo> PlayerInfo { get; private set; }
 
-        public Dictionary<ulong, MapPheromone> Pheromones { get; private set; }
+        public Dictionary<Position2, MapPheromone> Pheromones { get; private set; }
 
         internal void ComputeMapInfo(Game game, List<Move> moves)
         {
@@ -281,14 +281,13 @@ namespace Engine.Interface
     public class Map
     {
         public Dictionary<int, MapZone> Zones = new Dictionary<int, MapZone>();
-        public Dictionary<ulong, MapSector> Sectors = new Dictionary<ulong, MapSector>();
-        public Dictionary<ulong, Tile> LargeMapTiles = new Dictionary<ulong, Tile>();
+        public Dictionary<Position2, MapSector> Sectors = new Dictionary<Position2, MapSector>();
+        public Dictionary<Position2, Tile> LargeMapTiles = new Dictionary<Position2, Tile>();
         public Dictionary<MapGenerator.HexCell, MapSector> HexCellSectors = new Dictionary<MapGenerator.HexCell, MapSector>();
-        public SortedDictionary<ulong, Tile> Tiles = new SortedDictionary<ulong, Tile>();
+        public Dictionary<Position2, Tile> Tiles = new Dictionary<Position2, Tile>();
 
         public Units Units { get; private set; }
 
-        private int seed;
         public Game Game { get; private set; }
 
         public int MapWidth { get; private set; }
@@ -342,9 +341,8 @@ namespace Engine.Interface
 
         private MapGenerator.HexMapGenerator mapGenerator;
 
-        public Map(Game game, int seed)
+        public Map(Game game)
         {
-            this.seed = seed;
             Game = game;
             Units = new Units(this);
             MapWidth = game.GameModel.MapWidth;
@@ -367,8 +365,8 @@ namespace Engine.Interface
 
             if (!string.IsNullOrEmpty(gameModel.Obstacles))
             {
-                string[] aulongs = gameModel.Obstacles.Split(new char[] { ';' });
-                foreach (string pos in aulongs)
+                string[] aPosition2s = gameModel.Obstacles.Split(new char[] { ';' });
+                foreach (string pos in aPosition2s)
                 {
                     string[] coords = pos.Split(new char[] { ',' });
                     int x = Convert.ToInt32(coords[0]);
@@ -387,7 +385,7 @@ namespace Engine.Interface
             }
         }
 
-        public Tile GetTile(ulong pos)
+        public Tile GetTile(Position2 pos)
         {
             if (Tiles.ContainsKey(pos))
                 return Tiles[pos];
@@ -411,10 +409,10 @@ namespace Engine.Interface
                 {
                     MapGenerator.HexCell hexCell = mapGenerator.GetCell(i++);
 
-                    ulong sectorPos = Position.CreatePosition(x, z);
+                    Position2 sectorPos = new Position2(x, z);
                     MapSector mapSector = new MapSector();
 
-                    ulong center = CalcTilePos(sectorPos);
+                    Position2 center = CalcTilePos(sectorPos);
 
                     mapSector.Center = center;
                     mapSector.HexCell = hexCell;
@@ -430,10 +428,10 @@ namespace Engine.Interface
                     //MapGenerator.HexCell hexCellNE = hexCell.GetNeighbor(MapGenerator.HexDirection.NE);
                     //MapGenerator.HexCell hexCellSE = hexCell.GetNeighbor(MapGenerator.HexDirection.SE);
 
-                    int startx = Position.GetX(sectorPos) * sectorSize - 2;
-                    int starty = Position.GetY(sectorPos) * sectorSize - 2;
-                    int widthx = Position.GetX(sectorPos) * sectorSize + sectorSize + 4;
-                    int widthy = Position.GetY(sectorPos) * sectorSize + sectorSize + 4;
+                    int startx = sectorPos.X * sectorSize - 2;
+                    int starty = sectorPos.Y * sectorSize - 2;
+                    int widthx = sectorPos.X * sectorSize + sectorSize + 4;
+                    int widthy = sectorPos.Y * sectorSize + sectorSize + 4;
 
                     if ((x % 2) == 0)
                     {
@@ -449,7 +447,7 @@ namespace Engine.Interface
                     {
                         for (int sectorY = starty; sectorY < widthy; sectorY++)
                         {
-                            ulong sectorTilePos = Position.CreatePosition(sectorX, sectorY);
+                            Position2 sectorTilePos = new Position2(sectorX, sectorY);
 
                             Tile t = null;
                             if (Tiles.ContainsKey(sectorTilePos))
@@ -467,7 +465,7 @@ namespace Engine.Interface
 
                             // Senkrechte kante
                             
-                            if (hexCellW != null && sectorX < Position.GetX(sectorPos) * sectorSize + 1)
+                            if (hexCellW != null && sectorX < sectorPos.X * sectorSize + 1)
                             {
                                 if (Game.Random.Next(2) == 0)
                                 {
@@ -477,7 +475,7 @@ namespace Engine.Interface
                             }
                             
                             // Corner
-                            if (hexCellSW != null && sectorX < Position.GetX(sectorPos) * sectorSize + borderWidth && sectorY < Position.GetY(sectorPos) * sectorSize + borderWidth)
+                            if (hexCellSW != null && sectorX < sectorPos.X * sectorSize + borderWidth && sectorY < sectorPos.Y * sectorSize + borderWidth)
                             {
                                 if (Game.Random.Next(2) == 0)
                                 {
@@ -495,7 +493,7 @@ namespace Engine.Interface
                             }*/
 
                             // Corner
-                            if (hexCellSE != null && sectorX > Position.GetX(sectorPos) * sectorSize + sectorSize - borderWidth && sectorY < Position.GetY(sectorPos) * sectorSize + borderWidth)
+                            if (hexCellSE != null && sectorX > sectorPos.X * sectorSize + sectorSize - borderWidth && sectorY < sectorPos.Y * sectorSize + borderWidth)
                             {
                                 if (Game.Random.Next(2) == 0)
                                 {
@@ -562,19 +560,19 @@ namespace Engine.Interface
             }
         }
 
-        internal ulong CalcTilePos(ulong sectorPos)
+        internal Position2 CalcTilePos(Position2 sectorPos)
         {
-            int x = Position.GetX(sectorPos);
-            int y = Position.GetY(sectorPos);
+            int x = sectorPos.X;
+            int y = sectorPos.Y;
 
             x = x * sectorSize;
             y = y * sectorSize;
 
-            if ((Position.GetX(sectorPos) & 1) == 0)
+            if ((sectorPos.X & 1) == 0)
             {
                 y += sectorSize / 2;
             }
-            return Position.CreatePosition(x, y);
+            return new Position2(x, y);
         }
 
         public void CreateFlat()
@@ -591,8 +589,8 @@ namespace Engine.Interface
                 int r2 = Math.Min(map_radius, -q + map_radius);
                 for (int r = r1; r <= r2; r++)
                 {
-                    CubePosition cubePosition = new CubePosition(q, r, -q - r);
-                    ulong position = Position.CreatePosition(Position.GetX(cubePosition.Pos) + offsetx, Position.GetY(cubePosition.Pos) + offsety);
+                    Position3 cubePosition = new Position3(q, r, -q - r);
+                    Position2 position = new Position2(cubePosition.Pos.X + offsetx, cubePosition.Pos.Y + offsety);
 
                     Tile largeTile = new Tile(this, position);
                     LargeMapTiles.Add(largeTile.Pos, largeTile);
@@ -607,10 +605,10 @@ namespace Engine.Interface
                 int r2 = Math.Min(map_radius, -q + map_radius);
                 for (int r = r1; r <= r2; r++)
                 {
-                    CubePosition cubePosition = new CubePosition(q, r, -q - r);
-                    ulong position = Position.CreatePosition(
-                        Position.GetX(cubePosition.Pos) + offsetx,
-                        Position.GetY(cubePosition.Pos) + offsety);
+                    Position3 cubePosition = new Position3(q, r, -q - r);
+                    Position2 position = new Position2 (cubePosition.Pos.X + offsetx, cubePosition.Pos.Y + offsety);
+                        //Position.GetX(cubePosition.Pos) + offsetx,
+                        //Position.GetY(cubePosition.Pos) + offsety);
                     if (!LargeMapTiles.ContainsKey(position))
                     {
                         Tile largeTile = new Tile(this, position);
@@ -622,8 +620,8 @@ namespace Engine.Interface
 
             foreach (Tile tile1 in LargeMapTiles.Values)
             {
-                Dictionary<ulong, Tile> createdTiles = new Dictionary<ulong, Tile>();
-                ulong center = CalcTilePos(tile1.Pos);
+                Dictionary<Position2, Tile> createdTiles = new Dictionary<Position2, Tile>();
+                Position2 center = CalcTilePos(tile1.Pos);
 
                 //https://www.redblobgames.com/grids/hexagons/implementation.html
                 map_radius = (sectorSize / 2) + 1;
@@ -633,10 +631,10 @@ namespace Engine.Interface
                     int r2 = Math.Min(map_radius, -q + map_radius);
                     for (int r = r1; r <= r2; r++)
                     {
-                        CubePosition cubeulong = new CubePosition(q, r, -q - r);
-                        ulong position = Position.CreatePosition (
-                            Position.GetX(cubeulong.Pos) + Position.GetX(center),
-                            Position.GetY(cubeulong.Pos) + Position.GetY(center));
+                        Position3 cubePosition2 = new Position3(q, r, -q - r);
+                        Position2 position = new Position2(cubePosition2.Pos.X + center.X, cubePosition2.Pos.Y + center.Y);
+                        //Position.GetX(cubePosition2.Pos) + Position.GetX(center),
+                        //Position.GetY(cubePosition2.Pos) + Position.GetY(center));
 
                         Tile tile;
                         if (!Tiles.TryGetValue(position, out tile))
@@ -730,7 +728,7 @@ namespace Engine.Interface
             GenerateTiles();
         }
         
-        private void AddNeigbors(MapSector mapSector, List<MapSector> mapSectors, List<ulong> positions)
+        private void AddNeigbors(MapSector mapSector, List<MapSector> mapSectors, List<Position2> positions)
         {
             MapSector nextSector;
             nextSector = AddNeigbor(mapSector, MapGenerator.HexDirection.E, positions);
@@ -752,7 +750,7 @@ namespace Engine.Interface
             if (nextSector != null) mapSectors.Add(nextSector);
         }
 
-        private MapSector AddNeigbor(MapSector mapSector, MapGenerator.HexDirection hexDirection, List<ulong> positions)
+        private MapSector AddNeigbor(MapSector mapSector, MapGenerator.HexDirection hexDirection, List<Position2> positions)
         {
             MapSector nextSector = null;
             MapGenerator.HexCell n = mapSector.HexCell.GetNeighbor(hexDirection);
@@ -764,9 +762,9 @@ namespace Engine.Interface
                 {
                     positions.Add(nextSector.Center);
 
-                    ulong zoneCenter = Position.CreatePosition(
-                        Position.GetX(nextSector.Center) + sectorSize / 2,
-                        Position.GetY(nextSector.Center) + sectorSize / 2);
+                    Position2 zoneCenter = new Position2(nextSector.Center.X + sectorSize / 2, nextSector.Center.Y + sectorSize / 2);
+                        //Position.GetX(nextSector.Center) + sectorSize / 2,
+                        //Position.GetY(nextSector.Center) + sectorSize / 2);
                 }
             }
             return nextSector;
@@ -798,7 +796,7 @@ namespace Engine.Interface
         */
 
         /*
-        private void AddZone(Tile largeTile, ulong pos)
+        private void AddZone(Tile largeTile, Position2 pos)
         {
             int zoneId = Zones.Count;
 
@@ -945,12 +943,12 @@ namespace Engine.Interface
             }
         }
 
-        public Dictionary<ulong, TileWithDistance> EnumerateTiles(ulong startPos, int range, bool includeStartPos = true, Func<TileWithDistance, bool> stopper = null, Func<TileWithDistance, bool> matcher = null)
+        public Dictionary<Position2, TileWithDistance> EnumerateTiles(Position2 startPos, int range, bool includeStartPos = true, Func<TileWithDistance, bool> stopper = null, Func<TileWithDistance, bool> matcher = null)
         {
-            Dictionary<ulong, TileWithDistance> resultList = new Dictionary<ulong, TileWithDistance>();
+            Dictionary<Position2, TileWithDistance> resultList = new Dictionary<Position2, TileWithDistance>();
 
             List<TileWithDistance> openList = new List<TileWithDistance>();
-            Dictionary<ulong, TileWithDistance> reachedTiles = new Dictionary<ulong, TileWithDistance>();
+            Dictionary<Position2, TileWithDistance> reachedTiles = new Dictionary<Position2, TileWithDistance>();
 
             Tile startTilePos = GetTile(startPos);
             if (startTilePos == null) return null;

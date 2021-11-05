@@ -59,14 +59,14 @@ namespace Engine.Master
             return tileObject;
         }
 
-        private Move CreateAssembleMove(ulong pos, string productCode)
+        private Move CreateAssembleMove(Position2 pos, string productCode)
         {
             Move move;
 
             // possible production move
             move = new Move();
             move.MoveType = MoveType.Build;
-            move.Positions = new List<ulong>();
+            move.Positions = new List<Position2>();
             move.Positions.Add(Unit.Pos);
             move.Positions.Add(pos);
             move.PlayerId = Unit.Owner.PlayerModel.Id;
@@ -78,7 +78,7 @@ namespace Engine.Master
             return move;
         }
 
-        private Move CreateUpgradeMove(ulong pos, Unit assemblerUnit, Unit upgradedUnit, BlueprintPart blueprintPart) 
+        private Move CreateUpgradeMove(Position2 pos, Unit assemblerUnit, Unit upgradedUnit, BlueprintPart blueprintPart) 
         {
             int level = blueprintPart.Level;
             
@@ -97,7 +97,7 @@ namespace Engine.Master
             // possible production move
             move = new Move();
             move.MoveType = MoveType.Upgrade;
-            move.Positions = new List<ulong>();
+            move.Positions = new List<Position2>();
             move.Positions.Add(Unit.Pos);
             move.Positions.Add(pos);
             move.PlayerId = Unit.Owner.PlayerModel.Id;
@@ -219,9 +219,9 @@ namespace Engine.Master
         }
 
 
-        public Dictionary<ulong, TileWithDistance> CollectOutputulongs()
+        public Dictionary<Position2, TileWithDistance> CollectOutputPosition2s()
         {
-            Dictionary<ulong, TileWithDistance> positions = Unit.Game.Map.EnumerateTiles(Unit.Pos, 1, false);
+            Dictionary<Position2, TileWithDistance> positions = Unit.Game.Map.EnumerateTiles(Unit.Pos, 1, false);
 
             return positions;
         }
@@ -233,7 +233,7 @@ namespace Engine.Master
                 // Disabled. Otherwise cannt update a worker
                 /*
                 if (Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build &&
-                        neighbor.Pos == Unit.CurrentGameCommand.Targetulong)
+                        neighbor.Pos == Unit.CurrentGameCommand.TargetPosition2)
                 {
                     return true;
                 }
@@ -244,7 +244,7 @@ namespace Engine.Master
             return true;
         }
 
-        public override void ComputePossibleMoves(List<Move> possibleMoves, List<ulong> includedulongs, MoveFilter moveFilter)
+        public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position2> includedPosition2s, MoveFilter moveFilter)
         {
             if ((moveFilter & MoveFilter.Assemble) == 0 && (moveFilter & MoveFilter.Upgrade) == 0)
                 return;
@@ -253,7 +253,7 @@ namespace Engine.Master
                 return;
 
             
-            Dictionary<ulong, TileWithDistance> neighbors = CollectOutputulongs();
+            Dictionary<Position2, TileWithDistance> neighbors = CollectOutputPosition2s();
             /*
             foreach (TileWithDistance neighbor in neighbors.Values)
             {
@@ -305,9 +305,9 @@ namespace Engine.Master
                         continue;
                 }
 
-                if (includedulongs != null)
+                if (includedPosition2s != null)
                 {
-                    if (!includedulongs.Contains(neighbor.Pos))
+                    if (!includedPosition2s.Contains(neighbor.Pos))
                         continue;
                 }
 

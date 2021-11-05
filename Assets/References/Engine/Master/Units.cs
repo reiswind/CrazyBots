@@ -9,18 +9,18 @@ namespace Engine.Master
 
     public class Units
     {
-        private Dictionary<ulong, Unit> units;
+        private Dictionary<Position2, Unit> units;
         private Dictionary<string, Unit> unitsById;
         public Map Map;
 
         public Units(Map map)
         {
             Map = map;
-            units = new Dictionary<ulong, Unit>();
+            units = new Dictionary<Position2, Unit>();
             unitsById = new Dictionary<string, Unit>();
         }
 
-        public Dictionary<ulong, Unit> List
+        public Dictionary<Position2, Unit> List
         {
             get { return units; }
         }
@@ -29,11 +29,11 @@ namespace Engine.Master
         {
             if (!unitsById.ContainsKey(unit.UnitId))
                 unitsById.Add(unit.UnitId, unit);
-            if (unit.Pos != Position.Null)
+            if (unit.Pos != Position2.Null)
                 units.Add(unit.Pos, unit);
         }
 
-        public void Remove(ulong pos)
+        public void Remove(Position2 pos)
         {
             if (units.ContainsKey(pos))
             {
@@ -45,8 +45,19 @@ namespace Engine.Master
                 throw new Exception("wrong");
             }
         }
-
-        public Unit GetUnitAt(ulong pos)
+        public void Remove(string untitId)
+        {
+            if (unitsById.ContainsKey(untitId))
+            {
+                if (!unitsById.Remove(untitId))
+                    throw new Exception("wrong");
+            }
+            else
+            {
+                throw new Exception("wrong");
+            }
+        }
+        public Unit GetUnitAt(Position2 pos)
         {
             Unit unit;
             units.TryGetValue(pos, out unit);

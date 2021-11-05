@@ -117,7 +117,7 @@ namespace Engine.Interface
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Worker";
-            blueprintCommandItem.CubePosition = new CubePosition();
+            blueprintCommandItem.CubePosition = new Position3();
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
@@ -131,7 +131,7 @@ namespace Engine.Interface
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Fighter";
-            blueprintCommandItem.CubePosition = new CubePosition();
+            blueprintCommandItem.CubePosition = new Position3();
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
@@ -145,7 +145,7 @@ namespace Engine.Interface
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Bomber";
-            blueprintCommandItem.CubePosition = new CubePosition();
+            blueprintCommandItem.CubePosition = new Position3();
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
@@ -327,7 +327,7 @@ namespace Engine.Interface
 
     public class BlueprintCommandItem
     {
-        public CubePosition CubePosition { get; set; }
+        public Position3 CubePosition { get; set; }
         public Direction Direction { get; set; }
         public string BlueprintName { get; set; }
     }

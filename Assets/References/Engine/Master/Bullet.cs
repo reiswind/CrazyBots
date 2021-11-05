@@ -15,7 +15,7 @@ namespace Engine.Interface
         /// Zerro if extract
         /// </summary>
         public TileObject TileObject { get; set; }
-        public ulong Target { get; set; }
+        public Position2 Target { get; set; }
     }
 
     public class AbilityBullet : Ability

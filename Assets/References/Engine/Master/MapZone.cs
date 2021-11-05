@@ -26,7 +26,7 @@ namespace Engine.Interface
         public int ZoneId { get; set; }
         //public int TotalMinerals { get; set; }
         public int MaxMinerals { get; set; }
-        public ulong Center { get; set; }
+        public Position2 Center { get; set; }
         public Player Player { get; set; }
 
         public bool IsUnderwater;
@@ -34,7 +34,7 @@ namespace Engine.Interface
 
         internal List<MapVegetation> Vegetation = new List<MapVegetation>();
 
-        public Dictionary<ulong, Tile> Tiles { get; set; }
+        public Dictionary<Position2, Tile> Tiles { get; set; }
 
         private List<Tile> openTiles;
 
@@ -78,7 +78,7 @@ namespace Engine.Interface
         }
         */
 
-        public ulong CreateTerrainTile(Map map)
+        public Position2 CreateTerrainTile(Map map)
         {
             //if (map.OpenTileObjects.Count == 0)
             //    return null;
@@ -87,16 +87,16 @@ namespace Engine.Interface
             //    return null;
 
             if (openTiles == null)
-                return Position.Null;
+                return Position2.Null;
 
             List<Tile> unopenTiles = new List<Tile>();
-            ulong pos = Position.Null;
+            Position2 pos = Position2.Null;
 
             if (openTiles.Count > 0)
             {
                 TileFit randomTileFit = CreateRandomObjects(map);
                 if (randomTileFit == null || randomTileFit.TileObjects == null)
-                    return Position.Null;
+                    return Position2.Null;
 
                 // Find best tile
                 List<TileFit> bestTilesFit = new List<TileFit>();
@@ -210,7 +210,7 @@ namespace Engine.Interface
                     {
                         
 
-                        if (CubePosition.Distance(n.Pos, Center) > 20)
+                        if (Position3.Distance(n.Pos, Center) > 20)
                             continue;
 
                         // Nothing under water

@@ -18,38 +18,62 @@ namespace Engine.Interface
         SW = 3
     }
 
-    public class CubePosition
+    public readonly struct Position3 //: IEquatable<Position3>
     {
-        public CubePosition()
+        public Position3(Position2 pos)
         {
+            int pX = pos.X;
+            int pY = pos.Y;
+            q = pX;
+            s = pY - (pX + (pX & 1)) / 2;
+            r = -q - s;
+        }
+        public Position3(int q, int r, int s)
+        {
+            this.q = q;
+            this.r = r;
+            this.s = s;
+        }
 
-        }
-        public CubePosition(ulong pos)
-        {
-            int pX = Position.GetX(pos);
-            int pY = Position.GetY(pos);
-            Q = pX;
-            S = pY - (pX + (pX & 1)) / 2;
-            R = -Q - S;
-        }
-        public CubePosition(int q, int r, int s)
-        {
-            Q = q;
-            R = r;
-            S = s;
-        }
+        private readonly int q;
+        private readonly int r;
+        private readonly int s;
+
         /// <summary>
         /// x
         /// </summary>
-        public int Q { get; private set; } 
+        public int Q { get { return q;  }  } 
         /// <summary>
         /// y
         /// </summary>
-        public int R { get; private set; } 
+        public int R { get { return r; } } 
         /// <summary>
         /// z
         /// </summary>
-        public int S { get; private set; }
+        public int S { get { return s; } }
+
+        /*
+        public bool Equals(Position3 other)
+        {
+            return q == other.q && r == other.r && s == other.s;
+        }
+        public static bool operator ==(Position3 a, Position3 b) => a.Equals(b);
+
+        public static bool operator !=(Position3 a, Position3 b) => !a.Equals(b);
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Position3)) return false;
+            var other = (Position3)obj;
+            return q == other.q && r == other.r && s == other.s;
+        }*/
+        /* Leave it to c# (fit 3 int into 1)
+        public override int GetHashCode()
+        {
+            BitConverter.
+            int b = sizeof(int);
+            return q*16 + r*8 + s;
+        }*/
 
         /*
         public void MoveRightDown(Map map, int range)
@@ -112,28 +136,28 @@ namespace Engine.Interface
                 S--;
             }
         }*/
-        public CubePosition Move(Direction direction, int lenght)
+        public Position3 Move(Direction direction, int lenght)
         {
-            CubePosition cubePosition = this;
+            Position3 cubePosition = this;
             while (lenght-- > 0)
                 cubePosition = cubePosition.GetNeighbor(direction);
             return cubePosition;
         }
 
-        public List<CubePosition> DrawLine(ulong pos)
+        public List<Position3> DrawLine(Position2 pos)
         {
-            CubePosition to = new CubePosition(pos);
+            Position3 to = new Position3(pos);
             return DrawLine(to);
         }
-        public List<CubePosition> DrawLine(CubePosition to)
+        public List<Position3> DrawLine(Position3 to)
         { 
-            List<CubePosition> line = FractionalHex.HexLinedraw(this, to);
+            List<Position3> line = FractionalHex.HexLinedraw(this, to);
             return line;
         }
-        public List<CubePosition> CreateRing(int radius)
+        public List<Position3> CreateRing(int radius)
         {
-            List<CubePosition> results = new List<CubePosition>();
-            CubePosition cube = Move(Direction.NW, radius);
+            List<Position3> results = new List<Position3>();
+            Position3 cube = Move(Direction.NW, radius);
 
             for (int i = 0; i < 6; i++)
             {
@@ -146,97 +170,95 @@ namespace Engine.Interface
             return results;
         }
 
-        public CubePosition Add(CubePosition b)
+        public Position3 Add(Position3 b)
         {
-            return new CubePosition(Q + b.Q, R + b.R, S + b.S);
+            return new Position3(Q + b.Q, R + b.R, S + b.S);
         }
-        public CubePosition Add(int q1, int r1, int s1)
+        public Position3 Add(int q1, int r1, int s1)
         {
-            return new CubePosition(Q + q1, R + r1, S + s1);
-        }
-
-        public CubePosition Subtract(CubePosition b)
-        {
-            return new CubePosition(Q - b.Q, R - b.R, S - b.S);
+            return new Position3(Q + q1, R + r1, S + s1);
         }
 
-        public CubePosition Scale(int k)
+        public Position3 Subtract(Position3 b)
         {
-            return new CubePosition(Q * k, R * k, S * k);
+            return new Position3(Q - b.Q, R - b.R, S - b.S);
         }
 
-        public CubePosition RotateLeft()
+        public Position3 Scale(int k)
         {
-            return new CubePosition(-S, -Q, -R);
+            return new Position3(Q * k, R * k, S * k);
         }
 
-        public CubePosition RotateRight()
+        public Position3 RotateLeft()
         {
-            return new CubePosition(-R, -S, -Q);
+            return new Position3(-S, -Q, -R);
         }
-        static public List<CubePosition> directions = new List<CubePosition>
+
+        public Position3 RotateRight()
         {
-            new CubePosition(1, 0, -1),
-            new CubePosition(1, -1, 0),
-            new CubePosition(0, -1, 1),
-            new CubePosition(-1, 0, 1),
-            new CubePosition(-1, 1, 0),
-            new CubePosition(0, 1, -1)
+            return new Position3(-R, -S, -Q);
+        }
+        static public List<Position3> directions = new List<Position3>
+        {
+            new Position3(1, 0, -1),
+            new Position3(1, -1, 0),
+            new Position3(0, -1, 1),
+            new Position3(-1, 0, 1),
+            new Position3(-1, 1, 0),
+            new Position3(0, 1, -1)
         };
-        static public CubePosition GetDirection(Direction direction)
+        static public Position3 GetDirection(Direction direction)
         {
             int dir = ((int)direction);
-            return CubePosition.directions[dir];
+            return Position3.directions[dir];
         }
-        static public CubePosition GetDirection(int direction)
+        static public Position3 GetDirection(int direction)
         {
-            return CubePosition.directions[direction];
+            return Position3.directions[direction];
         }
-        public CubePosition GetNeighbor(int direction)
+        public Position3 GetNeighbor(int direction)
         {
-            return Add(CubePosition.GetDirection(direction));
+            return Add(Position3.GetDirection(direction));
         }
-        public CubePosition GetNeighbor(Direction direction)
+        public Position3 GetNeighbor(Direction direction)
         {
-            return Add(CubePosition.GetDirection(direction));
+            return Add(Position3.GetDirection(direction));
         }
 
-        static public List<CubePosition> diagonals = new List<CubePosition>
+        static public List<Position3> diagonals = new List<Position3>
         {
-            new CubePosition(2, -1, -1),
-            new CubePosition(1, -2, 1),
-            new CubePosition(-1, -1, 2),
-            new CubePosition(-2, 1, 1),
-            new CubePosition(-1, 2, -1),
-            new CubePosition(1, 1, -2)
+            new Position3(2, -1, -1),
+            new Position3(1, -2, 1),
+            new Position3(-1, -1, 2),
+            new Position3(-2, 1, 1),
+            new Position3(-1, 2, -1),
+            new Position3(1, 1, -2)
         };
 
-        public CubePosition DiagonalNeighbor(int direction)
+        public Position3 DiagonalNeighbor(int direction)
         {
-            return Add(CubePosition.diagonals[direction]);
+            return Add(Position3.diagonals[direction]);
         }
-
-
         public int Length()
         {
             return (int)((Math.Abs(Q) + Math.Abs(R) + Math.Abs(S)) / 2);
         }
 
-        public int Distance(CubePosition b)
+        public int Distance(Position3 b)
         {
             return Subtract(b).Length();
         }
 
-        public static int Distance(ulong a, ulong b)
+        public static int Distance(Position2 a, Position2 b)
         {
-            CubePosition ca = new CubePosition(a);
-            CubePosition cb = new CubePosition(b);
+            Position3 ca = new Position3(a);
+            Position3 cb = new Position3(b);
             return ca.Distance(cb);
         }
 
-        public static Direction CalcDirection(ulong from, ulong to)
+        public static Direction CalcDirection(Position2 from, Position2 to)
         {
-            CubePosition ca = new CubePosition(from);
+            Position3 ca = new Position3(from);
             if (ca.GetNeighbor(Direction.N).Pos == to) return Direction.N;
             if (ca.GetNeighbor(Direction.NE).Pos == to) return Direction.NE;
             if (ca.GetNeighbor(Direction.SE).Pos == to) return Direction.SE;
@@ -247,12 +269,12 @@ namespace Engine.Interface
             return Direction.C;
         }
 
-        public List<CubePosition> GetNeighbors(int map_radius)
+        public List<Position3> GetNeighbors(int map_radius)
         {
             if (map_radius == 1)
                 return Neighbors;
 
-            List<CubePosition> neighbors = new List<CubePosition>();
+            List<Position3> neighbors = new List<Position3>();
             for (int q = -map_radius; q <= map_radius; q++)
             {
                 int r1 = Math.Max(-map_radius, -q - map_radius);
@@ -265,11 +287,11 @@ namespace Engine.Interface
             return neighbors;
         }
 
-        public List<CubePosition> Neighbors
+        public List<Position3> Neighbors
         {
             get
             {
-                List<CubePosition> neighbors = new List<CubePosition>();
+                List<Position3> neighbors = new List<Position3>();
                 neighbors.Add(GetNeighbor(0));
                 neighbors.Add(GetNeighbor(1));
                 neighbors.Add(GetNeighbor(2));
@@ -283,19 +305,19 @@ namespace Engine.Interface
         /// <summary>
         /// evenq_to_cube(hex)
         /// </summary>
-        public ulong Pos
+        public Position2 Pos
         {
             get
             {
                 var col = Q;
                 var row = S + (Q + (Q & 1)) / 2;
-                return Position.CreatePosition(col, row);
+                return new Position2(col, row);
             }
         }
 
         public override string ToString()
         {
-            return "Pos: " + Position.GetX(Pos) + "," + Position.GetY(Pos);
+            return "Pos: " + Pos.ToString();
         }
     }
 
@@ -312,7 +334,7 @@ namespace Engine.Interface
         public readonly double r;
         public readonly double s;
 
-        public CubePosition HexRound()
+        public Position3 HexRound()
         {
             int qi = (int)(Math.Round(q));
             int ri = (int)(Math.Round(r));
@@ -333,7 +355,7 @@ namespace Engine.Interface
             {
                 si = -qi - ri;
             }
-            return new CubePosition(qi, ri, si);
+            return new Position3(qi, ri, si);
         }
 
 
@@ -343,12 +365,12 @@ namespace Engine.Interface
         }
 
 
-        static public List<CubePosition> HexLinedraw(CubePosition a, CubePosition b)
+        static public List<Position3> HexLinedraw(Position3 a, Position3 b)
         {
             int N = a.Distance(b);
             FractionalHex a_nudge = new FractionalHex(a.Q + 1e-06, a.R + 1e-06, a.S - 2e-06);
             FractionalHex b_nudge = new FractionalHex(b.Q + 1e-06, b.R + 1e-06, b.S - 2e-06);
-            List<CubePosition> results = new List<CubePosition> { };
+            List<Position3> results = new List<Position3> { };
             double step = 1.0 / Math.Max(N, 1);
             for (int i = 0; i <= N; i++)
             {
@@ -359,53 +381,88 @@ namespace Engine.Interface
 
     }
 
-    public class Position
+    public readonly struct Position2 : IEquatable<Position2>
     {
-        public static ulong ParsePosition(string pos)
+        public Position2(int x, int y)
+        {
+            uint ux = ((uint)x << 16);
+            uint uy = ((uint)y & 0x0000ffff);
+
+            position = (int)(ux | uy);
+            if (position == 0)
+                position = int.MaxValue;
+        }
+        public Position2(int pos)
+        {
+            position = pos;
+        }
+        private readonly int position;
+
+        public int X
+        {
+            get
+            {
+                if (position == int.MaxValue)
+                    return 0;
+
+                uint ux = ((uint)position & 0xffff0000);
+                ux >>= 16;
+                short x16 = (short)ux;
+                return (int)x16;
+            }
+        }
+        public int Y
+        {
+            get
+            {
+                if (position == int.MaxValue)
+                    return 0;
+
+                uint uy = ((uint)position & 0x0000ffff);
+                uy |= 0xffff0000;
+                short y16 = (short)uy;
+                return y16;
+            }
+        }
+
+        public bool Equals(Position2 other)
+        {
+            return position == other.position;
+        }
+        public static bool operator ==(Position2 a, Position2 b) => a.Equals(b);
+
+        public static bool operator !=(Position2 a, Position2 b) => !a.Equals(b);
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Position2)) return false;
+            var other = (Position2)obj;
+            return position == other.position;
+        }
+        public override int GetHashCode()
+        {
+            return position;
+        }
+        public override string ToString()
+        {
+            return X + "," + Y;
+        }
+        public static Position2 Null
+        {
+            get
+            {
+                return new Position2(0);
+            }
+        }
+        
+        public static Position2 ParsePosition(string pos)
         {
             int p = pos.IndexOf(',');
             int x = Convert.ToInt32(pos.Substring(0,p));
             int y = Convert.ToInt32(pos.Substring(p+1));
-            return CreatePosition(x,y);
+            return new Position2(x,y);
         }
-        public static ulong CreatePosition(int x, int y)
-        {
-            ulong ux = (ulong)x & 0x000000000000ffff;
-            ux = ux << 16;
-            ulong uy = (ulong)y & 0x000000000000ffff;
-
-            ulong upos = ux | uy;
-            if (upos == 0)
-                upos = ulong.MaxValue;
-            return upos;
-        }
-        public static int GetX(ulong position)
-        {
-            if (position == ulong.MaxValue)
-                return 0;
-            ulong ux = position & 0x00000000ffff0000;
-            ux = ux >> 16;
-            return (int)ux;
-        }
-        public static int GetY(ulong position)
-        {
-            if (position == ulong.MaxValue)
-                return 0;
-            ulong uy = position & 0x000000000000ffff;
-            return (int)uy;
-        }
-
-        public static string GetString(ulong pos)
-        {
-            return GetX(pos) + "," + GetY(pos);
-        }
-        public static ulong Null
-        {
-            get
-            {
-                return 0;
-            }
-        }
+        
     }
 
 }

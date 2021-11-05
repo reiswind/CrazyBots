@@ -50,12 +50,12 @@ namespace Engine.Interface
     {
         public Unit Unit { get; set; }
         public int NumberOfCollectables { get; set; }
-        public ulong Pos { get; set; }
+        public Position2 Pos { get; set; }
         public int LastUpdated { get; set; }
 
         public override string ToString()
         {
-            return Position.GetX(Pos) + "," + Position.GetY(Pos) + " Col: " + NumberOfCollectables;
+            return Pos.ToString() + " Col: " + NumberOfCollectables;
         }
     }
 
@@ -74,10 +74,10 @@ namespace Engine.Interface
         // Unit that the player knows. Own and enemy
         public Dictionary<string, PlayerUnit> Units = new Dictionary<string, PlayerUnit>();
         
-        public Dictionary<ulong, PlayerVisibleInfo> VisiblePositions = new Dictionary<ulong, PlayerVisibleInfo>();
-        public Dictionary<ulong, PlayerVisibleInfo> Discoveries = new Dictionary<ulong, PlayerVisibleInfo>();
+        public Dictionary<Position2, PlayerVisibleInfo> VisiblePositions = new Dictionary<Position2, PlayerVisibleInfo>();
+        public Dictionary<Position2, PlayerVisibleInfo> Discoveries = new Dictionary<Position2, PlayerVisibleInfo>();
 
-        public bool IsVisible(ulong pos)
+        public bool IsVisible(Position2 pos)
         {
             PlayerVisibleInfo playerVisibleInfo;
             if (VisiblePositions.TryGetValue(pos, out playerVisibleInfo))
@@ -89,42 +89,58 @@ namespace Engine.Interface
 
         internal void CollectVisiblePos(PlayerUnit playerUnit)
         {
-            List<ulong> calcPos = new List<ulong>();
+            if (playerUnit.Unit.UnderConstruction)
+                return;
+
+            List<Position2> calcPos = new List<Position2>();
 
             int visibilityRange = 2;
             if (!playerUnit.Unit.Blueprint.IsMoveable())
             {
                 visibilityRange = 4; // Unit.Reactor.Range;
             }
-
-            Dictionary<ulong, TileWithDistance> tiles = Game.Map.EnumerateTiles(playerUnit.Unit.Pos, visibilityRange, true);
+            Dictionary<Position2, TileWithDistance> tiles = Game.Map.EnumerateTiles(playerUnit.Unit.Pos, visibilityRange, true);
             foreach (TileWithDistance tileWithDistance in tiles.Values)
             {
                 PlayerVisibleInfo playerVisibleInfo;
                 if (VisiblePositions.TryGetValue(tileWithDistance.Pos, out playerVisibleInfo))
                 {
+                    /*
                     if (playerVisibleInfo.NumberOfCollectables != tileWithDistance.Tile.NumberOfCollectables)
                     {
                         Discoveries.Add(tileWithDistance.Pos, playerVisibleInfo);
                         //UnityEngine.Debug.Log("Update discovery at " + Position.GetString(tileWithDistance.Pos));
-                    }
+                    }*/
                 }
                 else
                 {
                     playerVisibleInfo = new PlayerVisibleInfo();
                     VisiblePositions.Add(tileWithDistance.Pos, playerVisibleInfo);
 
-                    if (tileWithDistance.Tile.NumberOfCollectables > 0)
-                    {
-                        //UnityEngine.Debug.Log("New discovery at " + Position.GetString(tileWithDistance.Pos));
-                        Discoveries.Add(tileWithDistance.Pos, playerVisibleInfo);
-                    }
                     if (!Game.changedGroundPositions.ContainsKey(tileWithDistance.Pos))
                         Game.changedGroundPositions.Add(tileWithDistance.Pos, tileWithDistance.Tile);
                 }
-                playerVisibleInfo.NumberOfCollectables = tileWithDistance.Tile.NumberOfCollectables;
-                playerVisibleInfo.Unit = tileWithDistance.Tile.Unit;
 
+                int numberOfCollectables;
+
+                numberOfCollectables = tileWithDistance.Tile.NumberOfCollectables;
+                if (tileWithDistance.Tile.Unit != null)
+                {
+                    if (tileWithDistance.Tile.Unit.Owner.PlayerModel.Id == 0)
+                    {
+                        numberOfCollectables += tileWithDistance.Tile.Unit.CountMineral();
+                    }
+                }
+
+                if ((numberOfCollectables > 0 && playerVisibleInfo.NumberOfCollectables != numberOfCollectables) ||
+                    playerVisibleInfo.Unit != tileWithDistance.Tile.Unit)
+                {
+                    //UnityEngine.Debug.Log("New discovery at " + Position.GetString(tileWithDistance.Pos));
+                    Discoveries.Add(tileWithDistance.Pos, playerVisibleInfo);
+                }
+
+                playerVisibleInfo.NumberOfCollectables = numberOfCollectables;
+                playerVisibleInfo.Unit = tileWithDistance.Tile.Unit;
                 playerVisibleInfo.Pos = tileWithDistance.Pos;
                 playerVisibleInfo.LastUpdated = Game.MoveNr + 1;
             }
@@ -138,7 +154,7 @@ namespace Engine.Interface
         }
 
 
-        //public Dictionary<ulong, Tile> ForeignBorderTiles = new Dictionary<ulong, Tile>();
+        //public Dictionary<Position2, Tile> ForeignBorderTiles = new Dictionary<Position2, Tile>();
         
         public void UpdateAll(List<Move> returnMoves)
         {
@@ -149,7 +165,7 @@ namespace Engine.Interface
                 move = new Move();
                 move.MoveType = MoveType.VisibleTiles;
                 move.PlayerId = this.PlayerModel.Id;
-                move.Positions = new List<ulong>();
+                move.Positions = new List<Position2>();
                 move.Positions.AddRange(this.VisiblePositions);
                 returnMoves.Add(move);
             }
@@ -158,7 +174,7 @@ namespace Engine.Interface
                 move = new Move();
                 move.MoveType = MoveType.Add;
                 move.PlayerId = this.PlayerModel.Id;
-                move.Positions = new List<ulong>();
+                move.Positions = new List<Position2>();
                 move.Positions.Add(playerUnit.Unit.Pos);
                 move.UnitId = playerUnit.Unit.UnitId;
                 move.Stats = playerUnit.Unit.CollectStats();
@@ -169,19 +185,19 @@ namespace Engine.Interface
         internal void ProcessMoves(List<Move> moves, bool finishLastMoves)
         {
             // Update postion of all units
-            Dictionary<ulong, PlayerUnit> deletedUnits = new Dictionary<ulong, PlayerUnit>();
-            List<ulong> removedUnits = new List<ulong>();
-            Dictionary<ulong, PlayerUnit> movedAwayUnits = new Dictionary<ulong, PlayerUnit>();
-            List<ulong> changedUnits = new List<ulong>();
+            Dictionary<Position2, PlayerUnit> deletedUnits = new Dictionary<Position2, PlayerUnit>();
+            List<Position2> removedUnits = new List<Position2>();
+            Dictionary<Position2, PlayerUnit> movedAwayUnits = new Dictionary<Position2, PlayerUnit>();
+            List<Position2> changedUnits = new List<Position2>();
             LastMoves = new List<Move>();
             
-            Dictionary<ulong, PlayerUnit> addedUnits = new Dictionary<ulong, PlayerUnit>();
-            Dictionary<ulong, PlayerUnit> movedToUnits = new Dictionary<ulong, PlayerUnit>();
+            Dictionary<Position2, PlayerUnit> addedUnits = new Dictionary<Position2, PlayerUnit>();
+            Dictionary<Position2, PlayerUnit> movedToUnits = new Dictionary<Position2, PlayerUnit>();
             foreach (Move move in moves)
             {
                 if (move.MoveType == MoveType.Add)
                 {
-                    ulong to = move.Positions[move.Positions.Count - 1];
+                    Position2 to = move.Positions[move.Positions.Count - 1];
                     if (this.Units.ContainsKey(move.UnitId))
                         throw new Exception();
                     Unit unit = Game.Map.Units.GetUnitAt(to);
@@ -196,7 +212,7 @@ namespace Engine.Interface
 
                 if (move.MoveType == MoveType.Build)
                 {
-                    ulong to = move.Positions[move.Positions.Count - 1];
+                    Position2 to = move.Positions[move.Positions.Count - 1];
 
                     if (move.PlayerId == PlayerModel.Id)
                     {
@@ -212,7 +228,7 @@ namespace Engine.Interface
                 }
                 if (move.MoveType == MoveType.Upgrade)
                 {
-                    ulong to = move.Positions[move.Positions.Count - 1];
+                    Position2 to = move.Positions[move.Positions.Count - 1];
                     if (move.PlayerId == PlayerModel.Id)
                     {
 
@@ -220,7 +236,7 @@ namespace Engine.Interface
                 }
                 if (move.MoveType == MoveType.Move)
                 {
-                    ulong to;
+                    Position2 to;
                     if (move.Positions.Count == 1)
                     {
                         // Cloud not move this unit
@@ -233,7 +249,7 @@ namespace Engine.Interface
                         {
                             PlayerUnit playerUnit = Units[move.UnitId];
 
-                            ulong from = move.Positions[0];
+                            Position2 from = move.Positions[0];
                             movedAwayUnits.Add(from, playerUnit);
                             movedToUnits.Add(to, playerUnit);
                             changedUnits.Add(to);
@@ -242,7 +258,7 @@ namespace Engine.Interface
                 }
                 if (move.MoveType == MoveType.Delete)
                 {
-                    ulong from = move.Positions[move.Positions.Count - 1];
+                    Position2 from = move.Positions[move.Positions.Count - 1];
                     if (this.Units.ContainsKey(move.UnitId))
                     {
                         PlayerUnit playerUnit = this.Units[move.UnitId];
@@ -262,7 +278,7 @@ namespace Engine.Interface
                         CollectVisiblePos(playerUnit1);
                     }
                 }
-                List<ulong> hidePositions = new List<ulong>();
+                List<Position2> hidePositions = new List<Position2>();
                 foreach (PlayerVisibleInfo playerVisibleInfo in VisiblePositions.Values)
                 {
                     if (playerVisibleInfo.LastUpdated < Game.MoveNr)
@@ -270,7 +286,7 @@ namespace Engine.Interface
                         hidePositions.Add(playerVisibleInfo.Pos);
                     }
                 }
-                foreach (ulong pos in hidePositions)
+                foreach (Position2 pos in hidePositions)
                 {
                     VisiblePositions.Remove(pos);
                     if (!Game.changedGroundPositions.ContainsKey(pos))
@@ -278,9 +294,9 @@ namespace Engine.Interface
                 }
             }
 #if OLDVISIBLE
-            List<ulong> previouslySeen = new List<ulong>();
-            List<ulong> newlySeen = new List<ulong>();
-            foreach (ulong pos in movedAwayUnits.Keys)
+            List<Position2> previouslySeen = new List<Position2>();
+            List<Position2> newlySeen = new List<Position2>();
+            foreach (Position2 pos in movedAwayUnits.Keys)
             {
                 PlayerUnit playerUnit = movedAwayUnits[pos];
                 if (playerUnit.Unit.Owner.PlayerModel.Id == this.PlayerModel.Id)
@@ -319,9 +335,9 @@ namespace Engine.Interface
             Move hiddenTilesMove = new Move();
             hiddenTilesMove.PlayerId = this.PlayerModel.Id;
             hiddenTilesMove.MoveType = MoveType.HiddenTiles;
-            hiddenTilesMove.Positions = new List<ulong>();
+            hiddenTilesMove.Positions = new List<Position2>();
 
-            foreach (ulong oldPos in previouslySeen)
+            foreach (Position2 oldPos in previouslySeen)
             {
                 // Not seen by another unit
                 if (!newlySeen.Contains(oldPos))
@@ -356,8 +372,8 @@ namespace Engine.Interface
             Move newVisibleTilesMove = new Move();
             newVisibleTilesMove.PlayerId = this.PlayerModel.Id;
             newVisibleTilesMove.MoveType = MoveType.VisibleTiles;
-            newVisibleTilesMove.Positions = new List<ulong>();
-            foreach (ulong newPos in newlySeen)
+            newVisibleTilesMove.Positions = new List<Position2>();
+            foreach (Position2 newPos in newlySeen)
             {
                 if (!this.VisiblePositions.Contains(newPos))
                 {
@@ -411,7 +427,7 @@ namespace Engine.Interface
                                     Move addMove = new Move();
                                     addMove.PlayerId = move.PlayerId;
                                     addMove.MoveType = MoveType.Add;
-                                    addMove.Positions = new List<ulong>();
+                                    addMove.Positions = new List<Position2>();
                                     addMove.Positions.Add(move.Positions[1]);
                                     addMove.UnitId = move.UnitId;
                                     LastMoves.Add(addMove);
@@ -423,7 +439,7 @@ namespace Engine.Interface
                                 Move deleteMove = new Move();
                                 deleteMove.PlayerId = move.PlayerId;
                                 deleteMove.MoveType = MoveType.Delete;
-                                deleteMove.Positions = new List<ulong>();
+                                deleteMove.Positions = new List<Position2>();
                                 deleteMove.Positions.Add(move.Positions[0]);
                                 deleteMove.UnitId = move.UnitId;
                                 LastMoves.Add(deleteMove);
@@ -446,8 +462,8 @@ namespace Engine.Interface
                                 Move addMove = new Move();
                                 addMove.PlayerId = move.PlayerId;
                                 addMove.MoveType = MoveType.Add;
-                                addMove.ulongs = new List<ulong>();
-                                addMove.ulongs.Add(move.ulongs[1]);
+                                addMove.Position2s = new List<Position2>();
+                                addMove.Position2s.Add(move.Position2s[1]);
                                 addMove.UnitId = move.UnitId;
                                 LastMoves.Add(addMove);
                                 */
@@ -461,7 +477,7 @@ namespace Engine.Interface
                                 Move deleteMove = new Move();
                                 deleteMove.PlayerId = move.PlayerId;
                                 deleteMove.MoveType = MoveType.Delete;
-                                deleteMove.Positions = new List<ulong>();
+                                deleteMove.Positions = new List<Position2>();
                                 deleteMove.Positions.Add(move.Positions[0]);
                                 deleteMove.UnitId = move.UnitId;
                                 LastMoves.Add(deleteMove);
@@ -534,7 +550,7 @@ namespace Engine.Interface
                                 Move addMove = new Move();
                                 addMove.PlayerId = unit.Owner.PlayerModel.Id;
                                 addMove.MoveType = MoveType.Add;
-                                addMove.Positions = new List<ulong>();
+                                addMove.Positions = new List<Position2>();
                                 addMove.Positions.Add(unit.Pos);
                                 addMove.UnitId = unit.UnitId;
                                 addMove.Stats = unit.CollectStats();
@@ -580,7 +596,7 @@ namespace Engine.Interface
                         Move deleteMove = new Move();
                         deleteMove.PlayerId = unit.Owner.PlayerModel.Id;
                         deleteMove.MoveType = MoveType.Delete;
-                        deleteMove.Positions = new List<ulong>();
+                        deleteMove.Positions = new List<Position2>();
                         deleteMove.Positions.Add(unit.Pos);
                         deleteMove.UnitId = unit.UnitId;
                         if (Units.ContainsKey(unit.UnitId))
@@ -598,7 +614,7 @@ namespace Engine.Interface
             {
                 if (move.MoveType == MoveType.UpdateGround)
                 {
-                    ulong pos = move.Positions[0];
+                    Position2 pos = move.Positions[0];
                     Tile tile = Game.Map.GetTile(pos);
 
                     if (VisiblePositions.Contains(pos))

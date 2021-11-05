@@ -35,7 +35,7 @@ namespace Engine.MapGenerator
 				{
 					//ShaderData.ViewElevationChanged();
 				}
-				Refreshulong();
+				RefreshPosition2();
 				ValidateRivers();
 
 				if (roads != null)
@@ -165,11 +165,11 @@ namespace Engine.MapGenerator
 			}
 		}
 		/*
-		public Vector3 ulong
+		public Vector3 Position2
 		{
 			get
 			{
-				return transform.localulong;
+				return transform.localPosition2;
 			}
 		}*/
 
@@ -585,19 +585,19 @@ namespace Engine.MapGenerator
 			}
 		}
 
-		void Refreshulong()
+		void RefreshPosition2()
 		{
 			/*
-			Vector3 position = transform.localulong;
+			Vector3 position = transform.localPosition2;
 			position.y = elevation * HexMetrics.elevationStep;
 			position.y +=
 				(HexMetrics.SampleNoise(position).y * 2f - 1f) *
 				HexMetrics.elevationPerturbStrength;
-			transform.localulong = position;
+			transform.localPosition2 = position;
 
-			Vector3 uiulong = uiRect.localulong;
-			uiulong.z = -position.y;
-			uiRect.localulong = uiulong;*/
+			Vector3 uiPosition2 = uiRect.localPosition2;
+			uiPosition2.z = -position.y;
+			uiRect.localPosition2 = uiPosition2;*/
 		}
 
 		void Refresh()
@@ -678,7 +678,7 @@ namespace Engine.MapGenerator
 			{
 				elevation -= 127;
 			}
-			Refreshulong();
+			RefreshPosition2();
 			waterLevel = reader.ReadByte();
 			urbanLevel = reader.ReadByte();
 			farmLevel = reader.ReadByte();
