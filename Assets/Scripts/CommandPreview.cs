@@ -25,7 +25,7 @@ namespace Assets.Scripts
 
             GameCommand = new MapGameCommand();
             GameCommand.PlayerId = 1;
-            GameCommand.TargetPosition = Position.Null;
+            GameCommand.TargetPosition = Position2.Null;
             GameCommand.DeleteWhenFinished = false;
         }
         
@@ -157,16 +157,16 @@ namespace Assets.Scripts
         {
             if (addPreviewUnit == null)
             {
-                return displayPosition != Position.Null;
+                return displayPosition != Position2.Null;
             }
             else
             {
-                return displayPosition != Position.Null;
+                return displayPosition != Position2.Null;
             }
         }
         public void Execute()
         {
-            if (displayPosition != Position.Null)
+            if (displayPosition != Position2.Null)
             {
                 if (addPreviewUnit != null)
                 {
@@ -178,9 +178,9 @@ namespace Assets.Scripts
                     gameCommand.BlueprintCommand = GameCommand.BlueprintCommand;
                     gameCommand.PlayerId = 1;
 
-                    CubePosition cubePosition = new CubePosition(displayPosition);
-                    CubePosition commandCenter = new CubePosition(GameCommand.TargetPosition);
-                    CubePosition relative = commandCenter.Subtract(cubePosition);
+                    Position3 cubePosition = new Position3(displayPosition);
+                    Position3 commandCenter = new Position3(GameCommand.TargetPosition);
+                    Position3 relative = commandCenter.Subtract(cubePosition);
 
                     MapBlueprintCommandItem blueprintCommandItem = new MapBlueprintCommandItem();
                     blueprintCommandItem.BlueprintName = "Fighter";
@@ -250,7 +250,7 @@ namespace Assets.Scripts
             UpdatePositions(groundCell);
         }*/
 
-        private ulong displayPosition;
+        private Position2 displayPosition;
 
         public void SetPosition(GroundCell groundCell)
         {
@@ -263,7 +263,7 @@ namespace Assets.Scripts
                 if(groundCell == null)
                 {
                     addPreviewUnit.gameObject.SetActive(false);
-                    displayPosition = Position.Null;
+                    displayPosition = Position2.Null;
                 }
                 else
                 {
@@ -278,7 +278,7 @@ namespace Assets.Scripts
                     else
                     {
                         addPreviewUnit.gameObject.SetActive(false);
-                        displayPosition = Position.Null;
+                        displayPosition = Position2.Null;
                     }
                 }
             }
@@ -288,7 +288,7 @@ namespace Assets.Scripts
                 {
                     if (previewGameCommand != null)
                         previewGameCommand.SetActive(false);
-                    displayPosition = Position.Null;
+                    displayPosition = Position2.Null;
                 }
                 else
                 {
@@ -308,7 +308,7 @@ namespace Assets.Scripts
                     {
                         if (previewGameCommand != null)
                             previewGameCommand.SetActive(false);
-                        displayPosition = Position.Null;
+                        displayPosition = Position2.Null;
                     }
                 }
             }
@@ -412,11 +412,11 @@ namespace Assets.Scripts
                 else
                     unitPos3.y -= aboveGround;
 
-                CubePosition groundCubePos = new CubePosition(groundCell.Pos);
-                CubePosition unitCubePos;
-                if (blueprintCommandItem.CubePosition == null)
-                    unitCubePos = groundCubePos;
-                else
+                Position3 groundCubePos = new Position3(groundCell.Pos);
+                Position3 unitCubePos;
+                //if (blueprintCommandItem.CubePosition == null)
+                //    unitCubePos = groundCubePos;
+                //else
                     unitCubePos = groundCubePos.Add(blueprintCommandItem.CubePosition);
 
                 GroundCell gc;

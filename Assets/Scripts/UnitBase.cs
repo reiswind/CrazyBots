@@ -37,7 +37,7 @@ namespace Assets.Scripts
 
     public class HitByBullet
     {
-        public HitByBullet(ulong fireingPosition)
+        public HitByBullet(Position2 fireingPosition)
         {
             FireingPosition = fireingPosition;
         }
@@ -46,8 +46,8 @@ namespace Assets.Scripts
         public float HitTime { get; set; }
         public TileObject Bullet { get; set; }
         public bool BulletImpact { get; set; }
-        public ulong FireingPosition { get; set; }
-        public ulong TargetPosition { get; set; }
+        public Position2 FireingPosition { get; set; }
+        public Position2 TargetPosition { get; set; }
         public MoveUpdateStats UpdateUnitStats { get; set; }
         public MoveUpdateStats UpdateGroundStats { get; set; }
     }
@@ -63,10 +63,10 @@ namespace Assets.Scripts
             TurnWeaponIntoDirection = Vector3.zero;
         }
 
-        internal ulong CurrentPos { get; set; }
+        internal Position2 CurrentPos { get; set; }
         // Todo: turn into dir
         internal Direction Direction { get; set; }
-        internal ulong DestinationPos { get; set; }
+        internal Position2 DestinationPos { get; set; }
         internal int PlayerId { get; set; }
         internal string UnitId { get; set; }
         public MoveUpdateStats MoveUpdateStats { get; set; }
@@ -132,7 +132,7 @@ namespace Assets.Scripts
                     }
                 }
             }
-            if (DestinationPos != Position.Null)
+            if (DestinationPos != Position2.Null)
             {
                 GroundCell targetCell;
                 if (HexGrid.MainGrid.GroundCells.TryGetValue(DestinationPos, out targetCell))
@@ -223,7 +223,7 @@ namespace Assets.Scripts
         }
 
 
-        public void MoveTo(ulong pos)
+        public void MoveTo(Position2 pos)
         {
             DestinationPos = pos;
 

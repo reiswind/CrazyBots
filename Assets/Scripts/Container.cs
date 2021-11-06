@@ -19,7 +19,7 @@ namespace Assets.Scripts
             GameObject shellObject = HexGrid.Instantiate(shellprefab);
             Transport transport = shellObject.GetComponent<Transport>();
 
-            ulong pos = move.Positions[move.Positions.Count - 1];
+            Position2 pos = move.Positions[move.Positions.Count - 1];
 
             Vector3 targetPosition;
 

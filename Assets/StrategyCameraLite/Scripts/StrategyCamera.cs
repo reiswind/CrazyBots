@@ -93,9 +93,9 @@ public class StrategyCamera : MonoBehaviour
 		targetRotation = transform.rotation;
 		targetZoom = cam.transform.position.z;
 	}
-	public void JumpTo(Assets.Scripts.HexGrid hexGrid, ulong pos)
+	public void JumpTo(Assets.Scripts.HexGrid hexGrid, Position2 pos)
 	{
-		if (pos != Position.Null)
+		if (pos != Position2.Null)
 		{
 			GroundCell groundCell;
 			if (hexGrid.GroundCells.TryGetValue(pos, out groundCell))
@@ -167,7 +167,7 @@ public class StrategyCamera : MonoBehaviour
 				if (groundCell != null)
 				{
 					//Debug.Log(groundCell.Pos.X + "," + groundCell.Pos.Y);
-					ulong realPos = groundCell.Pos; //
+					Position2 realPos = groundCell.Pos; //
 													//realPos.X = groundCell.Pos.X; // + 16;
 													//realPos.Y = groundCell.Pos.Y; // + 16;
 

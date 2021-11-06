@@ -7,7 +7,7 @@ namespace Assets.Scripts
 {
     public class GroundCell : MonoBehaviour
     {
-        public ulong Pos { get; set; }
+        public Position2 Pos { get; set; }
 
         public MoveUpdateStats Stats { get; set; }
 
@@ -381,8 +381,8 @@ namespace Assets.Scripts
 
         internal GroundCell GetNeighbor(Direction direction)
         {
-            CubePosition cubePosition = new CubePosition(Pos);
-            CubePosition n = cubePosition.GetNeighbor(direction);
+            Position3 cubePosition = new Position3(Pos);
+            Position3 n = cubePosition.GetNeighbor(direction);
 
             GroundCell neighbor;
             HexGrid.MainGrid.GroundCells.TryGetValue(n.Pos, out neighbor);

@@ -71,7 +71,7 @@ namespace Assets.Scripts
 
                 if (otherUnit == null)
                 {
-                    ulong from = move.Positions[1];
+                    Position2 from = move.Positions[1];
 
                     GroundCell sourceCell; // = hexGrid.GroundCells[from];
 

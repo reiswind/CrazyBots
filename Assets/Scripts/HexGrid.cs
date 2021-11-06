@@ -27,7 +27,7 @@ namespace Assets.Scripts
 
         public Button CreateItems;
 
-        internal Dictionary<ulong, GroundCell> GroundCells { get; private set; }
+        internal Dictionary<Position2, GroundCell> GroundCells { get; private set; }
         internal Dictionary<string, UnitBase> BaseUnits { get; private set; }
         
         /// <summary>
@@ -401,9 +401,9 @@ namespace Assets.Scripts
             return gameTileObject;
         }
 
-        private List<ulong> visiblePositions = new List<ulong>();
-        private ulong nextVisibleCenter;
-        public void UpdateVisibleCenter(ulong pos)
+        private List<Position2> visiblePositions = new List<Position2>();
+        private Position2 nextVisibleCenter;
+        public void UpdateVisibleCenter(Position2 pos)
         {
             nextVisibleCenter = pos;
         }
@@ -512,9 +512,8 @@ namespace Assets.Scripts
 
             GameCommands = new List<MapGameCommand>();
             CommandPreviews = new List<CommandPreview>();
-            GroundCells = new Dictionary<ulong, GroundCell>();
+            GroundCells = new Dictionary<Position2, GroundCell>();
             BaseUnits = new Dictionary<string, UnitBase>();
-            //UnitsInBuild = new Dictionary<ulong, UnitBase>();
             hitByBullets = new List<HitByBullet>();
 
             GameObject cellPrefab = GetResource("HexCell");
@@ -556,9 +555,8 @@ namespace Assets.Scripts
 
             GameCommands = new List<MapGameCommand>();
             CommandPreviews = new List<CommandPreview>();
-            GroundCells = new Dictionary<ulong, GroundCell>();
+            GroundCells = new Dictionary<Position2, GroundCell>();
             BaseUnits = new Dictionary<string, UnitBase>();
-            //UnitsInBuild = new Dictionary<ulong, UnitBase>();
             hitByBullets = new List<HitByBullet>();
 
             /*
@@ -762,8 +760,8 @@ namespace Assets.Scripts
         {
             windowClosed = true;
         }
-        private List<ulong> updatedPositions = new List<ulong>();
-        private List<ulong> groundcellsWithCommands = new List<ulong>();
+        private List<Position2> updatedPositions = new List<Position2>();
+        private List<Position2> groundcellsWithCommands = new List<Position2>();
         private bool startPositionSet = false;
         private int moveCounter;
 
@@ -789,7 +787,7 @@ namespace Assets.Scripts
         private void ProcessNewMoves()
         {
             moveCounter++;
-            List<ulong> newUpdatedPositions = new List<ulong>();
+            List<Position2> newUpdatedPositions = new List<Position2>();
 
             try
             {
@@ -797,7 +795,7 @@ namespace Assets.Scripts
                 if (MapInfo != null)
                 {
                     
-                    foreach (ulong pos in MapInfo.Pheromones.Keys)
+                    foreach (Position2 pos in MapInfo.Pheromones.Keys)
                     {
                         MapPheromone mapPheromone = MapInfo.Pheromones[pos];
                         GroundCell hexCell = GroundCells[pos];
@@ -806,7 +804,7 @@ namespace Assets.Scripts
                         newUpdatedPositions.Add(pos);
                         updatedPositions.Remove(pos);
                     }
-                    foreach (ulong pos in updatedPositions)
+                    foreach (Position2 pos in updatedPositions)
                     {
                         GroundCell hexCell = GroundCells[pos];
                         hexCell.UpdatePheromones(null);
@@ -814,7 +812,7 @@ namespace Assets.Scripts
                     updatedPositions = newUpdatedPositions;
                     if (GroundCells.Count > 0)
                     {
-                        foreach (ulong pos in groundcellsWithCommands)
+                        foreach (Position2 pos in groundcellsWithCommands)
                         {
                             GroundCell hexCell = GroundCells[pos];
                             hexCell.UntouchCommands();
@@ -826,12 +824,12 @@ namespace Assets.Scripts
                             {
                                 foreach (MapGameCommand gameCommand in mapPlayerInfo.GameCommands)
                                 {
-                                    if (gameCommand.TargetPosition != Position.Null)
+                                    if (gameCommand.TargetPosition != Position2.Null)
                                     {
                                         GroundCell hexCell = GroundCells[gameCommand.TargetPosition];
                                         CommandPreview commandPreview = hexCell.UpdateCommands(gameCommand, null);
 
-                                        if (commandPreview != null && commandPreview.GameCommand.TargetPosition != Position.Null)
+                                        if (commandPreview != null && commandPreview.GameCommand.TargetPosition != Position2.Null)
                                         {
                                             if (!groundcellsWithCommands.Contains(commandPreview.GameCommand.TargetPosition))
                                                 groundcellsWithCommands.Add(commandPreview.GameCommand.TargetPosition);
@@ -840,8 +838,8 @@ namespace Assets.Scripts
                                 }
                             }
                         }
-                        List<ulong> clearedPositions = new List<ulong>();
-                        foreach (ulong pos in groundcellsWithCommands)
+                        List<Position2> clearedPositions = new List<Position2>();
+                        foreach (Position2 pos in groundcellsWithCommands)
                         {
                             GroundCell hexCell = GroundCells[pos];
                             if (hexCell.ClearCommands())
@@ -849,7 +847,7 @@ namespace Assets.Scripts
                                 clearedPositions.Add(pos);
                             }
                         }
-                        foreach (ulong pos in clearedPositions)
+                        foreach (Position2 pos in clearedPositions)
                         {
                             groundcellsWithCommands.Remove(pos);
                         }
@@ -878,10 +876,10 @@ namespace Assets.Scripts
             {
                 foreach (UnitBase unitBase in BaseUnits.Values)
                 {
-                    if (unitBase.DestinationPos != Position.Null)
+                    if (unitBase.DestinationPos != Position2.Null)
                     {
                         unitBase.CurrentPos = unitBase.DestinationPos;
-                        unitBase.DestinationPos = Position.Null;
+                        unitBase.DestinationPos = Position2.Null;
                         unitBase.PutAtCurrentPosition(true, false);
                     }
                 }
@@ -1205,13 +1203,13 @@ namespace Assets.Scripts
 
         public void HitMove(UnitBase hitUnit, Move move)
         {
-            ulong fireingPostion = move.Positions[0];
-            ulong targetPostion = move.Positions[1];
+            Position2 fireingPostion = move.Positions[0];
+            Position2 targetPostion = move.Positions[1];
 
             bool found = false;
             foreach (HitByBullet hitByBullet in hitByBullets)
             {
-                if (hitByBullet.FireingPosition == fireingPostion && hitByBullet.TargetPosition == Position.Null)
+                if (hitByBullet.FireingPosition == fireingPostion && hitByBullet.TargetPosition == Position2.Null)
                 {
                     if (move.UnitId != null)
                     {
@@ -1601,8 +1599,8 @@ namespace Assets.Scripts
             float gridSizeY = 1.75f;
             float halfGridSize = 0.86f;
 
-            int x = Position.GetX(groundCell.Pos);
-            int y = Position.GetY(groundCell.Pos);
+            int x = groundCell.Pos.X;
+            int y = groundCell.Pos.Y;
 
             if ((x & 1) == 0)
             {
@@ -1624,10 +1622,10 @@ namespace Assets.Scripts
             return null;
         }
 
-        private GroundCell CreateCell(ulong pos, MoveUpdateStats stats, GameObject cellPrefabx)
+        private GroundCell CreateCell(Position2 pos, MoveUpdateStats stats, GameObject cellPrefabx)
         {
-            int x = Position.GetX(pos);
-            int y = Position.GetY(pos);
+            int x = pos.X;
+            int y = pos.Y;
 
             GameObject gameObjectCell = Instantiate(cellPrefabx);
             gameObjectCell.hideFlags = HideFlags.DontSave; //.enabled = false;	

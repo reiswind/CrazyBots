@@ -34,7 +34,7 @@ namespace Assets.Scripts
 
             hitByBullet = HexGrid.MainGrid.Fire(UnitBase, anmo);
 
-            ulong pos = move.Positions[move.Positions.Count - 1];
+            Position2 pos = move.Positions[move.Positions.Count - 1];
 
             GroundCell weaponTargetCell;
             if (HexGrid.MainGrid.GroundCells.TryGetValue(pos, out weaponTargetCell))

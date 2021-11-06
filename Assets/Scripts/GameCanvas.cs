@@ -278,7 +278,7 @@ namespace Assets.Scripts
         {
             if (selectedUnitFrame != null)
             {
-                if (selectedUnitFrame.Temporary && selectedUnitFrame.CurrentPos != Position.Null)
+                if (selectedUnitFrame.Temporary && selectedUnitFrame.CurrentPos != Position2.Null)
                 {
                     Destroy(selectedUnitFrame.gameObject);
                 }
@@ -698,7 +698,7 @@ namespace Assets.Scripts
 
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("P: " + Position.GetX(gc.Pos) + ", " + Position.GetY(gc.Pos));
+            sb.Append("P: " + gc.Pos.ToString());
 
             //sb.Append(" TI: " + gc.Stats.MoveUpdateGroundStat.TerrainTypeIndex);
             //sb.Append(" PI: " + gc.Stats.MoveUpdateGroundStat.PlantLevel);
@@ -1122,7 +1122,7 @@ namespace Assets.Scripts
         private void DisplayUpdateStatsCommand(MoveUpdateStatsCommand moveUpdateStatsCommand)
         {
             GameObject commandPart = Instantiate(panelCommand, panelParts);
-            commandPart.transform.Find("Partname").GetComponent<Text>().text = moveUpdateStatsCommand.GameCommandType.ToString() + " at " + Position.GetX(moveUpdateStatsCommand.TargetPosition) + "," + Position.GetY(moveUpdateStatsCommand.TargetPosition);
+            commandPart.transform.Find("Partname").GetComponent<Text>().text = moveUpdateStatsCommand.GameCommandType.ToString() + " at " + moveUpdateStatsCommand.TargetPosition.ToString();
             commandPart.transform.Find("Content").GetComponent<Text>().text = moveUpdateStatsCommand.BlueprintCommandItem.BlueprintName;
             commandPart.SetActive(commandPart);
         }
@@ -1133,7 +1133,7 @@ namespace Assets.Scripts
 
             MapGameCommand gameCommand = commandPreview.GameCommand;
             headerText.text = gameCommand.GameCommandType.ToString() ;
-            headerSubText.text = gameCommand.BlueprintCommand.Name + " at: " + Position.GetX(gameCommand.TargetPosition) + ", " + Position.GetY(gameCommand.TargetPosition);
+            headerSubText.text = gameCommand.BlueprintCommand.Name + " at: " + gameCommand.TargetPosition.ToString();
             headerGroundText.text = " Sel: " + commandPreview.IsSelected.ToString();
 
             foreach (MapGameCommandItem gameCommandItem in gameCommand.GameCommandItems)
@@ -1331,7 +1331,7 @@ namespace Assets.Scripts
                 }
             }
 
-            if (unit.CurrentPos != Position.Null)
+            if (unit.CurrentPos != Position2.Null)
             {
                 GroundCell gc;
                 if (HexGrid.MainGrid.GroundCells.TryGetValue(unit.CurrentPos, out gc))
