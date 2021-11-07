@@ -91,9 +91,9 @@ MonoBehaviour:
   overlayAnimationSpeed: 1
   overlayMinIntensity: 0.5
   overlayBlending: 1
-  outline: 0.119
-  outlineColor: {r: 0.06333176, g: 2.0078435, b: 0, a: 1}
-  outlineWidth: 0.5
+  outline: 1
+  outlineColor: {r: 2.6806288, g: 2.6806288, b: 0, a: 1}
+  outlineWidth: 0.4
   outlineQuality: 3
   outlineDownsampling: 2
   outlineVisibility: 0

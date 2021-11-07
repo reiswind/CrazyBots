@@ -56,6 +56,23 @@ namespace Assets.Scripts
             }
         }
 
+        internal void SetHighlighted(bool isHighlighted)
+        {
+            Command.SetHighlighted(isHighlighted);
+
+            foreach (MapGameCommandItem mapGameCommandItem in GameCommand.GameCommandItems)
+            {
+                if (!string.IsNullOrEmpty(mapGameCommandItem.AttachedUnitId))
+                {
+                    UnitBase unitBase;
+                    if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.AttachedUnitId, out unitBase))
+                    {
+                        unitBase.SetHighlighted(isHighlighted);
+                    }
+                }
+            }
+        }
+
         private bool CanBuildAt(GroundCell groundCell)
         {
             if (groundCell != null)

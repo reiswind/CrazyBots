@@ -1,4 +1,5 @@
 using Engine.Interface;
+using HighlightPlus;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -47,7 +48,7 @@ namespace Assets.Scripts
         }
 
         internal List<UnitCommand> UnitCommands { get; private set; }
-
+        private HighlightEffect highlightEffect { get; set; }
         public List<UnitBaseTileObject> GameObjects { get; private set; }
 
         private GameObject markerEnergy;
@@ -88,6 +89,11 @@ namespace Assets.Scripts
                     }
                 }
             }
+        }
+
+        public void InitHighlightEffect()
+        {
+            highlightEffect = GetComponent<HighlightEffect>();
         }
 
         private void CreateMarker()
@@ -342,6 +348,10 @@ namespace Assets.Scripts
             }
             Renderer renderer = GetComponent<Renderer>();
             renderer.material.SetColor("SurfaceColor", color);
+            if (highlightEffect != null)
+            {
+                highlightEffect.innerGlowColor = color;
+            }
 
 
         }
@@ -463,9 +473,7 @@ namespace Assets.Scripts
                 yield return null;
             }
             HexGrid.Destroy(gameObject);
-        }
-
-        private Light selectionLight;
+        }        
 
         public bool IsSelected { get; private set; }
         internal void SetSelected(bool selected)
@@ -473,15 +481,9 @@ namespace Assets.Scripts
             if (IsSelected != selected)
             {
                 IsSelected = selected;
+                if (highlightEffect)
+                    highlightEffect.SetHighlighted(IsSelected);
 
-                if (IsSelected)
-                {
-                    selectionLight = HexGrid.MainGrid.CreateSelectionLight(gameObject);
-                }
-                else
-                {
-                    Destroy(selectionLight);
-                }
             }
         }
 

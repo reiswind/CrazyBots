@@ -1,4 +1,5 @@
 using Engine.Interface;
+using HighlightPlus;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -12,6 +13,25 @@ namespace Assets.Scripts
     {
         public CommandPreview CommandPreview { get; set; }
 
+        public void Awake()
+        {
+            highlightEffect = GetComponent<HighlightEffect>();
+        }
+
+        private HighlightEffect highlightEffect { get; set; }
+
+        internal void SetHighlighted(bool isHighlighted)
+        {
+            if (IsHighlighted != isHighlighted)
+            {
+                IsHighlighted = isHighlighted;
+                if (highlightEffect)
+                    highlightEffect.SetHighlighted(IsHighlighted);
+
+            }
+        }
+
+        public bool IsHighlighted { get; private set; }
         public bool IsSelected { get; private set; }
 
         public void SetSelected(bool value)
@@ -48,7 +68,7 @@ namespace Assets.Scripts
                     Destroy(commandAttachedUnit.Line);
                     commandAttachedUnit.Line = null;
                 }
-                commandAttachedUnit.UnitBase.SetSelected(false);
+                commandAttachedUnit.UnitBase.SetHighlighted(false);
             }
         }
 

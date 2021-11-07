@@ -263,7 +263,7 @@ namespace Assets.Scripts
 
         private HighlightEffect highlightEffect { get; set; }
 
-        internal void SetSelected(bool selected)
+        internal void SetHighlighted(bool selected)
         {
             if (IsSelected != selected)
             {
@@ -274,32 +274,6 @@ namespace Assets.Scripts
 
                 if (!Temporary)
                 {
-                    /*
-                    HighlightEffect effect = gameObject.GetComponent<HighlightEffect>();
-                    if (effect != null)
-                    {
-                        //effect.outline = 1;
-                        //effect.outlineColor = GetPlayerColor(PlayerId);
-                        //effect.SetGlowColor(Color.yellow);
-                        //effect.UpdateMaterialProperties();
-                        effect.seeThroughTintColor = GetPlayerColor(PlayerId);
-                        effect.Refresh();
-
-                        effect.SetHighlighted(IsSelected);
-                    }*/
-                    /*
-
-                    if (IsSelected)
-                    {
-                        //selectionLight = HexGrid.CreateSelectionLight(gameObject);
-                        SetSelectColor(PlayerId, gameObject);
-                    }
-                    else
-                    {
-                        SetPlayerColor(PlayerId, gameObject);
-
-                        //Destroy(selectionLight);
-                    }*/
                 }
             }
         }

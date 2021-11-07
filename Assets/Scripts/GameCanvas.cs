@@ -67,8 +67,7 @@ namespace Assets.Scripts
         private Text UIUnitText;
         private Text UIPowerText;
 
-        private CanvasMode canvasMode;
-        internal string SelectedBluePrint { get; set; }
+        private CanvasMode canvasMode;       
 
         public Sprite SelectedButtonBackground;
         public Sprite ButtonBackground;
@@ -253,12 +252,15 @@ namespace Assets.Scripts
             return actionText[btn - 1];
         }
 
-        private void UnselectGameCommand()
+        private void UnHighlightGameCommand()
         {
             if (lastCommandPreview != null)
             {
                 if (currentCommandPreview != lastCommandPreview)
+                {
+                    lastCommandPreview.Command.SetHighlighted(false);
                     lastCommandPreview.SetActive(false);
+                }
                 lastCommandPreview = null;
             }
         }
@@ -284,7 +286,7 @@ namespace Assets.Scripts
                 }
                 else
                 {
-                    selectedUnitFrame.SetSelected(false);
+                    selectedUnitFrame.SetHighlighted(false);
                 }
 
                 selectedUnitFrame = null;
@@ -759,16 +761,33 @@ namespace Assets.Scripts
         }
 
 
-        private void SelectUnitFrame(UnitBase unitBase)
+        private void HighlightUnitFrame(UnitBase unitBase)
         {
             if (unitBase != null)
             {
                 selectedUnitFrame = unitBase;
-                selectedUnitFrame.SetSelected(true);
+                selectedUnitFrame.SetHighlighted(true);
             }
 
         }
 
+        private void UnSelectGroundCell()
+        {
+            if (lastSelectedGroundCell != null)
+            {
+                lastSelectedGroundCell.SetSelected(false);
+                lastSelectedGroundCell = null;
+            }
+        }
+        private void SelectGroundCell(GroundCell groundCell)
+        {
+            if (lastSelectedGroundCell != groundCell)
+            {
+                UnSelectGroundCell();
+                groundCell.SetSelected(true);
+                lastSelectedGroundCell = groundCell;
+            }
+        }
         // Update is called once per frame
         void Update()
         {
@@ -809,10 +828,7 @@ namespace Assets.Scripts
                 Debug.Log("RIGHT MOUSE DOWN");
 
                 SelectNothing();
-                if (lastSelectedGroundCell != null)
-                {
-                    lastSelectedGroundCell = null;
-                }
+                UnSelectGroundCell();
                 return true;
 
             }
@@ -1063,6 +1079,7 @@ namespace Assets.Scripts
                         }
                         lastCommandPreview = hitByMouseClick.CommandPreview;
                         lastCommandPreview.SetActive(true);
+                        lastCommandPreview.Command.SetHighlighted(true);
                     }
                     
                     if (hitByMouseClick.UnitBase == null)
@@ -1071,20 +1088,21 @@ namespace Assets.Scripts
                     }
                     else
                     {
-                        SelectUnitFrame(hitByMouseClick.UnitBase);
                         DisplayUnitframe(hitByMouseClick.UnitBase);
                     }
                 }
                 else if (hitByMouseClick.UnitBase != null)
                 {
                     HideAllParts();
-                    UnselectGameCommand();
-                    SelectUnitFrame(hitByMouseClick.UnitBase);
+                    UnSelectGroundCell();
+                    UnHighlightGameCommand();
+                    //SelectUnitFrame(hitByMouseClick.UnitBase);
                     DisplayUnitframe(hitByMouseClick.UnitBase);
                 }
                 else if (hitByMouseClick.GroundCell != null)
                 {
                     ShowNothing();
+                    //SelectGroundCell(hitByMouseClick.GroundCell);
                     AppendGroundInfo(hitByMouseClick.GroundCell, true);
                 }
                 else
@@ -1095,7 +1113,8 @@ namespace Assets.Scripts
         }
         private void ShowNothing()
         {
-            UnselectGameCommand();
+            UnSelectGroundCell();
+            UnHighlightGameCommand();
             UnselectUnitFrame();
             HideAllParts();
             headerText.text = "";

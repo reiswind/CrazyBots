@@ -1636,6 +1636,8 @@ namespace Assets.Scripts
             groundCell.Stats = stats;
             groundCell.Pos = pos;
 
+            groundCell.InitHighlightEffect();
+
             Vector3 gridPos3 = CalcWorldPos(groundCell);
 
             if (stats == null)
