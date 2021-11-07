@@ -728,7 +728,7 @@ namespace Assets.Scripts
                     newGameCommands = null;
 
                     double mstotal = (DateTime.Now - tStart).TotalMilliseconds;
-                    if (mstotal > 20)
+                    if (mstotal > 2)
                         Debug.Log("Move Time: " + mstotal);
 
                     //Debug.Log("Move Time: " + (DateTime.Now.Ticks - iTicks).ToString());
@@ -794,7 +794,7 @@ namespace Assets.Scripts
 
                 if (MapInfo != null)
                 {
-                    
+                    /*
                     foreach (Position2 pos in MapInfo.Pheromones.Keys)
                     {
                         MapPheromone mapPheromone = MapInfo.Pheromones[pos];
@@ -808,7 +808,7 @@ namespace Assets.Scripts
                     {
                         GroundCell hexCell = GroundCells[pos];
                         hexCell.UpdatePheromones(null);
-                    }
+                    }*/
                     updatedPositions = newUpdatedPositions;
                     if (GroundCells.Count > 0)
                     {

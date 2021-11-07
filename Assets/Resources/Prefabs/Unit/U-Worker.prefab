@@ -10,7 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3877172651884747769}
   - component: {fileID: 2218448623008363288}
-  m_Layer: 0
+  - component: {fileID: -5323496324376851735}
+  m_Layer: 3
   m_Name: U-Worker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27,6 +28,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2819393133845279221}
   - {fileID: 9101089313295308855}
@@ -47,7 +49,107 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a30ae5967d95f44eb5f88ba7d028b93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TankExplosionParticles: {fileID: 0}
+--- !u!114 &-5323496324376851735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8557575328208266235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 888380afc233049ce9e618f9f36c8ba8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profile: {fileID: 0}
+  profileSync: 0
+  previewInEditor: 1
+  camerasLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  effectGroup: 0
+  effectGroupLayer:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  effectNameFilter: 
+  combineMeshes: 0
+  alphaCutOff: 0
+  cullBackFaces: 1
+  ignoreObjectVisibility: 0
+  reflectionProbes: 0
+  GPUInstancing: 1
+  normalsOption: 0
+  ignore: 0
+  _highlighted: 0
+  fadeInDuration: 0
+  fadeOutDuration: 0
+  flipY: 0
+  constantWidth: 1
+  subMeshMask: -1
+  overlay: 0.5
+  overlayColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  overlayAnimationSpeed: 1
+  overlayMinIntensity: 0.5
+  overlayBlending: 1
+  outline: 1
+  outlineColor: {r: 0, g: 0, b: 0, a: 1}
+  outlineWidth: 0.45
+  outlineQuality: 3
+  outlineDownsampling: 2
+  outlineVisibility: 0
+  outlineBlitDebug: 0
+  outlineIndependent: 0
+  glow: 1
+  glowWidth: 0.4
+  glowQuality: 3
+  glowDownsampling: 2
+  glowHQColor: {r: 0.64, g: 1, b: 0, a: 1}
+  glowDithering: 1
+  glowMagicNumber1: 0.75
+  glowMagicNumber2: 0.5
+  glowAnimationSpeed: 1
+  glowVisibility: 0
+  glowBlitDebug: 0
+  glowBlendPasses: 1
+  glowPasses: []
+  innerGlow: 0
+  innerGlowWidth: 1
+  innerGlowColor: {r: 1, g: 1, b: 1, a: 1}
+  innerGlowVisibility: 0
+  targetFX: 0
+  targetFXTexture: {fileID: 0}
+  targetFXColor: {r: 1, g: 1, b: 1, a: 1}
+  targetFXCenter: {fileID: 0}
+  targetFXRotationSpeed: 50
+  targetFXInitialScale: 4
+  targetFXEndScale: 1.5
+  targetFXScaleToRenderBounds: 1
+  targetFXTransitionDuration: 0.5
+  targetFXStayDuration: 1.5
+  targetFXVisibility: 1
+  seeThrough: 0
+  seeThroughOccluderMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  seeThroughOccluderThreshold: 0.3
+  seeThroughOccluderMaskAccurate: 0
+  seeThroughOccluderCheckInterval: 1
+  seeThroughOccluderCheckIndividualObjects: 0
+  seeThroughDepthOffset: 0
+  seeThroughMaxDepth: 0
+  seeThroughIntensity: 0.8
+  seeThroughTintAlpha: 0.5
+  seeThroughTintColor: {r: 1, g: 0, b: 0, a: 1}
+  seeThroughNoise: 1
+  seeThroughBorder: 0
+  seeThroughBorderColor: {r: 0, g: 0, b: 0, a: 1}
+  seeThroughBorderWidth: 0.45
+  seeThroughOrdered: 0
+  rmsCount: 0
+  hitFxInitialIntensity: 1
+  hitFxMode: 0
+  hitFxFadeOutDuration: 0.25
+  hitFxColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1001 &1229824235498462524
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -103,6 +205,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: PartEngine1
       objectReference: {fileID: 0}
+    - target: {fileID: 4430021489797428851, guid: 82b0594227f2c244a89c6fd79a67eaf8, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6548222661583953141, guid: 82b0594227f2c244a89c6fd79a67eaf8, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7992882932495098188, guid: 82b0594227f2c244a89c6fd79a67eaf8, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 82b0594227f2c244a89c6fd79a67eaf8, type: 3}
 --- !u!4 &2819393133845279221 stripped
@@ -117,9 +231,37 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3877172651884747769}
     m_Modifications:
+    - target: {fileID: 1945331233423415161, guid: 8f3e0891c199f0c4996d9fe876460ce7, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2252715907138006327, guid: 8f3e0891c199f0c4996d9fe876460ce7, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2781998839615163749, guid: 8f3e0891c199f0c4996d9fe876460ce7, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3279548273130272794, guid: 8f3e0891c199f0c4996d9fe876460ce7, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3960531646892604969, guid: 8f3e0891c199f0c4996d9fe876460ce7, type: 3}
       propertyPath: m_Name
       value: PartContainer1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3960531646892604969, guid: 8f3e0891c199f0c4996d9fe876460ce7, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3960931090986561610, guid: 8f3e0891c199f0c4996d9fe876460ce7, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276373567883341327, guid: 8f3e0891c199f0c4996d9fe876460ce7, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4448837489012614291, guid: 8f3e0891c199f0c4996d9fe876460ce7, type: 3}
       propertyPath: m_RootOrder
@@ -164,6 +306,30 @@ PrefabInstance:
     - target: {fileID: 4448837489012614291, guid: 8f3e0891c199f0c4996d9fe876460ce7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7110986739988008764, guid: 8f3e0891c199f0c4996d9fe876460ce7, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7140882892633902610, guid: 8f3e0891c199f0c4996d9fe876460ce7, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7488041729803463775, guid: 8f3e0891c199f0c4996d9fe876460ce7, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8141629731448859940, guid: 8f3e0891c199f0c4996d9fe876460ce7, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8446335645739318532, guid: 8f3e0891c199f0c4996d9fe876460ce7, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8480319492976180388, guid: 8f3e0891c199f0c4996d9fe876460ce7, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8f3e0891c199f0c4996d9fe876460ce7, type: 3}
@@ -227,6 +393,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PartExtractor1
       objectReference: {fileID: 0}
+    - target: {fileID: 1868789573125115544, guid: 340629bc8c6dace44956005105f81a27, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 340629bc8c6dace44956005105f81a27, type: 3}
 --- !u!4 &6875520491004470608 stripped
@@ -244,6 +414,10 @@ PrefabInstance:
     - target: {fileID: 3678339035990469948, guid: dd435f8d167181746a28527e2a262b81, type: 3}
       propertyPath: m_Name
       value: PartArmor1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3678339035990469948, guid: dd435f8d167181746a28527e2a262b81, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4055427081966352262, guid: dd435f8d167181746a28527e2a262b81, type: 3}
       propertyPath: m_RootOrder

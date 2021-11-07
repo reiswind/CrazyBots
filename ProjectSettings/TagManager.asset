@@ -5,14 +5,15 @@ TagManager:
   serializedVersion: 2
   tags:
   - FxTemporaire
+  - Id
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Units
   - Water
   - UI
-  - 
+  - Vegetation
   - 
   - SnapHexGrid
   - 

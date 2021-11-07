@@ -87,6 +87,7 @@
     <Compile Include="Assets\Scripts\Container.cs" />
     <Compile Include="Assets\character shader pack\6_petrify\scripts\Statue_animation_control.cs" />
     <Compile Include="Assets\character shader pack\4_freeze\scripts\Ice_animation_vertical_control.cs" />
+    <Compile Include="Assets\HighlightPlus\Pipelines\URP\HighlightPlusRenderPassFeature.cs" />
     <Compile Include="Assets\References\Engine\Ants\ControlAnt.cs" />
     <Compile Include="Assets\HexTiles-Nature\Scripts\HexGrid.cs" />
     <Compile Include="Assets\Scripts\HexMapEditor.cs" />
@@ -147,6 +148,7 @@
     <Compile Include="Assets\References\Engine\Ants\AntPartReactor.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\HighlightPlus\README.txt" />
     <None Include="Assets\link.xml" />
     <None Include="Assets\BrokenVector\LowPolyTreePack\README.txt" />
     <None Include="Assets\Polygonal Particles\Assets\Shaders\GradientBackgroundShader.shader" />
@@ -878,6 +880,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="HighlightPlus.csproj">
+      <Project>{9DB75C8E-F887-5925-8C7B-3C708398CB2E}</Project>
+      <Name>HighlightPlus</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-
+using HighlightPlus;
 
 namespace Assets.Scripts
 {
@@ -260,15 +260,35 @@ namespace Assets.Scripts
         }
         private bool selectionChanged;
         public bool IsSelected { get; private set; }
+
+        private HighlightEffect highlightEffect { get; set; }
+
         internal void SetSelected(bool selected)
         {
             if (IsSelected != selected)
             {
                 selectionChanged = true;
                 IsSelected = selected;
+                if (highlightEffect)
+                    highlightEffect.SetHighlighted(IsSelected);
 
                 if (!Temporary)
                 {
+                    /*
+                    HighlightEffect effect = gameObject.GetComponent<HighlightEffect>();
+                    if (effect != null)
+                    {
+                        //effect.outline = 1;
+                        //effect.outlineColor = GetPlayerColor(PlayerId);
+                        //effect.SetGlowColor(Color.yellow);
+                        //effect.UpdateMaterialProperties();
+                        effect.seeThroughTintColor = GetPlayerColor(PlayerId);
+                        effect.Refresh();
+
+                        effect.SetHighlighted(IsSelected);
+                    }*/
+                    /*
+
                     if (IsSelected)
                     {
                         //selectionLight = HexGrid.CreateSelectionLight(gameObject);
@@ -279,7 +299,7 @@ namespace Assets.Scripts
                         SetPlayerColor(PlayerId, gameObject);
 
                         //Destroy(selectionLight);
-                    }
+                    }*/
                 }
             }
         }
@@ -450,6 +470,8 @@ namespace Assets.Scripts
                         }
                     }
                 }
+                if (highlightEffect != null)
+                    highlightEffect.Refresh();
             }
         }
         public void Fire(Move move)
@@ -785,8 +807,36 @@ namespace Assets.Scripts
         {
             Assemble(underConstruction, false);
         }
+
+        private static HighlightProfile defaultProfile;
+        private void SetupHighlightEffect()
+        {
+
+            if (MoveUpdateStats.BlueprintName == "Outpost")
+            {
+                if (defaultProfile == null)
+                    defaultProfile = highlightEffect.profile;
+            }
+            else
+            {
+                highlightEffect.ProfileLoad(defaultProfile);
+            }
+                   
+
+            /*
+            highlightEffect.ProfileLoad(highlightProfile);
+            highlightEffect.overlay = 0;
+            highlightEffect.outlineColor = Color.yellow;
+            highlightEffect.outlineWidth = 3;
+            highlightEffect.glow = 0;
+            highlightEffect.innerGlow = 0;*/
+        }
+
         public void Assemble(bool underConstruction, bool ghost)
         {
+            highlightEffect = GetComponent<HighlightEffect>();
+            if (highlightEffect != null)
+                    SetupHighlightEffect();
             IsGhost = ghost;
 
             UnitBaseParts.Clear();
@@ -926,7 +976,7 @@ namespace Assets.Scripts
                     moveAnimation.SetActive(true);
                 }
 
-                AboveGround = 0.1f;
+                AboveGround = 0.2f;
 
                 IsActive = true;
             }

@@ -390,6 +390,8 @@ namespace Assets.Scripts
 
             foreach (MapBlueprintCommandItem blueprintCommandItem in GameCommand.BlueprintCommand.Units)
             {
+                break;
+
                 Blueprint blueprint = HexGrid.MainGrid.game.Blueprints.FindBlueprint(blueprintCommandItem.BlueprintName);
                 UnitBase previewUnit = HexGrid.MainGrid.CreateTempUnit(blueprint);
                 previewUnit.DectivateUnit();

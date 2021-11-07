@@ -56,8 +56,14 @@
     <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\HighlightPlus\Editor\TransparentWithDepth.cs" />
+    <Compile Include="Assets\HighlightPlus\Editor\HighlightTriggerEditor.cs" />
     <Compile Include="Assets\HexTiles-Nature\Scripts\Editor\HexTileGridEditorWindow.cs" />
+    <Compile Include="Assets\HighlightPlus\Editor\HighlightSeeThroughOccluderEditor.cs" />
+    <Compile Include="Assets\HighlightPlus\Editor\HighlightProfileEditor.cs" />
+    <Compile Include="Assets\HighlightPlus\Editor\HighlightEffectEditor.cs" />
     <Compile Include="Assets\HexTiles-Nature\Scripts\Editor\HexGridEditor.cs" />
+    <Compile Include="Assets\HighlightPlus\Editor\HighlightManagerEditor.cs" />
     <Compile Include="Assets\StrategyCameraLite\Scripts\Editor\StrategyCameraEditor.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -831,6 +837,10 @@
     <ProjectReference Include="Assembly-CSharp.csproj">
       <Project>{218D4D2C-6475-F4E9-3FDF-2D0614211B68}</Project>
       <Name>Assembly-CSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="HighlightPlus.csproj">
+      <Project>{9DB75C8E-F887-5925-8C7B-3C708398CB2E}</Project>
+      <Name>HighlightPlus</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

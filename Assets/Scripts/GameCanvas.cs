@@ -1071,6 +1071,7 @@ namespace Assets.Scripts
                     }
                     else
                     {
+                        SelectUnitFrame(hitByMouseClick.UnitBase);
                         DisplayUnitframe(hitByMouseClick.UnitBase);
                     }
                 }
@@ -1078,6 +1079,7 @@ namespace Assets.Scripts
                 {
                     HideAllParts();
                     UnselectGameCommand();
+                    SelectUnitFrame(hitByMouseClick.UnitBase);
                     DisplayUnitframe(hitByMouseClick.UnitBase);
                 }
                 else if (hitByMouseClick.GroundCell != null)

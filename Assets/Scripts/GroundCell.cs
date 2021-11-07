@@ -62,7 +62,7 @@ namespace Assets.Scripts
         {
             GameObjects = new List<UnitBaseTileObject>();
             UnitCommands = new List<UnitCommand>();
-            ShowPheromones = true;
+            ShowPheromones = false;
             visible = true;
             targetDiffuse = 0.1f;
             diffuse = 0.1f;

@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{218D4D2C-6475-F4E9-3FDF-2D0614211B68}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighlightPlus", "HighlightPlus.csproj", "{9DB75C8E-F887-5925-8C7B-3C708398CB2E}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-Editor", "Assembly-CSharp-Editor.csproj", "{6FF10275-74D3-AF10-9F84-AFA917C50213}"
 EndProject
 Global
@@ -15,6 +17,10 @@ Global
 		{218D4D2C-6475-F4E9-3FDF-2D0614211B68}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{218D4D2C-6475-F4E9-3FDF-2D0614211B68}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{218D4D2C-6475-F4E9-3FDF-2D0614211B68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DB75C8E-F887-5925-8C7B-3C708398CB2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DB75C8E-F887-5925-8C7B-3C708398CB2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DB75C8E-F887-5925-8C7B-3C708398CB2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DB75C8E-F887-5925-8C7B-3C708398CB2E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6FF10275-74D3-AF10-9F84-AFA917C50213}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6FF10275-74D3-AF10-9F84-AFA917C50213}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6FF10275-74D3-AF10-9F84-AFA917C50213}.Release|Any CPU.ActiveCfg = Release|Any CPU

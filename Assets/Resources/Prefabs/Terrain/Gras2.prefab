@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1216027745485670006}
   - component: {fileID: 2832739288775281107}
   - component: {fileID: 48165300900642073}
-  m_Layer: 2
+  m_Layer: 6
   m_Name: Gras2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28,6 +28,7 @@ Transform:
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: -1.6800952}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
