@@ -358,6 +358,7 @@ namespace Assets.Scripts
 
         internal void UpdateGround()
         {
+            UpdateCache();
             if (Stats.MoveUpdateGroundStat.Owner == 0 || !Stats.MoveUpdateGroundStat.IsBorder || Stats.MoveUpdateGroundStat.IsUnderwater)
             {
                 if (markerEnergy != null)
@@ -475,14 +476,14 @@ namespace Assets.Scripts
             HexGrid.Destroy(gameObject);
         }        
 
-        public bool IsSelected { get; private set; }
-        internal void SetSelected(bool selected)
+        public bool IsHighlighted { get; private set; }
+        internal void SetHighlighted(bool isHighlighted)
         {
-            if (IsSelected != selected)
+            if (IsHighlighted != isHighlighted)
             {
-                IsSelected = selected;
+                IsHighlighted = isHighlighted;
                 if (highlightEffect)
-                    highlightEffect.SetHighlighted(IsSelected);
+                    highlightEffect.SetHighlighted(IsHighlighted);
 
             }
         }
@@ -531,8 +532,70 @@ namespace Assets.Scripts
             return null;
         }
 
+        private bool cacheUpdated;
+        private void UpdateCache()
+        {
+            cacheUpdated = true;
+            mineralCache =0;
+            numberOfCollectablesCache = 0;
+
+            canBuild = true;
 
 
+            if (Stats.MoveUpdateGroundStat.IsUnderwater)
+                canBuild = false;
+
+            canMove = canBuild;
+            foreach (TileObject tileObject in Stats.MoveUpdateGroundStat.TileObjects)
+            {
+                if (tileObject.TileObjectType == TileObjectType.Mineral)
+                    mineralCache++;
+
+                if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
+                {
+                    canBuild = false;
+                    canMove = false;
+                    break;
+                }
+                if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
+                {
+                    numberOfCollectablesCache++;
+                    if (tileObject.TileObjectType != TileObjectType.Mineral)
+                        canMove = false;
+                }
+            }
+            if (mineralCache >= 20)
+            {
+                canBuild = false;
+            }
+        }
+
+        private int mineralCache;
+        private int numberOfCollectablesCache;
+        private bool canBuild;
+        private bool canMove;
+        public int NumberOfCollectables
+        {
+            get
+            {
+                if (!cacheUpdated)
+                {
+                    UpdateCache();
+                }
+                return numberOfCollectablesCache;
+            }
+        }
+        public int Minerals
+        {
+            get
+            {
+                if (!cacheUpdated)
+                {
+                    UpdateCache();
+                }
+                return mineralCache;
+            }
+        }
         public void UpdateMoveCommand(CommandPreview commandPreview)
         {
             cellGameCommands.Add(commandPreview);

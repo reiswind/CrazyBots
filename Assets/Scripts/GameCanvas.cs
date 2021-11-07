@@ -775,7 +775,7 @@ namespace Assets.Scripts
         {
             if (lastSelectedGroundCell != null)
             {
-                lastSelectedGroundCell.SetSelected(false);
+                lastSelectedGroundCell.SetHighlighted(false);
                 lastSelectedGroundCell = null;
             }
         }
@@ -784,7 +784,7 @@ namespace Assets.Scripts
             if (lastSelectedGroundCell != groundCell)
             {
                 UnSelectGroundCell();
-                groundCell.SetSelected(true);
+                groundCell.SetHighlighted(true);
                 lastSelectedGroundCell = groundCell;
             }
         }
@@ -1074,6 +1074,7 @@ namespace Assets.Scripts
                             }
                             else
                             {
+                                lastCommandPreview.Command.SetHighlighted(false);
                                 lastCommandPreview.SetActive(false);
                             }
                         }

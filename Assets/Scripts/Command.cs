@@ -19,6 +19,8 @@ namespace Assets.Scripts
         }
 
         private HighlightEffect highlightEffect { get; set; }
+        private List<UnitBase> highlightedUnits = new List<UnitBase>();
+        private Dictionary<Position2, GroundCell> highlightedGroundCells = new Dictionary<Position2, GroundCell>();
 
         internal void SetHighlighted(bool isHighlighted)
         {
@@ -27,12 +29,30 @@ namespace Assets.Scripts
                 IsHighlighted = isHighlighted;
                 if (highlightEffect)
                     highlightEffect.SetHighlighted(IsHighlighted);
+                if (!IsHighlighted)
+                {
+                    foreach (GroundCell groundCell in highlightedGroundCells.Values)
+                    {
+                        groundCell.SetHighlighted(false);
+                    }
+                    highlightedGroundCells.Clear();
 
+                    foreach (UnitBase unitBase in highlightedUnits)
+                    {
+                        unitBase.SetHighlighted(false);
+                    }
+                    highlightedUnits.Clear();
+                }
             }
         }
 
         public bool IsHighlighted { get; private set; }
         public bool IsSelected { get; private set; }
+
+        private void OnDestroy()
+        {
+            SetHighlighted(false);
+        }
 
         public void SetSelected(bool value)
         {
@@ -147,6 +167,92 @@ namespace Assets.Scripts
 
         private void Update()
         {
+            if (IsHighlighted)
+            {
+                if (CommandPreview.GameCommand.GameCommandType == GameCommandType.Collect)
+                {
+                    List<Position2> remainingPos = new List<Position2>();
+                    remainingPos.AddRange(highlightedGroundCells.Keys);
+
+                    Position3 centerPosition3 = new Position3(CommandPreview.GameCommand.TargetPosition);
+                    List<Position3> groundPositions = centerPosition3.GetNeighbors(CommandPreview.GameCommand.Radius);
+                    foreach (Position3 position3 in groundPositions)
+                    {
+                        Position2 position2 = position3.Pos;
+                        GroundCell gc;
+
+                        if (highlightedGroundCells.TryGetValue(position2, out gc))
+                        {
+                            if (gc.NumberOfCollectables == 0)
+                            {
+                                gc.SetHighlighted(false);
+                            }
+                            else
+                            {
+                                remainingPos.Remove(position2);
+                            }
+                        }
+                        else
+                        { 
+                            gc = HexGrid.MainGrid.GroundCells[position2];
+
+                            if (gc.NumberOfCollectables > 0)
+                            {
+                                gc.SetHighlighted(IsHighlighted);
+                                highlightedGroundCells.Add(gc.Pos, gc);
+                                remainingPos.Remove(position2);
+                            }
+                        }
+                    }
+                    foreach (Position2 position2 in remainingPos)
+                    {
+                        highlightedGroundCells[position2].SetHighlighted(false);
+                        highlightedGroundCells.Remove(position2);
+                    }
+                }
+
+                List<UnitBase> remainHighlighted = new List<UnitBase>();
+                remainHighlighted.AddRange(highlightedUnits);
+
+                foreach (MapGameCommandItem mapGameCommandItem in CommandPreview.GameCommand.GameCommandItems)
+                {
+                    //Debug.Log("High att " + mapGameCommandItem.AttachedUnitId + " fac " + mapGameCommandItem.FactoryUnitId + " cnt: " + remainHighlighted.Count);
+
+                    if (!string.IsNullOrEmpty(mapGameCommandItem.AttachedUnitId))
+                    {
+                        UnitBase unitBase;
+                        if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.AttachedUnitId, out unitBase))
+                        {
+                            if (!highlightedUnits.Contains(unitBase))
+                                highlightedUnits.Add(unitBase);
+                            else
+                                remainHighlighted.Remove(unitBase);
+
+                            unitBase.SetHighlighted(IsHighlighted);
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(mapGameCommandItem.FactoryUnitId))
+                    {
+                        UnitBase unitBase;
+                        if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.FactoryUnitId, out unitBase))
+                        {
+                            if (!highlightedUnits.Contains(unitBase))
+                                highlightedUnits.Add(unitBase);
+                            else
+                                remainHighlighted.Remove(unitBase);
+                            unitBase.SetHighlighted(IsHighlighted);
+                        }
+                    }
+                }
+                if (remainHighlighted.Count > 0)
+                {
+                    foreach (UnitBase unitBase in remainHighlighted)
+                    {
+                        unitBase.SetHighlighted(false);
+                        highlightedUnits.Remove(unitBase);
+                    }
+                }
+            }
             if (IsSelected)
             {
                 UpdateAttachedUnits();
