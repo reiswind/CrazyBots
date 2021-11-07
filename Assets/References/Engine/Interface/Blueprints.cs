@@ -313,7 +313,7 @@ namespace Engine.Interface
                 MapBlueprintCommandItem blueprintCommandItem = new MapBlueprintCommandItem();
                 blueprintCommandItem.BlueprintName = mapBlueprintCommandItem.BlueprintName;
                 blueprintCommandItem.Direction = mapBlueprintCommandItem.Direction;
-                blueprintCommandItem.CubePosition = mapBlueprintCommandItem.CubePosition;
+                blueprintCommandItem.Position3 = mapBlueprintCommandItem.CubePosition;
                 mapBueprintCommand.Units.Add(blueprintCommandItem);
             }
             return mapBueprintCommand;

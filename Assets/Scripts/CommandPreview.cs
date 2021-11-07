@@ -12,6 +12,8 @@ namespace Assets.Scripts
 {
     public class CommandAttachedUnit
     {
+        public bool IsVisible { get; set; }
+        public Position3 Position3 { get; set; }
         public UnitBase UnitBase { get; set; }
         public GameObject Line { get; set; }
 
@@ -192,7 +194,7 @@ namespace Assets.Scripts
                     MapBlueprintCommandItem blueprintCommandItem = new MapBlueprintCommandItem();
                     blueprintCommandItem.BlueprintName = "Fighter";
                     blueprintCommandItem.Direction = Direction.N; //??
-                    blueprintCommandItem.CubePosition = relative;
+                    blueprintCommandItem.Position3 = relative;
                     gameCommand.BlueprintCommand.Units.Add(blueprintCommandItem);
 
                     addPreviewUnit.Delete();
@@ -321,8 +323,6 @@ namespace Assets.Scripts
             }
         }
 
-
-
         private static float aboveGround = 2.09f;
 
         private void UpdatePositions(GroundCell groundCell)
@@ -369,6 +369,7 @@ namespace Assets.Scripts
         }
         public void SetActive(bool value)
         {
+            /*
             if (previewGameCommand != null)
             {
                 for (int i = 0; i < previewGameCommand.transform.childCount; i++)
@@ -376,7 +377,7 @@ namespace Assets.Scripts
                     GameObject child = previewGameCommand.transform.GetChild(i).gameObject;
                     child.SetActive(value);
                 }
-            }
+            }*/
         }
 
         public bool ContainsUnit(UnitBase unitBase)
@@ -397,8 +398,6 @@ namespace Assets.Scripts
 
             foreach (MapBlueprintCommandItem blueprintCommandItem in GameCommand.BlueprintCommand.Units)
             {
-                break;
-
                 Blueprint blueprint = HexGrid.MainGrid.game.Blueprints.FindBlueprint(blueprintCommandItem.BlueprintName);
                 UnitBase previewUnit = HexGrid.MainGrid.CreateTempUnit(blueprint);
                 previewUnit.DectivateUnit();
@@ -423,10 +422,7 @@ namespace Assets.Scripts
 
                 Position3 groundCubePos = new Position3(groundCell.Pos);
                 Position3 unitCubePos;
-                //if (blueprintCommandItem.CubePosition == null)
-                //    unitCubePos = groundCubePos;
-                //else
-                    unitCubePos = groundCubePos.Add(blueprintCommandItem.CubePosition);
+                unitCubePos = groundCubePos.Add(blueprintCommandItem.Position3);
 
                 GroundCell gc;
                 if (HexGrid.MainGrid.GroundCells.TryGetValue(unitCubePos.Pos, out gc))
@@ -440,16 +436,17 @@ namespace Assets.Scripts
                 unitPos3.y -= 0.01f;
                 previewUnitMarker.transform.position = unitPos3;
 
+                /*
                 Vector3 scaleChange;
                 scaleChange = new Vector3(0.01f, 0.01f, 0.01f);
-
-                previewUnit.gameObject.transform.localScale += scaleChange;
+                previewUnit.gameObject.transform.localScale += scaleChange;*/
 
                 previewUnit.gameObject.SetActive(true);
 
                 CommandAttachedUnit commandAttachedUnit = new CommandAttachedUnit();
                 commandAttachedUnit.UnitBase = previewUnit;
-
+                commandAttachedUnit.Position3 = blueprintCommandItem.Position3;
+                commandAttachedUnit.IsVisible = true;
                 PreviewUnits.Add(commandAttachedUnit);
             }
         }

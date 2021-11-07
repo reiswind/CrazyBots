@@ -167,12 +167,46 @@ namespace Assets.Scripts
 
         private void Update()
         {
+            foreach (MapGameCommandItem mapGameCommandItem in CommandPreview.GameCommand.GameCommandItems)
+            {
+                Position3 groundCubePos = new Position3();
+                Position3 unitCubePos;
+                unitCubePos = groundCubePos.Add(mapGameCommandItem.BlueprintCommandItem.CubePosition);
+
+                foreach (CommandAttachedUnit commandAttachedUnit in CommandPreview.PreviewUnits)
+                {
+                    if (commandAttachedUnit.Position3.Pos == unitCubePos.Pos)
+                    {
+                        if (string.IsNullOrEmpty(mapGameCommandItem.AttachedUnitId))
+                        {
+                            if (!commandAttachedUnit.IsVisible)
+                            {
+                                // Real unit missing, show ghost
+                                commandAttachedUnit.IsVisible = true;
+                                commandAttachedUnit.UnitBase.gameObject.SetActive(true);
+                            }
+                        }
+                        else
+                        {
+                            if (commandAttachedUnit.IsVisible)
+                            {
+                                // Real unit exists, deactivate ghost
+                                commandAttachedUnit.IsVisible = false;
+                                commandAttachedUnit.UnitBase.gameObject.SetActive(false);
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+
             if (IsHighlighted)
             {
+                List<Position2> remainingPos = new List<Position2>();
+                remainingPos.AddRange(highlightedGroundCells.Keys);
+
                 if (CommandPreview.GameCommand.GameCommandType == GameCommandType.Collect)
                 {
-                    List<Position2> remainingPos = new List<Position2>();
-                    remainingPos.AddRange(highlightedGroundCells.Keys);
 
                     Position3 centerPosition3 = new Position3(CommandPreview.GameCommand.TargetPosition);
                     List<Position3> groundPositions = centerPosition3.GetNeighbors(CommandPreview.GameCommand.Radius);
@@ -204,19 +238,32 @@ namespace Assets.Scripts
                             }
                         }
                     }
-                    foreach (Position2 position2 in remainingPos)
-                    {
-                        highlightedGroundCells[position2].SetHighlighted(false);
-                        highlightedGroundCells.Remove(position2);
-                    }
+
                 }
 
                 List<UnitBase> remainHighlighted = new List<UnitBase>();
                 remainHighlighted.AddRange(highlightedUnits);
 
+                Position3 targetPosition = new Position3(CommandPreview.GameCommand.TargetPosition);
+
                 foreach (MapGameCommandItem mapGameCommandItem in CommandPreview.GameCommand.GameCommandItems)
                 {
-                    //Debug.Log("High att " + mapGameCommandItem.AttachedUnitId + " fac " + mapGameCommandItem.FactoryUnitId + " cnt: " + remainHighlighted.Count);
+                    if (CommandPreview.GameCommand.GameCommandType != GameCommandType.Collect)
+                    {
+                        Position2 position2 = targetPosition.Add(mapGameCommandItem.BlueprintCommandItem.CubePosition).Pos;
+                        GroundCell gc;
+                        if (highlightedGroundCells.TryGetValue(position2, out gc))
+                        {
+                            remainingPos.Remove(position2);
+                        }
+                        else
+                        {
+                            gc = HexGrid.MainGrid.GroundCells[position2];
+                            gc.SetHighlighted(IsHighlighted);
+                            highlightedGroundCells.Add(gc.Pos, gc);
+                            remainingPos.Remove(position2);
+                        }
+                    }
 
                     if (!string.IsNullOrEmpty(mapGameCommandItem.AttachedUnitId))
                     {
@@ -243,6 +290,11 @@ namespace Assets.Scripts
                             unitBase.SetHighlighted(IsHighlighted);
                         }
                     }
+                }
+                foreach (Position2 position2 in remainingPos)
+                {
+                    highlightedGroundCells[position2].SetHighlighted(false);
+                    highlightedGroundCells.Remove(position2);
                 }
                 if (remainHighlighted.Count > 0)
                 {

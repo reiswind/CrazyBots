@@ -27,7 +27,7 @@ namespace Engine.Interface
 
     public class MapBlueprintCommandItem
     {
-        public Position3 CubePosition { get; set; }
+        public Position3 Position3 { get; set; }
         public Direction Direction { get; set; }
         public string BlueprintName { get; set; }
     }
@@ -57,7 +57,7 @@ namespace Engine.Interface
                 BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
                 blueprintCommandItem.BlueprintName = mapBlueprintCommandItem.BlueprintName;
                 blueprintCommandItem.Direction = mapBlueprintCommandItem.Direction;
-                blueprintCommandItem.CubePosition = mapBlueprintCommandItem.CubePosition;
+                blueprintCommandItem.CubePosition = mapBlueprintCommandItem.Position3;
                 mapBlueprintCommand.Units.Add(blueprintCommandItem);
             }
             return mapBlueprintCommand;
