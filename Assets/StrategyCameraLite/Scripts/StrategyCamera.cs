@@ -78,13 +78,13 @@ public class StrategyCamera : MonoBehaviour
 	void Awake()
 	{
 		cam = GetComponentInChildren<Camera>();
-
+		/* No minimap
 		Scene scene = SceneManager.GetActiveScene();
 		foreach (GameObject gameObject in scene.GetRootGameObjects())
 		{
 			if (gameObject.name == "MiniMapCamera")
 				MiniMapCamera = gameObject.GetComponentInChildren<Camera>();
-		}
+		}*/
 	}
 
 	private void OnEnable()
