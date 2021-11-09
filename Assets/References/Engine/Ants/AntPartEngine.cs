@@ -777,7 +777,10 @@ namespace Engine.Ants
                 }
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Attack)
                 {
-                    if (cntrlUnit.Pos == cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition)
+                    Position3 commandCenter = new Position3(cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition);
+                    Position3 position3 = cntrlUnit.CurrentGameCommand.BlueprintCommandItem.Position3.Add(commandCenter);
+
+                    if (cntrlUnit.Pos == position3.Pos)
                         return true;
                 }
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Build)

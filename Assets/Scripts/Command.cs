@@ -171,7 +171,7 @@ namespace Assets.Scripts
             {
                 Position3 groundCubePos = new Position3();
                 Position3 unitCubePos;
-                unitCubePos = groundCubePos.Add(mapGameCommandItem.BlueprintCommandItem.CubePosition);
+                unitCubePos = groundCubePos.Add(mapGameCommandItem.BlueprintCommandItem.Position3);
 
                 foreach (CommandAttachedUnit commandAttachedUnit in CommandPreview.PreviewUnits)
                 {
@@ -268,7 +268,9 @@ namespace Assets.Scripts
                 {
                     if (CommandPreview.GameCommand.GameCommandType != GameCommandType.Collect)
                     {
-                        Position2 position2 = targetPosition.Add(mapGameCommandItem.BlueprintCommandItem.CubePosition).Pos;
+                        Position3 relativePosition3 = mapGameCommandItem.BlueprintCommandItem.Position3.Add(targetPosition);
+
+                        Position2 position2 = relativePosition3.Pos;
                         GroundCell gc;
                         if (highlightedGroundCells.TryGetValue(position2, out gc))
                         {

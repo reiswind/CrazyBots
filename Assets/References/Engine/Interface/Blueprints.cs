@@ -117,7 +117,7 @@ namespace Engine.Interface
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Worker";
-            blueprintCommandItem.CubePosition = new Position3();
+            blueprintCommandItem.Position3 = new Position3();
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
@@ -131,7 +131,7 @@ namespace Engine.Interface
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Fighter";
-            blueprintCommandItem.CubePosition = new Position3();
+            blueprintCommandItem.Position3 = new Position3();
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
@@ -145,7 +145,7 @@ namespace Engine.Interface
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Bomber";
-            blueprintCommandItem.CubePosition = new Position3();
+            blueprintCommandItem.Position3 = new Position3();
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
@@ -295,7 +295,7 @@ namespace Engine.Interface
                 BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
                 blueprintCommandItem.BlueprintName = mapBlueprintCommandItem.BlueprintName;
                 blueprintCommandItem.Direction = mapBlueprintCommandItem.Direction;
-                blueprintCommandItem.CubePosition = mapBlueprintCommandItem.CubePosition;
+                blueprintCommandItem.Position3 = mapBlueprintCommandItem.Position3;
                 mapBueprintCommand.Units.Add(blueprintCommandItem);
             }
             return mapBueprintCommand;
@@ -313,7 +313,7 @@ namespace Engine.Interface
                 MapBlueprintCommandItem blueprintCommandItem = new MapBlueprintCommandItem();
                 blueprintCommandItem.BlueprintName = mapBlueprintCommandItem.BlueprintName;
                 blueprintCommandItem.Direction = mapBlueprintCommandItem.Direction;
-                blueprintCommandItem.Position3 = mapBlueprintCommandItem.CubePosition;
+                blueprintCommandItem.Position3 = mapBlueprintCommandItem.Position3;
                 mapBueprintCommand.Units.Add(blueprintCommandItem);
             }
             return mapBueprintCommand;
@@ -327,7 +327,7 @@ namespace Engine.Interface
 
     public class BlueprintCommandItem
     {
-        public Position3 CubePosition { get; set; }
+        public Position3 Position3 { get; set; }
         public Direction Direction { get; set; }
         public string BlueprintName { get; set; }
     }

@@ -1464,6 +1464,26 @@ namespace Engine.Ants
 
             foreach (GameCommand gameCommand in player.GameCommands)
             {
+                if (gameCommand.GameCommandType == GameCommandType.AddUnits)
+                {
+                    gameCommand.CommandComplete = true;
+                    gameCommand.DeleteWhenFinished = true;
+
+                    foreach (GameCommand otherGameCommand in player.GameCommands)
+                    {
+                        if (otherGameCommand != gameCommand &&
+                            otherGameCommand.TargetPosition == gameCommand.TargetPosition)
+                        {
+                            foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
+                            {
+                                GameCommandItem otherGameCommandItem = new GameCommandItem(otherGameCommand, gameCommandItem.BlueprintCommandItem);
+
+                                otherGameCommand.GameCommandItems.Add(otherGameCommandItem);
+                            }
+                            break;
+                        }
+                    }
+                }
                 if (gameCommand.GameCommandType == GameCommandType.Move)
                 {
                     foreach (GameCommand moveGameCommand in player.GameCommands)
