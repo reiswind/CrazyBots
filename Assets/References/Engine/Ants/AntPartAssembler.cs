@@ -124,6 +124,7 @@ namespace Engine.Ants
                 }*/
 
                 bool computePossibleMoves = true;
+                bool assemblerUsedToBuild = false;
 
                 if (selectedGameCommand == null)
                 {
@@ -246,6 +247,7 @@ namespace Engine.Ants
 
                                     Assembler.Unit.SetTempGameCommand(selectedGameCommand);
                                     passGameCommandToNewUnit = selectedGameCommand;
+                                    assemblerUsedToBuild = true;
                                 }
                             }
                         }
@@ -282,7 +284,9 @@ namespace Engine.Ants
                         // Pass the command
                         if (passGameCommandToNewUnit != null)
                         {
-                            passGameCommandToNewUnit.AttachedUnitId = createdUnit.UnitId;
+                            // If its an assembler, this is not the attached unit for the command
+                            if (!assemblerUsedToBuild)
+                                passGameCommandToNewUnit.AttachedUnitId = createdUnit.UnitId;
                             //passGameCommandToNewUnit.FactoryUnitId = createdUnit.UnitId // Remains until unit is complete!;
                             createdUnit.SetGameCommand(passGameCommandToNewUnit);
                         }

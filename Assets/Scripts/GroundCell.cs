@@ -482,13 +482,10 @@ namespace Assets.Scripts
         {
             while (targetDiffuse < (Diffuse - 0.03f) || targetDiffuse > (Diffuse + 0.03f))
             {
-                Debug.Log("UpdateColorLerp");
-
                 Diffuse = Mathf.Lerp(Diffuse, targetDiffuse, 0.03f);
                 UpdateColor();
                 yield return null;
             }
-            Debug.Log("UpdateColorLerp finished");
             yield break;
         }
         private IEnumerator FadeOutDestructable(GameObject gameObject, float sinkTo)

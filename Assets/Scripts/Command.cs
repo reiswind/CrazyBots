@@ -65,12 +65,12 @@ namespace Assets.Scripts
                     if (value)
                     {
                         //UpdateAttachedUnits();
-                        meshRenderer.material.SetFloat("Darkness", 3.0f);
+                        //meshRenderer.material.SetFloat("Darkness", 3.0f);
                     }
                     else
                     {
                         //RemoveAttachedUnits();
-                        meshRenderer.material.SetFloat("Darkness", 1.0f);
+                        //meshRenderer.material.SetFloat("Darkness", 1.0f);
                     }
                 }
             }
@@ -190,9 +190,20 @@ namespace Assets.Scripts
                         {
                             if (commandAttachedUnit.IsVisible)
                             {
-                                // Real unit exists, deactivate ghost
-                                commandAttachedUnit.IsVisible = false;
-                                commandAttachedUnit.UnitBase.gameObject.SetActive(false);
+                                UnitBase realUnit;
+                                if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.AttachedUnitId, out realUnit))
+                                {
+                                    if (realUnit.UnderConstruction)
+                                    {
+                                        // Wait for completion
+                                    }
+                                    else
+                                    {
+                                        // Real unit exists, deactivate ghost
+                                        commandAttachedUnit.IsVisible = false;
+                                        commandAttachedUnit.UnitBase.gameObject.SetActive(false);
+                                    }
+                                }
                             }
                         }
                         break;

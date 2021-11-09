@@ -1621,6 +1621,14 @@ namespace Assets.Scripts
         {
             foreach (CommandPreview mapGameCommand in CommandPreviews)
             {
+                foreach (CommandAttachedUnit commandAttachedUnit in mapGameCommand.PreviewUnits)
+                {
+                    if (commandAttachedUnit.UnitBase == unitBase)
+                    {
+                        // Preview Ghost unit
+                        return mapGameCommand;
+                    }
+                }
                 foreach (MapGameCommandItem mapGameCommandItem in mapGameCommand.GameCommand.GameCommandItems)
                 {
                     if (mapGameCommandItem.AttachedUnitId == unitBase.UnitId)

@@ -2202,7 +2202,11 @@ namespace Engine.Ants
                                             ant.PlayerUnit.Unit.CurrentGameCommand.AttachedUnitId = null;
                                             ant.PlayerUnit.Unit.CurrentGameCommand.FactoryUnitId = ant.PlayerUnit.Unit.UnitId;
                                         }
-                                        //ant.PlayerUnit.Unit.CurrentGameCommand.FactoryUnitId = null;
+                                        else
+                                        {
+                                            ant.PlayerUnit.Unit.CurrentGameCommand.FactoryUnitId = null;
+                                            ant.PlayerUnit.Unit.CurrentGameCommand.AttachedUnitId = ant.PlayerUnit.Unit.UnitId;
+                                        }
                                     }
                                 }
                             }

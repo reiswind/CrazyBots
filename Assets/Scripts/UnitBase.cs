@@ -525,7 +525,7 @@ namespace Assets.Scripts
                         if (meshRenderer.materials.Length == 1)
                         {
                             Destroy(meshRenderer.material);
-                            meshRenderer.material = HexGrid.MainGrid.GetMaterial("Outline");
+                            meshRenderer.material = HexGrid.MainGrid.GetMaterial("UnitGhost");
                             meshRenderer.material.SetColor("PlayerColor", GetPlayerColor(playerId));                            
                             meshRenderer.material.SetFloat("Darkness", 0.9f);
                         }
@@ -534,7 +534,7 @@ namespace Assets.Scripts
                     {
                         if (meshRenderer.sharedMaterials.Length == 1)
                         {
-                            meshRenderer.sharedMaterial = HexGrid.MainGrid.GetMaterial("Outline");
+                            meshRenderer.sharedMaterial = HexGrid.MainGrid.GetMaterial("UnitGhost");
                             //meshRenderer.sharedMaterial.SetColor("PlayerColor", GetPlayerColor(playerId));
                             //meshRenderer.sharedMaterial.SetFloat("Darkness", 0.9f);
                         }
