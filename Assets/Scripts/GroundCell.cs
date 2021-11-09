@@ -68,7 +68,7 @@ namespace Assets.Scripts
             targetDiffuse = 0.1f;
             diffuse = 0.1f;
         }
-
+        /*
         public void Update()
         {
             if (targetDiffuse < (diffuse+0.03f) || targetDiffuse > (diffuse - 0.03f))
@@ -89,7 +89,7 @@ namespace Assets.Scripts
                     }
                 }
             }
-        }
+        }*/
 
         public void InitHighlightEffect()
         {
