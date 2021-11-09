@@ -156,7 +156,7 @@ MonoBehaviour:
   overlayBlending: 1
   outline: 1
   outlineColor: {r: 2.6806288, g: 2.6806288, b: 0, a: 1}
-  outlineWidth: 0.3
+  outlineWidth: 0.2
   outlineQuality: 3
   outlineDownsampling: 2
   outlineVisibility: 0

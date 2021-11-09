@@ -1688,6 +1688,20 @@ namespace Engine.Master
                         gameCommand.Status = mapGameCommand.Status;
                         gameCommand.Radius = mapGameCommand.Radius;
 
+                        if (gameCommand.Radius > 0)
+                        {
+                            if (mapGameCommand.GameCommandType == GameCommandType.Move)
+                                gameCommand.IncludedPositions = Map.EnumerateTiles(gameCommand.MoveToPosition, gameCommand.Radius, true);
+                            else
+                                gameCommand.IncludedPositions = Map.EnumerateTiles(gameCommand.TargetPosition, gameCommand.Radius, true);
+                        }
+                        Player player;
+
+                        if (Players.TryGetValue(mapGameCommand.PlayerId, out player))
+                        {
+                            player.GameCommands.Add(gameCommand);
+                        }
+                        /*
                         Player player = Players[mapGameCommand.PlayerId];
                         if (mapGameCommand.CommandComplete)
                         {
@@ -1703,7 +1717,7 @@ namespace Engine.Master
                                 //if (unit != null)
                                 //    unit.ExtractUnit();
                             }
-                        }
+                        }*/
                     }
                 }
                 Pheromones.Evaporate();

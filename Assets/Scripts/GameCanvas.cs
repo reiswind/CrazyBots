@@ -94,7 +94,7 @@ namespace Assets.Scripts
         // Start is called before the first frame update
         void Start()
         {
-            mask = LayerMask.GetMask("Default", "Units");
+            mask = LayerMask.GetMask("Default", "Units", "UI");
 
             UIMineralText = MineralText.GetComponent<Text>();
             UIUnitText = UnitText.GetComponent<Text>();
@@ -260,11 +260,18 @@ namespace Assets.Scripts
         {
             if (highlightedCommandPreview != null)
             {
-                Debug.Log("UnHighlightGameCommand " + highlightedCommandPreview.GameCommand.TargetPosition.ToString());
+                if (selectedCommandPreview != null && selectedCommandPreview == highlightedCommandPreview)
+                {
+                    // Keep it highlighted
+                }
+                else
+                {
+                    Debug.Log("UnHighlightGameCommand " + highlightedCommandPreview.GameCommand.TargetPosition.ToString());
 
-                highlightedCommandPreview.Command.SetHighlighted(false);
-                highlightedCommandPreview.SetActive(false);
-                highlightedCommandPreview = null;
+                    highlightedCommandPreview.Command.SetHighlighted(false);
+                    highlightedCommandPreview.SetActive(false);
+                    highlightedCommandPreview = null;
+                }
             }
         }
 
@@ -272,10 +279,18 @@ namespace Assets.Scripts
         {
             if (commandPreview != null)
             {
-                highlightedCommandPreview = commandPreview;
-                highlightedCommandPreview.Command.SetHighlighted(true);
-                highlightedCommandPreview.SetActive(true);
-                Debug.Log("HighlightGameCommand " + highlightedCommandPreview.GameCommand.TargetPosition.ToString());
+                if (selectedCommandPreview != null && selectedCommandPreview == highlightedCommandPreview)
+                {
+                    // Keep it highlighted
+                    int x = 0;
+                }
+                else
+                {
+                    highlightedCommandPreview = commandPreview;
+                    highlightedCommandPreview.Command.SetHighlighted(true);
+                    highlightedCommandPreview.SetActive(true);
+                    Debug.Log("HighlightGameCommand " + highlightedCommandPreview.GameCommand.TargetPosition.ToString());
+                }
             }
         }
         private void CloseCommandPreview()
@@ -445,8 +460,16 @@ namespace Assets.Scripts
             }
             if (canvasMode == CanvasMode.CommandPreview)
             {
-                SetButtonText(1, "(q) Rotate right");
-                SetButtonText(2, "(e) Rotate left");
+                if (selectedCommandPreview.GameCommand.GameCommandType == GameCommandType.Collect)
+                {
+                    HideButton(1);
+                    HideButton(2);
+                }
+                else
+                {
+                    SetButtonText(1, "(q) Rotate right");
+                    SetButtonText(2, "(e) Rotate left");
+                }
                 HideButton(3);
                 HideButton(4);
                 HideButton(5);
@@ -507,7 +530,7 @@ namespace Assets.Scripts
                 {
                     selectedCommandPreview = new CommandPreview();
                     selectedCommandPreview.CreateCommandForBuild(blueprintCommand.Copy());
-
+                    highlightedCommandPreview = selectedCommandPreview;
                     SetMode(CanvasMode.CommandPreview);
                 }
                 /*
@@ -866,6 +889,10 @@ namespace Assets.Scripts
                 selectedCommandPreview.SetPosition(hitByMouseClick.GroundCell);
             }
             HideAllParts();
+            if (selectedCommandPreview.Command != null && !selectedCommandPreview.Command.IsHighlighted)
+            {
+                selectedCommandPreview.SetHighlighted(true);
+            }
             DisplayGameCommand(selectedCommandPreview);
 
             if (Input.GetMouseButtonDown(0) && selectedCommandPreview.CanExecute())
@@ -874,14 +901,33 @@ namespace Assets.Scripts
 
                 if (selectedCommandPreview.IsInSubCommandMode)
                 {
-                    // Select executed command
-                    selectedCommandPreview.SetSelected(true);
-                    //highlightedCommandPreview = selectedCommandPreview;
-                    SetMode(CanvasMode.Command);
+                    if (Input.GetKey(KeyCode.LeftShift))
+                    {
+                        // Repeat command
+                        selectedCommandPreview.SetSelected(false);
+                        selectedCommandPreview.SetActive(false);
+
+                        // Keep executed command
+                        BlueprintCommand blueprintCommandCopy = selectedCommandPreview.GameCommand.BlueprintCommand.Copy();
+
+                        selectedCommandPreview = new CommandPreview();
+                        selectedCommandPreview.CreateCommandForBuild(blueprintCommandCopy.Copy());
+
+                        //selectedCommandPreview.SetSelected(true);
+                        //SetMode(CanvasMode.Command);
+                    }
+                    else
+                    {
+                        selectedCommandPreview.SetSelected(false);
+                        selectedCommandPreview.SetActive(false);
+                        selectedCommandPreview = null;
+
+                        SetMode(CanvasMode.Select);
+                    }
                 }
                 else
                 {
-                    if (Input.GetKeyDown(KeyCode.LeftShift))
+                    if (Input.GetKey(KeyCode.LeftShift))
                     {
                         // Repeat command
                         selectedCommandPreview.SetSelected(false);
@@ -1071,6 +1117,7 @@ namespace Assets.Scripts
             if (hitByMouseClick.CommandPreview != null)
             {
                 selectedCommandPreview = hitByMouseClick.CommandPreview;
+
                 selectedCommandPreview.SetSelected(true);
                 if (canvasMode == CanvasMode.Command)
                     UpdateCommandButtons();

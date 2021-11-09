@@ -211,6 +211,8 @@ namespace Assets.Scripts
                 }
             }
 
+            
+
             if (IsHighlighted)
             {
                 List<Position2> remainingPos = new List<Position2>();
@@ -218,8 +220,13 @@ namespace Assets.Scripts
 
                 if (CommandPreview.GameCommand.GameCommandType == GameCommandType.Collect)
                 {
+                    Position2 center;
+                    if (CommandPreview.IsPreview || CommandPreview.IsInSubCommandMode)
+                        center = CommandPreview.DisplayPosition;
+                    else
+                        center = CommandPreview.GameCommand.TargetPosition;
 
-                    Position3 centerPosition3 = new Position3(CommandPreview.GameCommand.TargetPosition);
+                    Position3 centerPosition3 = new Position3(center);
                     List<Position3> groundPositions = centerPosition3.GetNeighbors(CommandPreview.GameCommand.Radius);
                     foreach (Position3 position3 in groundPositions)
                     {
@@ -316,7 +323,7 @@ namespace Assets.Scripts
                     }
                 }
             }
-            if (IsSelected)
+            if (false && IsSelected)
             {
                 UpdateAttachedUnits();
 
