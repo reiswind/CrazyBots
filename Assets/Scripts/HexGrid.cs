@@ -1269,7 +1269,11 @@ namespace Assets.Scripts
 
         private IEnumerator DelayFadeOutDebris(GameObject gameObject, float sinkTo)
         {
-            if (gameObject != null)
+            if (gameObject == null)
+            {
+                yield break;
+            }
+            else
             {
                 yield return new WaitForSeconds(12 + 12 * (UnityEngine.Random.value));
                 yield return StartCoroutine(FadeOutDebris(gameObject, sinkTo));
@@ -1277,7 +1281,11 @@ namespace Assets.Scripts
         }
         private IEnumerator FadeOutDebris(GameObject gameObject, float sinkTo)
         {
-            if (gameObject != null)
+            if (gameObject == null)
+            {
+                yield break;
+            }
+            else
             {
                 Rigidbody otherRigid = gameObject.GetComponent<Rigidbody>();
                 if (otherRigid != null) otherRigid.isKinematic = true;
@@ -1653,7 +1661,7 @@ namespace Assets.Scripts
                 float height = stats.MoveUpdateGroundStat.Height;
                 gridPos3.y += height + 0.3f;
                 gameObjectCell.transform.localPosition = gridPos3;
-                groundCell.CreateDestructables();
+                groundCell.CreateDestructables(true);
             }
             return groundCell;
         }

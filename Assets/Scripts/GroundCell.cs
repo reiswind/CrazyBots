@@ -56,7 +56,7 @@ namespace Assets.Scripts
         private GameObject markerToMineral;
         private GameObject markerToEnemy;
 
-        private float diffuse;
+        internal float Diffuse { get; set; }
         private float targetDiffuse;
 
         public GroundCell()
@@ -66,30 +66,29 @@ namespace Assets.Scripts
             ShowPheromones = false;
             visible = true;
             targetDiffuse = 0.1f;
-            diffuse = 0.1f;
+            Diffuse = 0.1f;
         }
-        /*
-        public void Update()
+        
+        public void UpdateColor()
         {
-            if (targetDiffuse < (diffuse+0.03f) || targetDiffuse > (diffuse - 0.03f))
-            {
-                diffuse = Mathf.Lerp(diffuse, targetDiffuse, 0.03f);
+
+                //Diffuse = Mathf.Lerp(Diffuse, targetDiffuse, 0.03f);
 
                 // Set color
                 Renderer renderer = GetComponent<Renderer>();
 
-                renderer.material.SetFloat("Darkness", diffuse);
+                renderer.material.SetFloat("Darkness", Diffuse);
                 foreach (UnitBaseTileObject unitBaseTileObject1 in GameObjects)
                 {
                     if (unitBaseTileObject1.GameObject != null)
                     {
                         renderer = unitBaseTileObject1.GameObject.GetComponent<Renderer>();
                         if (renderer != null)
-                            renderer.material.SetFloat("Darkness", diffuse);
+                            renderer.material.SetFloat("Darkness", Diffuse);
                     }
                 }
-            }
-        }*/
+
+        }
 
         public void InitHighlightEffect()
         {
@@ -386,7 +385,7 @@ namespace Assets.Scripts
             vector3.y = Stats.MoveUpdateGroundStat.Height + 0.3f;
             transform.localPosition = vector3;
 
-            CreateDestructables();
+            CreateDestructables(false);
             
         }
 
@@ -400,20 +399,14 @@ namespace Assets.Scripts
             return neighbor;
         }
 
-        internal void CreateDestructables()
+        internal void CreateDestructables(bool init)
         {
-            if (Visible)
-            {
-                targetDiffuse = 0.8f;
-            }
-            else
-            {
-                targetDiffuse = 0.1f;
-            }
+
+            
             SetGroundMaterial();
             
-            List<UnitBaseTileObject> allTileObjects = new List<UnitBaseTileObject>();
-            allTileObjects.AddRange(GameObjects);
+            List<UnitBaseTileObject> destroyedTileObjects = new List<UnitBaseTileObject>();
+            destroyedTileObjects.AddRange(GameObjects);
 
             foreach (TileObject tileObject in Stats.MoveUpdateGroundStat.TileObjects)
             {
@@ -424,12 +417,12 @@ namespace Assets.Scripts
                 else
                 {
                     bool found = false;
-                    foreach (UnitBaseTileObject destructable in allTileObjects)
+                    foreach (UnitBaseTileObject destructable in destroyedTileObjects)
                     {
                         if (destructable.TileObject.TileObjectType == tileObject.TileObjectType)
                         {
                             found = true;
-                            allTileObjects.Remove(destructable);
+                            destroyedTileObjects.Remove(destructable);
                             break;
                         }
                     }
@@ -452,10 +445,31 @@ namespace Assets.Scripts
                     }
                 }
             }
+            if (init)
+            {
+                UpdateColor();
+            }
+            else
+            {
+                if (Visible)
+                {
+                    targetDiffuse = 0.8f;
+                    
+                }
+                else
+                {
+                    targetDiffuse = 0.1f;
 
+                }
+                if (targetDiffuse < (Diffuse + 0.03f) || targetDiffuse > (Diffuse - 0.03f))
+                {
+                    StartCoroutine(UpdateColorLerp());
+                }
+                //    UpdateColor();
+            }
             if (visible)
             {
-                foreach (UnitBaseTileObject destructable in allTileObjects)
+                foreach (UnitBaseTileObject destructable in destroyedTileObjects)
                 {
                     StartCoroutine(FadeOutDestructable(destructable.GameObject, destructable.GameObject.transform.position.y - 0.1f));
                     //HexGrid.Destroy(destructable.GameObject);
@@ -464,6 +478,19 @@ namespace Assets.Scripts
             }
         }
 
+        private IEnumerator UpdateColorLerp()
+        {
+            while (targetDiffuse < (Diffuse - 0.03f) || targetDiffuse > (Diffuse + 0.03f))
+            {
+                Debug.Log("UpdateColorLerp");
+
+                Diffuse = Mathf.Lerp(Diffuse, targetDiffuse, 0.03f);
+                UpdateColor();
+                yield return null;
+            }
+            Debug.Log("UpdateColorLerp finished");
+            yield break;
+        }
         private IEnumerator FadeOutDestructable(GameObject gameObject, float sinkTo)
         {
             while (gameObject.transform.position.y > sinkTo)
@@ -474,6 +501,7 @@ namespace Assets.Scripts
                 yield return null;
             }
             HexGrid.Destroy(gameObject);
+            yield break;
         }        
 
         public bool IsHighlighted { get; private set; }
