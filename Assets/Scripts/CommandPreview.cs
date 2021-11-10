@@ -104,6 +104,13 @@ namespace Assets.Scripts
         }
 
         private bool isMoveMode;
+        public bool IsMoveMode
+        {
+            get
+            {
+                return isMoveMode;
+            }
+        }
         public void SelectMoveMode()
         {
             

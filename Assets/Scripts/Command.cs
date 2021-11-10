@@ -268,7 +268,7 @@ namespace Assets.Scripts
                 remainHighlighted.AddRange(highlightedUnits);
 
                 Position3 targetPosition;
-                if (CommandPreview.IsInSubCommandMode)
+                if (CommandPreview.IsMoveMode)
                 {
                     targetPosition = new Position3(CommandPreview.DisplayPosition);
                 }
