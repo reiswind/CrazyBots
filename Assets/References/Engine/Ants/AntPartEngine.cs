@@ -765,11 +765,12 @@ namespace Engine.Ants
 
             if (cntrlUnit.CurrentGameCommand != null)
             {
-                bool calcPath = true;
+                //bool calcPath = true;
+                Position2 calcPathToPosition = Position2.Null;
 
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
                 {
-                    calcPath = false;
+                    //calcPath = false;
                     if (cntrlUnit.Container != null && cntrlUnit.Container.TileContainer.IsFreeSpace)
                     {
                         FindPathForCollect(player, cntrlUnit);
@@ -778,10 +779,11 @@ namespace Engine.Ants
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Attack)
                 {
                     Position3 commandCenter = new Position3(cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition);
-                    Position3 position3 = cntrlUnit.CurrentGameCommand.BlueprintCommandItem.Position3.Add(commandCenter);
+                    Position3 position3 = commandCenter.Add(cntrlUnit.CurrentGameCommand.BlueprintCommandItem.Position3);
 
                     if (cntrlUnit.Pos == position3.Pos)
                         return true;
+                    calcPathToPosition = position3.Pos;
                 }
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Build)
                 {
@@ -801,14 +803,15 @@ namespace Engine.Ants
                             }
                         }
                     }
+                    calcPathToPosition = cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition;
                 }
                 
-                if (calcPath)
+                if (calcPathToPosition != Position2.Null)
                 {
                     if (Ant.FollowThisRoute == null || Ant.FollowThisRoute.Count == 0)
                     {
                         // Compute route to target
-                        List<Position2> positions = player.Game.FindPath(cntrlUnit.Pos, cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition, cntrlUnit);
+                        List<Position2> positions = player.Game.FindPath(cntrlUnit.Pos, calcPathToPosition, cntrlUnit);
                         if (positions == null && cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
                         {
                             // Must not be exact

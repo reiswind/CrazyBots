@@ -189,7 +189,7 @@ namespace Assets.Scripts
 
                     Position3 displayPosition3 = new Position3(displayPosition);
                     Position3 commandCenter = new Position3(GameCommand.TargetPosition);
-                    Position3 relativePosition3 = commandCenter.Subtract(displayPosition3);
+                    Position3 relativePosition3 = displayPosition3.Subtract(commandCenter);
 
                     MapBlueprintCommandItem blueprintCommandItem = new MapBlueprintCommandItem();
                     blueprintCommandItem.BlueprintName = "Fighter";
