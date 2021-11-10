@@ -26,6 +26,7 @@ namespace Assets.Scripts
         {
             if (IsHighlighted != isHighlighted)
             {
+
                 IsHighlighted = isHighlighted;
                 if (highlightEffect)
                     highlightEffect.SetHighlighted(IsHighlighted);
@@ -167,6 +168,7 @@ namespace Assets.Scripts
 
         private void Update()
         {
+            
             foreach (MapGameCommandItem mapGameCommandItem in CommandPreview.GameCommand.GameCommandItems)
             {
                 Position3 groundCubePos = new Position3();
@@ -181,6 +183,7 @@ namespace Assets.Scripts
                         {
                             if (!commandAttachedUnit.IsVisible)
                             {
+                                Debug.Log("Activate: commandAttachedUnit.UnitBase");
                                 // Real unit missing, show ghost
                                 commandAttachedUnit.IsVisible = true;
                                 commandAttachedUnit.UnitBase.gameObject.SetActive(true);
@@ -199,6 +202,8 @@ namespace Assets.Scripts
                                     }
                                     else
                                     {
+                                        Debug.Log("Deactivate: commandAttachedUnit.UnitBase");
+
                                         // Real unit exists, deactivate ghost
                                         commandAttachedUnit.IsVisible = false;
                                         commandAttachedUnit.UnitBase.gameObject.SetActive(false);
@@ -262,13 +267,21 @@ namespace Assets.Scripts
                 List<UnitBase> remainHighlighted = new List<UnitBase>();
                 remainHighlighted.AddRange(highlightedUnits);
 
-                Position3 targetPosition = new Position3(CommandPreview.GameCommand.TargetPosition);
+                Position3 targetPosition;
+                if (CommandPreview.IsInSubCommandMode)
+                {
+                    targetPosition = new Position3(CommandPreview.DisplayPosition);
+                }
+                else
+                {
+                    targetPosition = new Position3(CommandPreview.GameCommand.TargetPosition);
+                }
 
                 foreach (MapGameCommandItem mapGameCommandItem in CommandPreview.GameCommand.GameCommandItems)
                 {
                     if (CommandPreview.GameCommand.GameCommandType != GameCommandType.Collect)
                     {
-                        Position3 relativePosition3 = mapGameCommandItem.BlueprintCommandItem.Position3.Add(targetPosition);
+                        Position3 relativePosition3 = targetPosition.Add(mapGameCommandItem.BlueprintCommandItem.Position3);
 
                         Position2 position2 = relativePosition3.Pos;
                         GroundCell gc;

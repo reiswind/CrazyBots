@@ -1,4 +1,5 @@
 using Engine.Interface;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -266,8 +267,6 @@ namespace Assets.Scripts
                 }
                 else
                 {
-                    Debug.Log("UnHighlightGameCommand " + highlightedCommandPreview.GameCommand.TargetPosition.ToString());
-
                     highlightedCommandPreview.Command.SetHighlighted(false);
                     highlightedCommandPreview.SetActive(false);
                     highlightedCommandPreview = null;
@@ -289,7 +288,6 @@ namespace Assets.Scripts
                     highlightedCommandPreview = commandPreview;
                     highlightedCommandPreview.Command.SetHighlighted(true);
                     highlightedCommandPreview.SetActive(true);
-                    Debug.Log("HighlightGameCommand " + highlightedCommandPreview.GameCommand.TargetPosition.ToString());
                 }
             }
         }
@@ -708,6 +706,7 @@ namespace Assets.Scripts
                 }
                 hitByMouseClick.Update(commandPreview);
             }
+
             return hitByMouseClick;
         }
 
@@ -1140,6 +1139,7 @@ namespace Assets.Scripts
             {
                 if (hitByMouseClick.CommandPreview != null)
                 {
+                    
                     HideAllParts();
                     
                     if (highlightedCommandPreview != hitByMouseClick.CommandPreview)
@@ -1157,10 +1157,6 @@ namespace Assets.Scripts
                             }
                         }
                         HighlightGameCommand(hitByMouseClick.CommandPreview);
-                        //selectedCommandPreview = hitByMouseClick.CommandPreview;
-                        //selectedCommandPreview.SetActive(true);
-                        //selectedCommandPreview.Command.SetHighlighted(true);
-                        //highlightedCommandPreview = selectedCommandPreview;
                     }
                     
                     if (hitByMouseClick.UnitBase == null)
@@ -1240,14 +1236,14 @@ namespace Assets.Scripts
             headerText.text = gameCommand.GameCommandType.ToString() ;
             headerSubText.text = gameCommand.BlueprintCommand.Name + " at: " + gameCommand.TargetPosition.ToString();
             headerGroundText.text = " Sel: " + commandPreview.IsSelected.ToString();
-
+            /*
             foreach (MapGameCommandItem gameCommandItem in gameCommand.GameCommandItems)
             {
                 GameObject commandPart = Instantiate(panelCommand, panelParts);
                 commandPart.transform.Find("Partname").GetComponent<Text>().text = gameCommandItem.BlueprintCommandItem.BlueprintName;
                 commandPart.transform.Find("Content").GetComponent<Text>().text = gameCommandItem.AttachedUnitId;
                 commandPart.SetActive(commandPart);
-            }
+            }*/
         }
 
         private void DisplayUnitframe(UnitBase unit)
