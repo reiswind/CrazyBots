@@ -168,16 +168,21 @@ namespace Assets.Scripts
 
         private void Update()
         {
-            
+            Position3 targetPosition3;
+            if (CommandPreview.IsMoveMode)
+            {
+                targetPosition3 = new Position3(CommandPreview.DisplayPosition);
+            }
+            else
+            {
+                targetPosition3 = new Position3(CommandPreview.GameCommand.TargetPosition);
+            }
+
             foreach (MapGameCommandItem mapGameCommandItem in CommandPreview.GameCommand.GameCommandItems)
             {
-                Position3 groundCubePos = new Position3();
-                Position3 unitCubePos;
-                unitCubePos = groundCubePos.Add(mapGameCommandItem.BlueprintCommandItem.Position3);
-
                 foreach (CommandAttachedUnit commandAttachedUnit in CommandPreview.PreviewUnits)
                 {
-                    if (commandAttachedUnit.Position3.Pos == unitCubePos.Pos)
+                    if (commandAttachedUnit.Position3 == mapGameCommandItem.BlueprintCommandItem.Position3)
                     {
                         if (string.IsNullOrEmpty(mapGameCommandItem.AttachedUnitId))
                         {
@@ -267,60 +272,76 @@ namespace Assets.Scripts
                 List<UnitBase> remainHighlighted = new List<UnitBase>();
                 remainHighlighted.AddRange(highlightedUnits);
 
-                Position3 targetPosition;
                 if (CommandPreview.IsMoveMode)
-                {
-                    targetPosition = new Position3(CommandPreview.DisplayPosition);
-                }
-                else
-                {
-                    targetPosition = new Position3(CommandPreview.GameCommand.TargetPosition);
-                }
-
-                foreach (MapGameCommandItem mapGameCommandItem in CommandPreview.GameCommand.GameCommandItems)
                 {
                     if (CommandPreview.GameCommand.GameCommandType != GameCommandType.Collect)
                     {
-                        Position3 relativePosition3 = targetPosition.Add(mapGameCommandItem.BlueprintCommandItem.Position3);
-
-                        Position2 position2 = relativePosition3.Pos;
-                        GroundCell gc;
-                        if (highlightedGroundCells.TryGetValue(position2, out gc))
+                        foreach (CommandAttachedUnit commandAttachedUnit in CommandPreview.PreviewUnits)
                         {
-                            remainingPos.Remove(position2);
-                        }
-                        else
-                        {
-                            gc = HexGrid.MainGrid.GroundCells[position2];
-                            gc.SetHighlighted(IsHighlighted);
-                            highlightedGroundCells.Add(gc.Pos, gc);
-                            remainingPos.Remove(position2);
+                            Position3 relativePosition3 = targetPosition3.Add(commandAttachedUnit.RotatedPosition3);
+                            Position2 position2 = relativePosition3.Pos;
+                            GroundCell gc;
+                            if (highlightedGroundCells.TryGetValue(position2, out gc))
+                            {
+                                remainingPos.Remove(position2);
+                            }
+                            else
+                            {
+                                gc = HexGrid.MainGrid.GroundCells[position2];
+                                gc.SetHighlighted(IsHighlighted);
+                                highlightedGroundCells.Add(gc.Pos, gc);
+                                remainingPos.Remove(position2);
+                            }
                         }
                     }
-
-                    if (!string.IsNullOrEmpty(mapGameCommandItem.AttachedUnitId))
+                }
+                else
+                {
+                    foreach (MapGameCommandItem mapGameCommandItem in CommandPreview.GameCommand.GameCommandItems)
                     {
-                        UnitBase unitBase;
-                        if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.AttachedUnitId, out unitBase))
+                        if (CommandPreview.GameCommand.GameCommandType != GameCommandType.Collect)
                         {
-                            if (!highlightedUnits.Contains(unitBase))
-                                highlightedUnits.Add(unitBase);
-                            else
-                                remainHighlighted.Remove(unitBase);
+                            Position3 relativePosition3 = targetPosition3.Add(mapGameCommandItem.BlueprintCommandItem.Position3);
 
-                            unitBase.SetHighlighted(IsHighlighted);
+                            Position2 position2 = relativePosition3.Pos;
+                            GroundCell gc;
+                            if (highlightedGroundCells.TryGetValue(position2, out gc))
+                            {
+                                remainingPos.Remove(position2);
+                            }
+                            else
+                            {
+                                gc = HexGrid.MainGrid.GroundCells[position2];
+                                gc.SetHighlighted(IsHighlighted);
+                                highlightedGroundCells.Add(gc.Pos, gc);
+                                remainingPos.Remove(position2);
+                            }
                         }
-                    }
-                    if (!string.IsNullOrEmpty(mapGameCommandItem.FactoryUnitId))
-                    {
-                        UnitBase unitBase;
-                        if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.FactoryUnitId, out unitBase))
+
+                        if (!string.IsNullOrEmpty(mapGameCommandItem.AttachedUnitId))
                         {
-                            if (!highlightedUnits.Contains(unitBase))
-                                highlightedUnits.Add(unitBase);
-                            else
-                                remainHighlighted.Remove(unitBase);
-                            unitBase.SetHighlighted(IsHighlighted);
+                            UnitBase unitBase;
+                            if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.AttachedUnitId, out unitBase))
+                            {
+                                if (!highlightedUnits.Contains(unitBase))
+                                    highlightedUnits.Add(unitBase);
+                                else
+                                    remainHighlighted.Remove(unitBase);
+
+                                unitBase.SetHighlighted(IsHighlighted);
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(mapGameCommandItem.FactoryUnitId))
+                        {
+                            UnitBase unitBase;
+                            if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.FactoryUnitId, out unitBase))
+                            {
+                                if (!highlightedUnits.Contains(unitBase))
+                                    highlightedUnits.Add(unitBase);
+                                else
+                                    remainHighlighted.Remove(unitBase);
+                                unitBase.SetHighlighted(IsHighlighted);
+                            }
                         }
                     }
                 }

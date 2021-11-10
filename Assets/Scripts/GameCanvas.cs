@@ -50,7 +50,7 @@ namespace Assets.Scripts
     {
         None,
         Select,
-        CommandPreview,
+        Preview,
         Command
     }
 
@@ -456,7 +456,7 @@ namespace Assets.Scripts
                     HideButton(idx++);
                 }
             }
-            if (canvasMode == CanvasMode.CommandPreview)
+            if (canvasMode == CanvasMode.Preview)
             {
                 if (selectedCommandPreview.GameCommand.GameCommandType == GameCommandType.Collect)
                 {
@@ -497,7 +497,7 @@ namespace Assets.Scripts
             if (selectedCommandPreview != null)
             {
                 selectedCommandPreview.AddUnitCommand(bluePrint);
-                SetMode(CanvasMode.CommandPreview);
+                SetMode(CanvasMode.Preview);
             }
         }
         void MoveCommand()
@@ -505,7 +505,16 @@ namespace Assets.Scripts
             if (selectedCommandPreview != null)
             {
                 selectedCommandPreview.SelectMoveMode();
-                SetMode(CanvasMode.CommandPreview);
+                SetMode(CanvasMode.Preview);
+            }
+        }        
+        
+        void RotateCommand()
+        {
+            if (selectedCommandPreview != null)
+            {
+                selectedCommandPreview.RotateCommand();
+                SetMode(CanvasMode.Preview);
             }
         }
 
@@ -529,7 +538,7 @@ namespace Assets.Scripts
                     selectedCommandPreview = new CommandPreview();
                     selectedCommandPreview.CreateCommandForBuild(blueprintCommand.Copy());
                     highlightedCommandPreview = selectedCommandPreview;
-                    SetMode(CanvasMode.CommandPreview);
+                    SetMode(CanvasMode.Preview);
                 }
                 /*
                 else if (blueprintCommand.GameCommandType == GameCommandType.Collect)
@@ -546,6 +555,13 @@ namespace Assets.Scripts
                 }*/
             }
 
+            if (canvasMode == CanvasMode.Preview)
+            {
+                if (btn == 1)
+                {
+                    RotateCommand();
+                }
+            }
             if (canvasMode == CanvasMode.Command)
             {
                 if (btn == 1)
@@ -840,7 +856,7 @@ namespace Assets.Scripts
             {
                 UpdateSelectMode();
             }
-            else if (canvasMode == CanvasMode.CommandPreview)
+            else if (canvasMode == CanvasMode.Preview)
             {
                 UpdateCommandPreviewMode();
             }
@@ -978,6 +994,10 @@ namespace Assets.Scripts
             }
             if (Input.GetKeyDown(KeyCode.E))
             {
+                if (canvasMode == CanvasMode.Preview)
+                {
+                    RotateCommand();
+                }
                 if (canvasMode == CanvasMode.Command)
                 {
                     MoveCommand();
@@ -1139,7 +1159,6 @@ namespace Assets.Scripts
             {
                 if (hitByMouseClick.CommandPreview != null)
                 {
-                    
                     HideAllParts();
                     
                     if (highlightedCommandPreview != hitByMouseClick.CommandPreview)
@@ -1158,28 +1177,27 @@ namespace Assets.Scripts
                         }
                         HighlightGameCommand(hitByMouseClick.CommandPreview);
                     }
-                    
+                    DisplayGameCommand(highlightedCommandPreview);
+                    /*
                     if (hitByMouseClick.UnitBase == null)
                     {
-                        DisplayGameCommand(highlightedCommandPreview);
+                        
                     }
                     else
                     {
                         DisplayUnitframe(hitByMouseClick.UnitBase);
-                    }
+                    }*/
                 }
                 else if (hitByMouseClick.UnitBase != null)
                 {
                     HideAllParts();
                     UnSelectGroundCell();
                     UnHighlightGameCommand();
-                    //SelectUnitFrame(hitByMouseClick.UnitBase);
                     DisplayUnitframe(hitByMouseClick.UnitBase);
                 }
                 else if (hitByMouseClick.GroundCell != null)
                 {
                     ShowNothing();
-                    //SelectGroundCell(hitByMouseClick.GroundCell);
                     AppendGroundInfo(hitByMouseClick.GroundCell, true);
                 }
                 else
@@ -1190,9 +1208,6 @@ namespace Assets.Scripts
         }
         private void ShowNothing()
         {
-            //Debug.Log("ShowNothing");
-
-
             UnSelectGroundCell();
             UnHighlightGameCommand();
             UnselectUnitFrame();

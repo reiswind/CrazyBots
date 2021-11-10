@@ -52,7 +52,7 @@ namespace Engine.Interface
         /// </summary>
         public int S { get { return s; } }
 
-        /*
+        
         public bool Equals(Position3 other)
         {
             return q == other.q && r == other.r && s == other.s;
@@ -66,14 +66,16 @@ namespace Engine.Interface
             if (!(obj is Position3)) return false;
             var other = (Position3)obj;
             return q == other.q && r == other.r && s == other.s;
-        }*/
-        /* Leave it to c# (fit 3 int into 1)
+        }
+        /* Leave it to c# (fit 3 int into 1)*/
         public override int GetHashCode()
         {
+            return base.GetHashCode();
+            /*
             BitConverter.
             int b = sizeof(int);
-            return q*16 + r*8 + s;
-        }*/
+            return q*16 + r*8 + s;*/
+        }
 
         /*
         public void MoveRightDown(Map map, int range)
