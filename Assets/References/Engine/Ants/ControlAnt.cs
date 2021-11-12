@@ -399,7 +399,7 @@ namespace Engine.Ants
             foreach (GameCommand gameCommand in player.GameCommands)
             {
                 if (gameCommand.GameCommandType == GameCommandType.Build &&
-                    gameCommand.BlueprintCommand.Name == "Container" &&
+                    gameCommand.BlueprintName == "Container" &&
                     gameCommand.TargetZone == zoneId)
                 {
                     // Is already in progress
@@ -1476,8 +1476,13 @@ namespace Engine.Ants
                         {
                             foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
                             {
-                                GameCommandItem otherGameCommandItem = new GameCommandItem(otherGameCommand, gameCommandItem.BlueprintCommandItem);
-
+                                GameCommandItem otherGameCommandItem = new GameCommandItem(otherGameCommand);
+                                otherGameCommandItem.Direction = gameCommandItem.Direction;
+                                otherGameCommandItem.BlueprintName = gameCommandItem.BlueprintName;
+                                otherGameCommandItem.Position3 = gameCommandItem.Position3;
+                                otherGameCommandItem.RotatedDirection = gameCommandItem.RotatedDirection;
+                                otherGameCommandItem.RotatedPosition3 = gameCommandItem.RotatedPosition3;
+                                
                                 otherGameCommand.GameCommandItems.Add(otherGameCommandItem);
                             }
                             break;
@@ -1490,8 +1495,28 @@ namespace Engine.Ants
                     {
                         if (moveGameCommand.TargetPosition == gameCommand.TargetPosition)
                         {
+                            foreach (GameCommandItem moveGameCommandItem in moveGameCommand.GameCommandItems)
+                            {
+                                foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
+                                {
+                                    if (gameCommandItem.Position3 == moveGameCommandItem.Position3)
+                                    {
+                                        moveGameCommandItem.Position3 = gameCommandItem.RotatedPosition3;
+                                        moveGameCommandItem.Direction = gameCommandItem.RotatedDirection;
+                                        break;
+                                    }
+
+                                    /*
+                                    foreach (BlueprintCommandItem moveBlueprintCommandItem in moveGameCommand.BlueprintCommand.Units)
+                                    {
+
+
+                                    }*/
+                                }
+                            }
                             moveGameCommand.TargetPosition = gameCommand.MoveToPosition;
                             moveGameCommand.IncludedPositions = gameCommand.IncludedPositions;
+                            
                             gameCommand.CommandComplete = true;
                             removeCommands.Add(gameCommand);
                             completedCommands.Add(gameCommand);
@@ -1508,7 +1533,7 @@ namespace Engine.Ants
                     {
                         if (otherGameCommand != gameCommand &&
                             otherGameCommand.TargetPosition == gameCommand.TargetPosition &&
-                            otherGameCommand.BlueprintCommand.Name == gameCommand.BlueprintCommand.Name)
+                            otherGameCommand.BlueprintName == gameCommand.BlueprintName)
                         {
                             foreach (Ant ant in unmovedAnts)
                             {
@@ -1609,7 +1634,7 @@ namespace Engine.Ants
                                 }
                                 else
                                 {
-                                    if (ant.PlayerUnit.Unit.Blueprint.Name == gameCommandItem.BlueprintCommandItem.BlueprintName)
+                                    if (ant.PlayerUnit.Unit.Blueprint.Name == gameCommandItem.BlueprintName)
                                     {
                                         gameCommandItem.AttachedUnitId = ant.PlayerUnit.Unit.UnitId;
                                         ant.PlayerUnit.Unit.SetGameCommand(gameCommandItem);
@@ -2445,9 +2470,10 @@ namespace Engine.Ants
             {
                 if (gameCommand.GameCommandType == GameCommandType.Build)
                 {
-                    foreach (BlueprintCommandItem blueprintCommandItem in gameCommand.BlueprintCommand.Units)
+                    //foreach (BlueprintCommandItem blueprintCommandItem in gameCommand.BlueprintCommand.Units)
+                    foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
                     {
-                        if (blueprintCommandItem.BlueprintName == "Container")
+                        if (gameCommandItem.BlueprintName == "Container")
                         {
                             AntCollect antCollect;
                             if (exceedingMinerals.TryGetValue(gameCommand.TargetZone, out antCollect))

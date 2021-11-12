@@ -25,50 +25,13 @@ namespace Engine.Interface
         public List<MapGameCommand> GameCommands { get; set; }
     }
 
+    /*
     public class MapBlueprintCommandItem
     {
         public Position3 Position3 { get; set; }
         public Direction Direction { get; set; }
         public string BlueprintName { get; set; }
-    }
-
-    public class MapBlueprintCommand
-    {
-        public MapBlueprintCommand()
-        {
-            Units = new List<MapBlueprintCommandItem>();
-        }
-        public string Name { get; set; }
-        public string Layout { get; set; }
-
-        public GameCommandType GameCommandType { get; set; }
-
-        public List<MapBlueprintCommandItem> Units { get; private set; }
-
-        internal BlueprintCommand Copy()
-        {
-            BlueprintCommand mapBlueprintCommand = new BlueprintCommand();
-
-            mapBlueprintCommand.GameCommandType = GameCommandType;
-            mapBlueprintCommand.Layout = Layout;
-            mapBlueprintCommand.Name = Name;
-            foreach (MapBlueprintCommandItem mapBlueprintCommandItem in Units)
-            {
-                BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
-                blueprintCommandItem.BlueprintName = mapBlueprintCommandItem.BlueprintName;
-                blueprintCommandItem.Direction = mapBlueprintCommandItem.Direction;
-                blueprintCommandItem.Position3 = mapBlueprintCommandItem.Position3;
-                mapBlueprintCommand.Units.Add(blueprintCommandItem);
-            }
-            return mapBlueprintCommand;
-        }
-
-        public override string ToString()
-        {
-            return Name;
-        }
-    }
-
+    }*/
 
     public class MapGameCommand
     {
@@ -87,7 +50,7 @@ namespace Engine.Interface
         public Position2 TargetPosition { get; set; }
         public Position2 MoveToPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
-        public MapBlueprintCommand BlueprintCommand { get; set; }
+
         public List<MapGameCommandItem> GameCommandItems { get; private set; }
         public override string ToString()
         {
@@ -104,14 +67,26 @@ namespace Engine.Interface
     }
     public class MapGameCommandItem
     {
+        internal MapGameCommandItem(MapGameCommand gamecommand)
+        {
+            GameCommand = gamecommand;
+        }
         internal MapGameCommandItem(MapGameCommand gamecommand, BlueprintCommandItem blueprintCommandItem)
         {
             GameCommand = gamecommand;
-            BlueprintCommandItem = blueprintCommandItem;
+            Position3 = blueprintCommandItem.Position3;
+            Direction = blueprintCommandItem.Direction;
+            BlueprintName = blueprintCommandItem.BlueprintName;
         }
         // Runtime info
         public string AttachedUnitId { get; set; }
-        public BlueprintCommandItem BlueprintCommandItem { get; private set; }
+        public Position3 Position3 { get; set; }
+        public Direction Direction { get; set; }
+
+        public Position3 RotatedPosition3 { get; set; }       
+        public Direction RotatedDirection { get; set; }
+
+        public string BlueprintName { get; set; }
         public MapGameCommand GameCommand { get; private set; }
         public string FactoryUnitId { get; set; }
     }
@@ -220,7 +195,7 @@ namespace Engine.Interface
                         {
                             MapGameCommand mapGameCommand = new MapGameCommand();
 
-                            mapGameCommand.BlueprintCommand = gameCommand.BlueprintCommand.Copy();
+                            //mapGameCommand.BlueprintCommand = gameCommand.BlueprintCommand.Copy();
                             mapGameCommand.CommandCanceled = gameCommand.CommandCanceled;
                             mapGameCommand.CommandComplete = gameCommand.CommandComplete;
                             mapGameCommand.DeleteWhenFinished = gameCommand.DeleteWhenFinished;
@@ -234,7 +209,10 @@ namespace Engine.Interface
 
                             foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
                             {
-                                MapGameCommandItem mapGameCommandItem = new MapGameCommandItem(mapGameCommand, gameCommandItem.BlueprintCommandItem);
+                                MapGameCommandItem mapGameCommandItem = new MapGameCommandItem(mapGameCommand);
+                                mapGameCommandItem.BlueprintName = gameCommandItem.BlueprintName;
+                                mapGameCommandItem.Direction = gameCommandItem.Direction;
+                                mapGameCommandItem.Position3 = gameCommandItem.Position3;
                                 mapGameCommandItem.AttachedUnitId = gameCommandItem.AttachedUnitId;
                                 mapGameCommandItem.FactoryUnitId = gameCommandItem.FactoryUnitId;
                                 mapGameCommand.GameCommandItems.Add(mapGameCommandItem);

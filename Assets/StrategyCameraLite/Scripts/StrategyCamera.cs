@@ -73,7 +73,7 @@ public class StrategyCamera : MonoBehaviour
 	private Quaternion targetRotation;
 	private float targetZoom;
 	private float currentZoom;
-	private Camera MiniMapCamera;
+	//private Camera MiniMapCamera;
 	// Start is called before the first frame update
 	void Awake()
 	{
@@ -139,20 +139,13 @@ public class StrategyCamera : MonoBehaviour
 		Zoom(minZoom);
 
 		transform.SetPositionAndRotation(targetPosition, targetRotation);
-
+		/*
 		if (MiniMapCamera != null)
 		{
 			Vector3 miniMapPosition = targetPosition;
 			miniMapPosition.y = 5;
 			MiniMapCamera.transform.position = miniMapPosition;
 
-			//miniMapPosition.y = -10;
-
-
-			//Vector3 miniMapWorldPosition = Camera.main.transform.TransformPoint(MiniMapCamera.transform.position);
-			//Vector3 targetPositionWorldPosition = Camera.main.ScreenToWorldPoint(new Vector3(100,100,100));
-
-			
 
 			Ray ray = Camera.main.ScreenPointToRay(targetPosition);
 			Debug.DrawRay(ray.origin, ray.direction, Color.yellow);
@@ -175,7 +168,7 @@ public class StrategyCamera : MonoBehaviour
 					
 				}
 			}
-		}
+		}*/
 	}
 
 	private void Movement()

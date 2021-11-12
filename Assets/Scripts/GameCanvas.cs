@@ -281,7 +281,6 @@ namespace Assets.Scripts
                 if (selectedCommandPreview != null && selectedCommandPreview == highlightedCommandPreview)
                 {
                     // Keep it highlighted
-                    int x = 0;
                 }
                 else
                 {
@@ -536,7 +535,7 @@ namespace Assets.Scripts
                 //if (blueprintCommand.GameCommandType == GameCommandType.Build)
                 {
                     selectedCommandPreview = new CommandPreview();
-                    selectedCommandPreview.CreateCommandForBuild(blueprintCommand.Copy());
+                    selectedCommandPreview.CreateCommandForBuild(blueprintCommand);
                     highlightedCommandPreview = selectedCommandPreview;
                     SetMode(CanvasMode.Preview);
                 }
@@ -866,20 +865,17 @@ namespace Assets.Scripts
             }
         }
 
-        private bool leftMouseButtonDown;
 
         private bool CheckMouseButtons()
         {
             if (Input.GetMouseButtonDown(0))
             {
                 Debug.Log("LEFT MOUSE DOWN");
-                leftMouseButtonDown = true;
                 lastSelectedGroundCell = null;
             }
             if (Input.GetMouseButtonUp(0))
             {
                 Debug.Log("LEFT MOUSE UP");
-                leftMouseButtonDown = false;
             }
             if (Input.GetMouseButtonDown(1))
             {
@@ -923,10 +919,10 @@ namespace Assets.Scripts
                         selectedCommandPreview.SetActive(false);
 
                         // Keep executed command
-                        BlueprintCommand blueprintCommandCopy = selectedCommandPreview.GameCommand.BlueprintCommand.Copy();
+                        BlueprintCommand blueprintCommand = null; // Copy = selectedCommandPreview.GameCommand.BlueprintCommand;
 
                         selectedCommandPreview = new CommandPreview();
-                        selectedCommandPreview.CreateCommandForBuild(blueprintCommandCopy.Copy());
+                        selectedCommandPreview.CreateCommandForBuild(blueprintCommand);
 
                         //selectedCommandPreview.SetSelected(true);
                         //SetMode(CanvasMode.Command);
@@ -948,10 +944,10 @@ namespace Assets.Scripts
                         selectedCommandPreview.SetSelected(false);
                         selectedCommandPreview.SetActive(false);
 
-                        BlueprintCommand blueprintCommandCopy = selectedCommandPreview.GameCommand.BlueprintCommand.Copy();
+                        BlueprintCommand blueprintCommandCopy = null; // selectedCommandPreview.GameCommand.BlueprintCommand.Copy();
 
                         selectedCommandPreview = new CommandPreview();
-                        selectedCommandPreview.CreateCommandForBuild(blueprintCommandCopy.Copy());
+                        selectedCommandPreview.CreateCommandForBuild(blueprintCommandCopy);
                     }
                     else
                     {
@@ -1239,7 +1235,7 @@ namespace Assets.Scripts
         {
             GameObject commandPart = Instantiate(panelCommand, panelParts);
             commandPart.transform.Find("Partname").GetComponent<Text>().text = moveUpdateStatsCommand.GameCommandType.ToString() + " at " + moveUpdateStatsCommand.TargetPosition.ToString();
-            commandPart.transform.Find("Content").GetComponent<Text>().text = moveUpdateStatsCommand.BlueprintCommandItem.BlueprintName;
+            commandPart.transform.Find("Content").GetComponent<Text>().text = "";
             commandPart.SetActive(commandPart);
         }
 
@@ -1249,7 +1245,7 @@ namespace Assets.Scripts
 
             MapGameCommand gameCommand = commandPreview.GameCommand;
             headerText.text = gameCommand.GameCommandType.ToString() ;
-            headerSubText.text = gameCommand.BlueprintCommand.Name + " at: " + gameCommand.TargetPosition.ToString();
+            headerSubText.text = " at: " + gameCommand.TargetPosition.ToString();
             headerGroundText.text = " Sel: " + commandPreview.IsSelected.ToString();
             /*
             foreach (MapGameCommandItem gameCommandItem in gameCommand.GameCommandItems)

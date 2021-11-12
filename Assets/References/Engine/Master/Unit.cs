@@ -269,25 +269,27 @@ namespace Engine.Master
             return capacity;
         }
 
+        private int numberOfParts;
+
         public int CountParts()
         {
-            int parts = 0;
+            numberOfParts = 0;
 
-            if (Engine != null) parts += Engine.Level;
-            if (Armor != null) parts += Armor.Level;
-            if (Weapon != null) parts += Weapon.Level;
-            if (Assembler != null) parts += Assembler.Level;
-            if (Extractor != null) parts += Extractor.Level;
-            if (Container != null) parts += Container.Level;
-            if (Reactor != null) parts += Reactor.Level;
-            if (Radar != null) parts += Radar.Level;
+            if (Engine != null) numberOfParts += Engine.Level;
+            if (Armor != null) numberOfParts += Armor.Level;
+            if (Weapon != null) numberOfParts += Weapon.Level;
+            if (Assembler != null) numberOfParts += Assembler.Level;
+            if (Extractor != null) numberOfParts += Extractor.Level;
+            if (Container != null) numberOfParts += Container.Level;
+            if (Reactor != null) numberOfParts += Reactor.Level;
+            if (Radar != null) numberOfParts += Radar.Level;
 
-            return parts;
+            return numberOfParts;
         }
 
         public bool IsComplete()
         {
-            return CountParts() >= 4;
+            return numberOfParts >= 4;
         }
 
         public bool HasParts()
@@ -440,6 +442,7 @@ namespace Engine.Master
             {
                 throw new Exception();
             }
+            CountParts();
             return createdAbility;
         }
 
@@ -487,6 +490,7 @@ namespace Engine.Master
                 }
                 while (ability.Level < blueprintPart.Level);
             }
+            
             UnderConstruction = false;
         }
 
@@ -643,10 +647,9 @@ namespace Engine.Master
                 stats.MoveUpdateStatsCommand.TargetPosition = CurrentGameCommand.GameCommand.TargetPosition;
                 stats.MoveUpdateStatsCommand.AttachedUnitId = CurrentGameCommand.AttachedUnitId;
                 stats.MoveUpdateStatsCommand.FactoryUnitId = CurrentGameCommand.FactoryUnitId;
-                stats.MoveUpdateStatsCommand.BlueprintCommandItem = CurrentGameCommand.BlueprintCommandItem;
+                
 
             }
-
             return stats;
         }
 
@@ -730,6 +733,7 @@ namespace Engine.Master
                     level--;
                 }
             }
+            CountParts();
             return partHit;
         }
        

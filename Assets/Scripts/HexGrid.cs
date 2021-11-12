@@ -1623,7 +1623,7 @@ namespace Assets.Scripts
             {
                 foreach (CommandAttachedUnit commandAttachedUnit in mapGameCommand.PreviewUnits)
                 {
-                    if (commandAttachedUnit.UnitBase == unitBase)
+                    if (commandAttachedUnit.GhostUnit == unitBase)
                     {
                         // Preview Ghost unit
                         return mapGameCommand;

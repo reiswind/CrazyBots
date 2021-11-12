@@ -24,17 +24,29 @@ namespace Engine.Interface
     }
     internal class GameCommandItem
     {
-        internal GameCommandItem(GameCommand gamecommand, BlueprintCommandItem blueprintCommandItem)
+        internal GameCommandItem(GameCommand gamecommand)
         {
             GameCommand = gamecommand;
-            BlueprintCommandItem = blueprintCommandItem;
+        }
+        internal GameCommandItem(GameCommand gamecommand, BlueprintCommandItem blueprintCommandItem)
+        {
+            BlueprintName = blueprintCommandItem.BlueprintName;
+            Position3 = blueprintCommandItem.Position3;
+            Direction = blueprintCommandItem.Direction;
+            GameCommand = gamecommand;
         }
         // Runtime info
+        internal Direction Direction { get; set; }
+        internal Position3 Position3 { get; set; }
+
+        public Position3 RotatedPosition3 { get; set; }
+        public Direction RotatedDirection { get; set; }
+
+        internal string BlueprintName { get; set; }
         internal string AttachedUnitId { get; set; }
-        internal BlueprintCommandItem BlueprintCommandItem { get; private set; }
         internal GameCommand GameCommand { get; private set; }
         internal string FactoryUnitId { get; set; }
-
+        
         public override string ToString()
         {
             return GameCommand.ToString();
@@ -42,9 +54,14 @@ namespace Engine.Interface
     }
     internal class GameCommand
     {
+        public GameCommand()
+        {
+            GameCommandItems = new List<GameCommandItem>();
+        }
         public GameCommand(BlueprintCommand blueprintCommand)
         {
-            BlueprintCommand = blueprintCommand;
+            //BlueprintCommand = blueprintCommand;
+            BlueprintName = blueprintCommand.Name;
             GameCommandItems = new List<GameCommandItem>();
             GameCommandType = blueprintCommand.GameCommandType;
             foreach (BlueprintCommandItem blueprintCommandItem in blueprintCommand.Units)
@@ -53,6 +70,7 @@ namespace Engine.Interface
                 GameCommandItems.Add(gameCommandItem);
             }
         }
+        public string BlueprintName { get; set; }
         public string Status { get; set; }
         public bool CommandComplete { get; set; }
         public bool DeleteWhenFinished { get; set; }
@@ -63,7 +81,7 @@ namespace Engine.Interface
         public Position2 TargetPosition { get; set; }
         public Position2 MoveToPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
-        public BlueprintCommand BlueprintCommand { get; private set; }
+        //public BlueprintCommand BlueprintCommand { get; private set; }
         public List<GameCommandItem> GameCommandItems { get; private set; }
 
         internal Dictionary<Position2, TileWithDistance> IncludedPositions { get; set; }
@@ -76,7 +94,7 @@ namespace Engine.Interface
 
             foreach (GameCommandItem blueprintCommandItem in GameCommandItems)
             {
-                s += blueprintCommandItem.BlueprintCommandItem.BlueprintName;
+                s += blueprintCommandItem.BlueprintName;
                 s += " ";
                 if (blueprintCommandItem.FactoryUnitId != null)
                     s += " Factory" + blueprintCommandItem.FactoryUnitId;

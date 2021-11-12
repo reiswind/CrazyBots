@@ -157,7 +157,7 @@ namespace Assets.Scripts
             }
         }
 
-        void UpdateDirection(Vector3 position)
+        public void UpdateDirection(Vector3 position)
         {
             //float speed = 1.75f;
             float speed = 3.5f / HexGrid.MainGrid.GameSpeed;
@@ -217,7 +217,10 @@ namespace Assets.Scripts
 
                 if (updateVisibility || IsVisible != targetCell.Visible)
                 {
-                    IsVisible = targetCell.Visible;
+                    if (IsGhost)
+                        IsVisible = true;
+                    else
+                        IsVisible = targetCell.Visible;
                 }
             }
         }
@@ -259,18 +262,18 @@ namespace Assets.Scripts
             Destroy(this.gameObject);
         }
         private bool selectionChanged;
-        public bool IsSelected { get; private set; }
+        public bool IsHighlighted { get; private set; }
 
         private HighlightEffect highlightEffect { get; set; }
 
-        internal void SetHighlighted(bool selected)
+        internal void SetHighlighted(bool highlighted)
         {
-            if (IsSelected != selected)
+            if (IsHighlighted != highlighted)
             {
                 selectionChanged = true;
-                IsSelected = selected;
+                IsHighlighted = highlighted;
                 if (highlightEffect)
-                    highlightEffect.SetHighlighted(IsSelected);
+                    highlightEffect.SetHighlighted(highlighted);
 
                 if (!Temporary)
                 {
@@ -311,7 +314,7 @@ namespace Assets.Scripts
         {
             foreach (UnitCommand unitCommand in UnitCommands)
             {
-                if (IsSelected)
+                if (IsHighlighted)
                 {
                     if (unitCommand.GameObject == null)
                     {

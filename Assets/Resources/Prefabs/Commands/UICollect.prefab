@@ -29,7 +29,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2605561231051362492}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.027916, y: 0, z: 0.026371}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.4655, y: 1, z: 1.4351}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -155,7 +155,7 @@ MonoBehaviour:
   overlayBlending: 1
   outline: 1
   outlineColor: {r: 2.6806288, g: 2.6806288, b: 0, a: 1}
-  outlineWidth: 0.4
+  outlineWidth: 0.3
   outlineQuality: 3
   outlineDownsampling: 2
   outlineVisibility: 0
@@ -186,7 +186,7 @@ MonoBehaviour:
   - offset: 1
     alpha: 0.4
     color: {r: 0.64, g: 1, b: 0, a: 1}
-  innerGlow: 3
+  innerGlow: 0
   innerGlowWidth: 1
   innerGlowColor: {r: 0.10913216, g: 2.680629, b: 0, a: 1}
   innerGlowVisibility: 0

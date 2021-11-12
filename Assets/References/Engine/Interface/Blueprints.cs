@@ -283,6 +283,7 @@ namespace Engine.Interface
 
         public List<BlueprintCommandItem> Units { get; private set; }
 
+        /*
         public BlueprintCommand CopySelf()
         {
             BlueprintCommand mapBueprintCommand = new BlueprintCommand();
@@ -300,7 +301,7 @@ namespace Engine.Interface
             }
             return mapBueprintCommand;
         }
-
+        
         public MapBlueprintCommand Copy()
         {
             MapBlueprintCommand mapBueprintCommand = new MapBlueprintCommand();
@@ -314,10 +315,13 @@ namespace Engine.Interface
                 blueprintCommandItem.BlueprintName = mapBlueprintCommandItem.BlueprintName;
                 blueprintCommandItem.Direction = mapBlueprintCommandItem.Direction;
                 blueprintCommandItem.Position3 = mapBlueprintCommandItem.Position3;
+                blueprintCommandItem.RotatedDirection = mapBlueprintCommandItem.RotatedDirection;
+                blueprintCommandItem.RotatedPosition3 = mapBlueprintCommandItem.RotatedPosition3;
+
                 mapBueprintCommand.Units.Add(blueprintCommandItem);
             }
             return mapBueprintCommand;
-        }
+        }*/
 
         public override string ToString()
         {

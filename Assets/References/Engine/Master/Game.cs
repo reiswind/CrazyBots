@@ -1593,7 +1593,7 @@ namespace Engine.Master
 
                 if (MoveNr == 2679)
                 {
-                    int x = 0;
+
                 }
 
                 changedUnits.Clear();
@@ -1675,7 +1675,7 @@ namespace Engine.Master
                 {
                     foreach (MapGameCommand mapGameCommand in gameCommands)
                     {
-                        GameCommand gameCommand = new GameCommand(mapGameCommand.BlueprintCommand.Copy());
+                        GameCommand gameCommand = new GameCommand();
 
                         gameCommand.DeleteWhenFinished = mapGameCommand.DeleteWhenFinished;
                         gameCommand.CommandCanceled = mapGameCommand.CommandCanceled;
@@ -1695,6 +1695,20 @@ namespace Engine.Master
                             else
                                 gameCommand.IncludedPositions = Map.EnumerateTiles(gameCommand.TargetPosition, gameCommand.Radius, true);
                         }
+                        
+                        foreach (MapGameCommandItem mapGameCommandItem in mapGameCommand.GameCommandItems)
+                        {
+                            GameCommandItem gameCommandItem = new GameCommandItem(gameCommand);
+                            gameCommandItem.Position3 = mapGameCommandItem.Position3;
+                            gameCommandItem.BlueprintName = mapGameCommandItem.BlueprintName;
+                            gameCommandItem.Direction = mapGameCommandItem.Direction;
+
+                            gameCommandItem.RotatedPosition3 = mapGameCommandItem.RotatedPosition3;
+                            gameCommandItem.RotatedDirection = mapGameCommandItem.RotatedDirection;
+
+                            gameCommand.GameCommandItems.Add(gameCommandItem);
+                        }
+
                         Player player;
 
                         if (Players.TryGetValue(mapGameCommand.PlayerId, out player))

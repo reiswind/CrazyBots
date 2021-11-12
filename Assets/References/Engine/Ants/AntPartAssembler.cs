@@ -154,7 +154,7 @@ namespace Engine.Ants
                         {
                             // Structure: Build unit or an assembler that moves there 
                             Blueprint commandBluePrint;
-                            commandBluePrint = player.Game.Blueprints.FindBlueprint(selectedGameCommand.BlueprintCommandItem.BlueprintName);
+                            commandBluePrint = player.Game.Blueprints.FindBlueprint(selectedGameCommand.BlueprintName);
 
                             bool engineFound = false;
                             foreach (BlueprintPart blueprintPart in commandBluePrint.Parts)

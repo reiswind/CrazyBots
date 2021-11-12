@@ -334,7 +334,7 @@ namespace Engine.Master
                                     {
                                         //if (blueprint.Name == blueprintCommandItem.BlueprintName)
                                         {
-                                            possibleMoves.Add(CreateAssembleMove(neighbor.Pos, Unit.CurrentGameCommand.BlueprintCommandItem.BlueprintName));
+                                            possibleMoves.Add(CreateAssembleMove(neighbor.Pos, Unit.CurrentGameCommand.BlueprintName));
                                         }
                                     }
                                 }

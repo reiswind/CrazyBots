@@ -89,7 +89,7 @@ namespace Engine.Interface
 
         internal void CollectVisiblePos(PlayerUnit playerUnit)
         {
-            if (playerUnit.Unit.UnderConstruction)
+            if (!playerUnit.Unit.IsComplete())
                 return;
 
             List<Position2> calcPos = new List<Position2>();

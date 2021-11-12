@@ -652,7 +652,10 @@ namespace Assets.Scripts
                         checkCellGameCommand.GameCommand.GameCommandType == gameCommand.GameCommandType)
                     {
                         cellGameCommand = checkCellGameCommand;
-                        cellGameCommand.GameCommand = gameCommand;
+                        if (cellGameCommand.UpdateCommandPreview(gameCommand))
+                        {
+                            cellGameCommand.SetPosition(this);
+                        }
                         cellGameCommand.Touched = true;
                         break;
                     }
@@ -663,8 +666,8 @@ namespace Assets.Scripts
                 if (commandPreview == null)
                 {
                     cellGameCommand = new CommandPreview();
-                    cellGameCommand.GameCommand = gameCommand;
-                    cellGameCommand.CreateCommandPreview(this);
+                    
+                    cellGameCommand.CreateCommandPreview(gameCommand);
                     cellGameCommand.SetActive(false);
                     cellGameCommand.SetPosition(this);
                     cellGameCommand.Touched = true;

@@ -191,7 +191,6 @@ namespace Engine.Interface
         public GameCommandType GameCommandType { get; set; }
         public string AttachedUnitId { get; set; }
         public string FactoryUnitId { get; set; }
-        public BlueprintCommandItem BlueprintCommandItem { get; set; }
     }
 
     public class MoveUpdateStats

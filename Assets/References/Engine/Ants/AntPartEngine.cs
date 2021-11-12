@@ -795,7 +795,7 @@ namespace Engine.Ants
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Attack)
                 {
                     Position3 commandCenter = new Position3(cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition);
-                    Position3 position3 = commandCenter.Add(cntrlUnit.CurrentGameCommand.BlueprintCommandItem.Position3);
+                    Position3 position3 = commandCenter.Add(cntrlUnit.CurrentGameCommand.Position3);
 
                     if (cntrlUnit.Pos == position3.Pos)
                         return true;
