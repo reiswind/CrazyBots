@@ -743,6 +743,22 @@ namespace Engine.Ants
 
                 }
             }
+            if (cntrlUnit.Pos != cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition)
+            {
+                if (cntrlUnit.Container == null || cntrlUnit.Container.TileContainer.Count == 0)
+                {
+                    // If empty, Wait at collect position target
+                    List<Position2> positions = player.Game.FindPath(cntrlUnit.Pos, cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition, cntrlUnit, true);
+                    if (positions != null && positions.Count >= 2)
+                    {
+                        Ant.FollowThisRoute = new List<Position2>();
+                        for (int i = 1; i < positions.Count; i++)
+                        {
+                            Ant.FollowThisRoute.Add(positions[i]);
+                        }
+                    }
+                }
+            }
             cntrlUnit.CurrentGameCommand.GameCommand.Status = "OutOfResources";
             cntrlUnit.CurrentGameCommand.GameCommand.CommandComplete = true;
         }

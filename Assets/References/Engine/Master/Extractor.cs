@@ -41,7 +41,11 @@ namespace Engine.Master
             Dictionary<Position2, TileWithDistance> includePositions = null;
             if (Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
             {
-                includePositions = Unit.CurrentGameCommand.GameCommand.IncludedPositions;
+                // Only for units who collect in the area, not for factory units
+                if (Unit.CurrentGameCommand.AttachedUnitId == Unit.UnitId)
+                {
+                    includePositions = Unit.CurrentGameCommand.GameCommand.IncludedPositions;
+                }
             }
 
             return Unit.Game.Map.EnumerateTiles(Unit.Pos, MetalCollectionRange, false, matcher: tile => 
