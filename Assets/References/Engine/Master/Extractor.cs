@@ -377,7 +377,7 @@ namespace Engine.Master
         public void ExtractFromUnit(Move move, Unit otherUnit, List<TileObject> removeTileObjects)
         {
             Ability hitPart = otherUnit.HitBy();
-            if (hitPart is Shield)
+            if (hitPart == null || hitPart is Shield)
             {
                 move.MoveType = MoveType.Skip;
                 return;

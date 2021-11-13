@@ -119,7 +119,7 @@ namespace Assets.Scripts
                 HitByBullet.BulletImpact = true;
 
                 // Play the particle system.
-                if (HitGroundExplosionParticles != null)
+                if (HitGroundExplosionParticles != null && hitUnit != null)
                 {
                     ParticleSystem particles = Instantiate(HitGroundExplosionParticles, hitUnit.transform);
                     particles.Play();

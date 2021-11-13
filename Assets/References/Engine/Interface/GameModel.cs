@@ -60,7 +60,7 @@ namespace Engine.Interface
         }
         public GameCommand(BlueprintCommand blueprintCommand)
         {
-            //BlueprintCommand = blueprintCommand;
+            Layout = blueprintCommand.Layout;
             BlueprintName = blueprintCommand.Name;
             GameCommandItems = new List<GameCommandItem>();
             GameCommandType = blueprintCommand.GameCommandType;
@@ -70,6 +70,7 @@ namespace Engine.Interface
                 GameCommandItems.Add(gameCommandItem);
             }
         }
+        public string Layout { get; set; }
         public string BlueprintName { get; set; }
         public string Status { get; set; }
         public bool CommandComplete { get; set; }
@@ -81,7 +82,6 @@ namespace Engine.Interface
         public Position2 TargetPosition { get; set; }
         public Position2 MoveToPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
-        //public BlueprintCommand BlueprintCommand { get; private set; }
         public List<GameCommandItem> GameCommandItems { get; private set; }
 
         internal Dictionary<Position2, TileWithDistance> IncludedPositions { get; set; }

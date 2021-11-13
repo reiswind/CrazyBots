@@ -39,6 +39,7 @@ namespace Engine.Interface
         {
             GameCommandItems = new List<MapGameCommandItem>();
         }
+        public string Layout { get; set; }
         public bool CommandComplete { get; set; }
         public bool DeleteWhenFinished { get; set; }
         public bool CommandCanceled { get; set; }
@@ -195,7 +196,6 @@ namespace Engine.Interface
                         {
                             MapGameCommand mapGameCommand = new MapGameCommand();
 
-                            //mapGameCommand.BlueprintCommand = gameCommand.BlueprintCommand.Copy();
                             mapGameCommand.CommandCanceled = gameCommand.CommandCanceled;
                             mapGameCommand.CommandComplete = gameCommand.CommandComplete;
                             mapGameCommand.DeleteWhenFinished = gameCommand.DeleteWhenFinished;
@@ -206,6 +206,7 @@ namespace Engine.Interface
                             mapGameCommand.TargetZone = gameCommand.TargetZone;
                             mapGameCommand.Status = gameCommand.Status;
                             mapGameCommand.Radius = gameCommand.Radius;
+                            mapGameCommand.Layout = gameCommand.Layout;
 
                             foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
                             {

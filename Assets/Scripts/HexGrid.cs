@@ -85,8 +85,8 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
             GameModel gameModel;
 
@@ -1292,7 +1292,7 @@ namespace Assets.Scripts
 
                 while (true)
                 {
-                    if (gameObject.transform.position.y > sinkTo)
+                    if (gameObject != null && gameObject.transform.position.y > sinkTo)
                     {
                         Vector3 pos = gameObject.transform.position;
                         pos.y -= 0.01f;
@@ -1301,7 +1301,8 @@ namespace Assets.Scripts
                     }
                     else
                     {
-                        Destroy(gameObject);
+                        if (gameObject != null)
+                            Destroy(gameObject);
                         yield break;
                     }
                 }

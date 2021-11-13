@@ -267,7 +267,8 @@ namespace Assets.Scripts
                 }
                 else
                 {
-                    highlightedCommandPreview.Command.SetHighlighted(false);
+                    if (highlightedCommandPreview.Command != null)
+                        highlightedCommandPreview.Command.SetHighlighted(false);
                     highlightedCommandPreview.SetActive(false);
                     highlightedCommandPreview = null;
                 }
@@ -309,12 +310,12 @@ namespace Assets.Scripts
 
                 if (selectedUnitFrame.Temporary && selectedUnitFrame.CurrentPos != Position2.Null)
                 {
-                    Debug.Log("UnselectUnitFrame Temporary " + selectedUnitFrame.CurrentPos.ToString());
+                    // Debug.Log("UnselectUnitFrame Temporary " + selectedUnitFrame.CurrentPos.ToString());
                     Destroy(selectedUnitFrame.gameObject);
                 }
                 else
                 {
-                    Debug.Log("UnselectUnitFrame " + selectedUnitFrame.CurrentPos.ToString());
+                    //Debug.Log("UnselectUnitFrame " + selectedUnitFrame.CurrentPos.ToString());
                     selectedUnitFrame.SetHighlighted(false);
                 }
 
@@ -830,7 +831,7 @@ namespace Assets.Scripts
         {
             if (lastSelectedGroundCell != null)
             {
-                Debug.Log("UnSelectGroundCell " + lastSelectedGroundCell.Pos.ToString());
+                //Debug.Log("UnSelectGroundCell " + lastSelectedGroundCell.Pos.ToString());
 
                 lastSelectedGroundCell.SetHighlighted(false);
                 lastSelectedGroundCell = null;
@@ -870,16 +871,16 @@ namespace Assets.Scripts
         {
             if (Input.GetMouseButtonDown(0))
             {
-                Debug.Log("LEFT MOUSE DOWN");
+                //Debug.Log("LEFT MOUSE DOWN");
                 lastSelectedGroundCell = null;
             }
             if (Input.GetMouseButtonUp(0))
             {
-                Debug.Log("LEFT MOUSE UP");
+                //Debug.Log("LEFT MOUSE UP");
             }
             if (Input.GetMouseButtonDown(1))
             {
-                Debug.Log("RIGHT MOUSE DOWN");
+                //Debug.Log("RIGHT MOUSE DOWN");
 
                 SelectNothing();
                 UnSelectGroundCell();
@@ -904,7 +905,7 @@ namespace Assets.Scripts
             {
                 selectedCommandPreview.SetHighlighted(true);
             }
-            DisplayGameCommand(selectedCommandPreview);
+            //DisplayGameCommand(selectedCommandPreview);
 
             if (Input.GetMouseButtonDown(0) && selectedCommandPreview.CanExecute())
             {
@@ -1092,7 +1093,7 @@ namespace Assets.Scripts
             {
                 if (Input.GetMouseButtonDown(0))
                 {
-                    Debug.Log("LEFT MOUSE DOWN PRESSED");
+                    //Debug.Log("LEFT MOUSE DOWN PRESSED");
                     SelectWithLeftClick(hitByMouseClick);
                 }
             }
@@ -1173,16 +1174,12 @@ namespace Assets.Scripts
                         }
                         HighlightGameCommand(hitByMouseClick.CommandPreview);
                     }
-                    DisplayGameCommand(highlightedCommandPreview);
-                    /*
-                    if (hitByMouseClick.UnitBase == null)
-                    {
-                        
-                    }
-                    else
+                    //DisplayGameCommand(highlightedCommandPreview);
+                    
+                    if (hitByMouseClick.UnitBase != null)
                     {
                         DisplayUnitframe(hitByMouseClick.UnitBase);
-                    }*/
+                    }
                 }
                 else if (hitByMouseClick.UnitBase != null)
                 {

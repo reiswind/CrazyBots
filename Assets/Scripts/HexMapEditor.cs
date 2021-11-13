@@ -11,7 +11,7 @@ namespace Assets.Scripts
 			get
 			{
 				return UnityEditor.EditorApplication.isPlaying;
-				//return true; For WebGl
+				//return true; //For WebGl
 			}
 		}
 		public int ChangeMap;

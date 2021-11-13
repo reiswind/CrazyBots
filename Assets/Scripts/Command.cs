@@ -191,7 +191,7 @@ namespace Assets.Scripts
                     }
                     else
                     {
-                        Debug.Log("Activate: commandAttachedUnit.UnitBase");
+                        //Debug.Log("Activate: commandAttachedUnit.UnitBase");
                         // Real unit missing, show ghost
                         commandAttachedUnit.IsVisible = true;
                         commandAttachedUnit.GhostUnit.IsVisible = true;
@@ -214,7 +214,7 @@ namespace Assets.Scripts
                             else
                             {
                                 // Unit complete, hide ghost
-                                Debug.Log("Deactivate: commandAttachedUnit.UnitBase");
+                                //Debug.Log("Deactivate: commandAttachedUnit.UnitBase");
 
                                 // Real unit exists, deactivate ghost
                                 commandAttachedUnit.GhostUnit.IsVisible = false;

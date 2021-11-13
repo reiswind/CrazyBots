@@ -648,7 +648,7 @@ namespace Engine.Master
             if (targetUnit != null)
             {
                 Ability hitPart = targetUnit.HitBy();
-                if (hitPart is Shield)
+                if (hitPart == null || hitPart is Shield)
                 {
                     if (!changedUnits.ContainsKey(pos))
                         changedUnits.Add(pos, targetUnit);
@@ -1570,6 +1570,11 @@ namespace Engine.Master
                 if (player.IsVisible(pos))
                     moveUpdateGroundStat.VisibilityMask |= 4;
             }
+            if (Players.TryGetValue(4, out player))
+            {
+                if (player.IsVisible(pos))
+                    moveUpdateGroundStat.VisibilityMask |= 8;
+            }
             moveUpdateGroundStat.IsBorder = t.IsBorder;
             moveUpdateGroundStat.IsUnderwater = t.IsUnderwater;
             moveUpdateGroundStat.TileObjects = new List<TileObject>();
@@ -1687,6 +1692,7 @@ namespace Engine.Master
                         gameCommand.TargetZone = mapGameCommand.TargetZone;
                         gameCommand.Status = mapGameCommand.Status;
                         gameCommand.Radius = mapGameCommand.Radius;
+                        gameCommand.Layout = mapGameCommand.Layout;
 
                         if (gameCommand.Radius > 0)
                         {

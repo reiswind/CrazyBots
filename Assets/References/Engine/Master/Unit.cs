@@ -677,7 +677,9 @@ namespace Engine.Master
         {
             if (IsDead())
             {
-                throw new Exception("Dead unit hit...");
+                // Happens, but why? Ignore for now, skip move
+                //throw new Exception("Dead unit hit...");
+                return null;
             }
             Ability partHit = null;
 
