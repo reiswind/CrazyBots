@@ -652,11 +652,19 @@ namespace Assets.Scripts
                         checkCellGameCommand.GameCommand.GameCommandType == gameCommand.GameCommandType)
                     {
                         cellGameCommand = checkCellGameCommand;
-                        if (cellGameCommand.UpdateCommandPreview(gameCommand))
-                        {
-                            cellGameCommand.SetPosition(this);
-                        }
                         cellGameCommand.Touched = true;
+
+                        if (HexGrid.MainGrid.MoveCounter <= checkCellGameCommand.ValidAfterThisMoveNr)
+                        {
+                            // commands returned may contain an old version
+                        }
+                        else
+                        {
+                            if (cellGameCommand.UpdateCommandPreview(gameCommand))
+                            {
+                                cellGameCommand.SetPosition(this);
+                            }
+                        }
                         break;
                     }
                 }

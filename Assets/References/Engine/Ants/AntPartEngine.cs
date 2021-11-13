@@ -655,27 +655,48 @@ namespace Engine.Ants
             return move != null;
         }
 
-        private bool FindPathToEnemy(Player player, Unit cntrlUnit)
+        private bool FindPathToEnemyOrAmmo(Player player, Unit cntrlUnit, Position2 targetUnitPosition)
         {
-            if (cntrlUnit.CurrentGameCommand == null || cntrlUnit.CurrentGameCommand.GameCommand.IncludedPositions == null)
+            if (cntrlUnit.Weapon == null)
             {
-                cntrlUnit.CurrentGameCommand.Status = "NoArea";
+                cntrlUnit.CurrentGameCommand.Status = "NoWeapon";
                 return false;
             }
+            Dictionary<Position2, TileWithDistance> tilesInArea = player.Game.Map.EnumerateTiles(targetUnitPosition, cntrlUnit.Weapon.Range, false, matcher: tile =>
+            {
+                // Do not cheat!
+                if (!player.VisiblePositions.ContainsKey(tile.Pos))
+                    return false;
+
+                if (cntrlUnit.Weapon.WeaponLoaded)
+                {
+                    // Look for enemy
+                    if (tile.Unit == null || tile.Unit.Owner.PlayerModel.Id == player.PlayerModel.Id)
+                        return false;
+                }
+                else
+                {
+                    // Look for ammo
+                    if (tile.Tile.NumberOfCollectables == 0)
+                        return false;
+                }
+                return true;
+            });
+
             // Create a list 
             Dictionary<int, List<Tile>> sortedPositions = new Dictionary<int, List<Tile>>();
 
-            foreach (TileWithDistance tileWithDistance in cntrlUnit.CurrentGameCommand.GameCommand.IncludedPositions.Values)
+            foreach (TileWithDistance tileWithDistance in tilesInArea.Values)
             {
+                /*
                 if (cntrlUnit.Pos == tileWithDistance.Pos)
                     continue;
-
-                
+               
                 if (tileWithDistance.Tile.Unit == null)
                     continue;
                 if (tileWithDistance.Tile.Unit.Owner.PlayerModel.Id == player.PlayerModel.Id)
                     continue;
-
+                */
                 int d = Position3.Distance(cntrlUnit.Pos, tileWithDistance.Pos);
 
                 List<Tile> tiles;
@@ -702,29 +723,20 @@ namespace Engine.Ants
                         {
                             Ant.FollowThisRoute.Add(positions[i]);
                         }
-                        cntrlUnit.CurrentGameCommand.Status = "Attacking";
+                        if (cntrlUnit.Weapon.WeaponLoaded)
+                            cntrlUnit.CurrentGameCommand.Status = "Attacking";
+                        else
+                            cntrlUnit.CurrentGameCommand.Status = "CollectAmmo";
                         return true;
                     }
 
                 }
             }
-            if (cntrlUnit.Pos != cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition)
-            {
-                if (cntrlUnit.Container == null || cntrlUnit.Container.TileContainer.Count == 0)
-                {
-                    // If empty, Wait at collect position target
-                    List<Position2> positions = player.Game.FindPath(cntrlUnit.Pos, cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition, cntrlUnit, true);
-                    if (positions != null && positions.Count >= 2)
-                    {
-                        Ant.FollowThisRoute = new List<Position2>();
-                        for (int i = 1; i < positions.Count; i++)
-                        {
-                            Ant.FollowThisRoute.Add(positions[i]);
-                        }
-                    }
-                }
-            }
-            cntrlUnit.CurrentGameCommand.Status = "NoEnemyFound";
+
+            if (cntrlUnit.Weapon.WeaponLoaded)
+                cntrlUnit.CurrentGameCommand.Status = "NoEnemyFound";
+            else
+                cntrlUnit.CurrentGameCommand.Status = "NoAmmoFound";
             return false;
         }
 
@@ -843,24 +855,16 @@ namespace Engine.Ants
                 }
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Attack)
                 {
-                    if (cntrlUnit.Weapon != null && cntrlUnit.Weapon.WeaponLoaded)
-                    {
-                        // Find enemy
-                        if (!FindPathToEnemy(player, cntrlUnit))
-                        {
-                            // Stay at targetposition
-                            Position3 commandCenter = new Position3(cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition);
-                            Position3 position3 = commandCenter.Add(cntrlUnit.CurrentGameCommand.Position3);
+                    Position3 commandCenter = new Position3(cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition);
+                    Position3 position3 = commandCenter.Add(cntrlUnit.CurrentGameCommand.Position3);
+                    Position2 targetUnitPosition = position3.Pos;
 
-                            if (cntrlUnit.Pos == position3.Pos)
-                                return true;
-                            calcPathToPosition = position3.Pos;
-                        }
-                    }
-                    else
+                    if (!FindPathToEnemyOrAmmo(player, cntrlUnit, targetUnitPosition))
                     {
-                        // Find Ammo (same as collect)
-                        FindPathForCollect(player, cntrlUnit);
+                        if (cntrlUnit.Pos == targetUnitPosition)
+                            return true;
+                        // Stay at targetposition
+                        calcPathToPosition = targetUnitPosition;
                     }
                 }
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Build)

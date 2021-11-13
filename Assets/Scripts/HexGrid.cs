@@ -764,6 +764,13 @@ namespace Assets.Scripts
         private List<Position2> groundcellsWithCommands = new List<Position2>();
         private bool startPositionSet = false;
         private int moveCounter;
+        public int MoveCounter
+        {
+            get
+            {
+                return moveCounter;
+            }
+        }
 
         public void UpdateMoveCommand(MapGameCommand gameCommand)
         {

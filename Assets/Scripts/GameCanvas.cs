@@ -532,10 +532,11 @@ namespace Assets.Scripts
             }
             if (canvasMode == CanvasMode.Select)
             {
-                BlueprintCommand blueprintCommand = HexGrid.MainGrid.game.Blueprints.Commands[btn - 1];
+                BlueprintCommand blueprint = HexGrid.MainGrid.game.Blueprints.Commands[btn - 1];
 
                 selectedCommandPreview = new CommandPreview();
-                selectedCommandPreview.CreateCommandForBuild(blueprintCommand);
+                selectedCommandPreview.CreateCommandForBuild(blueprint);
+                selectedCommandPreview.SetSelected(true);
                 highlightedCommandPreview = selectedCommandPreview;
                 SetMode(CanvasMode.Preview);
             }
@@ -894,21 +895,25 @@ namespace Assets.Scripts
 
             if (Input.GetMouseButtonDown(0) && selectedCommandPreview.CanExecute())
             {
+                bool wasSubCommandMode = selectedCommandPreview.IsInSubCommandMode;
                 selectedCommandPreview.Execute();
 
-                if (selectedCommandPreview.IsInSubCommandMode)
+                if (wasSubCommandMode)
                 {
                     if (Input.GetKey(KeyCode.LeftShift))
                     {
                         // Repeat command
-                        selectedCommandPreview.SetSelected(false);
-                        selectedCommandPreview.SetActive(false);
+                        //selectedCommandPreview.SetSelected(false);
+                        //selectedCommandPreview.SetActive(false);
+
+
+                        AddUnitCommand("Fighter");
 
                         // Keep executed command
-                        BlueprintCommand blueprintCommand = null; // Copy = selectedCommandPreview.GameCommand.BlueprintCommand;
+                        //BlueprintCommand blueprintCommand = selectedCommandPreview.Blueprint;
 
-                        selectedCommandPreview = new CommandPreview();
-                        selectedCommandPreview.CreateCommandForBuild(blueprintCommand);
+                        //selectedCommandPreview = new CommandPreview();
+                        //selectedCommandPreview.CreateCommandForBuild(blueprintCommand);
 
                         //selectedCommandPreview.SetSelected(true);
                         //SetMode(CanvasMode.Command);
@@ -937,12 +942,12 @@ namespace Assets.Scripts
                         selectedCommandPreview.SetSelected(false);
                         selectedCommandPreview.SetActive(false);
 
-                        BlueprintCommand blueprintCommandCopy = null; // selectedCommandPreview.GameCommand.BlueprintCommand.Copy();
+                        BlueprintCommand blueprintCommandCopy = selectedCommandPreview.Blueprint;
 
                         selectedCommandPreview = new CommandPreview();
                         selectedCommandPreview.CreateCommandForBuild(blueprintCommandCopy);
                     }
-                    if (selectedCommandPreview.GameCommand.GameCommandType == GameCommandType.Attack)
+                    else if (selectedCommandPreview.GameCommand.GameCommandType == GameCommandType.Attack)
                     {
                         SetMode(CanvasMode.Command);
                     }
@@ -1252,7 +1257,7 @@ namespace Assets.Scripts
             }
             MapGameCommand gameCommand = commandPreview.GameCommand;
             headerText.text = gameCommand.GameCommandType.ToString();
-            headerSubText.text = "Radius " + gameCommand.Radius.ToString();
+            headerSubText.text = "Radius " + gameCommand.Radius.ToString() + " sel: " + commandPreview.IsSelected.ToString();
             /*
             panelCommand.transform.Find("Partname").GetComponent<Text>().text = gameCommand.GameCommandType.ToString();
             panelCommand.transform.Find("Content").GetComponent<Text>().text = "Radius " + gameCommand.Radius.ToString();

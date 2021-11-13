@@ -63,26 +63,29 @@ namespace Assets.Scripts
         public Command Command { get; set; }
         public bool Touched { get; set; }
         internal bool IsPreview { get; set; }
-        
+        public BlueprintCommand Blueprint { get; private set; }
 
         private GameObject previewGameCommand;
 
         public List<CommandAttachedUnit> PreviewUnits { get; set; }
 
-        public void CreateCommandForBuild(BlueprintCommand blueprintCommand)
+        public void CreateCommandForBuild(BlueprintCommand blueprint)
         {
-            GameCommand.Layout = blueprintCommand.Layout;
-            GameCommand.GameCommandType = blueprintCommand.GameCommandType;
-            if (GameCommand.GameCommandType == GameCommandType.Collect ||
-                GameCommand.GameCommandType == GameCommandType.Attack)
+            Blueprint = blueprint;
+            GameCommand.Layout = blueprint.Layout;
+            GameCommand.GameCommandType = blueprint.GameCommandType;
+            if (GameCommand.GameCommandType == GameCommandType.Collect)
                 GameCommand.Radius = 3;
         
-            foreach (BlueprintCommandItem blueprintCommandItem in blueprintCommand.Units)
+            foreach (BlueprintCommandItem blueprintCommandItem in blueprint.Units)
             {
                 MapGameCommandItem mapGameCommandItem = new MapGameCommandItem(GameCommand, blueprintCommandItem);
 
                 GameCommand.GameCommandItems.Add(mapGameCommandItem);
             }
+            CreateCommandLogo();
+            IsPreview = true;
+            UpdateCommandPreview(GameCommand);
         }
 
         public void Delete()
@@ -163,12 +166,20 @@ namespace Assets.Scripts
         private GameObject addPreviewUnitMarker;
         public void AddUnitCommand(string bluePrint)
         {
+            if (addPreviewGhost != null)
+            {
+                int x = 0;
+            }
             Blueprint blueprint = HexGrid.MainGrid.game.Blueprints.FindBlueprint(bluePrint);
             addPreviewGhost = HexGrid.MainGrid.CreateTempUnit(blueprint);
             addPreviewGhost.DectivateUnit();
             addPreviewGhost.Direction = GameCommand.Direction;
             addPreviewGhost.transform.SetParent(HexGrid.MainGrid.transform, false);
 
+            if (addPreviewUnitMarker != null)
+            {
+                int x = 0;
+            }
             addPreviewUnitMarker = HexGrid.MainGrid.InstantiatePrefab("GroundFrame");
             addPreviewUnitMarker.transform.SetParent(HexGrid.MainGrid.transform, false);
             /*
@@ -248,6 +259,15 @@ namespace Assets.Scripts
                 return displayPosition != Position2.Null;
             }
         }
+
+        private int moveCounter;
+        public int ValidAfterThisMoveNr
+        {
+            get
+            {
+                return moveCounter;
+            }
+        }
         public void Execute()
         {
             if (displayPosition != Position2.Null)
@@ -272,9 +292,13 @@ namespace Assets.Scripts
                     mapGameCommand.GameCommandItems.Add(mapGameCommandItem);
 
                     HexGrid.MainGrid.GameCommands.Add(mapGameCommand);
+                    moveCounter = HexGrid.MainGrid.MoveCounter + 1;
 
-                    /* Command is updated next turn.
-                    MapGameCommandItem mapGameCommandItem = new MapGameCommandItem(mapGameCommand, blueprintCommandItem);
+                    /* Command is updated next turn if return here else: */
+                    mapGameCommandItem = new MapGameCommandItem(GameCommand);
+                    mapGameCommandItem.BlueprintName = "Fighter";
+                    mapGameCommandItem.Direction = GameCommand.Direction;
+                    mapGameCommandItem.Position3 = relativePosition3;
                     GameCommand.GameCommandItems.Add(mapGameCommandItem);
 
                     CommandAttachedUnit commandAttachedUnit = new CommandAttachedUnit(mapGameCommandItem);
@@ -285,24 +309,14 @@ namespace Assets.Scripts
                     commandAttachedUnit.IsVisible = true;
 
                     PreviewUnits.Add(commandAttachedUnit);
-                    */
-                    if (addPreviewGhost != null)
-                    {
-                        addPreviewGhost.Delete();
-                        addPreviewGhost = null;
-                    }
-                    if (addPreviewUnitMarker != null)
-                    {
-                        HexGrid.Destroy(addPreviewUnitMarker);
-                        addPreviewUnitMarker = null;
-                    }
+                    addPreviewGhost = null;
+                    addPreviewUnitMarker = null;
 
                     /*
-
                     GroundCell gc;
                     if (HexGrid.MainGrid.GroundCells.TryGetValue(GameCommand.TargetPosition, out gc))
                     {
-                        CreateCommandPreview(gc);
+                        CreateCommandPreview(gameCommand);
                     }*/
 
                 }
@@ -332,6 +346,7 @@ namespace Assets.Scripts
                     }
 
                     HexGrid.MainGrid.GameCommands.Add(gameCommand);
+                    moveCounter = HexGrid.MainGrid.MoveCounter + 1;
 
                     // Preview remains, the real gamecommand should be at the same position
                     isMoveMode = false;
@@ -345,6 +360,7 @@ namespace Assets.Scripts
 
                     HexGrid.MainGrid.GameCommands.Add(GameCommand);
                     HexGrid.MainGrid.CommandPreviews.Add(this);
+                    moveCounter = HexGrid.MainGrid.MoveCounter + 1;
 
                     GroundCell gc;
                     if (HexGrid.MainGrid.GroundCells.TryGetValue(displayPosition, out gc))

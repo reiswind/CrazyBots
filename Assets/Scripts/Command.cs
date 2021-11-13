@@ -252,40 +252,48 @@ namespace Assets.Scripts
                     center = CommandPreview.DisplayPosition;
                 else
                     center = CommandPreview.GameCommand.TargetPosition;
-                Position3 centerPosition3 = new Position3(center);
-
-                if (CommandPreview.GameCommand.GameCommandType == GameCommandType.Collect)
+                if (center != Position2.Null)
                 {
-                    List<Position3> groundPositions = centerPosition3.GetNeighbors(CommandPreview.GameCommand.Radius);
-                    foreach (Position3 position3 in groundPositions)
-                    {
-                        Position2 position2 = position3.Pos;
-                        GroundCell gc;
+                    Position3 centerPosition3 = new Position3(center);
 
-                        if (highlightedGroundCells.TryGetValue(position2, out gc))
+                    if (CommandPreview.GameCommand.GameCommandType == GameCommandType.Collect)
+                    {
+                        List<Position3> groundPositions = centerPosition3.GetNeighbors(CommandPreview.GameCommand.Radius);
+                        foreach (Position3 position3 in groundPositions)
                         {
-                            if (gc.NumberOfCollectables == 0)
+                            Position2 position2 = position3.Pos;
+                            GroundCell gc;
+
+                            if (highlightedGroundCells.TryGetValue(position2, out gc))
                             {
-                                gc.SetHighlighted(false);
+                                if (gc.NumberOfCollectables == 0)
+                                {
+                                    gc.SetHighlighted(false);
+                                }
+                                else
+                                {
+                                    remainingPos.Remove(position2);
+                                }
                             }
                             else
                             {
-                                remainingPos.Remove(position2);
-                            }
-                        }
-                        else
-                        { 
-                            gc = HexGrid.MainGrid.GroundCells[position2];
 
-                            if (gc.NumberOfCollectables > 0)
-                            {
-                                gc.SetHighlighted(IsHighlighted);
-                                highlightedGroundCells.Add(gc.Pos, gc);
-                                remainingPos.Remove(position2);
+                                if (HexGrid.MainGrid.GroundCells.TryGetValue(position2, out gc))
+                                {
+                                    if (gc.NumberOfCollectables > 0)
+                                    {
+                                        gc.SetHighlighted(IsHighlighted);
+                                        highlightedGroundCells.Add(gc.Pos, gc);
+                                        remainingPos.Remove(position2);
+                                    }
+                                }
+                                else
+                                {
+                                    int x = 0;
+                                }
                             }
                         }
                     }
-
                 }
 
                 List<UnitBase> remainHighlighted = new List<UnitBase>();
