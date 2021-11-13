@@ -294,8 +294,11 @@ namespace Engine.Ants
                 // Minerals needed?
                 if (Ant.AntWorkerType == AntWorkerType.Fighter && cntrlUnit.Weapon != null && !cntrlUnit.Weapon.WeaponLoaded)
                 {
-                    //pheromoneType = PheromoneType.Mineral;
-                    pheromoneType = PheromoneType.Enemy;
+                    // Do not go for enemy if extract od low power
+                    if (pheromoneType != PheromoneType.Energy)
+                    {
+                        pheromoneType = PheromoneType.Enemy;
+                    }
                 }
                 else if (Ant.AntWorkerType == AntWorkerType.Worker)
                 {

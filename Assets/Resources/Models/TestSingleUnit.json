@@ -8,7 +8,7 @@
     {
       "ControlLevel": 1,
       "Id": 1,
-      "Zone": 0,
+      "Zone": 4,
 	  "IsHuman": true,
       "Name": "Green"
     },
@@ -42,7 +42,15 @@
 	  "EndlessAmmo": true,
 	  "EndlessPower": true,
       "Position": "0,0"
-    
+    },{
+      "Name": "Worker",
+      "PlayerId": 2,
+      "Blueprint": "Turret",
+	  "HoldPosition": false,
+	  "FireAtGround": false,
+	  "EndlessAmmo": true,
+	  "EndlessPower": true,
+      "Position": "1,1"
     }
 
   ]

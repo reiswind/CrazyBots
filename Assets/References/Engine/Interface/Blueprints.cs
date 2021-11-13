@@ -130,7 +130,7 @@ namespace Engine.Interface
             blueprintCommand.GameCommandType = GameCommandType.Attack;
 
             blueprintCommandItem = new BlueprintCommandItem();
-            blueprintCommandItem.BlueprintName = "Fighter";
+            blueprintCommandItem.BlueprintName = "Bomber";
             blueprintCommandItem.Position3 = new Position3();
             blueprintCommand.Units.Add(blueprintCommandItem);
 

@@ -1325,15 +1325,17 @@ namespace Assets.Scripts
                 debris.transform.position = unitPos3;
                 debris.transform.rotation = UnityEngine.Random.rotation;
 
-
+                /*
                 Vector3 vector3 = new Vector3();
                 vector3.y = 1f;
                 vector3.x = UnityEngine.Random.value;
                 vector3.z = UnityEngine.Random.value;
-
+                */
                 Rigidbody otherRigid = debris.GetComponent<Rigidbody>();
-                otherRigid.velocity = vector3;
-                otherRigid.rotation = UnityEngine.Random.rotation;
+                otherRigid.AddExplosionForce(3, transform.position, 1);
+
+                //otherRigid.velocity = vector3;
+                //otherRigid.rotation = UnityEngine.Random.rotation;
 
                 StartCoroutine(DelayFadeOutDebris(debris, debris.transform.position.y - 0.1f));
             }

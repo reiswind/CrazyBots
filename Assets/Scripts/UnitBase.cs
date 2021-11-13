@@ -621,13 +621,16 @@ namespace Assets.Scripts
             {
                 otherRigid.isKinematic = false;
 
+                otherRigid.AddExplosionForce(3, unit.transform.position, 1);
+                    /*
                 Vector3 vector3 = new Vector3();
                 vector3.y = 12 + Random.value * 3;
                 vector3.x = Random.value * 3;
                 vector3.z = Random.value * 3;
 
                 otherRigid.velocity = vector3;
-                otherRigid.rotation = Random.rotation;
+                therRigid.rotation = Random.rotation;
+                */
             }
         }
 
