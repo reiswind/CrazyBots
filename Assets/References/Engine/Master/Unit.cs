@@ -647,6 +647,7 @@ namespace Engine.Master
                 stats.MoveUpdateStatsCommand.TargetPosition = CurrentGameCommand.GameCommand.TargetPosition;
                 stats.MoveUpdateStatsCommand.AttachedUnitId = CurrentGameCommand.AttachedUnitId;
                 stats.MoveUpdateStatsCommand.FactoryUnitId = CurrentGameCommand.FactoryUnitId;
+                stats.MoveUpdateStatsCommand.Status = CurrentGameCommand.Status;
                 
 
             }

@@ -312,7 +312,6 @@ namespace Engine.Ants
                         gameCommand.TargetPosition = pos;
                         gameCommand.PlayerId = player.PlayerModel.Id;
                         gameCommand.DeleteWhenFinished = true;
-                        gameCommand.Status = "Created";
 
                         if (player.PlayerModel.Id == 1)
                             Debug.WriteLine("Create Attack at " + pos.ToString());
@@ -362,7 +361,6 @@ namespace Engine.Ants
                         gameCommand.TargetPosition = pos;
                         gameCommand.PlayerId = player.PlayerModel.Id;
                         gameCommand.DeleteWhenFinished = true;
-                        gameCommand.Status = "Created";
 
                         gameCommand.IncludedPositions = player.Game.Map.EnumerateTiles(gameCommand.TargetPosition, gameCommand.Radius, true);
 

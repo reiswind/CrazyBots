@@ -90,6 +90,7 @@ namespace Engine.Interface
         public string BlueprintName { get; set; }
         public MapGameCommand GameCommand { get; private set; }
         public string FactoryUnitId { get; set; }
+        public string Status { get; set; }
     }
 
     public class MapPheromoneItem
@@ -204,7 +205,6 @@ namespace Engine.Interface
                             mapGameCommand.PlayerId = gameCommand.PlayerId;
                             mapGameCommand.TargetPosition = gameCommand.TargetPosition;
                             mapGameCommand.TargetZone = gameCommand.TargetZone;
-                            mapGameCommand.Status = gameCommand.Status;
                             mapGameCommand.Radius = gameCommand.Radius;
                             mapGameCommand.Layout = gameCommand.Layout;
 
@@ -216,6 +216,7 @@ namespace Engine.Interface
                                 mapGameCommandItem.Position3 = gameCommandItem.Position3;
                                 mapGameCommandItem.AttachedUnitId = gameCommandItem.AttachedUnitId;
                                 mapGameCommandItem.FactoryUnitId = gameCommandItem.FactoryUnitId;
+                                mapGameCommandItem.Status = gameCommandItem.Status;
                                 mapGameCommand.GameCommandItems.Add(mapGameCommandItem);
                             }
                             mapPlayerInfo.GameCommands.Add(mapGameCommand);

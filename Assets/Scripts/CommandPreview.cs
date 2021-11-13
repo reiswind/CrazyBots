@@ -73,8 +73,9 @@ namespace Assets.Scripts
         {
             GameCommand.Layout = blueprintCommand.Layout;
             GameCommand.GameCommandType = blueprintCommand.GameCommandType;
-            if (GameCommand.GameCommandType == GameCommandType.Collect)
-                GameCommand.Radius = 2;
+            if (GameCommand.GameCommandType == GameCommandType.Collect ||
+                GameCommand.GameCommandType == GameCommandType.Attack)
+                GameCommand.Radius = 3;
         
             foreach (BlueprintCommandItem blueprintCommandItem in blueprintCommand.Units)
             {

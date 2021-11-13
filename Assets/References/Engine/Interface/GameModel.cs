@@ -46,7 +46,7 @@ namespace Engine.Interface
         internal string AttachedUnitId { get; set; }
         internal GameCommand GameCommand { get; private set; }
         internal string FactoryUnitId { get; set; }
-        
+        public string Status { get; set; }
         public override string ToString()
         {
             return GameCommand.ToString();
@@ -72,7 +72,7 @@ namespace Engine.Interface
         }
         public string Layout { get; set; }
         public string BlueprintName { get; set; }
-        public string Status { get; set; }
+        
         public bool CommandComplete { get; set; }
         public bool DeleteWhenFinished { get; set; }
         public bool CommandCanceled { get; set; }

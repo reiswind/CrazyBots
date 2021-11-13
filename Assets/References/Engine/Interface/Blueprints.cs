@@ -137,6 +137,7 @@ namespace Engine.Interface
             Commands.Add(blueprintCommand);
 
             // Defend
+            /*
             blueprintCommand = new BlueprintCommand();
 
             blueprintCommand.Name = "Defend";
@@ -149,7 +150,7 @@ namespace Engine.Interface
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
-
+            */
 
             // Build outpost
             blueprintCommand = new BlueprintCommand();

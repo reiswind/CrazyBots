@@ -23,14 +23,25 @@
   "Units": [
     
 	{
-      "Name": "Fighter",
+      "Name": "Outpost",
       "PlayerId": 1,
       "Blueprint": "Outpost",
 	  "HoldPosition": true,
 	  "FireAtGround": false,
 	  "EndlessAmmo": true,
 	  "EndlessPower": true,
-      "Position": "-2,-2"
+      "Position": "0,0"
+    
+    },
+	{
+      "Name": "Outpost",
+      "PlayerId": 2,
+      "Blueprint": "Outpost",
+	  "HoldPosition": true,
+	  "FireAtGround": false,
+	  "EndlessAmmo": true,
+	  "EndlessPower": true,
+      "Position": "0,0"
     
     }
 

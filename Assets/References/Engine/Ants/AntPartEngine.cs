@@ -652,10 +652,86 @@ namespace Engine.Ants
             return move != null;
         }
 
-        private void FindPathForCollect(Player player, Unit cntrlUnit)
+        private bool FindPathToEnemy(Player player, Unit cntrlUnit)
         {
-            if (cntrlUnit.CurrentGameCommand == null)
-                return;
+            if (cntrlUnit.CurrentGameCommand == null || cntrlUnit.CurrentGameCommand.GameCommand.IncludedPositions == null)
+            {
+                cntrlUnit.CurrentGameCommand.Status = "NoArea";
+                return false;
+            }
+            // Create a list 
+            Dictionary<int, List<Tile>> sortedPositions = new Dictionary<int, List<Tile>>();
+
+            foreach (TileWithDistance tileWithDistance in cntrlUnit.CurrentGameCommand.GameCommand.IncludedPositions.Values)
+            {
+                if (cntrlUnit.Pos == tileWithDistance.Pos)
+                    continue;
+
+                
+                if (tileWithDistance.Tile.Unit == null)
+                    continue;
+                if (tileWithDistance.Tile.Unit.Owner.PlayerModel.Id == player.PlayerModel.Id)
+                    continue;
+
+                int d = Position3.Distance(cntrlUnit.Pos, tileWithDistance.Pos);
+
+                List<Tile> tiles;
+                if (sortedPositions.ContainsKey(d))
+                {
+                    tiles = sortedPositions[d];
+                }
+                else
+                {
+                    tiles = new List<Tile>();
+                    sortedPositions.Add(d, tiles);
+                }
+                tiles.Add(tileWithDistance.Tile);
+            }
+            foreach (List<Tile> tiles in sortedPositions.Values)
+            {
+                foreach (Tile tile in tiles)
+                {
+                    List<Position2> positions = player.Game.FindPath(cntrlUnit.Pos, tile.Pos, cntrlUnit, true);
+                    if (positions != null && positions.Count >= 3)
+                    {
+                        Ant.FollowThisRoute = new List<Position2>();
+                        for (int i = 1; i < positions.Count - 1; i++)
+                        {
+                            Ant.FollowThisRoute.Add(positions[i]);
+                        }
+                        cntrlUnit.CurrentGameCommand.Status = "Attacking";
+                        return true;
+                    }
+
+                }
+            }
+            if (cntrlUnit.Pos != cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition)
+            {
+                if (cntrlUnit.Container == null || cntrlUnit.Container.TileContainer.Count == 0)
+                {
+                    // If empty, Wait at collect position target
+                    List<Position2> positions = player.Game.FindPath(cntrlUnit.Pos, cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition, cntrlUnit, true);
+                    if (positions != null && positions.Count >= 2)
+                    {
+                        Ant.FollowThisRoute = new List<Position2>();
+                        for (int i = 1; i < positions.Count; i++)
+                        {
+                            Ant.FollowThisRoute.Add(positions[i]);
+                        }
+                    }
+                }
+            }
+            cntrlUnit.CurrentGameCommand.Status = "NoEnemyFound";
+            return false;
+        }
+
+        private bool FindPathForCollect(Player player, Unit cntrlUnit)
+        {
+            if (cntrlUnit.CurrentGameCommand == null || cntrlUnit.CurrentGameCommand.GameCommand.IncludedPositions == null)
+            {
+                cntrlUnit.CurrentGameCommand.Status = "NoArea";
+                return false;
+            }
 
             // Create a list 
             Dictionary<int, List<Tile>> sortedPositions = new Dictionary<int, List<Tile>>();
@@ -695,39 +771,6 @@ namespace Engine.Ants
             {
                 foreach (Tile tile in tiles)
                 {
-                    /*
-
-                    CubePosition cubePosition = new CubePosition(cntrlUnit.Pos);
-                    List< CubePosition> cubePositions = cubePosition.DrawLine(tile.Pos);
-                    if (cubePositions != null)
-                    {
-                        bool pathFound = true;
-
-                        Tile from = player.Game.Map.GetTile(cntrlUnit.Pos);
-
-                        Ant.FollowThisRoute = new List<Position2>();
-                        for (int i = 1; i < cubePositions.Count; i++)
-                        {
-                            Tile t = player.Game.Map.GetTile(cubePositions[i].Pos);
-                            if (from.CanMoveTo(t))
-                            {
-                                Ant.FollowThisRoute.Add(cubePositions[i].Pos);
-                                from = t;
-                            }
-                            else
-                            {
-                                pathFound = false;
-                                break;
-                            }
-                        }
-                        if (pathFound)
-                        {
-                            cntrlUnit.CurrentGameCommand.GameCommand.CommandComplete = false;
-                            cntrlUnit.CurrentGameCommand.GameCommand.Status = "Collecting";
-                            return;
-                        }
-                    }*/
-                    
                     List<Position2> positions = player.Game.FindPath(cntrlUnit.Pos, tile.Pos, cntrlUnit, true);
                     if (positions != null && positions.Count >= 3)
                     {
@@ -737,8 +780,8 @@ namespace Engine.Ants
                             Ant.FollowThisRoute.Add(positions[i]);
                         }
                         cntrlUnit.CurrentGameCommand.GameCommand.CommandComplete = false;
-                        cntrlUnit.CurrentGameCommand.GameCommand.Status = "Collecting";
-                        return;
+                        cntrlUnit.CurrentGameCommand.Status = "Collecting";
+                        return true;
                     }
 
                 }
@@ -759,8 +802,9 @@ namespace Engine.Ants
                     }
                 }
             }
-            cntrlUnit.CurrentGameCommand.GameCommand.Status = "OutOfResources";
+            cntrlUnit.CurrentGameCommand.Status = "OutOfResources";
             cntrlUnit.CurrentGameCommand.GameCommand.CommandComplete = true;
+            return false;
         }
 
         public override bool Move(ControlAnt control, Player player, List<Move> moves)
@@ -781,25 +825,40 @@ namespace Engine.Ants
 
             if (cntrlUnit.CurrentGameCommand != null)
             {
-                //bool calcPath = true;
                 Position2 calcPathToPosition = Position2.Null;
 
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
                 {
-                    //calcPath = false;
                     if (cntrlUnit.Container != null && cntrlUnit.Container.TileContainer.IsFreeSpace)
                     {
                         FindPathForCollect(player, cntrlUnit);
                     }
+                    else
+                    {
+                        cntrlUnit.CurrentGameCommand.Status = "Full";
+                    }
                 }
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Attack)
                 {
-                    Position3 commandCenter = new Position3(cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition);
-                    Position3 position3 = commandCenter.Add(cntrlUnit.CurrentGameCommand.Position3);
+                    if (cntrlUnit.Weapon != null && cntrlUnit.Weapon.WeaponLoaded)
+                    {
+                        // Find enemy
+                        if (!FindPathToEnemy(player, cntrlUnit))
+                        {
+                            // Stay at targetposition
+                            Position3 commandCenter = new Position3(cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition);
+                            Position3 position3 = commandCenter.Add(cntrlUnit.CurrentGameCommand.Position3);
 
-                    if (cntrlUnit.Pos == position3.Pos)
-                        return true;
-                    calcPathToPosition = position3.Pos;
+                            if (cntrlUnit.Pos == position3.Pos)
+                                return true;
+                            calcPathToPosition = position3.Pos;
+                        }
+                    }
+                    else
+                    {
+                        // Find Ammo (same as collect)
+                        FindPathForCollect(player, cntrlUnit);
+                    }
                 }
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Build)
                 {

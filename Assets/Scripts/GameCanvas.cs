@@ -533,26 +533,11 @@ namespace Assets.Scripts
             if (canvasMode == CanvasMode.Select)
             {
                 BlueprintCommand blueprintCommand = HexGrid.MainGrid.game.Blueprints.Commands[btn - 1];
-                //if (blueprintCommand.GameCommandType == GameCommandType.Build)
-                {
-                    selectedCommandPreview = new CommandPreview();
-                    selectedCommandPreview.CreateCommandForBuild(blueprintCommand);
-                    highlightedCommandPreview = selectedCommandPreview;
-                    SetMode(CanvasMode.Preview);
-                }
-                /*
-                else if (blueprintCommand.GameCommandType == GameCommandType.Collect)
-                {
-                    canvasMode = CanvasMode.Collect;
-                    executedBlueprintCommand = blueprintCommand;
-                }
-                else if (blueprintCommand.GameCommandType == GameCommandType.Attack)
-                {
-                    SetMode(CanvasMode.CommandPreview);
-                    
-                    executedBlueprintCommand = blueprintCommand;
-                    previewGameCommand = CreateCommandPreview(executedBlueprintCommand);
-                }*/
+
+                selectedCommandPreview = new CommandPreview();
+                selectedCommandPreview.CreateCommandForBuild(blueprintCommand);
+                highlightedCommandPreview = selectedCommandPreview;
+                SetMode(CanvasMode.Preview);
             }
 
             if (canvasMode == CanvasMode.Preview)
@@ -905,7 +890,7 @@ namespace Assets.Scripts
             {
                 selectedCommandPreview.SetHighlighted(true);
             }
-            //DisplayGameCommand(selectedCommandPreview);
+            DisplayGameCommand(selectedCommandPreview);
 
             if (Input.GetMouseButtonDown(0) && selectedCommandPreview.CanExecute())
             {
@@ -930,11 +915,18 @@ namespace Assets.Scripts
                     }
                     else
                     {
-                        selectedCommandPreview.SetSelected(false);
-                        selectedCommandPreview.SetActive(false);
-                        selectedCommandPreview = null;
+                        if (selectedCommandPreview.GameCommand.GameCommandType == GameCommandType.Attack)
+                        {
+                            SetMode(CanvasMode.Command);
+                        }
+                        else
+                        {
+                            selectedCommandPreview.SetSelected(false);
+                            selectedCommandPreview.SetActive(false);
+                            selectedCommandPreview = null;
 
-                        SetMode(CanvasMode.Select);
+                            SetMode(CanvasMode.Select);
+                        }
                     }
                 }
                 else
@@ -949,6 +941,10 @@ namespace Assets.Scripts
 
                         selectedCommandPreview = new CommandPreview();
                         selectedCommandPreview.CreateCommandForBuild(blueprintCommandCopy);
+                    }
+                    if (selectedCommandPreview.GameCommand.GameCommandType == GameCommandType.Attack)
+                    {
+                        SetMode(CanvasMode.Command);
                     }
                     else
                     {
@@ -1174,11 +1170,14 @@ namespace Assets.Scripts
                         }
                         HighlightGameCommand(hitByMouseClick.CommandPreview);
                     }
-                    //DisplayGameCommand(highlightedCommandPreview);
                     
                     if (hitByMouseClick.UnitBase != null)
                     {
                         DisplayUnitframe(hitByMouseClick.UnitBase);
+                    }
+                    else
+                    {
+                        DisplayGameCommand(highlightedCommandPreview);
                     }
                 }
                 else if (hitByMouseClick.UnitBase != null)
@@ -1230,20 +1229,49 @@ namespace Assets.Scripts
 
         private void DisplayUpdateStatsCommand(MoveUpdateStatsCommand moveUpdateStatsCommand)
         {
-            GameObject commandPart = Instantiate(panelCommand, panelParts);
-            commandPart.transform.Find("Partname").GetComponent<Text>().text = moveUpdateStatsCommand.GameCommandType.ToString() + " at " + moveUpdateStatsCommand.TargetPosition.ToString();
-            commandPart.transform.Find("Content").GetComponent<Text>().text = "";
-            commandPart.SetActive(commandPart);
+            panelCommand.transform.Find("Partname").GetComponent<Text>().text = moveUpdateStatsCommand.GameCommandType.ToString() + " at " + moveUpdateStatsCommand.TargetPosition.ToString();
+            panelCommand.transform.Find("Content").GetComponent<Text>().text = moveUpdateStatsCommand.Status;
         }
 
         private void DisplayGameCommand(CommandPreview commandPreview)
         {            
             if (commandPreview == null) return;
 
+            Position2 position2;
+            if (commandPreview.IsPreview)
+            {
+                position2 = commandPreview.DisplayPosition;
+            }
+            else if (commandPreview.IsMoveMode)
+            {
+                position2 = commandPreview.DisplayPosition;
+            }
+            else
+            {
+                position2 = commandPreview.GameCommand.TargetPosition;
+            }
             MapGameCommand gameCommand = commandPreview.GameCommand;
-            headerText.text = gameCommand.GameCommandType.ToString() ;
-            headerSubText.text = " at: " + gameCommand.TargetPosition.ToString();
-            headerGroundText.text = " Sel: " + commandPreview.IsSelected.ToString();
+            headerText.text = gameCommand.GameCommandType.ToString();
+            headerSubText.text = "Radius " + gameCommand.Radius.ToString();
+            /*
+            panelCommand.transform.Find("Partname").GetComponent<Text>().text = gameCommand.GameCommandType.ToString();
+            panelCommand.transform.Find("Content").GetComponent<Text>().text = "Radius " + gameCommand.Radius.ToString();
+            panelCommand.SetActive(true);
+            */
+
+            if (position2 != Position2.Null)
+            {
+                GroundCell gc;
+                if (HexGrid.MainGrid.GroundCells.TryGetValue(position2, out gc))
+                    AppendGroundInfo(gc, false);
+                else
+                    headerGroundText.text = "";
+            }
+            else
+            {
+                headerGroundText.text = "";
+            }
+
             /*
             foreach (MapGameCommandItem gameCommandItem in gameCommand.GameCommandItems)
             {
@@ -1271,28 +1299,36 @@ namespace Assets.Scripts
 
                     if (unit.HasBeenDestroyed)
                     {
-                        headerSubText.text = "Destroyed";
+                        headerSubText.text = "Destroyed ";
                     }
                     else if (unit.Temporary)
                     {
-                        headerSubText.text = "Preview";
+                        headerSubText.text = "Preview ";
                     }
                     else if (unit.UnderConstruction)
                     {
-                        headerSubText.text = "Under construction";
+                        headerSubText.text = "Under construction ";
                     }
                     else if (unit.MoveUpdateStats.MarkedForExtraction)
                     {
-                        headerSubText.text = "MarkedForExtraction";
+                        headerSubText.text = "MarkedForExtraction ";
+                    }
+                    else
+                    {
+                        headerSubText.text = "";
                     }
 
-                    headerSubText.text += " " + unit.UnitId;
-
+                    headerSubText.text += unit.UnitId;
                     headerSubText.text += " Power: " + unit.MoveUpdateStats.Power;
 
                     if (unit.MoveUpdateStats.MoveUpdateStatsCommand != null)
                     {
                         DisplayUpdateStatsCommand(unit.MoveUpdateStats.MoveUpdateStatsCommand);
+                        panelCommand.SetActive(true);
+                    }
+                    else
+                    {
+                        panelCommand.SetActive(false);
                     }
 
                     string state;
@@ -1445,6 +1481,12 @@ namespace Assets.Scripts
                 GroundCell gc;
                 if (HexGrid.MainGrid.GroundCells.TryGetValue(unit.CurrentPos, out gc))
                     AppendGroundInfo(gc, false);
+                else
+                    headerGroundText.text = "";
+            }
+            else
+            {
+                headerGroundText.text = "";
             }
         }
     }

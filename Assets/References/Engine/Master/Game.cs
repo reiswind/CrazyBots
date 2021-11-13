@@ -1690,7 +1690,7 @@ namespace Engine.Master
                         gameCommand.PlayerId = mapGameCommand.PlayerId;
                         gameCommand.TargetPosition = mapGameCommand.TargetPosition;
                         gameCommand.TargetZone = mapGameCommand.TargetZone;
-                        gameCommand.Status = mapGameCommand.Status;
+                        
                         gameCommand.Radius = mapGameCommand.Radius;
                         gameCommand.Layout = mapGameCommand.Layout;
 
@@ -1708,6 +1708,7 @@ namespace Engine.Master
                             gameCommandItem.Position3 = mapGameCommandItem.Position3;
                             gameCommandItem.BlueprintName = mapGameCommandItem.BlueprintName;
                             gameCommandItem.Direction = mapGameCommandItem.Direction;
+                            gameCommandItem.Status = mapGameCommandItem.Status;
 
                             gameCommandItem.RotatedPosition3 = mapGameCommandItem.RotatedPosition3;
                             gameCommandItem.RotatedDirection = mapGameCommandItem.RotatedDirection;
