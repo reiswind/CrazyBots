@@ -95,7 +95,7 @@ namespace Assets.Scripts
         // Start is called before the first frame update
         void Start()
         {
-            mask = LayerMask.GetMask("Default", "Units", "UI");
+            mask = LayerMask.GetMask("Terrain", "Units", "UI");
 
             UIMineralText = MineralText.GetComponent<Text>();
             UIUnitText = UnitText.GetComponent<Text>();

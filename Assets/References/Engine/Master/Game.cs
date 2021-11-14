@@ -650,6 +650,19 @@ namespace Engine.Master
                 Ability hitPart = targetUnit.HitBy();
                 if (hitPart == null || hitPart is Shield)
                 {
+                    // Shield was hit
+                    Move hitmove = new Move();
+                    hitmove.MoveType = MoveType.Hit;
+                    hitmove.PlayerId = targetUnit.Owner.PlayerModel.Id;
+                    hitmove.Positions = move.Positions;
+                    hitmove.UnitId = targetUnit.UnitId;
+                    hitmove.OtherUnitId = "Shield";
+
+                    hitmove.Stats = new MoveUpdateStats();
+                    hitmove.Stats.MoveUpdateGroundStat = move.Stats.MoveUpdateGroundStat;
+
+                    nextMoves.Add(hitmove);
+
                     if (!changedUnits.ContainsKey(pos))
                         changedUnits.Add(pos, targetUnit);
                 }

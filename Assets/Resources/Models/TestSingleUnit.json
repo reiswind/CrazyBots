@@ -45,12 +45,21 @@
     },{
       "Name": "Worker",
       "PlayerId": 2,
-      "Blueprint": "Turret",
-	  "HoldPosition": false,
+      "Blueprint": "Fighter",
+	  "HoldPosition": true,
 	  "FireAtGround": false,
 	  "EndlessAmmo": true,
 	  "EndlessPower": true,
-      "Position": "1,1"
+      "Position": "2,2"
+    },{
+      "Name": "Fighter",
+      "PlayerId": 2,
+      "Blueprint": "Fighter",
+	  "HoldPosition": true,
+	  "FireAtGround": false,
+	  "EndlessAmmo": true,
+	  "EndlessPower": true,
+      "Position": "2,3"
     }
 
   ]

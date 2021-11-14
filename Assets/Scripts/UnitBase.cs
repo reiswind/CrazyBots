@@ -45,6 +45,7 @@ namespace Assets.Scripts
         public TileObjectType HitPartTileObjectType { get; set; }
         public float HitTime { get; set; }
         public TileObject Bullet { get; set; }
+        public bool ShieldHit { get; set; }
         public bool BulletImpact { get; set; }
         public Position2 FireingPosition { get; set; }
         public Position2 TargetPosition { get; set; }
@@ -619,17 +620,21 @@ namespace Assets.Scripts
 
             if (otherRigid != null)
             {
+                Vector3 explosionPos = unit.transform.position;
+                explosionPos.y -= 1;
+
                 otherRigid.isKinematic = false;
 
-                otherRigid.AddExplosionForce(3, unit.transform.position, 1);
-                    /*
+                otherRigid.AddExplosionForce(250, explosionPos, 12, 5);
+                
+                /*
                 Vector3 vector3 = new Vector3();
                 vector3.y = 12 + Random.value * 3;
                 vector3.x = Random.value * 3;
                 vector3.z = Random.value * 3;
 
                 otherRigid.velocity = vector3;
-                therRigid.rotation = Random.rotation;
+                otherRigid.rotation = Random.rotation;
                 */
             }
         }
@@ -715,17 +720,20 @@ namespace Assets.Scripts
 
                     if (hitGameObject != null && HexGrid.MainGrid.GroundCells.TryGetValue(CurrentPos, out currentCell))
                     {
-                        hitGameObject.SetActive(false);
-
                         // Clone the part
-                        GameObject part = Instantiate(hitGameObject);
-
-                        Destroy(part, 8);
-
-                        unitBasePart.Destroyed = true;
+                        GameObject part = Instantiate(hitGameObject, currentCell.transform, true);
+                        part.layer = 0; // LayerMask.GetMask("Default");
+                        Destroy(part, 10);
+                        part.SetActive(true);
                         SetPlayerColor(0, part);
-                        part.transform.SetParent(currentCell.transform, true);
 
+                        hitGameObject.SetActive(false);
+                        unitBasePart.Destroyed = true;
+
+                        ParticleSystem partDerisTrail = HexGrid.MainGrid.MakeParticleSource("DebrisTrail");
+                        partDerisTrail.gameObject.transform.SetParent(part.transform);
+                        partDerisTrail.Play();
+                        partDerisTrail.Play();
                         ActivateRigidbody(part);
                     }
                     bool alive = false;
@@ -911,13 +919,14 @@ namespace Assets.Scripts
                                 }
                                 missingPartFound = true;
                             }
-
-                            Transform shield = transform.Find("Shield");
-                            if (shield != null && IsVisible)
+                            if (unitBasePart.PartType == TileObjectType.PartArmor)
                             {
-                                shield.gameObject.SetActive(moveUpdateUnitPart.ShieldActive == true);
+                                Transform shield = transform.Find("Shield");
+                                if (shield != null && IsVisible)
+                                {
+                                    shield.gameObject.SetActive(moveUpdateUnitPart.ShieldActive == true);
+                                }
                             }
-
                             if (unitBasePart.PartType == TileObjectType.PartWeapon)
                             {
 

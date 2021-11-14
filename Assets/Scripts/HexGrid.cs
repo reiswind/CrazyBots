@@ -929,18 +929,7 @@ namespace Assets.Scripts
                     }
                     else if (move.MoveType == MoveType.Hit)
                     {
-                        if (move.UnitId == null)
-                        {
-                            HitMove(null, move);
-                        }
-                        else
-                        {
-                            if (BaseUnits.ContainsKey(move.UnitId))
-                            {
-                                UnitBase unit = BaseUnits[move.UnitId];
-                                HitMove(unit, move);
-                            }
-                        }
+                        HitMove(move);
                     }
                     else if (move.MoveType == MoveType.Fire)
                     {
@@ -1208,7 +1197,7 @@ namespace Assets.Scripts
             return hitByBullet;
         }
 
-        public void HitMove(UnitBase hitUnit, Move move)
+        public void HitMove(Move move)
         {
             Position2 fireingPostion = move.Positions[0];
             Position2 targetPostion = move.Positions[1];
@@ -1224,8 +1213,15 @@ namespace Assets.Scripts
                     }
                     if (move.OtherUnitId != null)
                     {
-                        int level;
-                        hitByBullet.HitPartTileObjectType = TileObject.GetTileObjectTypeFromString(move.OtherUnitId, out level);
+                        if (move.OtherUnitId == "Shield")
+                        {
+                            hitByBullet.ShieldHit = true;
+                        }
+                        else
+                        { 
+                            int level;
+                            hitByBullet.HitPartTileObjectType = TileObject.GetTileObjectTypeFromString(move.OtherUnitId, out level);
+                        }
                     }
 
                     hitByBullet.HitTime = Time.unscaledTime + 2;
@@ -1382,9 +1378,16 @@ namespace Assets.Scripts
             {
                 hitByBullet.TargetUnit.HitByShell();
 
-                UnitBasePart unitBasePart = hitByBullet.TargetUnit.PartHitByShell(hitByBullet.HitPartTileObjectType, hitByBullet.UpdateUnitStats);
-                if (unitBasePart != null)
-                    HitUnitPartAnimation(unitBasePart.UnitBase.transform);
+                if (hitByBullet.ShieldHit)
+                {
+                    hitByBullet.TargetUnit.UpdateStats(hitByBullet.UpdateUnitStats);
+                }
+                else
+                {
+                    UnitBasePart unitBasePart = hitByBullet.TargetUnit.PartHitByShell(hitByBullet.HitPartTileObjectType, hitByBullet.UpdateUnitStats);
+                    //if (unitBasePart != null)
+                    //    HitUnitPartAnimation(unitBasePart.UnitBase.transform);
+                }
             }
         }
 

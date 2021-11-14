@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: -2287198016028901668}
   - component: {fileID: 5528460246183384653}
   - component: {fileID: -6910338104278799091}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: HexCellCrate
   m_TagString: Untagged
   m_Icon: {fileID: 0}

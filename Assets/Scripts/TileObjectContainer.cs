@@ -57,9 +57,9 @@ namespace Assets.Scripts
                             if (otherRigid != null)
                             {
                                 otherRigid.isKinematic = false;
-                                otherRigid.AddExplosionForce(3, unitBaseTileObject.GameObject.transform.position, 1);
-                                //otherRigid.velocity = vector3;
-                                //otherRigid.rotation = UnityEngine.Random.rotation;
+                                //otherRigid.AddExplosionForce(13, parent.position, 2);
+                                otherRigid.velocity = vector3;
+                                otherRigid.rotation = UnityEngine.Random.rotation;
                             }
                             HexGrid.Destroy(unitBaseTileObject.GameObject, 5);
                         }
