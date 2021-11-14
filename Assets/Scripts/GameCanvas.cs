@@ -1038,8 +1038,14 @@ namespace Assets.Scripts
                 }
                 else
                 {
-                    UIMineralText.text = "Dead" + HexGrid.MainGrid.MapInfo.TotalMetal.ToString(); ;
+                    UIMineralText.text = "Dead" + HexGrid.MainGrid.MapInfo.TotalMetal.ToString();
                 }
+                int totalUnits = 0;
+                foreach (MapPlayerInfo mapPlayerInfo1 in HexGrid.MainGrid.MapInfo.PlayerInfo.Values)
+                {
+                    totalUnits += mapPlayerInfo1.TotalUnits;
+                }
+                UIUnitText.text = totalUnits.ToString();
             }
         }
 

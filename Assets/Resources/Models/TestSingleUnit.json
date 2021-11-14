@@ -16,7 +16,7 @@
       "ControlLevel": 1,
       "Id": 2,
       "Zone": 1,
-	  "IsHuman": true,
+	  "IsHumanx": true,
       "Name": "Red"
     }
   ],
@@ -26,10 +26,10 @@
       "Name": "Outpost",
       "PlayerId": 1,
       "Blueprint": "Outpost",
-	  "HoldPosition": true,
+	  "HoldPosition": false,
 	  "FireAtGround": false,
-	  "EndlessAmmo": true,
-	  "EndlessPower": true,
+	  "EndlessAmmo": false,
+	  "EndlessPower": false,
       "Position": "0,0"
     
     },
