@@ -17,6 +17,7 @@ namespace Engine.Interface
 
         }
 
+        public int PlayerId { get; set; }
         public int TotalCapacity { get; set; }
         public int TotalMinerals { get; set; }
         public int TotalUnits { get; set; }
@@ -175,6 +176,7 @@ namespace Engine.Interface
                     else
                     {
                         mapPlayerInfo = new MapPlayerInfo();
+                        mapPlayerInfo.PlayerId = t.Unit.Owner.PlayerModel.Id;
                         PlayerInfo.Add(t.Unit.Owner.PlayerModel.Id, mapPlayerInfo);
                     }
                     mapPlayerInfo.TotalCapacity += t.Unit.CountCapacity();
