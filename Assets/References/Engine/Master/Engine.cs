@@ -36,6 +36,8 @@ namespace Engine.Master
 
             if (Unit.Power == 0 || HoldPosition)
                 return;
+            if (Unit.Stunned > 0)
+                return;
 
             // Never called by controls
             List<Tile> openList = new List<Tile>();

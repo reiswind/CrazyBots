@@ -633,10 +633,37 @@ namespace Engine.Master
             }
         }
 
+        private List<Unit> stunnedUnits = new List<Unit>();
+
+        internal void StunUnit(Unit unit)
+        {
+            if (unit.Stunned == 0)
+            {
+                unit.Stunned += 2; // One is removed at start of next round
+                stunnedUnits.Add(unit);
+            }
+            else
+            {
+                unit.Stunned++;
+            }
+        }
+
+        internal void BulletImpact(Tile targetTile)
+        {
+            foreach (Tile neighbor in targetTile.Neighbors)
+            {
+                if (neighbor.Unit != null)
+                {
+                    StunUnit(neighbor.Unit);
+                }
+            }
+        }
+
         internal void HitByBullet(Move move, List<Move> nextMoves)
         {
             Position2 pos = move.Positions[move.Positions.Count-1];
             Tile targetTile = Map.GetTile(pos);
+            BulletImpact(targetTile);
 
             TileObject tileObject = move.Stats.MoveUpdateGroundStat.TileObjects[0];
             targetTile.HitByBullet(tileObject);
@@ -647,6 +674,8 @@ namespace Engine.Master
             Unit targetUnit = targetTile.Unit;
             if (targetUnit != null)
             {
+                StunUnit(targetUnit);
+
                 Ability hitPart = targetUnit.HitBy();
                 if (hitPart == null || hitPart is Shield)
                 {
@@ -1689,6 +1718,18 @@ namespace Engine.Master
                     }
                 }
 
+                List<Unit> allStunnedUnits = new List<Unit>();
+                allStunnedUnits.AddRange(stunnedUnits);
+
+                foreach (Unit unit in allStunnedUnits)
+                {
+                    unit.Stunned--;
+                    if (unit.Stunned == 0)
+                    {
+                        stunnedUnits.Remove(unit);
+                    }
+                }
+
                 if (gameCommands != null)
                 {
                     foreach (MapGameCommand mapGameCommand in gameCommands)
@@ -1735,23 +1776,6 @@ namespace Engine.Master
                         {
                             player.GameCommands.Add(gameCommand);
                         }
-                        /*
-                        Player player = Players[mapGameCommand.PlayerId];
-                        if (mapGameCommand.CommandComplete)
-                        {
-                            player.GameCommands.Remove(gameCommand);
-                        }
-                        else
-                        {
-                            player.GameCommands.Add(gameCommand);
-
-                            if (mapGameCommand.GameCommandType == GameCommandType.Extract)
-                            {
-                                //Unit unit = Map.Units.FindUnit(mapGameCommand.UnitId);
-                                //if (unit != null)
-                                //    unit.ExtractUnit();
-                            }
-                        }*/
                     }
                 }
                 Pheromones.Evaporate();

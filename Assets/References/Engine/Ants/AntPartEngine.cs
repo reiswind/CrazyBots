@@ -834,6 +834,8 @@ namespace Engine.Ants
 
             if (cntrlUnit.Engine.HoldPosition)
                 return false;
+            if (cntrlUnit.Stunned > 0)
+                return false;
 
             if (cntrlUnit.UnderConstruction)
                 return false;
@@ -885,7 +887,11 @@ namespace Engine.Ants
                             }
                         }
                     }
-                    calcPathToPosition = cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition;
+                    else
+                    {
+                        FindPathForCollect(player, cntrlUnit);
+                        //calcPathToPosition = cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition;
+                    }
                 }
                 
                 if (calcPathToPosition != Position2.Null)

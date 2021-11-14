@@ -110,7 +110,7 @@ namespace Engine.Master
                 {
                     if (CurrentGameCommand.DeleteWhenDestroyed)
                     {
-                        int x = 0;
+                        CurrentGameCommand.GameCommand.GameCommandItems.Remove(CurrentGameCommand);                        
                     }
                     CurrentGameCommand.AttachedUnitId = null;
                 }
@@ -156,6 +156,8 @@ namespace Engine.Master
         public Game Game { get; set; }
 
         public Blueprint Blueprint { get; set; }
+
+        public int Stunned { get; set; }
 
         public int CountMineral()
         {
