@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2772639996075005862}
   - component: {fileID: -2855918224792141651}
   - component: {fileID: -7360160860549807447}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PartEngine1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -30,6 +30,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1726860958331887626}
   - {fileID: 5943520017824994255}
@@ -126,7 +127,7 @@ GameObject:
   - component: {fileID: 5943520017824994255}
   - component: {fileID: 8373833686699116376}
   - component: {fileID: 1291450575787712813}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: ActiveAnimation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -143,6 +144,7 @@ Transform:
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: -0.017, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3904983433440963785}
   m_RootOrder: 1
@@ -4909,6 +4911,7 @@ ParticleSystemRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_RenderMode: 0
+  m_MeshDistribution: 0
   m_SortMode: 0
   m_MinParticleSize: 0
   m_MaxParticleSize: 0.5
@@ -4932,6 +4935,10 @@ ParticleSystemRenderer:
   m_Mesh1: {fileID: 0}
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
+  m_MeshWeighting: 1
+  m_MeshWeighting1: 1
+  m_MeshWeighting2: 1
+  m_MeshWeighting3: 1
   m_MaskInteraction: 0
 --- !u!1 &7992882932495098188
 GameObject:
@@ -4944,7 +4951,7 @@ GameObject:
   - component: {fileID: 1726860958331887626}
   - component: {fileID: 6942404484121133086}
   - component: {fileID: 2634917713386365851}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: MoveAnimation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4961,6 +4968,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3904983433440963785}
   m_RootOrder: 0
@@ -9728,6 +9736,7 @@ ParticleSystemRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_RenderMode: 0
+  m_MeshDistribution: 0
   m_SortMode: 0
   m_MinParticleSize: 0
   m_MaxParticleSize: 0.5
@@ -9751,4 +9760,8 @@ ParticleSystemRenderer:
   m_Mesh1: {fileID: 0}
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
+  m_MeshWeighting: 1
+  m_MeshWeighting1: 1
+  m_MeshWeighting2: 1
+  m_MeshWeighting3: 1
   m_MaskInteraction: 0

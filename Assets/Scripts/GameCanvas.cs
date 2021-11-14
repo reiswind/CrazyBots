@@ -1032,7 +1032,7 @@ namespace Assets.Scripts
                 {
                     MapPlayerInfo mapPlayerInfo = HexGrid.MainGrid.MapInfo.PlayerInfo[1];
                     //UIMineralText.text = mapPlayerInfo.TotalMetal + " / " + mapPlayerInfo.TotalCapacity;
-                    UIMineralText.text = mapPlayerInfo.TotalMetal + " / " + mapPlayerInfo.TotalCapacity + " " + HexGrid.MainGrid.MapInfo.TotalMetal.ToString();
+                    UIMineralText.text = mapPlayerInfo.TotalMinerals + " / " + mapPlayerInfo.TotalCapacity + " " + HexGrid.MainGrid.MapInfo.TotalMetal.ToString();
                     UIUnitText.text = mapPlayerInfo.TotalUnits.ToString();
                     UIPowerText.text = mapPlayerInfo.TotalPower.ToString();
                 }

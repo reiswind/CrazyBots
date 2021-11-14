@@ -18,7 +18,7 @@ namespace Engine.Interface
         }
 
         public int TotalCapacity { get; set; }
-        public int TotalMetal { get; set; }
+        public int TotalMinerals { get; set; }
         public int TotalUnits { get; set; }
         public int TotalPower { get; set; }
 
@@ -178,7 +178,7 @@ namespace Engine.Interface
                         PlayerInfo.Add(t.Unit.Owner.PlayerModel.Id, mapPlayerInfo);
                     }
                     mapPlayerInfo.TotalCapacity += t.Unit.CountCapacity();
-                    mapPlayerInfo.TotalMetal += t.Unit.CountMineralsInContainer();
+                    mapPlayerInfo.TotalMinerals += t.Unit.CountMineralsInContainer();
                     mapPlayerInfo.TotalUnits++;
                 }
             }

@@ -125,7 +125,7 @@ namespace Engine.Interface
             // Attack
             blueprintCommand = new BlueprintCommand();
 
-            blueprintCommand.Name = "Attack";
+            blueprintCommand.Name = "Units";
             blueprintCommand.Layout = "UIAttack";
             blueprintCommand.GameCommandType = GameCommandType.Attack;
 

@@ -62,8 +62,53 @@ namespace Engine.Ants
             }
         }
 
+        private GameCommand patrolCommand;
+
         public void CreateCommands(Player player)
         {
+            if (patrolCommand == null)
+            {
+                foreach (BlueprintCommand blueprintCommand in player.Game.Blueprints.Commands)
+                {
+                    if (blueprintCommand.Name == "Units")
+                    {
+                        patrolCommand = new GameCommand(blueprintCommand);
+                        foreach (GameCommandItem gameCommandItem in patrolCommand.GameCommandItems)
+                        {
+                            gameCommandItem.DeleteWhenDestroyed = true;
+                            gameCommandItem.FollowPheromones = true;
+                        }
+                        player.GameCommands.Add(patrolCommand);
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                if (MapPlayerInfo.TotalMinerals > 40)
+                {
+                    bool commandComplete = true;
+                    foreach (GameCommandItem gameCommandItem in patrolCommand.GameCommandItems)
+                    {
+                        if (string.IsNullOrEmpty(gameCommandItem.AttachedUnitId))
+                        {
+                            commandComplete = false;
+                            break;
+                        }
+                    }
+                    if (commandComplete)
+                    {
+                        GameCommandItem gameCommandItem = new GameCommandItem(patrolCommand);
+
+                        gameCommandItem.BlueprintName = "Bomber";
+                        gameCommandItem.DeleteWhenDestroyed = true;
+                        gameCommandItem.FollowPheromones = true;
+
+                        patrolCommand.GameCommandItems.Add(gameCommandItem);
+                    }
+                }
+            }
+
             if (player.Discoveries.Count > 0)
             {
                 List<Position2> enemyUnits = new List<Position2>();

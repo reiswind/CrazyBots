@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3877172651884747769}
   - component: {fileID: 2218448623008363288}
   - component: {fileID: 4991405978590719686}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: U-Bomber
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -230,6 +230,26 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3877172651884747769}
     m_Modifications:
+    - target: {fileID: 1470817276047035375, guid: 0b9b6d17509d5f9419a071c47a70d3c8, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1738196005585418232, guid: 0b9b6d17509d5f9419a071c47a70d3c8, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3187236110080246196, guid: 0b9b6d17509d5f9419a071c47a70d3c8, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3327889369588094190, guid: 0b9b6d17509d5f9419a071c47a70d3c8, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4997303993793667480, guid: 0b9b6d17509d5f9419a071c47a70d3c8, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 6000050848639220805, guid: 0b9b6d17509d5f9419a071c47a70d3c8, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -277,6 +297,14 @@ PrefabInstance:
     - target: {fileID: 6624511780124225768, guid: 0b9b6d17509d5f9419a071c47a70d3c8, type: 3}
       propertyPath: m_Name
       value: PartWeapon2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6624511780124225768, guid: 0b9b6d17509d5f9419a071c47a70d3c8, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098104113023020004, guid: 0b9b6d17509d5f9419a071c47a70d3c8, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0b9b6d17509d5f9419a071c47a70d3c8, type: 3}
@@ -339,6 +367,10 @@ PrefabInstance:
     - target: {fileID: 1868789573125115544, guid: 340629bc8c6dace44956005105f81a27, type: 3}
       propertyPath: m_Name
       value: PartExtractor1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1868789573125115544, guid: 340629bc8c6dace44956005105f81a27, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 340629bc8c6dace44956005105f81a27, type: 3}

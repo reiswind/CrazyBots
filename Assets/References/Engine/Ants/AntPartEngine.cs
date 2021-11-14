@@ -838,7 +838,7 @@ namespace Engine.Ants
             if (cntrlUnit.UnderConstruction)
                 return false;
 
-            if (cntrlUnit.CurrentGameCommand != null)
+            if (cntrlUnit.CurrentGameCommand != null && !cntrlUnit.CurrentGameCommand.FollowPheromones)
             {
                 Position2 calcPathToPosition = Position2.Null;
 

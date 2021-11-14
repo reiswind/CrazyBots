@@ -47,6 +47,10 @@ namespace Engine.Interface
         internal GameCommand GameCommand { get; private set; }
         internal string FactoryUnitId { get; set; }
         public string Status { get; set; }
+
+        public bool DeleteWhenDestroyed { get; set; }
+        public bool FollowPheromones { get; set; }
+
         public override string ToString()
         {
             return GameCommand.ToString();

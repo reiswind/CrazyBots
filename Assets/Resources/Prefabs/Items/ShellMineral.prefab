@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 371340356431461886}
   - component: {fileID: 5022946539629138290}
   - component: {fileID: 1059984967959027870}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: ShellMineral
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31,6 +31,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5044765118641101453}
   m_Father: {fileID: 0}
@@ -140,7 +141,7 @@ GameObject:
   - component: {fileID: 5044765118641101453}
   - component: {fileID: 6995129145195308938}
   - component: {fileID: 238766883695972834}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: ShellTrail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -157,6 +158,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0.001}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 193088996958272439}
   m_RootOrder: 0
@@ -4923,6 +4925,7 @@ ParticleSystemRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_RenderMode: 0
+  m_MeshDistribution: 0
   m_SortMode: 0
   m_MinParticleSize: 0
   m_MaxParticleSize: 0.5
@@ -4946,4 +4949,8 @@ ParticleSystemRenderer:
   m_Mesh1: {fileID: 0}
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
+  m_MeshWeighting: 1
+  m_MeshWeighting1: 1
+  m_MeshWeighting2: 1
+  m_MeshWeighting3: 1
   m_MaskInteraction: 0

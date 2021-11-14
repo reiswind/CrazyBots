@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 2885938392171121897}
   - component: {fileID: 291429311413677094}
   - component: {fileID: -1368482069982988783}
-  m_Layer: 0
-  m_Name: PartArmor1
+  m_Layer: 3
+  m_Name: PartRadar1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30,6 +30,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -41,7 +42,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3678339035990469948}
-  m_Mesh: {fileID: -1973947185265837434, guid: caf2805b3c826d840815d9ee8225c067, type: 3}
+  m_Mesh: {fileID: -2608758438530437277, guid: ad4d5b1c67b93324e96236f7dd950dfc, type: 3}
 --- !u!23 &2885938392171121897
 MeshRenderer:
   m_ObjectHideFlags: 0

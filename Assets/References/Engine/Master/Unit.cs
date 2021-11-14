@@ -107,7 +107,13 @@ namespace Engine.Master
             if (CurrentGameCommand != null)
             {
                 if (CurrentGameCommand.AttachedUnitId == UnitId)
+                {
+                    if (CurrentGameCommand.DeleteWhenDestroyed)
+                    {
+                        int x = 0;
+                    }
                     CurrentGameCommand.AttachedUnitId = null;
+                }
                 if (CurrentGameCommand.FactoryUnitId == UnitId)
                     CurrentGameCommand.FactoryUnitId = null;
                 CurrentGameCommand = null;

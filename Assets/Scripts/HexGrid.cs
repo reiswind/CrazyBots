@@ -1030,7 +1030,9 @@ namespace Assets.Scripts
                             if (GroundCells.TryGetValue(move.Positions[0], out hexCell))
                             {
                                 hexCell.Stats = move.Stats;
+
                                 hexCell.Visible = move.Stats.MoveUpdateGroundStat.VisibilityMask != 0;
+                                hexCell.VisibleByPlayer = (move.Stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
                                 hexCell.UpdateGround();
                             }
                             else
@@ -1677,7 +1679,9 @@ namespace Assets.Scripts
             }
             else
             {
+                
                 groundCell.Visible = stats.MoveUpdateGroundStat.VisibilityMask != 0;
+                groundCell.VisibleByPlayer = (stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
 
                 float height = stats.MoveUpdateGroundStat.Height;
                 gridPos3.y += height + 0.3f;

@@ -14,6 +14,8 @@ namespace Assets.Scripts
 
         public bool ShowPheromones { get; set; }
 
+        public bool VisibleByPlayer { get; set; }
+
         private bool visible;
         public bool Visible
         {
@@ -68,26 +70,22 @@ namespace Assets.Scripts
             targetDiffuse = 0.1f;
             Diffuse = 0.1f;
         }
-        
+
         public void UpdateColor()
         {
+            // Set color
+            Renderer renderer = GetComponent<Renderer>();
 
-                //Diffuse = Mathf.Lerp(Diffuse, targetDiffuse, 0.03f);
-
-                // Set color
-                Renderer renderer = GetComponent<Renderer>();
-
-                renderer.material.SetFloat("Darkness", Diffuse);
-                foreach (UnitBaseTileObject unitBaseTileObject1 in GameObjects)
+            renderer.material.SetFloat("Darkness", Diffuse);
+            foreach (UnitBaseTileObject unitBaseTileObject1 in GameObjects)
+            {
+                if (unitBaseTileObject1.GameObject != null)
                 {
-                    if (unitBaseTileObject1.GameObject != null)
-                    {
-                        renderer = unitBaseTileObject1.GameObject.GetComponent<Renderer>();
-                        if (renderer != null)
-                            renderer.material.SetFloat("Darkness", Diffuse);
-                    }
+                    renderer = unitBaseTileObject1.GameObject.GetComponent<Renderer>();
+                    if (renderer != null)
+                        renderer.material.SetFloat("Darkness", Diffuse);
                 }
-
+            }
         }
 
         public void InitHighlightEffect()
@@ -453,8 +451,11 @@ namespace Assets.Scripts
             {
                 if (Visible)
                 {
-                    targetDiffuse = 0.8f;
-                    
+                    if (VisibleByPlayer)
+                        targetDiffuse = 0.8f;
+                    else
+                        targetDiffuse = 0.3f;
+
                 }
                 else
                 {

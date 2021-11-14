@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: -5095942537881517929}
   - component: {fileID: -8650918099928514204}
   - component: {fileID: -935307612118133921}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: UIAttack
   m_TagString: Untagged
   m_Icon: {fileID: 0}

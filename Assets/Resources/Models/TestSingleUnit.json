@@ -8,7 +8,7 @@
     {
       "ControlLevel": 1,
       "Id": 1,
-      "Zone": 4,
+      "Zone": 0,
 	  "IsHuman": true,
       "Name": "Green"
     },
@@ -42,24 +42,6 @@
 	  "EndlessAmmo": true,
 	  "EndlessPower": true,
       "Position": "0,0"
-    },{
-      "Name": "Worker",
-      "PlayerId": 2,
-      "Blueprint": "Fighter",
-	  "HoldPosition": true,
-	  "FireAtGround": false,
-	  "EndlessAmmo": true,
-	  "EndlessPower": true,
-      "Position": "2,2"
-    },{
-      "Name": "Fighter",
-      "PlayerId": 2,
-      "Blueprint": "Fighter",
-	  "HoldPosition": true,
-	  "FireAtGround": false,
-	  "EndlessAmmo": true,
-	  "EndlessPower": true,
-      "Position": "2,3"
     }
 
   ]
