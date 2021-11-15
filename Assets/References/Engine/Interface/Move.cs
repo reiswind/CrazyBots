@@ -218,7 +218,7 @@ namespace Engine.Interface
         [DataMember]
         public int Power { get; set; }
         [DataMember]
-        public int Direction { get; set; }
+        public Direction Direction { get; set; }
     }
 
     [DataContract]
@@ -246,7 +246,6 @@ namespace Engine.Interface
         /// </summary>
         [DataMember(EmitDefaultValue = false)]
         public List<Position2> Positions { get; set; }
-
         /// <summary>
         /// Add=new Unitmodel
         /// Move=what it is

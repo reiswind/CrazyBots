@@ -123,8 +123,8 @@ namespace Engine.Ants
                     if (playerVisibleInfo.Unit != null &&
                         playerVisibleInfo.Unit.Owner.PlayerModel.Id != player.PlayerModel.Id)
                     {
-                        if (player.PlayerModel.Id == 1)
-                            Debug.WriteLine("Enemy " + playerVisibleInfo.Unit.Blueprint.Name + " at " + playerVisibleInfo.Pos.ToString());
+                        //if (player.PlayerModel.Id == 1)
+                        //    Debug.WriteLine("Enemy " + playerVisibleInfo.Unit.Blueprint.Name + " at " + playerVisibleInfo.Pos.ToString());
                         enemyUnits.Add(playerVisibleInfo.Pos);
                     }
                 }
@@ -358,8 +358,8 @@ namespace Engine.Ants
                         gameCommand.PlayerId = player.PlayerModel.Id;
                         gameCommand.DeleteWhenFinished = true;
 
-                        if (player.PlayerModel.Id == 1)
-                            Debug.WriteLine("Create Attack at " + pos.ToString());
+                        //if (player.PlayerModel.Id == 1)
+                        //    Debug.WriteLine("Create Attack at " + pos.ToString());
 
                         player.GameCommands.Add(gameCommand);
                         break;

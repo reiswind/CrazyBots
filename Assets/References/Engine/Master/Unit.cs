@@ -583,7 +583,7 @@ namespace Engine.Master
             MoveUpdateStats stats = new MoveUpdateStats();
             stats.BlueprintName = Blueprint.Name;
             stats.MarkedForExtraction = ExtractMe;
-            stats.Direction = ((int)Direction);
+            stats.Direction = Direction;
             stats.UnitParts = new List<MoveUpdateUnitPart>();
             foreach (BlueprintPart blueprintPart in Blueprint.Parts)
             {

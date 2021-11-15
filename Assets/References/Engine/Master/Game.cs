@@ -19,11 +19,12 @@ namespace Engine.Master
         public GameModel GameModel { get; private set; }
         public Blueprints Blueprints { get; set; }
         public Map Map { get; private set; }
-
+        public Recipes Recipes { get; private set; }
         private void Init(GameModel gameModel, int initSeed)
         {
             Blueprints = new Blueprints();
             Pheromones = new Pheromones();
+            Recipes = new Recipes();
 
             seed = initSeed;
             Random = new Random(seed);
@@ -386,7 +387,14 @@ namespace Engine.Master
                         }
                     }
                 }
-                if (move.MoveType == MoveType.Move || move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
+                if (move.MoveType == MoveType.Move && move.Positions.Count == 1)
+                {
+                    // Unit turns
+                    Unit thisUnit;
+                    thisUnit = Map.Units.GetUnitAt(move.Positions[0]);
+                    move.Stats = thisUnit.CollectStats();
+                }
+                else if (move.MoveType == MoveType.Move || move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
                 {
                     Position2 Destination;
                     Position2 From;
@@ -435,8 +443,7 @@ namespace Engine.Master
                         thisUnit.Pos = Destination;
                         if (move.Positions.Count > 1)
                             thisUnit.Direction = Position3.CalcDirection(move.Positions[0], move.Positions[1]);
-                        else
-                            thisUnit.Direction = Direction.C;
+
                         move.Stats = thisUnit.CollectStats();
 
                         if (move.PlayerId > 0)
@@ -447,9 +454,8 @@ namespace Engine.Master
                         // Remove moving unit from map
                         if (thisUnit.Engine != null && move.Positions.Count > 1)
                             thisUnit.Direction = Position3.CalcDirection(move.Positions[0], move.Positions[1]);
-                        else
-                            thisUnit.Direction = Direction.C;
-                        move.Stats.Direction = (int)thisUnit.Direction;
+                        
+                        move.Stats.Direction = thisUnit.Direction;
                         Map.Units.Remove(From);
                     }
 
@@ -1367,7 +1373,12 @@ namespace Engine.Master
 
                 foreach (Move move in newMoves)
                 {
-                    if (move.MoveType == MoveType.Move || move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
+                    if (move.MoveType == MoveType.Move && move.Positions.Count == 1)
+                    {
+                        // Unit turned
+                        acceptedMoves.Add(move);
+                    }
+                    else if (move.MoveType == MoveType.Move || move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
                     {
                         Position2 destination = move.Positions[move.Positions.Count - 1];
                         if (moveToTargets.ContainsKey(destination))

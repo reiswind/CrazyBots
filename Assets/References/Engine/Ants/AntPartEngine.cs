@@ -540,12 +540,30 @@ namespace Engine.Ants
                                     Ant.FollowThisRoute.Insert(0, moveToPosition);
                                 }
                                 cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
+
+                                Move turnMove = new Move();
+                                turnMove.MoveType = MoveType.Move;
+                                turnMove.UnitId = cntrlUnit.UnitId;
+                                turnMove.PlayerId = player.PlayerModel.Id;
+                                turnMove.Positions = new List<Position2>();
+                                turnMove.Positions.Add(cntrlUnit.Pos);
+                                moves.Add(turnMove);
+
                                 return true;
                             }
                         }
                         else if (pheromoneType == PheromoneType.Container)
                         {
                             cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
+
+                            Move turnMove = new Move();
+                            turnMove.MoveType = MoveType.Move;
+                            turnMove.UnitId = cntrlUnit.UnitId;
+                            turnMove.PlayerId = player.PlayerModel.Id;
+                            turnMove.Positions = new List<Position2>();
+                            turnMove.Positions.Add(cntrlUnit.Pos);
+                            moves.Add(turnMove);
+
                             return true;
                         }
                         else
@@ -564,6 +582,15 @@ namespace Engine.Ants
                                     {
                                         Ant.FollowThisRoute = null;
                                         cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
+
+                                        Move turnMove = new Move();
+                                        turnMove.MoveType = MoveType.Move;
+                                        turnMove.UnitId = cntrlUnit.UnitId;
+                                        turnMove.PlayerId = player.PlayerModel.Id;
+                                        turnMove.Positions = new List<Position2>();
+                                        turnMove.Positions.Add(cntrlUnit.Pos);
+                                        moves.Add(turnMove);
+
                                         return true;
                                     }
                                     else
@@ -574,6 +601,15 @@ namespace Engine.Ants
                                             Ant.FollowThisRoute.Insert(0, moveToPosition);
                                         }
                                         cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
+
+                                        Move turnMove = new Move();
+                                        turnMove.MoveType = MoveType.Move;
+                                        turnMove.UnitId = cntrlUnit.UnitId;
+                                        turnMove.PlayerId = player.PlayerModel.Id;
+                                        turnMove.Positions = new List<Position2>();
+                                        turnMove.Positions.Add(cntrlUnit.Pos);
+                                        moves.Add(turnMove);
+
                                         return true;
                                     }
                                 }
