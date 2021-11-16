@@ -289,7 +289,7 @@ namespace Assets.Scripts
                                 }
                                 else
                                 {
-                                    int x = 0;
+
                                 }
                             }
                         }
