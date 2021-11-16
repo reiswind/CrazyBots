@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1220202946086547460}
   - component: {fileID: 7536675065389776627}
   - component: {fileID: 8784270675444218307}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: S-Turret
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -157,7 +157,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2318509172490920783}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: S-PartWeapon3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -299,6 +299,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: S-PartExtractor1
       objectReference: {fileID: 0}
+    - target: {fileID: 1805604099581745094, guid: a5e0c8713be9f7c448383bb22ceb1db0, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a5e0c8713be9f7c448383bb22ceb1db0, type: 3}
 --- !u!4 &5991561978008945896 stripped
@@ -316,6 +320,10 @@ PrefabInstance:
     - target: {fileID: 56543901873364916, guid: 0981a47ac5532d84f8569780fe64bd41, type: 3}
       propertyPath: m_Name
       value: S-PartWeapon3-1
+      objectReference: {fileID: 0}
+    - target: {fileID: 56543901873364916, guid: 0981a47ac5532d84f8569780fe64bd41, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 829562614761653518, guid: 0981a47ac5532d84f8569780fe64bd41, type: 3}
       propertyPath: m_RootOrder
@@ -422,6 +430,10 @@ PrefabInstance:
     - target: {fileID: 5289675065945628768, guid: a96bf2018033af74087da479229c0c77, type: 3}
       propertyPath: m_Name
       value: S-PartWeapon3-2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5289675065945628768, guid: a96bf2018033af74087da479229c0c77, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a96bf2018033af74087da479229c0c77, type: 3}

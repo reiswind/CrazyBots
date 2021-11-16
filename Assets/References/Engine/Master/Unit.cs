@@ -159,6 +159,81 @@ namespace Engine.Master
 
         public int Stunned { get; set; }
 
+        public MoveRecipeIngredient FindIngredient(TileObjectType tileObjectType, bool searchNeighbors)
+        {
+            MoveRecipeIngredient moveRecipeIngredient = new MoveRecipeIngredient();
+            moveRecipeIngredient.TileObjectType = tileObjectType;
+            moveRecipeIngredient.Count = 1;
+
+            if (Assembler != null && Assembler.TileContainer != null && Assembler.TileContainer.Contains(tileObjectType))
+            {
+                moveRecipeIngredient.Position = Pos;
+                moveRecipeIngredient.Source = TileObjectType.PartAssembler;
+                return moveRecipeIngredient;
+            }
+            if (Container != null && Container.TileContainer != null && Container.TileContainer.Contains(tileObjectType))
+            {
+                moveRecipeIngredient.Position = Pos;
+                moveRecipeIngredient.Source = TileObjectType.PartContainer;
+                return moveRecipeIngredient;
+            }
+            // Do not pick ingredients from weapon or reactor
+
+            if (searchNeighbors)
+            {
+                Position3 position3 = new Position3(Pos);
+                foreach (Position3 n3 in position3.Neighbors)
+                {
+                    Tile t = Game.Map.GetTile(n3.Pos);
+                    if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id)
+                    {
+                        moveRecipeIngredient = t.Unit.FindIngredient(tileObjectType, false);
+                        if (moveRecipeIngredient != null)
+                            return moveRecipeIngredient;
+                    }
+                }
+            }
+            return null;
+        }
+
+        public TileObject ConsumeIngredient(MoveRecipeIngredient ingredient)
+        {
+            TileObject tileObject = null;
+            if (ingredient.Position == Pos)
+            {
+                if (Assembler != null && Assembler.TileContainer != null && Assembler.TileContainer.Contains(ingredient.TileObjectType))
+                {
+                    tileObject = Assembler.TileContainer.RemoveTileObject(ingredient.TileObjectType);
+                }
+                if (Container != null && Container.TileContainer != null && Container.TileContainer.Contains(ingredient.TileObjectType))
+                {
+                    tileObject = Container.TileContainer.RemoveTileObject(ingredient.TileObjectType);
+                }
+                if (ingredient.Source == TileObjectType.PartReactor &&
+                    Reactor != null && Reactor.TileContainer != null && Reactor.TileContainer.Contains(ingredient.TileObjectType))
+                {
+                    tileObject = Reactor.TileContainer.RemoveTileObject(ingredient.TileObjectType);
+                }
+            }
+            else
+            {
+                Position3 position3 = new Position3(Pos);
+                foreach (Position3 n3 in position3.Neighbors)
+                {
+                    if (n3.Pos == ingredient.Position)
+                    {
+                        Tile t = Game.Map.GetTile(n3.Pos);
+                        if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id)
+                        {
+                            tileObject = t.Unit.ConsumeIngredient(ingredient);
+                        }
+                        break;
+                    }
+                }
+            }
+            return tileObject;
+        }
+
         public int CountMineral()
         {
             int mineral = 0;
@@ -314,8 +389,10 @@ namespace Engine.Master
             return true;
         }
 
-        private Ability CreateBlueprintPart(BlueprintPart blueprintPart, int level, bool fillContainer, TileObject tileObject)
+        private Ability CreateBlueprintPart(BlueprintPart blueprintPart, bool fillContainer, TileObject tileObject)
         {
+            int level = blueprintPart.Level;
+
             Ability createdAbility = null;
             if (blueprintPart.PartType == TileObjectType.PartEngine)
             {
@@ -494,7 +571,7 @@ namespace Engine.Master
                     tileObject.Direction = Direction.C;
                     tileObject.TileObjectType = TileObjectType.Mineral;
                     
-                    ability = CreateBlueprintPart(blueprintPart, blueprintPart.Level, true, tileObject);
+                    ability = CreateBlueprintPart(blueprintPart, true, tileObject);
                 }
                 while (ability.Level < blueprintPart.Level);
             }
@@ -550,16 +627,11 @@ namespace Engine.Master
 
         public void Upgrade(Move move, TileObject tileObject)
         {
-            MoveUpdateUnitPart moveUpdateUnitPart = move.Stats.UnitParts[0];
-
             foreach (BlueprintPart blueprintPart in Blueprint.Parts)
             {
-                if (moveUpdateUnitPart.PartType == blueprintPart.PartType)
+                if (move.MoveRecipe.Result == blueprintPart.PartType)
                 {
-                    CreateBlueprintPart(blueprintPart, moveUpdateUnitPart.Level, false, tileObject);
-
-                    moveUpdateUnitPart.TileObjects.Add(tileObject);
-
+                    CreateBlueprintPart(blueprintPart, false, tileObject);
                     break;
                 }
             }
@@ -567,7 +639,6 @@ namespace Engine.Master
             {
                 UnderConstruction = false;
             }
-            
             ExtractMe = false;
         }
 

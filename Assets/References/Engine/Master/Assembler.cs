@@ -33,23 +33,12 @@ namespace Engine.Master
             TileContainer.AcceptedTileObjectTypes = TileObjectType.Mineral;
         }
 
-        public TileObject ConsumeMineralForUnit()
-        {
-            TileObject tileObject = null;
-            if (Unit.Container != null)
-            {
-                tileObject = Unit.Container.TileContainer.RemoveTileObject(TileObjectType.Mineral);
-            }
-            if (tileObject == null)
-            {
-                if (TileContainer != null)
-                {
-                    tileObject = TileContainer.RemoveTileObject(TileObjectType.Mineral);
-                }
-            }
-            return tileObject;
-        }
-
+        /// <summary>
+        /// Will only create a unitid and reserve the postion. 
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="productCode"></param>
+        /// <returns></returns>
         private Move CreateAssembleMove(Position2 pos, string productCode)
         {
             Move move;
@@ -69,20 +58,8 @@ namespace Engine.Master
             return move;
         }
 
-        private Move CreateUpgradeMove(Position2 pos, Unit assemblerUnit, Unit upgradedUnit, BlueprintPart blueprintPart) 
+        private Move CreateUpgradeMove(Position2 pos, Unit assemblerUnit, Unit upgradedUnit, MoveRecipeIngredient moveRecipeIngredient, BlueprintPart blueprintPart) 
         {
-            int level = blueprintPart.Level;
-            
-            while (level > 1)
-            {
-                level--;
-                if (upgradedUnit.IsInstalled(blueprintPart, level))
-                {
-                    level++;
-                    break;
-                }
-            }
-
             Move move;
 
             // possible production move
@@ -95,20 +72,48 @@ namespace Engine.Master
             move.UnitId = assemblerUnit.UnitId;
             move.OtherUnitId = upgradedUnit.UnitId;
 
-            move.Stats = new MoveUpdateStats();
-
-            MoveUpdateUnitPart part = new MoveUpdateUnitPart();
-            part.PartType = blueprintPart.PartType;
-            part.Level = level;
-            part.Name = blueprintPart.Name;
-            part.Capacity = blueprintPart.Capacity;
-            part.TileObjects = new List<TileObject>();
-            part.CompleteLevel = blueprintPart.Level;
-
-            move.Stats.UnitParts = new List<MoveUpdateUnitPart>();
-            move.Stats.UnitParts.Add(part);
+            move.MoveRecipe = new MoveRecipe();
+            move.MoveRecipe.Ingredients = new List<MoveRecipeIngredient>();
+            move.MoveRecipe.Ingredients.Add(moveRecipeIngredient);
+            move.MoveRecipe.Result = blueprintPart.PartType;
 
             return move;
+        }
+
+        public List<TileObject> ConsumeIngredients(MoveRecipe moveRecipe)
+        {
+            List<MoveRecipeIngredient> realIngredients = new List<MoveRecipeIngredient>();
+
+            bool missingIngredient = false;
+            foreach (MoveRecipeIngredient moveRecipeIngredient in moveRecipe.Ingredients)
+            {
+                MoveRecipeIngredient realIngredient = Unit.FindIngredient(moveRecipeIngredient.TileObjectType, true);
+                if (realIngredient == null)
+                {
+                    missingIngredient = true;
+                    break;
+                }
+                realIngredients.Add(realIngredient);
+            }
+            if (missingIngredient)
+                return null;
+
+            // Replace suggested ingredients with real ones
+            moveRecipe.Ingredients.Clear();
+            foreach (MoveRecipeIngredient realIngredient in realIngredients )
+            {
+                Unit.ConsumeIngredient(realIngredient);
+                moveRecipe.Ingredients.Add(realIngredient);
+            }
+
+            List<TileObject> results = new List<TileObject>();
+
+            TileObject tileObject = new TileObject();
+            tileObject.TileObjectType = moveRecipe.Result;
+            tileObject.Direction = Direction.C;
+            results.Add(tileObject);
+
+            return results;
         }
 
         public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position2> includedPosition2s, MoveFilter moveFilter)
@@ -116,9 +121,8 @@ namespace Engine.Master
             if ((moveFilter & MoveFilter.Assemble) == 0 && (moveFilter & MoveFilter.Upgrade) == 0)
                 return;
 
-            if (!CanProduce())
-                return;
-            
+            MoveRecipeIngredient moveRecipeIngredient = Unit.FindIngredient(TileObjectType.Mineral, true);
+
             Dictionary<Position2, TileWithDistance> neighbors = Unit.Game.Map.EnumerateTiles(Unit.Pos, 1, false);
             
             foreach (TileWithDistance neighbor in neighbors.Values)
@@ -158,7 +162,8 @@ namespace Engine.Master
                 }
                 else
                 {
-                    if (neighbor.Unit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
+                    if (moveRecipeIngredient != null &&
+                        neighbor.Unit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
                     {
                         if (Level > 0 && !neighbor.Unit.IsComplete() && !neighbor.Unit.ExtractMe)
                         {
@@ -168,7 +173,7 @@ namespace Engine.Master
                                 {
                                     if (!neighbor.Unit.IsInstalled(blueprintPart, blueprintPart.Level))
                                     {
-                                        possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, Unit, neighbor.Unit, blueprintPart));
+                                        possibleMoves.Add(CreateUpgradeMove(neighbor.Pos, Unit, neighbor.Unit, moveRecipeIngredient, blueprintPart));
                                         break;
                                     }
                                 }

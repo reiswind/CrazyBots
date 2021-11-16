@@ -185,6 +185,20 @@ namespace Engine.Interface
         }
     }
 
+    public class MoveRecipeIngredient
+    {
+        public TileObjectType Source { get; set; }
+        public TileObjectType TileObjectType { get; set; }
+        public int Count { get; set; }
+        public Position2 Position { get; set; }
+    }
+
+    public class MoveRecipe
+    {
+        public List<MoveRecipeIngredient> Ingredients { get; set; }
+        public TileObjectType Result { get; set; }
+    }
+
     public class MoveUpdateStatsCommand
     {
         public Position2 TargetPosition { get; set; }
@@ -246,6 +260,10 @@ namespace Engine.Interface
         /// </summary>
         [DataMember(EmitDefaultValue = false)]
         public List<Position2> Positions { get; set; }
+        /// <summary>
+        /// Only for Upgrade moves
+        /// </summary>
+        public MoveRecipe MoveRecipe { get; set; }
         /// <summary>
         /// Add=new Unitmodel
         /// Move=what it is

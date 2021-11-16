@@ -25,8 +25,6 @@ namespace Assets.Scripts
         public int gridHeight = 20;
         public float GameSpeed = 0.01f;
 
-        public Button CreateItems;
-
         internal Dictionary<Position2, GroundCell> GroundCells { get; private set; }
         internal Dictionary<string, UnitBase> BaseUnits { get; private set; }
         
@@ -1465,6 +1463,17 @@ namespace Assets.Scripts
 
                 foreach (TransitObject transitObject in transit)
                 {
+                    if (transitObject.StartAfterThis != 0)
+                    {
+                        if (Time.time < transitObject.StartAfterThis)
+                        {
+                            //Debug.Log("Skip Transit " + Time.time + " < " + transitObject.StartAfterThis);
+
+                            continue;
+                        }
+                        //Debug.Log("Transit " + Time.time);
+                    }
+
                     if (transitObject.GameObject == null)
                     {
                         tileObjectsInTransit.Remove(transitObject);
@@ -1610,6 +1619,14 @@ namespace Assets.Scripts
 
             unit.Assemble(move.MoveType == MoveType.Build);
             unit.PutAtCurrentPosition(false, true);
+
+            if (move.MoveType == MoveType.Build)
+            {
+                unit.BuildGhost = HexGrid.MainGrid.CreateTempUnit(blueprint);
+                unit.BuildGhost.CurrentPos = move.Positions[1];
+                unit.BuildGhost.TurnIntoDirection = move.Stats.Direction;
+                unit.BuildGhost.PutAtCurrentPosition(false, true);
+            }
 
             if (move.Positions.Count > 1)
             {

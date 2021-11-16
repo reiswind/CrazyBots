@@ -58,6 +58,29 @@ namespace Engine.Master
         {
             if (AvailablePower == 0)
             {
+                MoveRecipeIngredient moveRecipeIngredient = Unit.FindIngredient(TileObjectType.All, true);
+                if (moveRecipeIngredient == null)
+                {
+                    if (TileContainer != null && TileContainer.Count > 0)
+                    {
+                        moveRecipeIngredient = new MoveRecipeIngredient();
+                        moveRecipeIngredient.Position = Unit.Pos;
+                        moveRecipeIngredient.Count = 1;
+                        moveRecipeIngredient.TileObjectType = TileContainer.TileObjects[0].TileObjectType;
+                        moveRecipeIngredient.Source = TileObjectType.PartReactor;
+                    }
+                }
+                if (moveRecipeIngredient != null)
+                {
+                    AvailablePower = TileObject.GetPowerForTileObjectType(moveRecipeIngredient.TileObjectType);
+
+                    // Animation missing, no move
+
+                    TileObject tileObject = Unit.ConsumeIngredient(moveRecipeIngredient);
+                    if (tileObject != null)
+                        Unit.Game.Map.AddOpenTileObject(tileObject);
+                }
+                /*
                 List<TileObject> tileObjects = new List<TileObject>();
                 this.Unit.RemoveTileObjects(tileObjects, 1, TileObjectType.All, null);
                 
@@ -67,7 +90,7 @@ namespace Engine.Master
 
 
                     Unit.Game.Map.AddOpenTileObject(tileObjects[0]);
-                }
+                }*/
             }
         }
         public int ConsumePower(int remove)

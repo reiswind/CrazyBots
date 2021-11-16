@@ -399,8 +399,6 @@ namespace Assets.Scripts
 
         internal void CreateDestructables(bool init)
         {
-
-            
             SetGroundMaterial();
             
             List<UnitBaseTileObject> destroyedTileObjects = new List<UnitBaseTileObject>();
@@ -473,7 +471,6 @@ namespace Assets.Scripts
                 foreach (UnitBaseTileObject destructable in destroyedTileObjects)
                 {
                     StartCoroutine(FadeOutDestructable(destructable.GameObject, destructable.GameObject.transform.position.y - 0.1f));
-                    //HexGrid.Destroy(destructable.GameObject);
                     GameObjects.Remove(destructable);
                 }
             }

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1220202946086547460}
   - component: {fileID: 7536675065389776627}
   - component: {fileID: -5247141595751996241}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: S-Factory
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -157,7 +157,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2707340234278962127}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: S-PartAssembler3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -189,6 +189,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2707340234278962127}
     m_Modifications:
+    - target: {fileID: 27134577754251379, guid: b7d4924386e9a1b43a3fb05a5e31b3bf, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 625939486540128688, guid: b7d4924386e9a1b43a3fb05a5e31b3bf, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1210906820340302004, guid: b7d4924386e9a1b43a3fb05a5e31b3bf, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1487634551653931054, guid: b7d4924386e9a1b43a3fb05a5e31b3bf, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 2159458480882868437, guid: b7d4924386e9a1b43a3fb05a5e31b3bf, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -233,9 +249,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4598362886323963238, guid: b7d4924386e9a1b43a3fb05a5e31b3bf, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5294964302632180835, guid: b7d4924386e9a1b43a3fb05a5e31b3bf, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5460597417374815672, guid: b7d4924386e9a1b43a3fb05a5e31b3bf, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 8736124018666362996, guid: b7d4924386e9a1b43a3fb05a5e31b3bf, type: 3}
       propertyPath: m_Name
       value: S-PartAssembler3-2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8736124018666362996, guid: b7d4924386e9a1b43a3fb05a5e31b3bf, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b7d4924386e9a1b43a3fb05a5e31b3bf, type: 3}
@@ -299,6 +331,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: S-PartExtractor1
       objectReference: {fileID: 0}
+    - target: {fileID: 1805604099581745094, guid: a5e0c8713be9f7c448383bb22ceb1db0, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a5e0c8713be9f7c448383bb22ceb1db0, type: 3}
 --- !u!4 &5991561978008945896 stripped
@@ -313,6 +349,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2707340234278962127}
     m_Modifications:
+    - target: {fileID: 27134577754251379, guid: fc0ab7637204e8c4da29b3404f0ec5d2, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 625939486540128688, guid: fc0ab7637204e8c4da29b3404f0ec5d2, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1210906820340302004, guid: fc0ab7637204e8c4da29b3404f0ec5d2, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1487634551653931054, guid: fc0ab7637204e8c4da29b3404f0ec5d2, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 2159458480882868437, guid: fc0ab7637204e8c4da29b3404f0ec5d2, type: 3}
       propertyPath: m_RootOrder
       value: 2
@@ -357,9 +409,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4598362886323963238, guid: fc0ab7637204e8c4da29b3404f0ec5d2, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5294964302632180835, guid: fc0ab7637204e8c4da29b3404f0ec5d2, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5460597417374815672, guid: fc0ab7637204e8c4da29b3404f0ec5d2, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 8736124018666362996, guid: fc0ab7637204e8c4da29b3404f0ec5d2, type: 3}
       propertyPath: m_Name
       value: S-PartAssembler3-3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8736124018666362996, guid: fc0ab7637204e8c4da29b3404f0ec5d2, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fc0ab7637204e8c4da29b3404f0ec5d2, type: 3}
@@ -375,6 +443,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2707340234278962127}
     m_Modifications:
+    - target: {fileID: 918270329286031923, guid: a523b2c06974a6e4eab0fe46679f76d6, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1604767758649613735, guid: a523b2c06974a6e4eab0fe46679f76d6, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2991135017651369574, guid: a523b2c06974a6e4eab0fe46679f76d6, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8069094703692621710, guid: a523b2c06974a6e4eab0fe46679f76d6, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 8222396860993972136, guid: a523b2c06974a6e4eab0fe46679f76d6, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -422,6 +506,10 @@ PrefabInstance:
     - target: {fileID: 8741489956744428818, guid: a523b2c06974a6e4eab0fe46679f76d6, type: 3}
       propertyPath: m_Name
       value: S-PartAssembler3-1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8741489956744428818, guid: a523b2c06974a6e4eab0fe46679f76d6, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a523b2c06974a6e4eab0fe46679f76d6, type: 3}

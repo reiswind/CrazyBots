@@ -47,6 +47,17 @@ namespace Engine.Interface
             }
         }
 
+        public bool Contains(TileObjectType tileObjectType)
+        {
+            foreach (TileObject tileObject in tileObjects)
+            {
+                if (tileObject.TileObjectType == tileObjectType || tileObjectType == TileObjectType.All)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         public void AddRange(List<TileObject> ptileObjects)
         {
             foreach (TileObject tileObject in ptileObjects)

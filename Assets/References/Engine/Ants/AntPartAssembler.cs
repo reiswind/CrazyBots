@@ -25,10 +25,9 @@ namespace Engine.Ants
         public override bool Move(ControlAnt control, Player player, List<Move> moves)
         {
             bool moved = false;
-            if (Assembler.CanProduce())
-            {
-                moved = Assemble(control, player, moves);
-            }
+
+            moved = Assemble(control, player, moves);
+
             return moved;
         }
 
@@ -44,7 +43,9 @@ namespace Engine.Ants
                 includePositions.Add(Assembler.Unit.CurrentGameCommand.GameCommand.TargetPosition);
             }
             List<Move> possiblemoves = new List<Move>();
-            Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Upgrade);
+
+            if (Assembler.Unit.CurrentGameCommand != null)
+                Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Upgrade);
             while (possiblemoves.Count > 0)
             {
                 int idx = player.Game.Random.Next(possiblemoves.Count);
@@ -74,6 +75,17 @@ namespace Engine.Ants
                 }
                 else
                 {
+                    // Check if already built but cannot upgrade for a reason
+                    Dictionary<Position2, TileWithDistance> neighbors = Assembler.Unit.Game.Map.EnumerateTiles(Assembler.Unit.Pos, 1, false);
+                    foreach (TileWithDistance tileWithDistance in neighbors.Values)
+                    {
+                        if (tileWithDistance.Unit != null && tileWithDistance.Unit.UnitId == selectedGameCommand.AttachedUnitId)
+                        {
+                            // Already under construction
+                            return false;
+                        }
+                    }
+
                     // Assembler should move to the target
                     if (Ant.AntPartEngine != null)
                     {

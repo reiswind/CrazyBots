@@ -171,9 +171,16 @@ namespace Assets.Scripts
                     {
                         if (otherTileObject.TileObjectType == unitBaseTileObject.TileObject.TileObjectType)
                         {
-                            unassignedTileObjects.Remove(otherTileObject);
-                            assignedGameTileObjects.Remove(unitBaseTileObject);
-                            unassignedGameTileObjects.Remove(unitBaseTileObject);
+                            if (unitBaseTileObject.GameObject == null)
+                            {
+                                int x = 0;
+                            }
+                            else
+                            {
+                                unassignedTileObjects.Remove(otherTileObject);
+                                assignedGameTileObjects.Remove(unitBaseTileObject);
+                                unassignedGameTileObjects.Remove(unitBaseTileObject);
+                            }
                             break;
                         }
                     }

@@ -373,17 +373,18 @@ namespace Engine.Master
                             throw new Exception("errr");
                         }
 
-                        TileObject tileObject = factory.Assembler.ConsumeMineralForUnit();
-                        if (tileObject != null)
-                        {
-                            newUnit.Upgrade(move, tileObject);
+                        List<TileObject> results = factory.Assembler.ConsumeIngredients(move.MoveRecipe);
 
-                            if (!changedUnits.ContainsKey(newUnit.Pos))
-                                changedUnits.Add(newUnit.Pos, newUnit);
+                        if (results == null || results.Count == 0)
+                        {
+                            move.MoveType = MoveType.Skip;
                         }
                         else
                         {
-                            move.MoveType = MoveType.Skip;
+                            newUnit.Upgrade(move, results[0]);
+
+                            if (!changedUnits.ContainsKey(newUnit.Pos))
+                                changedUnits.Add(newUnit.Pos, newUnit);
                         }
                     }
                 }

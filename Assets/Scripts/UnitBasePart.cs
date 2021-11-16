@@ -28,6 +28,9 @@ namespace Assets.Scripts
 
         private HitByBullet hitByBullet;
 
+        public float AnimateFrom { get; set; }
+        public float AnimateTo { get; set; }
+
         public void Fire(Move move)
         {
             TileObject anmo = move.Stats.MoveUpdateGroundStat.TileObjects[0];
