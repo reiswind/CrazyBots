@@ -15,6 +15,7 @@ namespace Assets.Scripts
         public CommandAttachedUnit(MapGameCommandItem mapGameCommandItem)
         {
             MapGameCommandItem = mapGameCommandItem;
+            Direction = Direction.C;
         }
         public MapGameCommandItem MapGameCommandItem { get; set; }
         public bool IsVisible { get; set; }
@@ -57,6 +58,7 @@ namespace Assets.Scripts
             GameCommand.PlayerId = 1;
             GameCommand.TargetPosition = Position2.Null;
             GameCommand.DeleteWhenFinished = false;
+            displayDirection = Direction.N;
         }
         
         public MapGameCommand GameCommand { get; set; }
@@ -80,7 +82,7 @@ namespace Assets.Scripts
             foreach (BlueprintCommandItem blueprintCommandItem in blueprint.Units)
             {
                 MapGameCommandItem mapGameCommandItem = new MapGameCommandItem(GameCommand, blueprintCommandItem);
-
+                mapGameCommandItem.Direction = displayDirection;
                 GameCommand.GameCommandItems.Add(mapGameCommandItem);
             }
             CreateCommandLogo();
@@ -166,20 +168,13 @@ namespace Assets.Scripts
         private GameObject addPreviewUnitMarker;
         public void AddUnitCommand(string bluePrint)
         {
-            if (addPreviewGhost != null)
-            {
-                int x = 0;
-            }
+
             Blueprint blueprint = HexGrid.MainGrid.game.Blueprints.FindBlueprint(bluePrint);
             addPreviewGhost = HexGrid.MainGrid.CreateTempUnit(blueprint);
             addPreviewGhost.DectivateUnit();
             addPreviewGhost.Direction = GameCommand.Direction;
+            addPreviewGhost.TurnIntoDirection = GameCommand.Direction;
             addPreviewGhost.transform.SetParent(HexGrid.MainGrid.transform, false);
-
-            if (addPreviewUnitMarker != null)
-            {
-                int x = 0;
-            }
             addPreviewUnitMarker = HexGrid.MainGrid.InstantiatePrefab("GroundFrame");
             addPreviewUnitMarker.transform.SetParent(HexGrid.MainGrid.transform, false);
             /*
@@ -297,13 +292,16 @@ namespace Assets.Scripts
                     /* Command is updated next turn if return here else: */
                     mapGameCommandItem = new MapGameCommandItem(GameCommand);
                     mapGameCommandItem.BlueprintName = "Fighter";
-                    mapGameCommandItem.Direction = GameCommand.Direction;
+                    mapGameCommandItem.Direction = addPreviewGhost.TurnIntoDirection;
+                    mapGameCommandItem.RotatedDirection = addPreviewGhost.TurnIntoDirection;
                     mapGameCommandItem.Position3 = relativePosition3;
                     GameCommand.GameCommandItems.Add(mapGameCommandItem);
 
                     CommandAttachedUnit commandAttachedUnit = new CommandAttachedUnit(mapGameCommandItem);
                     commandAttachedUnit.Position3 = relativePosition3;
                     commandAttachedUnit.RotatedPosition3 = relativePosition3;
+                    commandAttachedUnit.Direction = addPreviewGhost.TurnIntoDirection;
+                    commandAttachedUnit.RotatedDirection = addPreviewGhost.TurnIntoDirection;
                     commandAttachedUnit.GhostUnit = addPreviewGhost;
                     commandAttachedUnit.Marker = addPreviewUnitMarker;
                     commandAttachedUnit.IsVisible = true;
@@ -331,7 +329,6 @@ namespace Assets.Scripts
                     gameCommand.MoveToPosition = displayPosition;
                     gameCommand.Direction = displayDirection;
 
-
                     foreach (CommandAttachedUnit commandAttachedUnit in PreviewUnits)
                     {
                         MapGameCommandItem gameCommandItem = new MapGameCommandItem(gameCommand);
@@ -353,6 +350,18 @@ namespace Assets.Scripts
                 }
                 else
                 {
+                    foreach (CommandAttachedUnit commandAttachedUnit in PreviewUnits)
+                    {
+                        foreach (MapGameCommandItem gameCommandItem in GameCommand.GameCommandItems)
+                        {
+                            if (commandAttachedUnit.Position3 == gameCommandItem.Position3)
+                            {
+                                gameCommandItem.Direction = commandAttachedUnit.RotatedDirection;
+                                gameCommandItem.RotatedDirection = commandAttachedUnit.RotatedDirection;
+                            }
+                        }
+                    }
+
                     GameCommand.GameCommandType = GameCommand.GameCommandType;
                     GameCommand.TargetPosition = displayPosition;
                     GameCommand.Direction = displayDirection;
@@ -474,18 +483,28 @@ namespace Assets.Scripts
 
         public void RotateCommand()
         {
-            displayDirection = Tile.TurnRight(displayDirection);
+            if (addPreviewGhost == null)
+            {
+                displayDirection = Tile.TurnRight(displayDirection);
 
-            foreach (CommandAttachedUnit commandAttachedUnit in PreviewUnits)
-            {
-                Position3 position3;
-                position3 = commandAttachedUnit.RotatedPosition3.RotateRight();
-                commandAttachedUnit.RotatedPosition3 = position3;
+                foreach (CommandAttachedUnit commandAttachedUnit in PreviewUnits)
+                {
+                    Position3 position3;
+                    position3 = commandAttachedUnit.RotatedPosition3.RotateRight();
+                    commandAttachedUnit.RotatedPosition3 = position3;
+                    commandAttachedUnit.RotatedDirection = displayDirection;
+                }
+                GroundCell gc;
+                if (HexGrid.MainGrid.GroundCells.TryGetValue(DisplayPosition, out gc))
+                {
+                    UpdatePositions(gc);
+                }
             }
-            GroundCell gc;
-            if (HexGrid.MainGrid.GroundCells.TryGetValue(DisplayPosition, out gc))
+            else
             {
-                UpdatePositions(gc);
+                // Turn only preview
+                addPreviewGhost.TurnIntoDirection = Tile.TurnRight(addPreviewGhost.TurnIntoDirection);
+                
             }
         }
 
@@ -624,6 +643,8 @@ namespace Assets.Scripts
                         commandAttachedUnit = new CommandAttachedUnit(mapGameCommandItem);
                         commandAttachedUnit.GhostUnit = previewUnit;
                         commandAttachedUnit.Marker = previewUnitMarker;
+                        commandAttachedUnit.Direction = displayDirection;
+                        commandAttachedUnit.RotatedDirection = displayDirection;
                         commandAttachedUnit.Position3 = mapGameCommandItem.Position3;
                         commandAttachedUnit.RotatedPosition3 = mapGameCommandItem.Position3;
                         commandAttachedUnit.IsVisible = true;

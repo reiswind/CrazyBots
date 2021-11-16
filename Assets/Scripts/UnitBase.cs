@@ -62,6 +62,7 @@ namespace Assets.Scripts
             UnitBaseParts = new List<UnitBasePart>();
             AboveGround = 0f;
             TurnWeaponIntoDirection = Vector3.zero;
+            TurnIntoDirection = Direction.C;
         }
 
         internal Position2 CurrentPos { get; set; }
@@ -133,6 +134,8 @@ namespace Assets.Scripts
                     }
                 }
             }
+
+
             if (DestinationPos != Position2.Null)
             {
                 GroundCell targetCell;
@@ -153,6 +156,25 @@ namespace Assets.Scripts
                     {
                         IsVisible = targetCell.Visible;
                         gameObject.SetActive(targetCell.Visible);
+                    }
+                }
+            }
+            else
+            {
+                if (TurnIntoDirection != Direction.C)
+                {
+                    Position3 position3 = new Position3(CurrentPos);
+                    Position3 neighbor = position3.GetNeighbor(TurnIntoDirection);
+
+                    GroundCell targetCell;
+                    if (HexGrid.MainGrid.GroundCells.TryGetValue(neighbor.Pos, out targetCell))
+                    {
+                        Vector3 unitPos3 = targetCell.transform.position;
+                        unitPos3.y += HexGrid.MainGrid.hexCellHeight + AboveGround;
+                        if (HasEngine())
+                        {
+                            UpdateDirection(unitPos3);
+                        }
                     }
                 }
             }
@@ -225,21 +247,12 @@ namespace Assets.Scripts
                 }
             }
         }
+
+        public Direction TurnIntoDirection { get; set; }
+
         public void TurnTo(Direction direction)
         {
-            Position3 position3 = new Position3(CurrentPos);
-            Position3 neighbor = position3.GetNeighbor(direction);
-
-            GroundCell targetCell;
-            if (HexGrid.MainGrid.GroundCells.TryGetValue(neighbor.Pos, out targetCell))
-            {
-                Vector3 unitPos3 = targetCell.transform.localPosition;
-                unitPos3.y += HexGrid.MainGrid.hexCellHeight + AboveGround;
-                if (HasEngine())
-                {
-                    UpdateDirection(unitPos3);
-                }
-            }
+            TurnIntoDirection = direction;            
         }
         public void MoveTo(Position2 pos)
         {

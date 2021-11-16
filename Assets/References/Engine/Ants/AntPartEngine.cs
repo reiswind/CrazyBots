@@ -900,8 +900,22 @@ namespace Engine.Ants
                     if (!FindPathToEnemyOrAmmo(player, cntrlUnit, targetUnitPosition))
                     {
                         if (cntrlUnit.Pos == targetUnitPosition)
+                        {
+                            // Stay at targetposition
+                            if (cntrlUnit.Direction != cntrlUnit.CurrentGameCommand.Direction)
+                            {
+                                cntrlUnit.Direction = cntrlUnit.CurrentGameCommand.Direction;
+
+                                Move turnMove = new Move();
+                                turnMove.MoveType = MoveType.Move;
+                                turnMove.UnitId = cntrlUnit.UnitId;
+                                turnMove.PlayerId = player.PlayerModel.Id;
+                                turnMove.Positions = new List<Position2>();
+                                turnMove.Positions.Add(cntrlUnit.Pos);
+                                moves.Add(turnMove);
+                            }
                             return true;
-                        // Stay at targetposition
+                        }
                         calcPathToPosition = targetUnitPosition;
                     }
                 }
