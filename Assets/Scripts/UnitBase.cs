@@ -225,8 +225,22 @@ namespace Assets.Scripts
                 }
             }
         }
+        public void TurnTo(Direction direction)
+        {
+            Position3 position3 = new Position3(CurrentPos);
+            Position3 neighbor = position3.GetNeighbor(direction);
 
-
+            GroundCell targetCell;
+            if (HexGrid.MainGrid.GroundCells.TryGetValue(neighbor.Pos, out targetCell))
+            {
+                Vector3 unitPos3 = targetCell.transform.localPosition;
+                unitPos3.y += HexGrid.MainGrid.hexCellHeight + AboveGround;
+                if (HasEngine())
+                {
+                    UpdateDirection(unitPos3);
+                }
+            }
+        }
         public void MoveTo(Position2 pos)
         {
             DestinationPos = pos;

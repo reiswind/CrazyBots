@@ -991,8 +991,15 @@ namespace Assets.Scripts
                         if (BaseUnits.ContainsKey(move.UnitId))
                         {
                             UnitBase unit = BaseUnits[move.UnitId];
-                            unit.Direction = (Direction)move.Stats.Direction;
-                            unit.MoveTo(move.Positions[1]);
+                            if (move.Positions.Count == 1)
+                            {
+                                unit.TurnTo(move.Stats.Direction);
+                            }
+                            else if (move.Positions.Count > 1)
+                            {
+                                unit.Direction = move.Stats.Direction;
+                                unit.MoveTo(move.Positions[1]);
+                            }
                         }
                     }
                     else if (move.MoveType == MoveType.CommandComplete)

@@ -166,7 +166,7 @@ namespace Engine.Interface
                 for (int j = 0; j < radius; j++)
                 {
                     results.Add(cube);
-                    cube = cube.GetNeighbor(i);
+                    cube = cube.GetNeighbor((Direction)i);
                 }
             }
             return results;
@@ -214,14 +214,16 @@ namespace Engine.Interface
             int dir = ((int)direction);
             return Position3.directions[dir];
         }
+        /*
         static public Position3 GetDirection(int direction)
         {
             return Position3.directions[direction];
         }
+        
         public Position3 GetNeighbor(int direction)
         {
             return Add(Position3.GetDirection(direction));
-        }
+        }*/
         public Position3 GetNeighbor(Direction direction)
         {
             return Add(Position3.GetDirection(direction));
@@ -294,12 +296,12 @@ namespace Engine.Interface
             get
             {
                 List<Position3> neighbors = new List<Position3>();
-                neighbors.Add(GetNeighbor(0));
-                neighbors.Add(GetNeighbor(1));
-                neighbors.Add(GetNeighbor(2));
-                neighbors.Add(GetNeighbor(3));
-                neighbors.Add(GetNeighbor(4));
-                neighbors.Add(GetNeighbor(5));
+                neighbors.Add(GetNeighbor(Direction.N));
+                neighbors.Add(GetNeighbor(Direction.NE));
+                neighbors.Add(GetNeighbor(Direction.NW));
+                neighbors.Add(GetNeighbor(Direction.S));
+                neighbors.Add(GetNeighbor(Direction.SE));
+                neighbors.Add(GetNeighbor(Direction.SW));
                 return neighbors;
             }
         }

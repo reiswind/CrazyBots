@@ -87,6 +87,7 @@
     <Compile Include="Assets\Scripts\Container.cs" />
     <Compile Include="Assets\character shader pack\6_petrify\scripts\Statue_animation_control.cs" />
     <Compile Include="Assets\character shader pack\4_freeze\scripts\Ice_animation_vertical_control.cs" />
+    <Compile Include="Assets\References\Engine\Interface\Recipe.cs" />
     <Compile Include="Assets\HighlightPlus\Pipelines\URP\HighlightPlusRenderPassFeature.cs" />
     <Compile Include="Assets\References\Engine\Ants\ControlAnt.cs" />
     <Compile Include="Assets\HexTiles-Nature\Scripts\HexGrid.cs" />
