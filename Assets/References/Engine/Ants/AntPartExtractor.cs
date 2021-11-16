@@ -25,7 +25,7 @@ namespace Engine.Ants
             Unit cntrlUnit = Extractor.Unit;
 
             if (cntrlUnit.Weapon != null &&
-                cntrlUnit.Weapon.TileContainer.Count >= cntrlUnit.Weapon.TileContainer.Capacity)
+                cntrlUnit.Weapon.TileContainer.Count > 0) // cntrlUnit.Weapon.TileContainer.Capacity)
             {
                 // Fight, do not extract if can fire
             }

@@ -167,12 +167,16 @@ namespace Engine.Master
 
             if (Assembler != null && Assembler.TileContainer != null && Assembler.TileContainer.Contains(tileObjectType))
             {
+                if (tileObjectType == TileObjectType.All)
+                    moveRecipeIngredient.TileObjectType = Assembler.TileContainer.TileObjects[0].TileObjectType;
                 moveRecipeIngredient.Position = Pos;
                 moveRecipeIngredient.Source = TileObjectType.PartAssembler;
                 return moveRecipeIngredient;
             }
             if (Container != null && Container.TileContainer != null && Container.TileContainer.Contains(tileObjectType))
             {
+                if (tileObjectType == TileObjectType.All)
+                    moveRecipeIngredient.TileObjectType = Container.TileContainer.TileObjects[0].TileObjectType;
                 moveRecipeIngredient.Position = Pos;
                 moveRecipeIngredient.Source = TileObjectType.PartContainer;
                 return moveRecipeIngredient;
