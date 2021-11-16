@@ -367,6 +367,10 @@ namespace Assets.Scripts
                     GameCommand.Direction = displayDirection;
                     IsPreview = false;
 
+                    // Remove the command after the structure is complete
+                    if (GameCommand.GameCommandType == GameCommandType.Build)
+                        GameCommand.DeleteWhenFinished = true;
+
                     HexGrid.MainGrid.GameCommands.Add(GameCommand);
                     HexGrid.MainGrid.CommandPreviews.Add(this);
                     moveCounter = HexGrid.MainGrid.MoveCounter + 1;
@@ -517,7 +521,10 @@ namespace Assets.Scripts
                 previewGameCommand.transform.SetParent(groundCell.transform, false);
 
                 Vector3 unitPos3 = groundCell.transform.position;
-                unitPos3.y += aboveGround;
+                if (GameCommand.GameCommandType == GameCommandType.Build)
+                    unitPos3.y += 1.5f;
+                else
+                    unitPos3.y += aboveGround;
                 previewGameCommand.transform.position = unitPos3;
 
                 Position3 centerPosition3 = new Position3(displayPosition);

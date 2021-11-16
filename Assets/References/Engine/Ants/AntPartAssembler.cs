@@ -75,6 +75,12 @@ namespace Engine.Ants
                 }
                 else
                 {
+                    if (selectedGameCommand.AttachedUnitId == Ant.PlayerUnit.Unit.UnitId)
+                    {
+                        // This is the command, that is attached to this factory, when the factory was build.
+                        return false;
+                    }
+
                     // Check if already built but cannot upgrade for a reason
                     Dictionary<Position2, TileWithDistance> neighbors = Assembler.Unit.Game.Map.EnumerateTiles(Assembler.Unit.Pos, 1, false);
                     foreach (TileWithDistance tileWithDistance in neighbors.Values)

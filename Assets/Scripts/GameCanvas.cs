@@ -706,6 +706,18 @@ namespace Assets.Scripts
                         hitByMouseClick.Units.Add(unitBase);
                     }                    
                 }
+                // Find command by pos
+                if (commandPreview == null && hitByMouseClick.GroundCell != null)
+                {
+                    foreach (CommandPreview commandPreview1 in HexGrid.MainGrid.CommandPreviews)
+                    {
+                        if (commandPreview1.GameCommand.TargetPosition == hitByMouseClick.GroundCell.Pos)
+                        {
+                            commandPreview = commandPreview1;
+                            break;
+                        }
+                    }
+                }
                 hitByMouseClick.Update(commandPreview);
             }
 

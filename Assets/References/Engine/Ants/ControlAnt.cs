@@ -1657,7 +1657,39 @@ namespace Engine.Ants
                     }
                     if (gameCommandItem.AttachedUnitId == null && gameCommandItem.FactoryUnitId == null)
                     {
-                        requestUnit = true;
+                        if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build)
+                        {
+                            // Check if the target to be build is already there, if so, ignore this command
+                            Tile t = player.Game.Map.GetTile(gameCommandItem.GameCommand.TargetPosition);
+                            if (t.Unit == null)
+                            {
+                                requestUnit = true;
+                            }
+                            else
+                            {
+                                if (t.Unit.Owner.PlayerModel.Id == player.PlayerModel.Id && t.Unit.Blueprint.Name == gameCommandItem.BlueprintName)
+                                {
+                                    // The building to build exists already, do not request a builder
+                                }
+                                else
+                                {
+                                    // Own unit or 
+                                    if (t.Unit.Engine != null)
+                                    {
+                                        // Unit may drive away
+                                        requestUnit = true;
+                                    }
+                                    else
+                                    {
+                                        // Another building is there
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            requestUnit = true;
+                        }
                     }
                     if (requestUnit)
                     {
@@ -2305,6 +2337,21 @@ namespace Engine.Ants
                                         {
                                             ant.PlayerUnit.Unit.CurrentGameCommand.FactoryUnitId = null;
                                             ant.PlayerUnit.Unit.CurrentGameCommand.AttachedUnitId = ant.PlayerUnit.Unit.UnitId;
+
+                                            if (ant.PlayerUnit.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Build)
+                                            {
+                                                // Unit has been build. Eiher keep the command, so it is rebuild, oder remove the command.
+                                                // But the command cannot stay at the build units, since this blocks all further commands.
+                                                if (ant.PlayerUnit.Unit.CurrentGameCommand.GameCommand.DeleteWhenFinished)
+                                                {
+                                                    ant.PlayerUnit.Unit.CurrentGameCommand.GameCommand.CommandComplete = true;
+                                                }
+                                                else
+                                                {
+                                                    ant.PlayerUnit.Unit.ResetGameCommand();
+                                                }
+                                            }
+
                                         }
                                     }
                                 }
