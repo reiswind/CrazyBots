@@ -24,7 +24,7 @@ namespace Engine.Ants
 
         public override bool Move(ControlAnt control, Player player, List<Move> moves)
         {
-            bool moved = false;
+            bool moved;
 
             moved = Assemble(control, player, moves);
 
@@ -35,6 +35,12 @@ namespace Engine.Ants
         {
             bool upgrading = false;
 
+            MoveRecipeIngredient moveRecipeIngredient = Ant.Unit.FindIngredient(TileObjectType.Mineral, true);
+            if (moveRecipeIngredient == null)
+            {
+                // Cannot build a unit, no mins
+                return false;
+            }
             List<Position2> includePositions = null;
             if (Assembler.Unit.CurrentGameCommand != null && Ant.AntPartEngine != null)
             {
@@ -45,7 +51,7 @@ namespace Engine.Ants
             List<Move> possiblemoves = new List<Move>();
 
             if (Assembler.Unit.CurrentGameCommand != null)
-                Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Upgrade);
+                Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Upgrade, moveRecipeIngredient);
             while (possiblemoves.Count > 0)
             {
                 int idx = player.Game.Random.Next(possiblemoves.Count);
@@ -63,11 +69,11 @@ namespace Engine.Ants
 
             if (!upgrading)
             {
-                GameCommandItem selectedGameCommand = Ant.PlayerUnit.Unit.CurrentGameCommand;
+                GameCommandItem selectedGameCommand = Ant.Unit.CurrentGameCommand;
                 GameCommandItem passGameCommandToNewUnit;
                 
                 bool computePossibleMoves = true;
-                bool assemblerUsedToBuild = false;
+                //bool assemblerUsedToBuild = false;
 
                 if (selectedGameCommand == null)
                 {
@@ -75,7 +81,7 @@ namespace Engine.Ants
                 }
                 else
                 {
-                    if (selectedGameCommand.AttachedUnitId == Ant.PlayerUnit.Unit.UnitId)
+                    if (selectedGameCommand.AttachedUnitId == Ant.Unit.UnitId)
                     {
                         // This is the command, that is attached to this factory, when the factory was build.
                         return false;
@@ -124,7 +130,7 @@ namespace Engine.Ants
                         }
                         if (engineFound)
                         {
-                            Tile tile = player.Game.Map.GetTile(Ant.PlayerUnit.Unit.Pos);
+                            Tile tile = player.Game.Map.GetTile(Ant.Unit.Pos);
                             if (tile.IsNeighbor(selectedGameCommand.GameCommand.TargetPosition))
                             {
                                 // No need to build an assembler. Just build the unit at this position
@@ -138,7 +144,7 @@ namespace Engine.Ants
                         else
                         {
                             // Check if TargetPosition is neighbor!
-                            Tile tile = player.Game.Map.GetTile(Ant.PlayerUnit.Unit.Pos);
+                            Tile tile = player.Game.Map.GetTile(Ant.Unit.Pos);
                             if (tile.IsNeighbor(selectedGameCommand.GameCommand.TargetPosition))
                             {
                                 // No need to build an assembler. Just build the unit
@@ -194,18 +200,18 @@ namespace Engine.Ants
 
                                 // Hack to create build assembler moves
                                 Assembler.Unit.SetTempGameCommand(gameCommandItem);
-                                Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Assemble);
+                                Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Assemble, moveRecipeIngredient);
 
                                 Assembler.Unit.SetTempGameCommand(selectedGameCommand);
                                 passGameCommandToNewUnit = selectedGameCommand;
-                                assemblerUsedToBuild = true;
+                                //assemblerUsedToBuild = true;
                             }
                         }
                     }
                 }
 
                 if (computePossibleMoves)
-                    Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Assemble);
+                    Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Assemble, moveRecipeIngredient);
 
                 if (possiblemoves.Count > 0)
                 {
@@ -225,22 +231,24 @@ namespace Engine.Ants
                         int idx = player.Game.Random.Next(possibleMoves.Count);
                         Move move = possibleMoves[idx];
 
+                        move.GameCommandItem = passGameCommandToNewUnit;
+                        /*
                         Unit createdUnit = new Unit(player.Game, move.Stats.BlueprintName);
                         player.Game.Map.Units.Add(createdUnit);
-
+                        */
                         // Pass the command
                         if (passGameCommandToNewUnit != null)
                         {
                             // If its an assembler, this is not the attached unit for the command
-                            if (!assemblerUsedToBuild)
-                                passGameCommandToNewUnit.AttachedUnitId = createdUnit.UnitId;
-                            createdUnit.SetGameCommand(passGameCommandToNewUnit);
+                            //xxif (!assemblerUsedToBuild)
+                            //xx    passGameCommandToNewUnit.AttachedUnitId = createdUnit.UnitId;
+                            //xxcreatedUnit.SetGameCommand(passGameCommandToNewUnit);
                         }
                         else
                         {
-                            selectedGameCommand.AttachedUnitId = createdUnit.UnitId;
+                            //xxselectedGameCommand.AttachedUnitId = createdUnit.UnitId;
                         }
-                        move.UnitId = createdUnit.UnitId;
+                        //xxmove.UnitId = createdUnit.UnitId;
                         moves.Add(move);
 
                         return true;

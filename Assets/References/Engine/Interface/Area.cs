@@ -43,7 +43,7 @@ namespace Engine.Interface
                 }
             }
             return closestTile;
-        }*/
+        }
         public bool IsPrimary()
         {
             foreach (PlayerUnit playerUnit in Units)
@@ -54,7 +54,7 @@ namespace Engine.Interface
                 }
             }
             return false;
-        }
+        }*/
 
         public override string ToString()
         {
@@ -72,7 +72,7 @@ namespace Engine.Interface
         /// </summary>
         public Dictionary<Position2, Tile> ForeignBorderTiles = new Dictionary<Position2, Tile>();
         
-        public List<PlayerUnit> Units = new List<PlayerUnit>();
+        public List<Unit> Units = new List<Unit>();
         public int PlayerId;
         public int Range;
     }

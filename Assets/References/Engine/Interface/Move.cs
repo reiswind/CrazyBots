@@ -289,6 +289,10 @@ namespace Engine.Interface
         [DataMember(EmitDefaultValue = false)]
         public MoveUpdateStats Stats { get; set; }
         /// <summary>
+        /// Transfer attached command
+        /// </summary>
+        internal GameCommandItem GameCommandItem { get; set; }
+        /// <summary>
         /// Text of unit
         /// </summary>
         /// <returns></returns>

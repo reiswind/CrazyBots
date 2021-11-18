@@ -39,7 +39,7 @@ namespace Engine.Master
         /// <param name="pos"></param>
         /// <param name="productCode"></param>
         /// <returns></returns>
-        private Move CreateAssembleMove(Position2 pos, string productCode)
+        private Move CreateAssembleMove(Position2 pos, Blueprint blueprint, MoveRecipeIngredient moveRecipeIngredient)
         {
             Move move;
 
@@ -53,7 +53,12 @@ namespace Engine.Master
             move.OtherUnitId = Unit.UnitId;
 
             move.Stats = new MoveUpdateStats();
-            move.Stats.BlueprintName = productCode;
+            move.Stats.BlueprintName = blueprint.Name;
+
+            move.MoveRecipe = new MoveRecipe();
+            move.MoveRecipe.Ingredients = new List<MoveRecipeIngredient>();
+            move.MoveRecipe.Ingredients.Add(moveRecipeIngredient);
+            move.MoveRecipe.Result = blueprint.Parts[0].PartType;
 
             return move;
         }
@@ -118,10 +123,16 @@ namespace Engine.Master
 
         public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position2> includedPosition2s, MoveFilter moveFilter)
         {
+            MoveRecipeIngredient moveRecipeIngredient = Unit.FindIngredient(TileObjectType.Mineral, true);
+            if (moveRecipeIngredient != null)
+            {
+                ComputePossibleMoves(possibleMoves, includedPosition2s, moveFilter, moveRecipeIngredient);
+            }
+        }
+        public void ComputePossibleMoves(List<Move> possibleMoves, List<Position2> includedPosition2s, MoveFilter moveFilter, MoveRecipeIngredient moveRecipeIngredient)
+        {
             if ((moveFilter & MoveFilter.Assemble) == 0 && (moveFilter & MoveFilter.Upgrade) == 0)
                 return;
-
-            MoveRecipeIngredient moveRecipeIngredient = Unit.FindIngredient(TileObjectType.Mineral, true);
 
             Dictionary<Position2, TileWithDistance> neighbors = Unit.Game.Map.EnumerateTiles(Unit.Pos, 1, false);
             
@@ -150,12 +161,13 @@ namespace Engine.Master
                                 //Can build everything
                                 foreach (Blueprint blueprint in Unit.Owner.Game.Blueprints.Items)
                                 {
-                                    possibleMoves.Add(CreateAssembleMove(neighbor.Pos, blueprint.Name));
+                                    possibleMoves.Add(CreateAssembleMove(neighbor.Pos, blueprint, moveRecipeIngredient));
                                 }
                             }
                             else
                             {
-                                possibleMoves.Add(CreateAssembleMove(neighbor.Pos, Unit.CurrentGameCommand.BlueprintName));
+                                Blueprint blueprint = Unit.Owner.Game.Blueprints.FindBlueprint(Unit.CurrentGameCommand.BlueprintName);
+                                possibleMoves.Add(CreateAssembleMove(neighbor.Pos, blueprint, moveRecipeIngredient));
                             }
                         }
                     }

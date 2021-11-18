@@ -30,22 +30,6 @@ namespace Engine.Interface
         }
     }
 
-    public class PlayerUnit
-    {
-        public Unit Unit { get; set; }
-        public PlayerUnit(Unit unit)
-        {
-            //if (unit == null)
-            //    throw new Exception("unit is null");
-            Unit = unit;
-        }
-
-        public override string ToString()
-        {
-            return Unit.ToString();
-        }
-    }
-
     public class PlayerVisibleInfo
     {
         public Unit Unit { get; set; }
@@ -70,10 +54,6 @@ namespace Engine.Interface
         public List<Move> LastMoves;
 
         internal List<GameCommand> GameCommands = new List<GameCommand>();
-
-        // Unit that the player knows. Own and enemy
-        public Dictionary<string, PlayerUnit> Units = new Dictionary<string, PlayerUnit>();
-        
         public Dictionary<Position2, PlayerVisibleInfo> VisiblePositions = new Dictionary<Position2, PlayerVisibleInfo>();
         public Dictionary<Position2, PlayerVisibleInfo> Discoveries = new Dictionary<Position2, PlayerVisibleInfo>();
 
@@ -87,19 +67,19 @@ namespace Engine.Interface
             return false;
         }
 
-        internal void CollectVisiblePos(PlayerUnit playerUnit)
+        internal void CollectVisiblePos(Unit unit)
         {
-            if (playerUnit.Unit.UnderConstruction)
+            if (unit.UnderConstruction)
                 return;
 
             List<Position2> calcPos = new List<Position2>();
 
             int visibilityRange = 2;
-            if (!playerUnit.Unit.Blueprint.IsMoveable())
+            if (!unit.Blueprint.IsMoveable())
             {
                 visibilityRange = 4; // Unit.Reactor.Range;
             }
-            Dictionary<Position2, TileWithDistance> tiles = Game.Map.EnumerateTiles(playerUnit.Unit.Pos, visibilityRange, true);
+            Dictionary<Position2, TileWithDistance> tiles = Game.Map.EnumerateTiles(unit.Pos, visibilityRange, true);
             foreach (TileWithDistance tileWithDistance in tiles.Values)
             {
                 PlayerVisibleInfo playerVisibleInfo;
@@ -182,31 +162,32 @@ namespace Engine.Interface
             }*/
         }
 
-        internal void ProcessMoves(List<Move> moves, bool finishLastMoves)
+        internal void ProcessMoves(List<Move> moves)
         {
             // Update postion of all units
-            Dictionary<Position2, PlayerUnit> deletedUnits = new Dictionary<Position2, PlayerUnit>();
-            List<Position2> removedUnits = new List<Position2>();
-            Dictionary<Position2, PlayerUnit> movedAwayUnits = new Dictionary<Position2, PlayerUnit>();
-            List<Position2> changedUnits = new List<Position2>();
-            LastMoves = new List<Move>();
+            //Dictionary<Position2, Unit> deletedUnits = new Dictionary<Position2, Unit>();
+            //List<Position2> removedUnits = new List<Position2>();
+            //Dictionary<Position2, Unit> movedAwayUnits = new Dictionary<Position2, Unit>();
+            //List<Position2> changedUnits = new List<Position2>();
+            //LastMoves = new List<Move>();
             
-            Dictionary<Position2, PlayerUnit> addedUnits = new Dictionary<Position2, PlayerUnit>();
-            Dictionary<Position2, PlayerUnit> movedToUnits = new Dictionary<Position2, PlayerUnit>();
+            //Dictionary<Position2, Unit> addedUnits = new Dictionary<Position2, Unit>();
+            //Dictionary<Position2, Unit> movedToUnits = new Dictionary<Position2, Unit>();
             foreach (Move move in moves)
             {
                 if (move.MoveType == MoveType.Add)
                 {
                     Position2 to = move.Positions[move.Positions.Count - 1];
-                    if (this.Units.ContainsKey(move.UnitId))
-                        throw new Exception();
-                    Unit unit = Game.Map.Units.GetUnitAt(to);
-                    PlayerUnit playerUnit = new PlayerUnit(unit);
-                    Units.Add(move.UnitId, playerUnit);
-                    if (unit != null)
+                    
+                    //if (this.PlayerUnits.ContainsKey(move.UnitId))
+                    //    throw new Exception();
+                    //Unit unit = Game.Map.Units.GetUnitAt(to);
+                    //PlayerUnit playerUnit = new PlayerUnit(unit);
+                    //PlayerUnits.Add(move.UnitId, playerUnit);*/
+                    //if (unit != null)
                     {
-                        addedUnits.Add(to, playerUnit);
-                        changedUnits.Add(to);
+                        //addedUnits.Add(to, unit);
+                        //changedUnits.Add(to);
                     }
                 }
 
@@ -216,83 +197,60 @@ namespace Engine.Interface
 
                     if (move.PlayerId == PlayerModel.Id)
                     {
-                        Unit unit = Game.Map.Units.GetUnitAt(to);
-                        PlayerUnit playerUnit = new PlayerUnit(unit);
-                        Units.Add(move.UnitId, playerUnit);
-                        if (unit != null)
+                        //Unit unit = Game.Map.Units.GetUnitAt(to);
+                        //PlayerUnit playerUnit = new PlayerUnit(unit);
+                        //PlayerUnits.Add(move.UnitId, playerUnit);
+                        //if (unit != null)
                         {
-                            addedUnits.Add(to, playerUnit);
-                            changedUnits.Add(to);
+                            //addedUnits.Add(to, unit);
+                            //changedUnits.Add(to);
                         }
                     }
                 }
                 if (move.MoveType == MoveType.Upgrade)
                 {
-                    Position2 to = move.Positions[move.Positions.Count - 1];
-                    if (move.PlayerId == PlayerModel.Id)
+                    //Position2 to = move.Positions[move.Positions.Count - 1];
+                    //if (move.PlayerId == PlayerModel.Id)
                     {
 
                     }
                 }
                 if (move.MoveType == MoveType.Move)
                 {
-                    Position2 to;
+                    //Position2 to;
                     if (move.Positions.Count == 1)
                     {
                         // Cloud not move this unit
                     }
                     else
                     {
-                        to = move.Positions[move.Positions.Count-1];
-
-                        if (this.Units.ContainsKey(move.UnitId))
+                        //to = move.Positions[move.Positions.Count-1];
+                        //Unit unit = Game.Map.Units.GetUnitAt(to);
+                        //if (this.PlayerUnits.ContainsKey(move.UnitId))
                         {
-                            PlayerUnit playerUnit = Units[move.UnitId];
+                            //PlayerUnit playerUnit = PlayerUnits[move.UnitId];
 
-                            Position2 from = move.Positions[0];
-                            movedAwayUnits.Add(from, playerUnit);
-                            movedToUnits.Add(to, playerUnit);
-                            changedUnits.Add(to);
+                            //Position2 from = move.Positions[0];
+                            //movedAwayUnits.Add(from, unit);
+                            //movedToUnits.Add(to, unit);
+                            //changedUnits.Add(to);
                         }
                     }
                 }
                 if (move.MoveType == MoveType.Delete)
                 {
-                    Position2 from = move.Positions[move.Positions.Count - 1];
-                    if (this.Units.ContainsKey(move.UnitId))
+                    //Position2 from = move.Positions[move.Positions.Count - 1];
+                    //Unit unit = Game.Map.Units.GetUnitAt(from);
+                    //if (this.PlayerUnits.ContainsKey(move.UnitId))
                     {
-                        PlayerUnit playerUnit = this.Units[move.UnitId];
-                        deletedUnits.Add(from, playerUnit);
-                        removedUnits.Add(from);
-                        this.Units.Remove(move.UnitId);
+                        //PlayerUnit playerUnit = this.PlayerUnits[move.UnitId];
+                        //deletedUnits.Add(from, unit);
+                        //removedUnits.Add(from);
+                        //this.PlayerUnits.Remove(move.UnitId);
                     }
                 }
             }
-            if (!finishLastMoves)
-            {
-                Discoveries.Clear();
-                foreach (PlayerUnit playerUnit1 in Units.Values)
-                {
-                    if (playerUnit1.Unit.Owner.PlayerModel.Id == PlayerModel.Id)
-                    {
-                        CollectVisiblePos(playerUnit1);
-                    }
-                }
-                List<Position2> hidePositions = new List<Position2>();
-                foreach (PlayerVisibleInfo playerVisibleInfo in VisiblePositions.Values)
-                {
-                    if (playerVisibleInfo.LastUpdated < Game.MoveNr)
-                    {
-                        hidePositions.Add(playerVisibleInfo.Pos);
-                    }
-                }
-                foreach (Position2 pos in hidePositions)
-                {
-                    VisiblePositions.Remove(pos);
-                    if (!Game.changedGroundPositions.ContainsKey(pos))
-                        Game.changedGroundPositions.Add(pos, null);
-                }
-            }
+
 #if OLDVISIBLE
             List<Position2> previouslySeen = new List<Position2>();
             List<Position2> newlySeen = new List<Position2>();

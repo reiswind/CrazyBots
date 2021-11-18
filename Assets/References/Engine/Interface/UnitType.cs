@@ -1,4 +1,5 @@
 ﻿
+using Engine.Master;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,8 +46,8 @@ namespace Engine.Interface
         public int MinRadarLevel { get; set; }
         public int MaxRadarLevel { get; set; }
 
-
-        public bool Matches(PlayerUnit playerUnit)
+        /*
+        public bool Matches(Unit unit)
         {
             bool matches = true;
 
@@ -148,7 +149,7 @@ namespace Engine.Interface
             }
             return matches;
         }
-        public bool Fits(PlayerUnit playerUnit)
+        public bool Fits(Unit unit)
         {
             bool fits = true;
 
@@ -193,7 +194,7 @@ namespace Engine.Interface
                 fits = false;
 
             return fits;
-        }
+        }*/
 
     }
 }

@@ -1622,19 +1622,19 @@ namespace Assets.Scripts
 
             if (move.MoveType == MoveType.Build)
             {
-                unit.BuildGhost = HexGrid.MainGrid.CreateTempUnit(blueprint);
-                unit.BuildGhost.CurrentPos = move.Positions[1];
-                unit.BuildGhost.TurnIntoDirection = move.Stats.Direction;
-                unit.BuildGhost.PutAtCurrentPosition(false, true);
+                UnitBase factory;
+                if (BaseUnits.TryGetValue(move.OtherUnitId, out factory))
+                {
+                    factory.Upgrade(move, unit);
+                }
             }
 
             if (move.Positions.Count > 1)
             {
                 // Move to targetpos
                 unit.DestinationPos = move.Positions[move.Positions.Count - 1];
-
             }
-            if (move.MoveType == MoveType.Add)
+            if (move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
             {
                 BaseUnits.Add(move.UnitId, unit);
             }

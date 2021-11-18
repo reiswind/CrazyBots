@@ -218,17 +218,32 @@ namespace Engine.Master
                                 // Container extracting from worker
                                 if (t.Unit.Engine != null)
                                 {
-                                    Move move = new Move();
+                                    bool possibleItem = false;
+                                    foreach (TileObject tileObject in t.Unit.Container.TileContainer.TileObjects)
+                                    {
+                                        if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
+                                            continue;
 
-                                    move.MoveType = MoveType.Extract;
+                                        if (Unit.IsSpaceForTileObject(tileObject))
+                                        {
+                                            possibleItem = true;
+                                            break;
+                                        }
+                                    }
+                                    if (possibleItem)
+                                    {
+                                        Move move = new Move();
 
-                                    move.UnitId = Unit.UnitId;
-                                    move.OtherUnitId = t.Unit.UnitId;
-                                    move.Positions = new List<Position2>();
-                                    move.Positions.Add(Unit.Pos);
-                                    move.Positions.Add(t.Pos);
+                                        move.MoveType = MoveType.Extract;
 
-                                    possibleMoves.Add(move);
+                                        move.UnitId = Unit.UnitId;
+                                        move.OtherUnitId = t.Unit.UnitId;
+                                        move.Positions = new List<Position2>();
+                                        move.Positions.Add(Unit.Pos);
+                                        move.Positions.Add(t.Pos);
+
+                                        possibleMoves.Add(move);
+                                    }
                                 }
                             }
                             else

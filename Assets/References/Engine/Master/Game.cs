@@ -358,7 +358,7 @@ namespace Engine.Master
 
             foreach (Move move in newMoves)
             {
-                if (move.MoveType == MoveType.Upgrade)
+                if (move.MoveType == MoveType.Upgrade || move.MoveType == MoveType.Build)
                 {
                     Unit factory = Map.Units.GetUnitAt(move.Positions[0]);
                     if (factory == null || factory.Assembler == null)
@@ -367,12 +367,6 @@ namespace Engine.Master
                     }
                     else
                     {
-                        Unit newUnit = Map.Units.GetUnitAt(move.Positions[1]);
-                        if (newUnit == null || newUnit.UnitId != move.OtherUnitId)
-                        {
-                            throw new Exception("errr");
-                        }
-
                         List<TileObject> results = factory.Assembler.ConsumeIngredients(move.MoveRecipe);
 
                         if (results == null || results.Count == 0)
@@ -381,10 +375,43 @@ namespace Engine.Master
                         }
                         else
                         {
-                            newUnit.Upgrade(move, results[0]);
+                            Unit thisUnit;
+                            if (move.MoveType == MoveType.Build)
+                            {
+                                thisUnit = new Unit(this, move.Stats.BlueprintName);
+                                if (move.PlayerId > 0)
+                                    thisUnit.Owner = Players[move.PlayerId];
+                                else
+                                    thisUnit.Owner = NeutralPlayer;
 
-                            if (!changedUnits.ContainsKey(newUnit.Pos))
-                                changedUnits.Add(newUnit.Pos, newUnit);
+                                move.UnitId = thisUnit.UnitId;
+
+                                Position2 Destination = move.Positions[move.Positions.Count - 1];
+                                thisUnit.Pos = Destination;
+                                if (move.Positions.Count > 1)
+                                    thisUnit.Direction = Position3.CalcDirection(move.Positions[0], move.Positions[1]);
+
+                                move.Stats = thisUnit.CollectStats();
+
+                                if (move.GameCommandItem != null)
+                                {
+                                    move.GameCommandItem.AttachedUnitId = thisUnit.UnitId;
+                                    thisUnit.SetGameCommand(move.GameCommandItem);
+                                }
+                                addedUnits.Add(thisUnit);
+                            }
+                            else
+                            {
+                                thisUnit = Map.Units.GetUnitAt(move.Positions[1]);
+                                if (thisUnit == null || thisUnit.UnitId != move.OtherUnitId)
+                                {
+                                    throw new Exception("errr");
+                                }
+                            }
+                            thisUnit.Upgrade(move, results[0]);
+
+                            if (!changedUnits.ContainsKey(thisUnit.Pos))
+                                changedUnits.Add(thisUnit.Pos, thisUnit);
                         }
                     }
                 }
@@ -395,7 +422,7 @@ namespace Engine.Master
                     thisUnit = Map.Units.GetUnitAt(move.Positions[0]);
                     move.Stats = thisUnit.CollectStats();
                 }
-                else if (move.MoveType == MoveType.Move || move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
+                else if (move.MoveType == MoveType.Move)
                 {
                     Position2 Destination;
                     Position2 From;
@@ -404,61 +431,16 @@ namespace Engine.Master
                     Destination = move.Positions[move.Positions.Count - 1];
 
                     Unit thisUnit;
-                    if (move.MoveType == MoveType.Build)
-                    {
-                        thisUnit = Map.Units.FindUnit(move.UnitId);
-                    }
-                    else
-                    {
-                        thisUnit = Map.Units.GetUnitAt(From);
-                    }
-                    if (move.MoveType == MoveType.Move && move.Stats == null)
-                        move.Stats = thisUnit.CollectStats();
+                    thisUnit = Map.Units.GetUnitAt(From);
 
-                    if (move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
-                    {
-                        if (move.MoveType == MoveType.Build)
-                        {
-                            Unit factory = Map.Units.GetUnitAt(move.Positions[0]);
-                            if (factory == null || factory.Assembler == null)
-                            {
-                                if (move.MoveType == MoveType.Build)
-                                {
-                                    thisUnit.ResetGameCommand();
-                                }
-                                move.MoveType = MoveType.Skip;
-                                continue;
-                            }
-                        }
-                        if (move.MoveType == MoveType.Add)
-                        {
-                            thisUnit.CreateAllPartsFromBlueprint();
-                        }
+                    move.Stats = thisUnit.CollectStats();
 
-                        if (move.MoveType == MoveType.Build)
-                        {
-                            thisUnit.IsGhost = true;
-                            thisUnit.UnderConstruction = true;
-                        }
-                        move.UnitId = thisUnit.UnitId;
-                        thisUnit.Pos = Destination;
-                        if (move.Positions.Count > 1)
-                            thisUnit.Direction = Position3.CalcDirection(move.Positions[0], move.Positions[1]);
+                    // Remove moving unit from map
+                    if (thisUnit.Engine != null && move.Positions.Count > 1)
+                        thisUnit.Direction = Position3.CalcDirection(move.Positions[0], move.Positions[1]);
 
-                        move.Stats = thisUnit.CollectStats();
-
-                        if (move.PlayerId > 0)
-                            thisUnit.Owner = Players[move.PlayerId];
-                    }
-                    else
-                    {
-                        // Remove moving unit from map
-                        if (thisUnit.Engine != null && move.Positions.Count > 1)
-                            thisUnit.Direction = Position3.CalcDirection(move.Positions[0], move.Positions[1]);
-                        
-                        move.Stats.Direction = thisUnit.Direction;
-                        Map.Units.Remove(From);
-                    }
+                    move.Stats.Direction = thisUnit.Direction;
+                    Map.Units.Remove(From);
 
                     // Update new pos
                     thisUnit.Pos = Destination;
@@ -893,32 +875,31 @@ namespace Engine.Master
         {
             foreach (Player player in Players.Values)
             {
-                foreach (PlayerUnit playerUnit in player.Units.Values)
+                /*
+                foreach (PlayerUnit playerUnit in player.PlayerUnits.Values)
                 {
                     Unit unit = playerUnit.Unit;
-                    if (!unit.IsGhost)
+
+                    Tile tile = Map.GetTile(unit.Pos);
+                    Unit mapUnit = Map.Units.GetUnitAt(unit.Pos);
+                    if (mapUnit == null)
                     {
-                        Tile tile = Map.GetTile(unit.Pos);
-                        Unit mapUnit = Map.Units.GetUnitAt(unit.Pos);
-                        if (mapUnit == null)
-                        {
-                            throw new Exception("player has unit that does not exists");
-                        }
-                        if (tile.Unit != mapUnit)
-                        {
-                            throw new Exception("player has unit that does not exists1");
-                        }
-                        if (unit.UnitId != mapUnit.UnitId)
-                        {
-                            throw new Exception("player has different unit");
-                            //can happen if unit to be upgraded has moved away
-                        }
-                        if (unit.Owner.PlayerModel.Id != mapUnit.Owner.PlayerModel.Id)
-                        {
-                            throw new Exception("wrong player");
-                        }
+                        throw new Exception("player has unit that does not exists");
                     }
-                }
+                    if (tile.Unit != mapUnit)
+                    {
+                        throw new Exception("player has unit that does not exists1");
+                    }
+                    if (unit.UnitId != mapUnit.UnitId)
+                    {
+                        throw new Exception("player has different unit");
+                        //can happen if unit to be upgraded has moved away
+                    }
+                    if (unit.Owner.PlayerModel.Id != mapUnit.Owner.PlayerModel.Id)
+                    {
+                        throw new Exception("wrong player");
+                    }
+                }*/
             }
             foreach (Unit unit in Map.Units.List.Values)
             {
@@ -1384,7 +1365,7 @@ namespace Engine.Master
                         Position2 destination = move.Positions[move.Positions.Count - 1];
                         if (moveToTargets.ContainsKey(destination))
                         {
-                            if (move.MoveType == MoveType.Build)
+                            if (move.MoveType == MoveType.Build && move.UnitId != null)
                             {
                                 Unit unit = Map.Units.FindUnit(move.UnitId);
                                 if (unit != null)
@@ -1429,7 +1410,7 @@ namespace Engine.Master
                 else if (!t.CanMoveTo(from))
                 {
                     // Move to invalid pos
-                    if (move.MoveType == MoveType.Build)
+                    if (move.MoveType == MoveType.Build && move.UnitId != null)
                     {
                         Map.Units.Remove(move.UnitId);
                     }
@@ -1714,18 +1695,47 @@ namespace Engine.Master
                             int x = 0;
                         }*/
 
-                        if (lastMoves.Count > 0)
+                        //if (lastMoves.Count > 0)
                         {
                             // Follow up moves (units have been hit i.e. and must be removed. This is a result of the
                             // last move. Update the players unit list (delete moves are called double in this case)
                             foreach (Player player in Players.Values)
                             {
-                                player.ProcessMoves(lastMoves, true);
+                                //player.ProcessMoves(lastMoves);
                                 if (player.Control != null)
-                                    player.Control.ProcessMoves(player, player.LastMoves);
+                                    player.Control.ProcessMoves(player, lastMoves);
+                                player.Discoveries.Clear();
                             }
                             newMoves.AddRange(lastMoves);
                             lastMoves.Clear();
+
+                            // Only once for all
+                            foreach (Unit unit in Map.Units.List.Values)
+                            {
+                                if (unit.Owner.PlayerModel.Id != 0)
+                                {
+                                    Player player = Players[unit.Owner.PlayerModel.Id];
+                                    player.CollectVisiblePos(unit);
+                                }
+                            }
+                            foreach (Player player in Players.Values)
+                            {
+                                List<Position2> hidePositions = new List<Position2>();
+                                foreach (PlayerVisibleInfo playerVisibleInfo in player.VisiblePositions.Values)
+                                {
+                                    if (playerVisibleInfo.LastUpdated < MoveNr)
+                                    {
+                                        hidePositions.Add(playerVisibleInfo.Pos);
+                                    }
+                                }
+                                foreach (Position2 pos in hidePositions)
+                                {
+                                    player.VisiblePositions.Remove(pos);
+                                    if (!changedGroundPositions.ContainsKey(pos))
+                                        changedGroundPositions.Add(pos, null);
+                                }
+                            }
+
                         }
                     }
                 }
@@ -1856,15 +1866,15 @@ namespace Engine.Master
                 {
                     if (player.PlayerModel.Id == playerId)
                     {
-                        player.ProcessMoves(lastMoves, false);
-                        returnMoves = player.LastMoves;
+                        //player.ProcessMoves(lastMoves);
+                        returnMoves = lastMoves;
                     }
                     else
                     {
-                        player.ProcessMoves(lastMoves, false);
+                        //player.ProcessMoves(lastMoves);
 
                         if (player.Control != null)
-                            player.Control.ProcessMoves(player, player.LastMoves);
+                            player.Control.ProcessMoves(player, lastMoves);
                     }
                 }
                 // Add changed ground info
@@ -2002,7 +2012,7 @@ namespace Engine.Master
                     //    openList.Add(new TileWithDistance(tile, 0));
 
                     area.PlayerId = tile.Unit.Owner.PlayerModel.Id;
-                    area.Units.Add(new PlayerUnit(unit));
+                    area.Units.Add(unit);
                     area.Tiles.Add(tile.Pos, tile);
                     areaMap.Add(tile, area);
                 }

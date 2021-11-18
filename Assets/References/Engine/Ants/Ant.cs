@@ -19,15 +19,22 @@ namespace Engine.Ants
             AntParts = new List<AntPart>();
         }
 
-        public Ant(ControlAnt control, PlayerUnit playerUnit)
+        public Ant(ControlAnt control, Unit unit)
         {
             UnderConstruction = true;
-            PlayerUnit = playerUnit;
+            Unit = unit;
             Control = control;
-
             Energy = MaxEnergy;
-
             AntParts = new List<AntPart>();
+
+
+            if (unit.Blueprint.Name == "Assembler")
+                AntWorkerType = AntWorkerType.Assembler;
+            else if (unit.Blueprint.Name == "Fighter" || unit.Blueprint.Name == "Bomber")
+                AntWorkerType = AntWorkerType.Fighter;
+            else if (unit.Blueprint.Name == "Worker")
+                AntWorkerType = AntWorkerType.Worker;
+
         }
 
         public List<AntPart> AntParts { get; private set; }
@@ -88,11 +95,11 @@ namespace Engine.Ants
         public void CreateAntParts()
         {
             bool changed = false;
-            if (PlayerUnit.Unit.Assembler != null)
+            if (Unit.Assembler != null)
             {
                 if (AntPartAssembler == null)
                 {
-                    AntPartAssembler = new AntPartAssembler(this, PlayerUnit.Unit.Assembler);
+                    AntPartAssembler = new AntPartAssembler(this, Unit.Assembler);
                     changed = true;
                 }
             }
@@ -105,11 +112,11 @@ namespace Engine.Ants
                 }
             }
 
-            if (PlayerUnit.Unit.Reactor != null)
+            if (Unit.Reactor != null)
             {
                 if (AntPartReactor == null)
                 {
-                    AntPartReactor = new AntPartReactor(this, PlayerUnit.Unit.Reactor);
+                    AntPartReactor = new AntPartReactor(this, Unit.Reactor);
                     changed = true;
                 }
             }
@@ -122,11 +129,11 @@ namespace Engine.Ants
                 }
             }
 
-            if (PlayerUnit.Unit.Container != null)
+            if (Unit.Container != null)
             {
                 if (AntPartContainer == null)
                 {
-                    AntPartContainer = new AntPartContainer(this, PlayerUnit.Unit.Container);
+                    AntPartContainer = new AntPartContainer(this, Unit.Container);
                     changed = true;
                 }
             }
@@ -139,11 +146,11 @@ namespace Engine.Ants
                 }
             }
 
-            if (PlayerUnit.Unit.Extractor != null)
+            if (Unit.Extractor != null)
             {
                 if (AntPartExtractor == null)
                 {
-                    AntPartExtractor = new AntPartExtractor(this, PlayerUnit.Unit.Extractor);
+                    AntPartExtractor = new AntPartExtractor(this, Unit.Extractor);
                     changed = true;
                 }
             }
@@ -156,11 +163,11 @@ namespace Engine.Ants
                 }
             }
 
-            if (PlayerUnit.Unit.Engine != null)
+            if (Unit.Engine != null)
             {
                 if (AntPartEngine == null)
                 {
-                    AntPartEngine = new AntPartEngine(this, PlayerUnit.Unit.Engine);
+                    AntPartEngine = new AntPartEngine(this, Unit.Engine);
                     changed = true;
                 }
             }
@@ -173,11 +180,11 @@ namespace Engine.Ants
                 }
             }
 
-            if (PlayerUnit.Unit.Weapon != null)
+            if (Unit.Weapon != null)
             {
                 if (AntPartWeapon == null)
                 {
-                    AntPartWeapon = new AntPartWeapon(this, PlayerUnit.Unit.Weapon);
+                    AntPartWeapon = new AntPartWeapon(this, Unit.Weapon);
                     changed = true;
                 }
             }
@@ -190,11 +197,11 @@ namespace Engine.Ants
                 }
             }
 
-            if (PlayerUnit.Unit.Armor != null)
+            if (Unit.Armor != null)
             {
                 if (AntPartArmor == null)
                 {
-                    AntPartArmor = new AntPartArmor(this, PlayerUnit.Unit.Armor);
+                    AntPartArmor = new AntPartArmor(this, Unit.Armor);
                     changed = true;
                 }
             }
@@ -207,11 +214,11 @@ namespace Engine.Ants
                 }
             }
 
-            if (PlayerUnit.Unit.Radar != null)
+            if (Unit.Radar != null)
             {
                 if (AntPartRadar == null)
                 {
-                    AntPartRadar = new AntPartRadar(this, PlayerUnit.Unit.Radar);
+                    AntPartRadar = new AntPartRadar(this, Unit.Radar);
                     changed = true;
                 }
             }
@@ -256,7 +263,7 @@ namespace Engine.Ants
         public int MovesWithoutCommand { get; set; }
         public bool Alive { get; set; }
         public bool UnderConstruction { get; set; }
-        public PlayerUnit PlayerUnit { get; set; }
+        public Unit Unit { get; set; }
         public ControlAnt Control { get; set; }
 
         //public int PheromoneDepositEnergy { get; set; }
@@ -267,19 +274,19 @@ namespace Engine.Ants
         public void AbandonUnit(Player player)
         {
             OnDestroy(player);
-            if (PlayerUnit != null)
-                PlayerUnit.Unit.ExtractUnit();
+            if (Unit != null)
+                Unit.ExtractUnit();
         }
 
         public override string ToString()
         {
-            if (PlayerUnit == null)
+            if (Unit == null)
             {
                 return "Under Construction";
             }
             else
             {
-                return PlayerUnit.Unit.ToString();
+                return Unit.ToString();
             }
         }
 
@@ -300,13 +307,13 @@ namespace Engine.Ants
 
         internal void RemoveAntFromAllCommands(Player player)
         {
-            if (PlayerUnit != null)
+            if (Unit != null)
             {
                 foreach (GameCommand gameCommand in player.GameCommands)
                 {
                     foreach (GameCommandItem blueprintCommandItem in gameCommand.GameCommandItems)
                     {
-                        if (blueprintCommandItem.AttachedUnitId == PlayerUnit.Unit.UnitId)
+                        if (blueprintCommandItem.AttachedUnitId == Unit.UnitId)
                         {
                             blueprintCommandItem.AttachedUnitId = null;
                         }
@@ -317,7 +324,7 @@ namespace Engine.Ants
 
         public virtual void OnDestroy(Player player)
         {
-            PlayerUnit.Unit.ResetGameCommand();
+            Unit.ResetGameCommand();
             //RemoveAntFromAllCommands(player);
             foreach (AntPart antPart in AntParts)
             {

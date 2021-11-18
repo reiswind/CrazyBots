@@ -422,129 +422,121 @@ namespace Assets.Scripts
                 Extractor.Extract(move, unit, otherUnit);
             }
         }
-        public UnitBase BuildGhost { get; set; }
 
         public void Upgrade(Move move, UnitBase upgradedUnit)
         {
-            if (IsVisible)
+            foreach (UnitBasePart upgradedBasePart in upgradedUnit.UnitBaseParts)
             {
-                if (upgradedUnit.BuildGhost != null)
+                if (upgradedBasePart.PartType == move.MoveRecipe.Result)
                 {
-                    upgradedUnit.BuildGhost.Delete();
-                    upgradedUnit.BuildGhost = null;
-                }
-                foreach (UnitBasePart upgradedBasePart in upgradedUnit.UnitBaseParts)
-                {
-                    if (upgradedBasePart.PartType == move.MoveRecipe.Result)
+                    int nextLevel = upgradedBasePart.Level + 1;
+
+                    GameObject upgradedPart = null;
+                    if (upgradedBasePart.CompleteLevel > 1)
                     {
-                        int nextLevel = upgradedBasePart.Level + 1;
+                        // Activate the main part
+                        GameObject upgradedMainPart;
 
-                        GameObject upgradedPart = null;
-                        if (upgradedBasePart.CompleteLevel > 1)
+                        upgradedMainPart = FindChildNyName(upgradedUnit.gameObject, upgradedBasePart.Name + upgradedBasePart.CompleteLevel);
+                        if (nextLevel == 1)
                         {
-                            // Activate the main part
-                            GameObject upgradedMainPart;
-
-                            upgradedMainPart = FindChildNyName(upgradedUnit.gameObject, upgradedBasePart.Name + upgradedBasePart.CompleteLevel);
-                            if (nextLevel == 1)
+                            upgradedMainPart.SetActive(true);
+                            for (int i = 0; i < upgradedMainPart.transform.childCount; i++)
                             {
-                                upgradedMainPart.SetActive(true);
-                                for (int i = 0; i < upgradedMainPart.transform.childCount; i++)
-                                {
-                                    GameObject child = upgradedMainPart.transform.GetChild(i).gameObject;
-                                    child.SetActive(false);
-                                }
-
+                                GameObject child = upgradedMainPart.transform.GetChild(i).gameObject;
+                                child.SetActive(false);
                             }
-                            GameObject upgradedSubPart;
-                            for (int level = 1; level <= upgradedBasePart.CompleteLevel; level++)
+
+                        }
+                        GameObject upgradedSubPart;
+                        for (int level = 1; level <= upgradedBasePart.CompleteLevel; level++)
+                        {
+                            upgradedSubPart = FindChildNyName(upgradedMainPart, upgradedBasePart.Name + upgradedBasePart.CompleteLevel + "-" + nextLevel);
+                            if (upgradedSubPart != null)
                             {
-                                upgradedSubPart = FindChildNyName(upgradedMainPart, upgradedBasePart.Name + upgradedBasePart.CompleteLevel + "-" + nextLevel);
-                                if (upgradedSubPart != null)
+                                if (nextLevel == level)
                                 {
-                                    if (nextLevel == level)
-                                    {
-                                        upgradedPart = upgradedSubPart;
-                                    }
+                                    upgradedPart = upgradedSubPart;
                                 }
                             }
+                        }
+                    }
+                    else
+                    {
+                        upgradedPart = FindChildNyName(upgradedUnit.gameObject, upgradedBasePart.Name + upgradedBasePart.CompleteLevel);
+                    }
+
+                    foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
+                    {
+                        UnitBaseTileObject unitBaseTileObject = null;
+                        if (moveRecipeIngredient.Position == CurrentPos)
+                        {
+                            unitBaseTileObject = FindTileObject(moveRecipeIngredient);
                         }
                         else
                         {
-                            upgradedPart = FindChildNyName(upgradedUnit.gameObject, upgradedBasePart.Name + upgradedBasePart.CompleteLevel);
+                            GroundCell gc;
+                            if (HexGrid.MainGrid.GroundCells.TryGetValue(moveRecipeIngredient.Position, out gc))
+                            {
+                                UnitBase unitBase = gc.FindUnit();
+                                if (unitBase != null)
+                                    unitBaseTileObject = unitBase.FindTileObject(moveRecipeIngredient);
+                            }
                         }
-
-                        foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
+                        if (unitBaseTileObject != null)
                         {
-                            UnitBaseTileObject unitBaseTileObject = null;
-                            if (moveRecipeIngredient.Position == CurrentPos)
-                            {
-                                unitBaseTileObject = FindTileObject(moveRecipeIngredient);
-                            }
-                            else
-                            {
-                                GroundCell gc;
-                                if (HexGrid.MainGrid.GroundCells.TryGetValue(moveRecipeIngredient.Position, out gc))
-                                {
-                                    UnitBase unitBase = gc.FindUnit();
-                                    if (unitBase != null)
-                                        unitBaseTileObject = unitBase.FindTileObject(moveRecipeIngredient);
-                                }
-                            }
-                            if (unitBaseTileObject != null)
-                            {
-                                // Transit ingredient
-                                TransitObject transitObject = new TransitObject();
-                                transitObject.GameObject = unitBaseTileObject.GameObject;
-                                transitObject.TargetPosition = transform.position;
-                                transitObject.DestroyAtArrival = true;
-
-                                unitBaseTileObject.GameObject = null;
-                                HexGrid.MainGrid.AddTransitTileObject(transitObject);
-                            }
-                        }
-
-                        if (upgradedPart != null)
-                        {                            
-                            TileObjectContainer.HidePlaceholders(upgradedPart);
-
-                            // Output transit
-                            GameObject upgradedPartClone = Instantiate(upgradedPart);
-
+                            // Transit ingredient
                             TransitObject transitObject = new TransitObject();
-                            transitObject.GameObject = upgradedPartClone;
-                            transitObject.TargetPosition = upgradedPart.transform.position;
+                            transitObject.GameObject = unitBaseTileObject.GameObject;
+                            transitObject.TargetPosition = transform.position;
                             transitObject.DestroyAtArrival = true;
-                            transitObject.ActivateAtArrival = upgradedPart;
-                            transitObject.StartAfterThis = Time.time + (0.5f * HexGrid.MainGrid.GameSpeed);
 
-                            Debug.Log("Transit after " + transitObject.StartAfterThis);
-
-                            // Reset current pos to assembler
-                            upgradedPartClone.transform.position = transform.position;
-                            upgradedPartClone.transform.rotation = upgradedPart.transform.rotation;
-                            upgradedPartClone.SetActive(true);
-
-                            // Move to position in unit
+                            unitBaseTileObject.GameObject = null;
                             HexGrid.MainGrid.AddTransitTileObject(transitObject);
+                        }
+                    }
 
-                            foreach (UnitBasePart unitBasePart in UnitBaseParts)
+                    if (upgradedPart != null)
+                    {
+                        TileObjectContainer.HidePlaceholders(upgradedPart);
+
+                        // Output transit
+                        GameObject upgradedPartClone = Instantiate(upgradedPart);
+
+                        TransitObject transitObject = new TransitObject();
+                        transitObject.GameObject = upgradedPartClone;
+                        transitObject.TargetPosition = upgradedPart.transform.position;
+                        transitObject.DestroyAtArrival = true;
+                        transitObject.ActivateAtArrival = upgradedPart;
+                        transitObject.StartAfterThis = Time.time + (0.5f * HexGrid.MainGrid.GameSpeed);
+
+                        Debug.Log("Transit after " + transitObject.StartAfterThis);
+
+                        // Reset current pos to assembler
+                        upgradedPartClone.transform.position = transform.position;
+                        upgradedPartClone.transform.rotation = upgradedPart.transform.rotation;
+                        upgradedPartClone.SetActive(true);
+
+                        // Move to position in unit
+                        HexGrid.MainGrid.AddTransitTileObject(transitObject);
+
+                        foreach (UnitBasePart unitBasePart in UnitBaseParts)
+                        {
+                            if (unitBasePart.PartType == TileObjectType.PartAssembler)
                             {
-                                if (unitBasePart.PartType == TileObjectType.PartAssembler)
-                                {
-                                    unitBasePart.AnimateFrom = Time.time + (0.3f * HexGrid.MainGrid.GameSpeed);
-                                    unitBasePart.AnimateTo = Time.time + (0.6f * HexGrid.MainGrid.GameSpeed);
-                                    break;
-                                }
+                                unitBasePart.AnimateFrom = Time.time + (0.3f * HexGrid.MainGrid.GameSpeed);
+                                unitBasePart.AnimateTo = Time.time + (0.6f * HexGrid.MainGrid.GameSpeed);
+                                break;
                             }
                         }
-                        
                     }
+
                 }
-                if (highlightEffect != null)
-                    highlightEffect.Refresh();
             }
+            if (highlightEffect != null)
+                highlightEffect.Refresh();
         }
+        
 
         private UnitBaseTileObject FindTileObject(MoveRecipeIngredient moveRecipeIngredient)
         {

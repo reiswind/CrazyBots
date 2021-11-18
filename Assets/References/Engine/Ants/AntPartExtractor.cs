@@ -43,7 +43,7 @@ namespace Engine.Ants
                         List<Move> mineralmoves = new List<Move>();
                         foreach (Move mineralMove in possiblemoves)
                         {
-                            if (Ant.AntWorkerType == AntWorkerType.Worker && Ant.PlayerUnit.Unit.CurrentGameCommand == null)
+                            if (Ant.AntWorkerType == AntWorkerType.Worker && Ant.Unit.CurrentGameCommand == null)
                             {
                                 // Worker will only extract minerals if no command is attached.
                                 if (mineralMove.Stats != null &&

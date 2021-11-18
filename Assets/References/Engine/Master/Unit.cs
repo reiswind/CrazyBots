@@ -147,8 +147,6 @@ namespace Engine.Master
         }
 
         public bool UnderConstruction { get; set; }
-        // Just a plan, not built yet
-        public bool IsGhost { get; set; }
 
         public bool BuilderWaitForMetal { get; set; }
 
@@ -183,7 +181,8 @@ namespace Engine.Master
             }
             // Do not pick ingredients from weapon or reactor
 
-            if (searchNeighbors)
+            // Near transport, possible with extractor
+            if (searchNeighbors && Extractor != null)
             {
                 Position3 position3 = new Position3(Pos);
                 foreach (Position3 n3 in position3.Neighbors)
