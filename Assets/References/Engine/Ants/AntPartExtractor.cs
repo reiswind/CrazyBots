@@ -24,51 +24,51 @@ namespace Engine.Ants
         {
             Unit cntrlUnit = Extractor.Unit;
 
-            if (cntrlUnit.Weapon != null &&
-                cntrlUnit.Weapon.TileContainer.Count > 0) // cntrlUnit.Weapon.TileContainer.Capacity)
+            if (cntrlUnit.Weapon != null && cntrlUnit.Weapon.TileContainer.Count > 0)
             {
-                // Fight, do not extract if can fire
+                // Prefer Fight, do not extract if can fire
+                List<Move> possiblemoves = new List<Move>();
+                cntrlUnit.Weapon.ComputePossibleMoves(possiblemoves, null, MoveFilter.Fire);
+                if (possiblemoves.Count > 0)
+                    return false;
             }
-            else
+
+            if (cntrlUnit.Extractor != null && cntrlUnit.Extractor.CanExtract)
             {
-
-                // only if enemy is close...
-                if (cntrlUnit.Extractor != null && cntrlUnit.Extractor.CanExtract)
+                List<Move> possiblemoves = new List<Move>();
+                cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, null, MoveFilter.Extract);
+                if (possiblemoves.Count > 0)
                 {
-                    List<Move> possiblemoves = new List<Move>();
-                    cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, null, MoveFilter.Extract);
-                    if (possiblemoves.Count > 0)
+                    // Assume Minerals for now
+                    List<Move> mineralmoves = new List<Move>();
+                    foreach (Move mineralMove in possiblemoves)
                     {
-                        // Assume Minerals for now
-                        List<Move> mineralmoves = new List<Move>();
-                        foreach (Move mineralMove in possiblemoves)
+                        if (Ant.AntWorkerType == AntWorkerType.Worker && Ant.Unit.CurrentGameCommand == null)
                         {
-                            if (Ant.AntWorkerType == AntWorkerType.Worker && Ant.Unit.CurrentGameCommand == null)
+                            // Worker will only extract minerals if no command is attached.
+                            if (mineralMove.Stats != null &&
+                                mineralMove.Stats.MoveUpdateGroundStat.TileObjects[0].TileObjectType != TileObjectType.Mineral)
                             {
-                                // Worker will only extract minerals if no command is attached.
-                                if (mineralMove.Stats != null &&
-                                    mineralMove.Stats.MoveUpdateGroundStat.TileObjects[0].TileObjectType != TileObjectType.Mineral)
-                                {
-                                    continue;
-                                }
+                                continue;
                             }
-
-                            // Everything
-                            mineralmoves.Add(mineralMove);
                         }
-                        if (mineralmoves.Count > 0)
-                        {
-                            int idx = player.Game.Random.Next(mineralmoves.Count);
-                            Move move = mineralmoves[idx];
-                            moves.Add(move);
 
-                            Ant.FollowThisRoute = null;
+                        // Everything
+                        mineralmoves.Add(mineralMove);
+                    }
+                    if (mineralmoves.Count > 0)
+                    {
+                        int idx = player.Game.Random.Next(mineralmoves.Count);
+                        Move move = mineralmoves[idx];
+                        moves.Add(move);
 
-                            return true;
-                        }
+                        Ant.FollowThisRoute = null;
+
+                        return true;
                     }
                 }
             }
+            
             return false;
         }
     }

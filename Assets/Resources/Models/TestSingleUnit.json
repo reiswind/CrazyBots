@@ -16,7 +16,7 @@
       "ControlLevel": 1,
       "Id": 2,
       "Zone": 1,
-	  "IsHumanx": true,
+	  "IsHuman": true,
       "Name": "Red"
     }
   ],
@@ -26,6 +26,7 @@
       "Name": "Outpost",
       "PlayerId": 1,
       "Blueprint": "Outpost",
+	  "ContainerFilled": 24,
 	  "HoldPosition": false,
 	  "FireAtGround": false,
 	  "EndlessAmmo": false,
@@ -36,10 +37,11 @@
 	{
       "Name": "Outpost",
       "PlayerId": 2,
-      "Blueprint": "Outpost",
+      "Blueprint": "Bomber",
+	  "ContainerFilled": 0,
 	  "HoldPosition": true,
 	  "FireAtGround": false,
-	  "EndlessAmmo": true,
+	  "EndlessAmmo": false,
 	  "EndlessPower": true,
       "Position": "0,0"
     }

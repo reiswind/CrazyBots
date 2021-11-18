@@ -523,6 +523,8 @@ namespace Assets.Scripts
                 Vector3 unitPos3 = groundCell.transform.position;
                 if (GameCommand.GameCommandType == GameCommandType.Build)
                     unitPos3.y += 1.5f;
+                else if (GameCommand.GameCommandType == GameCommandType.Attack)
+                    unitPos3.y += 1.0f;
                 else
                     unitPos3.y += aboveGround;
                 previewGameCommand.transform.position = unitPos3;

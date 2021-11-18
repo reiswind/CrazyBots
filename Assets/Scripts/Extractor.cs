@@ -110,7 +110,8 @@ namespace Assets.Scripts
                                     transitObject.GameObject = transitGameObject;
                                     transitObject.TargetPosition = unit.transform.position;
                                     transitObject.HideAtArrival = true;
-                                    transitObject.ScaleDown = true;
+                                    if (tileObject.TileObjectType != TileObjectType.Mineral)
+                                        transitObject.ScaleDown = true;
 
                                     HexGrid.MainGrid.AddTransitTileObject(transitObject);
                                 }

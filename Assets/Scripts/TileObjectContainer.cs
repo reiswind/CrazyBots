@@ -105,7 +105,7 @@ namespace Assets.Scripts
 
         private bool AddPlaceholders(GameObject container)
         {
-            if (container.name.StartsWith("Mineral") || container.name.StartsWith("Item"))
+            if (container.name.StartsWith("Mineral") || container.name.StartsWith("Item") || container.name.StartsWith("Ammo"))
             {
                 mineralCubes.Add(container);
                 container.SetActive(false);
@@ -115,7 +115,7 @@ namespace Assets.Scripts
                 for (int i = 0; i < container.transform.childCount; i++)
                 {
                     GameObject child = container.transform.GetChild(i).gameObject;
-                    if (child.name.StartsWith("Mineral") || child.name.StartsWith("Item"))
+                    if (child.name.StartsWith("Mineral") || child.name.StartsWith("Item") || child.name.StartsWith("Ammo"))
                     {
                         AddPlaceholders(child);
                         child.SetActive(false);
@@ -163,6 +163,8 @@ namespace Assets.Scripts
             List<UnitBaseTileObject> unassignedGameTileObjects = new List<UnitBaseTileObject>();
             unassignedGameTileObjects.AddRange(tileObjects);
 
+            UnitBaseTileObject hasAmmoBaseTileObject = null;
+            int items = 0;
             if (otherTileObjects != null)
             {
                 foreach (TileObject otherTileObject in otherTileObjects)
@@ -173,10 +175,13 @@ namespace Assets.Scripts
                         {
                             if (unitBaseTileObject.GameObject == null)
                             {
-                                int x = 0;
+                                
                             }
                             else
                             {
+                                items++;
+                                if (unitBaseTileObject.Placeholder.name.StartsWith("Ammo"))
+                                    hasAmmoBaseTileObject = unitBaseTileObject;
                                 unassignedTileObjects.Remove(otherTileObject);
                                 assignedGameTileObjects.Remove(unitBaseTileObject);
                                 unassignedGameTileObjects.Remove(unitBaseTileObject);
@@ -239,6 +244,15 @@ namespace Assets.Scripts
             
             if (oneItemPerCube)
             {
+                // Make sure that ammo is filled
+                if (hasAmmoBaseTileObject != null && items > 0)
+                {
+                    if (hasAmmoBaseTileObject.GameObject.activeSelf == false)
+                    {
+                        int x = 0;
+                    }
+                }
+
                 // Attach
                 /*
                 List<UnitBaseTileObject> unattachedTileObjects = new List<UnitBaseTileObject>();

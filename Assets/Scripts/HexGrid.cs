@@ -1485,7 +1485,30 @@ namespace Assets.Scripts
                         float speed = 2.0f / GameSpeed;
                         float step = speed * Time.deltaTime;
 
+
+                        if (transitObject.ScaleUp)
+                        {
+                            Vector3 scaleChange = transitObject.GameObject.transform.localScale;
+                            if (scaleChange.x < 1)
+                                scaleChange.x *= 1.05f;
+                            if (scaleChange.y < 1)
+                                scaleChange.y *= 1.05f;
+                            if (scaleChange.z < 1)
+                                scaleChange.z *= 1.05f;
+                            transitObject.GameObject.transform.localScale = scaleChange;
+                        }
                         if (transitObject.ScaleDown)
+                        {
+                            Vector3 scaleChange = transitObject.GameObject.transform.localScale;
+                            if (scaleChange.x > 0.1f)
+                                scaleChange.x *= 0.98f;
+                            if (scaleChange.y > 0.1f)
+                                scaleChange.y *= 0.98f;
+                            if (scaleChange.z > 0.1f)
+                                scaleChange.z *= 0.98f;
+                            transitObject.GameObject.transform.localScale = scaleChange;
+                        }
+                        if (false && transitObject.ScaleDown)
                         {
                             MeshRenderer mesh = transitObject.GameObject.GetComponent<MeshRenderer>();
                             if (mesh != null)

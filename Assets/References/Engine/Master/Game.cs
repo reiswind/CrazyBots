@@ -146,8 +146,6 @@ namespace Engine.Master
                         if (unitModel.UnderConstruction)
                             thisUnit.UnderConstruction = true;
 
-
-
                         t.Owner = unitModel.PlayerId;
                         ResetTile(t);
                         foreach (Tile n in t.Neighbors)
@@ -203,7 +201,17 @@ namespace Engine.Master
                                 thisUnit.Weapon.EndlessAmmo = true;
                             if (unitModel.EndlessPower)
                                 thisUnit.EndlessPower = true;
-
+                            if (unitModel.ContainerFilled == 0)
+                            {
+                                if (thisUnit.Container != null)
+                                    thisUnit.Container.TileContainer.Clear();
+                                if (thisUnit.Weapon != null)
+                                    thisUnit.Weapon.TileContainer.Clear();
+                                if (thisUnit.Reactor != null)
+                                    thisUnit.Reactor.TileContainer.Clear();
+                                if (thisUnit.Assembler != null)
+                                    thisUnit.Assembler.TileContainer.Clear();
+                            }
                             Move move = new Move();
                             move.MoveType = MoveType.Add;
                             move.PlayerId = unitModel.PlayerId;
@@ -1194,9 +1202,9 @@ namespace Engine.Master
                     if (!unit.EndlessPower)
                         unit.Power--;
                     totalNumberOfUnits++;
-
-                    if (!changedUnits.ContainsKey(unit.Pos))
-                        changedUnits.Add(unit.Pos, unit);
+                    // Cannot upodate every frame
+                    //if (!changedUnits.ContainsKey(unit.Pos))
+                    //    changedUnits.Add(unit.Pos, unit);
                 }
                 else
                 {

@@ -34,6 +34,7 @@ namespace Assets.Scripts
         public bool DestroyAtArrival { get; set; }
         public bool HideAtArrival { get; set; }
         public bool ScaleDown { get; set; }
+        public bool ScaleUp { get; set; }
     }
 
     public class HitByBullet
@@ -115,6 +116,16 @@ namespace Assets.Scripts
                 {
                     if (unitBasePart.PartType == TileObjectType.PartWeapon)
                     {
+                        GameObject partToTurn;
+                        if (unitBasePart.CompleteLevel == 1)
+                        {
+                            partToTurn = unitBasePart.Part;
+                        }
+                        else
+                        {
+                            partToTurn = FindChildNyName(unitBasePart.Part, unitBasePart.Name + unitBasePart.CompleteLevel + "-1");
+                        }
+
                         float str; // = Mathf.Min(2f * Time.deltaTime, 1);
                         str = 8f * Time.deltaTime;
 
@@ -122,8 +133,8 @@ namespace Assets.Scripts
                         Quaternion lookRotation = Quaternion.LookRotation(TurnWeaponIntoDirection);
 
                         // Rotate the forward vector towards the target direction by one step
-                        Quaternion newrotation = Quaternion.Slerp(unitBasePart.Part.transform.rotation, lookRotation, str);
-                        unitBasePart.Part.transform.rotation = newrotation;
+                        Quaternion newrotation = Quaternion.Slerp(partToTurn.transform.rotation, lookRotation, str);
+                        partToTurn.transform.rotation = newrotation;
 
                         float angle = Quaternion.Angle(lookRotation, newrotation);
                         if (angle < 5)
@@ -139,7 +150,7 @@ namespace Assets.Scripts
             float timeNow = Time.time;
             foreach (UnitBasePart unitBasePart in UnitBaseParts)
             {
-                if (timeNow > unitBasePart.AnimateFrom && timeNow < unitBasePart.AnimateTo)
+                if (!HasEngine() && timeNow > unitBasePart.AnimateFrom && timeNow < unitBasePart.AnimateTo)
                 {
                     unitBasePart.Part.transform.Rotate(Vector3.up, 6);
                 }
@@ -507,6 +518,7 @@ namespace Assets.Scripts
                         transitObject.GameObject = upgradedPartClone;
                         transitObject.TargetPosition = upgradedPart.transform.position;
                         transitObject.DestroyAtArrival = true;
+                        transitObject.ScaleUp = true;
                         transitObject.ActivateAtArrival = upgradedPart;
                         transitObject.StartAfterThis = Time.time + (0.5f * HexGrid.MainGrid.GameSpeed);
 
@@ -515,6 +527,15 @@ namespace Assets.Scripts
                         // Reset current pos to assembler
                         upgradedPartClone.transform.position = transform.position;
                         upgradedPartClone.transform.rotation = upgradedPart.transform.rotation;
+
+                        float scalex = 0.4f;
+                        float scaley = 0.4f;
+                        float scalez = 0.4f;
+
+                        Vector3 scaleChange;
+                        scaleChange = new Vector3(scalex, scaley, scalez);
+                        upgradedPartClone.transform.localScale = scaleChange;
+
                         upgradedPartClone.SetActive(true);
 
                         // Move to position in unit
@@ -530,7 +551,6 @@ namespace Assets.Scripts
                             }
                         }
                     }
-
                 }
             }
             if (highlightEffect != null)
@@ -1092,7 +1112,7 @@ namespace Assets.Scripts
                     moveAnimation.SetActive(true);
                 }
 
-                AboveGround = 0.2f;
+                AboveGround = 0.1f;
 
                 IsActive = true;
             }
