@@ -35,16 +35,16 @@
     
     },
 	{
-      "Name": "Outpost",
+      "Name": "Bomber1",
       "PlayerId": 2,
       "Blueprint": "Bomber",
 	  "ContainerFilled": 0,
 	  "HoldPosition": true,
+	  "HoldFire": true,
 	  "FireAtGround": false,
 	  "EndlessAmmo": false,
 	  "EndlessPower": true,
-      "Position": "0,0"
+      "Position": "-2,6"
     }
-
   ]
 }

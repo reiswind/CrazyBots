@@ -157,6 +157,7 @@ namespace Engine.Interface
                 else
                 {
                     // Minerals stay on hit tile
+
                     TileContainer.Add(bulletTileObject);
                     UpdateCache();
                 }

@@ -1506,7 +1506,7 @@ namespace Engine.Ants
             {
                 if (ant.AntWorkerType != AntWorkerType.Worker)
                 {
-                    if (ant.Unit.Engine != null)
+                    if (ant.Unit.Engine != null && !ant.Unit.EndlessPower)
                     {
                         ant.AbandonUnit(player);
                         break;

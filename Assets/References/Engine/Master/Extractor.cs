@@ -20,14 +20,14 @@ namespace Engine.Master
         {
             get
             {
-                
+
                 if (Level == 3)
                     return 3;
                 if (Level == 2)
                     return 2;
                 if (Level == 1)
                     return 1;
-                
+
                 return 0;
             }
         }
@@ -48,7 +48,7 @@ namespace Engine.Master
                 }
             }
 
-            return Unit.Game.Map.EnumerateTiles(Unit.Pos, MetalCollectionRange, false, matcher: tile => 
+            return Unit.Game.Map.EnumerateTiles(Unit.Pos, MetalCollectionRange, false, matcher: tile =>
             {
                 if (includePositions != null && !includePositions.ContainsKey(tile.Pos))
                 {
@@ -213,36 +213,28 @@ namespace Engine.Master
                         }
                         else if (t.Unit.Container != null)
                         {
-                            if (Unit.Engine == null)                                
+                            if (Unit.Engine == null)
                             {
                                 // Container extracting from worker
                                 if (t.Unit.Engine != null)
                                 {
-                                    bool possibleItem = false;
-                                    foreach (TileObject tileObject in t.Unit.Container.TileContainer.TileObjects)
+                                    Move move = CreateExtractMoveIfPossible(t.Unit);
+                                    if (move != null)
                                     {
-                                        if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
-                                            continue;
-
-                                        if (Unit.IsSpaceForTileObject(tileObject))
-                                        {
-                                            possibleItem = true;
-                                            break;
-                                        }
-                                    }
-                                    if (possibleItem)
-                                    {
-                                        Move move = new Move();
-
-                                        move.MoveType = MoveType.Extract;
-
-                                        move.UnitId = Unit.UnitId;
-                                        move.OtherUnitId = t.Unit.UnitId;
-                                        move.Positions = new List<Position2>();
-                                        move.Positions.Add(Unit.Pos);
-                                        move.Positions.Add(t.Pos);
-
                                         possibleMoves.Add(move);
+                                    }
+                                }
+                                else
+                                {
+                                    // Extract from friendly structure next
+                                    if (Unit.Weapon != null)
+                                    {
+                                        // Turret from Container
+                                        Move move = CreateExtractMoveIfPossible(t.Unit);
+                                        if (move != null)
+                                        {
+                                            possibleMoves.Add(move);
+                                        }
                                     }
                                 }
                             }
@@ -250,40 +242,22 @@ namespace Engine.Master
                             {
                                 if (Unit.Assembler != null && t.Unit.Container != null)
                                 {
-                                    bool possibleItem = false;
-                                    foreach (TileObject tileObject in t.Unit.Container.TileContainer.TileObjects)
+                                    // Assembler extract from Container
+                                    Move move = CreateExtractMoveIfPossible(t.Unit);
+                                    if (move != null)
                                     {
-                                        if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
-                                            continue;
-
-                                        if (Unit.IsSpaceForTileObject(tileObject))
-                                        {
-                                            possibleItem = true;
-                                            break;
-                                        }
-                                    }
-                                    if (possibleItem)
-                                    {
-                                        Move move = new Move();
-
-                                        move.MoveType = MoveType.Extract;
-
-                                        move.UnitId = Unit.UnitId;
-                                        move.OtherUnitId = t.Unit.UnitId;
-                                        move.Positions = new List<Position2>();
-                                        move.Positions.Add(Unit.Pos);
-                                        move.Positions.Add(t.Pos);
-
                                         possibleMoves.Add(move);
-                                    }
-                                    else
-                                    {
-                                        
                                     }
                                 }
                                 if (Unit.Weapon != null)
                                 {
                                     // Fighter extract from container
+                                    Move move = CreateExtractMoveIfPossible(t.Unit);
+                                    if (move != null)
+                                    {
+                                        possibleMoves.Add(move);
+                                    }
+                                    /*
                                     Move move = new Move();
 
                                     move.MoveType = MoveType.Extract;
@@ -294,10 +268,10 @@ namespace Engine.Master
                                     move.Positions.Add(Unit.Pos);
                                     move.Positions.Add(t.Pos);
 
-                                    possibleMoves.Add(move);
+                                    possibleMoves.Add(move);*/
                                 }
                             }
-                        }                        
+                        }
                     }
                     else
                     {
@@ -324,6 +298,38 @@ namespace Engine.Master
                     }
                 }
             }
+        }
+
+        private Move CreateExtractMoveIfPossible(Unit otherInit)
+        {
+            bool possibleItem = false;
+            foreach (TileObject tileObject in otherInit.Container.TileContainer.TileObjects)
+            {
+                if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
+                    continue;
+
+                if (Unit.IsSpaceForTileObject(tileObject))
+                {
+                    possibleItem = true;
+                    break;
+                }
+            }
+            Move move = null;
+            if (possibleItem)
+            {
+                move = new Move();
+
+                move.MoveType = MoveType.Extract;
+
+                move.UnitId = Unit.UnitId;
+                move.OtherUnitId = otherInit.UnitId;
+                move.Positions = new List<Position2>();
+                move.Positions.Add(Unit.Pos);
+                move.Positions.Add(otherInit.Pos);
+
+                
+            }
+            return move;
         }
 
         public bool CanExtract
@@ -384,7 +390,7 @@ namespace Engine.Master
                 if (Unit.Container != null && Unit.Container.TileContainer.Count < Unit.Container.TileContainer.Capacity)
                 {
                     return true;
-                }                
+                }
                 return false;
             }
         }
@@ -424,7 +430,7 @@ namespace Engine.Master
 
             move.Stats = new MoveUpdateStats();
             Unit.Game.CollectGroundStats(otherUnit.Pos, move, removeTileObjects);
-            
+
             if (otherUnit.IsDead())
             {
                 if (hitPart.PartTileObjects.Count > 0)
@@ -471,7 +477,7 @@ namespace Engine.Master
             }
             else
             {
-                
+
                 if (removedTileObject != null)
                 {
                     if (!TileObject.IsTileObjectTypeCollectable(removedTileObject.TileObjectType))

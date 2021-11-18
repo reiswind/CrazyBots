@@ -123,7 +123,7 @@ namespace Assets.Scripts
                         }
                         else
                         {
-                            partToTurn = FindChildNyName(unitBasePart.Part, unitBasePart.Name + unitBasePart.CompleteLevel + "-1");
+                            partToTurn = FindChildNyName(unitBasePart.Part, unitBasePart.Name + unitBasePart.CompleteLevel + "-" + unitBasePart.CompleteLevel);
                         }
 
                         float str; // = Mathf.Min(2f * Time.deltaTime, 1);
@@ -476,24 +476,12 @@ namespace Assets.Scripts
                     {
                         upgradedPart = FindChildNyName(upgradedUnit.gameObject, upgradedBasePart.Name + upgradedBasePart.CompleteLevel);
                     }
+                    // Needs to be reinitialzed
+                    upgradedBasePart.TileObjectContainer = null;
 
                     foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
                     {
-                        UnitBaseTileObject unitBaseTileObject = null;
-                        if (moveRecipeIngredient.Position == CurrentPos)
-                        {
-                            unitBaseTileObject = FindTileObject(moveRecipeIngredient);
-                        }
-                        else
-                        {
-                            GroundCell gc;
-                            if (HexGrid.MainGrid.GroundCells.TryGetValue(moveRecipeIngredient.Position, out gc))
-                            {
-                                UnitBase unitBase = gc.FindUnit();
-                                if (unitBase != null)
-                                    unitBaseTileObject = unitBase.FindTileObject(moveRecipeIngredient);
-                            }
-                        }
+                        UnitBaseTileObject unitBaseTileObject = unitBaseTileObject = RemoveTileObject(moveRecipeIngredient);
                         if (unitBaseTileObject != null)
                         {
                             // Transit ingredient
@@ -558,8 +546,18 @@ namespace Assets.Scripts
         }
         
 
-        private UnitBaseTileObject FindTileObject(MoveRecipeIngredient moveRecipeIngredient)
+        internal UnitBaseTileObject RemoveTileObject(MoveRecipeIngredient moveRecipeIngredient)
         {
+            if (moveRecipeIngredient.Position != CurrentPos)
+            {
+                GroundCell gc;
+                if (HexGrid.MainGrid.GroundCells.TryGetValue(moveRecipeIngredient.Position, out gc))
+                {
+                    UnitBase unitBase = gc.FindUnit();
+                    if (unitBase != null)
+                        return unitBase.RemoveTileObject(moveRecipeIngredient);
+                }
+            }
             if (moveRecipeIngredient.Source == TileObjectType.None)
             {
                 // From ground
@@ -768,11 +766,11 @@ namespace Assets.Scripts
             if (otherRigid != null)
             {
                 Vector3 explosionPos = unit.transform.position;
-                explosionPos.y -= 1;
+                explosionPos.y -= 0.1f;
 
                 otherRigid.isKinematic = false;
 
-                otherRigid.AddExplosionForce(250, explosionPos, 12, 5);
+                otherRigid.AddExplosionForce(250, explosionPos, 1);
                 
                 /*
                 Vector3 vector3 = new Vector3();
@@ -859,17 +857,22 @@ namespace Assets.Scripts
                     GameObject hitGameObject;
                     hitGameObject = unitBasePart.Part;
 
-                    if (moveUpdateUnitPart != null && moveUpdateUnitPart.CompleteLevel > 1)
+                    if (unitBasePart != null && unitBasePart.CompleteLevel > 1)
                     {
-                        hitGameObject = FindChildNyName(unitBasePart.Part, moveUpdateUnitPart.Name + moveUpdateUnitPart.CompleteLevel + "-" + (moveUpdateUnitPart.Level+1));
+                        hitGameObject = FindChildNyName(unitBasePart.Part, unitBasePart.Name + unitBasePart.CompleteLevel + "-" + (unitBasePart.Level));
                     }
                     GroundCell currentCell;
 
                     if (hitGameObject != null && HexGrid.MainGrid.GroundCells.TryGetValue(CurrentPos, out currentCell))
                     {
                         // Clone the part
-                        GameObject part = Instantiate(hitGameObject, currentCell.transform, true);
+                        GameObject part = Instantiate(hitGameObject, currentCell.transform, false);
                         part.layer = 0; // LayerMask.GetMask("Default");
+
+                        Vector3 vector3 = hitGameObject.transform.position;
+                        vector3.y += 5.2f;
+                        hitGameObject.transform.position = vector3;
+
                         Destroy(part, 10);
                         part.SetActive(true);
                         SetPlayerColor(0, part);
@@ -880,7 +883,7 @@ namespace Assets.Scripts
                         ParticleSystem partDerisTrail = HexGrid.MainGrid.MakeParticleSource("DebrisTrail");
                         partDerisTrail.gameObject.transform.SetParent(part.transform);
                         partDerisTrail.Play();
-                        partDerisTrail.Play();
+
                         ActivateRigidbody(part);
                     }
                     bool alive = false;
@@ -895,14 +898,15 @@ namespace Assets.Scripts
 
                     if (!alive)
                     {
-                        Delete();
+                        //HasBeenDestroyed = true;
+                        //Destroy(gameObject, 10);
+                        //Delete();
                     }
-                    else
-                    {
-                        GameObject smoke = FindChildNyName(gameObject, "SmokeEffect");
-                        if (smoke != null)
-                            smoke.SetActive(true);
-                    }
+
+                    GameObject smoke = FindChildNyName(gameObject, "SmokeEffect");
+                    if (smoke != null)
+                        smoke.SetActive(true);
+
                     return unitBasePart;
                 }
             }
@@ -1048,6 +1052,10 @@ namespace Assets.Scripts
                             {
                                 if (moveUpdateUnitPart.Capacity.HasValue && unitBasePart.TileObjectContainer != null)
                                 {
+                                    if (unitBasePart.PartType == TileObjectType.PartContainer)
+                                    {
+                                        int x = 0;
+                                    }
                                     unitBasePart.TileObjectContainer.UpdateContent(this, unitBasePart.Part, moveUpdateUnitPart.TileObjects, moveUpdateUnitPart.Capacity.Value);
                                 }
                             }

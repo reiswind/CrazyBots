@@ -1358,32 +1358,37 @@ namespace Assets.Scripts
 
         public void HasBeenHit(HitByBullet hitByBullet)
         {
-            if (hitByBullet.TargetUnit == null)
+            if (hitByBullet.BulletImpact == false)
             {
-                if (hitByBullet.UpdateGroundStats != null)
+                Debug.Log("No IMPACT!");
+            }
+            GroundCell hexCell = null;
+            if (hitByBullet.UpdateGroundStats != null)
+            {
+                if (GroundCells.TryGetValue(hitByBullet.TargetPosition, out hexCell))
                 {
-                    GroundCell hexCell;
-
-                    if (GroundCells.TryGetValue(hitByBullet.TargetPosition, out hexCell))
+                    if (hexCell.Visible)
                     {
-                        if (hexCell.Visible)
+                        if (hitByBullet.UpdateGroundStats.MoveUpdateGroundStat != null)
                         {
-                            if (hitByBullet.UpdateGroundStats.MoveUpdateGroundStat != null)
-                            {
-                                hexCell.Stats = hitByBullet.UpdateGroundStats;
-                                hexCell.UpdateGround();
-                            }
-
-                            Destroy(hexCell.gameObject);
-                            GroundCells.Remove(hitByBullet.TargetPosition);
-
-                            GameObject cellPrefab = GetResource("HexCellCrate");
-                            hexCell = CreateCell(hexCell.Pos, hexCell.Stats, cellPrefab);
-                            GroundCells.Add(hitByBullet.TargetPosition, hexCell);
-
-                            HitGroundAnimation(hexCell.transform);
+                            hexCell.Stats = hitByBullet.UpdateGroundStats;
+                            hexCell.UpdateGround();
                         }
                     }
+                }
+            }
+            if (hitByBullet.TargetUnit == null)
+            {
+                if (hexCell != null)
+                {
+                    Destroy(hexCell.gameObject);
+                    GroundCells.Remove(hitByBullet.TargetPosition);
+
+                    GameObject cellPrefab = GetResource("HexCellCrate");
+                    hexCell = CreateCell(hexCell.Pos, hexCell.Stats, cellPrefab);
+                    GroundCells.Add(hitByBullet.TargetPosition, hexCell);
+
+                    HitGroundAnimation(hexCell.transform);
                 }
             }
             else

@@ -130,22 +130,15 @@ namespace Engine.Master
                     // Cannot fire on ourselves
                     if (n.Unit.Owner.PlayerModel.Id != 0 && n.Unit.Owner != Unit.Owner)
                     {
-                        if (Unit.UnderConstruction && Unit.CountParts() == 0)
-                        {
-                            // This is a ghost, do not fire at
-                        }
-                        else
-                        {
-                            Move move = new Move();
-                            move.MoveType = MoveType.Fire;
-                            move.UnitId = Unit.UnitId;
-                            move.OtherUnitId = null;
-                            move.Positions = new List<Position2>();
-                            move.Positions.Add(Unit.Pos);
-                            move.Positions.Add(n.Pos);
+                        Move move = new Move();
+                        move.MoveType = MoveType.Fire;
+                        move.UnitId = Unit.UnitId;
+                        move.OtherUnitId = null;
+                        move.Positions = new List<Position2>();
+                        move.Positions.Add(Unit.Pos);
+                        move.Positions.Add(n.Pos);
 
-                            possibleMoves.Add(move);
-                        }
+                        possibleMoves.Add(move);
                     }
                 }
             }

@@ -43,7 +43,7 @@ namespace Engine.Interface
             blueprint.Name = "Turret";
             blueprint.Layout = "S-Turret";
             blueprint.Parts.Add(new BlueprintPart("S-PartExtractor"));
-            blueprint.Parts.Add(new BlueprintPart("S-PartWeapon", TileObjectType.PartWeapon, 3, 6));
+            blueprint.Parts.Add(new BlueprintPart("S-PartWeapon", TileObjectType.PartWeapon, 3, 3));
             Items.Add(blueprint);
 
             // Reactor

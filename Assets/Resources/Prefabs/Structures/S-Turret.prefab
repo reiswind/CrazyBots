@@ -109,7 +109,19 @@ MonoBehaviour:
   glowVisibility: 0
   glowBlitDebug: 0
   glowBlendPasses: 1
-  glowPasses: []
+  glowPasses:
+  - offset: 4
+    alpha: 0.1
+    color: {r: 0.64, g: 1, b: 0, a: 1}
+  - offset: 3
+    alpha: 0.2
+    color: {r: 0.64, g: 1, b: 0, a: 1}
+  - offset: 2
+    alpha: 0.3
+    color: {r: 0.64, g: 1, b: 0, a: 1}
+  - offset: 1
+    alpha: 0.4
+    color: {r: 0.64, g: 1, b: 0, a: 1}
   innerGlow: 0
   innerGlowWidth: 1
   innerGlowColor: {r: 1, g: 1, b: 1, a: 1}
@@ -143,7 +155,7 @@ MonoBehaviour:
   seeThroughBorderColor: {r: 0, g: 0, b: 0, a: 1}
   seeThroughBorderWidth: 0.45
   seeThroughOrdered: 0
-  rmsCount: 0
+  rmsCount: 7
   hitFxInitialIntensity: 1
   hitFxMode: 0
   hitFxFadeOutDuration: 0.25
@@ -189,6 +201,26 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2318509172490920783}
     m_Modifications:
+    - target: {fileID: 4294918198253157610, guid: 0b9b6d17509d5f9419a071c47a70d3c8, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.171
+      objectReference: {fileID: 0}
+    - target: {fileID: 4294918198253157610, guid: 0b9b6d17509d5f9419a071c47a70d3c8, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.159
+      objectReference: {fileID: 0}
+    - target: {fileID: 5321087203535132159, guid: 0b9b6d17509d5f9419a071c47a70d3c8, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.054
+      objectReference: {fileID: 0}
+    - target: {fileID: 5321087203535132159, guid: 0b9b6d17509d5f9419a071c47a70d3c8, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 5321087203535132159, guid: 0b9b6d17509d5f9419a071c47a70d3c8, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.156
+      objectReference: {fileID: 0}
     - target: {fileID: 6000050848639220805, guid: 0b9b6d17509d5f9419a071c47a70d3c8, type: 3}
       propertyPath: m_RootOrder
       value: 2

@@ -116,6 +116,8 @@ namespace Assets.Scripts
             }
             if (HitByBullet.BulletImpact == false)
             {
+                Debug.Log("BulletImpact");
+
                 HitByBullet.BulletImpact = true;
 
                 // Play the particle system.

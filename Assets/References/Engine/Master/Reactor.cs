@@ -54,7 +54,7 @@ namespace Engine.Master
                 return 12;
             }
         }
-        public void BurnIfNeccessary()
+        public void BurnIfNeccessary(Dictionary<Position2, Unit> changedUnits)
         {
             if (AvailablePower == 0)
             {
@@ -76,7 +76,7 @@ namespace Engine.Master
 
                     // Animation missing, no move
 
-                    TileObject tileObject = Unit.ConsumeIngredient(moveRecipeIngredient);
+                    TileObject tileObject = Unit.ConsumeIngredient(moveRecipeIngredient, changedUnits);
                     if (tileObject != null)
                         Unit.Game.Map.AddOpenTileObject(tileObject);
                 }
@@ -93,7 +93,7 @@ namespace Engine.Master
                 }*/
             }
         }
-        public int ConsumePower(int remove)
+        public int ConsumePower(int remove, Dictionary<Position2, Unit> changedUnits)
         {
             //remove *= 20;
 
@@ -111,7 +111,7 @@ namespace Engine.Master
 
             if (AvailablePower == 0)
             {
-                BurnIfNeccessary();
+                BurnIfNeccessary(changedUnits);
             }
 
             return removed;

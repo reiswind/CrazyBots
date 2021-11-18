@@ -157,6 +157,80 @@ namespace Engine.Master
 
         public int Stunned { get; set; }
 
+        public MoveRecipeIngredient FindAmmo(bool searchNeighbors = true)
+        {
+            // Near transport, possible with extractor, prefer external ammo source
+            MoveRecipeIngredient moveRecipeIngredient;
+            if (searchNeighbors && Extractor != null)
+            {
+                Position3 position3 = new Position3(Pos);
+                foreach (Position3 n3 in position3.Neighbors)
+                {
+                    Tile t = Game.Map.GetTile(n3.Pos);
+                    if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id)
+                    {
+                        moveRecipeIngredient = t.Unit.FindAmmo(false);
+                        if (moveRecipeIngredient != null)
+                            return moveRecipeIngredient;
+                    }
+                }
+            }
+            // Extract ammo from own unit
+            moveRecipeIngredient = new MoveRecipeIngredient();
+            moveRecipeIngredient.Count = 1;
+
+            if (Container != null && Container.TileContainer != null && Container.TileContainer.Contains(TileObjectType.All))
+            {
+                moveRecipeIngredient.TileObjectType = Container.TileContainer.TileObjects[0].TileObjectType;
+                moveRecipeIngredient.Position = Pos;
+                moveRecipeIngredient.Source = TileObjectType.PartContainer;
+                return moveRecipeIngredient;
+            }
+            return null;
+        }
+
+        public MoveRecipeIngredient ConsumeIngredient(TileObjectType tileObjectType, bool searchNeighbors)
+        {
+            MoveRecipeIngredient moveRecipeIngredient = new MoveRecipeIngredient();
+            moveRecipeIngredient.TileObjectType = tileObjectType;
+            moveRecipeIngredient.Count = 1;
+
+            if (Assembler != null && Assembler.TileContainer != null && Assembler.TileContainer.Contains(tileObjectType))
+            {
+                if (tileObjectType == TileObjectType.All)
+                    moveRecipeIngredient.TileObjectType = Assembler.TileContainer.TileObjects[0].TileObjectType;
+                moveRecipeIngredient.Position = Pos;
+                moveRecipeIngredient.Source = TileObjectType.PartAssembler;
+                return moveRecipeIngredient;
+            }
+            if (Container != null && Container.TileContainer != null && Container.TileContainer.Contains(tileObjectType))
+            {
+                if (tileObjectType == TileObjectType.All)
+                    moveRecipeIngredient.TileObjectType = Container.TileContainer.TileObjects[0].TileObjectType;
+                moveRecipeIngredient.Position = Pos;
+                moveRecipeIngredient.Source = TileObjectType.PartContainer;
+                return moveRecipeIngredient;
+            }
+            // Do not pick ingredients from weapon or reactor
+
+            // Near transport, possible with extractor
+            if (searchNeighbors && Extractor != null)
+            {
+                Position3 position3 = new Position3(Pos);
+                foreach (Position3 n3 in position3.Neighbors)
+                {
+                    Tile t = Game.Map.GetTile(n3.Pos);
+                    if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id)
+                    {
+                        moveRecipeIngredient = t.Unit.ConsumeIngredient(tileObjectType, false);
+                        if (moveRecipeIngredient != null)
+                            return moveRecipeIngredient;
+                    }
+                }
+            }
+            return null;
+        }
+
         public MoveRecipeIngredient FindIngredient(TileObjectType tileObjectType, bool searchNeighbors)
         {
             MoveRecipeIngredient moveRecipeIngredient = new MoveRecipeIngredient();
@@ -199,7 +273,7 @@ namespace Engine.Master
             return null;
         }
 
-        public TileObject ConsumeIngredient(MoveRecipeIngredient ingredient)
+        public TileObject ConsumeIngredient(MoveRecipeIngredient ingredient, Dictionary<Position2, Unit> changedUnits)
         {
             TileObject tileObject = null;
             if (ingredient.Position == Pos)
@@ -217,6 +291,13 @@ namespace Engine.Master
                 {
                     tileObject = Reactor.TileContainer.RemoveTileObject(ingredient.TileObjectType);
                 }
+                if (ingredient.Source == TileObjectType.PartWeapon &&
+                    Weapon != null && Weapon.TileContainer != null && Weapon.TileContainer.Contains(ingredient.TileObjectType))
+                {
+                    tileObject = Reactor.TileContainer.RemoveTileObject(ingredient.TileObjectType);
+                }
+                if (changedUnits != null && !changedUnits.ContainsKey(Pos))
+                    changedUnits.Add(Pos, this);
             }
             else
             {
@@ -228,7 +309,7 @@ namespace Engine.Master
                         Tile t = Game.Map.GetTile(n3.Pos);
                         if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id)
                         {
-                            tileObject = t.Unit.ConsumeIngredient(ingredient);
+                            tileObject = t.Unit.ConsumeIngredient(ingredient, changedUnits);
                         }
                         break;
                     }
@@ -756,6 +837,42 @@ namespace Engine.Master
             }
         }
 
+        public List<TileObject> ConsumeIngredients(MoveRecipe moveRecipe,  Dictionary<Position2, Unit> changedUnits)
+        {
+            List<MoveRecipeIngredient> realIngredients = new List<MoveRecipeIngredient>();
+
+            bool missingIngredient = false;
+            foreach (MoveRecipeIngredient moveRecipeIngredient in moveRecipe.Ingredients)
+            {
+                MoveRecipeIngredient realIngredient = ConsumeIngredient(moveRecipeIngredient.TileObjectType, true);
+                if (realIngredient == null)
+                {
+                    missingIngredient = true;
+                    break;
+                }
+                realIngredients.Add(realIngredient);
+            }
+            if (missingIngredient)
+                return null;
+
+            // Replace suggested ingredients with real ones
+            moveRecipe.Ingredients.Clear();
+            foreach (MoveRecipeIngredient realIngredient in realIngredients)
+            {
+                ConsumeIngredient(realIngredient, changedUnits);
+                moveRecipe.Ingredients.Add(realIngredient);
+            }
+
+            List<TileObject> results = new List<TileObject>();
+
+            TileObject tileObject = new TileObject();
+            tileObject.TileObjectType = moveRecipe.Result;
+            tileObject.Direction = Direction.C;
+            results.Add(tileObject);
+
+            return results;
+        }
+
         public Ability HitBy()
         {
             if (IsDead())
@@ -969,7 +1086,7 @@ namespace Engine.Master
                         Reactor.TileContainer.Add(tileObject);
                         tileObjects.Remove(tileObject);
 
-                        Reactor.BurnIfNeccessary();
+                        //Reactor.BurnIfNeccessary();
                         continue;
                     }
                 }

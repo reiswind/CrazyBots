@@ -28,8 +28,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2841919757703305998}
   - {fileID: 1392879619586895170}
+  - {fileID: 2841919757703305998}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -50,7 +50,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4028577556905043004, guid: c7a5c897a2b62bb42b025c47428fbe92, type: 3}
       propertyPath: m_Name
-      value: PartWeapon2-1
+      value: PartWeapon2-2
       objectReference: {fileID: 0}
     - target: {fileID: 4295035179060656749, guid: c7a5c897a2b62bb42b025c47428fbe92, type: 3}
       propertyPath: m_LocalPosition.y
@@ -58,7 +58,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4369531076735925894, guid: c7a5c897a2b62bb42b025c47428fbe92, type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4369531076735925894, guid: c7a5c897a2b62bb42b025c47428fbe92, type: 3}
       propertyPath: m_LocalPosition.x
@@ -117,11 +117,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4028577556905043004, guid: debe08d2ca6045e47a7e15120db3eaee, type: 3}
       propertyPath: m_Name
-      value: PartWeapon2-2
+      value: PartWeapon2-1
       objectReference: {fileID: 0}
     - target: {fileID: 4369531076735925894, guid: debe08d2ca6045e47a7e15120db3eaee, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4369531076735925894, guid: debe08d2ca6045e47a7e15120db3eaee, type: 3}
       propertyPath: m_LocalPosition.x

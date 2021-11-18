@@ -33,14 +33,30 @@ namespace Assets.Scripts
 
         public void Fire(Move move)
         {
-            TileObject anmo = move.Stats.MoveUpdateGroundStat.TileObjects[0];
+            foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
+            {
+                // Transit the ingrdient into the weapon. This is the reloaded ammo. (Can be empty)
+                UnitBaseTileObject unitBaseTileObject;
+                unitBaseTileObject = UnitBase.RemoveTileObject(moveRecipeIngredient);
+                if (unitBaseTileObject != null)
+                {
+                    // Transit ingredient
+                    TransitObject transitObject = new TransitObject();
+                    transitObject.GameObject = unitBaseTileObject.GameObject;
+                    transitObject.TargetPosition = Part.transform.position;
+                    transitObject.DestroyAtArrival = true;
 
-            hitByBullet = HexGrid.MainGrid.Fire(UnitBase, anmo);
+                    unitBaseTileObject.GameObject = null;
+                    HexGrid.MainGrid.AddTransitTileObject(transitObject);
+                }
+            }
+            TileObject tileObjectAmmo = TileObjectContainer.TileObjects[0].TileObject;
+            hitByBullet = HexGrid.MainGrid.Fire(UnitBase, tileObjectAmmo);
 
-            Position2 pos = move.Positions[move.Positions.Count - 1];
+            Position2 targetPosition = move.Positions[move.Positions.Count - 1];
 
             GroundCell weaponTargetCell;
-            if (HexGrid.MainGrid.GroundCells.TryGetValue(pos, out weaponTargetCell))
+            if (HexGrid.MainGrid.GroundCells.TryGetValue(targetPosition, out weaponTargetCell))
             {
                 // Determine which direction to rotate towards
                 Vector3 turnWeaponIntoDirection = (weaponTargetCell.transform.position - Part.transform.position).normalized;
@@ -52,7 +68,6 @@ namespace Assets.Scripts
         {
             GameObject gameObject = HexGrid.MainGrid.CreateShell(Part.transform, hitByBullet.Bullet);
             Shell shell = gameObject.GetComponent<Shell>();
-            //shell.transform.SetPositionAndRotation(launchPos, ammo.transform.rotation);
             shell.FireingUnit = UnitBase;
             shell.HitByBullet = hitByBullet;
 
@@ -61,7 +76,7 @@ namespace Assets.Scripts
             {
                 Vector3 targetPos = weaponTargetCell.transform.position;
                 Rigidbody rigidbody = shell.GetComponent<Rigidbody>();
-                rigidbody.velocity = calcBallisticVelocityVector(shell.transform.position, targetPos, 45);
+                rigidbody.velocity = calcBallisticVelocityVector(shell.transform.position, targetPos, UnitBase.HasEngine()?30:-10);
             }
         }
         private Vector3 calcBallisticVelocityVector(Vector3 initialPos, Vector3 finalPos, float angle)

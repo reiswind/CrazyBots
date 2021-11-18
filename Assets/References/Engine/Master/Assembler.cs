@@ -85,41 +85,7 @@ namespace Engine.Master
             return move;
         }
 
-        public List<TileObject> ConsumeIngredients(MoveRecipe moveRecipe)
-        {
-            List<MoveRecipeIngredient> realIngredients = new List<MoveRecipeIngredient>();
-
-            bool missingIngredient = false;
-            foreach (MoveRecipeIngredient moveRecipeIngredient in moveRecipe.Ingredients)
-            {
-                MoveRecipeIngredient realIngredient = Unit.FindIngredient(moveRecipeIngredient.TileObjectType, true);
-                if (realIngredient == null)
-                {
-                    missingIngredient = true;
-                    break;
-                }
-                realIngredients.Add(realIngredient);
-            }
-            if (missingIngredient)
-                return null;
-
-            // Replace suggested ingredients with real ones
-            moveRecipe.Ingredients.Clear();
-            foreach (MoveRecipeIngredient realIngredient in realIngredients )
-            {
-                Unit.ConsumeIngredient(realIngredient);
-                moveRecipe.Ingredients.Add(realIngredient);
-            }
-
-            List<TileObject> results = new List<TileObject>();
-
-            TileObject tileObject = new TileObject();
-            tileObject.TileObjectType = moveRecipe.Result;
-            tileObject.Direction = Direction.C;
-            results.Add(tileObject);
-
-            return results;
-        }
+        
 
         public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position2> includedPosition2s, MoveFilter moveFilter)
         {

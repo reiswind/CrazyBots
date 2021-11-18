@@ -47,7 +47,7 @@ namespace Engine.Master
                 foreach (PlayerModel playerModel in gameModel.Players)
                 {
                     Player p = new Player(this, playerModel);
-                    
+
                     Players.Add(playerModel.Id, p);
                 }
             }
@@ -62,7 +62,7 @@ namespace Engine.Master
             }
             //CreateUnits();
 
-            Map.GetTile(new Position2 (0, 0));
+            Map.GetTile(new Position2(0, 0));
 
             // TESTEXTRACT
 
@@ -292,7 +292,7 @@ namespace Engine.Master
 
         public Pheromones Pheromones { get; set; }
 
-        
+
         public void ComputePossibleMoves(Position2 pos, List<Move> possibleMoves, List<Position2> includedPosition2s, MoveFilter moveFilter)
         {
             Tile t = Map.GetTile(pos);
@@ -354,7 +354,7 @@ namespace Engine.Master
         private List<Move> lastMoves = new List<Move>();
         private List<Move> newMoves = new List<Move>();
 
-        public Dictionary<int,Player> Players { get; set; }
+        public Dictionary<int, Player> Players { get; set; }
 
         public int MoveNr { get; private set; }
         private int CollisionCntr;
@@ -380,7 +380,7 @@ namespace Engine.Master
                     }
                     else
                     {
-                        List<TileObject> results = factory.Assembler.ConsumeIngredients(move.MoveRecipe);
+                        List<TileObject> results = factory.ConsumeIngredients(move.MoveRecipe, changedUnits);
 
                         if (results == null || results.Count == 0)
                         {
@@ -620,19 +620,7 @@ namespace Engine.Master
             {
                 lastMoves.Add(move);
             }
-            // Compute the damage of the fire shots in the last round
-            //foreach (Bullet bullet in hitByBullet)
-            {
-               // HitByBullet(bullet, lastMoves);
 
-                /* Hit area
-                Tile targetTile = GetTile(bullet.Target);
-                foreach (Tile n in targetTile.Neighbors)
-                {
-                    bullet.Target = n.Pos;
-                    HitByBullet(bullet, lastMoves);
-                }*/
-            }
         }
 
         private List<Unit> stunnedUnits = new List<Unit>();
@@ -660,14 +648,67 @@ namespace Engine.Master
                 }
             }
         }
-
-        internal void HitByBullet(Move move, List<Move> nextMoves)
+        private bool ProcessNewFireMove(Move move)
         {
-            Position2 pos = move.Positions[move.Positions.Count-1];
+            bool wasSuccessful = false;
+
+            Unit fireingUnit = Map.Units.GetUnitAt(move.Positions[0]);
+            if (fireingUnit != null && fireingUnit.Weapon != null && fireingUnit.Weapon.TileContainer.TileObjects.Count > 0)
+            {
+                MoveRecipeIngredient moveRecipeIngredient;
+                if (fireingUnit.Weapon.EndlessAmmo)
+                {
+                    moveRecipeIngredient = new MoveRecipeIngredient();
+                    moveRecipeIngredient.TileObjectType = TileObjectType.Mineral;
+                }
+                else
+                {
+                    moveRecipeIngredient = fireingUnit.FindAmmo();
+                }
+                move.Stats = fireingUnit.CollectStats();
+                move.MoveRecipe = new MoveRecipe();
+
+                // Ingredient is the reloaded ammo
+                if (moveRecipeIngredient != null)
+                {
+                    move.MoveRecipe.Ingredients.Add(moveRecipeIngredient);
+                }
+                // Result is the ammo that was used to fire
+                move.MoveRecipe.Result = fireingUnit.Weapon.TileContainer.TileObjects[0].TileObjectType;
+
+                if (!changedUnits.ContainsKey(fireingUnit.Pos))
+                    changedUnits.Add(fireingUnit.Pos, fireingUnit);
+
+                // Must be before the hit moves
+                lastMoves.Add(move);
+
+                HitByBullet(move, fireingUnit, lastMoves);
+                wasSuccessful = true;
+            }
+            return wasSuccessful;
+        }
+
+        internal void HitByBullet(Move move, Unit fireingUnit, List<Move> nextMoves)
+        {
+            Position2 pos = move.Positions[move.Positions.Count - 1];
             Tile targetTile = Map.GetTile(pos);
             BulletImpact(targetTile);
 
-            TileObject tileObject = move.Stats.MoveUpdateGroundStat.TileObjects[0];
+            foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
+            {
+                fireingUnit.ConsumeIngredient(moveRecipeIngredient, changedUnits);
+            }
+            TileObject tileObject = fireingUnit.Weapon.TileContainer.TileObjects[0];
+            fireingUnit.Weapon.TileContainer.Remove(tileObject);
+
+            foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
+            {
+                TileObject reloadedAmmo = new TileObject();
+                reloadedAmmo.TileObjectType = moveRecipeIngredient.TileObjectType;
+                reloadedAmmo.Direction = Direction.C;
+                fireingUnit.Weapon.TileContainer.Add(reloadedAmmo);
+            }
+
             targetTile.HitByBullet(tileObject);
 
             if (!changedGroundPositions.ContainsKey(pos))
@@ -730,7 +771,7 @@ namespace Engine.Master
                             }
                         }
                     }
-                    
+
                     TileObject hitPartTileObject = hitPart.PartTileObjects[0];
                     hitPart.PartTileObjects.Remove(hitPartTileObject);
 
@@ -764,7 +805,7 @@ namespace Engine.Master
                 hitmove.MoveType = MoveType.Hit;
                 hitmove.Positions = move.Positions;
 
-                hitmove.Stats = new MoveUpdateStats();                
+                hitmove.Stats = new MoveUpdateStats();
                 hitmove.Stats.MoveUpdateGroundStat = move.Stats.MoveUpdateGroundStat;
 
                 nextMoves.Add(hitmove);
@@ -923,7 +964,7 @@ namespace Engine.Master
                 if (move.MoveType == MoveType.Add)
                 {
                     int cnt = move.Positions.Count;
-                    Position2 p = move.Positions[cnt-1];
+                    Position2 p = move.Positions[cnt - 1];
                     Unit unit = Map.Units.GetUnitAt(p);
                     if (unit == null)
                     {
@@ -954,7 +995,7 @@ namespace Engine.Master
                     Position2 p = move.Positions[0];
                     if (move.Positions.Count > 1)
                     {
-                        p = move.Positions[move.Positions.Count-1];
+                        p = move.Positions[move.Positions.Count - 1];
                         Unit unit = Map.Units.GetUnitAt(p);
                         if (unit == null)
                         {
@@ -1032,7 +1073,6 @@ namespace Engine.Master
                 {
                     lastMoves.Add(move);
                 }
-                
             }
 
             foreach (Move move in newMoves)
@@ -1057,7 +1097,7 @@ namespace Engine.Master
                                 // Extract from unit, but no longer there or not from this unit
                                 move.MoveType = MoveType.Skip;
                             }
-                            
+
                         }
                         else
                         {
@@ -1109,6 +1149,10 @@ namespace Engine.Master
                 }
                 else if (move.MoveType == MoveType.Fire)
                 {
+                    if (!ProcessNewFireMove(move))
+                        move.MoveType = MoveType.Skip;
+
+                    /*
                     Unit fireingUnit = Map.Units.GetUnitAt(move.Positions[0]);
                     if (fireingUnit != null && fireingUnit.Weapon != null)
                     {
@@ -1138,7 +1182,7 @@ namespace Engine.Master
 
                             HitByBullet(move, lastMoves);
                         }
-                    }
+                    }*/
                 }
                 else if (move.MoveType == MoveType.Transport)
                 {
@@ -1169,6 +1213,7 @@ namespace Engine.Master
             newMoves.Clear();
         }
 
+
         private void UpdateAll(int playerId, List<Move> returnMoves)
         {
             foreach (Player player in Players.Values)
@@ -1196,7 +1241,7 @@ namespace Engine.Master
                 {
                     reactors.Add(unit);
                 }
-                
+
                 if (unit.Power > 0)
                 {
                     if (!unit.EndlessPower)
@@ -1230,7 +1275,7 @@ namespace Engine.Master
 
             int totalPowerRemoved = 0;
 
-            if (mapInfo.PlayerInfo.ContainsKey(player.PlayerModel.Id) && totalNumberOfUnits > 0) 
+            if (mapInfo.PlayerInfo.ContainsKey(player.PlayerModel.Id) && totalNumberOfUnits > 0)
             {
                 MapPlayerInfo mapPlayerInfo = mapInfo.PlayerInfo[player.PlayerModel.Id];
                 mapPlayerInfo.TotalPower = totalStoredPower + totalAvailablePower;
@@ -1299,7 +1344,7 @@ namespace Engine.Master
                 if (unit.Owner.PlayerModel.Id != player.PlayerModel.Id)
                     continue;
 
-                if (unit.Power < (unit.MaxPower/2) && unit.Armor != null && unit.Armor.ShieldPower > 0)
+                if (unit.Power < (unit.MaxPower / 2) && unit.Armor != null && unit.Armor.ShieldPower > 0)
                 {
                     unit.Power++;
                     unit.Armor.ShieldPower--;
@@ -1315,11 +1360,11 @@ namespace Engine.Master
                 int removePowerFromEachReactor = (totalPowerRemoved / reactors.Count) + 1;
                 foreach (Unit reactor in reactors)
                 {
-                    int powerConsumed = reactor.Reactor.ConsumePower(removePowerFromEachReactor);
+                    int powerConsumed = reactor.Reactor.ConsumePower(removePowerFromEachReactor, changedUnits);
                     totalPowerRemoved -= powerConsumed;
                 }
             }
-            
+
         }
 
         private void HandleCollisions(List<Move> newMoves)
@@ -1807,7 +1852,7 @@ namespace Engine.Master
                         gameCommand.PlayerId = mapGameCommand.PlayerId;
                         gameCommand.TargetPosition = mapGameCommand.TargetPosition;
                         gameCommand.TargetZone = mapGameCommand.TargetZone;
-                        
+
                         gameCommand.Radius = mapGameCommand.Radius;
                         gameCommand.Layout = mapGameCommand.Layout;
 
@@ -1818,7 +1863,7 @@ namespace Engine.Master
                             else
                                 gameCommand.IncludedPositions = Map.EnumerateTiles(gameCommand.TargetPosition, gameCommand.Radius, true);
                         }
-                        
+
                         foreach (MapGameCommandItem mapGameCommandItem in mapGameCommand.GameCommandItems)
                         {
                             GameCommandItem gameCommandItem = new GameCommandItem(gameCommand);
@@ -1927,7 +1972,7 @@ namespace Engine.Master
 
                 mapInfo = new MapInfo();
                 mapInfo.ComputeMapInfo(this, lastMoves);
-                
+
                 //if (mapInfoPrev.TotalMetal != mapInfo.TotalMetal)
                 {
 
@@ -2066,7 +2111,7 @@ namespace Engine.Master
                 }
             }
             updatedPositions = newUpdatedPosition2s;
-            
+
             foreach (Position2 pos in newUpdatedPosition2s)
             {
                 Tile t = Map.GetTile(pos);
@@ -2093,7 +2138,7 @@ namespace Engine.Master
         private void CreateAreas()
         {
             Areas = new List<Area>();
-            
+
             Dictionary<Tile, Area> areaMap = new Dictionary<Tile, Area>();
             List<TileWithDistance> openList = new List<TileWithDistance>();
 
@@ -2212,7 +2257,7 @@ namespace Engine.Master
                             if (otherArea == null)
                             {
                                 area.ForeignBorderTiles.Add(tile.Pos, tile);
-                                
+
                             }
                             else
                             {

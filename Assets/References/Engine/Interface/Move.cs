@@ -195,7 +195,11 @@ namespace Engine.Interface
 
     public class MoveRecipe
     {
-        public List<MoveRecipeIngredient> Ingredients { get; set; }
+        public MoveRecipe()
+        {
+            Ingredients = new List<MoveRecipeIngredient>();
+        }
+        public List<MoveRecipeIngredient> Ingredients { get;  set; }
         public TileObjectType Result { get; set; }
     }
 
