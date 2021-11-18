@@ -1,4 +1,6 @@
-﻿using Engine.Algorithms;
+﻿//#define MEASURE_TIMINGS
+
+using Engine.Algorithms;
 using Engine.Ants;
 using Engine.Interface;
 using Newtonsoft.Json;
@@ -10,6 +12,9 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+
+
+
 
 namespace Engine.Master
 {
@@ -1348,9 +1353,13 @@ namespace Engine.Master
                     }
                 }
             }*/
+
+            int loopCounter = 0;
+
             bool somethingChanged = true;
             while (somethingChanged)
             {
+                loopCounter++;
                 somethingChanged = false;
 
                 foreach (Move move in newMoves)
@@ -1389,6 +1398,14 @@ namespace Engine.Master
                         acceptedMoves.Add(move);
                     }
                 }
+            }
+            if (loopCounter > 10)
+            {
+                UnityEngine.Debug.Log("Loops " + loopCounter);
+            }
+            if (moveToTargets.Count > 100)
+            {
+                UnityEngine.Debug.Log("moveToTargets " + moveToTargets.Count);
             }
             List<Move> revokedMoves = new List<Move>();
             List<Move> unblockedMoves = new List<Move>();
@@ -1619,11 +1636,10 @@ namespace Engine.Master
             moveUpdateGroundStat.ZoneId = t.ZoneId;
         }
 
-
         public List<Move> ProcessMove(int playerId, Move myMove, List<MapGameCommand> gameCommands)
         {
             List<Move> returnMoves = new List<Move>();
-            lock (GameModel)
+            //lock (GameModel)
             {
                 if (myMove != null && myMove.MoveType == MoveType.UpdateAll)
                 {
@@ -1631,13 +1647,30 @@ namespace Engine.Master
                     return returnMoves;
                 }
 
-                if (MoveNr == 2679)
+                if (MoveNr == 68 || MoveNr == 168)
                 {
 
                 }
 
                 changedUnits.Clear();
                 changedGroundPositions.Clear();
+
+#if MEASURE_TIMINGS
+                DateTime start;
+                double timetaken;
+                
+                start = DateTime.Now;
+#endif
+
+#if MEASURE_TIMINGS
+                GC.Collect();
+                timetaken = (DateTime.Now - start).TotalMilliseconds;
+                if (timetaken > 10)
+                {
+                    UnityEngine.Debug.Log("GC.Collect(); (" + MoveNr + "): " + timetaken);
+                    start = DateTime.Now;
+                }
+#endif
 
 
                 /*
@@ -1802,6 +1835,13 @@ namespace Engine.Master
                 }
                 Pheromones.Evaporate();
 
+#if MEASURE_TIMINGS
+                timetaken = (DateTime.Now - start).TotalMilliseconds;
+                if (timetaken > 10)
+                    UnityEngine.Debug.Log("Prepare move Time " + timetaken);
+#endif
+
+
                 if (!first && lastMoves.Count == 0)
                 {
                     // New move
@@ -1810,6 +1850,15 @@ namespace Engine.Master
                     {
                         return lastMoves;
                     }
+#if MEASURE_TIMINGS
+                    timetaken = (DateTime.Now - start).TotalMilliseconds;
+                    if (timetaken > 10)
+                    {
+                        UnityEngine.Debug.Log("CollectNewMoves " + timetaken);
+                        start = DateTime.Now;
+                    }
+#endif
+
                 }
 
                 if (first)
@@ -1823,16 +1872,51 @@ namespace Engine.Master
                     //mapInfoPrev.ComputeMapInfo(this, newMoves);
 
                     LogMoves("Process new Moves " + Seed, MoveNr, newMoves);
+                    if (MoveNr == 217)
+                    {
+                        //start = DateTime.Now;
+                    }
 
+#if MEASURE_TIMINGS
+                    List<Move> beforeHandle = new List<Move>();
+                    beforeHandle.AddRange(newMoves);
+#endif
                     // Check collisions and change moves if units collide or get destroyed
                     HandleCollisions(newMoves);
 
-                    LogMoves("New Moves after Collisions", MoveNr, newMoves);
+#if MEASURE_TIMINGS
+                    timetaken = (DateTime.Now - start).TotalMilliseconds;
+                    if (timetaken > 10)
+                    {
+                        UnityEngine.Debug.Log("HandleCollisions (" + MoveNr + "): " + timetaken);
+                        start = DateTime.Now;
+                    }
+#endif
+
+                    LogMoves("New Moves after HandleCollisions", MoveNr, newMoves);
 
                     UpdateUnitPositions(newMoves);
 
+#if MEASURE_TIMINGS
+                    timetaken = (DateTime.Now - start).TotalMilliseconds;
+                    if (timetaken > 10)
+                    {
+                        UnityEngine.Debug.Log("UpdateUnitPositions " + timetaken);
+                        start = DateTime.Now;
+                    }
+#endif
                     ProcessNewMoves();
+
+#if MEASURE_TIMINGS
+                    timetaken = (DateTime.Now - start).TotalMilliseconds;
+                    if (timetaken > 10)
+                    {
+                        UnityEngine.Debug.Log("ProcessNewMoves " + timetaken);
+                        start = DateTime.Now;
+                    }
+#endif
                 }
+
                 mapInfo = new MapInfo();
                 mapInfo.ComputeMapInfo(this, lastMoves);
                 
@@ -1860,7 +1944,6 @@ namespace Engine.Master
                     moveUpdate.Stats = unit.CollectStats();
                     lastMoves.Add(moveUpdate);
                 }
-
 
                 foreach (Player player in Players.Values)
                 {
@@ -1897,12 +1980,19 @@ namespace Engine.Master
                 {
                     //int x = 0;
                 }*/
+#if MEASURE_TIMINGS
+                timetaken = (DateTime.Now - start).TotalMilliseconds;
+                if (timetaken > 10)
+                    UnityEngine.Debug.Log("Complete move " + timetaken);
+#endif
             }
             if (lastMoves.Count >= 0)
             {
                 //OutgoingMoves.Add(MoveNr, lastMoves);
                 MoveNr++;
             }
+
+
             return returnMoves;
         }
         private MapInfo mapInfo;

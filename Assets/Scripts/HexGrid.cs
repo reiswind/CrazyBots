@@ -726,7 +726,7 @@ namespace Assets.Scripts
                     newGameCommands = null;
 
                     double mstotal = (DateTime.Now - tStart).TotalMilliseconds;
-                    if (mstotal > 20)
+                    if (mstotal > 20000)
                         Debug.Log("Move Time: " + mstotal);
 
                     //Debug.Log("Move Time: " + (DateTime.Now.Ticks - iTicks).ToString());

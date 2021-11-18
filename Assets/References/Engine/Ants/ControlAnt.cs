@@ -1,5 +1,6 @@
-﻿using Engine.Algorithms;
+﻿//#define MEASURE_TIMINGS
 
+using Engine.Algorithms;
 using Engine.Interface;
 using Engine.Master;
 using System;
@@ -2246,8 +2247,13 @@ namespace Engine.Ants
 
         public List<Move> Turn(Player player)
         {
-            DateTime start = DateTime.Now;
-            
+#if MEASURE_TIMINGS
+            DateTime start;
+            double timetaken;
+
+            start = DateTime.Now;
+#endif
+
             moveNr++;
             if (moveNr == 106)
             {
@@ -2412,6 +2418,15 @@ namespace Engine.Ants
             }
             unmovedAnts.AddRange(movableAnts);
 
+#if MEASURE_TIMINGS
+            timetaken = (DateTime.Now - start).TotalMilliseconds;
+            if (timetaken > 10)
+            {
+                UnityEngine.Debug.Log("Collected Ants " + timetaken);
+                start = DateTime.Now;
+            }
+#endif
+
             UpdatePheromones(player);
             if (!player.PlayerModel.IsHuman)
             {
@@ -2428,6 +2443,14 @@ namespace Engine.Ants
 
             AttachGamecommands(player, unmovedAnts, moves);
 
+#if MEASURE_TIMINGS
+            timetaken = (DateTime.Now - start).TotalMilliseconds;
+            if (timetaken > 10)
+            {
+                UnityEngine.Debug.Log("Commands " + timetaken);
+                start = DateTime.Now;
+            }
+#endif
             // Execute 
             foreach (Ant ant in unmovedAnts)
             {
@@ -2449,6 +2472,15 @@ namespace Engine.Ants
                 }
             }
 
+#if MEASURE_TIMINGS
+            timetaken = (DateTime.Now - start).TotalMilliseconds;
+            if (timetaken > 10)
+            {
+                UnityEngine.Debug.Log("Execute1 " + timetaken);
+                start = DateTime.Now;
+            }
+#endif
+
             // Any other moves
             unmovedAnts.Clear();
             unmovedAnts.AddRange(movableAnts);
@@ -2459,6 +2491,15 @@ namespace Engine.Ants
                     movableAnts.Remove(ant);
                 }
             }
+
+#if MEASURE_TIMINGS
+            timetaken = (DateTime.Now - start).TotalMilliseconds;
+            if (timetaken > 10)
+            {
+                UnityEngine.Debug.Log("Execute2 " + timetaken);
+                start = DateTime.Now;
+            }
+#endif
 
             movableAnts.Clear();           
             unmovedAnts.Clear();
@@ -2522,6 +2563,15 @@ namespace Engine.Ants
                 //Ants.Remove(ant.Unit.UnitId);
             }
 
+#if MEASURE_TIMINGS
+            timetaken = (DateTime.Now - start).TotalMilliseconds;
+            if (timetaken > 10)
+            {
+                UnityEngine.Debug.Log("Execute3 " + timetaken);
+                start = DateTime.Now;
+            }
+#endif
+
             // Count capacities 
 
             foreach (Ant ant in Ants.Values)
@@ -2546,6 +2596,15 @@ namespace Engine.Ants
                 }
             }
 
+#if MEASURE_TIMINGS
+            timetaken = (DateTime.Now - start).TotalMilliseconds;
+            if (timetaken > 10)
+            {
+                UnityEngine.Debug.Log("Count capacities  " + timetaken);
+                start = DateTime.Now;
+            }
+#endif
+
             foreach (GameCommand gameCommand in player.GameCommands)
             {
                 if (gameCommand.GameCommandType == GameCommandType.Build)
@@ -2558,13 +2617,25 @@ namespace Engine.Ants
                             AntCollect antCollect;
                             if (exceedingMinerals.TryGetValue(gameCommand.TargetZone, out antCollect))
                             {
-                                // Container in build
-                                antCollect.TotalCapacity += 72;
+                                if (gameCommandItem.BlueprintName == "Outpost")
+                                    antCollect.TotalCapacity += 24;
+                                else
+                                    // Container in build
+                                    antCollect.TotalCapacity += 72;
                             }
                         }
                     }
                 }
             }
+#if MEASURE_TIMINGS
+            timetaken = (DateTime.Now - start).TotalMilliseconds;
+            if (timetaken > 10)
+            {
+                UnityEngine.Debug.Log(" player.GameCommands " + timetaken);
+                start = DateTime.Now;
+            }
+#endif
+
             foreach (KeyValuePair<int, AntCollect> keypair in exceedingMinerals)
             {
                 int zoneId = keypair.Key;
@@ -2576,13 +2647,14 @@ namespace Engine.Ants
                 }
             }
 
-            double timeTaken = (DateTime.Now - start).TotalMilliseconds;
-            if (timeTaken > 100)
+#if MEASURE_TIMINGS
+            timetaken = (DateTime.Now - start).TotalMilliseconds;
+            if (timetaken > 10)
             {
-
-                int thisMoveNr = moveNr;
+                UnityEngine.Debug.Log("Turn Done " + timetaken);
+                start = DateTime.Now;
             }
-
+#endif
             return moves;
         }
     }

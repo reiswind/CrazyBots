@@ -510,7 +510,7 @@ namespace Assets.Scripts
                         transitObject.ActivateAtArrival = upgradedPart;
                         transitObject.StartAfterThis = Time.time + (0.5f * HexGrid.MainGrid.GameSpeed);
 
-                        Debug.Log("Transit after " + transitObject.StartAfterThis);
+                        //Debug.Log("Transit after " + transitObject.StartAfterThis);
 
                         // Reset current pos to assembler
                         upgradedPartClone.transform.position = transform.position;
