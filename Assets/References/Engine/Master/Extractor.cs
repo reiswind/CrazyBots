@@ -175,13 +175,6 @@ namespace Engine.Master
                             move.Positions.Add(Unit.Pos);
                             move.Positions.Add(t.Pos);
 
-                            move.Stats = new MoveUpdateStats();
-                            move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
-                            move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
-
-                            TileObject tileObjectCopy = tileObject.Copy();
-                            move.Stats.MoveUpdateGroundStat.TileObjects.Add(tileObjectCopy);
-
                             possibleMoves.Add(move);
                         }
                     }
@@ -257,18 +250,6 @@ namespace Engine.Master
                                     {
                                         possibleMoves.Add(move);
                                     }
-                                    /*
-                                    Move move = new Move();
-
-                                    move.MoveType = MoveType.Extract;
-
-                                    move.UnitId = Unit.UnitId;
-                                    move.OtherUnitId = t.Unit.UnitId;
-                                    move.Positions = new List<Position2>();
-                                    move.Positions.Add(Unit.Pos);
-                                    move.Positions.Add(t.Pos);
-
-                                    possibleMoves.Add(move);*/
                                 }
                             }
                         }
@@ -326,8 +307,6 @@ namespace Engine.Master
                 move.Positions = new List<Position2>();
                 move.Positions.Add(Unit.Pos);
                 move.Positions.Add(otherInit.Pos);
-
-                
             }
             return move;
         }
@@ -397,12 +376,7 @@ namespace Engine.Master
 
         public void ExtractFromUnit(Move move, Unit otherUnit, List<TileObject> removeTileObjects)
         {
-            Ability hitPart = otherUnit.HitBy();
-            if (hitPart == null || hitPart is Shield)
-            {
-                move.MoveType = MoveType.Skip;
-                return;
-            }
+            Ability hitPart = otherUnit.HitBy(true);
 
             if (hitPart.Level == 0 && hitPart.TileContainer != null)
             {
@@ -438,7 +412,7 @@ namespace Engine.Master
             }
         }
 
-        public bool ExtractInto(Unit unit, Move move, Tile fromTile, Game game, Unit otherUnit, TileObject removedTileObject)
+        public bool ExtractInto(Unit unit, Move move, Tile fromTile, Game game, Unit otherUnit, string otherUnitId)
         {
             List<TileObject> removeTileObjects = new List<TileObject>();
 
@@ -477,17 +451,17 @@ namespace Engine.Master
             }
             else
             {
-
-                if (removedTileObject != null)
+                foreach (TileObject tileObject in fromTile.TileObjects)
                 {
-                    if (!TileObject.IsTileObjectTypeCollectable(removedTileObject.TileObjectType))
+                    if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
+                        continue;
+
+                    if (Unit.IsSpaceForTileObject(tileObject))
                     {
-                        throw new Exception();
+                        fromTile.ExtractTileObject(tileObject);
+                        removeTileObjects.Add(tileObject);
+                        break;
                     }
-
-                    fromTile.ExtractTileObject(removedTileObject);
-
-                    removeTileObjects.Add(removedTileObject);
                 }
             }
 

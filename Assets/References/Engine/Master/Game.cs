@@ -1,4 +1,5 @@
 ﻿//#define MEASURE_TIMINGS
+//#define MEASURE_MINS
 
 using Engine.Algorithms;
 using Engine.Ants;
@@ -74,8 +75,7 @@ namespace Engine.Master
 
                 Map.DistributeTileObject(tileObject);
             }
-            // Clear overflow minerals
-            Map.ClearExcessMins();
+
         }
 
         private void Initialize(List<Move> newMoves)
@@ -86,6 +86,8 @@ namespace Engine.Master
             NeutralPlayer = new Player(this, playerModel);
 
             StartWithFactory(newMoves);
+            // Clear overflow minerals
+            Map.ClearExcessMins();
 
             initialized = true;
         }
@@ -201,6 +203,7 @@ namespace Engine.Master
                                 thisUnit.Weapon.EndlessAmmo = true;
                             if (unitModel.EndlessPower)
                                 thisUnit.EndlessPower = true;
+                            /*
                             if (unitModel.ContainerFilled == 0)
                             {
                                 if (thisUnit.Container != null)
@@ -211,7 +214,7 @@ namespace Engine.Master
                                     thisUnit.Reactor.TileContainer.Clear();
                                 if (thisUnit.Assembler != null)
                                     thisUnit.Assembler.TileContainer.Clear();
-                            }
+                            }*/
                             Move move = new Move();
                             move.MoveType = MoveType.Add;
                             move.PlayerId = unitModel.PlayerId;
@@ -509,56 +512,126 @@ namespace Engine.Master
                 }
                 else if (move.MoveType == MoveType.Extract)
                 {
+#if MEASURE_MINS
+                    MapInfo mapInfoPrev = new MapInfo();
+                    mapInfoPrev.ComputeMapInfo(this, null);
+                    int countMin = mapInfoPrev.TotalMetal;
+                    if (move.MoveType != MoveType.Skip)
+                    {
+                        foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
+                        {
+                            if (tileObject.TileObjectType == TileObjectType.Mineral ||
+                                TileObject.CanConvertTileObjectIntoMineral(tileObject.TileObjectType))
+                                countMin++;
+                        }
+                    }
+#endif
+
                     if (move.Stats != null &&
                         move.Stats.MoveUpdateGroundStat != null &&
                         move.Stats.MoveUpdateGroundStat.TileObjects != null)
                     {
-                        // Insert the previously removed tileobjects into the units
+                        List<TileObject> tileObjects = new List<TileObject>();
+                        foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
+                        {
+                            if (TileObject.CanConvertTileObjectIntoMineral(tileObject.TileObjectType))
+                            {
+                                TileObject newTileObject = new TileObject();
+                                newTileObject.TileObjectType = TileObjectType.Mineral;
+                                newTileObject.Direction = tileObject.Direction;
+                                tileObjects.Add(newTileObject);
+                            }
+                            else
+                            {
+                                tileObjects.Add(tileObject);
+                            }
+                        }
+                        // Insert the previously removed tileobjects into the unit
                         Unit unit = Map.Units.GetUnitAt(move.Positions[0]);
                         if (unit != null && unit.Extractor != null)
                         {
-                            List<TileObject> tileObjects = new List<TileObject>();
-                            foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
-                            {
-                                if (TileObject.CanConvertTileObjectIntoMineral(tileObject.TileObjectType))
-                                {
-                                    TileObject newTileObject = new TileObject();
-                                    newTileObject.TileObjectType = TileObjectType.Mineral;
-                                    newTileObject.Direction = tileObject.Direction;
-                                    tileObjects.Add(newTileObject);
-
-                                    //tileObject.TileObjectType = TileObjectType.Mineral;
-                                    //tileObject.Direction = Direction.C;
-                                    //tileObjects.Add(tileObject);
-                                }
-                                else
-                                {
-                                    tileObjects.Add(tileObject);
-                                }
-                            }
                             unit.AddTileObjects(tileObjects);
 
-                            if (tileObjects.Count > 0)
-                            {
-                                Position2 from = move.Positions[move.Positions.Count - 1];
-                                Tile fromTile = Map.GetTile(from);
+                            // Insert an update move, so the client knows that tileobjects have been added
+                            Move moveUpdate = new Move();
+                            moveUpdate.PlayerId = unit.Owner.PlayerModel.Id;
+                            moveUpdate.MoveType = MoveType.UpdateStats;
+                            moveUpdate.UnitId = unit.UnitId;
+                            moveUpdate.Positions = new List<Position2>();
+                            moveUpdate.Positions.Add(unit.Pos);
+                            moveUpdate.Stats = unit.CollectStats();
+                            nextMoves.Add(moveUpdate);
+                        }
+                        if (tileObjects.Count > 0)
+                        {
+                            Position2 from = move.Positions[move.Positions.Count - 1];
+                            Tile fromTile = Map.GetTile(from);
 
-                                foreach (TileObject tileObject in tileObjects)
+                            foreach (TileObject tileObject in tileObjects)
+                            {
+                                if (tileObject.TileObjectType == TileObjectType.Mineral)
                                 {
                                     // Drop Minerals on the floor, distribute anything else on the map
                                     // (No Trees in Buildings)
-                                    if (tileObject.TileObjectType == TileObjectType.Mineral)
-                                        fromTile.Add(tileObject);
-                                    else
-                                        Map.AddOpenTileObject(tileObject);
+                                    fromTile.Add(tileObject);
                                 }
-                                Move updateGroundMove = new Move();
-                                updateGroundMove.MoveType = MoveType.UpdateGround;
-                                updateGroundMove.Positions = new List<Position2>();
-                                updateGroundMove.Positions.Add(from);
-                                CollectGroundStats(from, updateGroundMove);
-                                nextMoves.Add(updateGroundMove);
+                                else
+                                {
+                                    Map.AddOpenTileObject(tileObject);
+                                }
                             }
+                            Move updateGroundMove = new Move();
+                            updateGroundMove.MoveType = MoveType.UpdateGround;
+                            updateGroundMove.Positions = new List<Position2>();
+                            updateGroundMove.Positions.Add(from);
+                            CollectGroundStats(from, updateGroundMove);
+                            nextMoves.Add(updateGroundMove);
+                        }
+                    }
+                    finishedMoves.Add(move);
+
+#if MEASURE_MINS
+                    MapInfo mapInfoNow = new MapInfo();
+                    mapInfoNow.ComputeMapInfo(this, null);
+                    if (mapInfoNow.TotalMetal != countMin)
+                    {
+                        throw new Exception();
+                    }
+#endif
+                }
+                else if (move.MoveType == MoveType.Transport)
+                {
+#if MEASURE_MINS
+                    MapInfo mapInfoPrev = new MapInfo();
+                    mapInfoPrev.ComputeMapInfo(this, null);
+                    int countMin = mapInfoPrev.TotalMetal;
+                    if (move.MoveType != MoveType.Skip)
+                    {
+                        foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
+                        {
+                            if (tileObject.TileObjectType == TileObjectType.Mineral ||
+                                TileObject.CanConvertTileObjectIntoMineral(tileObject.TileObjectType))
+                                countMin++;
+                        }
+                    }
+#endif
+                    if (move.Stats != null)
+                    {
+                        Position2 transportTargetPos = move.Positions[move.Positions.Count - 1];
+                        Unit unit = Map.Units.GetUnitAt(transportTargetPos);
+
+                        if (unit == null)
+                        {
+                            // Target died, transport to ground
+                            Tile unitTile = Map.GetTile(transportTargetPos);
+
+                            if (!changedGroundPositions.ContainsKey(transportTargetPos))
+                                changedGroundPositions.Add(transportTargetPos, null);
+                        }
+                        else
+                        {
+                            // Add transported items
+                            unit.AddTileObjects(move.Stats.MoveUpdateGroundStat.TileObjects);
 
                             // Insert an update move, so the client knows that tileobjects have been added
                             Move moveUpdate = new Move();
@@ -571,36 +644,14 @@ namespace Engine.Master
                             nextMoves.Add(moveUpdate);
                         }
                     }
-                    finishedMoves.Add(move);
-                }
-                else if (move.MoveType == MoveType.Transport)
-                {
-                    Position2 transportTargetPos = move.Positions[move.Positions.Count - 1];
-                    Unit unit = Map.Units.GetUnitAt(transportTargetPos);
-
-                    if (unit == null)
+#if MEASURE_MINS
+                    MapInfo mapInfoNow = new MapInfo();
+                    mapInfoNow.ComputeMapInfo(this, null);
+                    if (mapInfoNow.TotalMetal != countMin)
                     {
-                        // Target died, transport to ground
-                        Tile unitTile = Map.GetTile(transportTargetPos);
-
-                        if (!changedGroundPositions.ContainsKey(transportTargetPos))
-                            changedGroundPositions.Add(transportTargetPos, null);
+                        throw new Exception();
                     }
-                    else
-                    {
-                        // Add transported items
-                        unit.AddTileObjects(move.Stats.MoveUpdateGroundStat.TileObjects);
-
-                        // Insert an update move, so the client knows that tileobjects have been added
-                        Move moveUpdate = new Move();
-                        moveUpdate.PlayerId = unit.Owner.PlayerModel.Id;
-                        moveUpdate.MoveType = MoveType.UpdateStats;
-                        moveUpdate.UnitId = unit.UnitId;
-                        moveUpdate.Positions = new List<Position2>();
-                        moveUpdate.Positions.Add(unit.Pos);
-                        moveUpdate.Stats = unit.CollectStats();
-                        nextMoves.Add(moveUpdate);
-                    }
+#endif
                     finishedMoves.Add(move);
                 }
                 else if (move.MoveType == MoveType.Fire)
@@ -719,7 +770,7 @@ namespace Engine.Master
             {
                 StunUnit(targetUnit);
 
-                Ability hitPart = targetUnit.HitBy();
+                Ability hitPart = targetUnit.HitBy(false);
                 if (hitPart == null || hitPart is Shield)
                 {
                     // Shield was hit
@@ -763,11 +814,11 @@ namespace Engine.Master
                             // Anything but minerals are distributed
                             if (toDrop.TileObjectType != TileObjectType.Mineral)
                             {
-                                Map.AddOpenTileObject(tileObject);
+                                Map.AddOpenTileObject(toDrop);
                             }
                             else
                             {
-                                targetTile.Add(tileObject);
+                                targetTile.Add(toDrop);
                             }
                         }
                     }
@@ -1079,6 +1130,11 @@ namespace Engine.Master
             {
                 if (move.MoveType == MoveType.Extract)
                 {
+#if MEASURE_MINS
+                    MapInfo mapInfoPrev = new MapInfo();
+                    mapInfoPrev.ComputeMapInfo(this, null);
+
+#endif
                     Unit unit = Map.Units.GetUnitAt(move.Positions[0]);
                     if (unit != null && unit.Extractor != null)
                     {
@@ -1088,7 +1144,8 @@ namespace Engine.Master
                         Tile fromTile = Map.GetTile(fromPos);
 
                         Unit otherUnit = null;
-                        TileObject tileObject = null;
+
+                        //TileObject tileObject = null;
                         if (move.OtherUnitId.StartsWith("unit"))
                         {
                             otherUnit = fromTile.Unit;
@@ -1102,11 +1159,11 @@ namespace Engine.Master
                         else
                         {
 
-                            tileObject = move.Stats.MoveUpdateGroundStat.TileObjects[0];
+                            //tileObject = move.Stats.MoveUpdateGroundStat.TileObjects[0];
                         }
                         if (move.MoveType != MoveType.Skip)
                         {
-                            extracted = unit.Extractor.ExtractInto(unit, move, fromTile, this, otherUnit, tileObject);
+                            extracted = unit.Extractor.ExtractInto(unit, move, fromTile, this, otherUnit, move.OtherUnitId);
 
                             if (extracted)
                             {
@@ -1145,47 +1202,51 @@ namespace Engine.Master
                         // move failed, no unit or no extractor
                         move.MoveType = MoveType.Skip;
                     }
-
+#if MEASURE_MINS
+                    MapInfo mapInfoNow = new MapInfo();
+                    mapInfoNow.ComputeMapInfo(this, null);
+                    int countMin = 0;
+                    if (move.MoveType != MoveType.Skip)
+                    {
+                        foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
+                        {
+                            if (tileObject.TileObjectType == TileObjectType.Mineral ||
+                                TileObject.CanConvertTileObjectIntoMineral(tileObject.TileObjectType))
+                                countMin++;
+                        }
+                    }
+                    if (mapInfoNow.TotalMetal + countMin != mapInfoPrev.TotalMetal)
+                    {
+                        throw new Exception();
+                    }
+#endif
                 }
                 else if (move.MoveType == MoveType.Fire)
                 {
+#if MEASURE_MINS
+                    MapInfo mapInfoPrev = new MapInfo();
+                    mapInfoPrev.ComputeMapInfo(this, null);
+#endif
+
                     if (!ProcessNewFireMove(move))
                         move.MoveType = MoveType.Skip;
 
-                    /*
-                    Unit fireingUnit = Map.Units.GetUnitAt(move.Positions[0]);
-                    if (fireingUnit != null && fireingUnit.Weapon != null)
+#if MEASURE_MINS
+                    MapInfo mapInfoNow = new MapInfo();
+                    mapInfoNow.ComputeMapInfo(this, null);
+                    if (mapInfoNow.TotalMetal != mapInfoPrev.TotalMetal)
                     {
-                        List<TileObject> removedTileObjects = new List<TileObject>();
-
-                        if (fireingUnit.Weapon.EndlessAmmo)
-                        {
-                            TileObject tileObject = new TileObject();
-                            tileObject.TileObjectType = TileObjectType.Mineral;
-                            removedTileObjects.Add(tileObject);
-                        }
-                        else
-                        {
-                            fireingUnit.RemoveTileObjects(removedTileObjects, 1, TileObjectType.All, null);
-                        }
-                        if (removedTileObjects.Count > 0)
-                        {
-                            move.Stats = fireingUnit.CollectStats();
-                            move.Stats.MoveUpdateGroundStat = new MoveUpdateGroundStat();
-                            move.Stats.MoveUpdateGroundStat.TileObjects = new List<TileObject>();
-                            move.Stats.MoveUpdateGroundStat.TileObjects.AddRange (removedTileObjects);
-                            
-                            if (!changedUnits.ContainsKey(fireingUnit.Pos))
-                                changedUnits.Add(fireingUnit.Pos, fireingUnit);
-
-                            lastMoves.Add(move);
-
-                            HitByBullet(move, lastMoves);
-                        }
-                    }*/
+                        throw new Exception();
+                    }
+#endif
                 }
                 else if (move.MoveType == MoveType.Transport)
                 {
+#if MEASURE_MINS
+                    MapInfo mapInfoPrev = new MapInfo();
+                    mapInfoPrev.ComputeMapInfo(this, null);
+
+#endif
                     Unit sendingUnit = Map.Units.GetUnitAt(move.Positions[0]);
                     if (sendingUnit != null && sendingUnit.Container != null)
                     {
@@ -1208,6 +1269,24 @@ namespace Engine.Master
                     }
                     if (move.MoveType != MoveType.Skip)
                         lastMoves.Add(move);
+#if MEASURE_MINS
+                    MapInfo mapInfoNow = new MapInfo();
+                    mapInfoNow.ComputeMapInfo(this, null);
+                    int countMin = 0;
+                    if (move.MoveType != MoveType.Skip)
+                    {
+                        foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
+                        {
+                            if (tileObject.TileObjectType == TileObjectType.Mineral ||
+                                TileObject.CanConvertTileObjectIntoMineral(tileObject.TileObjectType))
+                                countMin++;
+                        }
+                    }
+                    if (mapInfoNow.TotalMetal + countMin != mapInfoPrev.TotalMetal)
+                    {
+                        throw new Exception();
+                    }
+#endif
                 }
             }
             newMoves.Clear();
@@ -1454,11 +1533,11 @@ namespace Engine.Master
             }
             if (loopCounter > 10)
             {
-                UnityEngine.Debug.Log("Loops " + loopCounter);
+                //UnityEngine.Debug.Log("Loops " + loopCounter);
             }
             if (moveToTargets.Count > 100)
             {
-                UnityEngine.Debug.Log("moveToTargets " + moveToTargets.Count);
+                //UnityEngine.Debug.Log("moveToTargets " + moveToTargets.Count);
             }
             List<Move> revokedMoves = new List<Move>();
             List<Move> unblockedMoves = new List<Move>();
@@ -1689,24 +1768,29 @@ namespace Engine.Master
             moveUpdateGroundStat.ZoneId = t.ZoneId;
         }
 
+        private int minsAfterStart;
+
         public List<Move> ProcessMove(int playerId, Move myMove, List<MapGameCommand> gameCommands)
         {
             List<Move> returnMoves = new List<Move>();
-            //lock (GameModel)
+
+            if (myMove != null && myMove.MoveType == MoveType.UpdateAll)
             {
-                if (myMove != null && myMove.MoveType == MoveType.UpdateAll)
-                {
-                    UpdateAll(playerId, returnMoves);
-                    return returnMoves;
-                }
+                UpdateAll(playerId, returnMoves);
+                return returnMoves;
+            }
+#if MEASURE_MINS
+            MapInfo mapInfoProcessFirstMoves = new MapInfo();
+            mapInfoProcessFirstMoves.ComputeMapInfo(this, lastMoves);
+            if (minsAfterStart != 0 &&
+                mapInfoProcessFirstMoves.TotalMetal != minsAfterStart)
+            {
+            }
+#endif
 
-                if (MoveNr == 68 || MoveNr == 168)
-                {
 
-                }
-
-                changedUnits.Clear();
-                changedGroundPositions.Clear();
+            changedUnits.Clear();
+            changedGroundPositions.Clear();
 
 #if MEASURE_TIMINGS
                 DateTime start;
@@ -1725,329 +1809,351 @@ namespace Engine.Master
                 }
 #endif
 
+            PathFinderFast.CalculatedPaths = 0;
 
+            bool first = false;
+            if (!initialized)
+            {
+                first = true;
+
+                CreateTileObjects(999);
+                AddChangedGroundInfoMoves(newMoves);
+                Initialize(newMoves);
+            }
+            else
+            {
+                // Replace mins
                 /*
-                MapInfo mapInfo1 = new MapInfo();
-                mapInfo1.ComputeMapInfo(this, null);
-
-                if (mapInfo != null && mapInfo1.TotalMetal != mapInfo.TotalMetal)
+                foreach (TileObject tileObject in Map.OpenTileObjects)
                 {
-                    int x = 0;
-                }
-                */
-                bool first = false;
-                if (!initialized)
-                {
-                    first = true;
-
-                    CreateTileObjects(999);
-                    AddChangedGroundInfoMoves(newMoves);
-                    Initialize(newMoves);
-                }
-                else
-                {
-                    // Replace mins
-                    /*
-                    foreach (TileObject tileObject in Map.OpenTileObjects)
+                    if (tileObject.TileObjectType == TileObjectType.Mineral)
                     {
-                        if (tileObject.TileObjectType == TileObjectType.Mineral)
-                        {
-                            Map.DistributeTileObject(tileObject);
-                            Map.OpenTileObjects.Remove(tileObject);
-                            break;
-                        }
-                    }*/
+                        Map.DistributeTileObject(tileObject);
+                        Map.OpenTileObjects.Remove(tileObject);
+                        break;
+                    }
+                }*/
 
-                    // Place tile objects (For Debug)
-                    CreateTileObjects(1);
+                // Place tile objects (For Debug)
+                CreateTileObjects(1);
 #if DEBUG
-                    Validate(lastMoves);
+                Validate(lastMoves);
 #endif
 
-                    if (lastMoves.Count > 0)
-                    {
-                        //MapInfo mapInfoLast = new MapInfo();
-                        //mapInfoLast.ComputeMapInfo(this, lastMoves);
-
-                        // Remove moves that have been processed
-                        ProcessLastMoves();
-
-                        /*
-                        MapInfo mapInfoLast1 = new MapInfo();
-                        mapInfoLast1.ComputeMapInfo(this, lastMoves);
-
-                        if (mapInfoLast.TotalMetal != mapInfoLast1.TotalMetal)
-                        {
-                            int x = 0;
-                        }*/
-
-                        //if (lastMoves.Count > 0)
-                        {
-                            // Follow up moves (units have been hit i.e. and must be removed. This is a result of the
-                            // last move. Update the players unit list (delete moves are called double in this case)
-                            foreach (Player player in Players.Values)
-                            {
-                                //player.ProcessMoves(lastMoves);
-                                if (player.Control != null)
-                                    player.Control.ProcessMoves(player, lastMoves);
-                                player.Discoveries.Clear();
-                            }
-                            newMoves.AddRange(lastMoves);
-                            lastMoves.Clear();
-
-                            // Only once for all
-                            foreach (Unit unit in Map.Units.List.Values)
-                            {
-                                if (unit.Owner.PlayerModel.Id != 0)
-                                {
-                                    Player player = Players[unit.Owner.PlayerModel.Id];
-                                    player.CollectVisiblePos(unit);
-                                }
-                            }
-                            foreach (Player player in Players.Values)
-                            {
-                                List<Position2> hidePositions = new List<Position2>();
-                                foreach (PlayerVisibleInfo playerVisibleInfo in player.VisiblePositions.Values)
-                                {
-                                    if (playerVisibleInfo.LastUpdated < MoveNr)
-                                    {
-                                        hidePositions.Add(playerVisibleInfo.Pos);
-                                    }
-                                }
-                                foreach (Position2 pos in hidePositions)
-                                {
-                                    player.VisiblePositions.Remove(pos);
-                                    if (!changedGroundPositions.ContainsKey(pos))
-                                        changedGroundPositions.Add(pos, null);
-                                }
-                            }
-
-                        }
-                    }
-                }
-
-                List<Unit> allStunnedUnits = new List<Unit>();
-                allStunnedUnits.AddRange(stunnedUnits);
-
-                foreach (Unit unit in allStunnedUnits)
-                {
-                    unit.Stunned--;
-                    if (unit.Stunned == 0)
-                    {
-                        stunnedUnits.Remove(unit);
-                    }
-                }
-
-                if (gameCommands != null)
-                {
-                    foreach (MapGameCommand mapGameCommand in gameCommands)
-                    {
-                        GameCommand gameCommand = new GameCommand();
-
-                        gameCommand.DeleteWhenFinished = mapGameCommand.DeleteWhenFinished;
-                        gameCommand.CommandCanceled = mapGameCommand.CommandCanceled;
-                        gameCommand.CommandComplete = mapGameCommand.CommandComplete;
-                        gameCommand.GameCommandType = mapGameCommand.GameCommandType;
-                        gameCommand.MoveToPosition = mapGameCommand.MoveToPosition;
-                        gameCommand.PlayerId = mapGameCommand.PlayerId;
-                        gameCommand.TargetPosition = mapGameCommand.TargetPosition;
-                        gameCommand.TargetZone = mapGameCommand.TargetZone;
-
-                        gameCommand.Radius = mapGameCommand.Radius;
-                        gameCommand.Layout = mapGameCommand.Layout;
-
-                        if (gameCommand.Radius > 0)
-                        {
-                            if (mapGameCommand.GameCommandType == GameCommandType.Move)
-                                gameCommand.IncludedPositions = Map.EnumerateTiles(gameCommand.MoveToPosition, gameCommand.Radius, true);
-                            else
-                                gameCommand.IncludedPositions = Map.EnumerateTiles(gameCommand.TargetPosition, gameCommand.Radius, true);
-                        }
-
-                        foreach (MapGameCommandItem mapGameCommandItem in mapGameCommand.GameCommandItems)
-                        {
-                            GameCommandItem gameCommandItem = new GameCommandItem(gameCommand);
-                            gameCommandItem.Position3 = mapGameCommandItem.Position3;
-                            gameCommandItem.BlueprintName = mapGameCommandItem.BlueprintName;
-                            gameCommandItem.Direction = mapGameCommandItem.Direction;
-                            gameCommandItem.Status = mapGameCommandItem.Status;
-
-                            gameCommandItem.RotatedPosition3 = mapGameCommandItem.RotatedPosition3;
-                            gameCommandItem.RotatedDirection = mapGameCommandItem.RotatedDirection;
-
-                            gameCommand.GameCommandItems.Add(gameCommandItem);
-                        }
-
-                        Player player;
-
-                        if (Players.TryGetValue(mapGameCommand.PlayerId, out player))
-                        {
-                            player.GameCommands.Add(gameCommand);
-                        }
-                    }
-                }
-                Pheromones.Evaporate();
-
-#if MEASURE_TIMINGS
-                timetaken = (DateTime.Now - start).TotalMilliseconds;
-                if (timetaken > 10)
-                    UnityEngine.Debug.Log("Prepare move Time " + timetaken);
+#if MEASURE_MINS
+                MapInfo mapInfoProcessLastMoves = new MapInfo();
+                mapInfoProcessLastMoves.ComputeMapInfo(this, lastMoves);
 #endif
-
-
-                if (!first && lastMoves.Count == 0)
+                if (lastMoves.Count > 0)
                 {
-                    // New move
-                    bool allPlayersMoved = CollectNewMoves(myMove);
-                    if (!allPlayersMoved)
-                    {
-                        return lastMoves;
-                    }
-#if MEASURE_TIMINGS
-                    timetaken = (DateTime.Now - start).TotalMilliseconds;
-                    if (timetaken > 10)
-                    {
-                        UnityEngine.Debug.Log("CollectNewMoves " + timetaken);
-                        start = DateTime.Now;
-                    }
-#endif
+                    // Remove moves that have been processed
+                    ProcessLastMoves();
 
-                }
-
-                if (first)
-                {
-                    lastMoves.AddRange(newMoves);
-                    newMoves.Clear();
-                }
-                else
-                {
-                    //MapInfo mapInfoPrev = new MapInfo();
-                    //mapInfoPrev.ComputeMapInfo(this, newMoves);
-
-                    LogMoves("Process new Moves " + Seed, MoveNr, newMoves);
-                    if (MoveNr == 217)
-                    {
-                        //start = DateTime.Now;
-                    }
-
-#if MEASURE_TIMINGS
-                    List<Move> beforeHandle = new List<Move>();
-                    beforeHandle.AddRange(newMoves);
-#endif
-                    // Check collisions and change moves if units collide or get destroyed
-                    HandleCollisions(newMoves);
-
-#if MEASURE_TIMINGS
-                    timetaken = (DateTime.Now - start).TotalMilliseconds;
-                    if (timetaken > 10)
-                    {
-                        UnityEngine.Debug.Log("HandleCollisions (" + MoveNr + "): " + timetaken);
-                        start = DateTime.Now;
-                    }
-#endif
-
-                    LogMoves("New Moves after HandleCollisions", MoveNr, newMoves);
-
-                    UpdateUnitPositions(newMoves);
-
-#if MEASURE_TIMINGS
-                    timetaken = (DateTime.Now - start).TotalMilliseconds;
-                    if (timetaken > 10)
-                    {
-                        UnityEngine.Debug.Log("UpdateUnitPositions " + timetaken);
-                        start = DateTime.Now;
-                    }
-#endif
-                    ProcessNewMoves();
-
-#if MEASURE_TIMINGS
-                    timetaken = (DateTime.Now - start).TotalMilliseconds;
-                    if (timetaken > 10)
-                    {
-                        UnityEngine.Debug.Log("ProcessNewMoves " + timetaken);
-                        start = DateTime.Now;
-                    }
-#endif
-                }
-
-                mapInfo = new MapInfo();
-                mapInfo.ComputeMapInfo(this, lastMoves);
-
-                //if (mapInfoPrev.TotalMetal != mapInfo.TotalMetal)
-                {
-
-                }
-
-                foreach (Player player in Players.Values)
-                {
-                    ConsumePower(player, lastMoves);
-                }
-
-
-                ProcessBorders();
-
-                foreach (Unit unit in changedUnits.Values)
-                {
-                    Move moveUpdate = new Move();
-                    moveUpdate.PlayerId = unit.Owner.PlayerModel.Id;
-                    moveUpdate.MoveType = MoveType.UpdateStats;
-                    moveUpdate.UnitId = unit.UnitId;
-                    moveUpdate.Positions = new List<Position2>();
-                    moveUpdate.Positions.Add(unit.Pos);
-                    moveUpdate.Stats = unit.CollectStats();
-                    lastMoves.Add(moveUpdate);
-                }
-
-                foreach (Player player in Players.Values)
-                {
-                    if (player.PlayerModel.Id == playerId)
+                    // Follow up moves (units have been hit i.e. and must be removed. This is a result of the
+                    // last move. Update the players unit list (delete moves are called double in this case)
+                    foreach (Player player in Players.Values)
                     {
                         //player.ProcessMoves(lastMoves);
-                        returnMoves = lastMoves;
-                    }
-                    else
-                    {
-                        //player.ProcessMoves(lastMoves);
-
                         if (player.Control != null)
                             player.Control.ProcessMoves(player, lastMoves);
+                        player.Discoveries.Clear();
+                    }
+                    newMoves.AddRange(lastMoves);
+                    lastMoves.Clear();
+
+                    // Only once for all
+                    foreach (Unit unit in Map.Units.List.Values)
+                    {
+                        if (unit.Owner.PlayerModel.Id != 0)
+                        {
+                            Player player = Players[unit.Owner.PlayerModel.Id];
+                            player.CollectVisiblePos(unit);
+                        }
+                    }
+                    foreach (Player player in Players.Values)
+                    {
+                        List<Position2> hidePositions = new List<Position2>();
+                        foreach (PlayerVisibleInfo playerVisibleInfo in player.VisiblePositions.Values)
+                        {
+                            if (playerVisibleInfo.LastUpdated < MoveNr)
+                            {
+                                hidePositions.Add(playerVisibleInfo.Pos);
+                            }
+                        }
+                        foreach (Position2 pos in hidePositions)
+                        {
+                            player.VisiblePositions.Remove(pos);
+                            if (!changedGroundPositions.ContainsKey(pos))
+                                changedGroundPositions.Add(pos, null);
+                        }
                     }
                 }
-                // Add changed ground info
-                AddChangedGroundInfoMoves(lastMoves);
-
-                //CreateAreas();
-                if (playerId == 0)
+#if MEASURE_MINS
+                MapInfo mapInfoProcessLastMoves1 = new MapInfo();
+                mapInfoProcessLastMoves1.ComputeMapInfo(this, null);
+                if (mapInfoProcessLastMoves1.TotalMetal != mapInfoProcessLastMoves.TotalMetal)
                 {
-                    returnMoves = lastMoves;
-#if DEBUG
-                    Validate(returnMoves);
-#endif
+                    throw new Exception();
                 }
+#endif
+            }
 
+            List<Unit> allStunnedUnits = new List<Unit>();
+            allStunnedUnits.AddRange(stunnedUnits);
 
-                /*MapInfo mapInfo2 = new MapInfo();
-                mapInfo2.ComputeMapInfo(this);
-
-                if (mapInfo1.TotalMetal != mapInfo2.TotalMetal)
+            foreach (Unit unit in allStunnedUnits)
+            {
+                unit.Stunned--;
+                if (unit.Stunned == 0)
                 {
-                    //int x = 0;
-                }*/
+                    stunnedUnits.Remove(unit);
+                }
+            }
+
+            if (gameCommands != null)
+            {
+                foreach (MapGameCommand mapGameCommand in gameCommands)
+                {
+                    GameCommand gameCommand = new GameCommand();
+
+                    gameCommand.DeleteWhenFinished = mapGameCommand.DeleteWhenFinished;
+                    gameCommand.CommandCanceled = mapGameCommand.CommandCanceled;
+                    gameCommand.CommandComplete = mapGameCommand.CommandComplete;
+                    gameCommand.GameCommandType = mapGameCommand.GameCommandType;
+                    gameCommand.MoveToPosition = mapGameCommand.MoveToPosition;
+                    gameCommand.PlayerId = mapGameCommand.PlayerId;
+                    gameCommand.TargetPosition = mapGameCommand.TargetPosition;
+                    gameCommand.TargetZone = mapGameCommand.TargetZone;
+
+                    gameCommand.Radius = mapGameCommand.Radius;
+                    gameCommand.Layout = mapGameCommand.Layout;
+
+                    if (gameCommand.Radius > 0)
+                    {
+                        if (mapGameCommand.GameCommandType == GameCommandType.Move)
+                            gameCommand.IncludedPositions = Map.EnumerateTiles(gameCommand.MoveToPosition, gameCommand.Radius, true);
+                        else
+                            gameCommand.IncludedPositions = Map.EnumerateTiles(gameCommand.TargetPosition, gameCommand.Radius, true);
+                    }
+
+                    foreach (MapGameCommandItem mapGameCommandItem in mapGameCommand.GameCommandItems)
+                    {
+                        GameCommandItem gameCommandItem = new GameCommandItem(gameCommand);
+                        gameCommandItem.Position3 = mapGameCommandItem.Position3;
+                        gameCommandItem.BlueprintName = mapGameCommandItem.BlueprintName;
+                        gameCommandItem.Direction = mapGameCommandItem.Direction;
+                        gameCommandItem.Status = mapGameCommandItem.Status;
+
+                        gameCommandItem.RotatedPosition3 = mapGameCommandItem.RotatedPosition3;
+                        gameCommandItem.RotatedDirection = mapGameCommandItem.RotatedDirection;
+
+                        gameCommand.GameCommandItems.Add(gameCommandItem);
+                    }
+
+                    Player player;
+
+                    if (Players.TryGetValue(mapGameCommand.PlayerId, out player))
+                    {
+                        player.GameCommands.Add(gameCommand);
+                    }
+                }
+            }
+            Pheromones.Evaporate();
+
+#if MEASURE_TIMINGS
+            timetaken = (DateTime.Now - start).TotalMilliseconds;
+            if (timetaken > 10)
+                UnityEngine.Debug.Log("Prepare move Time " + timetaken);
+#endif
+
+            if (!first && lastMoves.Count == 0)
+            {
+#if MEASURE_MINS
+                MapInfo mapInfoProcessCollectMoves = new MapInfo();
+                mapInfoProcessCollectMoves.ComputeMapInfo(this, null);
+#endif
+
+                // New move
+                bool allPlayersMoved = CollectNewMoves(myMove);
+
+#if MEASURE_MINS
+                MapInfo mapInfoProcessCollectMoves1 = new MapInfo();
+                mapInfoProcessCollectMoves1.ComputeMapInfo(this, null);
+                if (MoveNr > 0 && mapInfoProcessCollectMoves1.TotalMetal != mapInfoProcessCollectMoves.TotalMetal)
+                {
+                    throw new Exception();
+                }
+#endif
+
+                if (!allPlayersMoved)
+                {
+                    return lastMoves;
+                }
 #if MEASURE_TIMINGS
                 timetaken = (DateTime.Now - start).TotalMilliseconds;
                 if (timetaken > 10)
-                    UnityEngine.Debug.Log("Complete move " + timetaken);
+                {
+                    UnityEngine.Debug.Log("CollectNewMoves " + timetaken);
+                    start = DateTime.Now;
+                }
 #endif
             }
+
+            if (first)
+            {
+                lastMoves.AddRange(newMoves);
+                newMoves.Clear();
+            }
+            else
+            {
+#if MEASURE_MINS
+                MapInfo mapInfoProcessHandleMoves = new MapInfo();
+                mapInfoProcessHandleMoves.ComputeMapInfo(this, null);
+#endif
+
+                LogMoves("Process new Moves " + Seed, MoveNr, newMoves);
+
+#if MEASURE_TIMINGS
+                List<Move> beforeHandle = new List<Move>();
+                beforeHandle.AddRange(newMoves);
+#endif
+                // Check collisions and change moves if units collide or get destroyed
+                HandleCollisions(newMoves);
+
+#if MEASURE_TIMINGS
+                timetaken = (DateTime.Now - start).TotalMilliseconds;
+                if (timetaken > 10)
+                {
+                    UnityEngine.Debug.Log("HandleCollisions (" + MoveNr + "): " + timetaken);
+                    start = DateTime.Now;
+                }
+#endif
+
+                LogMoves("New Moves after HandleCollisions", MoveNr, newMoves);
+
+                UpdateUnitPositions(newMoves);
+
+#if MEASURE_TIMINGS
+                timetaken = (DateTime.Now - start).TotalMilliseconds;
+                if (timetaken > 10)
+                {
+                    UnityEngine.Debug.Log("UpdateUnitPositions " + timetaken);
+                    start = DateTime.Now;
+                }
+#endif
+#if MEASURE_MINS
+                MapInfo mapInfoProcessHandleMoves1 = new MapInfo();
+                mapInfoProcessHandleMoves1.ComputeMapInfo(this, null);
+                if (mapInfoProcessHandleMoves1.TotalMetal != mapInfoProcessHandleMoves.TotalMetal)
+                {
+                    throw new Exception();
+                }
+#endif
+
+
+#if MEASURE_MINS
+                MapInfo mapInfoProcessNewMoves = new MapInfo();
+                mapInfoProcessNewMoves.ComputeMapInfo(this, null);
+#endif
+
+                ProcessNewMoves();
+#if MEASURE_MINS
+                MapInfo mapInfoProcessNewMoves1 = new MapInfo();
+                mapInfoProcessNewMoves1.ComputeMapInfo(this, lastMoves);
+                if (MoveNr > 0 && mapInfoProcessNewMoves1.TotalMetal != mapInfoProcessNewMoves.TotalMetal)
+                {
+                    throw new Exception();
+                }
+#endif
+#if MEASURE_TIMINGS
+                timetaken = (DateTime.Now - start).TotalMilliseconds;
+                if (timetaken > 10)
+                {
+                    UnityEngine.Debug.Log("ProcessNewMoves " + timetaken);
+                    start = DateTime.Now;
+                }
+#endif
+            }
+            mapInfo = new MapInfo();
+            mapInfo.ComputeMapInfo(this, lastMoves);
+            if (minsAfterStart == 0)
+                minsAfterStart = mapInfo.TotalMetal;
+            else
+            {
+                if (minsAfterStart != mapInfo.TotalMetal)
+                {
+                }
+            }
+            foreach (Player player in Players.Values)
+            {
+                ConsumePower(player, lastMoves);
+            }
+#if MEASURE_MINS
+            MapInfo mapInfoProcessExitMoves = new MapInfo();
+            mapInfoProcessExitMoves.ComputeMapInfo(this, lastMoves);
+            if (minsAfterStart != 0 &&
+                mapInfoProcessExitMoves.TotalMetal != minsAfterStart)
+            {
+            }
+#endif
+            ProcessBorders();
+
+            foreach (Unit unit in changedUnits.Values)
+            {
+                Move moveUpdate = new Move();
+                moveUpdate.PlayerId = unit.Owner.PlayerModel.Id;
+                moveUpdate.MoveType = MoveType.UpdateStats;
+                moveUpdate.UnitId = unit.UnitId;
+                moveUpdate.Positions = new List<Position2>();
+                moveUpdate.Positions.Add(unit.Pos);
+                moveUpdate.Stats = unit.CollectStats();
+                lastMoves.Add(moveUpdate);
+            }
+
+            foreach (Player player in Players.Values)
+            {
+                if (player.PlayerModel.Id == playerId)
+                {
+                    //player.ProcessMoves(lastMoves);
+                    returnMoves = lastMoves;
+                }
+                else
+                {
+                    //player.ProcessMoves(lastMoves);
+
+                    if (player.Control != null)
+                        player.Control.ProcessMoves(player, lastMoves);
+                }
+            }
+            // Add changed ground info
+            AddChangedGroundInfoMoves(lastMoves);
+
+            //CreateAreas();
+            if (playerId == 0)
+            {
+                returnMoves = lastMoves;
+#if DEBUG
+                Validate(returnMoves);
+#endif
+            }
+
+
+#if MEASURE_TIMINGS
+            timetaken = (DateTime.Now - start).TotalMilliseconds;
+            if (timetaken > 10)
+                UnityEngine.Debug.Log("Complete move " + timetaken);
+#endif
+
+
+
             if (lastMoves.Count >= 0)
             {
                 //OutgoingMoves.Add(MoveNr, lastMoves);
                 MoveNr++;
             }
-
-
             return returnMoves;
         }
+
         private MapInfo mapInfo;
 
         public MapInfo GetDebugMapInfo()

@@ -1,4 +1,5 @@
 ﻿//#define MEASURE_TIMINGS
+#define MEASURE_TIMINGS1
 
 using Engine.Algorithms;
 using Engine.Interface;
@@ -442,6 +443,14 @@ namespace Engine.Ants
 
         public void CreateCommandForContainerInZone(Player player, int zoneId)
         {
+#if MEASURE_TIMINGS1
+            DateTime start;
+            double timetaken;
+
+            start = DateTime.Now;
+#endif
+
+
             if (player.PlayerModel.IsHuman)
                 return;
             MapZone mapZone = player.Game.Map.Zones[zoneId];
@@ -500,7 +509,14 @@ namespace Engine.Ants
                     }
                 }
             }
-            
+
+#if MEASURE_TIMINGS1
+            timetaken = (DateTime.Now - start).TotalMilliseconds;
+            if (timetaken > 10)
+            {
+                start = DateTime.Now;
+            }
+#endif
 
             int bestScore = 0;
             List<Position2> possibleBuildLocations = new List<Position2>();
@@ -516,10 +532,22 @@ namespace Engine.Ants
             AddBuildLocation(suggestedBuildLocations, center, Direction.NW);
             AddBuildLocation(suggestedBuildLocations, center, Direction.NE);
 
+#if MEASURE_TIMINGS1
+            timetaken = (DateTime.Now - start).TotalMilliseconds;
+            if (timetaken > 10)
+            {
+                start = DateTime.Now;
+            }
+#endif
+
+            int loopCount = 0;
+
             foreach (Position2 suggestedBuildLocation in suggestedBuildLocations)
             {
                 foreach (Ant ant in neighborContainers)
                 {
+                    loopCount++;
+
                     // Draw a line from each container
                     Position3 to = new Position3(suggestedBuildLocation);
                     Position3 from = new Position3(ant.Unit.Pos);
@@ -554,6 +582,7 @@ namespace Engine.Ants
                         }
 
                         // Can the location be reached?
+                        /*
                         bool pathPossible = false;
                         foreach (Ant antAssembler in neighborAssemblers)
                         {
@@ -565,6 +594,7 @@ namespace Engine.Ants
                         }
                         if (!pathPossible)
                             continue;
+                        */
 
                         // Count number of containers in range
                         int score = 0;
@@ -593,7 +623,16 @@ namespace Engine.Ants
                     
                 }
             }
-
+#if MEASURE_TIMINGS1
+            timetaken = (DateTime.Now - start).TotalMilliseconds;
+            if (timetaken > 15)
+            {
+                start = DateTime.Now;
+            }
+#endif
+            if (loopCount > 100)
+            {
+            }
             if (possibleBuildLocations.Count > 0)
             {
                 // pick a rondom of the best
@@ -601,10 +640,10 @@ namespace Engine.Ants
                 Position2 buildPosition = possibleBuildLocations[idx];
 
                 int chanceoutpost = player.Game.Random.Next(10);
-                chanceoutpost = 0;
+                //chanceoutpost = 1;
                 foreach (BlueprintCommand blueprintCommand in player.Game.Blueprints.Commands)
                 {
-                    if (chanceoutpost == 1 && blueprintCommand.Name == "Outpost")
+                    if (chanceoutpost < 4 && blueprintCommand.Name == "Outpost")
                     {
                         GameCommand gameCommand = new GameCommand(blueprintCommand);
 

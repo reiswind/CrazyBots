@@ -282,21 +282,24 @@ namespace Engine.Master
                 {
                     tileObject = Assembler.TileContainer.RemoveTileObject(ingredient.TileObjectType);
                 }
-                if (Container != null && Container.TileContainer != null && Container.TileContainer.Contains(ingredient.TileObjectType))
+                if (tileObject == null &&
+                    Container != null && Container.TileContainer != null && Container.TileContainer.Contains(ingredient.TileObjectType))
                 {
                     tileObject = Container.TileContainer.RemoveTileObject(ingredient.TileObjectType);
                 }
-                if (ingredient.Source == TileObjectType.PartReactor &&
+                if (tileObject == null &&
+                    ingredient.Source == TileObjectType.PartReactor &&
                     Reactor != null && Reactor.TileContainer != null && Reactor.TileContainer.Contains(ingredient.TileObjectType))
                 {
                     tileObject = Reactor.TileContainer.RemoveTileObject(ingredient.TileObjectType);
                 }
-                if (ingredient.Source == TileObjectType.PartWeapon &&
+                if (tileObject == null &&
+                    ingredient.Source == TileObjectType.PartWeapon &&
                     Weapon != null && Weapon.TileContainer != null && Weapon.TileContainer.Contains(ingredient.TileObjectType))
                 {
                     tileObject = Reactor.TileContainer.RemoveTileObject(ingredient.TileObjectType);
                 }
-                if (changedUnits != null && !changedUnits.ContainsKey(Pos))
+                if (tileObject != null && changedUnits != null && !changedUnits.ContainsKey(Pos))
                     changedUnits.Add(Pos, this);
             }
             else
@@ -859,7 +862,7 @@ namespace Engine.Master
             moveRecipe.Ingredients.Clear();
             foreach (MoveRecipeIngredient realIngredient in realIngredients)
             {
-                ConsumeIngredient(realIngredient, changedUnits);
+                TileObject consumedObject = ConsumeIngredient(realIngredient, changedUnits);
                 moveRecipe.Ingredients.Add(realIngredient);
             }
 
@@ -873,7 +876,7 @@ namespace Engine.Master
             return results;
         }
 
-        public Ability HitBy()
+        public Ability HitBy(bool ignoreShield)
         {
             if (IsDead())
             {
@@ -883,7 +886,7 @@ namespace Engine.Master
             }
             Ability partHit = null;
 
-            if (Armor != null)
+            if (!ignoreShield && Armor != null)
             {
                 if (Armor.ShieldActive)
                 {

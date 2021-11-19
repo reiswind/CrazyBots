@@ -216,10 +216,11 @@ namespace Engine.Algorithms
             mStop = true;
         }
 
-
+        public static int CalculatedPaths;
 
         public List<Position2> FindPath(Unit unit, Position2 start, Position2 end, bool ignoreIfToIsOccupied = false)
         {
+            CalculatedPaths++;
             //lock(this)
             {
                 //HighResolutionTime.Start();

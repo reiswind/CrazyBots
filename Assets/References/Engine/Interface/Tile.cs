@@ -191,19 +191,25 @@ namespace Engine.Interface
             {
                 if (tileObject.TileObjectType == removedTileObject.TileObjectType)
                 {
+                    TileContainer.Remove(tileObject);
+
                     if (tileObject.TileObjectType == TileObjectType.Tree)
                     {
-                        tileObject.TileObjectType = TileObjectType.TreeTrunk;
+                        TileObject newTileObject = new TileObject();
+                        newTileObject.TileObjectType = TileObjectType.TreeTrunk;
+                        newTileObject.Direction = tileObject.Direction;
+                        TileContainer.Add(newTileObject);
+
                         Map.BioMass++;
                     }
                     else if (tileObject.TileObjectType == TileObjectType.Bush)
                     {
-                        tileObject.TileObjectType = TileObjectType.Gras;
+                        TileObject newTileObject = new TileObject();
+                        newTileObject.TileObjectType = TileObjectType.Gras;
+                        newTileObject.Direction = tileObject.Direction;
+                        TileContainer.Add(newTileObject);
+
                         Map.BioMass++;
-                    }
-                    else
-                    {
-                        TileContainer.Remove(tileObject);
                     }
                     UpdateCache();
                     break;
