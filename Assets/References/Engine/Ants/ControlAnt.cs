@@ -2436,7 +2436,9 @@ namespace Engine.Ants
                         ant.RemoveAntFromAllCommands(player);
                         ant.Unit.ResetGameCommand();
                     }
+                    ant.AbandonUnit(player);
 
+                    /* If unit is kept it must be aligend with attachcommands
                     if (ant.Unit.Engine != null)
                     {
                         if (ant.Unit.Extractor == null &&
@@ -2452,7 +2454,7 @@ namespace Engine.Ants
                     else
                     {
                         ant.AbandonUnit(player);
-                    }
+                    }*/
                 }
             }
             unmovedAnts.AddRange(movableAnts);
