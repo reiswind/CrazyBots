@@ -791,18 +791,6 @@ namespace Engine.Master
                 }
                 else
                 {
-                    // Unit was hit
-                    Move hitmove = new Move();
-                    hitmove.MoveType = MoveType.Hit;
-                    hitmove.PlayerId = targetUnit.Owner.PlayerModel.Id;
-                    hitmove.Positions = move.Positions;
-                    hitmove.UnitId = targetUnit.UnitId;
-                    hitmove.OtherUnitId = hitPart.PartType.ToString();
-
-                    hitmove.Stats = new MoveUpdateStats();
-                    hitmove.Stats.MoveUpdateGroundStat = move.Stats.MoveUpdateGroundStat;
-
-                    nextMoves.Add(hitmove);
 
                     if (hitPart.TileContainer != null)
                     {
@@ -830,6 +818,18 @@ namespace Engine.Master
                     hitPartTileObject.TileObjectType = TileObjectType.Mineral;
                     hitPartTileObject.Direction = Direction.C;
                     targetTile.Add(hitPartTileObject);
+
+                    // Unit was hit
+                    Move hitmove = new Move();
+                    hitmove.MoveType = MoveType.Hit;
+                    hitmove.PlayerId = targetUnit.Owner.PlayerModel.Id;
+                    hitmove.Positions = move.Positions;
+                    hitmove.UnitId = targetUnit.UnitId;
+                    hitmove.OtherUnitId = hitPart.PartType.ToString();
+                    hitmove.Stats = new MoveUpdateStats();
+                    hitmove.Stats = targetUnit.CollectStats();
+
+                    nextMoves.Add(hitmove);
 
                     if (targetUnit.IsDead())
                     {

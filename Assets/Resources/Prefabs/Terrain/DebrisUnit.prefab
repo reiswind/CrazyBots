@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 4813798381870068824}
   - component: {fileID: 1036021393012981884}
   - component: {fileID: 8368464708174687608}
-  - component: {fileID: 7868115500704627174}
   - component: {fileID: 7880992244684459447}
+  - component: {fileID: 1882637840201480129}
   m_Layer: 0
   m_Name: DebrisUnit
   m_TagString: Untagged
@@ -29,7 +29,8 @@ Transform:
   m_GameObject: {fileID: 4311022524819390719}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.095688984, y: 0.057651054, z: 0.1169195}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -41,7 +42,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4311022524819390719}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 7302240577302544672, guid: dd7af1aae003fa74ea762682afd9c247, type: 3}
 --- !u!23 &8368464708174687608
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -84,19 +85,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &7868115500704627174
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4311022524819390719}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &7880992244684459447
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -113,3 +101,16 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!65 &1882637840201480129
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4311022524819390719}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.099999994, y: 0.028473092, z: 0.10000001}
+  m_Center: {x: 0, y: 0, z: 0}

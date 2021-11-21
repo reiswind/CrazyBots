@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 796128642602168611}
   - component: {fileID: 3236009512389314025}
   - component: {fileID: 6111166372274128879}
-  - component: {fileID: 3718787723354433088}
   m_Layer: 3
   m_Name: PartWeapon2-1
   m_TagString: Untagged
@@ -94,27 +93,11 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4028577556905043004}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 0.6377472, y: 0.2568483, z: 0.70720536}
   m_Center: {x: 0, y: 0.112180814, z: 0.026942521}
---- !u!54 &3718787723354433088
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4028577556905043004}
-  serializedVersion: 2
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_UseGravity: 1
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!1001 &8885312608306681298
 PrefabInstance:
   m_ObjectHideFlags: 0

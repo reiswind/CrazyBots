@@ -707,7 +707,7 @@ namespace Assets.Scripts
                     }                    
                 }
                 // Find command by pos
-                if (commandPreview == null && hitByMouseClick.GroundCell != null)
+                if (commandPreview == null && hitByMouseClick.GroundCell != null && HexGrid.MainGrid.CommandPreviews != null)
                 {
                     foreach (CommandPreview commandPreview1 in HexGrid.MainGrid.CommandPreviews)
                     {
@@ -897,6 +897,11 @@ namespace Assets.Scripts
             if (hitByMouseClick != null && hitByMouseClick.GroundCell != null)
             {
                 selectedCommandPreview.SetPosition(hitByMouseClick.GroundCell);
+            }
+            else
+            {
+                selectedCommandPreview.SetPosition(null);
+                return;
             }
             HideAllParts();
             if (selectedCommandPreview.Command != null && !selectedCommandPreview.Command.IsHighlighted)

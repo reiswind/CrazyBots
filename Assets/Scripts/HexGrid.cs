@@ -83,8 +83,8 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
             GameModel gameModel;
 
@@ -147,6 +147,7 @@ namespace Assets.Scripts
         }
         private void InitParticless()
         {
+            particlesResources.Clear();
             UnityEngine.Object[] allResources = Resources.LoadAll("Particles");
             foreach (UnityEngine.Object resource in allResources)
             {
@@ -890,8 +891,8 @@ namespace Assets.Scripts
                         unitBase.CurrentPos = unitBase.DestinationPos;
                         unitBase.DestinationPos = Position2.Null;
                         unitBase.TurnIntoDirection = Direction.C;
-                        unitBase.PutAtCurrentPosition(true, false);
                     }
+                    unitBase.PutAtCurrentPosition(true, false);
                 }
                 // Finish all open hits
                 foreach (HitByBullet hitByBullet in hitByBullets)
@@ -996,7 +997,8 @@ namespace Assets.Scripts
                             }
                             else if (move.Positions.Count > 1)
                             {
-                                unit.Direction = move.Stats.Direction;
+                                unit.TurnTo(move.Stats.Direction);
+                                //unit.Direction = move.Stats.Direction;
                                 unit.MoveTo(move.Positions[1]);
                             }
                         }
@@ -1149,7 +1151,7 @@ namespace Assets.Scripts
         public T InstantiatePrefab<T>(string name)
         {
             GameObject prefab = allResources[name];
-            GameObject instance = Instantiate(prefab);
+            GameObject instance = Instantiate(prefab, transform);
 
             T script = instance.GetComponent<T>();
             return script;
@@ -1238,6 +1240,7 @@ namespace Assets.Scripts
 
                     hitByBullet.HitTime = Time.unscaledTime + 2;
                     hitByBullet.TargetPosition = targetPostion;
+                    hitByBullet.UpdateUnitStats = move.Stats;
 
                     found = true;
                     break;
@@ -1328,7 +1331,11 @@ namespace Assets.Scripts
         {
             GameObject debrisDirt = GetResource("DebrisUnit");
 
-            for (int i = 0; i < 40; i++)
+            Vector3 vector3 = transform.position;
+            vector3.y -= 0.2f;
+            
+
+            for (int i = 0; i < 30; i++)
             {
                 GameObject debris = Instantiate(debrisDirt);
 
@@ -1347,7 +1354,7 @@ namespace Assets.Scripts
                 vector3.z = UnityEngine.Random.value;
                 */
                 Rigidbody otherRigid = debris.GetComponent<Rigidbody>();
-                otherRigid.AddExplosionForce(3, transform.position, 1);
+                otherRigid.AddExplosionForce(3, vector3, 1);
 
                 //otherRigid.velocity = vector3;
                 //otherRigid.rotation = UnityEngine.Random.rotation;
@@ -1402,6 +1409,8 @@ namespace Assets.Scripts
                 else
                 {
                     UnitBasePart unitBasePart = hitByBullet.TargetUnit.PartHitByShell(hitByBullet.HitPartTileObjectType, hitByBullet.UpdateUnitStats);
+                    hitByBullet.TargetUnit.UpdateStats(hitByBullet.UpdateUnitStats);
+
                     //if (unitBasePart != null)
                     //    HitUnitPartAnimation(unitBasePart.UnitBase.transform);
                 }
@@ -1588,11 +1597,23 @@ namespace Assets.Scripts
                 stats.UnitParts.Add(moveUpdateUnitPart);
             }
             unit.MoveUpdateStats = stats;
+            //StartCoroutine(AnimateAssembleGhost(unit));
             unit.Assemble(true, true);
-
+            
             return unit;
         }
 
+        private IEnumerator AnimateAssembleGhost(UnitBase unit)
+        {
+            yield return new WaitForSeconds(0.01f);
+            unit.Assemble(true, true);
+            yield break;
+        }
+
+        /// <summary>
+        /// Called from Editor only
+        /// </summary>
+        /// <param name="masterunit"></param>
         void CreateUnit(Engine.Master.Unit masterunit)
         {
             Blueprint blueprint = game.Blueprints.FindBlueprint(masterunit.Blueprint.Name);
@@ -1602,7 +1623,16 @@ namespace Assets.Scripts
             }
             UnitBase unit = InstantiatePrefab<UnitBase>(blueprint.Layout);
 
+            unit.gameObject.layer = LayerMask.GetMask("UI");
+
             unit.CurrentPos = masterunit.Pos;
+            GroundCell targetCell;
+            if (HexGrid.MainGrid.GroundCells.TryGetValue(unit.CurrentPos, out targetCell))
+            {
+                Vector3 unitPos3 = targetCell.transform.localPosition;
+                unitPos3.y += HexGrid.MainGrid.hexCellHeight + 0.2f;
+                unit.transform.position = unitPos3;
+            }
 
             unit.PlayerId = masterunit.Owner.PlayerModel.Id;
             unit.MoveUpdateStats = masterunit.CollectStats();
@@ -1616,15 +1646,9 @@ namespace Assets.Scripts
 
             unit.UnitId = masterunit.UnitId;
             unit.gameObject.name = masterunit.UnitId;
-
+            unit.Direction = masterunit.Direction;
             unit.Assemble(masterunit.UnderConstruction, masterunit.UnderConstruction);
-            unit.PutAtCurrentPosition(false, true);
 
-            Rigidbody rigidbody = unit.GetComponent<Rigidbody>();
-            if (rigidbody != null)
-            {
-                rigidbody.Sleep();
-            }
             BaseUnits.Add(masterunit.UnitId, unit);
         }
 
@@ -1638,16 +1662,27 @@ namespace Assets.Scripts
             UnitBase unit = InstantiatePrefab<UnitBase>(blueprint.Layout);
             if (unit == null) return;
 
-            unit.CurrentPos = move.Positions[0];
-            unit.Direction = (Direction)move.Stats.Direction;
+            if (move.MoveType == MoveType.Build)
+                unit.CurrentPos = move.Positions[1];
+            else
+                unit.CurrentPos = move.Positions[0];
+            unit.Direction = move.Stats.Direction;
             unit.PlayerId = move.PlayerId;
             unit.MoveUpdateStats = move.Stats;
             unit.UnitId = move.UnitId;
             unit.gameObject.name = move.UnitId;
+            unit.TurnIntoDirection = move.Stats.Direction;
+            
+            BaseUnits.Add(move.UnitId, unit);
 
+            StartCoroutine(AnimateFactoryOutput(move, unit));
+        }
+
+        private IEnumerator AnimateFactoryOutput(Move move, UnitBase unit)
+        {
+            yield return new WaitForSeconds(0.01f);
             unit.Assemble(move.MoveType == MoveType.Build);
-            unit.PutAtCurrentPosition(false, true);
-
+            
             if (move.MoveType == MoveType.Build)
             {
                 UnitBase factory;
@@ -1655,22 +1690,14 @@ namespace Assets.Scripts
                 {
                     factory.Upgrade(move, unit);
                 }
-            }
-
-            if (move.Positions.Count > 1)
-            {
-                // Move to targetpos
-                unit.DestinationPos = move.Positions[move.Positions.Count - 1];
-            }
-            if (move.MoveType == MoveType.Add || move.MoveType == MoveType.Build)
-            {
-                BaseUnits.Add(move.UnitId, unit);
+                unit.DectivateUnit();
             }
             else
             {
-                UnitBase.DeactivateRigidbody(unit.gameObject);
-                BaseUnits.Add(move.UnitId, unit);
+                unit.UpdateParts();
+                unit.ActivateUnit();
             }
+            yield break;
         }
 
         private Vector3 CalcWorldPos(GroundCell groundCell)

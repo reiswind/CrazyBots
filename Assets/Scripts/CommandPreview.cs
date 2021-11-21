@@ -386,14 +386,19 @@ namespace Assets.Scripts
 
         private bool CanCommandAt(GroundCell groundCell)
         {
-            if (groundCell != null)
+            if (groundCell == null)
+                return false;
+
+            if (groundCell.Stats.MoveUpdateGroundStat.IsUnderwater)
+                return false;
+            if (groundCell.FindUnit() != null)
+                return false;
+
+            foreach (TileObject tileObject in groundCell.Stats.MoveUpdateGroundStat.TileObjects)
             {
-                foreach (TileObject tileObject in groundCell.Stats.MoveUpdateGroundStat.TileObjects)
-                {
-                    if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
-                        return false;
-                }
-            }
+                if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
+                    return false;
+            }            
             return true;
         }
         /*
@@ -423,7 +428,7 @@ namespace Assets.Scripts
             }
             if (addPreviewGhost != null)
             {
-                if(groundCell == null)
+                if (groundCell == null)
                 {
                     addPreviewGhost.IsVisible = false;
                     addPreviewUnitMarker.SetActive(false);
@@ -432,9 +437,11 @@ namespace Assets.Scripts
                 else
                 {
                     bool positionok;
-                    positionok = CanCommandAt(groundCell);
+                    positionok = CanBuildAt(groundCell);
                     if (positionok)
                     {
+                        Debug.Log("addPreviewGhost: " + groundCell.Pos);
+                        addPreviewGhost.IsVisible = true;
                         addPreviewGhost.CurrentPos = groundCell.Pos;
                         addPreviewGhost.PutAtCurrentPosition(true, true);
 
@@ -447,6 +454,7 @@ namespace Assets.Scripts
                     }
                     else
                     {
+                        Debug.Log("addPreviewGhost NO GROUND");
                         addPreviewGhost.IsVisible = false;
                         addPreviewUnitMarker.SetActive(false);
                         displayPosition = Position2.Null;
@@ -457,29 +465,33 @@ namespace Assets.Scripts
             {
                 if (groundCell == null)
                 {
-                    if (previewGameCommand != null)
-                        previewGameCommand.SetActive(false);
-                    displayPosition = Position2.Null;
+                    if (displayPosition != Position2.Null)
+                    {
+                        Hide();
+                    }
                 }
                 else
                 {
-                    bool positionok;
-                    if (GameCommand.GameCommandType == GameCommandType.Build)
+                    if (displayPosition == Position2.Null || displayPosition != groundCell.Pos)
+                    {
+                        bool positionok;
+
                         positionok = CanBuildAt(groundCell);
-                    else
-                        positionok = CanCommandAt(groundCell);
-                    if (positionok)
-                    {
-                        displayPosition = groundCell.Pos;
-                        UpdatePositions(groundCell);
-                        if (previewGameCommand != null)
-                            previewGameCommand.SetActive(true);
-                    }
-                    else
-                    {
-                        if (previewGameCommand != null)
-                            previewGameCommand.SetActive(false);
-                        displayPosition = Position2.Null;
+
+                        if (positionok)
+                        {
+                            Debug.Log("SetPosition: " + groundCell.Pos);
+
+                            if (previewGameCommand != null)
+                                previewGameCommand.SetActive(true);
+
+                            displayPosition = groundCell.Pos;
+                            UpdatePositions(groundCell);
+                        }
+                        else
+                        {
+                            Hide();
+                        }
                     }
                 }
             }
@@ -514,11 +526,25 @@ namespace Assets.Scripts
 
         private static float aboveGround = 0.04f;
 
+        private void Hide()
+        {
+            Debug.Log("SetPosition NO GROUND null");
+            if (previewGameCommand != null)
+                previewGameCommand.SetActive(false);
+            displayPosition = Position2.Null;
+            foreach (CommandAttachedUnit commandAttachedUnit in PreviewUnits)
+            {
+                commandAttachedUnit.IsVisible = false;
+                commandAttachedUnit.GhostUnit.IsVisible = false;
+                commandAttachedUnit.Marker.SetActive(false);
+            }
+        }
+
         private void UpdatePositions(GroundCell groundCell)
         {
             if (previewGameCommand != null)
             {
-                previewGameCommand.transform.SetParent(groundCell.transform, false);
+                //previewGameCommand.transform.SetParent(groundCell.transform, false);
 
                 Vector3 unitPos3 = groundCell.transform.position;
                 if (GameCommand.GameCommandType == GameCommandType.Build)
@@ -544,19 +570,21 @@ namespace Assets.Scripts
                     Position3 relativePosition3 = centerPosition3.Add(commandAttachedUnit.RotatedPosition3);
                     
                     commandAttachedUnit.GhostUnit.CurrentPos = relativePosition3.Pos;
-                    commandAttachedUnit.GhostUnit.PutAtCurrentPosition(true, true);
+                    commandAttachedUnit.GhostUnit.TeleportToPosition(true);
                     commandAttachedUnit.IsVisible = true;
 
+                    commandAttachedUnit.GhostUnit.IsVisible = true;
                     unitPos3 = commandAttachedUnit.GhostUnit.transform.position;
                     unitPos3.y += 0.10f;
                     commandAttachedUnit.Marker.transform.position = unitPos3;
+                    commandAttachedUnit.Marker.SetActive(true);
                     if (displayDirection != Direction.C)
                     {
                         neighborPosition3 = relativePosition3.GetNeighbor(displayDirection);
                         GroundCell neighbor;
                         if (HexGrid.MainGrid.GroundCells.TryGetValue(neighborPosition3.Pos, out neighbor))
                         {
-                            commandAttachedUnit.GhostUnit.UpdateDirection(neighbor.transform.position);
+                            commandAttachedUnit.GhostUnit.UpdateDirection(neighbor.transform.position, true);
                         }
                     }
                 }
@@ -570,6 +598,7 @@ namespace Assets.Scripts
                 HexGrid.Destroy(previewGameCommand);
             }
             previewGameCommand = HexGrid.Instantiate(HexGrid.MainGrid.GetResource(GameCommand.Layout));
+            previewGameCommand.transform.SetParent(HexGrid.MainGrid.transform, false);
 
             Command = previewGameCommand.GetComponent<Command>();
             Command.CommandPreview = this;
