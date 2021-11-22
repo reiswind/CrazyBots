@@ -603,8 +603,6 @@ namespace Assets.Scripts
         {
             if (previewGameCommand != null)
             {
-                //previewGameCommand.transform.SetParent(groundCell.transform, false);
-
                 Vector3 unitPos3 = groundCell.transform.position;
                 if (GameCommand.GameCommandType == GameCommandType.Build)
                     unitPos3.y += 1.5f;

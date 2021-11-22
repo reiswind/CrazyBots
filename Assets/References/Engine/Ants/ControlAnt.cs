@@ -2436,6 +2436,10 @@ namespace Engine.Ants
                         ant.RemoveAntFromAllCommands(player);
                         ant.Unit.ResetGameCommand();
                     }
+                    ant.StuckCounter++;
+                    if (ant.StuckCounter > 10)
+                        ant.AbandonUnit(player);
+
                     // If extracted immediatly, a assembler has no chance to repair
                     //ant.AbandonUnit(player);
 

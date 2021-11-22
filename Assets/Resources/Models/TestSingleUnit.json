@@ -51,6 +51,24 @@
 	  "EndlessAmmo": false,
 	  "EndlessPower": false,
       "Position": "0,0"
+    },
+	{
+      "Name": "Turret",
+      "PlayerId": 2,
+      "Blueprint": "Turret",
+	  "FireAtGround": false,
+	  "EndlessAmmo": false,
+	  "EndlessPower": false,
+      "Position": "0,1"
+    },
+	{
+      "Name": "Turret",
+      "PlayerId": 2,
+      "Blueprint": "Turret",
+	  "FireAtGround": false,
+	  "EndlessAmmo": false,
+	  "EndlessPower": false,
+      "Position": "-1,0"
     }
   ]
 }

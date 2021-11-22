@@ -238,6 +238,17 @@ namespace Assets.Scripts
                         }
                         realUnit.SetHighlighted(IsHighlighted);
                     }
+                    else
+                    {
+                        if (IsSelected)
+                        {
+                            commandAttachedUnit.Marker.SetActive(true);
+                        }
+                        else
+                        {
+                            commandAttachedUnit.Marker.SetActive(true);
+                        }
+                    }
                 }
             }
             
