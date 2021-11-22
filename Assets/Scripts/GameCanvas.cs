@@ -888,6 +888,8 @@ namespace Assets.Scripts
             return false;
         }
 
+        private bool leftMouseButtonDown;
+
         void UpdateCommandPreviewMode()
         {
             if (CheckMouseButtons()) return;
@@ -896,7 +898,7 @@ namespace Assets.Scripts
             HitByMouseClick hitByMouseClick = GetClickedInfo();
             if (hitByMouseClick != null && hitByMouseClick.GroundCell != null)
             {
-                selectedCommandPreview.SetPosition(hitByMouseClick.GroundCell);
+                //selectedCommandPreview.SetPosition(hitByMouseClick.GroundCell);
             }
             else
             {
@@ -910,7 +912,32 @@ namespace Assets.Scripts
             }
             DisplayGameCommand(selectedCommandPreview);
 
-            if (Input.GetMouseButtonDown(0) && selectedCommandPreview.CanExecute())
+            bool executeCommand = false;
+            if (Input.GetMouseButtonDown(0))
+            {
+                leftMouseButtonDown = true;
+            }
+            if (Input.GetMouseButtonUp(0))
+            {
+                leftMouseButtonDown = false;
+                executeCommand = true;
+                Debug.Log("Input.GetMouseButtonUp");
+            }
+            else
+            {
+                if (leftMouseButtonDown && !executeCommand)
+                {
+                    if (selectedCommandPreview.GameCommand.GameCommandType == GameCommandType.Attack)
+                    {
+                        selectedCommandPreview.AddUnit(hitByMouseClick.GroundCell);
+                    }
+                }
+                else
+                {
+                    selectedCommandPreview.SetPosition(hitByMouseClick.GroundCell);
+                }
+            }
+            if (executeCommand && selectedCommandPreview.CanExecute())
             {
                 bool wasSubCommandMode = selectedCommandPreview.IsInSubCommandMode;
                 selectedCommandPreview.Execute();

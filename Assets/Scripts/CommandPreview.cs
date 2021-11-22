@@ -272,6 +272,56 @@ namespace Assets.Scripts
                 return moveCounter;
             }
         }
+
+        public void AddUnit(GroundCell groundCell)
+        {
+            if (!CanBuildAt(groundCell))
+            {
+                return;
+            }
+            if (displayPosition == Position2.Null)
+            {
+                return;
+            }
+            Position3 displayPosition3 = new Position3(groundCell.Pos);
+            Position3 commandCenter = new Position3(displayPosition);
+            Position3 relativePosition3 = displayPosition3.Subtract(commandCenter);
+
+
+            //Position3 displayPosition3 = new Position3(displayPosition);
+            //Position3 unitPos = new Position3(groundCell.Pos);
+            //Position3 relativePosition3 = displayPosition3.Subtract(unitPos);
+            //Position3 relativePosition3 = unitPos.Subtract(displayPosition3);
+
+            bool exists = false;
+            foreach (MapGameCommandItem mapGameCommandItem in GameCommand.GameCommandItems)
+            {
+                if (mapGameCommandItem.Position3 == relativePosition3)
+                {
+                    exists = true;
+                }
+            }
+            if (!exists)
+            {
+                Debug.Log("Add unit at " + groundCell.Pos + " DP: " + displayPosition);
+
+                MapGameCommandItem primary = GameCommand.GameCommandItems[0];
+                MapGameCommandItem mapGameCommandItem = new MapGameCommandItem(GameCommand);
+                mapGameCommandItem.Position3 = relativePosition3;
+                mapGameCommandItem.RotatedPosition3 = mapGameCommandItem.Position3;
+
+                mapGameCommandItem.BlueprintName = primary.BlueprintName;
+                mapGameCommandItem.Direction = primary.Direction;
+
+                GameCommand.GameCommandItems.Add(mapGameCommandItem);
+
+                UpdateCommandPreview(GameCommand);
+
+                GroundCell displayCell = HexGrid.MainGrid.GroundCells[displayPosition];
+                UpdatePositions(displayCell);
+            }
+        }
+
         public void Execute()
         {
             if (displayPosition != Position2.Null)
