@@ -125,12 +125,27 @@ namespace Engine.Interface
             // Attack
             blueprintCommand = new BlueprintCommand();
 
-            blueprintCommand.Name = "Units";
+            blueprintCommand.Name = "Bomber";
             blueprintCommand.Layout = "UIAttack";
             blueprintCommand.GameCommandType = GameCommandType.Attack;
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Bomber";
+            blueprintCommandItem.Position3 = new Position3();
+            blueprintCommand.Units.Add(blueprintCommandItem);
+
+            Commands.Add(blueprintCommand);
+
+
+            // Attack
+            blueprintCommand = new BlueprintCommand();
+
+            blueprintCommand.Name = "Fighter";
+            blueprintCommand.Layout = "UIAttack";
+            blueprintCommand.GameCommandType = GameCommandType.Attack;
+
+            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem.BlueprintName = "Fighter";
             blueprintCommandItem.Position3 = new Position3();
             blueprintCommand.Units.Add(blueprintCommandItem);
 

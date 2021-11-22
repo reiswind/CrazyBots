@@ -219,7 +219,27 @@ namespace Engine.Ants
                 if (computePossibleMoves)
                     Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Assemble, moveRecipeIngredient);
 
-                if (possiblemoves.Count > 0)
+                if (possiblemoves.Count == 0)
+                {
+                    if (selectedGameCommand.GameCommand.GameCommandType == GameCommandType.Build)
+                    {
+                        Tile tile = player.Game.Map.GetTile(selectedGameCommand.GameCommand.TargetPosition);
+                        if (!tile.CanBuild())
+                        {
+                            // Cannot build here any more. 
+                            if (player.PlayerModel.IsHuman)
+                            {
+                                selectedGameCommand.Status = "CannotBuild";
+                            }
+                            else
+                            {
+                                Ant.Unit.ResetGameCommand();
+                                selectedGameCommand.GameCommand.CommandCanceled = true;
+                            }
+                        }
+                    }
+                }
+                else
                 {
                     // possiblemoves contains possible output places
                     List<Move> possibleMoves = new List<Move>();

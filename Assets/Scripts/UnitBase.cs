@@ -48,6 +48,7 @@ namespace Assets.Scripts
         public float HitTime { get; set; }
         public TileObject Bullet { get; set; }
         public bool ShieldHit { get; set; }
+        public bool Deleted { get; set; }
         public bool BulletImpact { get; set; }
         public Position2 FireingPosition { get; set; }
         public Position2 TargetPosition { get; set; }
@@ -641,7 +642,7 @@ namespace Assets.Scripts
                         transitObject.ScaleUp = true;
                         transitObject.ActivateAtArrival = upgradedPart;
                         transitObject.StartAfterThis = Time.time + (0.5f * HexGrid.MainGrid.GameSpeed);
-                        Debug.Log("Transit after " + transitObject.StartAfterThis + " " + upgradedPart.name);
+                        //Debug.Log("Transit after " + transitObject.StartAfterThis + " " + upgradedPart.name);
 
                         // Reset current pos to assembler
                         upgradedPartClone.transform.position = transform.position;

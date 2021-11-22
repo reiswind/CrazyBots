@@ -1066,6 +1066,7 @@ namespace Assets.Scripts
                             {
                                 if (hitByBullet.TargetUnit == unit)
                                 {
+                                    hitByBullet.Deleted = true;
                                     isInHits = true;
                                 }
                             }
@@ -1412,8 +1413,11 @@ namespace Assets.Scripts
                     UnitBasePart unitBasePart = hitByBullet.TargetUnit.PartHitByShell(hitByBullet.HitPartTileObjectType, hitByBullet.UpdateUnitStats);
                     hitByBullet.TargetUnit.UpdateStats(hitByBullet.UpdateUnitStats);
 
-                    //if (unitBasePart != null)
-                    //    HitUnitPartAnimation(unitBasePart.UnitBase.transform);
+                    if (hitByBullet.Deleted)
+                    {
+                        hitByBullet.TargetUnit.HasBeenDestroyed = true;
+                        Destroy(hitByBullet.TargetUnit.gameObject, 10);
+                    }
                 }
             }
         }
