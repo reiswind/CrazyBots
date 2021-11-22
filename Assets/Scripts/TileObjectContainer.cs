@@ -53,11 +53,11 @@ namespace Assets.Scripts
                             vector3.x = UnityEngine.Random.value;
                             vector3.z = UnityEngine.Random.value;
 
-                            Rigidbody otherRigid = unitBaseTileObject.GameObject.GetComponent<Rigidbody>();
+                            Rigidbody otherRigid = unitBaseTileObject.GameObject.AddComponent<Rigidbody>();
                             if (otherRigid != null)
                             {
                                 otherRigid.isKinematic = false;
-                                //otherRigid.AddExplosionForce(13, parent.position, 2);
+                                otherRigid.AddExplosionForce(13, parent.position, 2);
                                 otherRigid.velocity = vector3;
                                 otherRigid.rotation = UnityEngine.Random.rotation;
                             }

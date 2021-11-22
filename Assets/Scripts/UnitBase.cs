@@ -166,6 +166,8 @@ namespace Assets.Scripts
             //Debug.Log("Frames" + fixedFrameCounter);
             //fixedFrameCounter = 0;
             //moveToVector = Vector3.zero;
+            if (CurrentPos == Position2.Null)
+                return;
 
             GroundCell targetCell;
             if (HexGrid.MainGrid.GroundCells.TryGetValue(CurrentPos, out targetCell))

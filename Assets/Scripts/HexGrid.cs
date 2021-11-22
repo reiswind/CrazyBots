@@ -83,8 +83,8 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
             GameModel gameModel;
@@ -1624,7 +1624,7 @@ namespace Assets.Scripts
             }
             UnitBase unit = InstantiatePrefab<UnitBase>(blueprint.Layout);
 
-            unit.gameObject.layer = LayerMask.GetMask("UI");
+            //unit.gameObject.layer = LayerMask.GetMask("UI");
 
             unit.CurrentPos = masterunit.Pos;
             GroundCell targetCell;
@@ -1651,6 +1651,18 @@ namespace Assets.Scripts
             unit.Assemble(masterunit.UnderConstruction, masterunit.UnderConstruction);
 
             BaseUnits.Add(masterunit.UnitId, unit);
+
+            StartCoroutine(TeleportUnitToPosition(unit));
+        }
+
+        private IEnumerator TeleportUnitToPosition(UnitBase unit)
+        {
+            yield return new WaitForSeconds(0.01f);
+
+            unit.UpdateParts();
+            unit.ActivateUnit();
+            
+            yield break;
         }
 
         void CreateUnit(Move move)

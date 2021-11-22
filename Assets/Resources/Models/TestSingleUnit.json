@@ -2,7 +2,7 @@
   "Name": "Test",
   "MapWidth": 2,
   "MapHeight": 2,
-  "Seed": 3,
+  "Seedx": 3,
   "MapType": "2",
   "Players": [
     {
@@ -16,7 +16,7 @@
       "ControlLevel": 1,
       "Id": 2,
       "Zone": 1,
-	  "IsHumanx": true,
+	  "IsHumaxn": true,
       "Name": "Red"
     }
   ],
@@ -26,21 +26,27 @@
       "Name": "Outpost",
       "PlayerId": 1,
       "Blueprint": "Outpost",
-	  "ContainerFilled": 24,
 	  "HoldPosition": false,
 	  "FireAtGround": false,
 	  "EndlessAmmo": false,
 	  "EndlessPower": false,
       "Position": "0,0"
+    },
+	{
+      "Name": "Container",
+      "PlayerId": 1,
+      "Blueprint": "Container",
+	  "HoldPosition": false,
+	  "FireAtGround": false,
+	  "EndlessAmmo": false,
+	  "EndlessPower": false,
+      "Position": "1,0"
     
     },
 	{
       "Name": "Outpost",
       "PlayerId": 2,
       "Blueprint": "Outpost",
-	  "ContainerFilled": 0,
-	  "HoldPosition": true,
-	  "HoldFire": true,
 	  "FireAtGround": false,
 	  "EndlessAmmo": false,
 	  "EndlessPower": false,
