@@ -2436,7 +2436,8 @@ namespace Engine.Ants
                         ant.RemoveAntFromAllCommands(player);
                         ant.Unit.ResetGameCommand();
                     }
-                    ant.AbandonUnit(player);
+                    // If extracted immediatly, a assembler has no chance to repair
+                    //ant.AbandonUnit(player);
 
                     /* If unit is kept it must be aligend with attachcommands
                     if (ant.Unit.Engine != null)

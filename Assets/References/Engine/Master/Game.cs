@@ -116,7 +116,7 @@ namespace Engine.Master
                         thisUnit.CreateAllPartsFromBlueprint();
                         thisUnit.Pos = posOnMap;
 
-                        if (unitModel.ContainerFilled == 0)
+                        if (unitModel.ContainerFilled.HasValue)
                         {
                             if (thisUnit.Container != null)
                                 thisUnit.Container.TileContainer.Clear();
@@ -203,8 +203,8 @@ namespace Engine.Master
                                 thisUnit.Weapon.EndlessAmmo = true;
                             if (unitModel.EndlessPower)
                                 thisUnit.EndlessPower = true;
-                            /*
-                            if (unitModel.ContainerFilled == 0)
+                            
+                            if (unitModel.ContainerFilled.HasValue)
                             {
                                 if (thisUnit.Container != null)
                                     thisUnit.Container.TileContainer.Clear();
@@ -214,7 +214,7 @@ namespace Engine.Master
                                     thisUnit.Reactor.TileContainer.Clear();
                                 if (thisUnit.Assembler != null)
                                     thisUnit.Assembler.TileContainer.Clear();
-                            }*/
+                            }
                             Move move = new Move();
                             move.MoveType = MoveType.Add;
                             move.PlayerId = unitModel.PlayerId;
@@ -1323,8 +1323,19 @@ namespace Engine.Master
 
                 if (unit.Power > 0)
                 {
-                    if (!unit.EndlessPower)
+                    if (unit.EndlessPower)
+                    {
+                        if (unit.Armor != null)
+                        {
+                            unit.Armor.LoadShield(10);
+                            if (!changedUnits.ContainsKey(unit.Pos))
+                                changedUnits.Add(unit.Pos, unit);
+                        }
+                    }
+                    else
+                    {
                         unit.Power--;
+                    }
                     totalNumberOfUnits++;
                     // Cannot upodate every frame
                     //if (!changedUnits.ContainsKey(unit.Pos))

@@ -35,6 +35,11 @@ namespace Engine.Ants
         {
             bool upgrading = false;
 
+            if (Assembler.Unit.UnitId == "unit7")
+            {
+                int x = 0;
+            }
+
             MoveRecipeIngredient moveRecipeIngredient = Ant.Unit.FindIngredient(TileObjectType.Mineral, true);
             if (moveRecipeIngredient == null)
             {
@@ -50,8 +55,9 @@ namespace Engine.Ants
             }
             List<Move> possiblemoves = new List<Move>();
 
-            if (Assembler.Unit.CurrentGameCommand != null)
-                Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Upgrade, moveRecipeIngredient);
+            //if (Assembler.Unit.CurrentGameCommand != null)
+            // Allow all upgrades, even without command
+            Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Upgrade, moveRecipeIngredient);
             while (possiblemoves.Count > 0)
             {
                 int idx = player.Game.Random.Next(possiblemoves.Count);
