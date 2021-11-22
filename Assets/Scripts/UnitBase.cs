@@ -1006,22 +1006,7 @@ namespace Assets.Scripts
 
                         ActivateRigidbody(part);*/
                     }
-                    bool alive = false;
-                    foreach (UnitBasePart testBasePart in UnitBaseParts)
-                    {
-                        if (!testBasePart.Destroyed)
-                        {
-                            alive = true;
-                            break;
-                        }
-                    }
-
-                    if (!alive)
-                    {
-                        HasBeenDestroyed = true;
-                        Destroy(gameObject, 10);
-                        //Delete();
-                    }
+                    
 
                     GameObject smoke = FindChildNyName(gameObject, "SmokeEffect");
                     if (smoke != null)
@@ -1141,6 +1126,7 @@ namespace Assets.Scripts
         public void UpdateParts()
         {
             bool missingPartFound = false;
+
             foreach (UnitBasePart unitBasePart in UnitBaseParts)
             {
                 if (MoveUpdateStats.UnitParts != null)
@@ -1207,6 +1193,17 @@ namespace Assets.Scripts
                         
                     }
                 }
+            }
+            bool alive = UnderConstruction;
+            foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
+            {
+                if (moveUpdateUnitPart.Exists)
+                    alive = true;
+            }
+            if (!alive)
+            {
+                HasBeenDestroyed = true;
+                Destroy(gameObject, 10);
             }
 
             if (UnderConstruction && missingPartFound == false)

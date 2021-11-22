@@ -101,7 +101,16 @@ namespace Assets.Scripts
             }
             foreach (CommandAttachedUnit commandAttachedUnit in PreviewUnits)
             {
-                commandAttachedUnit.GhostUnit.Delete();
+                if (commandAttachedUnit.GhostUnit != null)
+                {
+                    commandAttachedUnit.GhostUnit.Delete();
+                    commandAttachedUnit.GhostUnit = null;
+                }
+                if (commandAttachedUnit.Marker != null)
+                {
+                    HexGrid.Destroy(commandAttachedUnit.Marker);
+                    commandAttachedUnit.Marker = null;
+                }
             }
         }
 

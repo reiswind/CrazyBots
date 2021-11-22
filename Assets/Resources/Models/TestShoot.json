@@ -35,6 +35,18 @@
     
     },
 	{
+      "Name": "Container",
+      "PlayerId": 1,
+      "Blueprint": "Container",
+	  "ContainerFilled": 72,
+	  "HoldPosition": false,
+	  "FireAtGround": false,
+	  "EndlessAmmo": false,
+	  "EndlessPower": false,
+      "Position": "1,0"
+    
+    },
+	{
       "Name": "Bomber1",
       "PlayerId": 2,
       "Blueprint": "Bomber",
@@ -45,6 +57,90 @@
 	  "EndlessAmmo": false,
 	  "EndlessPower": true,
       "Position": "-2,6"
+    },
+	{
+      "Name": "Bomber1",
+      "PlayerId": 2,
+      "Blueprint": "Bomber",
+	  "ContainerFilled": 0,
+	  "HoldPosition": true,
+	  "HoldFire": true,
+	  "FireAtGround": false,
+	  "EndlessAmmo": false,
+	  "EndlessPower": true,
+      "Position": "-2,7"
+    },
+	{
+      "Name": "Bomber1",
+      "PlayerId": 2,
+      "Blueprint": "Bomber",
+	  "ContainerFilled": 0,
+	  "HoldPosition": true,
+	  "HoldFire": true,
+	  "FireAtGround": false,
+	  "EndlessAmmo": false,
+	  "EndlessPower": true,
+      "Position": "-2,8"
+    },
+	{
+      "Name": "Bomber1",
+      "PlayerId": 2,
+      "Blueprint": "Bomber",
+	  "ContainerFilled": 0,
+	  "HoldPosition": true,
+	  "HoldFire": true,
+	  "FireAtGround": false,
+	  "EndlessAmmo": false,
+	  "EndlessPower": true,
+      "Position": "-2,9"
+    },
+	{
+      "Name": "Bomber1",
+      "PlayerId": 2,
+      "Blueprint": "Bomber",
+	  "ContainerFilled": 0,
+	  "HoldPosition": true,
+	  "HoldFire": true,
+	  "FireAtGround": false,
+	  "EndlessAmmo": false,
+	  "EndlessPower": true,
+      "Position": "-3,6"
+    },
+	{
+      "Name": "Bomber1",
+      "PlayerId": 2,
+      "Blueprint": "Bomber",
+	  "ContainerFilled": 0,
+	  "HoldPosition": true,
+	  "HoldFire": true,
+	  "FireAtGround": false,
+	  "EndlessAmmo": false,
+	  "EndlessPower": true,
+      "Position": "-3,7"
+    },
+	{
+      "Name": "Bomber1",
+      "PlayerId": 2,
+      "Blueprint": "Bomber",
+	  "ContainerFilled": 0,
+	  "HoldPosition": true,
+	  "HoldFire": true,
+	  "FireAtGround": false,
+	  "EndlessAmmo": false,
+	  "EndlessPower": true,
+      "Position": "-3,8"
+    },
+	{
+      "Name": "Bomber1",
+      "PlayerId": 2,
+      "Blueprint": "Bomber",
+	  "ContainerFilled": 0,
+	  "HoldPosition": true,
+	  "HoldFire": true,
+	  "FireAtGround": false,
+	  "EndlessAmmo": false,
+	  "EndlessPower": true,
+      "Position": "-3,9"
     }
   ]
 }
