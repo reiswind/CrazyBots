@@ -169,6 +169,9 @@ namespace Assets.Scripts
 
         private void Update()
         {
+            if (CommandPreview == null)
+                return;
+
             Position3 targetPosition3;
             if (CommandPreview.IsMoveMode)
             {
