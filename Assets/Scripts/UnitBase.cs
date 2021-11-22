@@ -417,6 +417,11 @@ namespace Assets.Scripts
 
         public void UpdateStats(MoveUpdateStats stats)
         {
+            if (UnitId == "unit1")
+            {
+                int x = 0;
+            }
+
             if (stats != null)
             {
                 if (IsActive && stats.Power == 0)
@@ -556,6 +561,10 @@ namespace Assets.Scripts
 
         public void Upgrade(Move move, UnitBase upgradedUnit)
         {
+            if (upgradedUnit.UnitId == "unit1")
+            {
+                int x = 0;
+            }
             foreach (UnitBasePart upgradedBasePart in upgradedUnit.UnitBaseParts)
             {
                 if (upgradedBasePart.PartType == move.MoveRecipe.Result)
@@ -582,7 +591,8 @@ namespace Assets.Scripts
                         GameObject upgradedSubPart;
                         for (int level = 1; level <= upgradedBasePart.CompleteLevel; level++)
                         {
-                            upgradedSubPart = FindChildNyName(upgradedMainPart, upgradedBasePart.Name + upgradedBasePart.CompleteLevel + "-" + nextLevel);
+                            //upgradedSubPart = FindChildNyName(upgradedMainPart, upgradedBasePart.Name + upgradedBasePart.CompleteLevel + "-" + nextLevel); always the same in loop? Why?
+                            upgradedSubPart = FindChildNyName(upgradedMainPart, upgradedBasePart.Name + upgradedBasePart.CompleteLevel + "-" + level);
                             if (upgradedSubPart != null)
                             {
                                 if (nextLevel == level)
@@ -598,6 +608,8 @@ namespace Assets.Scripts
                     }
                     // Needs to be reinitialzed
                     upgradedBasePart.TileObjectContainer = null;
+                    if (upgradedBasePart.Destroyed)
+                        upgradedBasePart.Destroyed = false;
 
                     foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
                     {
@@ -660,6 +672,7 @@ namespace Assets.Scripts
                     }
                 }
             }
+            
             if (highlightEffect != null)
                 highlightEffect.Refresh();
         }
@@ -986,30 +999,8 @@ namespace Assets.Scripts
                         unitBasePart.Destroyed = true;
 
                         HexGrid.MainGrid.HitUnitPartAnimation(currentCell.transform);
-                        // Clone the part
-                        /*
-                        GameObject part = Instantiate(hitGameObject, currentCell.transform, false);
-                        part.layer = 0; // LayerMask.GetMask("Default");
-
-                        Vector3 vector3 = hitGameObject.transform.position;
-                        vector3.y += 5.2f;
-                        hitGameObject.transform.position = vector3;
-
-                        Destroy(part, 10);
-                        part.SetActive(true);
-                        SetPlayerColor(0, part);
-
-                        hitGameObject.SetActive(false);
-                        unitBasePart.Destroyed = true;
-
-                        ParticleSystem partDerisTrail = HexGrid.MainGrid.MakeParticleSource("DebrisTrail");
-                        partDerisTrail.gameObject.transform.SetParent(part.transform);
-                        partDerisTrail.Play();
-
-                        ActivateRigidbody(part);*/
                     }
                     
-
                     GameObject smoke = FindChildNyName(gameObject, "SmokeEffect");
                     if (smoke != null)
                         smoke.SetActive(true);
@@ -1020,16 +1011,8 @@ namespace Assets.Scripts
             return null;
         }
 
-        //public ParticleSystem TankExplosionParticles;
-
         public void HitByShell()
         {
-            /*
-            if (TankExplosionParticles != null)
-            {
-                ParticleSystem particles= Instantiate(TankExplosionParticles, transform);
-                particles.Play();
-            }*/
         }
 
         private bool IsBuilding()
@@ -1207,7 +1190,23 @@ namespace Assets.Scripts
                 HasBeenDestroyed = true;
                 Destroy(gameObject, 10);
             }
-
+            else
+            {
+                bool damaged = false;
+                foreach (UnitBasePart unitBasePart in UnitBaseParts)
+                {
+                    if (unitBasePart.Destroyed || unitBasePart.Level != unitBasePart.CompleteLevel)
+                    {
+                        damaged = true;
+                    }
+                }
+                if (!damaged)
+                {
+                    GameObject smoke = FindChildNyName(gameObject, "SmokeEffect");
+                    if (smoke != null)
+                        smoke.SetActive(false);
+                }
+            }
             if (UnderConstruction && missingPartFound == false)
             {
                 // First time complete
