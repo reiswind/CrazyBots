@@ -210,6 +210,7 @@ namespace Engine.Interface
         public string AttachedUnitId { get; set; }
         public string FactoryUnitId { get; set; }
         public string Status { get; set; }
+        public bool Alert { get; set; }
     }
 
     public class MoveUpdateStats

@@ -1312,6 +1312,20 @@ namespace Engine.Master
             // Collect reactors and consume power for every unit
             foreach (Unit unit in Map.Units.List.Values)
             {
+                // Do it here, to notify about changes
+                if (unit.CurrentGameCommand != null && unit.CurrentGameCommand.Changed)
+                {
+                    unit.CurrentGameCommand.Changed = false;
+                    if (!changedUnits.ContainsKey(unit.Pos))
+                        changedUnits.Add(unit.Pos, unit);
+                }
+                if (unit.Changed)
+                {
+                    unit.Changed = false;
+                    if (!changedUnits.ContainsKey(unit.Pos))
+                        changedUnits.Add(unit.Pos, unit);
+                }
+
                 if (unit.Owner.PlayerModel.Id != player.PlayerModel.Id)
                     continue;
 
@@ -1966,7 +1980,7 @@ namespace Engine.Master
                         gameCommandItem.Position3 = mapGameCommandItem.Position3;
                         gameCommandItem.BlueprintName = mapGameCommandItem.BlueprintName;
                         gameCommandItem.Direction = mapGameCommandItem.Direction;
-                        gameCommandItem.Status = mapGameCommandItem.Status;
+                        //gameCommandItem.SetStatus(mapGameCommandItem.Status, mapGameCommandItem.a;
 
                         gameCommandItem.RotatedPosition3 = mapGameCommandItem.RotatedPosition3;
                         gameCommandItem.RotatedDirection = mapGameCommandItem.RotatedDirection;

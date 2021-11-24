@@ -101,6 +101,8 @@ namespace Engine.Ants
                         {
                             gameCommandItem.DeleteWhenDestroyed = true;
                             gameCommandItem.FollowPheromones = true;
+
+                            gameCommandItem.SetStatus("PatrolFollowPheromones");
                         }
                         player.GameCommands.Add(patrolCommand);
                         break;
@@ -127,6 +129,7 @@ namespace Engine.Ants
                         gameCommandItem.BlueprintName = "Bomber";
                         gameCommandItem.DeleteWhenDestroyed = true;
                         gameCommandItem.FollowPheromones = true;
+                        gameCommandItem.SetStatus("AddPatrolFollowPheromones");
 
                         patrolCommand.GameCommandItems.Add(gameCommandItem);
                     }
@@ -382,6 +385,11 @@ namespace Engine.Ants
                         gameCommand.PlayerId = player.PlayerModel.Id;
                         gameCommand.DeleteWhenFinished = true;
 
+                        foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
+                        {
+                            gameCommandItem.SetStatus("Created");
+                        }
+
                         //if (player.PlayerModel.Id == 1)
                         //    Debug.WriteLine("Create Attack at " + pos.ToString());
 
@@ -394,7 +402,6 @@ namespace Engine.Ants
 
         public void CreateCollectCommand(Player player, Position2 pos)
         {
-
             bool commandActive = false;
             foreach (GameCommand gameCommand in player.GameCommands)
             {
@@ -425,13 +432,17 @@ namespace Engine.Ants
                         GameCommand gameCommand = new GameCommand(blueprintCommand);
 
                         gameCommand.GameCommandType = GameCommandType.Collect;
-                        //gameCommand.TargetZone = zoneId;
                         gameCommand.Radius = 4;
                         gameCommand.TargetPosition = pos;
                         gameCommand.PlayerId = player.PlayerModel.Id;
                         gameCommand.DeleteWhenFinished = true;
 
                         gameCommand.IncludedPositions = player.Game.Map.EnumerateTiles(gameCommand.TargetPosition, gameCommand.Radius, true);
+
+                        foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
+                        {
+                            gameCommandItem.SetStatus("Created");
+                        }
 
                         player.GameCommands.Add(gameCommand);
                         break;
@@ -653,6 +664,12 @@ namespace Engine.Ants
                         gameCommand.PlayerId = player.PlayerModel.Id;
                         gameCommand.TargetZone = zoneId;
                         gameCommand.DeleteWhenFinished = true;
+
+                        foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
+                        {
+                            gameCommandItem.SetStatus("CreatedOutpost");
+                        }
+
                         player.GameCommands.Add(gameCommand);
 
                         break;
@@ -667,6 +684,12 @@ namespace Engine.Ants
                         gameCommand.PlayerId = player.PlayerModel.Id;
                         gameCommand.TargetZone = zoneId;
                         gameCommand.DeleteWhenFinished = true;
+
+                        foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
+                        {
+                            gameCommandItem.SetStatus("CreatedContainer");
+                        }
+
                         player.GameCommands.Add(gameCommand);
                         
                         break;
@@ -1645,6 +1668,10 @@ namespace Engine.Ants
                 {
                     gameCommand.CommandComplete = true;
                     gameCommand.DeleteWhenFinished = true;
+                    foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
+                    {
+                        gameCommandItem.SetStatus("Canceled");
+                    }
 
                     foreach (GameCommand otherGameCommand in player.GameCommands)
                     {
@@ -1798,6 +1825,8 @@ namespace Engine.Ants
                                         gameCommandItem.FactoryUnitId = ant.Unit.UnitId;
                                         ant.Unit.SetGameCommand(gameCommandItem);
                                         requestUnit = false;
+
+                                        gameCommandItem.SetStatus("AttachedFactoryUnitId: " + gameCommandItem.FactoryUnitId);
                                     }
                                 }
                                 else
@@ -1807,6 +1836,8 @@ namespace Engine.Ants
                                         gameCommandItem.AttachedUnitId = ant.Unit.UnitId;
                                         ant.Unit.SetGameCommand(gameCommandItem);
                                         requestUnit = false;
+
+                                        gameCommandItem.SetStatus("AttachedUnitId: " + gameCommandItem.AttachedUnitId);
                                     }
                                 }
                             }
@@ -1820,6 +1851,8 @@ namespace Engine.Ants
                                 deliveryAnt.Unit.SetGameCommand(gameCommandItem);
                                 gameCommandItem.AttachedUnitId = deliveryAnt.Unit.UnitId;
                                 requestUnit = false;
+
+                                gameCommandItem.SetStatus("AttachedUnitId for Delivery: " + gameCommandItem.AttachedUnitId);
                             }
                             else
                             {
@@ -1829,10 +1862,14 @@ namespace Engine.Ants
                                     if (transportAnt != null)
                                     {
                                         transportAnt.Unit.SetGameCommand(gameCommandItem);
+
                                         // The attached unit is the one, who delivers the content (Need resevation!)
                                         gameCommandItem.AttachedUnitId = deliveryAnt.Unit.UnitId;
                                         // The factory unit is the one who transports the content. (First Job => Move to Attached?)
                                         gameCommandItem.FactoryUnitId = transportAnt.Unit.UnitId;
+
+                                        gameCommandItem.SetStatus("AttachedTransport: " + gameCommandItem.FactoryUnitId + " take from " + gameCommandItem.AttachedUnitId);
+                                        requestUnit = false;
                                     }
                                     else
                                     {
@@ -1844,6 +1881,9 @@ namespace Engine.Ants
                                 {
                                     // The attached unit is the one, who delivers the content (Need resevation!)
                                     gameCommandItem.AttachedUnitId = deliveryAnt.Unit.UnitId;
+
+                                    gameCommandItem.SetStatus("AttachedTransport: " + gameCommandItem.AttachedUnitId);
+
                                     requestUnit = false;
                                 }
                             }
@@ -1883,9 +1923,15 @@ namespace Engine.Ants
                         }
                         if (bestAnt != null)
                         {
+                            if (bestAnt.Unit.CurrentGameCommand != null)
+                            {
+                                int x = 0; 
+                            }
                             // Assign the build command to an assembler COMMAND-STEP2 BUILD-STEP2
                             bestAnt.Unit.SetGameCommand(gameCommandItem);
                             gameCommandItem.FactoryUnitId = bestAnt.Unit.UnitId;
+
+                            gameCommandItem.SetStatus("AttachedFactoryx: " + gameCommandItem.FactoryUnitId);
                         }
                     }
                 }
@@ -1920,8 +1966,10 @@ namespace Engine.Ants
                 if (otherAnt.Unit.Engine == null) continue;
                 // Must have a container
                 if (otherAnt.Unit.Container == null) continue;
-                // Must not contain more than 10%
-                if (otherAnt.Unit.Container.TileContainer.Count > (otherAnt.Unit.Container.TileContainer.Capacity / 10)) continue;
+
+
+                // Must not contain more than 10% (If filled! but also need empty transporter
+                //if (otherAnt.Unit.Container.TileContainer.Count > (otherAnt.Unit.Container.TileContainer.Capacity / 10)) continue;
 
                 //double distance = otherAnt.PlayerUnit.Unit.Pos.GetDistanceTo(ant.PlayerUnit.Unit.Pos);
                 int distance = Position3.Distance(otherAnt.Unit.Pos, gameCommandItem.GameCommand.TargetPosition);
@@ -2279,11 +2327,15 @@ namespace Engine.Ants
                                         // The attached unit is the one, who delivers the content (Need resevation!)
                                         ant.Unit.CurrentGameCommand.AttachedUnitId = null;
                                         ant.Unit.CurrentGameCommand.FactoryUnitId = ant.Unit.UnitId;
+
+                                        ant.Unit.CurrentGameCommand.SetStatus("UnitToDeliver: " + ant.Unit.CurrentGameCommand.FactoryUnitId);
                                     }
                                     else if (ant.Unit.Blueprint.Name == "Assembler")
                                     {
                                         ant.Unit.CurrentGameCommand.AttachedUnitId = null;
                                         ant.Unit.CurrentGameCommand.FactoryUnitId = ant.Unit.UnitId;
+
+                                        ant.Unit.CurrentGameCommand.SetStatus("UnitToAssemble: " + ant.Unit.CurrentGameCommand.FactoryUnitId);
                                     }
                                     else
                                     {
@@ -2297,6 +2349,7 @@ namespace Engine.Ants
                                             if (ant.Unit.CurrentGameCommand.GameCommand.DeleteWhenFinished)
                                             {
                                                 ant.Unit.CurrentGameCommand.GameCommand.CommandComplete = true;
+                                                ant.Unit.CurrentGameCommand.SetStatus("CommandComplete");
                                             }
                                             else
                                             {

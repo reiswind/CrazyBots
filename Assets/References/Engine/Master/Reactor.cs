@@ -75,6 +75,7 @@ namespace Engine.Master
                     AvailablePower = TileObject.GetPowerForTileObjectType(moveRecipeIngredient.TileObjectType);
 
                     // Animation missing, no move
+                    Unit.Changed = true;
 
                     TileObject tileObject = Unit.ConsumeIngredient(moveRecipeIngredient, changedUnits);
                     if (tileObject != null)

@@ -1400,7 +1400,13 @@ namespace Assets.Scripts
             }
             MapGameCommand gameCommand = commandPreview.GameCommand;
             headerText.text = gameCommand.GameCommandType.ToString();
-            headerSubText.text = "Radius " + gameCommand.Radius.ToString() + " sel: " + commandPreview.IsSelected.ToString();
+            //headerSubText.text = "Radius " + gameCommand.Radius.ToString() + " sel: " + commandPreview.IsSelected.ToString();
+
+            foreach (MapGameCommandItem gameCommandItem in gameCommand.GameCommandItems)
+            {
+                headerSubText.text = gameCommandItem.Status;
+                break;
+            }
             /*
             panelCommand.transform.Find("Partname").GetComponent<Text>().text = gameCommand.GameCommandType.ToString();
             panelCommand.transform.Find("Content").GetComponent<Text>().text = "Radius " + gameCommand.Radius.ToString();

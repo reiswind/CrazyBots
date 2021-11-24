@@ -28,6 +28,7 @@ namespace Engine.Interface
         internal GameCommandItem(GameCommand gamecommand)
         {
             GameCommand = gamecommand;
+            Status = "CreatedNoBlueprint";
         }
         internal GameCommandItem(GameCommand gamecommand, BlueprintCommandItem blueprintCommandItem)
         {
@@ -35,6 +36,7 @@ namespace Engine.Interface
             Position3 = blueprintCommandItem.Position3;
             Direction = blueprintCommandItem.Direction;
             GameCommand = gamecommand;
+            Status = "Created";
         }
         // Runtime info
         internal Direction Direction { get; set; }
@@ -45,13 +47,24 @@ namespace Engine.Interface
 
         internal string BlueprintName { get; set; }
         internal string AttachedUnitId { get; set; }
+
         internal string TargetUnitId { get; set; }
         internal GameCommand GameCommand { get; private set; }
         internal string FactoryUnitId { get; set; }
-        public string Status { get; set; }
+        public string Status { get; private set; }
+        public int StuckCounter { get; set; }
+        internal void SetStatus (string text, bool alert = false)
+        {
+            Status = text;
+            Alert = alert;
+            Changed = true;
+        }
 
+        public bool Alert { get; private set; }
         public bool DeleteWhenDestroyed { get; set; }
         public bool FollowPheromones { get; set; }
+
+        public bool Changed { get; set; }
 
         public override string ToString()
         {

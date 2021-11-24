@@ -44,7 +44,6 @@ namespace Engine.Interface
         public bool CommandComplete { get; set; }
         public bool DeleteWhenFinished { get; set; }
         public bool CommandCanceled { get; set; }
-        public string Status { get; set; }
         public int Radius { get; set; }
         public Direction Direction { get; set; }
         public int PlayerId { get; set; }

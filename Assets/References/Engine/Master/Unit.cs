@@ -64,7 +64,6 @@ namespace Engine.Master
     {
         private Position2 pos;
         // Position2 before any moves have been processed
-        [DataMember]
         public Position2 Pos
         {
             get
@@ -77,7 +76,6 @@ namespace Engine.Master
             }
         }
 
-        [DataMember]
         public Player Owner { get; set; }
 
         public Weapon Weapon { get; set; }
@@ -89,7 +87,6 @@ namespace Engine.Master
         public Reactor Reactor { get; set; }
         public Radar Radar { get; set; }
 
-        [DataMember]
         public string UnitId { get; set; }
 
         internal GameCommandItem CurrentGameCommand { get; private set; }
@@ -110,7 +107,12 @@ namespace Engine.Master
                 {
                     if (CurrentGameCommand.DeleteWhenDestroyed)
                     {
+                        CurrentGameCommand.SetStatus("DeleteBecauseDestroyed");
                         CurrentGameCommand.GameCommand.GameCommandItems.Remove(CurrentGameCommand);                        
+                    }
+                    else
+                    {
+                        CurrentGameCommand.SetStatus("Removed: " + UnitId);
                     }
                     CurrentGameCommand.AttachedUnitId = null;
                 }
@@ -118,6 +120,7 @@ namespace Engine.Master
                     CurrentGameCommand.FactoryUnitId = null;
                 if (CurrentGameCommand.TargetUnitId == UnitId)
                     CurrentGameCommand.TargetUnitId = null;
+                Changed = true;
                 CurrentGameCommand = null;
             }
         }
@@ -132,6 +135,7 @@ namespace Engine.Master
         public int PrevPower { get; set; }
         public int Power { get; set; }
         public bool EndlessPower { get; set; }
+        public bool Changed { get; set; }
         public int MaxPower { get; set; }
 
         // Unit can be extracted
@@ -817,8 +821,7 @@ namespace Engine.Master
                 stats.MoveUpdateStatsCommand.AttachedUnitId = CurrentGameCommand.AttachedUnitId;
                 stats.MoveUpdateStatsCommand.FactoryUnitId = CurrentGameCommand.FactoryUnitId;
                 stats.MoveUpdateStatsCommand.Status = CurrentGameCommand.Status;
-                
-
+                stats.MoveUpdateStatsCommand.Alert = CurrentGameCommand.Alert;
             }
             return stats;
         }

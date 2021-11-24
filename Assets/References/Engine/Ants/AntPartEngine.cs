@@ -695,7 +695,7 @@ namespace Engine.Ants
         {
             if (cntrlUnit.Weapon == null)
             {
-                cntrlUnit.CurrentGameCommand.Status = "NoWeapon";
+                cntrlUnit.CurrentGameCommand.SetStatus("NoWeapon");
                 return false;
             }
             Dictionary<Position2, TileWithDistance> tilesInArea = player.Game.Map.EnumerateTiles(targetUnitPosition, cntrlUnit.Weapon.Range, false, matcher: tile =>
@@ -760,9 +760,9 @@ namespace Engine.Ants
                             Ant.FollowThisRoute.Add(positions[i]);
                         }
                         if (cntrlUnit.Weapon.WeaponLoaded)
-                            cntrlUnit.CurrentGameCommand.Status = "Attacking";
+                            cntrlUnit.CurrentGameCommand.SetStatus("Attacking");
                         else
-                            cntrlUnit.CurrentGameCommand.Status = "CollectAmmo";
+                            cntrlUnit.CurrentGameCommand.SetStatus("CollectAmmo");
                         return true;
                     }
 
@@ -770,9 +770,9 @@ namespace Engine.Ants
             }
 
             if (cntrlUnit.Weapon.WeaponLoaded)
-                cntrlUnit.CurrentGameCommand.Status = "NoEnemyFound";
+                cntrlUnit.CurrentGameCommand.SetStatus("NoEnemyFound");
             else
-                cntrlUnit.CurrentGameCommand.Status = "NoAmmoFound";
+                cntrlUnit.CurrentGameCommand.SetStatus("NoAmmoFound");
             return false;
         }
 
@@ -780,7 +780,7 @@ namespace Engine.Ants
         {
             if (cntrlUnit.CurrentGameCommand == null || cntrlUnit.CurrentGameCommand.GameCommand.IncludedPositions == null)
             {
-                cntrlUnit.CurrentGameCommand.Status = "NoArea";
+                cntrlUnit.CurrentGameCommand.SetStatus("NoArea");
                 return false;
             }
 
@@ -831,7 +831,7 @@ namespace Engine.Ants
                             Ant.FollowThisRoute.Add(positions[i]);
                         }
                         cntrlUnit.CurrentGameCommand.GameCommand.CommandComplete = false;
-                        cntrlUnit.CurrentGameCommand.Status = "Collecting";
+                        cntrlUnit.CurrentGameCommand.SetStatus("Collecting");
                         return true;
                     }
 
@@ -853,7 +853,7 @@ namespace Engine.Ants
                     }
                 }
             }
-            cntrlUnit.CurrentGameCommand.Status = "OutOfResources";
+            cntrlUnit.CurrentGameCommand.SetStatus("OutOfResources", true);
             cntrlUnit.CurrentGameCommand.GameCommand.CommandComplete = true;
             return false;
         }
@@ -931,7 +931,7 @@ namespace Engine.Ants
                     }
                     else
                     {
-                        cntrlUnit.CurrentGameCommand.Status = "Full";
+                        cntrlUnit.CurrentGameCommand.SetStatus("Full");
                     }
                 }
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Attack)

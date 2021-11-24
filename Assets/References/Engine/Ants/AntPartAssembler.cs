@@ -40,10 +40,43 @@ namespace Engine.Ants
             {
                 if (Assembler.Unit.CurrentGameCommand != null)
                 {
-                    // Cancel the command
-                    Assembler.Unit.CurrentGameCommand.GameCommand.CommandCanceled = true;
-                }
+                    Assembler.Unit.CurrentGameCommand.SetStatus("NoResourcesToBuild", true);
 
+                    Assembler.Unit.CurrentGameCommand.StuckCounter++;
+                    if (Assembler.Unit.CurrentGameCommand.StuckCounter > 10)
+                    {
+                        // Cancel the command
+                        Assembler.Unit.CurrentGameCommand.GameCommand.CommandCanceled = true;
+                        Ant.Unit.ResetGameCommand();
+                    }
+                }
+                if (Assembler.Unit.CurrentGameCommand == null)
+                {
+                    // Need something to assemble
+                    GameCommand gameCommand = new GameCommand();
+                    gameCommand.GameCommandType = GameCommandType.ItemRequest;
+                    gameCommand.Layout = "UIDelivery";
+                    gameCommand.TargetPosition = Ant.Unit.Pos;
+                    gameCommand.DeleteWhenFinished = true;
+                    gameCommand.PlayerId = player.PlayerModel.Id;
+
+                    BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
+                    blueprintCommandItem.BlueprintName = Ant.Unit.Blueprint.Name;
+                    blueprintCommandItem.Direction = Direction.C;
+
+                    GameCommandItem gameCommandItem = new GameCommandItem(gameCommand, blueprintCommandItem);
+                    gameCommandItem.TargetUnitId = Ant.Unit.UnitId;
+
+                    gameCommand.RequestedItems = new List<RecipeIngredient>();
+
+                    RecipeIngredient recipeIngredient = new RecipeIngredient(TileObjectType.Mineral, Assembler.TileContainer.Capacity);
+                    gameCommand.RequestedItems.Add(recipeIngredient);
+
+                    Ant.Unit.SetGameCommand(gameCommandItem);
+
+                    gameCommand.GameCommandItems.Add(gameCommandItem);
+                    player.GameCommands.Add(gameCommand);
+                }
                 // Cannot build a unit, no mins
                 return false;
             }
@@ -251,7 +284,7 @@ namespace Engine.Ants
                             // Cannot build here any more. 
                             if (player.PlayerModel.IsHuman)
                             {
-                                selectedGameCommand.Status = "CannotBuild";
+                                selectedGameCommand.SetStatus("CannotBuild");
                             }
                             else
                             {
