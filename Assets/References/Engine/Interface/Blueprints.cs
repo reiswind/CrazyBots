@@ -59,7 +59,7 @@ namespace Engine.Interface
             blueprint.Name = "Factory";
             blueprint.Layout = "S-Factory";
             blueprint.Parts.Add(new BlueprintPart("S-PartExtractor"));
-            blueprint.Parts.Add(new BlueprintPart("S-PartAssembler", TileObjectType.PartAssembler, 3, 6));
+            blueprint.Parts.Add(new BlueprintPart("S-PartAssembler", TileObjectType.PartAssembler, 3, 4));
             Items.Add(blueprint);
 
             // Worker to collect Minerals

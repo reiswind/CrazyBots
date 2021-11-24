@@ -1,0 +1,39 @@
+{
+  "Name": "Test",
+  "MapWidth": 2,
+  "MapHeight": 2,
+  "Seed": 376070477,
+  "MapType": "2",
+  "Players": [
+    {
+      "ControlLevel": 1,
+      "Id": 1,
+      "Zone": 1,
+      "IsHuman": true,
+      "Name": "Player1"
+    }
+  ],
+  "Units": [
+    {
+      "Name": "Container",
+      "PlayerId": 1,
+      "Blueprint": "Container",
+      "Position": "0,0"
+    },
+    {
+      "Name": "Reactor",
+      "PlayerId": 1,
+      "ContainerFilled": 0,
+      "Blueprint": "Reactor",
+      "Position": "2,2"
+    },
+    {
+      "Name": "Worker",
+      "PlayerId": 1,
+
+      "Blueprint": "Factory",
+      "Position": "-1,-1"
+    }
+
+  ]
+}

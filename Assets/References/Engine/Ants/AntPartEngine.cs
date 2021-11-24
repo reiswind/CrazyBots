@@ -880,6 +880,49 @@ namespace Engine.Ants
             {
                 Position2 calcPathToPosition = Position2.Null;
 
+                if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                {
+                    if (Ant.Unit.UnitId == cntrlUnit.CurrentGameCommand.AttachedUnitId)
+                    {
+                        calcPathToPosition = cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition;
+                    }
+                    else if (Ant.Unit.UnitId == cntrlUnit.CurrentGameCommand.FactoryUnitId)
+                    {
+                        if (cntrlUnit.Extractor != null && cntrlUnit.Extractor.CanExtract)
+                        {
+                            if (cntrlUnit.CurrentGameCommand.AttachedUnitId == null)
+                            {
+                                
+                            }
+                            // Need to pick up the requested items. A possible pickup unit is in AttachedUnitId
+                            Unit containerUnit = player.Game.Map.Units.FindUnit(cntrlUnit.CurrentGameCommand.AttachedUnitId);
+                            if (containerUnit == null)
+                            {
+                                cntrlUnit.CurrentGameCommand.AttachedUnitId = null;
+                                cntrlUnit.CurrentGameCommand.GameCommand.CommandCanceled = true;
+                            }
+                            else
+                            {
+                                calcPathToPosition = containerUnit.Pos;
+                            }
+                        }
+                        else
+                        {
+                            // Transporter is full
+                            if (cntrlUnit.CurrentGameCommand.AttachedUnitId != Ant.Unit.UnitId)
+                            {
+                                // Drop the factory with the items to deliver, deliver the items directly
+                                cntrlUnit.CurrentGameCommand.AttachedUnitId = Ant.Unit.UnitId;
+                                cntrlUnit.CurrentGameCommand.FactoryUnitId = null;
+                            }
+                            int x = 0;
+                        }
+                    }
+                    else
+                    {
+                        int x = 0;
+                    }
+                }
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
                 {
                     if (cntrlUnit.Container != null && cntrlUnit.Container.TileContainer.IsFreeSpace)

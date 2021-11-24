@@ -79,6 +79,8 @@ namespace Engine.Master
                     TileObject tileObject = Unit.ConsumeIngredient(moveRecipeIngredient, changedUnits);
                     if (tileObject != null)
                        Unit.Game.Map.AddOpenTileObject(tileObject);
+
+                    //TileContainer.Clear();
                 }
                 /*
                 List<TileObject> tileObjects = new List<TileObject>();

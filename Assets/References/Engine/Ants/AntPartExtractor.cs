@@ -46,8 +46,7 @@ namespace Engine.Ants
                         if (Ant.AntWorkerType == AntWorkerType.Worker && Ant.Unit.CurrentGameCommand == null)
                         {
                             // Worker will only extract minerals if no command is attached.
-                            if (mineralMove.Stats != null &&
-                                mineralMove.Stats.MoveUpdateGroundStat.TileObjects[0].TileObjectType != TileObjectType.Mineral)
+                            if (mineralMove.OtherUnitId != "Mineral")
                             {
                                 continue;
                             }

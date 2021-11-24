@@ -116,6 +116,8 @@ namespace Engine.Master
                 }
                 if (CurrentGameCommand.FactoryUnitId == UnitId)
                     CurrentGameCommand.FactoryUnitId = null;
+                if (CurrentGameCommand.TargetUnitId == UnitId)
+                    CurrentGameCommand.TargetUnitId = null;
                 CurrentGameCommand = null;
             }
         }
@@ -127,6 +129,7 @@ namespace Engine.Master
             }
         }
 
+        public int PrevPower { get; set; }
         public int Power { get; set; }
         public bool EndlessPower { get; set; }
         public int MaxPower { get; set; }

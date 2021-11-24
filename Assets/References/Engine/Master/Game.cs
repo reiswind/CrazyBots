@@ -203,7 +203,7 @@ namespace Engine.Master
                                 thisUnit.Weapon.EndlessAmmo = true;
                             if (unitModel.EndlessPower)
                                 thisUnit.EndlessPower = true;
-                            
+
                             if (unitModel.ContainerFilled.HasValue)
                             {
                                 if (thisUnit.Container != null)
@@ -1318,9 +1318,13 @@ namespace Engine.Master
                 // Only own units
                 if (unit.Reactor != null && unit.Engine == null)
                 {
+                    if (unit.Reactor.AvailablePower == 0)
+                        unit.Reactor.BurnIfNeccessary(changedUnits);
                     reactors.Add(unit);
+                    if (!changedUnits.ContainsKey(unit.Pos))
+                        changedUnits.Add(unit.Pos, unit);
                 }
-
+                unit.PrevPower = unit.Power;
                 if (unit.Power > 0)
                 {
                     if (unit.EndlessPower)
@@ -1328,8 +1332,9 @@ namespace Engine.Master
                         if (unit.Armor != null)
                         {
                             unit.Armor.LoadShield(10);
-                            if (!changedUnits.ContainsKey(unit.Pos))
-                                changedUnits.Add(unit.Pos, unit);
+                            // Cannot update every frame
+                            //if (!changedUnits.ContainsKey(unit.Pos))
+                            //    changedUnits.Add(unit.Pos, unit);
                         }
                     }
                     else
@@ -1337,7 +1342,7 @@ namespace Engine.Master
                         unit.Power--;
                     }
                     totalNumberOfUnits++;
-                    // Cannot upodate every frame
+                    // Cannot update every frame
                     //if (!changedUnits.ContainsKey(unit.Pos))
                     //    changedUnits.Add(unit.Pos, unit);
                 }
@@ -1439,6 +1444,14 @@ namespace Engine.Master
                     unit.Power++;
                     unit.Armor.ShieldPower--;
                     unit.Armor.ShieldActive = false;
+
+                    if (!changedUnits.ContainsKey(unit.Pos))
+                        changedUnits.Add(unit.Pos, unit);
+                }
+                if (unit.PrevPower != unit.Power)
+                {
+                    if (!changedUnits.ContainsKey(unit.Pos))
+                        changedUnits.Add(unit.Pos, unit);
                 }
             }
 

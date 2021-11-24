@@ -20,7 +20,8 @@ namespace Engine.Interface
         Collect,
         Build,
         AddUnits,
-        Extract
+        Extract,
+        ItemRequest
     }
     internal class GameCommandItem
     {
@@ -44,6 +45,7 @@ namespace Engine.Interface
 
         internal string BlueprintName { get; set; }
         internal string AttachedUnitId { get; set; }
+        internal string TargetUnitId { get; set; }
         internal GameCommand GameCommand { get; private set; }
         internal string FactoryUnitId { get; set; }
         public string Status { get; set; }
@@ -87,7 +89,7 @@ namespace Engine.Interface
         public Position2 MoveToPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
         public List<GameCommandItem> GameCommandItems { get; private set; }
-
+        public List<RecipeIngredient> RequestedItems { get; set; }
         internal Dictionary<Position2, TileWithDistance> IncludedPositions { get; set; }
 
         public override string ToString()

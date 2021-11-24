@@ -159,6 +159,7 @@ namespace Engine.Interface
     {
         None,
         All,
+        Burn,
 
         // Collectable
         Mineral,

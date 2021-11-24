@@ -35,14 +35,15 @@ namespace Engine.Ants
         {
             bool upgrading = false;
 
-            if (Assembler.Unit.UnitId == "unit7")
-            {
-                int x = 0;
-            }
-
             MoveRecipeIngredient moveRecipeIngredient = Ant.Unit.FindIngredient(TileObjectType.Mineral, true);
             if (moveRecipeIngredient == null)
             {
+                if (Assembler.Unit.CurrentGameCommand != null)
+                {
+                    // Cancel the command
+                    Assembler.Unit.CurrentGameCommand.GameCommand.CommandCanceled = true;
+                }
+
                 // Cannot build a unit, no mins
                 return false;
             }
@@ -79,7 +80,6 @@ namespace Engine.Ants
                 GameCommandItem passGameCommandToNewUnit;
                 
                 bool computePossibleMoves = true;
-                //bool assemblerUsedToBuild = false;
 
                 if (selectedGameCommand == null)
                 {
@@ -121,17 +121,20 @@ namespace Engine.Ants
                     }
                     else
                     {
-                        // Structure: Build unit or an assembler that moves there 
-                        Blueprint commandBluePrint;
-                        commandBluePrint = player.Game.Blueprints.FindBlueprint(selectedGameCommand.BlueprintName);
-
+                        // Structure: Build unit or an assembler that moves ther
                         bool engineFound = false;
-                        foreach (BlueprintPart blueprintPart in commandBluePrint.Parts)
+                        if (!string.IsNullOrEmpty(selectedGameCommand.BlueprintName))
                         {
-                            if (blueprintPart.PartType == TileObjectType.PartEngine)
+                            Blueprint commandBluePrint;
+                            commandBluePrint = player.Game.Blueprints.FindBlueprint(selectedGameCommand.BlueprintName);
+
+                            foreach (BlueprintPart blueprintPart in commandBluePrint.Parts)
                             {
-                                engineFound = true;
-                                break;
+                                if (blueprintPart.PartType == TileObjectType.PartEngine)
+                                {
+                                    engineFound = true;
+                                    break;
+                                }
                             }
                         }
                         if (engineFound)
@@ -168,8 +171,10 @@ namespace Engine.Ants
 
                                 bool assembler;
                                 bool engine;
+                                bool container;
                                 foreach (Blueprint blueprint in player.Game.Blueprints.Items)
                                 {
+                                    container = false;
                                     assembler = false;
                                     engine = false;
 
@@ -183,13 +188,30 @@ namespace Engine.Ants
                                         {
                                             engine = true;
                                         }
+                                        if (blueprintPart.PartType == TileObjectType.PartContainer)
+                                        {
+                                            container = true;
+                                        }
                                     }
-                                    if (assembler && engine)
+                                    if (selectedGameCommand.GameCommand.GameCommandType == GameCommandType.Build)
                                     {
-                                        BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
-                                        blueprintCommandItem.BlueprintName = blueprint.Name;
-                                        blueprintCommand.Units.Add(blueprintCommandItem);
-                                        break;
+                                        if (assembler && engine)
+                                        {
+                                            BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
+                                            blueprintCommandItem.BlueprintName = blueprint.Name;
+                                            blueprintCommand.Units.Add(blueprintCommandItem);
+                                            break;
+                                        }
+                                    }
+                                    if (selectedGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                                    {
+                                        if (container && engine)
+                                        {
+                                            BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
+                                            blueprintCommandItem.BlueprintName = blueprint.Name;
+                                            blueprintCommand.Units.Add(blueprintCommandItem);
+                                            break;
+                                        }
                                     }
                                 }
 

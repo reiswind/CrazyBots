@@ -20,6 +20,11 @@ namespace Engine.Interface
         }
         public TileObjectType TileObjectType { get; private set; }
         public int Count { get; private set; }
+
+        public override string ToString()
+        {
+            return Count + "x " + TileObjectType.ToString();
+        }
     }
     public class Recipes
     {

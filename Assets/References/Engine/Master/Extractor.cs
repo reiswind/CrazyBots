@@ -208,25 +208,53 @@ namespace Engine.Master
                         {
                             if (Unit.Engine == null)
                             {
-                                // Container extracting from worker
-                                if (t.Unit.Engine != null)
+                                if (Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                                 {
-                                    Move move = CreateExtractMoveIfPossible(t.Unit);
-                                    if (move != null)
+                                    if (Unit.CurrentGameCommand.AttachedUnitId == t.Unit.UnitId)
                                     {
-                                        possibleMoves.Add(move);
-                                    }
-                                }
-                                else
-                                {
-                                    // Extract from friendly structure next
-                                    if (Unit.Weapon != null)
-                                    {
-                                        // Turret from Container
+                                        // This is the transporter, that delivered the stuff.
                                         Move move = CreateExtractMoveIfPossible(t.Unit);
                                         if (move != null)
                                         {
                                             possibleMoves.Add(move);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Container should not extract from a transporter
+                                        int x = 0;
+                                    }
+                                }
+                                else
+                                {
+                                    if (t.Unit.CurrentGameCommand != null && t.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                                    {
+                                        // Container should not extract from a worker that is used to deliver items.
+                                        int x = 0;
+                                    }
+                                    else
+                                    {
+                                        // Container extracting from worker
+                                        if (t.Unit.Engine != null)
+                                        {
+                                            Move move = CreateExtractMoveIfPossible(t.Unit);
+                                            if (move != null)
+                                            {
+                                                possibleMoves.Add(move);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            // Extract from friendly structure next
+                                            if (Unit.Weapon != null)
+                                            {
+                                                // Turret from Container
+                                                Move move = CreateExtractMoveIfPossible(t.Unit);
+                                                if (move != null)
+                                                {
+                                                    possibleMoves.Add(move);
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -249,6 +277,22 @@ namespace Engine.Master
                                     if (move != null)
                                     {
                                         possibleMoves.Add(move);
+                                    }
+                                }
+                                if (Unit.CurrentGameCommand != null)
+                                {
+                                    if (Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                                    {
+                                        if (Unit.UnitId == Unit.CurrentGameCommand.FactoryUnitId)
+                                        {
+                                            // This is the transporter, that should extract from container to deliver it
+                                            // Assembler extract from Container
+                                            Move move = CreateExtractMoveIfPossible(t.Unit);
+                                            if (move != null)
+                                            {
+                                                possibleMoves.Add(move);
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -433,6 +477,23 @@ namespace Engine.Master
                             break;
                         }
                         capacity--;
+                    }
+                    if (unit.CurrentGameCommand != null)
+                    {
+                        if (unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                        {
+                            if (unit.CurrentGameCommand.TargetUnitId == unit.UnitId)
+                            {
+                                // This is the transporter. It has extracted the content into the target, command is complete
+                                unit.CurrentGameCommand.GameCommand.CommandComplete = true;
+                            }
+                            if (unit.CurrentGameCommand.FactoryUnitId == unit.UnitId)
+                            {
+                                // This is the transporter. It has picked up the items. Attach it now, to deliver the items
+                                unit.CurrentGameCommand.AttachedUnitId = unit.UnitId;
+                                unit.CurrentGameCommand.FactoryUnitId = null;
+                            }
+                        }
                     }
 
                     if (otherUnit.ExtractMe && !otherUnit.IsDead() && capacity > 0)

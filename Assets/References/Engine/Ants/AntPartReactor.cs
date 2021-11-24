@@ -68,6 +68,33 @@ namespace Engine.Ants
         */
         public override bool Move(ControlAnt control, Player player, List<Move> moves)
         {
+            if (Reactor.TileContainer.Count == 0 && Ant.Unit.CurrentGameCommand == null)
+            {
+                // Need something to burn!
+                GameCommand gameCommand = new GameCommand();
+                gameCommand.GameCommandType = GameCommandType.ItemRequest;
+                gameCommand.Layout = "Delivery";
+                gameCommand.TargetPosition = Ant.Unit.Pos;
+                gameCommand.DeleteWhenFinished = true;
+                gameCommand.PlayerId = player.PlayerModel.Id;
+
+                BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
+                blueprintCommandItem.BlueprintName = Ant.Unit.Blueprint.Name;
+                blueprintCommandItem.Direction = Direction.C;
+
+                GameCommandItem gameCommandItem = new GameCommandItem(gameCommand, blueprintCommandItem);
+                gameCommandItem.TargetUnitId = Ant.Unit.UnitId;
+                
+                gameCommand.RequestedItems = new List<RecipeIngredient>();
+
+                RecipeIngredient recipeIngredient = new RecipeIngredient(TileObjectType.Burn, Reactor.TileContainer.Capacity);
+                gameCommand.RequestedItems.Add(recipeIngredient);
+
+                Ant.Unit.SetGameCommand(gameCommandItem);
+
+                gameCommand.GameCommandItems.Add(gameCommandItem);
+                player.GameCommands.Add(gameCommand);
+            }
             /*
             if (Reactor.TileContainer.Count < Reactor.TileContainer.Capacity)
             {

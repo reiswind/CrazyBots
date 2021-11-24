@@ -91,6 +91,70 @@ namespace Engine.Ants
                 }
             }*/
         }
+        public int GetDeliveryScoreForTileObjectType(TileObjectType presentType)
+        {
+            if (presentType == TileObjectType.Tree)
+                return 10;
+            if (presentType == TileObjectType.Bush)
+                return 10;
+            if (presentType == TileObjectType.Mineral)
+                return 1;
+            return 0;
+        }
+        public int GetDeliveryScoreForTileObjectType(TileObjectType requestType, TileObjectType presentType)
+        {
+            if (requestType == presentType)
+                return GetDeliveryScoreForTileObjectType(presentType);
+            if (requestType == TileObjectType.Burn)
+            {
+                if (presentType == TileObjectType.Tree) 
+                    return GetDeliveryScoreForTileObjectType(presentType);
+                if (presentType == TileObjectType.Bush) 
+                    return GetDeliveryScoreForTileObjectType(presentType);
+                if (presentType == TileObjectType.Mineral)
+                    return GetDeliveryScoreForTileObjectType(presentType);
+            }
+            return 0;
+        }
+        public int GetDeliveryScore(GameCommand gameCommand)
+        {
+            int score = 0;
+
+            if (AntPartContainer != null)
+            {
+                List<TileObject> countedObjects = new List<TileObject>();
+                foreach (RecipeIngredient recipeIngredient in gameCommand.RequestedItems)
+                {
+                    int requestCount = recipeIngredient.Count;
+                    foreach (TileObject tileObject in AntPartContainer.Container.TileContainer.TileObjects)
+                    {
+                        if (countedObjects.Contains(tileObject))
+                            continue;
+
+                        int s = GetDeliveryScoreForTileObjectType(recipeIngredient.TileObjectType, tileObject.TileObjectType);
+                        if (s > 0)
+                        {
+                            score += s;
+                            countedObjects.Add(tileObject);
+
+                            requestCount--;
+                            if (requestCount == 0)
+                                break;
+                        }
+                    }
+                }
+            }
+            if (score > 0)
+            {
+                if (AntPartEngine != null)
+                {
+                    // Can deliver immediatly
+                    score += 10;
+                }
+            }
+            return score;
+        }
+
 
         public void CreateAntParts()
         {
