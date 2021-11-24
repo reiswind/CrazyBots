@@ -581,6 +581,7 @@ namespace Engine.Interface
             }
 
             // Add water border
+            
             map_radius = mapWidth + 1;
             for (int q = -map_radius; q <= map_radius; q++)
             {
