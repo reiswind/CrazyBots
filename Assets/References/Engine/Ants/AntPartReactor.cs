@@ -73,7 +73,7 @@ namespace Engine.Ants
                 // Need something to burn!
                 GameCommand gameCommand = new GameCommand();
                 gameCommand.GameCommandType = GameCommandType.ItemRequest;
-                gameCommand.Layout = "Delivery";
+                gameCommand.Layout = "UIDelivery";
                 gameCommand.TargetPosition = Ant.Unit.Pos;
                 gameCommand.DeleteWhenFinished = true;
                 gameCommand.PlayerId = player.PlayerModel.Id;
