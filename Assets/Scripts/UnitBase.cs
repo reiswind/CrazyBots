@@ -440,15 +440,28 @@ namespace Assets.Scripts
             Destroy(gameObject);
         }
         private bool selectionChanged;
+
+        private bool isSelected;
+        public bool IsSelected
+        {
+            get
+            {
+                return isSelected;
+            }
+        }
+        public void SetSelected(bool value)
+        {
+            isSelected = value;
+        }
+
         public bool IsHighlighted { get; private set; }
 
         private HighlightEffect highlightEffect { get; set; }
 
         internal void SetHighlighted(bool highlighted)
         {
-            if (IsHighlighted != highlighted)
+            //if (IsHighlighted != highlighted)
             {
-                selectionChanged = true;
                 IsHighlighted = highlighted;
                 if (highlightEffect)
                     highlightEffect.SetHighlighted(highlighted);
