@@ -91,6 +91,7 @@ namespace Engine.Interface
         public MapGameCommand GameCommand { get; private set; }
         public string FactoryUnitId { get; set; }
         public string Status { get; set; }
+        public bool Alert  { get; set; }
     }
 
     public class MapPheromoneItem
@@ -219,6 +220,7 @@ namespace Engine.Interface
                                 mapGameCommandItem.AttachedUnitId = gameCommandItem.AttachedUnitId;
                                 mapGameCommandItem.FactoryUnitId = gameCommandItem.FactoryUnitId;
                                 mapGameCommandItem.Status = gameCommandItem.Status;
+                                mapGameCommandItem.Alert = gameCommandItem.Alert;
                                 mapGameCommand.GameCommandItems.Add(mapGameCommandItem);
                             }
                             mapPlayerInfo.GameCommands.Add(mapGameCommand);

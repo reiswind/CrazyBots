@@ -182,9 +182,15 @@ namespace Assets.Scripts
                 targetPosition3 = new Position3(CommandPreview.GameCommand.TargetPosition);
             }
 
+            bool showAlert = false;
+
             // Display Ghost?
             foreach (CommandAttachedUnit commandAttachedUnit in CommandPreview.PreviewUnits)
             {
+                if (commandAttachedUnit.MapGameCommandItem.Alert)
+                {
+                    showAlert = true;
+                }
                 if (string.IsNullOrEmpty(commandAttachedUnit.MapGameCommandItem.AttachedUnitId))
                 {
                     // Display Ghost, unit does not exist
@@ -254,6 +260,8 @@ namespace Assets.Scripts
                     }
                 }
             }
+
+            CommandPreview.ShowAlert(showAlert);
             
 
             if (IsHighlighted)

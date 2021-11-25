@@ -1404,6 +1404,8 @@ namespace Assets.Scripts
             foreach (MapGameCommandItem gameCommandItem in gameCommand.GameCommandItems)
             {
                 headerSubText.text = gameCommandItem.Status;
+                if (gameCommandItem.Alert)
+                    headerSubText.text += " ALERT";
                 break;
             }
             /*

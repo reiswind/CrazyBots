@@ -68,6 +68,7 @@ namespace Assets.Scripts
         public BlueprintCommand Blueprint { get; private set; }
 
         private GameObject previewGameCommand;
+        private GameObject alertGameObject;
 
         public List<CommandAttachedUnit> PreviewUnits { get; set; }
 
@@ -612,12 +613,14 @@ namespace Assets.Scripts
                 Vector3 unitPos3 = groundCell.transform.position;
                 if (GameCommand.GameCommandType == GameCommandType.Build)
                     unitPos3.y += 1.5f;
-                else if (GameCommand.GameCommandType == GameCommandType.Attack)
+                else if (GameCommand.GameCommandType == GameCommandType.Attack ||
+                         GameCommand.GameCommandType == GameCommandType.Collect)
                     unitPos3.y += 1.0f;
                 else if (GameCommand.GameCommandType == GameCommandType.ItemRequest)
                     unitPos3.y += 2.0f;
                 else
-                    unitPos3.y += aboveGround;
+                    unitPos3.y += 2.0f;
+
                 previewGameCommand.transform.position = unitPos3;
 
                 Position3 centerPosition3 = new Position3(displayPosition);
@@ -656,6 +659,15 @@ namespace Assets.Scripts
             }
         }
 
+        public void ShowAlert(bool showAlert)
+        {
+            if (alertGameObject != null)
+            {
+                alertGameObject.SetActive(showAlert);
+            }
+        }
+
+
         private void CreateCommandLogo()
         {
             if (previewGameCommand != null)
@@ -665,6 +677,12 @@ namespace Assets.Scripts
             previewGameCommand = HexGrid.Instantiate(HexGrid.MainGrid.GetResource(GameCommand.Layout));
             previewGameCommand.transform.SetParent(HexGrid.MainGrid.transform, false);
 
+            Transform alert = previewGameCommand.transform.Find("Alert");
+            if (alert != null)
+            {
+                alertGameObject = alert.gameObject;
+                alertGameObject.SetActive(false);
+            }
             Command = previewGameCommand.GetComponent<Command>();
             Command.CommandPreview = this;
         }

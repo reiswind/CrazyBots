@@ -829,8 +829,8 @@ namespace Assets.Scripts
                         foreach (MapPlayerInfo mapPlayerInfo in MapInfo.PlayerInfo.Values)
                         {
                             // Only for current player
-                            if (mapPlayerInfo.PlayerId != 1)
-                                continue;
+                            //if (mapPlayerInfo.PlayerId != 1)
+                            //    continue;
 
                             if (mapPlayerInfo.GameCommands != null && mapPlayerInfo.GameCommands.Count > 0)
                             {

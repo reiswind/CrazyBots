@@ -47,6 +47,11 @@ namespace Engine.Ants
 
         private void RequestIngredientsForUnit(Player player)
         {
+            if (Ant.AntPartEngine != null)
+            {
+                // Only for structures!
+                return;
+            }
             foreach (GameCommand gameCommand1 in player.GameCommands)
             {
                 if (gameCommand1.TargetPosition == Ant.Unit.Pos &&
@@ -108,31 +113,6 @@ namespace Engine.Ants
                 {
                     // Need something to assemble
                     RequestIngredientsForUnit(player);
-                    /*
-                    GameCommand gameCommand = new GameCommand();
-                    gameCommand.GameCommandType = GameCommandType.ItemRequest;
-                    gameCommand.Layout = "UIDelivery";
-                    gameCommand.TargetPosition = Ant.Unit.Pos;
-                    gameCommand.DeleteWhenFinished = true;
-                    gameCommand.PlayerId = player.PlayerModel.Id;
-
-                    BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
-                    blueprintCommandItem.BlueprintName = Ant.Unit.Blueprint.Name;
-                    blueprintCommandItem.Direction = Direction.C;
-
-                    GameCommandItem gameCommandItem = new GameCommandItem(gameCommand, blueprintCommandItem);
-                    gameCommandItem.TargetUnitId = Ant.Unit.UnitId;
-
-                    gameCommand.RequestedItems = new List<RecipeIngredient>();
-
-                    RecipeIngredient recipeIngredient = new RecipeIngredient(TileObjectType.Mineral, Assembler.TileContainer.Capacity);
-                    gameCommand.RequestedItems.Add(recipeIngredient);
-
-                    Ant.Unit.SetGameCommand(gameCommandItem);
-
-                    gameCommand.GameCommandItems.Add(gameCommandItem);
-                    player.GameCommands.Add(gameCommand);
-                    */
                 }
                 // Cannot build a unit, no mins
                 return false;
