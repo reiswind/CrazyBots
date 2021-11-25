@@ -41,6 +41,8 @@ namespace Engine.Interface
             RecipeList.Add(new Recipe(new RecipeIngredient(TileObjectType.Mineral), new RecipeIngredient(TileObjectType.PartReactor)));
             RecipeList.Add(new Recipe(new RecipeIngredient(TileObjectType.Mineral), new RecipeIngredient(TileObjectType.PartWeapon)));
 
+            RecipeList.Add(new Recipe(new RecipeIngredient(TileObjectType.Mineral, 4), new RecipeIngredient(TileObjectType.Unit)));
+
             RecipeList.Add(new Recipe(new RecipeIngredient(TileObjectType.Bush, 4), new RecipeIngredient(TileObjectType.Tree)));
             RecipeList.Add(new Recipe(new RecipeIngredient(TileObjectType.Tree, 4), new RecipeIngredient(TileObjectType.TreeTrunk)));
         }
@@ -62,7 +64,7 @@ namespace Engine.Interface
             Ingredients = new List<RecipeIngredient>();
             Results = new List<RecipeIngredient>();
         }
-        public RecipeIngredient Result { get; private set; }
+
         public List<RecipeIngredient> Ingredients { get; private set; }
         public List<RecipeIngredient> Results { get; private set; }
 

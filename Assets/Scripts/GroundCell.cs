@@ -251,9 +251,20 @@ namespace Assets.Scripts
             //string materialName;
             if (Stats.MoveUpdateGroundStat.IsUnderwater)
             {
-                //materialName = "Water";
-                if (ColorUtility.TryParseHtmlString("#278BB2", out color))
+                if (Stats.MoveUpdateGroundStat.Height < 0.1f)
                 {
+                    // Beach
+                    if (ColorUtility.TryParseHtmlString("#D3B396", out color))
+                    {
+                    }
+                }
+                else
+                {
+                    // Sea
+                    //materialName = "Water";
+                    if (ColorUtility.TryParseHtmlString("#278BB2", out color))
+                    {
+                    }
                 }
             }
             else

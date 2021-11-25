@@ -238,6 +238,136 @@ namespace Engine.Master
             return null;
         }
 
+        
+
+        public bool AreAllIngredientsAvailable(Player player, Recipe recipe)
+        {
+            List<MoveRecipeIngredient> reservedIngredients = new List<MoveRecipeIngredient>();
+            bool allFound = true;
+
+            foreach (RecipeIngredient recipeIngredient in recipe.Ingredients)
+            {
+                int count = recipeIngredient.Count;
+                while (count-- > 0)
+                {
+                    MoveRecipeIngredient moveRecipeIngredient;
+                    moveRecipeIngredient = FindIngredient(recipeIngredient.TileObjectType, true);
+                    if (moveRecipeIngredient == null)
+                    {
+                        allFound = false;
+                        break;
+                    }
+                    ReserveIngredient(moveRecipeIngredient);
+                    reservedIngredients.Add(moveRecipeIngredient);
+                }
+            }
+            if (allFound == false)
+            {
+                foreach (MoveRecipeIngredient moveRecipeIngredient in reservedIngredients)
+                {
+                    ReleaseReservedIngredient(moveRecipeIngredient);
+                }
+            }
+            return allFound;
+        }
+        public void ClearReservations()
+        {
+            if (Assembler != null && Assembler.TileContainer != null)
+            {
+                Assembler.TileContainer.ClearReservations();
+            }
+            if (Container != null && Container.TileContainer != null)
+            {
+                Container.TileContainer.ClearReservations();
+            }
+            if (Reactor != null && Reactor.TileContainer != null)
+            {
+                Reactor.TileContainer.ClearReservations();
+            }
+            if (Weapon != null && Weapon.TileContainer != null)
+            {
+                Reactor.TileContainer.ClearReservations();
+            }
+        }
+
+        public void ReleaseReservedIngredient(MoveRecipeIngredient ingredient)
+        {
+            if (ingredient.Position == Pos)
+            {
+                if (ingredient.Source == TileObjectType.PartAssembler && Assembler != null && Assembler.TileContainer != null)
+                {
+                    Assembler.TileContainer.ReleaseReservedIngredient(ingredient.TileObjectType);
+                }
+                if (ingredient.Source == TileObjectType.PartContainer && Container != null && Container.TileContainer != null)
+                {
+                    Container.TileContainer.ReleaseReservedIngredient(ingredient.TileObjectType);
+                }
+                if (ingredient.Source == TileObjectType.PartReactor && Reactor != null && Reactor.TileContainer != null)
+                {
+                    Reactor.TileContainer.ReleaseReservedIngredient(ingredient.TileObjectType);
+                }
+                if (ingredient.Source == TileObjectType.PartWeapon && Weapon != null && Weapon.TileContainer != null)
+                {
+                    Reactor.TileContainer.ReleaseReservedIngredient(ingredient.TileObjectType);
+                }
+            }
+            else
+            {
+                Position3 position3 = new Position3(Pos);
+                foreach (Position3 n3 in position3.Neighbors)
+                {
+                    if (n3.Pos == ingredient.Position)
+                    {
+                        Tile t = Game.Map.GetTile(n3.Pos);
+                        if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id)
+                        {
+                            t.Unit.ReleaseReservedIngredient(ingredient);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        public void ReserveIngredient(MoveRecipeIngredient ingredient)
+        {
+            if (ingredient.Position == Pos)
+            {
+                if (ingredient.Source == TileObjectType.PartAssembler && Assembler != null && Assembler.TileContainer != null)
+                {
+                    Assembler.TileContainer.ReserveIngredient(ingredient.TileObjectType);
+                }
+                if (ingredient.Source == TileObjectType.PartContainer && Container != null && Container.TileContainer != null)
+                {
+                    Container.TileContainer.ReserveIngredient(ingredient.TileObjectType);
+                }
+                if (ingredient.Source == TileObjectType.PartReactor && Reactor != null && Reactor.TileContainer != null)
+                {
+                    Reactor.TileContainer.ReserveIngredient(ingredient.TileObjectType);
+                }
+                if (ingredient.Source == TileObjectType.PartWeapon && Weapon != null && Weapon.TileContainer != null)
+                {
+                    Reactor.TileContainer.ReserveIngredient(ingredient.TileObjectType);
+                }
+            }
+            else
+            {
+                Position3 position3 = new Position3(Pos);
+                foreach (Position3 n3 in position3.Neighbors)
+                {
+                    if (n3.Pos == ingredient.Position)
+                    {
+                        Tile t = Game.Map.GetTile(n3.Pos);
+                        if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id)
+                        {
+                            t.Unit.ReserveIngredient(ingredient);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
         public MoveRecipeIngredient FindIngredient(TileObjectType tileObjectType, bool searchNeighbors)
         {
             MoveRecipeIngredient moveRecipeIngredient = new MoveRecipeIngredient();

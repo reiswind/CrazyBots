@@ -22,13 +22,67 @@ namespace Engine.Ants
             return "AntPartAssembler";
         }
 
+        private Recipe recipeForAnyUnit;
+
         public override bool Move(ControlAnt control, Player player, List<Move> moves)
         {
+            if (recipeForAnyUnit == null)
+            {
+                foreach (Recipe recipe in player.Game.Recipes.RecipeList)
+                {
+                    if (recipe.Results.Count == 1 &&
+                        recipe.Results[0].TileObjectType == TileObjectType.Unit)
+                    {
+                        recipeForAnyUnit = recipe;
+                        break;
+                    }
+                }
+            }
             bool moved;
 
             moved = Assemble(control, player, moves);
 
             return moved;
+        }
+
+        private void RequestIngredientsForUnit(Player player)
+        {
+            foreach (GameCommand gameCommand1 in player.GameCommands)
+            {
+                if (gameCommand1.TargetPosition == Ant.Unit.Pos &&
+                    gameCommand1.GameCommandType == GameCommandType.ItemRequest)
+                {
+                    // Already requested
+                    return;
+                }
+            }
+            // Need something to assemble
+            GameCommand gameCommand = new GameCommand();
+            gameCommand.GameCommandType = GameCommandType.ItemRequest;
+            gameCommand.Layout = "UIDelivery";
+            gameCommand.TargetPosition = Ant.Unit.Pos;
+            gameCommand.DeleteWhenFinished = true;
+            gameCommand.PlayerId = player.PlayerModel.Id;
+
+            BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem.BlueprintName = Ant.Unit.Blueprint.Name;
+            blueprintCommandItem.Direction = Direction.C;
+
+            GameCommandItem gameCommandItem = new GameCommandItem(gameCommand, blueprintCommandItem);
+            gameCommandItem.TargetUnitId = Ant.Unit.UnitId;
+
+            gameCommand.RequestedItems = new List<RecipeIngredient>();
+            foreach (RecipeIngredient recipeIngredient in recipeForAnyUnit.Ingredients)
+            {
+                //RecipeIngredient recipeIngredient = new RecipeIngredient(TileObjectType.Mineral, Assembler.TileContainer.Capacity);
+                gameCommand.RequestedItems.Add(recipeIngredient);
+            }
+
+            Ant.Unit.SetGameCommand(gameCommandItem);
+
+            gameCommand.GameCommandItems.Add(gameCommandItem);
+            player.GameCommands.Add(gameCommand);
+
         }
 
         public bool Assemble(ControlAnt control, Player player, List<Move> moves)
@@ -53,6 +107,8 @@ namespace Engine.Ants
                 if (Assembler.Unit.CurrentGameCommand == null)
                 {
                     // Need something to assemble
+                    RequestIngredientsForUnit(player);
+                    /*
                     GameCommand gameCommand = new GameCommand();
                     gameCommand.GameCommandType = GameCommandType.ItemRequest;
                     gameCommand.Layout = "UIDelivery";
@@ -76,6 +132,7 @@ namespace Engine.Ants
 
                     gameCommand.GameCommandItems.Add(gameCommandItem);
                     player.GameCommands.Add(gameCommand);
+                    */
                 }
                 // Cannot build a unit, no mins
                 return false;
@@ -109,6 +166,13 @@ namespace Engine.Ants
 
             if (!upgrading)
             {
+                // Need something to assemble
+                if (!Ant.Unit.AreAllIngredientsAvailable(player, recipeForAnyUnit))
+                {
+                    RequestIngredientsForUnit(player);
+                    return false;
+                }
+
                 GameCommandItem selectedGameCommand = Ant.Unit.CurrentGameCommand;
                 GameCommandItem passGameCommandToNewUnit;
                 

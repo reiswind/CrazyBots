@@ -712,7 +712,7 @@ namespace Assets.Scripts
             bool updatePosition = false;
             GameCommand = gameCommand;
 
-            if (GameCommand.GameCommandType == GameCommandType.Collect)
+            if (GameCommand.GameCommandType == GameCommandType.Collect || GameCommand.GameCommandType == GameCommandType.ItemRequest)
             {
                 // Do not show the worker to build
             }

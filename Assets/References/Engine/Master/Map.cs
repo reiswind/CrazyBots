@@ -581,7 +581,6 @@ namespace Engine.Interface
             }
 
             // Add water border
-            
             map_radius = mapWidth + 1;
             for (int q = -map_radius; q <= map_radius; q++)
             {
@@ -591,8 +590,6 @@ namespace Engine.Interface
                 {
                     Position3 cubePosition = new Position3(q, r, -q - r);
                     Position2 position = new Position2 (cubePosition.Pos.X + offsetx, cubePosition.Pos.Y + offsety);
-                        //Position.GetX(cubePosition.Pos) + offsetx,
-                        //Position.GetY(cubePosition.Pos) + offsety);
                     if (!LargeMapTiles.ContainsKey(position))
                     {
                         Tile largeTile = new Tile(this, position);
@@ -617,8 +614,6 @@ namespace Engine.Interface
                     {
                         Position3 cubePosition2 = new Position3(q, r, -q - r);
                         Position2 position = new Position2(cubePosition2.Pos.X + center.X, cubePosition2.Pos.Y + center.Y);
-                        //Position.GetX(cubePosition2.Pos) + Position.GetX(center),
-                        //Position.GetY(cubePosition2.Pos) + Position.GetY(center));
 
                         Tile tile;
                         if (!Tiles.TryGetValue(position, out tile))
@@ -700,6 +695,14 @@ namespace Engine.Interface
                     //BioMass += 300;
                     mapZone.MaxMinerals = 20;
                     mapZone.StartObjectGenerator(this);
+                }
+            }
+
+            foreach (MapZone mapZone in Zones.Values)
+            {
+                if (mapZone.IsUnderwater)
+                {
+                    mapZone.MakeCrate(this, Zones);
                 }
             }
         }

@@ -47,12 +47,36 @@ namespace Engine.Interface
             }
         }
 
+        private List<TileObjectType> reservedTileObjectTypes = new List<TileObjectType>();
+
+        public void ClearReservations()
+        {
+            reservedTileObjectTypes.Clear();
+        }
+
+        public void ReserveIngredient(TileObjectType tileObjectType)
+        {
+            reservedTileObjectTypes.Add(tileObjectType);
+        }
+        public void ReleaseReservedIngredient(TileObjectType tileObjectType)
+        {
+            reservedTileObjectTypes.Remove(tileObjectType);
+        }
+        
         public bool Contains(TileObjectType tileObjectType)
         {
+            List<TileObjectType> reserved = new List<TileObjectType>();
+            reserved.AddRange(reservedTileObjectTypes);
+
             foreach (TileObject tileObject in tileObjects)
             {
                 if (tileObject.TileObjectType == tileObjectType || tileObjectType == TileObjectType.All)
                 {
+                    if (reserved.Contains(tileObject.TileObjectType))
+                    {
+                        reserved.Remove(tileObject.TileObjectType);
+                        continue;
+                    }
                     return true;
                 }
             }
@@ -160,6 +184,7 @@ namespace Engine.Interface
         None,
         All,
         Burn,
+        Unit,
 
         // Collectable
         Mineral,

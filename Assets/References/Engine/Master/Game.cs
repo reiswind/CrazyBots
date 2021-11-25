@@ -1312,6 +1312,8 @@ namespace Engine.Master
             // Collect reactors and consume power for every unit
             foreach (Unit unit in Map.Units.List.Values)
             {
+                unit.ClearReservations();
+
                 // Do it here, to notify about changes
                 if (unit.CurrentGameCommand != null && unit.CurrentGameCommand.Changed)
                 {

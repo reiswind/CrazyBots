@@ -38,6 +38,42 @@ namespace Engine.Interface
 
         private List<Tile> openTiles;
 
+        public void MakeCrate(Map map, Dictionary<int, MapZone> zones)
+        {
+            List<Tile> openTiles = new List<Tile>();
+            openTiles.AddRange(Tiles.Values);
+
+            int max = 999;
+            int idx = 0;
+
+            while (openTiles.Count > 0 && max-- > 0)
+            {
+                Tile openTile = openTiles[idx];
+                foreach (Tile n in openTile.Neighbors)
+                {
+                    if (openTiles.Contains(n))
+                        continue;
+                    if (n.ZoneId != ZoneId)
+                    {
+                        MapZone nz = zones[n.ZoneId];
+                        if (nz.IsUnderwater)
+                            continue;
+                    }
+                    openTile.Height = n.Height - 0.1f;
+                    if (openTile.Height > -0.2f && openTile.Height < 0.1f)
+                    {
+                        openTile.Height = -0.15f;
+                    }
+                    openTiles.Remove(openTile);
+                    break;
+                }
+                idx++;
+                if (idx >= openTiles.Count)
+                    idx = 0;
+            }
+        }
+
+
         public void StartObjectGenerator(Map map)
         {
             Tile startTile = map.GetTile(Center);
