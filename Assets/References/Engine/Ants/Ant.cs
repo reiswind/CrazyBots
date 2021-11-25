@@ -369,23 +369,6 @@ namespace Engine.Ants
             return moved;
         }
 
-        internal void RemoveAntFromAllCommands(Player player)
-        {
-            if (Unit != null)
-            {
-                foreach (GameCommand gameCommand in player.GameCommands)
-                {
-                    foreach (GameCommandItem blueprintCommandItem in gameCommand.GameCommandItems)
-                    {
-                        if (blueprintCommandItem.AttachedUnitId == Unit.UnitId)
-                        {
-                            blueprintCommandItem.AttachedUnitId = null;
-                        }
-                    }
-                }
-            }
-        }
-
         public virtual void OnDestroy(Player player)
         {
             Unit.ResetGameCommand();

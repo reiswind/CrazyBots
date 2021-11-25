@@ -262,23 +262,22 @@ namespace Assets.Scripts
 
         private void HighlightUnitFrame(UnitBase unitBase)
         {
-            if (unitBase == null)
+            if (selectedUnitFrame != null && selectedUnitFrame == unitBase)
             {
-                UnHighlightUnitFrame();
+                // Keep it highlighted
             }
             else
             {
-                if (selectedUnitFrame != null && selectedUnitFrame == highlightedUnitBase)
+                if (highlightedUnitBase != unitBase)
                 {
-                    // Keep it highlighted
-                }
-                else
-                {
+                    UnHighlightUnitFrame();
                     highlightedUnitBase = unitBase;
-                    highlightedUnitBase.SetHighlighted(true);
+                    if (unitBase != null)
+                        highlightedUnitBase.SetHighlighted(true);
                 }
             }
         }
+
         private void UnHighlightUnitFrame()
         {
             if (highlightedUnitBase != null)
@@ -297,21 +296,21 @@ namespace Assets.Scripts
 
         private void HighlightGameCommand(CommandPreview commandPreview)
         {
-            if (commandPreview == null)
+            if (selectedCommandPreview != null && selectedCommandPreview == commandPreview)
             {
-                UnHighlightGameCommand();
+                // Keep it highlighted
             }
             else
             {
-                if (selectedCommandPreview != null && selectedCommandPreview == highlightedCommandPreview)
+                if (highlightedCommandPreview != commandPreview)
                 {
-                    // Keep it highlighted
-                }
-                else
-                {
+                    UnHighlightGameCommand();
                     highlightedCommandPreview = commandPreview;
-                    highlightedCommandPreview.Command.SetHighlighted(true);
-                    highlightedCommandPreview.SetActive(true);
+                    if (commandPreview != null)
+                    {
+                        highlightedCommandPreview.Command.SetHighlighted(true);
+                        highlightedCommandPreview.SetActive(true);
+                    }
                 }
             }
         }

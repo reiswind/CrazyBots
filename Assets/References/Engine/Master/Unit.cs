@@ -99,10 +99,30 @@ namespace Engine.Master
         {
             CurrentGameCommand = gameCommand;
         }
+
+        public void OnDestroyed()
+        {
+            ResetGameCommand();
+        }
         public void ResetGameCommand()
         {
             if (CurrentGameCommand != null)
             {
+                if (Owner.PlayerModel.Id != 0)
+                {
+                    Player player = Game.Players[Owner.PlayerModel.Id];
+                    foreach (GameCommand gameCommand in player.GameCommands)
+                    {
+                        foreach (GameCommandItem blueprintCommandItem in gameCommand.GameCommandItems)
+                        {
+                            if (blueprintCommandItem.AttachedUnitId == UnitId)
+                            {
+                                blueprintCommandItem.AttachedUnitId = null;
+                            }
+                        }
+                    }
+                }
+
                 if (CurrentGameCommand.AttachedUnitId == UnitId)
                 {
                     if (CurrentGameCommand.DeleteWhenDestroyed)
@@ -286,7 +306,7 @@ namespace Engine.Master
             }
             if (Weapon != null && Weapon.TileContainer != null)
             {
-                Reactor.TileContainer.ClearReservations();
+                Weapon.TileContainer.ClearReservations();
             }
         }
 
@@ -308,7 +328,7 @@ namespace Engine.Master
                 }
                 if (ingredient.Source == TileObjectType.PartWeapon && Weapon != null && Weapon.TileContainer != null)
                 {
-                    Reactor.TileContainer.ReleaseReservedIngredient(ingredient.TileObjectType);
+                    Weapon.TileContainer.ReleaseReservedIngredient(ingredient.TileObjectType);
                 }
             }
             else
@@ -347,7 +367,7 @@ namespace Engine.Master
                 }
                 if (ingredient.Source == TileObjectType.PartWeapon && Weapon != null && Weapon.TileContainer != null)
                 {
-                    Reactor.TileContainer.ReserveIngredient(ingredient.TileObjectType);
+                    Weapon.TileContainer.ReserveIngredient(ingredient.TileObjectType);
                 }
             }
             else
@@ -434,7 +454,7 @@ namespace Engine.Master
                     ingredient.Source == TileObjectType.PartWeapon &&
                     Weapon != null && Weapon.TileContainer != null && Weapon.TileContainer.Contains(ingredient.TileObjectType))
                 {
-                    tileObject = Reactor.TileContainer.RemoveTileObject(ingredient.TileObjectType);
+                    tileObject = Weapon.TileContainer.RemoveTileObject(ingredient.TileObjectType);
                 }
                 if (tileObject != null && changedUnits != null && !changedUnits.ContainsKey(Pos))
                     changedUnits.Add(Pos, this);
@@ -504,7 +524,8 @@ namespace Engine.Master
             int metal = 0;
             if (Engine == null)
             {
-                if (Container != null) metal += Container.TileContainer.Minerals;
+                if (Container != null) 
+                    metal += Container.TileContainer.Minerals;
 
                 if (Weapon != null)
                 {

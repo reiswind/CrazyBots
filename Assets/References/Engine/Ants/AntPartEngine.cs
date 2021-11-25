@@ -707,11 +707,27 @@ namespace Engine.Ants
                 if (cntrlUnit.Weapon.WeaponLoaded)
                 {
                     // Look for enemy
-                    if (tile.Unit == null || tile.Unit.Owner.PlayerModel.Id == player.PlayerModel.Id)
+                    if (tile.Unit == null || tile.Unit.Owner.PlayerModel.Id == 0 || tile.Unit.Owner.PlayerModel.Id == player.PlayerModel.Id)
                         return false;
                 }
                 else
                 {
+                    
+                    if (tile.Unit != null)
+                    {
+                        // Own unit, no ammo source.
+                        if (tile.Unit.Owner.PlayerModel.Id == player.PlayerModel.Id)
+                            return false;
+
+                        // Enemy Unit or neutral units are possible sources.
+                        if (tile.Unit.Owner.PlayerModel.Id != 0)
+                        {
+                            // If enemy has shield, cannot extract, no source
+                            if (tile.Unit.Armor != null && tile.Unit.Armor.ShieldActive)
+                                return false;
+                        }
+                    }
+
                     // Look for ammo
                     if (tile.Tile.NumberOfCollectables == 0)
                         return false;
@@ -892,18 +908,23 @@ namespace Engine.Ants
                         {
                             if (cntrlUnit.CurrentGameCommand.AttachedUnitId == null)
                             {
-                                
-                            }
-                            // Need to pick up the requested items. A possible pickup unit is in AttachedUnitId
-                            Unit containerUnit = player.Game.Map.Units.FindUnit(cntrlUnit.CurrentGameCommand.AttachedUnitId);
-                            if (containerUnit == null)
-                            {
-                                cntrlUnit.CurrentGameCommand.AttachedUnitId = null;
-                                cntrlUnit.CurrentGameCommand.GameCommand.CommandCanceled = true;
+                                cntrlUnit.CurrentGameCommand.SetStatus("NoTargetForPickup");
                             }
                             else
                             {
-                                calcPathToPosition = containerUnit.Pos;
+                                // Need to pick up the requested items. A possible pickup unit is in AttachedUnitId
+                                Unit containerUnit = player.Game.Map.Units.FindUnit(cntrlUnit.CurrentGameCommand.AttachedUnitId);
+                                if (containerUnit == null)
+                                {
+                                    cntrlUnit.CurrentGameCommand.AttachedUnitId = null;
+                                    cntrlUnit.CurrentGameCommand.GameCommand.CommandCanceled = true;
+                                    cntrlUnit.CurrentGameCommand.SetStatus("TargetUnitDestroyed");
+                                }
+                                else
+                                {
+                                    cntrlUnit.CurrentGameCommand.SetStatus("MoveToPickupLocation");
+                                    calcPathToPosition = containerUnit.Pos;
+                                }
                             }
                         }
                         else
@@ -914,8 +935,8 @@ namespace Engine.Ants
                                 // Drop the factory with the items to deliver, deliver the items directly
                                 cntrlUnit.CurrentGameCommand.AttachedUnitId = Ant.Unit.UnitId;
                                 cntrlUnit.CurrentGameCommand.FactoryUnitId = null;
+                                cntrlUnit.CurrentGameCommand.SetStatus("TransporterFull");
                             }
-                            int x = 0;
                         }
                     }
                     else

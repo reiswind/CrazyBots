@@ -50,18 +50,25 @@ namespace Assets.Scripts
                     HexGrid.MainGrid.AddTransitTileObject(transitObject);
                 }
             }
-            TileObject tileObjectAmmo = TileObjectContainer.TileObjects[0].TileObject;
-            hitByBullet = HexGrid.MainGrid.Fire(UnitBase, tileObjectAmmo);
-
-            Position2 targetPosition = move.Positions[move.Positions.Count - 1];
-
-            GroundCell weaponTargetCell;
-            if (HexGrid.MainGrid.GroundCells.TryGetValue(targetPosition, out weaponTargetCell))
+            if (TileObjectContainer.TileObjects.Count == 0)
             {
-                // Determine which direction to rotate towards
-                Vector3 turnWeaponIntoDirection = (weaponTargetCell.transform.position - Part.transform.position).normalized;
-                turnWeaponIntoDirection.y = 0;
-                UnitBase.TurnWeaponIntoDirection = turnWeaponIntoDirection;
+                int why = 0;
+            }
+            else
+            {
+                TileObject tileObjectAmmo = TileObjectContainer.TileObjects[0].TileObject;
+                hitByBullet = HexGrid.MainGrid.Fire(UnitBase, tileObjectAmmo);
+
+                Position2 targetPosition = move.Positions[move.Positions.Count - 1];
+
+                GroundCell weaponTargetCell;
+                if (HexGrid.MainGrid.GroundCells.TryGetValue(targetPosition, out weaponTargetCell))
+                {
+                    // Determine which direction to rotate towards
+                    Vector3 turnWeaponIntoDirection = (weaponTargetCell.transform.position - Part.transform.position).normalized;
+                    turnWeaponIntoDirection.y = 0;
+                    UnitBase.TurnWeaponIntoDirection = turnWeaponIntoDirection;
+                }
             }
         }
         public void FireBullet()

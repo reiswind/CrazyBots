@@ -2398,13 +2398,19 @@ namespace Engine.Ants
                     if (ant.Unit.CurrentGameCommand != null)
                     {
                         //ant.PlayerUnit.Unit.CurrentGameCommand.AttachedUnits.Remove(ant.PlayerUnit.Unit.UnitId);
-                        ant.RemoveAntFromAllCommands(player);
+                        //ant.RemoveAntFromAllCommands(player);
                         ant.Unit.ResetGameCommand();
                     }
                     ant.StuckCounter++;
                     if (ant.StuckCounter > 10)
                         ant.AbandonUnit(player);
 
+                    if (ant.Unit.Engine != null)
+                    {
+                        // The unit may block a position needed. Let the unit move somewhere
+                        ant.CreateAntParts();
+                        movableAnts.Add(ant);
+                    }
                     // If extracted immediatly, a assembler has no chance to repair
                     //ant.AbandonUnit(player);
 

@@ -383,6 +383,8 @@ namespace Engine.Master
                     }
                     else
                     {
+                        // Release the reservations, so the ingredients can be used
+                        factory.ClearReservations();
                         List<TileObject> results = factory.ConsumeIngredients(move.MoveRecipe, changedUnits);
 
                         if (results == null || results.Count == 0)
@@ -833,6 +835,8 @@ namespace Engine.Master
 
                     if (targetUnit.IsDead())
                     {
+                        targetUnit.OnDestroyed();
+
                         if (hitPart.PartTileObjects.Count > 0)
                             throw new Exception();
 
@@ -1177,6 +1181,8 @@ namespace Engine.Master
 
                                 if (otherUnit != null && otherUnit.IsDead())
                                 {
+                                    otherUnit.OnDestroyed();
+
                                     // Unit has died!
                                     Move deleteMove = new Move();
                                     deleteMove.PlayerId = otherUnit.Owner.PlayerModel.Id;
