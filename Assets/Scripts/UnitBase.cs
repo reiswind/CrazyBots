@@ -1095,6 +1095,7 @@ namespace Assets.Scripts
                     unitBasePart.CompleteLevel = moveUpdateUnitPart.CompleteLevel;
                     unitBasePart.IsUnderConstruction = underConstruction;
                     unitBasePart.Level = moveUpdateUnitPart.Level;
+                    unitBasePart.Range = moveUpdateUnitPart.Range;
                     unitBasePart.Name = moveUpdateUnitPart.Name;
                     unitBasePart.PartType = moveUpdateUnitPart.PartType;
                     unitBasePart.Part = part;

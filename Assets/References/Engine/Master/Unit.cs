@@ -693,7 +693,7 @@ namespace Engine.Master
             {
                 if (Weapon == null)
                 {
-                    Weapon = new Weapon(this, 1);
+                    Weapon = new Weapon(this, 1, blueprintPart.Range);
                     if (blueprintPart.Capacity.HasValue)
                         Weapon.TileContainer.Capacity = blueprintPart.Capacity.Value;
                     if (fillContainer)
@@ -710,7 +710,7 @@ namespace Engine.Master
             {
                 if (Container == null)
                 {
-                    Container = new Container(this, 1);
+                    Container = new Container(this, 1, blueprintPart.Range);
                     if (blueprintPart.Capacity.HasValue)
                         Container.TileContainer.Capacity = blueprintPart.Capacity.Value;
                     if (fillContainer)
@@ -733,7 +733,7 @@ namespace Engine.Master
             {
                 if (Reactor == null)
                 {
-                    Reactor = new Reactor(this, 1);
+                    Reactor = new Reactor(this, 1, blueprintPart.Range);
                     if (blueprintPart.Capacity.HasValue)
                         Reactor.TileContainer.Capacity = blueprintPart.Capacity.Value;
                     if (fillContainer)
@@ -750,7 +750,7 @@ namespace Engine.Master
             {
                 if (Radar == null)
                 {
-                    Radar = new Radar(this, 1);
+                    Radar = new Radar(this, 1, blueprintPart.Range);
                 }
                 else if (level > Radar.Level)
                     Radar.Level++;
@@ -909,6 +909,7 @@ namespace Engine.Master
                 moveUpdateUnitPart.Exists = IsInstalled(blueprintPart, blueprintPart.Level);
                 moveUpdateUnitPart.PartType = blueprintPart.PartType;
                 moveUpdateUnitPart.CompleteLevel = blueprintPart.Level;
+                moveUpdateUnitPart.Range = blueprintPart.Range;
 
                 if (blueprintPart.PartType == TileObjectType.PartWeapon && Weapon != null)
                 {

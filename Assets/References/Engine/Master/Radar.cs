@@ -11,9 +11,19 @@ namespace Engine.Master
     {
         public override string Name { get { return "Radar"; } }
 
-        public Radar(Unit owner, int level) : base(owner, TileObjectType.PartRadar)
+        public Radar(Unit owner, int level, int range) : base(owner, TileObjectType.PartRadar)
         {
+            this.range = range;
             Level = level;
+        }
+
+        private int range;
+        public int Range
+        {
+            get
+            {
+                return range;
+            }
         }
     }
 }

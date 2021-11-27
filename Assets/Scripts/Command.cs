@@ -204,7 +204,7 @@ namespace Assets.Scripts
                         // Real unit missing, show ghost
                         commandAttachedUnit.IsVisible = true;
                         commandAttachedUnit.GhostUnit.IsVisible = true;
-                        commandAttachedUnit.Marker.SetActive(true);
+                        commandAttachedUnit.GhostUnitBounds.IsVisible = true;
                     }
                 }
                 else
@@ -232,17 +232,17 @@ namespace Assets.Scripts
                         Position3 relativePosition3 = targetPosition3.Add(commandAttachedUnit.RotatedPosition3);
                         if (IsSelected)
                         {
-                            commandAttachedUnit.Marker.SetActive(true);
+                            commandAttachedUnit.GhostUnitBounds.IsVisible = true;
                         }
                         else
                         {
                             if (realUnit.CurrentPos == relativePosition3.Pos)
                             {
-                                commandAttachedUnit.Marker.SetActive(false);
+                                commandAttachedUnit.GhostUnitBounds.IsVisible = false;
                             }
                             else
                             {
-                                commandAttachedUnit.Marker.SetActive(true);
+                                commandAttachedUnit.GhostUnitBounds.IsVisible = true;
                             }
                         }
                         realUnit.SetHighlighted(IsHighlighted);
@@ -251,11 +251,11 @@ namespace Assets.Scripts
                     {
                         if (IsSelected)
                         {
-                            commandAttachedUnit.Marker.SetActive(true);
+                            commandAttachedUnit.GhostUnitBounds.IsVisible = true;
                         }
                         else
                         {
-                            commandAttachedUnit.Marker.SetActive(true);
+                            commandAttachedUnit.GhostUnitBounds.IsVisible = true;
                         }
                     }
                 }
@@ -334,7 +334,9 @@ namespace Assets.Scripts
                             {
                                 Vector3 unitPos3 = gc.transform.position;
                                 unitPos3.y += 0.10f;
-                                commandAttachedUnit.Marker.transform.position = unitPos3;
+                                //commandAttachedUnit.Marker.transform.position = unitPos3;
+
+                                commandAttachedUnit.GhostUnitBounds.Update();
 
                                 commandAttachedUnit.GhostUnit.IsVisible = true;
                                 commandAttachedUnit.IsVisible = true;

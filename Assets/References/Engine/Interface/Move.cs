@@ -40,9 +40,14 @@ namespace Engine.Interface
 
     public class MoveUpdateUnitPart
     {
+        public MoveUpdateUnitPart()
+        {
+
+        }
         public string Name { get; set; }
         public TileObjectType PartType { get; set; }
         public int Level { get; set; }
+        public int Range { get; set; }
         public int CompleteLevel { get; set; }
         
 

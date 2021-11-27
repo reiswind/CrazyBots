@@ -13,8 +13,9 @@ namespace Engine.Master
     {
         public override string Name { get { return "Container"; } }
 
-        public Container(Unit owner, int level) : base(owner, TileObjectType.PartContainer)
+        public Container(Unit owner, int level, int range) : base(owner, TileObjectType.PartContainer)
         {
+            this.range = range;
             Level = level;
             TileContainer = new TileContainer();
             ResetCapacity();
@@ -29,11 +30,12 @@ namespace Engine.Master
         /// <summary>
         /// Transport Range
         /// </summary>
+        private int range;
         public int Range
         {
             get
             {
-                return 12; // Level * 3;
+                return range;
             }
         }
         public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position2> includedPosition2s, MoveFilter moveFilter)

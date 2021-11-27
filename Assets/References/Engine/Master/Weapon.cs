@@ -16,10 +16,10 @@ namespace Engine.Master
         public bool EndlessAmmo { get; set; }
         public bool HoldFire { get; set; }
 
-        public Weapon(Unit owner, int level) : base(owner, TileObjectType.PartWeapon)
+        public Weapon(Unit owner, int level, int range) : base(owner, TileObjectType.PartWeapon)
         {
             TileContainer = new TileContainer();
-
+            this.range = range;
             if (level == 1)
                 TileContainer.Capacity = 1;
             else if (level == 2)
@@ -43,7 +43,15 @@ namespace Engine.Master
                 return false;
             }
         }
-
+        private int range;
+        public int Range
+        {
+            get
+            {
+                return range;
+            }
+        }
+        /*
         public int Range
         {
             get
@@ -53,7 +61,7 @@ namespace Engine.Master
                 if (Level == 3) return 4;
                 return Level * 3;
             }
-        }
+        }*/
 
         public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position2> includedPosition2s, MoveFilter moveFilter)
         {

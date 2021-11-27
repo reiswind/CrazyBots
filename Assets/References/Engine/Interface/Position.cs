@@ -22,6 +22,17 @@ namespace Engine.Interface
     {
         public Position3(Position2 pos)
         {
+            Direction = Direction.C;
+            int pX = pos.X;
+            int pY = pos.Y;
+            q = pX;
+            s = pY - (pX + (pX & 1)) / 2;
+            r = -q - s;
+        }
+        
+        public Position3(Position2 pos, Direction direction)
+        {
+            Direction = direction;
             int pX = pos.X;
             int pY = pos.Y;
             q = pX;
@@ -30,6 +41,15 @@ namespace Engine.Interface
         }
         public Position3(int q, int r, int s)
         {
+            Direction = Direction.C;
+            this.q = q;
+            this.r = r;
+            this.s = s;
+        }
+        
+        public Position3(int q, int r, int s, Direction direction)
+        {
+            Direction = direction;
             this.q = q;
             this.r = r;
             this.s = s;
@@ -38,6 +58,8 @@ namespace Engine.Interface
         private readonly int q;
         private readonly int r;
         private readonly int s;
+
+        public Direction Direction { get; }
 
         /// <summary>
         /// x
@@ -172,6 +194,10 @@ namespace Engine.Interface
             return results;
         }
 
+        public Position3 Add(Position3 b, Direction direction)
+        {
+            return new Position3(Q + b.Q, R + b.R, S + b.S, direction);
+        }        
         public Position3 Add(Position3 b)
         {
             return new Position3(Q + b.Q, R + b.R, S + b.S);
@@ -226,7 +252,7 @@ namespace Engine.Interface
         }*/
         public Position3 GetNeighbor(Direction direction)
         {
-            return Add(Position3.GetDirection(direction));
+            return Add(Position3.GetDirection(direction), direction);
         }
 
         static public List<Position3> diagonals = new List<Position3>

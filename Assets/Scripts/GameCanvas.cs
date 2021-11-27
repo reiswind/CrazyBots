@@ -9,52 +9,6 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts
 {
-    internal class HitByMouseClick
-    {
-        public HitByMouseClick()
-        {
-            Units = new List<UnitBase>();
-        }
-
-        public List<UnitBase> Units { get; private set; }
-        public GroundCell GroundCell { get; set; }
-        public CommandPreview CommandPreview { get; private set; }
-        public UnitBase UnitBase { get; private set; }
-
-        public void Update(CommandPreview commandPreview)
-        {
-            
-            foreach (UnitBase unitBase in Units)
-            {
-                CommandPreview unitCommandPreview = HexGrid.MainGrid.FindCommandForUnit(unitBase);
-                if (unitCommandPreview != null)
-                {
-                    CommandPreview = unitCommandPreview;
-                    UnitBase = unitBase;
-                    break;
-                }
-            }
-            if (UnitBase == null && Units.Count > 0)
-            {
-                // Just the first one
-                UnitBase = Units[0];
-            }
-            if (CommandPreview == null && commandPreview != null)
-            {
-                CommandPreview = commandPreview;
-            }
-        }
-    }
-
-    internal enum CanvasMode
-    {
-        None,
-        Select,
-        Unit,
-        Preview,
-        Command
-    }
-
     public class GameCanvas : MonoBehaviour
     {
         public GameObject MineralText;
@@ -69,7 +23,7 @@ namespace Assets.Scripts
         private Text UIUnitText;
         private Text UIPowerText;
 
-        private CanvasMode canvasMode;       
+        private CanvasMode canvasMode;
 
         public Sprite SelectedButtonBackground;
         public Sprite ButtonBackground;
@@ -346,6 +300,22 @@ namespace Assets.Scripts
             }
         }
 
+        private void SelectUnitFrame(UnitBase unitBase)
+        {
+            if (unitBase != selectedUnitFrame)
+            {
+                UnselectUnitFrame();
+                if (unitBase != null)
+                {
+                    selectedUnitFrame = unitBase;
+                    selectedUnitFrame.SetSelected(true);
+
+                    selectedUnitBounds = new UnitBounds(unitBase);
+                    selectedUnitBounds.Update();
+                }
+            }
+        }
+
         private void UnselectUnitFrame()
         {
             if (selectedUnitFrame != null)
@@ -359,9 +329,13 @@ namespace Assets.Scripts
                 else
                 {
                     //Debug.Log("UnselectUnitFrame " + selectedUnitFrame.CurrentPos.ToString());
-                    selectedUnitFrame.SetHighlighted(false);
+                    selectedUnitFrame.SetSelected(false);
                 }
-
+                if (selectedUnitBounds != null)
+                {
+                    selectedUnitBounds.Destroy();
+                    selectedUnitBounds = null;
+                }
                 selectedUnitFrame = null;
             }
         }
@@ -565,8 +539,8 @@ namespace Assets.Scripts
                 selectedCommandPreview.SelectMoveMode();
                 SetMode(CanvasMode.Preview);
             }
-        }        
-        
+        }
+
         void RotateCommand()
         {
             if (selectedCommandPreview != null)
@@ -703,6 +677,7 @@ namespace Assets.Scripts
 
 
         private UnitBase selectedUnitFrame;
+        private UnitBounds selectedUnitBounds;
         private GroundCell lastSelectedGroundCell;
 
         private HitByMouseClick GetClickedInfo()
@@ -722,13 +697,13 @@ namespace Assets.Scripts
                 foreach (RaycastHit raycastHit in raycastHits)
                 {
 
-                    
+
                     //GroundCell debuggc = raycastHit.collider.gameObject.GetComponent<GroundCell>();
                     //if (debuggc != null)
                     //    Debug.Log(num + " Raycast hit GroundCell " + debuggc.Pos.ToString());
 
                     num++;
-                    
+
                     if (hitByMouseClick.GroundCell == null)
                     {
                         hitByMouseClick.GroundCell = raycastHit.collider.gameObject.GetComponent<GroundCell>();
@@ -761,7 +736,7 @@ namespace Assets.Scripts
                         */
 
                         hitByMouseClick.Units.Add(unitBase);
-                    }                    
+                    }
                 }
                 // Find command by pos
                 if (commandPreview == null && hitByMouseClick.GroundCell != null && HexGrid.MainGrid.CommandPreviews != null)
@@ -1067,24 +1042,24 @@ namespace Assets.Scripts
             }
             if (Input.GetKeyDown(KeyCode.T))
             {
-                
+
             }
             if (Input.GetKeyDown(KeyCode.G))
             {
-                
+
             }
             if (Input.GetKeyDown(KeyCode.B))
             {
-                
+
             }
 
             if (Input.GetKeyDown(KeyCode.Q))
             {
-                
+
             }
             if (Input.GetKeyDown(KeyCode.W))
             {
-                
+
             }
             if (Input.GetKeyDown(KeyCode.E))
             {
@@ -1099,24 +1074,24 @@ namespace Assets.Scripts
             }
             if (Input.GetKeyDown(KeyCode.R))
             {
-                
+
             }
 
             if (Input.GetKeyDown(KeyCode.A))
             {
-                
+
             }
             if (Input.GetKeyDown(KeyCode.S))
             {
-                
+
             }
             if (Input.GetKeyDown(KeyCode.D))
             {
-                
+
             }
             if (Input.GetKeyDown(KeyCode.F))
             {
-                
+
             }
         }
 
@@ -1208,6 +1183,12 @@ namespace Assets.Scripts
 
             HitByMouseClick hitByMouseClick = GetClickedInfo();
             //UpdateMouseOver(hitByMouseClick);
+            if (selectedUnitFrame != null && selectedUnitFrame.CurrentPos != selectedUnitBounds.Pos)
+            {
+                selectedUnitBounds.Destroy();
+                selectedUnitBounds.Update();
+            }
+
 
             if (hitByMouseClick != null)
             {
@@ -1232,6 +1213,12 @@ namespace Assets.Scripts
             HideAllParts();
             DisplayUnitframe(selectedUnitFrame);
 
+            if (selectedUnitFrame != null &&
+                selectedUnitFrame.CurrentPos != selectedUnitBounds.Pos)
+            {
+                selectedUnitBounds.Destroy();
+                selectedUnitBounds.Update();
+            }
             HitByMouseClick hitByMouseClick = GetClickedInfo();
             if (hitByMouseClick != null)
             {
@@ -1251,8 +1238,7 @@ namespace Assets.Scripts
             }
             if (selectedUnitFrame != null)
             {
-                selectedUnitFrame.SetSelected(false);
-                selectedUnitFrame = null;
+                UnselectUnitFrame();
                 UnHighlightUnitFrame();
             }
 
@@ -1264,6 +1250,12 @@ namespace Assets.Scripts
                 }
                 selectedCommandPreview = hitByMouseClick.CommandPreview;
                 selectedCommandPreview.SetSelected(true);
+
+                if (hitByMouseClick.UnitBase != null)
+                {
+                    SelectUnitFrame(hitByMouseClick.UnitBase);
+                }
+
                 if (canvasMode == CanvasMode.Command)
                     UpdateCommandButtons();
                 else
@@ -1271,9 +1263,8 @@ namespace Assets.Scripts
             }
             else if (hitByMouseClick.UnitBase != null)
             {
-                selectedUnitFrame = hitByMouseClick.UnitBase;
-                HighlightUnitFrame(selectedUnitFrame);
-                selectedUnitFrame.SetSelected(true);
+                SelectUnitFrame(hitByMouseClick.UnitBase);
+                HighlightUnitFrame(hitByMouseClick.UnitBase);
                 SetMode(CanvasMode.Unit);
             }
             else
@@ -1293,7 +1284,7 @@ namespace Assets.Scripts
                 if (hitByMouseClick.CommandPreview != null)
                 {
                     HideAllParts();
-                    
+
                     if (highlightedCommandPreview != hitByMouseClick.CommandPreview)
                     {
                         if (highlightedCommandPreview != null)
@@ -1310,7 +1301,7 @@ namespace Assets.Scripts
                         }
                         HighlightGameCommand(hitByMouseClick.CommandPreview);
                     }
-                    
+
                     if (hitByMouseClick.UnitBase != null)
                     {
                         HighlightUnitFrame(hitByMouseClick.UnitBase);
@@ -1357,8 +1348,7 @@ namespace Assets.Scripts
             ShowNothing();
             if (selectedUnitFrame != null)
             {
-                selectedUnitFrame.SetSelected(false);
-                selectedUnitFrame = null;
+                UnselectUnitFrame();
             }
             if (selectedCommandPreview != null && selectedCommandPreview.IsInSubCommandMode)
             {
@@ -1381,7 +1371,7 @@ namespace Assets.Scripts
         }
 
         private void DisplayGameCommand(CommandPreview commandPreview)
-        {            
+        {
             if (commandPreview == null) return;
 
             Position2 position2;
@@ -1645,4 +1635,50 @@ namespace Assets.Scripts
             }
         }
     }
+
+    internal class HitByMouseClick
+    {
+        public HitByMouseClick()
+        {
+            Units = new List<UnitBase>();
+        }
+
+        public List<UnitBase> Units { get; private set; }
+        public GroundCell GroundCell { get; set; }
+        public CommandPreview CommandPreview { get; private set; }
+        public UnitBase UnitBase { get; private set; }
+
+        public void Update(CommandPreview commandPreview)
+        {
+
+            foreach (UnitBase unitBase in Units)
+            {
+                CommandPreview unitCommandPreview = HexGrid.MainGrid.FindCommandForUnit(unitBase);
+                if (unitCommandPreview != null)
+                {
+                    CommandPreview = unitCommandPreview;
+                    UnitBase = unitBase;
+                    break;
+                }
+            }
+            if (UnitBase == null && Units.Count > 0)
+            {
+                // Just the first one
+                UnitBase = Units[0];
+            }
+            if (CommandPreview == null && commandPreview != null)
+            {
+                CommandPreview = commandPreview;
+            }
+        }
+    }
+    internal enum CanvasMode
+    {
+        None,
+        Select,
+        Unit,
+        Preview,
+        Command
+    }
+
 }

@@ -9,6 +9,16 @@ namespace Engine.Master
 {
     public class Reactor : Ability
     {
+        public Reactor(Unit owner, int level, int range) : base(owner, TileObjectType.PartReactor)
+        {
+            AvailablePower = 100;
+            this.range = range;
+            Level = level;
+
+            TileContainer = new TileContainer();
+            TileContainer.Capacity = 4;
+        }
+
         public override string Name { get { return "Reactor"; } }
         public int AvailablePower { get; set; }
         public int StoredPower
@@ -44,14 +54,12 @@ namespace Engine.Master
                 return storedPower;
             }
         }
-
+        private int range;
         public int Range
         {
             get
             {
-                if (Level == 1) return 12;
-                if (Level == 2) return 8;
-                return 12;
+                return range;
             }
         }
         public void BurnIfNeccessary(Dictionary<Position2, Unit> changedUnits)
@@ -120,14 +128,6 @@ namespace Engine.Master
             return removed;
         }
 
-        public Reactor(Unit owner, int level) : base(owner, TileObjectType.PartReactor)
-        {
-            AvailablePower = 100;
 
-            Level = level;
-
-            TileContainer = new TileContainer();
-            TileContainer.Capacity = 4;
-        }
     }
 }

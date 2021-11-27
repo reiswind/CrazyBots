@@ -829,8 +829,8 @@ namespace Assets.Scripts
                         foreach (MapPlayerInfo mapPlayerInfo in MapInfo.PlayerInfo.Values)
                         {
                             // Only for current player
-                            //if (mapPlayerInfo.PlayerId != 1)
-                            //    continue;
+                            if (mapPlayerInfo.PlayerId != 1)
+                                continue;
 
                             if (mapPlayerInfo.GameCommands != null && mapPlayerInfo.GameCommands.Count > 0)
                             {
@@ -1598,6 +1598,7 @@ namespace Assets.Scripts
                 moveUpdateUnitPart.PartType = blueprintPart.PartType;
                 moveUpdateUnitPart.Level = blueprintPart.Level;
                 moveUpdateUnitPart.CompleteLevel = blueprintPart.Level;
+                moveUpdateUnitPart.Range = blueprintPart.Range;
                 moveUpdateUnitPart.Capacity = blueprintPart.Capacity;
 
                 stats.UnitParts.Add(moveUpdateUnitPart);
