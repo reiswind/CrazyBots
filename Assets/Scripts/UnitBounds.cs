@@ -31,18 +31,56 @@ namespace Assets.Scripts
 
         private void CreateFrame(Position3 position)
         {
-            if (position.Direction == Direction.NW)
-                return;
-
+            //if (position.Direction != Direction.SW)
+            //    return;
+            //if (position.Direction != Direction.NE && position.Direction != Direction.N)
+            //    return;
             GroundCell groundCell;
             if (HexGrid.MainGrid.GroundCells.TryGetValue(position.Pos, out groundCell))
             {
-                GameObject previewUnitMarker = HexGrid.MainGrid.InstantiatePrefab("GroundBuild");
-                previewUnitMarker.transform.SetParent(HexGrid.MainGrid.transform, false);
                 Vector3 vector3 = groundCell.transform.position;
                 vector3.y += 0.08f;
-                previewUnitMarker.transform.position = vector3;
-                visibleFrames.Add(previewUnitMarker);
+
+                GameObject previewUnitMarker1 = HexGrid.MainGrid.InstantiatePrefab("GroundFramePart");
+                previewUnitMarker1.transform.SetParent(HexGrid.MainGrid.transform, false);
+                previewUnitMarker1.transform.position = vector3;
+
+                GameObject previewUnitMarker2 = HexGrid.MainGrid.InstantiatePrefab("GroundFramePart");
+                previewUnitMarker2.transform.SetParent(HexGrid.MainGrid.transform, false);
+                previewUnitMarker2.transform.position = vector3;
+
+                if (position.Direction == Direction.N)
+                {
+                    previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(-150, Vector3.up);
+                    previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(150, Vector3.up);
+                }
+                if (position.Direction == Direction.NE)
+                {
+                    previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(-150, Vector3.up);
+                    previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(-90, Vector3.up);
+                }
+                if (position.Direction == Direction.NW)
+                {
+                    previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(150, Vector3.up);
+                    previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(90, Vector3.up);
+                }
+                if (position.Direction == Direction.S)
+                {
+                    previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(30, Vector3.up);
+                    previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(-30, Vector3.up);
+                }
+                if (position.Direction == Direction.SE)
+                {
+                    previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(-90, Vector3.up);
+                    previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(-30, Vector3.up);
+                }
+                if (position.Direction == Direction.SW)
+                {
+                    previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(30, Vector3.up);
+                    previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(90, Vector3.up);
+                }
+                visibleFrames.Add(previewUnitMarker1);
+                visibleFrames.Add(previewUnitMarker2);
             }
 
         }
