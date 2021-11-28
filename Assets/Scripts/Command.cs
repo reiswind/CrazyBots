@@ -229,20 +229,23 @@ namespace Assets.Scripts
                                 commandAttachedUnit.GhostUnit.IsVisible = false;
                             }
                         }
-                        Position3 relativePosition3 = targetPosition3.Add(commandAttachedUnit.RotatedPosition3);
-                        if (IsSelected)
+                        if (commandAttachedUnit.GhostUnitBounds != null)
                         {
-                            commandAttachedUnit.GhostUnitBounds.IsVisible = true;
-                        }
-                        else
-                        {
-                            if (realUnit.CurrentPos == relativePosition3.Pos)
+                            Position3 relativePosition3 = targetPosition3.Add(commandAttachedUnit.RotatedPosition3);
+                            if (IsSelected)
                             {
-                                commandAttachedUnit.GhostUnitBounds.IsVisible = false;
+                                commandAttachedUnit.GhostUnitBounds.IsVisible = true;
                             }
                             else
                             {
-                                commandAttachedUnit.GhostUnitBounds.IsVisible = true;
+                                if (realUnit.CurrentPos == relativePosition3.Pos)
+                                {
+                                    commandAttachedUnit.GhostUnitBounds.IsVisible = false;
+                                }
+                                else
+                                {
+                                    commandAttachedUnit.GhostUnitBounds.IsVisible = true;
+                                }
                             }
                         }
                         realUnit.SetHighlighted(IsHighlighted);
@@ -335,8 +338,8 @@ namespace Assets.Scripts
                                 Vector3 unitPos3 = gc.transform.position;
                                 unitPos3.y += 0.10f;
                                 //commandAttachedUnit.Marker.transform.position = unitPos3;
-
-                                commandAttachedUnit.GhostUnitBounds.Update();
+                                if (commandAttachedUnit.GhostUnitBounds != null)
+                                    commandAttachedUnit.GhostUnitBounds.Update();
 
                                 commandAttachedUnit.GhostUnit.IsVisible = true;
                                 commandAttachedUnit.IsVisible = true;

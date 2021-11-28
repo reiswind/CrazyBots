@@ -894,7 +894,7 @@ namespace Assets.Scripts
                         unitBase.DestinationPos = Position2.Null;
                         unitBase.TurnIntoDirection = Direction.C;
                     }
-                    unitBase.PutAtCurrentPosition(true, false);
+                    //unitBase.PutAtCurrentPosition(true, false);
                 }
                 // Finish all open hits
                 foreach (HitByBullet hitByBullet in hitByBullets)

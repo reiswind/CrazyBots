@@ -182,15 +182,25 @@ namespace Engine.Interface
         {
             List<Position3> results = new List<Position3>();
             Position3 cube = Move(Direction.NW, radius);
+            
+            Position3 firstcube = new Position3(cube.Q, cube.R, cube.S, Direction.N);
 
             for (int i = 0; i < 6; i++)
             {
                 for (int j = 0; j < radius; j++)
                 {
-                    results.Add(cube);
+                    if (i == 0 && j == 0)
+                    {
+                        
+                    }
+                    else
+                    {
+                        results.Add(cube);
+                    }
                     cube = cube.GetNeighbor((Direction)i);
                 }
             }
+            results.Add(firstcube);
             return results;
         }
 
@@ -347,7 +357,7 @@ namespace Engine.Interface
 
         public override string ToString()
         {
-            return "Pos: " + Pos.ToString();
+            return "Pos: " + Pos.ToString() + " " + Direction.ToString();
         }
     }
 

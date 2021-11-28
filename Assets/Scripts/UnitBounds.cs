@@ -41,6 +41,31 @@ namespace Assets.Scripts
                 Vector3 vector3 = groundCell.transform.position;
                 vector3.y += 0.08f;
 
+                GameObject previewUnitMarker = HexGrid.MainGrid.InstantiatePrefab("GroundBuild");
+                previewUnitMarker.transform.SetParent(HexGrid.MainGrid.transform, false);
+                previewUnitMarker.transform.position = vector3;
+
+                
+                visibleFrames.Add(previewUnitMarker);
+            }
+
+        }
+
+
+        private void CreateFrameBorder(Position3 position, bool isCorner)
+        {
+            //if (!isCorner)
+            //    return;
+            //if (position.Direction != Direction.SW)
+            //    return;
+            //if (position.Direction != Direction.NE && position.Direction != Direction.N)
+            //    return;
+            GroundCell groundCell;
+            if (HexGrid.MainGrid.GroundCells.TryGetValue(position.Pos, out groundCell))
+            {
+                Vector3 vector3 = groundCell.transform.position;
+                vector3.y += 0.18f;
+
                 GameObject previewUnitMarker1 = HexGrid.MainGrid.InstantiatePrefab("GroundFramePart");
                 previewUnitMarker1.transform.SetParent(HexGrid.MainGrid.transform, false);
                 previewUnitMarker1.transform.position = vector3;
@@ -49,38 +74,68 @@ namespace Assets.Scripts
                 previewUnitMarker2.transform.SetParent(HexGrid.MainGrid.transform, false);
                 previewUnitMarker2.transform.position = vector3;
 
+                GameObject previewUnitMarker3 = null;
+
+                if (isCorner)
+                {
+                    previewUnitMarker3 = HexGrid.MainGrid.InstantiatePrefab("GroundFramePart");
+                    previewUnitMarker3.transform.SetParent(HexGrid.MainGrid.transform, false);
+                    previewUnitMarker3.transform.position = vector3;
+                }
+
                 if (position.Direction == Direction.N)
                 {
                     previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(-150, Vector3.up);
                     previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(150, Vector3.up);
+
+                    if (isCorner && previewUnitMarker3 != null)
+                        previewUnitMarker3.transform.rotation = Quaternion.AngleAxis(-90, Vector3.up);
                 }
+                
                 if (position.Direction == Direction.NE)
                 {
                     previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(-150, Vector3.up);
                     previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(-90, Vector3.up);
+
+                    if (isCorner && previewUnitMarker3 != null)
+                        previewUnitMarker3.transform.rotation = Quaternion.AngleAxis(-30, Vector3.up);
                 }
                 if (position.Direction == Direction.NW)
                 {
                     previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(150, Vector3.up);
                     previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(90, Vector3.up);
+
+                    if (isCorner && previewUnitMarker3 != null)
+                        previewUnitMarker3.transform.rotation = Quaternion.AngleAxis(-150, Vector3.up);
                 }
                 if (position.Direction == Direction.S)
                 {
                     previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(30, Vector3.up);
                     previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(-30, Vector3.up);
+
+                    if (isCorner && previewUnitMarker3 != null)
+                        previewUnitMarker3.transform.rotation = Quaternion.AngleAxis(90, Vector3.up);
                 }
                 if (position.Direction == Direction.SE)
                 {
                     previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(-90, Vector3.up);
                     previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(-30, Vector3.up);
+
+                    if (isCorner && previewUnitMarker3 != null)
+                        previewUnitMarker3.transform.rotation = Quaternion.AngleAxis(30, Vector3.up);
                 }
                 if (position.Direction == Direction.SW)
                 {
                     previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(30, Vector3.up);
                     previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(90, Vector3.up);
+
+                    if (isCorner && previewUnitMarker3 != null)
+                        previewUnitMarker3.transform.rotation = Quaternion.AngleAxis(150, Vector3.up);
                 }
                 visibleFrames.Add(previewUnitMarker1);
                 visibleFrames.Add(previewUnitMarker2);
+                if (previewUnitMarker3 != null)
+                    visibleFrames.Add(previewUnitMarker3);
             }
 
         }
@@ -118,6 +173,24 @@ namespace Assets.Scripts
             collectRadius = radius;
         }
 
+        private void CreateFrame(List<Position3> positions)
+        {
+            Direction lastDirection = Direction.C;
+            //foreach (Position3 position in positions)
+            for (int i = 0; i < positions.Count; i++)
+            {
+                Position3 position = positions[i];
+                Position3 nextPosition;
+                if (i < positions.Count - 1)
+                    nextPosition = positions[i + 1];
+                else
+                    nextPosition = positions[0];
+
+                CreateFrameBorder(position, nextPosition.Direction != position.Direction);
+                lastDirection = position.Direction;
+            }
+        }
+
         public void Update()
         {
             if (visibleFrames.Count > 0)
@@ -130,35 +203,23 @@ namespace Assets.Scripts
                 if (unitBasePart.PartType == TileObjectType.PartReactor)
                 {
                     List<Position3> positions = position3.CreateRing(unitBasePart.Range);
-                    foreach (Position3 position in positions)
-                    {
-                        CreateFrame(position);
-                    }
+                    CreateFrame(positions);
                 }
                 if (unitBasePart.PartType == TileObjectType.PartContainer)
                 {
                     List<Position3> positions = position3.CreateRing(unitBasePart.Range);
-                    foreach (Position3 position in positions)
-                    {
-                        CreateFrame(position);
-                    }
+                    CreateFrame(positions);
                 }
                 if (unitBasePart.PartType == TileObjectType.PartWeapon)
                 {
                     List<Position3> positions = position3.CreateRing(unitBasePart.Range);
-                    foreach (Position3 position in positions)
-                    {
-                        CreateFrame(position);
-                    }
+                    CreateFrame(positions);
                 }
             }
             if (collectRadius.HasValue)
             {
                 List<Position3> positions = position3.CreateRing(collectRadius.Value);
-                foreach (Position3 position in positions)
-                {
-                    CreateFrame(position);
-                }
+                CreateFrame(positions);
             }
             if (addBuildGrid)
             {

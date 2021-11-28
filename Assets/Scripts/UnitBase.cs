@@ -124,8 +124,9 @@ namespace Assets.Scripts
                 Vector3 unitPos3 = targetCell.transform.position;
                 unitPos3.y += HexGrid.MainGrid.hexCellHeight + AboveGround;
                 
-                moveToVector = (unitPos3 - transform.position) / 50;
                 moveToVectorTimes = (int)(50 * HexGrid.MainGrid.GameSpeed);
+                moveToVector = (unitPos3 - transform.position) / moveToVectorTimes;
+                //moveToVector = (unitPos3 - currentCell.transform.position) / moveToVectorTimes;
 
                 if (_rigidbody != null)
                 {
@@ -313,12 +314,36 @@ namespace Assets.Scripts
 
                         //Debug.Log("MoveToVector" + moveToVector.ToString());
 
+                        
                         if (moveToVectorTimes > 0)
                         {
+                            _rigidbody.velocity = Vector3.zero;
                             _rigidbody.MovePosition(transform.position + moveToVector);
                             moveToVectorTimes--;
                         }
-
+                        else
+                        {
+                            if (_rigidbody.position == targetCell.transform.position)
+                            {
+                                _rigidbody.velocity = Vector3.zero;
+                            }
+                            else
+                            {
+                                float speed = 0.75f / HexGrid.MainGrid.GameSpeed;
+                                float step = speed * Time.deltaTime;
+                                Vector3 unitPos3 = targetCell.transform.position;
+                                unitPos3.y += HexGrid.MainGrid.hexCellHeight + AboveGround;
+                                _rigidbody.MovePosition(Vector3.MoveTowards(transform.position, unitPos3, step));
+                            }
+                        }
+                                
+                        /*
+                        float speed = 1.75f / HexGrid.MainGrid.GameSpeed;
+                        float step = speed * Time.deltaTime;
+                        Vector3 unitPos3 = targetCell.transform.position;
+                        unitPos3.y += HexGrid.MainGrid.hexCellHeight + AboveGround;
+                        _rigidbody.MovePosition(Vector3.MoveTowards(transform.position, unitPos3, step));
+                        */
                     }
                     else
                     {
