@@ -704,6 +704,34 @@ namespace Assets.Scripts
         {
             if (Command != null)
                 Command.SetSelected(value);
+
+            foreach (CommandAttachedUnit commandAttachedUnit in PreviewUnits)
+            {
+                if (commandAttachedUnit.GhostUnitBounds != null)
+                {
+                    commandAttachedUnit.GhostUnitBounds.IsVisible = value;
+                }
+                else
+                {
+                    if (value == true)
+                    {
+                        if (commandAttachedUnit.GhostUnit != null &&
+                            commandAttachedUnit.GhostUnitBounds == null)
+                        {
+                            commandAttachedUnit.GhostUnitBounds = new UnitBounds(commandAttachedUnit.GhostUnit);
+                            commandAttachedUnit.GhostUnitBounds.Update();
+                        }
+                    }
+                    else
+                    {
+                        if (commandAttachedUnit.GhostUnitBounds != null)
+                        {
+                            commandAttachedUnit.GhostUnitBounds.Destroy();
+                            commandAttachedUnit.GhostUnitBounds = null;
+                        }
+                    }
+                }
+            }
         }
         public void SetActive(bool value)
         {
@@ -727,8 +755,6 @@ namespace Assets.Scripts
             }
             return false;
         }
-
-
 
         public bool UpdateCommandPreview(MapGameCommand gameCommand)
         {

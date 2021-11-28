@@ -29,26 +29,37 @@ namespace Assets.Scripts
         private Position2 lastPosition;
         private List<GameObject> visibleFrames = new List<GameObject>();
 
-        private void CreateFrame(Position3 position)
+        private void CreateBuildFrame(Position3 position)
         {
-            //if (position.Direction != Direction.SW)
-            //    return;
-            //if (position.Direction != Direction.NE && position.Direction != Direction.N)
-            //    return;
             GroundCell groundCell;
             if (HexGrid.MainGrid.GroundCells.TryGetValue(position.Pos, out groundCell))
             {
                 Vector3 vector3 = groundCell.transform.position;
                 vector3.y += 0.08f;
 
-                GameObject previewUnitMarker = HexGrid.MainGrid.InstantiatePrefab("GroundBuild");
+                GameObject previewUnitMarker = HexGrid.MainGrid.InstantiatePrefab("GroundBuildFrame");
                 previewUnitMarker.transform.SetParent(HexGrid.MainGrid.transform, false);
                 previewUnitMarker.transform.position = vector3;
 
                 
                 visibleFrames.Add(previewUnitMarker);
             }
+        }
+        private void CreateUnitFrame(Position3 position)
+        {
+            GroundCell groundCell;
+            if (HexGrid.MainGrid.GroundCells.TryGetValue(position.Pos, out groundCell))
+            {
+                Vector3 vector3 = groundCell.transform.position;
+                vector3.y += 0.08f;
 
+                GameObject previewUnitMarker = HexGrid.MainGrid.InstantiatePrefab("GroundFrame");
+                previewUnitMarker.transform.SetParent(HexGrid.MainGrid.transform, false);
+                previewUnitMarker.transform.position = vector3;
+
+
+                visibleFrames.Add(previewUnitMarker);
+            }
         }
 
 
@@ -226,9 +237,10 @@ namespace Assets.Scripts
                 List<Position3> positions = position3.GetNeighbors(2);
                 foreach (Position3 position in positions)
                 {
-                    CreateFrame(position);
+                    CreateBuildFrame(position);
                 }
             }
+            CreateUnitFrame(position3);
         }
 
         public void Destroy()
