@@ -85,52 +85,52 @@ namespace Assets.Scripts
 
                 if (position.Direction == Direction.N)
                 {
-                    previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(-150, Vector3.up);
-                    previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(150, Vector3.up);
-
-                    if (isCorner && previewUnitMarker3 != null)
-                        previewUnitMarker3.transform.rotation = Quaternion.AngleAxis(-90, Vector3.up);
-                }
-                
-                if (position.Direction == Direction.NE)
-                {
-                    previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(-150, Vector3.up);
-                    previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(-90, Vector3.up);
-
-                    if (isCorner && previewUnitMarker3 != null)
-                        previewUnitMarker3.transform.rotation = Quaternion.AngleAxis(-30, Vector3.up);
-                }
-                if (position.Direction == Direction.NW)
-                {
-                    previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(150, Vector3.up);
-                    previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(90, Vector3.up);
-
-                    if (isCorner && previewUnitMarker3 != null)
-                        previewUnitMarker3.transform.rotation = Quaternion.AngleAxis(-150, Vector3.up);
-                }
-                if (position.Direction == Direction.S)
-                {
-                    previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(30, Vector3.up);
-                    previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(-30, Vector3.up);
-
-                    if (isCorner && previewUnitMarker3 != null)
-                        previewUnitMarker3.transform.rotation = Quaternion.AngleAxis(90, Vector3.up);
-                }
-                if (position.Direction == Direction.SE)
-                {
                     previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(-90, Vector3.up);
                     previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(-30, Vector3.up);
 
                     if (isCorner && previewUnitMarker3 != null)
                         previewUnitMarker3.transform.rotation = Quaternion.AngleAxis(30, Vector3.up);
                 }
-                if (position.Direction == Direction.SW)
+                
+                if (position.Direction == Direction.NE)
+                {
+                    previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(-30, Vector3.up);
+                    previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(30, Vector3.up);
+
+                    if (isCorner && previewUnitMarker3 != null)
+                        previewUnitMarker3.transform.rotation = Quaternion.AngleAxis(90, Vector3.up);
+                }
+                if (position.Direction == Direction.NW)
+                {
+                    previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(210, Vector3.up);
+                    previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(270, Vector3.up);
+
+                    if (isCorner && previewUnitMarker3 != null)
+                        previewUnitMarker3.transform.rotation = Quaternion.AngleAxis(330, Vector3.up);
+                }
+                if (position.Direction == Direction.S)
+                {
+                    previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(90, Vector3.up);
+                    previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(150, Vector3.up);
+
+                    if (isCorner && previewUnitMarker3 != null)
+                        previewUnitMarker3.transform.rotation = Quaternion.AngleAxis(210, Vector3.up);
+                }
+                if (position.Direction == Direction.SE)
                 {
                     previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(30, Vector3.up);
                     previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(90, Vector3.up);
 
                     if (isCorner && previewUnitMarker3 != null)
                         previewUnitMarker3.transform.rotation = Quaternion.AngleAxis(150, Vector3.up);
+                }
+                if (position.Direction == Direction.SW)
+                {
+                    previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(150, Vector3.up);
+                    previewUnitMarker2.transform.rotation = Quaternion.AngleAxis(210, Vector3.up);
+
+                    if (isCorner && previewUnitMarker3 != null)
+                        previewUnitMarker3.transform.rotation = Quaternion.AngleAxis(270, Vector3.up);
                 }
                 visibleFrames.Add(previewUnitMarker1);
                 visibleFrames.Add(previewUnitMarker2);
