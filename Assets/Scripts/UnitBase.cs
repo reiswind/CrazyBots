@@ -7,6 +7,20 @@ using HighlightPlus;
 
 namespace Assets.Scripts
 {
+
+    public readonly struct UnitAlert
+    {
+        public UnitAlert(string header, string text, bool isAlert)
+        {
+            Header = header;
+            Text = text;
+            IsAlert = isAlert;
+        }
+        public bool IsAlert { get;  }
+        public string Header { get; }
+        public string Text { get; }
+    }
+
     public class UnitCommand
     {
         public MapGameCommand GameCommand { get; set; }
@@ -66,6 +80,7 @@ namespace Assets.Scripts
             AboveGround = 0f;
             TurnWeaponIntoDirection = Vector3.zero;
             TurnIntoDirection = Direction.C;
+            SetAlert(new UnitAlert("Created", "", false));
         }
 
         internal Position2 CurrentPos { get; set; }
@@ -84,7 +99,7 @@ namespace Assets.Scripts
         internal bool UnderConstruction { get; set; }
         internal bool HasBeenDestroyed { get; set; }
 
-        //private bool isVisible;
+        
         internal bool IsVisible
         {
             get
@@ -101,9 +116,22 @@ namespace Assets.Scripts
             }
         }
 
+        private UnitAlert unitAlert;
+        public UnitAlert UnitAlert { get { return unitAlert;  } }
+        public void SetAlert(UnitAlert unitAlert)
+        {
+            this.unitAlert = unitAlert;
+            if (_alert != null)
+            {
+                _alert.SetActive(unitAlert.IsAlert);
+            }
+        }
+
         internal Vector3 TurnWeaponIntoDirection { get; set; }
 
         private Rigidbody _rigidbody;
+        private GameObject _alert;
+
         private bool teleportToPosition;
         //private int fixedFrameCounter;
         private Vector3 moveToVector;
@@ -153,6 +181,10 @@ namespace Assets.Scripts
 
         private void Start()
         {
+            Transform child = transform.Find("Alert");
+            if (child != null)
+                _alert = child.gameObject;
+
             _rigidbody = GetComponent<Rigidbody>();
             if (_rigidbody != null && IsGhost)
                 _rigidbody.Sleep();
@@ -477,13 +509,20 @@ namespace Assets.Scripts
 
         public void UpdateStats(MoveUpdateStats stats)
         {
-            if (UnitId == "unit1")
-            {
-                int x = 0;
-            }
-
             if (stats != null)
             {
+                if (stats.Power < 20)
+                {
+                    SetAlert(new UnitAlert("LowPower", "NeedReactor", true));
+                }
+                else
+                {
+                    if (stats.MoveUpdateStatsCommand != null)
+                    {
+                        SetAlert(new UnitAlert(stats.MoveUpdateStatsCommand.Status, stats.MoveUpdateStatsCommand.Status, stats.MoveUpdateStatsCommand.Alert));
+                    }
+                }
+
                 if (IsActive && stats.Power == 0)
                 {
                     DectivateUnit();
@@ -1296,7 +1335,6 @@ namespace Assets.Scripts
         {
             if (!IsActive)
             {
-
                 GameObject activeAnimation = FindChildNyName(gameObject, "ActiveAnimation");
                 if (activeAnimation != null)
                 {
@@ -1307,9 +1345,8 @@ namespace Assets.Scripts
                 {
                     moveAnimation.SetActive(true);
                 }
-
+                SetAlert(new UnitAlert("Activated", "Chilling", false));
                 AboveGround = 0.08f;
-
                 IsActive = true;
             }
         }
@@ -1331,6 +1368,7 @@ namespace Assets.Scripts
             Vector3 unitPos3 = transform.position;
             unitPos3.y -= AboveGround;
             transform.position = unitPos3;
+            SetAlert(new UnitAlert("Dectivated", "", false));
 
             AboveGround = 0;
 

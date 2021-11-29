@@ -45,6 +45,9 @@ namespace Assets.Scripts
         private Text headerSubText;
         private Text headerGroundText;
 
+        private Text alertHeaderText;
+        private Text alertText;
+
         private LayerMask mask;
 
         // Start is called before the first frame update
@@ -63,10 +66,14 @@ namespace Assets.Scripts
             headerText = panelItem.Find("HeaderText").GetComponent<Text>();
             headerSubText = panelItem.Find("SubText").GetComponent<Text>();
             headerGroundText = panelItem.Find("GroundText").GetComponent<Text>();
+            alertHeaderText = panelItem.Find("AlertHeader").GetComponent<Text>();
+            alertText = panelItem.Find("AlertText").GetComponent<Text>();
 
             headerText.text = "";
             headerSubText.text = "";
             headerGroundText.text = "";
+            alertHeaderText.text = "";
+            alertText.text = "";
 
             /*
             buildButton = panelItem.Find("BuildButton").GetComponent<Button>();
@@ -831,8 +838,7 @@ namespace Assets.Scripts
                 GameObject child = panelParts.transform.GetChild(i).gameObject;
                 if (child.name.StartsWith("Panel"))
                     child.SetActive(false);
-                else
-                    Destroy(child);
+
             }
             /*
             panelEngine.SetActive(false);
@@ -1341,6 +1347,8 @@ namespace Assets.Scripts
             headerText.text = "";
             headerSubText.text = "";
             headerGroundText.text = "";
+            alertHeaderText.text = "";
+            alertText.text = "";
         }
 
         private void SelectNothing()
@@ -1364,10 +1372,10 @@ namespace Assets.Scripts
 
         private CommandPreview highlightedCommandPreview;
 
-        private void DisplayUpdateStatsCommand(MoveUpdateStatsCommand moveUpdateStatsCommand)
+        private void DisplayUpdateStatsCommand(UnitBase unit)
         {
-            panelCommand.transform.Find("Partname").GetComponent<Text>().text = moveUpdateStatsCommand.GameCommandType.ToString() + " at " + moveUpdateStatsCommand.TargetPosition.ToString();
-            panelCommand.transform.Find("Content").GetComponent<Text>().text = moveUpdateStatsCommand.Status;
+            alertHeaderText.text = unit.UnitAlert.Header;
+            alertText.text = unit.UnitAlert.Text;
         }
 
         private void DisplayGameCommand(CommandPreview commandPreview)
@@ -1466,15 +1474,7 @@ namespace Assets.Scripts
                     headerSubText.text += unit.UnitId;
                     headerSubText.text += " Power: " + unit.MoveUpdateStats.Power;
 
-                    if (unit.MoveUpdateStats.MoveUpdateStatsCommand != null)
-                    {
-                        DisplayUpdateStatsCommand(unit.MoveUpdateStats.MoveUpdateStatsCommand);
-                        panelCommand.SetActive(true);
-                    }
-                    else
-                    {
-                        panelCommand.SetActive(false);
-                    }
+                    DisplayUpdateStatsCommand(unit);
 
                     string state;
 
