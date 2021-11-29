@@ -1681,16 +1681,23 @@ namespace Assets.Scripts
             UnitBase unit = InstantiatePrefab<UnitBase>(blueprint.Layout);
             if (unit == null) return;
 
+            // Hide parts, so the do not appear to early
+            for (int i = 0; i < unit.transform.childCount; i++)
+            {
+                GameObject child = unit.transform.GetChild(i).gameObject;
+                child.SetActive(false);
+            }
+
             if (move.MoveType == MoveType.Build)
                 unit.CurrentPos = move.Positions[1];
             else
                 unit.CurrentPos = move.Positions[0];
             unit.Direction = move.Stats.Direction;
+            unit.TurnIntoDirection = move.Stats.Direction;
             unit.PlayerId = move.PlayerId;
             unit.MoveUpdateStats = move.Stats;
             unit.UnitId = move.UnitId;
             unit.gameObject.name = move.UnitId;
-            unit.TurnIntoDirection = move.Stats.Direction;
             
             BaseUnits.Add(move.UnitId, unit);
 

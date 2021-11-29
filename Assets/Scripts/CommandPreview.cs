@@ -173,6 +173,9 @@ namespace Assets.Scripts
         public void SelectMoveMode()
         {
             isMoveMode = true;
+
+            // Append build grid
+            UpdateAllUnitBounds(true);
         }
 
         private UnitBase addPreviewGhost;
@@ -223,6 +226,7 @@ namespace Assets.Scripts
                     SetPosition(gc);
                 }
                 isMoveMode = false;
+                UpdateAllUnitBounds(true);
             }
             if (addPreviewGhost != null)
             {
@@ -700,39 +704,56 @@ namespace Assets.Scripts
                 return Command.IsSelected;
             }
         }
+
+        private void UpdateAllUnitBounds(bool visible)
+        {
+            foreach (CommandAttachedUnit commandAttachedUnit in PreviewUnits)
+            {
+                if (visible == true)
+                {
+                    if (commandAttachedUnit.GhostUnitBounds != null)
+                    {
+                        commandAttachedUnit.GhostUnitBounds.Destroy();
+                        commandAttachedUnit.GhostUnitBounds = null;
+                    }
+                    if (commandAttachedUnit.GhostUnit != null)
+                    {
+                        // On select
+                        commandAttachedUnit.GhostUnitBounds = new UnitBounds(commandAttachedUnit.GhostUnit);
+
+                        if (IsPreview || IsMoveMode)
+                        {
+                            if (GameCommand.GameCommandType == GameCommandType.Collect)
+                            {
+                                commandAttachedUnit.GhostUnitBounds.AddCollectRange(GameCommand.Radius);
+                            }
+                            else
+                            {
+                                commandAttachedUnit.GhostUnitBounds.AddBuildGrid();
+                            }
+                        }
+                        commandAttachedUnit.GhostUnitBounds.Update();
+                    }
+                }
+                else
+                {
+                    if (commandAttachedUnit.GhostUnitBounds != null)
+                    {
+                        commandAttachedUnit.GhostUnitBounds.Destroy();
+                        commandAttachedUnit.GhostUnitBounds = null;
+                    }
+                }
+            }
+        }
+
         public void SetSelected(bool value)
         {
             if (Command != null)
                 Command.SetSelected(value);
 
-            foreach (CommandAttachedUnit commandAttachedUnit in PreviewUnits)
-            {
-                if (commandAttachedUnit.GhostUnitBounds != null)
-                {
-                    commandAttachedUnit.GhostUnitBounds.IsVisible = value;
-                }
-                else
-                {
-                    if (value == true)
-                    {
-                        if (commandAttachedUnit.GhostUnit != null &&
-                            commandAttachedUnit.GhostUnitBounds == null)
-                        {
-                            commandAttachedUnit.GhostUnitBounds = new UnitBounds(commandAttachedUnit.GhostUnit);
-                            commandAttachedUnit.GhostUnitBounds.Update();
-                        }
-                    }
-                    else
-                    {
-                        if (commandAttachedUnit.GhostUnitBounds != null)
-                        {
-                            commandAttachedUnit.GhostUnitBounds.Destroy();
-                            commandAttachedUnit.GhostUnitBounds = null;
-                        }
-                    }
-                }
-            }
+            UpdateAllUnitBounds(value);
         }
+        
         public void SetActive(bool value)
         {
             /*
@@ -795,18 +816,9 @@ namespace Assets.Scripts
                             GameObject previewUnitMarker = HexGrid.MainGrid.InstantiatePrefab("GroundFrame");
                             previewUnitMarker.transform.SetParent(HexGrid.MainGrid.transform, false);
 
+                            // On create select                            
                             commandAttachedUnit = new CommandAttachedUnit(mapGameCommandItem);
                             commandAttachedUnit.GhostUnit = previewUnit;
-                            commandAttachedUnit.GhostUnitBounds = new UnitBounds(previewUnit);
-
-                            if (GameCommand.GameCommandType == GameCommandType.Collect)
-                            {
-                                commandAttachedUnit.GhostUnitBounds.AddCollectRange(gameCommand.Radius);
-                            }
-                            else
-                            {
-                                commandAttachedUnit.GhostUnitBounds.AddBuildGrid();
-                            }
                             commandAttachedUnit.Direction = displayDirection;
                             commandAttachedUnit.RotatedDirection = displayDirection;
                             commandAttachedUnit.Position3 = mapGameCommandItem.Position3;
