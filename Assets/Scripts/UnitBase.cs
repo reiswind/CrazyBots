@@ -215,6 +215,9 @@ namespace Assets.Scripts
         // Update is called once per frame
         void FixedUpdate()
         {
+            if (IsGhost)
+                return;
+
             //fixedFrameCounter++;
 
             if (selectionChanged)
@@ -393,15 +396,21 @@ namespace Assets.Scripts
 
         public void UpdateDirection(Vector3 position, bool teleportToPosition)
         {
-            //float speed = 1.75f;
-            float speed = 3.5f / HexGrid.MainGrid.GameSpeed;
-
             // Determine which direction to rotate towards
             Vector3 targetDirection = position - transform.position;
 
-            // The step size is equal to speed times frame time.
-            float singleStep = speed * Time.deltaTime;
-
+            float singleStep;
+            if (teleportToPosition)
+            {
+                singleStep = 7;
+            }
+            else
+            {
+                //float speed = 1.75f;
+                float speed = 3.5f / HexGrid.MainGrid.GameSpeed;
+                // The step size is equal to speed times frame time.
+                singleStep = speed * Time.deltaTime;
+            }
             Vector3 forward = transform.forward;
             // Rotate the forward vector towards the target direction by one step
             Vector3 newDirection = Vector3.RotateTowards(forward, targetDirection, singleStep, 0.0f);
@@ -412,18 +421,28 @@ namespace Assets.Scripts
             if (_rigidbody != null)
             {
                 if (teleportToPosition)
+                {
                     _rigidbody.rotation = Quaternion.LookRotation(newDirection);
+                    transform.rotation = Quaternion.LookRotation(newDirection);
+                }
                 else
+                {
                     _rigidbody.MoveRotation(Quaternion.LookRotation(newDirection));
+                }
             }
             else
+            {
                 transform.rotation = Quaternion.LookRotation(newDirection);
+            }
         }
 
         internal float AboveGround { get; set; }
         public void PutAtCurrentPosition(bool update, bool updateVisibility)
         {
-            teleportToPosition = true;
+            if (_rigidbody == null)
+            {
+                teleportToPosition = true;
+            }
             /*
             GroundCell targetCell;
             if (HexGrid.MainGrid.GroundCells.TryGetValue(CurrentPos, out targetCell))
@@ -1278,7 +1297,7 @@ namespace Assets.Scripts
                     moveAnimation.SetActive(true);
                 }
 
-                AboveGround = 0.05f;
+                AboveGround = 0.08f;
 
                 IsActive = true;
             }

@@ -78,6 +78,8 @@ namespace Assets.Scripts
             Blueprint = blueprint;
             GameCommand.Layout = blueprint.Layout;
             GameCommand.GameCommandType = blueprint.GameCommandType;
+            GameCommand.Direction = displayDirection;
+
             if (GameCommand.GameCommandType == GameCommandType.Collect)
                 GameCommand.Radius = 3;
         
@@ -219,12 +221,14 @@ namespace Assets.Scripts
                     commandAttachedUnit.GhostUnit.SetHighlighted(false);
                     commandAttachedUnit.GhostUnit.IsVisible = false;
                 }
+                displayDirection = GameCommand.Direction;
 
                 GroundCell gc;
                 if (HexGrid.MainGrid.GroundCells.TryGetValue(GameCommand.TargetPosition, out gc))
                 {
                     SetPosition(gc);
                 }
+
                 isMoveMode = false;
                 UpdateAllUnitBounds(true);
             }
@@ -325,6 +329,7 @@ namespace Assets.Scripts
 
                 GroundCell displayCell = HexGrid.MainGrid.GroundCells[displayPosition];
                 UpdatePositions(displayCell);
+                UpdateAllUnitBounds(true);
             }
         }
 
@@ -586,6 +591,9 @@ namespace Assets.Scripts
                     position3 = commandAttachedUnit.RotatedPosition3.RotateRight();
                     commandAttachedUnit.RotatedPosition3 = position3;
                     commandAttachedUnit.RotatedDirection = displayDirection;
+
+                    if (commandAttachedUnit.GhostUnit != null)
+                        commandAttachedUnit.GhostUnit.Direction = displayDirection;
                 }
                 GroundCell gc;
                 if (HexGrid.MainGrid.GroundCells.TryGetValue(DisplayPosition, out gc))
@@ -650,15 +658,19 @@ namespace Assets.Scripts
                     commandAttachedUnit.IsVisible = true;
 
                     commandAttachedUnit.GhostUnit.IsVisible = true;
-                    unitPos3 = commandAttachedUnit.GhostUnit.transform.position;
-                    unitPos3.y += 0.10f;
-
-                    commandAttachedUnit.GhostUnitBounds.IsVisible = true;
-                    commandAttachedUnit.GhostUnitBounds.Update();
+                    if (commandAttachedUnit.GhostUnitBounds != null)
+                    {
+                        commandAttachedUnit.GhostUnitBounds.IsVisible = true;
+                        commandAttachedUnit.GhostUnitBounds.Update();
+                    }
 
                     if (displayDirection != Direction.C)
                     {
-                        neighborPosition3 = relativePosition3.GetNeighbor(displayDirection);
+                        //if (isMoveMode)
+                        //    neighborPosition3 = relativePosition3.GetNeighbor(commandAttachedUnit.RotatedDirection);
+                        //else
+                            neighborPosition3 = relativePosition3.GetNeighbor(displayDirection);
+
                         GroundCell neighbor;
                         if (HexGrid.MainGrid.GroundCells.TryGetValue(neighborPosition3.Pos, out neighbor))
                         {
@@ -813,8 +825,8 @@ namespace Assets.Scripts
                             previewUnit.DectivateUnit();
                             previewUnit.transform.SetParent(HexGrid.MainGrid.transform, false);
 
-                            GameObject previewUnitMarker = HexGrid.MainGrid.InstantiatePrefab("GroundFrame");
-                            previewUnitMarker.transform.SetParent(HexGrid.MainGrid.transform, false);
+                            //GameObject previewUnitMarker = HexGrid.MainGrid.InstantiatePrefab("GroundFrame");
+                            //previewUnitMarker.transform.SetParent(HexGrid.MainGrid.transform, false);
 
                             // On create select                            
                             commandAttachedUnit = new CommandAttachedUnit(mapGameCommandItem);

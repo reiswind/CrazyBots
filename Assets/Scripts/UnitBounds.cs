@@ -27,71 +27,103 @@ namespace Assets.Scripts
         }
 
         private Position2 lastPosition;
-        private List<GameObject> visibleFrames = new List<GameObject>();
+        //private List<GameObject> visibleFrames = new List<GameObject>();
+        private Dictionary<Position2, GameObject> visibleFrames = new Dictionary<Position2, GameObject>();
+        private void CreateTargetFrame(Position3 position)
+        {
+            if (!visibleFrames.ContainsKey(position.Pos))
+            {
+                GroundCell groundCell;
+                if (HexGrid.MainGrid.GroundCells.TryGetValue(position.Pos, out groundCell))
+                {
+                    Vector3 vector3 = groundCell.transform.position;
+                    vector3.y += 0.08f;
+
+                    GameObject previewUnitMarker = HexGrid.MainGrid.InstantiatePrefab("GroundTargetFrame");
+                    previewUnitMarker.transform.SetParent(HexGrid.MainGrid.transform, false);
+                    previewUnitMarker.transform.position = vector3;
+
+                    visibleFrames.Add(position.Pos, previewUnitMarker);
+                }
+            }
+        }
 
         private void CreateBuildFrame(Position3 position)
         {
-            GroundCell groundCell;
-            if (HexGrid.MainGrid.GroundCells.TryGetValue(position.Pos, out groundCell))
+            if (!visibleFrames.ContainsKey(position.Pos))
             {
-                Vector3 vector3 = groundCell.transform.position;
-                vector3.y += 0.08f;
+                GroundCell groundCell;
+                if (HexGrid.MainGrid.GroundCells.TryGetValue(position.Pos, out groundCell))
+                {
+                    Vector3 vector3 = groundCell.transform.position;
+                    vector3.y += 0.08f;
 
-                GameObject previewUnitMarker = HexGrid.MainGrid.InstantiatePrefab("GroundBuildFrame");
-                previewUnitMarker.transform.SetParent(HexGrid.MainGrid.transform, false);
-                previewUnitMarker.transform.position = vector3;
+                    GameObject previewUnitMarker = HexGrid.MainGrid.InstantiatePrefab("GroundBuildFrame");
+                    previewUnitMarker.transform.SetParent(HexGrid.MainGrid.transform, false);
+                    previewUnitMarker.transform.position = vector3;
 
-                
-                visibleFrames.Add(previewUnitMarker);
+                    visibleFrames.Add(position.Pos, previewUnitMarker);
+                }
             }
         }
         private void CreateUnitFrame(Position3 position)
         {
-            GroundCell groundCell;
-            if (HexGrid.MainGrid.GroundCells.TryGetValue(position.Pos, out groundCell))
+            if (!visibleFrames.ContainsKey(position.Pos))
             {
-                Vector3 vector3 = groundCell.transform.position;
-                vector3.y += 0.08f;
+                GroundCell groundCell;
+                if (HexGrid.MainGrid.GroundCells.TryGetValue(position.Pos, out groundCell))
+                {
+                    Vector3 vector3 = groundCell.transform.position;
+                    vector3.y += 0.08f;
 
-                GameObject previewUnitMarker = HexGrid.MainGrid.InstantiatePrefab("GroundFrame");
-                previewUnitMarker.transform.SetParent(HexGrid.MainGrid.transform, false);
-                previewUnitMarker.transform.position = vector3;
+                    GameObject previewUnitMarker = HexGrid.MainGrid.InstantiatePrefab("GroundFrame");
+                    previewUnitMarker.transform.SetParent(HexGrid.MainGrid.transform, false);
+                    previewUnitMarker.transform.position = vector3;
 
-
-                visibleFrames.Add(previewUnitMarker);
+                    visibleFrames.Add(position.Pos, previewUnitMarker);
+                }
             }
         }
 
 
         private void CreateFrameBorder(Position3 position, bool isCorner)
         {
-            //if (!isCorner)
-            //    return;
-            //if (position.Direction != Direction.SW)
-            //    return;
-            //if (position.Direction != Direction.NE && position.Direction != Direction.N)
-            //    return;
+            if (visibleFrames.ContainsKey(position.Pos))
+                return;
+
+                //if (!isCorner)
+                //    return;
+                //if (position.Direction != Direction.SW)
+                //    return;
+                //if (position.Direction != Direction.NE && position.Direction != Direction.N)
+                //    return;
             GroundCell groundCell;
             if (HexGrid.MainGrid.GroundCells.TryGetValue(position.Pos, out groundCell))
             {
                 Vector3 vector3 = groundCell.transform.position;
                 vector3.y += 0.18f;
 
+                GameObject previewUnitMarker = new GameObject();
+                previewUnitMarker.transform.SetParent(HexGrid.MainGrid.transform, false);
+                previewUnitMarker.transform.position = vector3;
+
                 GameObject previewUnitMarker1 = HexGrid.MainGrid.InstantiatePrefab("GroundFramePart");
-                previewUnitMarker1.transform.SetParent(HexGrid.MainGrid.transform, false);
-                previewUnitMarker1.transform.position = vector3;
+                previewUnitMarker1.transform.SetParent(previewUnitMarker.transform, false);
+                //previewUnitMarker1.transform.position = vector3;
 
                 GameObject previewUnitMarker2 = HexGrid.MainGrid.InstantiatePrefab("GroundFramePart");
-                previewUnitMarker2.transform.SetParent(HexGrid.MainGrid.transform, false);
-                previewUnitMarker2.transform.position = vector3;
+                previewUnitMarker2.transform.SetParent(previewUnitMarker.transform, false);
+                //previewUnitMarker2.transform.SetParent(HexGrid.MainGrid.transform, false);
+                //previewUnitMarker2.transform.position = vector3;
 
                 GameObject previewUnitMarker3 = null;
 
                 if (isCorner)
                 {
                     previewUnitMarker3 = HexGrid.MainGrid.InstantiatePrefab("GroundFramePart");
-                    previewUnitMarker3.transform.SetParent(HexGrid.MainGrid.transform, false);
-                    previewUnitMarker3.transform.position = vector3;
+                    //previewUnitMarker3.transform.SetParent(HexGrid.MainGrid.transform, false);
+                    previewUnitMarker3.transform.SetParent(previewUnitMarker.transform, false);
+                    //previewUnitMarker3.transform.position = vector3;
                 }
 
                 if (position.Direction == Direction.N)
@@ -143,10 +175,15 @@ namespace Assets.Scripts
                     if (isCorner && previewUnitMarker3 != null)
                         previewUnitMarker3.transform.rotation = Quaternion.AngleAxis(270, Vector3.up);
                 }
-                visibleFrames.Add(previewUnitMarker1);
-                visibleFrames.Add(previewUnitMarker2);
-                if (previewUnitMarker3 != null)
-                    visibleFrames.Add(previewUnitMarker3);
+
+                
+                //visibleFrames.Add(previewUnitMarker1);
+                //visibleFrames.Add(previewUnitMarker2);
+                //if (previewUnitMarker3 != null)
+                //    visibleFrames.Add(previewUnitMarker3);
+
+                
+                    visibleFrames.Add(position.Pos, previewUnitMarker);
             }
 
         }
@@ -164,7 +201,7 @@ namespace Assets.Scripts
                 {
                     visible = value;
 
-                    foreach (GameObject gameObject in visibleFrames)
+                    foreach (GameObject gameObject in visibleFrames.Values)
                     {
                         gameObject.SetActive(visible);
                     }
@@ -186,8 +223,6 @@ namespace Assets.Scripts
 
         private void CreateFrame(List<Position3> positions)
         {
-            Direction lastDirection = Direction.C;
-            //foreach (Position3 position in positions)
             for (int i = 0; i < positions.Count; i++)
             {
                 Position3 position = positions[i];
@@ -197,8 +232,7 @@ namespace Assets.Scripts
                 else
                     nextPosition = positions[0];
 
-                CreateFrameBorder(position, nextPosition.Direction != position.Direction);
-                lastDirection = position.Direction;
+                CreateFrameBorder(position, nextPosition.Direction != position.Direction);                
             }
         }
 
@@ -223,8 +257,40 @@ namespace Assets.Scripts
                 }
                 if (unitBasePart.PartType == TileObjectType.PartWeapon)
                 {
-                    List<Position3> positions = position3.CreateRing(unitBasePart.Range);
-                    CreateFrame(positions);
+                    if (UnitBase.HasEngine())
+                    {
+                        List<Position3> positions = new List<Position3>();
+                        Position3 canFireAt = position3;
+
+                        for (int i = 0; i < unitBasePart.Range; i++)
+                        {
+                            canFireAt = canFireAt.GetNeighbor(UnitBase.Direction);
+                            positions.Add(canFireAt);
+                        }
+
+                        canFireAt = positions[positions.Count - 2];
+
+                        Position3 canFireLeft = canFireAt.GetNeighbor(Tile.TurnLeft(canFireAt.Direction));
+                        positions.Add(canFireLeft);
+
+                        positions.AddRange(canFireAt.DrawLine(canFireLeft));
+
+                        Position3 canFireRight = canFireAt.GetNeighbor(Tile.TurnRight(canFireAt.Direction));
+                        positions.Add(canFireRight);
+
+                        foreach (Position3 position in positions)
+                        {
+                            CreateTargetFrame(position);
+                        }
+                    }
+                    else
+                    {
+                        List<Position3> positions = position3.CreateRing(unitBasePart.Range);
+                        foreach (Position3 position in positions)
+                        {
+                            CreateTargetFrame(position);
+                        }
+                    }
                 }
             }
             if (collectRadius.HasValue)
@@ -245,7 +311,7 @@ namespace Assets.Scripts
 
         public void Destroy()
         {
-            foreach (GameObject gameObject in visibleFrames)
+            foreach (GameObject gameObject in visibleFrames.Values)
             {
                 HexGrid.Destroy(gameObject);
             }
