@@ -283,6 +283,17 @@ namespace Assets.Scripts
             }
             else if (_rigidbody != null || DestinationPos != Position2.Null)
             {
+                /* OMG!!
+                 * How to Set Up Dynamic Water Physics and Boat Movement in Unity
+                 * https://www.youtube.com/watch?v=eL_zHQEju8s
+                if (transform.position.y < 1f)
+                {
+                    float displacementMultiplier;
+                    displacementMultiplier = Mathf.Clamp01(1 - transform.position.y / 1f) * 3f;
+                    y = Mathf.Abs(Physics.gravity.y) * displacementMultiplier;
+                    //_rigidbody.AddForce(new Vector3(0, Mathf.Abs(Physics.gravity.y) * displacementMultiplier, 0), ForceMode.Acceleration);
+                }*/
+
                 Position2 position2 = DestinationPos;
                 if (DestinationPos == Position2.Null)
                     position2 = CurrentPos;
