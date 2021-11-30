@@ -118,6 +118,12 @@ namespace Engine.Ants
         }
         public int GetDeliveryScore(GameCommand gameCommand)
         {
+            if (Unit.Weapon != null)
+                return -1;
+
+            if (Unit.Assembler != null && Unit.Engine != null)
+                return -1;
+            
             int score = 0;
 
             if (AntPartContainer != null)

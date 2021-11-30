@@ -243,13 +243,16 @@ namespace Assets.Scripts
                     }
                     else
                     {
-                        if (IsSelected)
+                        if (commandAttachedUnit.GhostUnitBounds != null)
                         {
-                            commandAttachedUnit.GhostUnitBounds.IsVisible = true;
-                        }
-                        else
-                        {
-                            commandAttachedUnit.GhostUnitBounds.IsVisible = true;
+                            if (IsSelected)
+                            {
+                                commandAttachedUnit.GhostUnitBounds.IsVisible = true;
+                            }
+                            else
+                            {
+                                commandAttachedUnit.GhostUnitBounds.IsVisible = true;
+                            }
                         }
                     }
                 }

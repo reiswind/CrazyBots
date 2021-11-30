@@ -163,7 +163,9 @@ namespace Engine.Master
                         if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
                             continue;
 
-                        if (Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.AttachedUnit.UnitId != null)
+                        if (Unit.CurrentGameCommand != null &&
+                            Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest &&
+                            Unit.CurrentGameCommand.AttachedUnit.UnitId != null)
                         {
                             // Do not pickup stuff. Move to pickup location
                             continue;

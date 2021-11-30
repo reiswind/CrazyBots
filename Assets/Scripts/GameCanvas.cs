@@ -1412,7 +1412,7 @@ namespace Assets.Scripts
                 position2 = commandPreview.GameCommand.TargetPosition;
             }
             MapGameCommand gameCommand = commandPreview.GameCommand;
-            headerText.text = gameCommand.GameCommandType.ToString();
+            headerText.text = gameCommand.GameCommandType.ToString() + " Pl: " + gameCommand.PlayerId;
             //headerSubText.text = "Radius " + gameCommand.Radius.ToString() + " sel: " + commandPreview.IsSelected.ToString();
 
             foreach (MapGameCommandItem gameCommandItem in gameCommand.GameCommandItems)

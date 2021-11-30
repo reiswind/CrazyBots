@@ -85,8 +85,8 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
             GameModel gameModel;
 
@@ -829,8 +829,8 @@ namespace Assets.Scripts
                         foreach (MapPlayerInfo mapPlayerInfo in MapInfo.PlayerInfo.Values)
                         {
                             // Only for current player
-                            if (mapPlayerInfo.PlayerId != 1)
-                                continue;
+                            //if (mapPlayerInfo.PlayerId != 1)
+                            //    continue;
 
                             if (mapPlayerInfo.GameCommands != null && mapPlayerInfo.GameCommands.Count > 0)
                             {

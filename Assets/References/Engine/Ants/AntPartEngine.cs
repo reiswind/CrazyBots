@@ -1020,7 +1020,7 @@ namespace Engine.Ants
                         {
                             if (n.Pos == cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition)
                             {
-                                cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("BuildPositionReached", false);
+                                cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("BuildPositionReached " + n.Pos.ToString());
                                 cntrlUnit.Changed = true;
 
                                 // Next to build target

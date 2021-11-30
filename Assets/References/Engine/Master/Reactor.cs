@@ -79,7 +79,7 @@ namespace Engine.Master
                     if (tileObject != null)
                        Unit.Game.Map.AddOpenTileObject(tileObject);
 
-                    TileContainer.Clear();
+                    //TileContainer.Clear();
                 }
             }
         }

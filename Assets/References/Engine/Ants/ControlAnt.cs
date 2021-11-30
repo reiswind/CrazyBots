@@ -1862,6 +1862,11 @@ namespace Engine.Ants
                                 if (deliverySourceAnt.AntPartEngine != null)
                                 {
                                     deliverySourceAnt.Unit.SetGameCommand(gameCommandItem);
+
+                                    if (deliverySourceAnt.Unit.Assembler != null && deliverySourceAnt.Unit.Engine != null)
+                                    {
+                                        int x = 0;
+                                    }
                                     gameCommandItem.TransportUnit.UnitId = deliverySourceAnt.Unit.UnitId;
                                     gameCommandItem.TransportUnit.SetStatus("TransportUnitId for Delivery: " + gameCommandItem.AttachedUnit.UnitId);
                                     deliverySourceAnt.Unit.Changed = true;
@@ -1880,6 +1885,11 @@ namespace Engine.Ants
                                             gameCommandItem.AttachedUnit.UnitId = deliverySourceAnt.Unit.UnitId;
 
                                             // The (factory) unit is the one who transports the content. (First Job => Move to Attached?)
+                                            if (transportAnt.Unit.Assembler != null && transportAnt.Unit.Engine != null)
+                                            {
+                                                int x = 0;
+                                            }
+
                                             gameCommandItem.TransportUnit.UnitId = transportAnt.Unit.UnitId;
                                             gameCommandItem.TransportUnit.SetStatus("AttachedTransport: " + gameCommandItem.FactoryUnit.UnitId + " take from " + gameCommandItem.AttachedUnit.UnitId);
                                             transportAnt.Unit.Changed = true;
@@ -1887,6 +1897,10 @@ namespace Engine.Ants
                                         }
                                         else
                                         {
+                                            if (deliverySourceAnt.Unit.Assembler != null && deliverySourceAnt.Unit.Engine != null)
+                                            {
+                                                int x = 0;
+                                            }
                                             // The attached unit is the one, who delivers the content (Need resevation!)
                                             gameCommandItem.AttachedUnit.UnitId = deliverySourceAnt.Unit.UnitId;
                                             gameCommandItem.AttachedUnit.SetStatus("WaitingForTransporterToPickupItems");
@@ -1898,6 +1912,10 @@ namespace Engine.Ants
                                     }
                                     else
                                     {
+                                        if (deliverySourceAnt.Unit.Assembler != null && deliverySourceAnt.Unit.Engine != null)
+                                        {
+                                            int x = 0;
+                                        }
                                         // The attached unit is the one, who delivers the content (Need resevation!)
                                         gameCommandItem.AttachedUnit.UnitId = deliverySourceAnt.Unit.UnitId;
                                         requestUnit = false;
