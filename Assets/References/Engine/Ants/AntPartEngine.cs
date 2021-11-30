@@ -352,6 +352,7 @@ namespace Engine.Ants
                             if (pheromoneType == PheromoneType.Container)
                             {
                                 cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("ReturnToUnload", false);
+                                cntrlUnit.Changed = true;
                             }
                         }
                         /*
@@ -702,6 +703,7 @@ namespace Engine.Ants
             if (cntrlUnit.Weapon == null)
             {
                 cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("NoWeapon");
+                cntrlUnit.Changed = true;
                 return false;
             }
             Dictionary<Position2, TileWithDistance> tilesInArea = player.Game.Map.EnumerateTiles(targetUnitPosition, cntrlUnit.Weapon.Range, false, matcher: tile =>
@@ -785,6 +787,7 @@ namespace Engine.Ants
                             cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("Attacking");
                         else
                             cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("CollectAmmo");
+                        cntrlUnit.Changed = true;
                         return true;
                     }
 
@@ -795,6 +798,7 @@ namespace Engine.Ants
                 cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("NoEnemyFound");
             else
                 cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("NoAmmoFound");
+            cntrlUnit.Changed = true;
             return false;
         }
 
@@ -803,6 +807,7 @@ namespace Engine.Ants
             if (cntrlUnit.CurrentGameCommand == null || cntrlUnit.CurrentGameCommand.GameCommand.IncludedPositions == null)
             {
                 cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("NoArea");
+                cntrlUnit.Changed = true;
                 return false;
             }
 
@@ -854,6 +859,7 @@ namespace Engine.Ants
                         }
                         cntrlUnit.CurrentGameCommand.GameCommand.CommandComplete = false;
                         cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("Collecting");
+                        cntrlUnit.Changed = true;
                         return true;
                     }
                 }
@@ -878,6 +884,7 @@ namespace Engine.Ants
             }
             cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("OutOfResources", true);
             cntrlUnit.CurrentGameCommand.GameCommand.CommandComplete = true;
+            cntrlUnit.Changed = true;
             return false;
         }
 
@@ -909,14 +916,15 @@ namespace Engine.Ants
                     {
                         calcPathToPosition = cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition;
                     }
-                    else if (Ant.Unit.UnitId == cntrlUnit.CurrentGameCommand.FactoryUnit.UnitId)
+                    else if (Ant.Unit.UnitId == cntrlUnit.CurrentGameCommand.TransportUnit.UnitId)
                     {
                         if (cntrlUnit.Extractor != null && cntrlUnit.Extractor.CanExtract)
                         {
                             if (cntrlUnit.CurrentGameCommand.AttachedUnit.UnitId == null)
                             {
-                                // Transport?
-                                //cntrlUnit.CurrentGameCommand.SetStatus("NoTargetForPickup");
+                                cntrlUnit.CurrentGameCommand.TransportUnit.StuckCounter++;
+                                cntrlUnit.CurrentGameCommand.TransportUnit.SetStatus("NoTargetForPickup", cntrlUnit.CurrentGameCommand.TransportUnit.StuckCounter > 5);
+                                cntrlUnit.Changed = true;
                             }
                             else
                             {
@@ -926,33 +934,36 @@ namespace Engine.Ants
                                 {
                                     cntrlUnit.CurrentGameCommand.AttachedUnit.UnitId = null;
                                     cntrlUnit.CurrentGameCommand.GameCommand.CommandCanceled = true;
-                                    // Transport?
-                                    //cntrlUnit.CurrentGameCommand.SetStatus("TargetUnitDestroyed");
+                                    cntrlUnit.CurrentGameCommand.TransportUnit.SetStatus("TargetUnitDestroyed");
+                                    cntrlUnit.Changed = true;
                                 }
                                 else
                                 {
-                                    // Transport?
-                                    //cntrlUnit.CurrentGameCommand.SetStatus("MoveToPickupLocation");
+                                    cntrlUnit.CurrentGameCommand.TransportUnit.SetStatus("MoveToPickupLocation " + containerUnit.Pos.ToString());
+                                    cntrlUnit.Changed = true;
                                     calcPathToPosition = containerUnit.Pos;
                                 }
                             }
                         }
                         else
                         {
-                            // Transporter is full
-                            if (cntrlUnit.CurrentGameCommand.AttachedUnit.UnitId != Ant.Unit.UnitId)
+                            // Transporter is full, move to target
+                            Unit targetUnit = player.Game.Map.Units.FindUnit(cntrlUnit.CurrentGameCommand.TargetUnit.UnitId);
+                            if (targetUnit == null)
                             {
-                                // Drop the factory with the items to deliver, deliver the items directly
-                                cntrlUnit.CurrentGameCommand.AttachedUnit.UnitId = Ant.Unit.UnitId;
-                                cntrlUnit.CurrentGameCommand.FactoryUnit.UnitId = null;
-                                // Transport?
-                                //cntrlUnit.CurrentGameCommand.SetStatus("TransporterFull");
+                                cntrlUnit.CurrentGameCommand.AttachedUnit.UnitId = null;
+                                cntrlUnit.CurrentGameCommand.GameCommand.CommandCanceled = true;
+                                cntrlUnit.CurrentGameCommand.TransportUnit.SetStatus("TargetUnitDestroyed");
+                                cntrlUnit.Changed = true;
+                            }
+                            else
+                            {
+                                cntrlUnit.CurrentGameCommand.TransportUnit.SetStatus("MoveToTargetLocation " + targetUnit.Pos.ToString());
+                                cntrlUnit.Changed = true;
+
+                                calcPathToPosition = targetUnit.Pos;
                             }
                         }
-                    }
-                    else
-                    {
-                        int x = 0;
                     }
                 }
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
@@ -964,6 +975,7 @@ namespace Engine.Ants
                     else
                     {
                         cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("Full");
+                        cntrlUnit.Changed = true;
                     }
                 }
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Attack)
@@ -999,6 +1011,7 @@ namespace Engine.Ants
                     if (cntrlUnit.Assembler != null && cntrlUnit.Assembler.CanProduce())
                     {
                         cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("AssemblerMovingToTarget", false);
+                        cntrlUnit.Changed = true;
 
                         Ant.BuildPositionReached = false;
 
@@ -1008,6 +1021,7 @@ namespace Engine.Ants
                             if (n.Pos == cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition)
                             {
                                 cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("BuildPositionReached", false);
+                                cntrlUnit.Changed = true;
 
                                 // Next to build target
                                 Ant.FollowThisRoute = null;
@@ -1019,6 +1033,7 @@ namespace Engine.Ants
                     else
                     {
                         cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("NeedResources", false);
+                        cntrlUnit.Changed = true;
 
                         FindPathForCollect(player, cntrlUnit);
                     }

@@ -98,6 +98,7 @@ namespace Engine.Master
         internal void SetGameCommand(GameCommandItem gameCommand)
         {
             CurrentGameCommand = gameCommand;
+            Changed = true;
         }
 
         public void OnDestroyed()
@@ -106,6 +107,7 @@ namespace Engine.Master
         }
         public void ResetGameCommand()
         {
+            Changed = true;
             if (CurrentGameCommand != null)
             {
                 if (Owner.PlayerModel.Id != 0)
@@ -120,13 +122,13 @@ namespace Engine.Master
 
                             if (blueprintCommandItem.AttachedUnit.UnitId == UnitId)
                             {
+                                blueprintCommandItem.AttachedUnit.ResetStatus();
                                 blueprintCommandItem.AttachedUnit.UnitId = null;
-                                blueprintCommandItem.AttachedUnit.SetStatus("ResetByRef", false);
                             }
                             if (blueprintCommandItem.FactoryUnit.UnitId == UnitId)
                             {
+                                blueprintCommandItem.FactoryUnit.ResetStatus();
                                 blueprintCommandItem.FactoryUnit.UnitId = null;
-                                blueprintCommandItem.FactoryUnit.SetStatus("ResetByRef", false);
                             }
                         }
                     }
@@ -147,11 +149,14 @@ namespace Engine.Master
                 }
                 if (CurrentGameCommand.FactoryUnit.UnitId == UnitId)
                 {
-                    CurrentGameCommand.FactoryUnit.SetStatus("Reset", false);
+                    CurrentGameCommand.FactoryUnit.ResetStatus();
                     CurrentGameCommand.FactoryUnit.UnitId = null;
                 }
                 if (CurrentGameCommand.TargetUnit.UnitId == UnitId)
+                {
+                    CurrentGameCommand.TargetUnit.ResetStatus();
                     CurrentGameCommand.TargetUnit.UnitId = null;
+                }
                 Changed = true;
                 CurrentGameCommand = null;
             }
@@ -674,26 +679,26 @@ namespace Engine.Master
         public int CountTileObjectsInContainer()
         {
             int metal = 0;
-            if (Engine == null)
-            {
-                if (Container != null) metal += Container.TileContainer.Count;
 
-                if (Weapon != null)
-                {
-                    if (Weapon.TileContainer != null)
-                        metal += Weapon.TileContainer.Count;
-                }
-                if (Assembler != null)
-                {
-                    if (Assembler.TileContainer != null)
-                        metal += Assembler.TileContainer.Count;
-                }
-                if (Reactor != null)
-                {
-                    if (Reactor.TileContainer != null)
-                        metal += Reactor.TileContainer.Count;
-                }
+            if (Container != null) 
+                metal += Container.TileContainer.Count;
+
+            if (Weapon != null)
+            {
+                if (Weapon.TileContainer != null)
+                    metal += Weapon.TileContainer.Count;
             }
+            if (Assembler != null)
+            {
+                if (Assembler.TileContainer != null)
+                    metal += Assembler.TileContainer.Count;
+            }
+            if (Reactor != null)
+            {
+                if (Reactor.TileContainer != null)
+                    metal += Reactor.TileContainer.Count;
+            }
+
             return metal;
         }
 

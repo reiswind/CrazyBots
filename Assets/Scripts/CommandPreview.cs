@@ -618,7 +618,8 @@ namespace Assets.Scripts
             {
                 commandAttachedUnit.IsVisible = false;
                 commandAttachedUnit.GhostUnit.IsVisible = false;
-                commandAttachedUnit.GhostUnitBounds.IsVisible = false;
+                if (commandAttachedUnit.GhostUnitBounds != null)
+                    commandAttachedUnit.GhostUnitBounds.IsVisible = false;
             }
         }
 

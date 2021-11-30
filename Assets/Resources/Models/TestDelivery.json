@@ -9,7 +9,7 @@
       "ControlLevel": 1,
       "Id": 1,
       "Zone": 1,
-      "IsHumanx": true,
+      "IsHuman": true,
       "Name": "Player1"
     }
   ],
@@ -17,14 +17,14 @@
     {
       "Name": "Container",
       "PlayerId": 1,
-	  "ContainerFilled": 0,
-      "Blueprint": "Container",
+	  "ContainerFilledx": 0,
+      "Blueprint": "Outpost",
       "Position": "0,0"
     },
     {
       "Name": "Reactor",
       "PlayerId": 1,
-      "ContainerFilledx": 0,
+      "ContainerFilled": 0,
       "Blueprint": "Reactor",
       "Position": "2,2"
     },

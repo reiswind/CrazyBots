@@ -249,7 +249,7 @@ namespace Assets.Scripts
                 {
                     if (hasAmmoBaseTileObject.GameObject.activeSelf == false)
                     {
-                        int x = 0;
+
                     }
                 }
 

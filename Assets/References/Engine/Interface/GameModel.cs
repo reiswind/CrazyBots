@@ -33,14 +33,29 @@ namespace Engine.Interface
         public int StuckCounter { get; set; }
         internal void SetStatus(string text, bool alert = false)
         {
+            if (Status != text)
+                StuckCounter = 0;
             Status = text;
             Alert = alert;
-            Changed = true;
         }
-        public bool Changed { get; set; }
+        internal void ResetStatus()
+        {
+            StuckCounter = 0;
+            Status = null;
+            Alert = false;
+        }
+
         public string UnitId { get; set; }
         public string Status { get; private set; }
         public bool Alert { get; private set; }
+
+        public override string ToString()
+        {
+            if (UnitId == null) return "Nothing";
+            if (!Alert)
+                return UnitId + " " + Status;
+            return UnitId + " " + Status + " ALERT";
+        }
     }
 
     internal class GameCommandItem

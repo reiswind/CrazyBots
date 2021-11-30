@@ -702,10 +702,6 @@ namespace Assets.Scripts
 
         public void Upgrade(Move move, UnitBase upgradedUnit)
         {
-            if (upgradedUnit.UnitId == "unit1")
-            {
-                int x = 0;
-            }
             foreach (UnitBasePart upgradedBasePart in upgradedUnit.UnitBaseParts)
             {
                 if (upgradedBasePart.PartType == move.MoveRecipe.Result)

@@ -163,6 +163,12 @@ namespace Engine.Master
                         if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
                             continue;
 
+                        if (Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.AttachedUnit.UnitId != null)
+                        {
+                            // Do not pickup stuff. Move to pickup location
+                            continue;
+                        }
+
                         if (Unit.IsSpaceForTileObject(tileObject))
                         {
                             Move move = new Move();
@@ -210,19 +216,15 @@ namespace Engine.Master
                             {
                                 if (Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                                 {
-                                    if (Unit.CurrentGameCommand.AttachedUnit.UnitId == t.Unit.UnitId)
+                                    if (Unit.UnitId == Unit.CurrentGameCommand.TargetUnit.UnitId &&
+                                        Unit.CurrentGameCommand.TransportUnit.UnitId == t.Unit.UnitId)
                                     {
-                                        // This is the transporter, that delivered the stuff.
+                                        // This is the transporter who has reached the target
                                         Move move = CreateExtractMoveIfPossible(t.Unit);
                                         if (move != null)
                                         {
                                             possibleMoves.Add(move);
                                         }
-                                    }
-                                    else
-                                    {
-                                        // Container should not extract from a transporter
-                                        int x = 0;
                                     }
                                 }
                                 else
@@ -230,7 +232,6 @@ namespace Engine.Master
                                     if (t.Unit.CurrentGameCommand != null && t.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                                     {
                                         // Container should not extract from a worker that is used to deliver items.
-                                        int x = 0;
                                     }
                                     else
                                     {
@@ -283,7 +284,7 @@ namespace Engine.Master
                                 {
                                     if (Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                                     {
-                                        if (Unit.UnitId == Unit.CurrentGameCommand.FactoryUnit.UnitId)
+                                        if (Unit.UnitId == Unit.CurrentGameCommand.TransportUnit.UnitId) // FactoryUnit
                                         {
                                             // This is the transporter, that should extract from container to deliver it
                                             // Assembler extract from Container
@@ -486,12 +487,6 @@ namespace Engine.Master
                             {
                                 // This is the transporter??. It has extracted the content into the target, command is complete
                                 unit.CurrentGameCommand.GameCommand.CommandComplete = true;
-                            }
-                            if (unit.CurrentGameCommand.FactoryUnit.UnitId == unit.UnitId)
-                            {
-                                // This is the transporter. It has picked up the items. Attach it now, to deliver the items
-                                unit.CurrentGameCommand.AttachedUnit.UnitId = unit.UnitId;
-                                unit.CurrentGameCommand.FactoryUnit.UnitId = null;
                             }
                         }
                     }

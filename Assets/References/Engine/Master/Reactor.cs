@@ -66,8 +66,6 @@ namespace Engine.Master
         {
             if (AvailablePower == 0)
             {
-                
-
                 MoveRecipeIngredient moveRecipeIngredient = Unit.FindIngredientToBurn();
 
                 if (moveRecipeIngredient != null)
@@ -81,21 +79,11 @@ namespace Engine.Master
                     if (tileObject != null)
                        Unit.Game.Map.AddOpenTileObject(tileObject);
 
-                    //TileContainer.Clear();
+                    TileContainer.Clear();
                 }
-                /*
-                List<TileObject> tileObjects = new List<TileObject>();
-                this.Unit.RemoveTileObjects(tileObjects, 1, TileObjectType.All, null);
-                
-                if (tileObjects.Count > 0)
-                {
-                    AvailablePower = TileObject.GetPowerForTileObjectType(tileObjects[0].TileObjectType);
-
-
-                    Unit.Game.Map.AddOpenTileObject(tileObjects[0]);
-                }*/
             }
         }
+
         public int ConsumePower(int remove, Dictionary<Position2, Unit> changedUnits)
         {
             //remove *= 20;

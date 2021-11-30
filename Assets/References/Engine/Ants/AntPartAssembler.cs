@@ -75,6 +75,7 @@ namespace Engine.Ants
 
             GameCommandItem gameCommandItem = new GameCommandItem(gameCommand, blueprintCommandItem);
             gameCommandItem.TargetUnit.UnitId = Ant.Unit.UnitId;
+            gameCommandItem.TargetUnit.SetStatus("WaitingForDelivery");
 
             gameCommand.RequestedItems = new List<RecipeIngredient>();
             foreach (RecipeIngredient recipeIngredient in recipeForAnyUnit.Ingredients)
@@ -86,7 +87,6 @@ namespace Engine.Ants
 
             gameCommand.GameCommandItems.Add(gameCommandItem);
             player.GameCommands.Add(gameCommand);
-
         }
 
         public bool Assemble(ControlAnt control, Player player, List<Move> moves)
@@ -164,9 +164,16 @@ namespace Engine.Ants
                 }
                 else
                 {
-                    if (selectedGameCommand.AttachedUnit.UnitId == Ant.Unit.UnitId)
+                    if (selectedGameCommand.GameCommand.GameCommandType == GameCommandType.Build &&
+                        selectedGameCommand.AttachedUnit.UnitId == Ant.Unit.UnitId)
                     {
                         // This is the command, that is attached to this factory, when the factory was build.
+                        return false;
+                    }
+                    if (selectedGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest &&
+                        selectedGameCommand.FactoryUnit.UnitId != Ant.Unit.UnitId)
+                    {
+                        // This is not the factory to build the transporter
                         return false;
                     }
 

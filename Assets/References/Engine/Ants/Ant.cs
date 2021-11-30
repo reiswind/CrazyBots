@@ -152,6 +152,12 @@ namespace Engine.Ants
                     score += 10;
                 }
             }
+            else
+            {
+                // Can move an pick it up
+                if (AntPartEngine != null)
+                    score += 1;
+            }
             return score;
         }
 

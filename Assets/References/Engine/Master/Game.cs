@@ -413,7 +413,18 @@ namespace Engine.Master
 
                                 if (move.GameCommandItem != null)
                                 {
-                                    move.GameCommandItem.AttachedUnit.UnitId = thisUnit.UnitId;
+                                    if (move.GameCommandItem.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                                    {
+                                        move.GameCommandItem.TransportUnit.UnitId = thisUnit.UnitId;
+                                        thisUnit.Changed = true;
+                                        move.GameCommandItem.TransportUnit.SetStatus("TransporterCreated");
+                                    }
+                                    else
+                                    {
+                                        move.GameCommandItem.AttachedUnit.UnitId = thisUnit.UnitId;
+                                        thisUnit.Changed = true;
+                                        move.GameCommandItem.AttachedUnit.SetStatus("UnitCreated");
+                                    }
                                     thisUnit.SetGameCommand(move.GameCommandItem);
                                 }
                                 addedUnits.Add(thisUnit);
@@ -1319,24 +1330,6 @@ namespace Engine.Master
             foreach (Unit unit in Map.Units.List.Values)
             {
                 unit.ClearReservations();
-
-                // Do it here, to notify about changes
-                if (unit.CurrentGameCommand != null)
-                {
-                    if (unit.CurrentGameCommand.AttachedUnit.Changed ||
-                        unit.CurrentGameCommand.FactoryUnit.Changed ||
-                        unit.CurrentGameCommand.TargetUnit.Changed ||
-                        unit.CurrentGameCommand.TransportUnit.Changed)
-                    {
-                        unit.CurrentGameCommand.TargetUnit.Changed = false;
-                        unit.CurrentGameCommand.TransportUnit.Changed = false;
-                        unit.CurrentGameCommand.AttachedUnit.Changed = false;
-                        unit.CurrentGameCommand.FactoryUnit.Changed = false;
-
-                        if (!changedUnits.ContainsKey(unit.Pos))
-                            changedUnits.Add(unit.Pos, unit);
-                    }
-                }
                 if (unit.Changed)
                 {
                     unit.Changed = false;

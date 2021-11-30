@@ -22,6 +22,7 @@ namespace Engine.Ants
         }
         public override bool Move(ControlAnt control, Player player, List<Move> moves)
         {
+            /*
             int items = Container.Unit.CountTileObjectsInContainer();
             int capacity = Container.Unit.CountCapacity();
 
@@ -32,7 +33,7 @@ namespace Engine.Ants
             //if (items >= capacity)
             {
                 AntNetworkNode.Demand(this, AntNetworkDemandType.Storage, urgency);
-            }
+            }*/
             return false;
         }
 
