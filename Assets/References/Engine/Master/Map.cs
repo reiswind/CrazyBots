@@ -56,31 +56,43 @@ namespace Engine.Interface
         public override string ToString()
         {
             string s = GameCommandType.ToString() + " at " + TargetPosition.ToString();
-            if (CommandCanceled) s += " Canceld";
+            if (CommandCanceled) s += " Canceled";
             if (CommandComplete) s += " Complete";
             foreach (MapGameCommandItem id in GameCommandItems)
             {
-                s += id.AttachedUnitId;
+                s += id.AttachedUnit.UnitId;
                 s += " ";
             }
             return s;
         }
     }
+
+    public class MapGameCommandItemUnit
+    {
+        public string UnitId { get; set; }
+        public string Status { get; set; }
+        public bool Alert { get; set; }
+    }
+
     public class MapGameCommandItem
     {
         internal MapGameCommandItem(MapGameCommand gamecommand)
         {
+            AttachedUnit = new MapGameCommandItemUnit();
+            FactoryUnit = new MapGameCommandItemUnit();
             GameCommand = gamecommand;
         }
         internal MapGameCommandItem(MapGameCommand gamecommand, BlueprintCommandItem blueprintCommandItem)
         {
+            AttachedUnit = new MapGameCommandItemUnit();
+            FactoryUnit = new MapGameCommandItemUnit();
             GameCommand = gamecommand;
             Position3 = blueprintCommandItem.Position3;
             Direction = blueprintCommandItem.Direction;
             BlueprintName = blueprintCommandItem.BlueprintName;
         }
         // Runtime info
-        public string AttachedUnitId { get; set; }
+        
         public Position3 Position3 { get; set; }
         public Direction Direction { get; set; }
 
@@ -89,9 +101,10 @@ namespace Engine.Interface
 
         public string BlueprintName { get; set; }
         public MapGameCommand GameCommand { get; private set; }
-        public string FactoryUnitId { get; set; }
-        public string Status { get; set; }
-        public bool Alert  { get; set; }
+        public MapGameCommandItemUnit AttachedUnit { get; set; }
+        public MapGameCommandItemUnit FactoryUnit { get; set; }
+        internal MapGameCommandItemUnit TargetUnit { get; set; }
+        internal MapGameCommandItemUnit TransportUnit { get; set; }
     }
 
     public class MapPheromoneItem
@@ -217,10 +230,27 @@ namespace Engine.Interface
                                 mapGameCommandItem.BlueprintName = gameCommandItem.BlueprintName;
                                 mapGameCommandItem.Direction = gameCommandItem.Direction;
                                 mapGameCommandItem.Position3 = gameCommandItem.Position3;
-                                mapGameCommandItem.AttachedUnitId = gameCommandItem.AttachedUnitId;
-                                mapGameCommandItem.FactoryUnitId = gameCommandItem.FactoryUnitId;
-                                mapGameCommandItem.Status = gameCommandItem.Status;
-                                mapGameCommandItem.Alert = gameCommandItem.Alert;
+
+                                mapGameCommandItem.AttachedUnit = new MapGameCommandItemUnit();
+                                mapGameCommandItem.AttachedUnit.UnitId = gameCommandItem.AttachedUnit.UnitId;
+                                mapGameCommandItem.AttachedUnit.Status = gameCommandItem.AttachedUnit.Status;
+                                mapGameCommandItem.AttachedUnit.Alert = gameCommandItem.AttachedUnit.Alert;
+
+                                mapGameCommandItem.FactoryUnit = new MapGameCommandItemUnit();
+                                mapGameCommandItem.FactoryUnit.UnitId = gameCommandItem.FactoryUnit.UnitId;
+                                mapGameCommandItem.FactoryUnit.Status = gameCommandItem.FactoryUnit.Status;
+                                mapGameCommandItem.FactoryUnit.Alert = gameCommandItem.FactoryUnit.Alert;
+
+                                mapGameCommandItem.TransportUnit = new MapGameCommandItemUnit();
+                                mapGameCommandItem.TransportUnit.UnitId = gameCommandItem.TransportUnit.UnitId;
+                                mapGameCommandItem.TransportUnit.Status = gameCommandItem.TransportUnit.Status;
+                                mapGameCommandItem.TransportUnit.Alert = gameCommandItem.TransportUnit.Alert;
+
+                                mapGameCommandItem.TargetUnit = new MapGameCommandItemUnit();
+                                mapGameCommandItem.TargetUnit.UnitId = gameCommandItem.TargetUnit.UnitId;
+                                mapGameCommandItem.TargetUnit.Status = gameCommandItem.TargetUnit.Status;
+                                mapGameCommandItem.TargetUnit.Alert = gameCommandItem.TargetUnit.Alert;
+
                                 mapGameCommand.GameCommandItems.Add(mapGameCommandItem);
                             }
                             mapPlayerInfo.GameCommands.Add(mapGameCommand);

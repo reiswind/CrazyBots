@@ -115,31 +115,43 @@ namespace Engine.Master
                     {
                         foreach (GameCommandItem blueprintCommandItem in gameCommand.GameCommandItems)
                         {
-                            if (blueprintCommandItem.AttachedUnitId == UnitId)
+                            if (blueprintCommandItem == CurrentGameCommand)
+                                continue;
+
+                            if (blueprintCommandItem.AttachedUnit.UnitId == UnitId)
                             {
-                                blueprintCommandItem.AttachedUnitId = null;
+                                blueprintCommandItem.AttachedUnit.UnitId = null;
+                                blueprintCommandItem.AttachedUnit.SetStatus("ResetByRef", false);
+                            }
+                            if (blueprintCommandItem.FactoryUnit.UnitId == UnitId)
+                            {
+                                blueprintCommandItem.FactoryUnit.UnitId = null;
+                                blueprintCommandItem.FactoryUnit.SetStatus("ResetByRef", false);
                             }
                         }
                     }
                 }
 
-                if (CurrentGameCommand.AttachedUnitId == UnitId)
+                if (CurrentGameCommand.AttachedUnit.UnitId == UnitId)
                 {
                     if (CurrentGameCommand.DeleteWhenDestroyed)
                     {
-                        CurrentGameCommand.SetStatus("DeleteBecauseDestroyed");
+                        CurrentGameCommand.AttachedUnit.SetStatus("DeleteBecauseDestroyed");
                         CurrentGameCommand.GameCommand.GameCommandItems.Remove(CurrentGameCommand);                        
                     }
                     else
                     {
-                        CurrentGameCommand.SetStatus("Removed: " + UnitId);
+                        CurrentGameCommand.AttachedUnit.SetStatus("Removed: " + UnitId);
                     }
-                    CurrentGameCommand.AttachedUnitId = null;
+                    CurrentGameCommand.AttachedUnit.UnitId = null;
                 }
-                if (CurrentGameCommand.FactoryUnitId == UnitId)
-                    CurrentGameCommand.FactoryUnitId = null;
-                if (CurrentGameCommand.TargetUnitId == UnitId)
-                    CurrentGameCommand.TargetUnitId = null;
+                if (CurrentGameCommand.FactoryUnit.UnitId == UnitId)
+                {
+                    CurrentGameCommand.FactoryUnit.SetStatus("Reset", false);
+                    CurrentGameCommand.FactoryUnit.UnitId = null;
+                }
+                if (CurrentGameCommand.TargetUnit.UnitId == UnitId)
+                    CurrentGameCommand.TargetUnit.UnitId = null;
                 Changed = true;
                 CurrentGameCommand = null;
             }
@@ -388,20 +400,119 @@ namespace Engine.Master
             }
         }
 
+        private void CollectBurnableIngredientsFromContainer (List<MoveRecipeIngredient> allIngredients, TileContainer tileContainer, TileObjectType sourceContainerType)
+        {
+            foreach (TileObject tileObject in tileContainer.TileObjects)
+            {
+                if (TileObject.GetPowerForTileObjectType(tileObject.TileObjectType) > 0)
+                {
+                    MoveRecipeIngredient moveRecipeIngredient = new MoveRecipeIngredient();
+                    moveRecipeIngredient.TileObjectType = tileObject.TileObjectType;
+                    moveRecipeIngredient.Position = Pos;
+                    moveRecipeIngredient.Source = sourceContainerType;
+                    moveRecipeIngredient.Count = 1;
+                    allIngredients.Add(moveRecipeIngredient);
+                }
+            }
+        }
+
+        private void CollectBurnableIngredients(List<MoveRecipeIngredient> allIngredients)
+        {
+            if (Container != null && Container.TileContainer != null)
+            {
+                CollectBurnableIngredientsFromContainer(allIngredients, Container.TileContainer, TileObjectType.PartContainer);
+            }
+            if (Assembler != null && Assembler.TileContainer != null)
+            {
+                CollectBurnableIngredientsFromContainer(allIngredients, Assembler.TileContainer, TileObjectType.PartAssembler);
+            }
+            if (Weapon != null && Weapon.TileContainer != null)
+            {
+                CollectBurnableIngredientsFromContainer(allIngredients, Weapon.TileContainer, TileObjectType.PartWeapon);
+            }
+            if (Reactor != null && Reactor.TileContainer != null)
+            {
+                CollectBurnableIngredientsFromContainer(allIngredients, Reactor.TileContainer, TileObjectType.PartReactor);
+            }
+        }
+        public MoveRecipeIngredient FindIngredientToBurn()
+        {
+            List<MoveRecipeIngredient> allIngredients = new List<MoveRecipeIngredient>();
+
+            CollectBurnableIngredients(allIngredients);
+
+            // Near transport, possible with extractor
+            if (Extractor != null)
+            {
+                Position3 position3 = new Position3(Pos);
+                foreach (Position3 n3 in position3.Neighbors)
+                {
+                    Tile t = Game.Map.GetTile(n3.Pos);
+                    if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id)
+                    {
+                        t.Unit.CollectBurnableIngredients(allIngredients);
+                    }
+                }
+            }
+            // Find best ingredient
+            MoveRecipeIngredient bestIngredient = null;
+            int bestScore = 0;
+
+            foreach (MoveRecipeIngredient moveRecipeIngredient in allIngredients)
+            {
+                int currentScore = 0;
+                if (moveRecipeIngredient.Position != Pos)
+                {
+                    if (moveRecipeIngredient.Source == TileObjectType.PartContainer)
+                    {
+                        // From neighbor
+                        currentScore += 100;
+                    }
+                    if (moveRecipeIngredient.Source == TileObjectType.PartAssembler)
+                    {
+                        currentScore += 5;
+                    }
+                    if (moveRecipeIngredient.Source == TileObjectType.PartWeapon)
+                    {
+                        currentScore += 4;
+                    }
+                }
+                else
+                {
+                    if (moveRecipeIngredient.Source == TileObjectType.PartContainer)
+                    {
+                        // Own container
+                        currentScore += 90;
+                    }
+                    if (moveRecipeIngredient.Source == TileObjectType.PartAssembler)
+                    {
+                        currentScore += 8;
+                    }
+                    if (moveRecipeIngredient.Source == TileObjectType.PartWeapon)
+                    {
+                        currentScore += 7;
+                    }
+                    if (moveRecipeIngredient.Source == TileObjectType.PartReactor)
+                    {
+                        // Use own stuff
+                        currentScore += 1;
+                    }
+                }
+                if (bestIngredient == null || currentScore > bestScore)
+                {
+                    bestIngredient = moveRecipeIngredient;
+                    bestScore = currentScore;
+                }
+            }
+            return bestIngredient;
+        }
+
         public MoveRecipeIngredient FindIngredient(TileObjectType tileObjectType, bool searchNeighbors)
         {
             MoveRecipeIngredient moveRecipeIngredient = new MoveRecipeIngredient();
             moveRecipeIngredient.TileObjectType = tileObjectType;
             moveRecipeIngredient.Count = 1;
 
-            if (Assembler != null && Assembler.TileContainer != null && Assembler.TileContainer.Contains(tileObjectType))
-            {
-                if (tileObjectType == TileObjectType.All)
-                    moveRecipeIngredient.TileObjectType = Assembler.TileContainer.TileObjects[0].TileObjectType;
-                moveRecipeIngredient.Position = Pos;
-                moveRecipeIngredient.Source = TileObjectType.PartAssembler;
-                return moveRecipeIngredient;
-            }
             if (Container != null && Container.TileContainer != null && Container.TileContainer.Contains(tileObjectType))
             {
                 if (tileObjectType == TileObjectType.All)
@@ -410,6 +521,15 @@ namespace Engine.Master
                 moveRecipeIngredient.Source = TileObjectType.PartContainer;
                 return moveRecipeIngredient;
             }
+            if (Assembler != null && Assembler.TileContainer != null && Assembler.TileContainer.Contains(tileObjectType))
+            {
+                if (tileObjectType == TileObjectType.All)
+                    moveRecipeIngredient.TileObjectType = Assembler.TileContainer.TileObjects[0].TileObjectType;
+                moveRecipeIngredient.Position = Pos;
+                moveRecipeIngredient.Source = TileObjectType.PartAssembler;
+                return moveRecipeIngredient;
+            }
+            
             // Do not pick ingredients from weapon or reactor
 
             // Near transport, possible with extractor
@@ -435,26 +555,31 @@ namespace Engine.Master
             TileObject tileObject = null;
             if (ingredient.Position == Pos)
             {
-                if (Assembler != null && Assembler.TileContainer != null && Assembler.TileContainer.Contains(ingredient.TileObjectType))
+                if (ingredient.Source == TileObjectType.PartAssembler &&
+                    Assembler != null && Assembler.TileContainer != null && Assembler.TileContainer.Contains(ingredient.TileObjectType))
                 {
                     tileObject = Assembler.TileContainer.RemoveTileObject(ingredient.TileObjectType);
                 }
-                if (tileObject == null &&
+                if (ingredient.Source == TileObjectType.PartContainer &&
                     Container != null && Container.TileContainer != null && Container.TileContainer.Contains(ingredient.TileObjectType))
                 {
                     tileObject = Container.TileContainer.RemoveTileObject(ingredient.TileObjectType);
                 }
-                if (tileObject == null &&
-                    ingredient.Source == TileObjectType.PartReactor &&
+                if (ingredient.Source == TileObjectType.PartReactor &&
                     Reactor != null && Reactor.TileContainer != null && Reactor.TileContainer.Contains(ingredient.TileObjectType))
                 {
                     tileObject = Reactor.TileContainer.RemoveTileObject(ingredient.TileObjectType);
                 }
-                if (tileObject == null &&
-                    ingredient.Source == TileObjectType.PartWeapon &&
+                if (ingredient.Source == TileObjectType.PartWeapon &&
                     Weapon != null && Weapon.TileContainer != null && Weapon.TileContainer.Contains(ingredient.TileObjectType))
                 {
                     tileObject = Weapon.TileContainer.RemoveTileObject(ingredient.TileObjectType);
+                }
+                // Take it from container, whatever
+                if (tileObject == null &&
+                    Container != null && Container.TileContainer != null && Container.TileContainer.Contains(ingredient.TileObjectType))
+                {
+                    tileObject = Container.TileContainer.RemoveTileObject(ingredient.TileObjectType);
                 }
                 if (tileObject != null && changedUnits != null && !changedUnits.ContainsKey(Pos))
                     changedUnits.Add(Pos, this);
@@ -970,10 +1095,26 @@ namespace Engine.Master
                 stats.MoveUpdateStatsCommand = new MoveUpdateStatsCommand();
                 stats.MoveUpdateStatsCommand.GameCommandType = CurrentGameCommand.GameCommand.GameCommandType;
                 stats.MoveUpdateStatsCommand.TargetPosition = CurrentGameCommand.GameCommand.TargetPosition;
-                stats.MoveUpdateStatsCommand.AttachedUnitId = CurrentGameCommand.AttachedUnitId;
-                stats.MoveUpdateStatsCommand.FactoryUnitId = CurrentGameCommand.FactoryUnitId;
-                stats.MoveUpdateStatsCommand.Status = CurrentGameCommand.Status;
-                stats.MoveUpdateStatsCommand.Alert = CurrentGameCommand.Alert;
+
+                stats.MoveUpdateStatsCommand.AttachedUnit = new MapGameCommandItemUnit();
+                stats.MoveUpdateStatsCommand.AttachedUnit.UnitId = CurrentGameCommand.AttachedUnit.UnitId;
+                stats.MoveUpdateStatsCommand.AttachedUnit.Status = CurrentGameCommand.AttachedUnit.Status;
+                stats.MoveUpdateStatsCommand.AttachedUnit.Alert = CurrentGameCommand.AttachedUnit.Alert;
+
+                stats.MoveUpdateStatsCommand.FactoryUnit = new MapGameCommandItemUnit();
+                stats.MoveUpdateStatsCommand.FactoryUnit.UnitId = CurrentGameCommand.FactoryUnit.UnitId;
+                stats.MoveUpdateStatsCommand.FactoryUnit.Status = CurrentGameCommand.FactoryUnit.Status;
+                stats.MoveUpdateStatsCommand.FactoryUnit.Alert = CurrentGameCommand.FactoryUnit.Alert;
+
+                stats.MoveUpdateStatsCommand.TransportUnit = new MapGameCommandItemUnit();
+                stats.MoveUpdateStatsCommand.TransportUnit.UnitId = CurrentGameCommand.TransportUnit.UnitId;
+                stats.MoveUpdateStatsCommand.TransportUnit.Status = CurrentGameCommand.TransportUnit.Status;
+                stats.MoveUpdateStatsCommand.TransportUnit.Alert = CurrentGameCommand.TransportUnit.Alert;
+
+                stats.MoveUpdateStatsCommand.TargetUnit = new MapGameCommandItemUnit();
+                stats.MoveUpdateStatsCommand.TargetUnit.UnitId = CurrentGameCommand.TargetUnit.UnitId;
+                stats.MoveUpdateStatsCommand.TargetUnit.Status = CurrentGameCommand.TargetUnit.Status;
+                stats.MoveUpdateStatsCommand.TargetUnit.Alert = CurrentGameCommand.TargetUnit.Alert;
             }
             return stats;
         }

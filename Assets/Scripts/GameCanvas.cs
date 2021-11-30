@@ -1185,9 +1185,19 @@ namespace Assets.Scripts
 
         void UpdateCommandMode()
         {
-            if (CheckMouseButtons()) return;
+            if (selectedUnitFrame == null)
+            {
+                // Unit killed...
+                SetMode(CanvasMode.Select);
+                return;
+            }
 
+            if (CheckMouseButtons()) return;
             HitByMouseClick hitByMouseClick = GetClickedInfo();
+
+            HideAllParts();
+            DisplayUnitframe(selectedUnitFrame);
+
             //UpdateMouseOver(hitByMouseClick);
             if (selectedUnitFrame != null && selectedUnitFrame.CurrentPos != selectedUnitBounds.Pos)
             {
@@ -1215,6 +1225,12 @@ namespace Assets.Scripts
 
         void UpdateUnitMode()
         {
+            if (selectedUnitFrame == null)
+            {
+                // Unit killed...
+                SetMode(CanvasMode.Select);
+                return;
+            }
             if (CheckMouseButtons()) return;
             HideAllParts();
             DisplayUnitframe(selectedUnitFrame);
@@ -1401,8 +1417,8 @@ namespace Assets.Scripts
 
             foreach (MapGameCommandItem gameCommandItem in gameCommand.GameCommandItems)
             {
-                headerSubText.text = gameCommandItem.Status;
-                if (gameCommandItem.Alert)
+                headerSubText.text = gameCommandItem.AttachedUnit.Status;
+                if (gameCommandItem.AttachedUnit.Alert)
                     headerSubText.text += " ALERT";
                 break;
             }
@@ -1437,6 +1453,10 @@ namespace Assets.Scripts
 
         private void DisplayUnitframe(UnitBase unit)
         {
+            if (unit == null)
+            {
+                return;
+            }
             if (unit.HasBeenDestroyed)
             {
                 UnselectUnitFrame();

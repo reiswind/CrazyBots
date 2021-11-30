@@ -342,11 +342,17 @@ namespace Engine.Ants
                             }
                         }
                         if (cntrlUnit.CurrentGameCommand != null && 
-                            cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect &&
-                            pheromoneType == PheromoneType.Mineral)
+                            cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
                         {
-                            // Controlled by gamecommand
-                            return true;
+                            if (pheromoneType == PheromoneType.Mineral)
+                            {
+                                // Controlled by gamecommand
+                                return true;
+                            }
+                            if (pheromoneType == PheromoneType.Container)
+                            {
+                                cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("ReturnToUnload", false);
+                            }
                         }
                         /*
                         if (cntrlUnit.Container != null && cntrlUnit.Container.IsFreeSpace)
@@ -695,7 +701,7 @@ namespace Engine.Ants
         {
             if (cntrlUnit.Weapon == null)
             {
-                cntrlUnit.CurrentGameCommand.SetStatus("NoWeapon");
+                cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("NoWeapon");
                 return false;
             }
             Dictionary<Position2, TileWithDistance> tilesInArea = player.Game.Map.EnumerateTiles(targetUnitPosition, cntrlUnit.Weapon.Range, false, matcher: tile =>
@@ -776,9 +782,9 @@ namespace Engine.Ants
                             Ant.FollowThisRoute.Add(positions[i]);
                         }
                         if (cntrlUnit.Weapon.WeaponLoaded)
-                            cntrlUnit.CurrentGameCommand.SetStatus("Attacking");
+                            cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("Attacking");
                         else
-                            cntrlUnit.CurrentGameCommand.SetStatus("CollectAmmo");
+                            cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("CollectAmmo");
                         return true;
                     }
 
@@ -786,9 +792,9 @@ namespace Engine.Ants
             }
 
             if (cntrlUnit.Weapon.WeaponLoaded)
-                cntrlUnit.CurrentGameCommand.SetStatus("NoEnemyFound");
+                cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("NoEnemyFound");
             else
-                cntrlUnit.CurrentGameCommand.SetStatus("NoAmmoFound");
+                cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("NoAmmoFound");
             return false;
         }
 
@@ -796,7 +802,7 @@ namespace Engine.Ants
         {
             if (cntrlUnit.CurrentGameCommand == null || cntrlUnit.CurrentGameCommand.GameCommand.IncludedPositions == null)
             {
-                cntrlUnit.CurrentGameCommand.SetStatus("NoArea");
+                cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("NoArea");
                 return false;
             }
 
@@ -847,17 +853,18 @@ namespace Engine.Ants
                             Ant.FollowThisRoute.Add(positions[i]);
                         }
                         cntrlUnit.CurrentGameCommand.GameCommand.CommandComplete = false;
-                        cntrlUnit.CurrentGameCommand.SetStatus("Collecting");
+                        cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("Collecting");
                         return true;
                     }
-
                 }
             }
             if (cntrlUnit.Pos != cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition)
             {
+                // Wait at targetposition if empty. If it contains stuff, it can be anywhere trying to return the items.
+                // Careful not to move between container and targetpostion
                 if (cntrlUnit.Container == null || cntrlUnit.Container.TileContainer.Count == 0)
                 {
-                    // If empty, Wait at collect position target
+                    // If empty, wait at collect position target
                     List<Position2> positions = player.Game.FindPath(cntrlUnit.Pos, cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition, cntrlUnit, true);
                     if (positions != null && positions.Count >= 2)
                     {
@@ -869,7 +876,7 @@ namespace Engine.Ants
                     }
                 }
             }
-            cntrlUnit.CurrentGameCommand.SetStatus("OutOfResources", true);
+            cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("OutOfResources", true);
             cntrlUnit.CurrentGameCommand.GameCommand.CommandComplete = true;
             return false;
         }
@@ -898,31 +905,34 @@ namespace Engine.Ants
 
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                 {
-                    if (Ant.Unit.UnitId == cntrlUnit.CurrentGameCommand.AttachedUnitId)
+                    if (Ant.Unit.UnitId == cntrlUnit.CurrentGameCommand.AttachedUnit.UnitId)
                     {
                         calcPathToPosition = cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition;
                     }
-                    else if (Ant.Unit.UnitId == cntrlUnit.CurrentGameCommand.FactoryUnitId)
+                    else if (Ant.Unit.UnitId == cntrlUnit.CurrentGameCommand.FactoryUnit.UnitId)
                     {
                         if (cntrlUnit.Extractor != null && cntrlUnit.Extractor.CanExtract)
                         {
-                            if (cntrlUnit.CurrentGameCommand.AttachedUnitId == null)
+                            if (cntrlUnit.CurrentGameCommand.AttachedUnit.UnitId == null)
                             {
-                                cntrlUnit.CurrentGameCommand.SetStatus("NoTargetForPickup");
+                                // Transport?
+                                //cntrlUnit.CurrentGameCommand.SetStatus("NoTargetForPickup");
                             }
                             else
                             {
                                 // Need to pick up the requested items. A possible pickup unit is in AttachedUnitId
-                                Unit containerUnit = player.Game.Map.Units.FindUnit(cntrlUnit.CurrentGameCommand.AttachedUnitId);
+                                Unit containerUnit = player.Game.Map.Units.FindUnit(cntrlUnit.CurrentGameCommand.AttachedUnit.UnitId);
                                 if (containerUnit == null)
                                 {
-                                    cntrlUnit.CurrentGameCommand.AttachedUnitId = null;
+                                    cntrlUnit.CurrentGameCommand.AttachedUnit.UnitId = null;
                                     cntrlUnit.CurrentGameCommand.GameCommand.CommandCanceled = true;
-                                    cntrlUnit.CurrentGameCommand.SetStatus("TargetUnitDestroyed");
+                                    // Transport?
+                                    //cntrlUnit.CurrentGameCommand.SetStatus("TargetUnitDestroyed");
                                 }
                                 else
                                 {
-                                    cntrlUnit.CurrentGameCommand.SetStatus("MoveToPickupLocation");
+                                    // Transport?
+                                    //cntrlUnit.CurrentGameCommand.SetStatus("MoveToPickupLocation");
                                     calcPathToPosition = containerUnit.Pos;
                                 }
                             }
@@ -930,12 +940,13 @@ namespace Engine.Ants
                         else
                         {
                             // Transporter is full
-                            if (cntrlUnit.CurrentGameCommand.AttachedUnitId != Ant.Unit.UnitId)
+                            if (cntrlUnit.CurrentGameCommand.AttachedUnit.UnitId != Ant.Unit.UnitId)
                             {
                                 // Drop the factory with the items to deliver, deliver the items directly
-                                cntrlUnit.CurrentGameCommand.AttachedUnitId = Ant.Unit.UnitId;
-                                cntrlUnit.CurrentGameCommand.FactoryUnitId = null;
-                                cntrlUnit.CurrentGameCommand.SetStatus("TransporterFull");
+                                cntrlUnit.CurrentGameCommand.AttachedUnit.UnitId = Ant.Unit.UnitId;
+                                cntrlUnit.CurrentGameCommand.FactoryUnit.UnitId = null;
+                                // Transport?
+                                //cntrlUnit.CurrentGameCommand.SetStatus("TransporterFull");
                             }
                         }
                     }
@@ -952,7 +963,7 @@ namespace Engine.Ants
                     }
                     else
                     {
-                        cntrlUnit.CurrentGameCommand.SetStatus("Full");
+                        cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("Full");
                     }
                 }
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Attack)
@@ -987,6 +998,8 @@ namespace Engine.Ants
                 {
                     if (cntrlUnit.Assembler != null && cntrlUnit.Assembler.CanProduce())
                     {
+                        cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("AssemblerMovingToTarget", false);
+
                         Ant.BuildPositionReached = false;
 
                         Tile t = player.Game.Map.GetTile(cntrlUnit.Pos);
@@ -994,6 +1007,8 @@ namespace Engine.Ants
                         {
                             if (n.Pos == cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition)
                             {
+                                cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("BuildPositionReached", false);
+
                                 // Next to build target
                                 Ant.FollowThisRoute = null;
                                 Ant.BuildPositionReached = true;
@@ -1003,8 +1018,9 @@ namespace Engine.Ants
                     }
                     else
                     {
+                        cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("NeedResources", false);
+
                         FindPathForCollect(player, cntrlUnit);
-                        //calcPathToPosition = cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition;
                     }
                 }
                 

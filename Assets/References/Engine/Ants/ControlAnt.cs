@@ -102,7 +102,7 @@ namespace Engine.Ants
                             gameCommandItem.DeleteWhenDestroyed = true;
                             gameCommandItem.FollowPheromones = true;
 
-                            gameCommandItem.SetStatus("PatrolFollowPheromones");
+                            gameCommandItem.AttachedUnit.SetStatus("PatrolFollowPheromones");
                         }
                         player.GameCommands.Add(patrolCommand);
                         break;
@@ -116,7 +116,7 @@ namespace Engine.Ants
                     bool commandComplete = true;
                     foreach (GameCommandItem gameCommandItem in patrolCommand.GameCommandItems)
                     {
-                        if (string.IsNullOrEmpty(gameCommandItem.AttachedUnitId))
+                        if (string.IsNullOrEmpty(gameCommandItem.AttachedUnit.UnitId))
                         {
                             commandComplete = false;
                             break;
@@ -129,7 +129,7 @@ namespace Engine.Ants
                         gameCommandItem.BlueprintName = "Bomber";
                         gameCommandItem.DeleteWhenDestroyed = true;
                         gameCommandItem.FollowPheromones = true;
-                        gameCommandItem.SetStatus("AddPatrolFollowPheromones");
+                        gameCommandItem.AttachedUnit.SetStatus("AddPatrolFollowPheromones");
 
                         patrolCommand.GameCommandItems.Add(gameCommandItem);
                     }
@@ -387,7 +387,7 @@ namespace Engine.Ants
 
                         foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
                         {
-                            gameCommandItem.SetStatus("Created");
+                            
                         }
 
                         //if (player.PlayerModel.Id == 1)
@@ -441,7 +441,7 @@ namespace Engine.Ants
 
                         foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
                         {
-                            gameCommandItem.SetStatus("Created");
+                            
                         }
 
                         player.GameCommands.Add(gameCommand);
@@ -667,7 +667,8 @@ namespace Engine.Ants
 
                         foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
                         {
-                            gameCommandItem.SetStatus("CreatedOutpost");
+                            // Factory?
+                            //gameCommandItem.SetStatus("CreatedOutpost");
                         }
 
                         player.GameCommands.Add(gameCommand);
@@ -687,7 +688,8 @@ namespace Engine.Ants
 
                         foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
                         {
-                            gameCommandItem.SetStatus("CreatedContainer");
+                            // Factory?
+                            //gameCommandItem.SetStatus("CreatedContainer");
                         }
 
                         player.GameCommands.Add(gameCommand);
@@ -1670,7 +1672,7 @@ namespace Engine.Ants
                     gameCommand.DeleteWhenFinished = true;
                     foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
                     {
-                        gameCommandItem.SetStatus("Canceled");
+                        gameCommandItem.AttachedUnit.SetStatus("Canceled");
                     }
 
                     foreach (GameCommand otherGameCommand in player.GameCommands)
@@ -1740,17 +1742,17 @@ namespace Engine.Ants
                     bool requestUnit = false;
 
                     if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.ItemRequest &&
-                        gameCommandItem.AttachedUnitId == null && gameCommandItem.FactoryUnitId != null)
+                        gameCommandItem.AttachedUnit.UnitId == null && gameCommandItem.FactoryUnit.UnitId != null)
                     {
                         // Transporter without source
                         requestUnit = true;
                     }
 
                     if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build &&
-                        gameCommandItem.AttachedUnitId != null && gameCommandItem.FactoryUnitId == null)
+                        gameCommandItem.AttachedUnit.UnitId != null && gameCommandItem.FactoryUnit.UnitId == null)
                     {
                         // Check if the unit to be build is there
-                        Unit unit = player.Game.Map.Units.FindUnit(gameCommandItem.AttachedUnitId);
+                        Unit unit = player.Game.Map.Units.FindUnit(gameCommandItem.AttachedUnit.UnitId);
                         if (unit == null)
                         {
                             requestUnit = true;
@@ -1763,7 +1765,7 @@ namespace Engine.Ants
                             }
                         }
                     }
-                    if (gameCommandItem.AttachedUnitId == null && gameCommandItem.FactoryUnitId == null)
+                    if (gameCommandItem.AttachedUnit.UnitId == null && gameCommandItem.FactoryUnit.UnitId == null)
                     {
                         if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build)
                         {
@@ -1822,22 +1824,23 @@ namespace Engine.Ants
                                 {
                                     if (ant.Unit.Blueprint.Name == "Assembler")
                                     {
-                                        gameCommandItem.FactoryUnitId = ant.Unit.UnitId;
+                                        gameCommandItem.FactoryUnit.UnitId = ant.Unit.UnitId;
+                                        gameCommandItem.FactoryUnit.SetStatus("BuildAssembler for " + gameCommand.GameCommandType);
+
                                         ant.Unit.SetGameCommand(gameCommandItem);
                                         requestUnit = false;
-
-                                        gameCommandItem.SetStatus("AttachedFactoryUnitId: " + gameCommandItem.FactoryUnitId);
                                     }
                                 }
                                 else
                                 {
                                     if (ant.Unit.Blueprint.Name == gameCommandItem.BlueprintName)
                                     {
-                                        gameCommandItem.AttachedUnitId = ant.Unit.UnitId;
+                                        gameCommandItem.AttachedUnit.UnitId = ant.Unit.UnitId;
+                                        gameCommandItem.AttachedUnit.SetStatus("AttachedUnitId: " + gameCommandItem.AttachedUnit.UnitId);
+
                                         ant.Unit.SetGameCommand(gameCommandItem);
                                         requestUnit = false;
-
-                                        gameCommandItem.SetStatus("AttachedUnitId: " + gameCommandItem.AttachedUnitId);
+                                        
                                     }
                                 }
                             }
@@ -1849,14 +1852,14 @@ namespace Engine.Ants
                             if (deliveryAnt.AntPartEngine != null)
                             {
                                 deliveryAnt.Unit.SetGameCommand(gameCommandItem);
-                                gameCommandItem.AttachedUnitId = deliveryAnt.Unit.UnitId;
+                                gameCommandItem.AttachedUnit.UnitId = deliveryAnt.Unit.UnitId;
                                 requestUnit = false;
-
-                                gameCommandItem.SetStatus("AttachedUnitId for Delivery: " + gameCommandItem.AttachedUnitId);
+                                // Factory? Transport?
+                                //gameCommandItem.SetStatus("AttachedUnitId for Delivery: " + gameCommandItem.AttachedUnit.UnitId);
                             }
                             else
                             {
-                                if (gameCommandItem.FactoryUnitId == null)
+                                if (gameCommandItem.FactoryUnit.UnitId == null)
                                 {
                                     Ant transportAnt = FindTransporter(gameCommandItem);
                                     if (transportAnt != null)
@@ -1864,11 +1867,11 @@ namespace Engine.Ants
                                         transportAnt.Unit.SetGameCommand(gameCommandItem);
 
                                         // The attached unit is the one, who delivers the content (Need resevation!)
-                                        gameCommandItem.AttachedUnitId = deliveryAnt.Unit.UnitId;
+                                        gameCommandItem.AttachedUnit.UnitId = deliveryAnt.Unit.UnitId;
                                         // The factory unit is the one who transports the content. (First Job => Move to Attached?)
-                                        gameCommandItem.FactoryUnitId = transportAnt.Unit.UnitId;
+                                        gameCommandItem.FactoryUnit.UnitId = transportAnt.Unit.UnitId;
 
-                                        gameCommandItem.SetStatus("AttachedTransport: " + gameCommandItem.FactoryUnitId + " take from " + gameCommandItem.AttachedUnitId);
+                                        //gameCommandItem.FactoryUnit.SetStatus("AttachedTransport: " + gameCommandItem.FactoryUnit.UnitId + " take from " + gameCommandItem.AttachedUnit.UnitId);
                                         requestUnit = false;
                                     }
                                     else
@@ -1880,9 +1883,10 @@ namespace Engine.Ants
                                 else
                                 {
                                     // The attached unit is the one, who delivers the content (Need resevation!)
-                                    gameCommandItem.AttachedUnitId = deliveryAnt.Unit.UnitId;
+                                    gameCommandItem.AttachedUnit.UnitId = deliveryAnt.Unit.UnitId;
 
-                                    gameCommandItem.SetStatus("AttachedTransport: " + gameCommandItem.AttachedUnitId);
+                                    // Factory? Transport
+                                    //gameCommandItem.SetStatus("AttachedTransport: " + gameCommandItem.AttachedUnit.UnitId);
 
                                     requestUnit = false;
                                 }
@@ -1929,9 +1933,11 @@ namespace Engine.Ants
                             }
                             // Assign the build command to an assembler COMMAND-STEP2 BUILD-STEP2
                             bestAnt.Unit.SetGameCommand(gameCommandItem);
-                            gameCommandItem.FactoryUnitId = bestAnt.Unit.UnitId;
+                            gameCommandItem.FactoryUnit.UnitId = bestAnt.Unit.UnitId;
 
-                            gameCommandItem.SetStatus("AttachedFactoryx: " + gameCommandItem.FactoryUnitId);
+                            // Factory
+                            gameCommandItem.FactoryUnit.SetStatus("BuildingUnit for " + gameCommand.GameCommandType.ToString());
+                            
                         }
                     }
                 }
@@ -2313,11 +2319,11 @@ namespace Engine.Ants
                     {
                         if (ant.Unit.CurrentGameCommand != null)
                         {
-                            if (ant.Unit.CurrentGameCommand.FactoryUnitId != null)
+                            if (ant.Unit.CurrentGameCommand.FactoryUnit.UnitId != null)
                             {
-                                if (ant.Unit.CurrentGameCommand.FactoryUnitId != ant.Unit.UnitId)
+                                if (ant.Unit.CurrentGameCommand.FactoryUnit.UnitId != ant.Unit.UnitId)
                                 {
-                                    Unit factoryUnit = player.Game.Map.Units.FindUnit(ant.Unit.CurrentGameCommand.FactoryUnitId);
+                                    Unit factoryUnit = player.Game.Map.Units.FindUnit(ant.Unit.CurrentGameCommand.FactoryUnit.UnitId);
                                     if (factoryUnit != null)
                                     {
                                         factoryUnit.ResetGameCommand();
@@ -2325,22 +2331,22 @@ namespace Engine.Ants
                                     if (ant.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                                     {
                                         // The attached unit is the one, who delivers the content (Need resevation!)
-                                        ant.Unit.CurrentGameCommand.AttachedUnitId = null;
-                                        ant.Unit.CurrentGameCommand.FactoryUnitId = ant.Unit.UnitId;
+                                        ant.Unit.CurrentGameCommand.AttachedUnit.UnitId = null;
+                                        ant.Unit.CurrentGameCommand.FactoryUnit.UnitId = ant.Unit.UnitId;
 
-                                        ant.Unit.CurrentGameCommand.SetStatus("UnitToDeliver: " + ant.Unit.CurrentGameCommand.FactoryUnitId);
+                                        // Factory
+                                        //ant.Unit.CurrentGameCommand.SetStatus("UnitToDeliver: " + ant.Unit.CurrentGameCommand.FactoryUnitId);
                                     }
                                     else if (ant.Unit.Blueprint.Name == "Assembler")
                                     {
-                                        ant.Unit.CurrentGameCommand.AttachedUnitId = null;
-                                        ant.Unit.CurrentGameCommand.FactoryUnitId = ant.Unit.UnitId;
-
-                                        ant.Unit.CurrentGameCommand.SetStatus("UnitToAssemble: " + ant.Unit.CurrentGameCommand.FactoryUnitId);
+                                        ant.Unit.CurrentGameCommand.AttachedUnit.UnitId = null;
+                                        ant.Unit.CurrentGameCommand.FactoryUnit.UnitId = ant.Unit.UnitId;
+                                        // Factory
+                                        ant.Unit.CurrentGameCommand.FactoryUnit.SetStatus("Assemble", false);
                                     }
                                     else
                                     {
-                                        ant.Unit.CurrentGameCommand.FactoryUnitId = null;
-                                        //ant.PlayerUnit.Unit.CurrentGameCommand.AttachedUnitId = ant.PlayerUnit.Unit.UnitId;
+                                        ant.Unit.CurrentGameCommand.FactoryUnit.UnitId = null;
 
                                         if (ant.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Build)
                                         {
@@ -2349,7 +2355,7 @@ namespace Engine.Ants
                                             if (ant.Unit.CurrentGameCommand.GameCommand.DeleteWhenFinished)
                                             {
                                                 ant.Unit.CurrentGameCommand.GameCommand.CommandComplete = true;
-                                                ant.Unit.CurrentGameCommand.SetStatus("CommandComplete");
+                                                ant.Unit.CurrentGameCommand.AttachedUnit.SetStatus("CommandComplete");
                                             }
                                             else
                                             {

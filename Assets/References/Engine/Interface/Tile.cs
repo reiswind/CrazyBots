@@ -171,7 +171,7 @@ namespace Engine.Interface
 
             foreach (TileObject tileObject in TileContainer.TileObjects)
             {
-                if (tileObject.TileObjectType == TileObjectType.Gras ||
+                if (//tileObject.TileObjectType == TileObjectType.Gras || 
                     tileObject.TileObjectType == TileObjectType.TreeTrunk)
                 {
                     TileContainer.Remove(tileObject);

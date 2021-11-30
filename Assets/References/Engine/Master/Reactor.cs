@@ -66,18 +66,10 @@ namespace Engine.Master
         {
             if (AvailablePower == 0)
             {
-                MoveRecipeIngredient moveRecipeIngredient = Unit.FindIngredient(TileObjectType.All, true);
-                if (moveRecipeIngredient == null)
-                {
-                    if (TileContainer != null && TileContainer.Count > 0)
-                    {
-                        moveRecipeIngredient = new MoveRecipeIngredient();
-                        moveRecipeIngredient.Position = Unit.Pos;
-                        moveRecipeIngredient.Count = 1;
-                        moveRecipeIngredient.TileObjectType = TileContainer.TileObjects[0].TileObjectType;
-                        moveRecipeIngredient.Source = TileObjectType.PartReactor;
-                    }
-                }
+                
+
+                MoveRecipeIngredient moveRecipeIngredient = Unit.FindIngredientToBurn();
+
                 if (moveRecipeIngredient != null)
                 {
                     AvailablePower = TileObject.GetPowerForTileObjectType(moveRecipeIngredient.TileObjectType);

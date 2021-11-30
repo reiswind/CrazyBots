@@ -23,48 +23,68 @@ namespace Engine.Interface
         Extract,
         ItemRequest
     }
-    internal class GameCommandItem
+    internal class GameCommandItemUnit
     {
-        internal GameCommandItem(GameCommand gamecommand)
+        public GameCommandItemUnit()
         {
-            GameCommand = gamecommand;
-            Status = "CreatedNoBlueprint";
-        }
-        internal GameCommandItem(GameCommand gamecommand, BlueprintCommandItem blueprintCommandItem)
-        {
-            BlueprintName = blueprintCommandItem.BlueprintName;
-            Position3 = blueprintCommandItem.Position3;
-            Direction = blueprintCommandItem.Direction;
-            GameCommand = gamecommand;
             Status = "Created";
         }
-        // Runtime info
-        internal Direction Direction { get; set; }
-        internal Position3 Position3 { get; set; }
 
-        public Position3 RotatedPosition3 { get; set; }
-        public Direction RotatedDirection { get; set; }
-
-        internal string BlueprintName { get; set; }
-        internal string AttachedUnitId { get; set; }
-
-        internal string TargetUnitId { get; set; }
-        internal GameCommand GameCommand { get; private set; }
-        internal string FactoryUnitId { get; set; }
-        public string Status { get; private set; }
         public int StuckCounter { get; set; }
-        internal void SetStatus (string text, bool alert = false)
+        internal void SetStatus(string text, bool alert = false)
         {
             Status = text;
             Alert = alert;
             Changed = true;
         }
-
+        public bool Changed { get; set; }
+        public string UnitId { get; set; }
+        public string Status { get; private set; }
         public bool Alert { get; private set; }
+    }
+
+    internal class GameCommandItem
+    {
+        internal GameCommandItem(GameCommand gamecommand)
+        {
+            AttachedUnit = new GameCommandItemUnit();
+            FactoryUnit = new GameCommandItemUnit();
+            TargetUnit = new GameCommandItemUnit();
+            TransportUnit = new GameCommandItemUnit();
+
+            GameCommand = gamecommand;
+        }
+        internal GameCommandItem(GameCommand gamecommand, BlueprintCommandItem blueprintCommandItem)
+        {
+            AttachedUnit = new GameCommandItemUnit();
+            FactoryUnit = new GameCommandItemUnit();
+            TargetUnit = new GameCommandItemUnit();
+            TransportUnit = new GameCommandItemUnit();
+
+            BlueprintName = blueprintCommandItem.BlueprintName;
+            Position3 = blueprintCommandItem.Position3;
+            Direction = blueprintCommandItem.Direction;
+            GameCommand = gamecommand;
+        }
+        // Runtime info
+        internal GameCommand GameCommand { get; private set; }
+
+        internal Direction Direction { get; set; }
+        internal Position3 Position3 { get; set; }
+
+        public Position3 RotatedPosition3 { get; set; }
+        public Direction RotatedDirection { get; set; }
+        internal string BlueprintName { get; set; }
+
+        internal GameCommandItemUnit AttachedUnit { get; private set; }
+        internal GameCommandItemUnit TransportUnit { get; private set; }
+        internal GameCommandItemUnit TargetUnit { get; private set; }
+        internal GameCommandItemUnit FactoryUnit { get; private set; }
+
         public bool DeleteWhenDestroyed { get; set; }
         public bool FollowPheromones { get; set; }
 
-        public bool Changed { get; set; }
+
 
         public override string ToString()
         {
@@ -108,15 +128,15 @@ namespace Engine.Interface
         public override string ToString()
         {
             string s = GameCommandType.ToString() + " at " + TargetPosition.ToString();
-            if (CommandCanceled) s += " Canceld";
+            if (CommandCanceled) s += " Canceled";
             if (CommandComplete) s += " Complete";
 
             foreach (GameCommandItem blueprintCommandItem in GameCommandItems)
             {
                 s += blueprintCommandItem.BlueprintName;
                 s += " ";
-                if (blueprintCommandItem.FactoryUnitId != null)
-                    s += " Factory" + blueprintCommandItem.FactoryUnitId;
+                if (blueprintCommandItem.FactoryUnit.UnitId != null)
+                    s += " Factory" + blueprintCommandItem.FactoryUnit.UnitId;
                 s += "\r\n";
             }
             return s;

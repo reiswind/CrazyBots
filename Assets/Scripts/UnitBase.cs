@@ -126,6 +126,14 @@ namespace Assets.Scripts
                 _alert.SetActive(unitAlert.IsAlert);
             }
         }
+        public void ResetAlert()
+        {
+            this.unitAlert = new UnitAlert("", "", false);
+            if (_alert != null)
+            {
+                _alert.SetActive(false);
+            }
+        }
 
         internal Vector3 TurnWeaponIntoDirection { get; set; }
 
@@ -511,17 +519,38 @@ namespace Assets.Scripts
         {
             if (stats != null)
             {
-                if (stats.Power < 20)
+                if (stats.Power < 10)
                 {
-                    SetAlert(new UnitAlert("LowPower", "NeedReactor", true));
+                    //SetAlert(new UnitAlert("LowPower", "NeedReactor", true));
                 }
                 else
                 {
-                    if (stats.MoveUpdateStatsCommand != null)
+                }
+                if (stats.MoveUpdateStatsCommand == null)
+                {
+                    ResetAlert();
+                }
+                else
+                {
+                    MoveUpdateStatsCommand moveUpdateStatsCommand = stats.MoveUpdateStatsCommand;
+                    if (moveUpdateStatsCommand.AttachedUnit.UnitId == UnitId)
                     {
-                        SetAlert(new UnitAlert(stats.MoveUpdateStatsCommand.Status, stats.MoveUpdateStatsCommand.Status, stats.MoveUpdateStatsCommand.Alert));
+                        SetAlert(new UnitAlert(moveUpdateStatsCommand.AttachedUnit.Status, moveUpdateStatsCommand.AttachedUnit.Status, moveUpdateStatsCommand.AttachedUnit.Alert));
+                    }
+                    if (moveUpdateStatsCommand.FactoryUnit.UnitId == UnitId)
+                    {
+                        SetAlert(new UnitAlert(moveUpdateStatsCommand.FactoryUnit.Status, moveUpdateStatsCommand.FactoryUnit.Status, moveUpdateStatsCommand.FactoryUnit.Alert));
+                    }
+                    if (moveUpdateStatsCommand.TransportUnit.UnitId == UnitId)
+                    {
+                        SetAlert(new UnitAlert(moveUpdateStatsCommand.TransportUnit.Status, moveUpdateStatsCommand.TransportUnit.Status, moveUpdateStatsCommand.TransportUnit.Alert));
+                    }
+                    if (moveUpdateStatsCommand.TargetUnit.UnitId == UnitId)
+                    {
+                        SetAlert(new UnitAlert(moveUpdateStatsCommand.TargetUnit.Status, moveUpdateStatsCommand.TargetUnit.Status, moveUpdateStatsCommand.TargetUnit.Alert));
                     }
                 }
+                
 
                 if (IsActive && stats.Power == 0)
                 {

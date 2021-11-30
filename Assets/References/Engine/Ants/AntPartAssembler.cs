@@ -74,12 +74,11 @@ namespace Engine.Ants
             blueprintCommandItem.Direction = Direction.C;
 
             GameCommandItem gameCommandItem = new GameCommandItem(gameCommand, blueprintCommandItem);
-            gameCommandItem.TargetUnitId = Ant.Unit.UnitId;
+            gameCommandItem.TargetUnit.UnitId = Ant.Unit.UnitId;
 
             gameCommand.RequestedItems = new List<RecipeIngredient>();
             foreach (RecipeIngredient recipeIngredient in recipeForAnyUnit.Ingredients)
             {
-                //RecipeIngredient recipeIngredient = new RecipeIngredient(TileObjectType.Mineral, Assembler.TileContainer.Capacity);
                 gameCommand.RequestedItems.Add(recipeIngredient);
             }
 
@@ -99,6 +98,7 @@ namespace Engine.Ants
             {
                 if (Assembler.Unit.CurrentGameCommand != null)
                 {
+                    /* Should be factory state?
                     Assembler.Unit.CurrentGameCommand.SetStatus("NoResourcesToBuild", true);
 
                     Assembler.Unit.CurrentGameCommand.StuckCounter++;
@@ -107,7 +107,7 @@ namespace Engine.Ants
                         // Cancel the command
                         Assembler.Unit.CurrentGameCommand.GameCommand.CommandCanceled = true;
                         Ant.Unit.ResetGameCommand();
-                    }
+                    }*/
                 }
                 if (Assembler.Unit.CurrentGameCommand == null)
                 {
@@ -164,7 +164,7 @@ namespace Engine.Ants
                 }
                 else
                 {
-                    if (selectedGameCommand.AttachedUnitId == Ant.Unit.UnitId)
+                    if (selectedGameCommand.AttachedUnit.UnitId == Ant.Unit.UnitId)
                     {
                         // This is the command, that is attached to this factory, when the factory was build.
                         return false;
@@ -174,7 +174,7 @@ namespace Engine.Ants
                     Dictionary<Position2, TileWithDistance> neighbors = Assembler.Unit.Game.Map.EnumerateTiles(Assembler.Unit.Pos, 1, false);
                     foreach (TileWithDistance tileWithDistance in neighbors.Values)
                     {
-                        if (tileWithDistance.Unit != null && tileWithDistance.Unit.UnitId == selectedGameCommand.AttachedUnitId)
+                        if (tileWithDistance.Unit != null && tileWithDistance.Unit.UnitId == selectedGameCommand.AttachedUnit.UnitId)
                         {
                             // Already under construction
                             return false;
@@ -328,7 +328,8 @@ namespace Engine.Ants
                             // Cannot build here any more. 
                             if (player.PlayerModel.IsHuman)
                             {
-                                selectedGameCommand.SetStatus("CannotBuild");
+                                // Should be factory state?
+                                //selectedGameCommand.SetStatus("CannotBuild");
                             }
                             else
                             {
@@ -357,23 +358,7 @@ namespace Engine.Ants
                         Move move = possibleMoves[idx];
 
                         move.GameCommandItem = passGameCommandToNewUnit;
-                        /*
-                        Unit createdUnit = new Unit(player.Game, move.Stats.BlueprintName);
-                        player.Game.Map.Units.Add(createdUnit);
-                        */
-                        // Pass the command
-                        if (passGameCommandToNewUnit != null)
-                        {
-                            // If its an assembler, this is not the attached unit for the command
-                            //xxif (!assemblerUsedToBuild)
-                            //xx    passGameCommandToNewUnit.AttachedUnitId = createdUnit.UnitId;
-                            //xxcreatedUnit.SetGameCommand(passGameCommandToNewUnit);
-                        }
-                        else
-                        {
-                            //xxselectedGameCommand.AttachedUnitId = createdUnit.UnitId;
-                        }
-                        //xxmove.UnitId = createdUnit.UnitId;
+                        
                         moves.Add(move);
 
                         return true;

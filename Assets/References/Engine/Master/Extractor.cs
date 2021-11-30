@@ -42,7 +42,7 @@ namespace Engine.Master
             if (Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
             {
                 // Only for units who collect in the area, not for factory units
-                if (Unit.CurrentGameCommand.AttachedUnitId == Unit.UnitId)
+                if (Unit.CurrentGameCommand.AttachedUnit.UnitId == Unit.UnitId)
                 {
                     includePositions = Unit.CurrentGameCommand.GameCommand.IncludedPositions;
                 }
@@ -210,7 +210,7 @@ namespace Engine.Master
                             {
                                 if (Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                                 {
-                                    if (Unit.CurrentGameCommand.AttachedUnitId == t.Unit.UnitId)
+                                    if (Unit.CurrentGameCommand.AttachedUnit.UnitId == t.Unit.UnitId)
                                     {
                                         // This is the transporter, that delivered the stuff.
                                         Move move = CreateExtractMoveIfPossible(t.Unit);
@@ -283,7 +283,7 @@ namespace Engine.Master
                                 {
                                     if (Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                                     {
-                                        if (Unit.UnitId == Unit.CurrentGameCommand.FactoryUnitId)
+                                        if (Unit.UnitId == Unit.CurrentGameCommand.FactoryUnit.UnitId)
                                         {
                                             // This is the transporter, that should extract from container to deliver it
                                             // Assembler extract from Container
@@ -482,16 +482,16 @@ namespace Engine.Master
                     {
                         if (unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                         {
-                            if (unit.CurrentGameCommand.TargetUnitId == unit.UnitId)
+                            if (unit.CurrentGameCommand.TargetUnit.UnitId == unit.UnitId)
                             {
-                                // This is the transporter. It has extracted the content into the target, command is complete
+                                // This is the transporter??. It has extracted the content into the target, command is complete
                                 unit.CurrentGameCommand.GameCommand.CommandComplete = true;
                             }
-                            if (unit.CurrentGameCommand.FactoryUnitId == unit.UnitId)
+                            if (unit.CurrentGameCommand.FactoryUnit.UnitId == unit.UnitId)
                             {
                                 // This is the transporter. It has picked up the items. Attach it now, to deliver the items
-                                unit.CurrentGameCommand.AttachedUnitId = unit.UnitId;
-                                unit.CurrentGameCommand.FactoryUnitId = null;
+                                unit.CurrentGameCommand.AttachedUnit.UnitId = unit.UnitId;
+                                unit.CurrentGameCommand.FactoryUnit.UnitId = null;
                             }
                         }
                     }

@@ -196,6 +196,11 @@ namespace Engine.Interface
         public TileObjectType TileObjectType { get; set; }
         public int Count { get; set; }
         public Position2 Position { get; set; }
+
+        public override string ToString()
+        {
+            return Count.ToString() + "x " +  TileObjectType.ToString() + " at " + Position.ToString();
+        }
     }
 
     public class MoveRecipe
@@ -212,10 +217,10 @@ namespace Engine.Interface
     {
         public Position2 TargetPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
-        public string AttachedUnitId { get; set; }
-        public string FactoryUnitId { get; set; }
-        public string Status { get; set; }
-        public bool Alert { get; set; }
+        public MapGameCommandItemUnit AttachedUnit { get; set; }
+        public MapGameCommandItemUnit FactoryUnit { get; set; }
+        public MapGameCommandItemUnit TargetUnit { get; set; }
+        public MapGameCommandItemUnit TransportUnit { get; set; }
     }
 
     public class MoveUpdateStats

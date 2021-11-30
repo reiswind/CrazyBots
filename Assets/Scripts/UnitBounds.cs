@@ -241,16 +241,18 @@ namespace Assets.Scripts
             if (visibleFrames.Count > 0)
                 Destroy();
 
+            bool hasEngine = UnitBase.HasEngine();
+
             lastPosition = UnitBase.CurrentPos;
             Position3 position3 = new Position3(UnitBase.CurrentPos);
             foreach (UnitBasePart unitBasePart in UnitBase.UnitBaseParts)
             {
-                if (unitBasePart.PartType == TileObjectType.PartReactor)
+                if (!hasEngine && unitBasePart.PartType == TileObjectType.PartReactor)
                 {
                     List<Position3> positions = position3.CreateRing(unitBasePart.Range);
                     CreateFrame(positions);
                 }
-                if (unitBasePart.PartType == TileObjectType.PartContainer)
+                if (!hasEngine && unitBasePart.PartType == TileObjectType.PartContainer)
                 {
                     List<Position3> positions = position3.CreateRing(unitBasePart.Range);
                     CreateFrame(positions);
@@ -305,8 +307,9 @@ namespace Assets.Scripts
                 {
                     CreateBuildFrame(position);
                 }
+                CreateUnitFrame(position3);
             }
-            CreateUnitFrame(position3);
+            
         }
 
         public void Destroy()

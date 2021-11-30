@@ -70,6 +70,17 @@ namespace Engine.Interface
 
             foreach (TileObject tileObject in tileObjects)
             {
+                // Burn everything
+                if (tileObject.TileObjectType == TileObjectType.Burn)
+                {
+                    if (reserved.Contains(tileObject.TileObjectType))
+                    {
+                        reserved.Remove(tileObject.TileObjectType);
+                        continue;
+                    }
+                    return true;
+                }
+
                 if (tileObject.TileObjectType == tileObjectType || tileObjectType == TileObjectType.All)
                 {
                     if (reserved.Contains(tileObject.TileObjectType))
