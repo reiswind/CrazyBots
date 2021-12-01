@@ -161,8 +161,8 @@ namespace Engine.Interface
         }
         public bool IsGras()
         {
-            //if (Count(TileObjectType.Gras) >= 6)
-            //    return true;
+            if (Count(TileObjectType.Gras) >= 6)
+                return true;
             return false;
             //return PlantLevel <= 1 && TerrainTypeIndex == 1;
             //return Height > 0.20 && Height <= 0.3;

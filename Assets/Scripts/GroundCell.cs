@@ -1,5 +1,4 @@
 using Engine.Interface;
-using HighlightPlus;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -50,7 +49,6 @@ namespace Assets.Scripts
         }
 
         internal List<UnitCommand> UnitCommands { get; private set; }
-        private HighlightEffect highlightEffect { get; set; }
         public List<UnitBaseTileObject> GameObjects { get; private set; }
 
         private GameObject markerEnergy;
@@ -73,24 +71,23 @@ namespace Assets.Scripts
 
         public void UpdateColor()
         {
+            Renderer[] rr = GetComponentsInChildren<Renderer>();
+            foreach (Renderer renderer in rr)
             // Set color
-            Renderer renderer = GetComponent<Renderer>();
-
-            renderer.material.SetFloat("Darkness", Diffuse);
-            foreach (UnitBaseTileObject unitBaseTileObject1 in GameObjects)
+            //Renderer renderer = GetComponent<Renderer>();
             {
-                if (unitBaseTileObject1.GameObject != null)
+                renderer.material.SetFloat("Darkness", Diffuse);
+                /*
+                foreach (UnitBaseTileObject unitBaseTileObject1 in GameObjects)
                 {
-                    renderer = unitBaseTileObject1.GameObject.GetComponent<Renderer>();
-                    if (renderer != null)
-                        renderer.material.SetFloat("Darkness", Diffuse);
-                }
+                    if (unitBaseTileObject1.GameObject != null)
+                    {
+                        //renderer = unitBaseTileObject1.GameObject.GetComponent<Renderer>();
+                        //if (renderer != null)
+                            //renderer.material.SetFloat("Darkness", Diffuse);
+                    }
+                }*/
             }
-        }
-
-        public void InitHighlightEffect()
-        {
-            highlightEffect = GetComponent<HighlightEffect>();
         }
 
         private void CreateMarker()
@@ -339,6 +336,8 @@ namespace Assets.Scripts
                 }
                 else if (Stats.MoveUpdateGroundStat.IsGras())
                 {
+                    ColorUtility.TryParseHtmlString("#899E52", out color);
+
                     //materialName = "Grass";
                 }
                 else
@@ -354,13 +353,21 @@ namespace Assets.Scripts
             {
                 //materialName = "DarkSand";
             }
-            Renderer renderer = GetComponent<Renderer>();
-            renderer.material.SetColor("SurfaceColor", color);
-            if (highlightEffect != null)
+            Renderer[] rr = GetComponentsInChildren<Renderer>();
+            foreach (Renderer renderer in rr)
             {
-                highlightEffect.innerGlowColor = color;
+                renderer.material.SetColor("SurfaceColor", color);
             }
-
+            /*
+            Renderer renderer = GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                renderer.material.SetColor("SurfaceColor", color);
+                if (highlightEffect != null)
+                {
+                    highlightEffect.innerGlowColor = color;
+                }
+            }*/
 
         }
 
@@ -411,7 +418,7 @@ namespace Assets.Scripts
         internal void CreateDestructables(bool init)
         {
             SetGroundMaterial();
-            
+            //return;
             List<UnitBaseTileObject> destroyedTileObjects = new List<UnitBaseTileObject>();
             destroyedTileObjects.AddRange(GameObjects);
 
@@ -516,8 +523,6 @@ namespace Assets.Scripts
             if (IsHighlighted != isHighlighted)
             {
                 IsHighlighted = isHighlighted;
-                if (highlightEffect)
-                    highlightEffect.SetHighlighted(IsHighlighted);
 
             }
         }

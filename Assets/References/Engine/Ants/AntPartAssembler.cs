@@ -98,16 +98,14 @@ namespace Engine.Ants
             {
                 if (Assembler.Unit.CurrentGameCommand != null)
                 {
-                    /* Should be factory state?
-                    Assembler.Unit.CurrentGameCommand.SetStatus("NoResourcesToBuild", true);
-
-                    Assembler.Unit.CurrentGameCommand.StuckCounter++;
-                    if (Assembler.Unit.CurrentGameCommand.StuckCounter > 10)
+                    if (Assembler.Unit.CurrentGameCommand.FactoryUnit.UnitId == Ant.Unit.UnitId)
                     {
-                        // Cancel the command
-                        Assembler.Unit.CurrentGameCommand.GameCommand.CommandCanceled = true;
-                        Ant.Unit.ResetGameCommand();
-                    }*/
+                        Assembler.Unit.CurrentGameCommand.FactoryUnit.StuckCounter++;
+                        if (Assembler.Unit.CurrentGameCommand.FactoryUnit.StuckCounter > 20)
+                        {
+                            Assembler.Unit.ResetGameCommand();
+                        }
+                    }
                 }
                 if (Assembler.Unit.CurrentGameCommand == null)
                 {

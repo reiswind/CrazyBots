@@ -1839,6 +1839,12 @@ namespace Engine.Ants
                                 {
                                     if (ant.Unit.Blueprint.Name == gameCommandItem.BlueprintName)
                                     {
+                                        if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Collect &&
+                                            ant.Unit.Assembler != null)
+                                        {
+                                            int x = 0;
+                                        }
+
                                         gameCommandItem.AttachedUnit.UnitId = ant.Unit.UnitId;
                                         gameCommandItem.AttachedUnit.SetStatus("AttachedUnitId: " + gameCommandItem.AttachedUnit.UnitId);
                                         ant.Unit.SetGameCommand(gameCommandItem);
@@ -2290,6 +2296,11 @@ namespace Engine.Ants
 
             if (!mapInfo.PlayerInfo.ContainsKey(player.PlayerModel.Id))
             {
+                foreach (GameCommand gameCommand in player.GameCommands)
+                {
+                    gameCommand.CommandCanceled = true;
+                }
+                player.GameCommands.Clear();
                 // Player is dead, no more units
                 return moves;
             }
