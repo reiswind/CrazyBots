@@ -1747,9 +1747,9 @@ namespace Assets.Scripts
         {
             foreach (CommandPreview mapGameCommand in CommandPreviews)
             {
-                foreach (CommandAttachedUnit commandAttachedUnit in mapGameCommand.PreviewUnits)
+                foreach (CommandAttachedItem commandAttachedUnit in mapGameCommand.PreviewUnits)
                 {
-                    if (commandAttachedUnit.GhostUnit == unitBase)
+                    if (commandAttachedUnit.AttachedUnit.GhostUnit == unitBase)
                     {
                         // Preview Ghost unit
                         return mapGameCommand;
