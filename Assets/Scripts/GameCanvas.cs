@@ -703,8 +703,6 @@ namespace Assets.Scripts
                 int num = 0;
                 foreach (RaycastHit raycastHit in raycastHits)
                 {
-
-
                     //GroundCell debuggc = raycastHit.collider.gameObject.GetComponent<GroundCell>();
                     //if (debuggc != null)
                     //    Debug.Log(num + " Raycast hit GroundCell " + debuggc.Pos.ToString());
@@ -1185,26 +1183,29 @@ namespace Assets.Scripts
 
         void UpdateCommandMode()
         {
-            if (selectedUnitFrame == null)
-            {
-                // Unit killed...
-                SetMode(CanvasMode.Select);
-                return;
-            }
-
             if (CheckMouseButtons()) return;
             HitByMouseClick hitByMouseClick = GetClickedInfo();
 
             HideAllParts();
-            DisplayUnitframe(selectedUnitFrame);
-
-            //UpdateMouseOver(hitByMouseClick);
-            if (selectedUnitFrame != null && selectedUnitFrame.CurrentPos != selectedUnitBounds.Pos)
+            if (selectedUnitFrame != null)
             {
-                selectedUnitBounds.Destroy();
-                selectedUnitBounds.Update();
+                DisplayUnitframe(selectedUnitFrame);
+                if (selectedUnitFrame.CurrentPos != selectedUnitBounds.Pos)
+                {
+                    selectedUnitBounds.Destroy();
+                    selectedUnitBounds.Update();
+                }
             }
-
+            else
+            {
+                if (selectedUnitBounds != null)
+                {
+                    selectedUnitBounds.Destroy();
+                    selectedUnitBounds = null;
+                }
+                DisplayGameCommand(selectedCommandPreview);
+            }
+            //UpdateMouseOver(hitByMouseClick);
 
             if (hitByMouseClick != null)
             {
@@ -1272,6 +1273,31 @@ namespace Assets.Scripts
                 }
                 selectedCommandPreview = hitByMouseClick.CommandPreview;
                 selectedCommandPreview.SetSelected(true);
+
+                StringBuilder sb = new StringBuilder();
+
+                sb.Append("GameCommandType: ");
+                sb.AppendLine(selectedCommandPreview.GameCommand.GameCommandType.ToString());
+
+                if (selectedCommandPreview.Blueprint != null)
+                {
+                    sb.Append("Blueprint: ");
+                    sb.AppendLine(selectedCommandPreview.Blueprint.Name);
+                }
+                sb.Append("DisplayPosition: ");
+                sb.AppendLine(selectedCommandPreview.DisplayPosition.ToString());
+
+                foreach (MapGameCommandItem gameCommandItem in selectedCommandPreview.GameCommand.GameCommandItems)
+                {                    
+                    sb.AppendLine("AttachedUnit" + gameCommandItem.AttachedUnit.ToString());
+                    sb.AppendLine("FactoryUnit" + gameCommandItem.FactoryUnit.ToString());
+                    sb.AppendLine("TransportUnit" + gameCommandItem.TransportUnit.ToString());
+                    sb.AppendLine("TargetUnit" + gameCommandItem.TargetUnit.ToString());
+                    sb.AppendLine(gameCommandItem.ToString());
+                }
+
+
+                Debug.Log(sb.ToString());
 
                 if (hitByMouseClick.UnitBase != null)
                 {
@@ -1670,7 +1696,6 @@ namespace Assets.Scripts
 
         public void Update(CommandPreview commandPreview)
         {
-
             foreach (UnitBase unitBase in Units)
             {
                 CommandPreview unitCommandPreview = HexGrid.MainGrid.FindCommandForUnit(unitBase);

@@ -1371,7 +1371,7 @@ namespace Assets.Scripts
         {
             if (hitByBullet.BulletImpact == false)
             {
-                Debug.Log("No IMPACT!");
+                //Debug.Log("No IMPACT!");
             }
             GroundCell hexCell = null;
             if (hitByBullet.UpdateGroundStats != null)

@@ -116,7 +116,7 @@ namespace Assets.Scripts
             }
             if (HitByBullet.BulletImpact == false)
             {
-                Debug.Log("BulletImpact");
+                //Debug.Log("BulletImpact");
 
                 HitByBullet.BulletImpact = true;
 

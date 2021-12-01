@@ -99,8 +99,6 @@ namespace Engine.Interface
         public bool DeleteWhenDestroyed { get; set; }
         public bool FollowPheromones { get; set; }
 
-
-
         public override string ToString()
         {
             return GameCommand.ToString();

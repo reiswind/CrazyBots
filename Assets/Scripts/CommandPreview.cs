@@ -562,7 +562,7 @@ namespace Assets.Scripts
                         }
                         if (positionok)
                         {
-                            Debug.Log("SetPosition: " + groundCell.Pos);
+                            //Debug.Log("SetPosition: " + groundCell.Pos);
 
                             if (previewGameCommand != null)
                                 previewGameCommand.SetActive(true);

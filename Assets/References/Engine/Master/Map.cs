@@ -58,10 +58,12 @@ namespace Engine.Interface
             string s = GameCommandType.ToString() + " at " + TargetPosition.ToString();
             if (CommandCanceled) s += " Canceled";
             if (CommandComplete) s += " Complete";
-            foreach (MapGameCommandItem id in GameCommandItems)
+            s += "\r\n";
+
+            foreach (MapGameCommandItem mapGameCommandItem in GameCommandItems)
             {
-                s += id.AttachedUnit.UnitId;
-                s += " ";
+                s += mapGameCommandItem.ToString();
+                s += "\r\n";
             }
             return s;
         }
@@ -72,6 +74,11 @@ namespace Engine.Interface
         public string UnitId { get; set; }
         public string Status { get; set; }
         public bool Alert { get; set; }
+        public override string ToString()
+        {
+            return "UnitId: " + UnitId + " Status: " + Status + " Alert: " + Alert;
+        }
+
     }
 
     public class MapGameCommandItem
@@ -105,6 +112,11 @@ namespace Engine.Interface
         public MapGameCommandItemUnit FactoryUnit { get; set; }
         internal MapGameCommandItemUnit TargetUnit { get; set; }
         internal MapGameCommandItemUnit TransportUnit { get; set; }
+
+        public override string ToString()
+        {
+            return "BlueprintName: " + BlueprintName + " Pos: " + Position3.ToString() + " Dir: " + Direction.ToString();
+        }
     }
 
     public class MapPheromoneItem
