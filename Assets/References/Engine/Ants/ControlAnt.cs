@@ -1938,7 +1938,8 @@ namespace Engine.Ants
 
                         foreach (Ant ant in unmovedAnts)
                         {
-                            if (ant.AntPartAssembler != null)
+                            // Currently only structures, not moving assemblers
+                            if (ant.AntPartAssembler != null && ant.AntPartEngine == null)
                             {
                                 if (ant.Unit.CurrentGameCommand == null &&
                                     !ant.Unit.UnderConstruction &&

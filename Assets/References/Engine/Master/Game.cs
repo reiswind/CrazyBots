@@ -26,11 +26,23 @@ namespace Engine.Master
         public Blueprints Blueprints { get; set; }
         public Map Map { get; private set; }
         public Recipes Recipes { get; private set; }
+
+        public Recipe RecipeForAnyUnit { get; private set; }
+
         private void Init(GameModel gameModel, int initSeed)
         {
             Blueprints = new Blueprints();
             Pheromones = new Pheromones();
             Recipes = new Recipes();
+            foreach (Recipe recipe in Recipes.RecipeList)
+            {
+                if (recipe.Results.Count == 1 &&
+                    recipe.Results[0].TileObjectType == TileObjectType.Unit)
+                {
+                    RecipeForAnyUnit = recipe;
+                    break;
+                }
+            }
 
             seed = initSeed;
             Random = new Random(seed);

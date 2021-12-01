@@ -22,22 +22,11 @@ namespace Engine.Ants
             return "AntPartAssembler";
         }
 
-        private Recipe recipeForAnyUnit;
+
 
         public override bool Move(ControlAnt control, Player player, List<Move> moves)
         {
-            if (recipeForAnyUnit == null)
-            {
-                foreach (Recipe recipe in player.Game.Recipes.RecipeList)
-                {
-                    if (recipe.Results.Count == 1 &&
-                        recipe.Results[0].TileObjectType == TileObjectType.Unit)
-                    {
-                        recipeForAnyUnit = recipe;
-                        break;
-                    }
-                }
-            }
+            
             bool moved;
 
             moved = Assemble(control, player, moves);
@@ -78,7 +67,7 @@ namespace Engine.Ants
             gameCommandItem.TargetUnit.SetStatus("WaitingForDelivery");
 
             gameCommand.RequestedItems = new List<RecipeIngredient>();
-            foreach (RecipeIngredient recipeIngredient in recipeForAnyUnit.Ingredients)
+            foreach (RecipeIngredient recipeIngredient in player.Game.RecipeForAnyUnit.Ingredients)
             {
                 gameCommand.RequestedItems.Add(recipeIngredient);
             }
@@ -145,7 +134,7 @@ namespace Engine.Ants
             if (!upgrading)
             {
                 // Need something to assemble
-                if (!Ant.Unit.AreAllIngredientsAvailable(player, recipeForAnyUnit))
+                if (!Ant.Unit.AreAllIngredientsAvailable(player, player.Game.RecipeForAnyUnit))
                 {
                     RequestIngredientsForUnit(player);
                     return false;
@@ -163,6 +152,12 @@ namespace Engine.Ants
                 else
                 {
                     if (selectedGameCommand.GameCommand.GameCommandType == GameCommandType.Build &&
+                        selectedGameCommand.AttachedUnit.UnitId != null)
+                    {
+                        // The unit to be build is already attached and under construction, do not build another
+                        return false;
+                    }
+                    if (selectedGameCommand.GameCommand.GameCommandType == GameCommandType.Build &&
                         selectedGameCommand.AttachedUnit.UnitId == Ant.Unit.UnitId)
                     {
                         // This is the command, that is attached to this factory, when the factory was build.
@@ -175,31 +170,34 @@ namespace Engine.Ants
                         return false;
                     }
 
-                    // Check if already built but cannot upgrade for a reason
-                    Dictionary<Position2, TileWithDistance> neighbors = Assembler.Unit.Game.Map.EnumerateTiles(Assembler.Unit.Pos, 1, false);
-                    foreach (TileWithDistance tileWithDistance in neighbors.Values)
+                    if (selectedGameCommand.GameCommand.GameCommandType == GameCommandType.Build)
                     {
-                        if (tileWithDistance.Unit != null && tileWithDistance.Unit.UnitId == selectedGameCommand.AttachedUnit.UnitId)
+                        // Check if already built but cannot upgrade for a reason
+                        Dictionary<Position2, TileWithDistance> neighbors = Assembler.Unit.Game.Map.EnumerateTiles(Assembler.Unit.Pos, 1, false);
+                        foreach (TileWithDistance tileWithDistance in neighbors.Values)
                         {
-                            // Already under construction
-                            return false;
+                            if (tileWithDistance.Unit != null && tileWithDistance.Unit.UnitId == selectedGameCommand.AttachedUnit.UnitId)
+                            {
+                                // Already under construction
+                                return false;
+                            }
                         }
                     }
 
                     // Assembler should move to the target
                     if (Ant.AntPartEngine != null)
                     {
+                        /*
                         if (!Ant.BuildPositionReached)
                         {
                             return false;
                         }
                         else
-                        {
-                            includePositions = new List<Position2>();
-                            includePositions.Add(selectedGameCommand.GameCommand.TargetPosition);
+                        {*/
+                        includePositions = new List<Position2>();
+                        includePositions.Add(selectedGameCommand.GameCommand.TargetPosition);
 
-                            passGameCommandToNewUnit = selectedGameCommand;
-                        }
+                        passGameCommandToNewUnit = selectedGameCommand;                        
                     }
                     else
                     {
@@ -325,7 +323,8 @@ namespace Engine.Ants
 
                 if (possiblemoves.Count == 0)
                 {
-                    if (selectedGameCommand.GameCommand.GameCommandType == GameCommandType.Build)
+                    //if (selectedGameCommand.GameCommand.GameCommandType == GameCommandType.Build) // Fails for ItemRequest
+                    if (selectedGameCommand.FactoryUnit.UnitId == Ant.Unit.UnitId)
                     {
                         Tile tile = player.Game.Map.GetTile(selectedGameCommand.GameCommand.TargetPosition);
                         if (!tile.CanBuild())
@@ -334,7 +333,7 @@ namespace Engine.Ants
                             if (player.PlayerModel.IsHuman)
                             {
                                 // Should be factory state?
-                                //selectedGameCommand.SetStatus("CannotBuild");
+                                selectedGameCommand.FactoryUnit.SetStatus("CannotBuild", true);
                             }
                             else
                             {

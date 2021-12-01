@@ -916,6 +916,20 @@ namespace Engine.Ants
                     {
                         calcPathToPosition = cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition;
                     }
+                    else if (Ant.Unit.UnitId == cntrlUnit.CurrentGameCommand.FactoryUnit.UnitId)
+                    {
+                        if (Ant.Unit.AreAllIngredientsAvailable(player, player.Game.RecipeForAnyUnit))
+                        {
+                            int x = 0;
+                        }
+                        else
+                        {
+                            cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("NeedResources", false);
+                            cntrlUnit.Changed = true;
+
+                            FindPathForCollect(player, cntrlUnit);
+                        }
+                    }
                     else if (Ant.Unit.UnitId == cntrlUnit.CurrentGameCommand.TransportUnit.UnitId)
                     {
                         if (cntrlUnit.Extractor != null && cntrlUnit.Extractor.CanExtract)
@@ -1008,34 +1022,35 @@ namespace Engine.Ants
                 }
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Build)
                 {
-                    if (cntrlUnit.Assembler != null && cntrlUnit.Assembler.CanProduce())
+                    if (cntrlUnit.Assembler != null)
                     {
-                        cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("AssemblerMovingToTarget", false);
-                        cntrlUnit.Changed = true;
-
-                        Ant.BuildPositionReached = false;
-
-                        Tile t = player.Game.Map.GetTile(cntrlUnit.Pos);
-                        foreach (Tile n in t.Neighbors)
+                        //cntrlUnit.CurrentGameCommand.GameCommand.RequestedItems !?
+                        if (cntrlUnit.AreAllIngredientsAvailable(player, player.Game.RecipeForAnyUnit))
                         {
-                            if (n.Pos == cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition)
-                            {
-                                cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("BuildPositionReached " + n.Pos.ToString());
-                                cntrlUnit.Changed = true;
+                            cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("AssemblerMovingToTarget", false);
+                            cntrlUnit.Changed = true;
 
-                                // Next to build target
-                                Ant.FollowThisRoute = null;
-                                Ant.BuildPositionReached = true;
-                                return false;
+                            Tile t = player.Game.Map.GetTile(cntrlUnit.Pos);
+                            foreach (Tile n in t.Neighbors)
+                            {
+                                if (n.Pos == cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition)
+                                {
+                                    cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("BuildPositionReached " + n.Pos.ToString());
+                                    cntrlUnit.Changed = true;
+
+                                    // Next to build target
+                                    Ant.FollowThisRoute = null;
+                                    return false;
+                                }
                             }
                         }
-                    }
-                    else
-                    {
-                        cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("NeedResources", false);
-                        cntrlUnit.Changed = true;
+                        else
+                        {
+                            cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("NeedResources", false);
+                            cntrlUnit.Changed = true;
 
-                        FindPathForCollect(player, cntrlUnit);
+                            FindPathForCollect(player, cntrlUnit);
+                        }
                     }
                 }
                 
