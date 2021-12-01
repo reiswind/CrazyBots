@@ -924,7 +924,19 @@ namespace Engine.Ants
                         }
                         else
                         {
-                            cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("NeedResources", false);
+                            cntrlUnit.CurrentGameCommand.FactoryUnit.StuckCounter++;
+                            if (cntrlUnit.CurrentGameCommand.FactoryUnit.StuckCounter > 10)
+                            {
+                                cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("CantFindResources", true);
+                            }
+                            else if (cntrlUnit.CurrentGameCommand.FactoryUnit.StuckCounter > 20)
+                            {
+                                cntrlUnit.ResetGameCommand();
+                            }
+                            else
+                            {
+                                cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("NeedResources");
+                            }
                             cntrlUnit.Changed = true;
 
                             FindPathForCollect(player, cntrlUnit);

@@ -217,7 +217,8 @@ namespace Assets.Scripts
                                 //Debug.Log("Deactivate: commandAttachedUnit.UnitBase");
 
                                 // Real unit exists, deactivate ghost
-                                commandAttachedUnit.GhostUnit.IsVisible = false;
+                                if (commandAttachedUnit.GhostUnit != null)
+                                    commandAttachedUnit.GhostUnit.IsVisible = false;
                             }
                         }
                         if (commandAttachedUnit.GhostUnitBounds != null)
