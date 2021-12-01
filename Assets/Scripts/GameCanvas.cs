@@ -713,7 +713,7 @@ namespace Assets.Scripts
 
                     if (hitByMouseClick.GroundCell == null)
                     {
-                        hitByMouseClick.GroundCell = raycastHit.collider.gameObject.GetComponent<GroundCell>();
+                        hitByMouseClick.GroundCell = raycastHit.collider.gameObject.transform.parent.GetComponentInParent<GroundCell>();
                         if (hitByMouseClick.GroundCell != null)
                         {
                             //Debug.Log("Raycast hit GroundCell " + Position.GetX(hitByMouseClick.GroundCell.Pos) + "," + Position.GetY(hitByMouseClick.GroundCell.Pos));

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3915061406250177500}
   - component: {fileID: 5133608508189264478}
   - component: {fileID: 8783821310085676614}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: HexCell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
