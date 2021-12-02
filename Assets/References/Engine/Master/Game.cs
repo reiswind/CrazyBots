@@ -525,6 +525,7 @@ namespace Engine.Master
                     move.MoveType == MoveType.Assemble ||
                     move.MoveType == MoveType.Upgrade ||
                     move.MoveType == MoveType.Hit ||
+                    move.MoveType == MoveType.Burn ||
                     move.MoveType == MoveType.UpdateGround ||
                     move.MoveType == MoveType.Skip ||
                     move.MoveType == MoveType.UpdateStats ||
@@ -1146,6 +1147,10 @@ namespace Engine.Master
                 {
                     lastMoves.Add(move);
                 }
+                if (move.MoveType == MoveType.Burn)
+                {
+                    lastMoves.Add(move);
+                }
             }
 
             foreach (Move move in newMoves)
@@ -1340,6 +1345,8 @@ namespace Engine.Master
             }
         }
 
+        private int maxPowerPerTurn = 10;
+
         private void ConsumePower(Player player, List<Move> newMoves)
         {
             List<Unit> reactors = new List<Unit>();
@@ -1348,6 +1355,10 @@ namespace Engine.Master
             // Collect reactors and consume power for every unit
             foreach (Unit unit in Map.Units.List.Values)
             {
+                // Only own units
+                if (unit.Owner.PlayerModel.Id != player.PlayerModel.Id)
+                    continue;
+
                 unit.ClearReservations();
                 if (unit.Changed)
                 {
@@ -1355,15 +1366,19 @@ namespace Engine.Master
                     if (!changedUnits.ContainsKey(unit.Pos))
                         changedUnits.Add(unit.Pos, unit);
                 }
-
-                if (unit.Owner.PlayerModel.Id != player.PlayerModel.Id)
+                if (unit.UnderConstruction)
                     continue;
 
-                // Only own units
                 if (unit.Reactor != null && unit.Engine == null)
                 {
-                    if (unit.Reactor.AvailablePower == 0)
-                        unit.Reactor.BurnIfNeccessary(changedUnits);
+                    if (unit.Reactor.AvailablePower < maxPowerPerTurn)
+                    {
+                        Move move = unit.Reactor.BurnIfNeccessary(maxPowerPerTurn, changedUnits);
+                        if (move != null)
+                        {
+                            lastMoves.Add(move);
+                        }
+                    }
                     reactors.Add(unit);
                     if (!changedUnits.ContainsKey(unit.Pos))
                         changedUnits.Add(unit.Pos, unit);
@@ -1375,10 +1390,7 @@ namespace Engine.Master
                     {
                         if (unit.Armor != null)
                         {
-                            unit.Armor.LoadShield(10);
-                            // Cannot update every frame
-                            //if (!changedUnits.ContainsKey(unit.Pos))
-                            //    changedUnits.Add(unit.Pos, unit);
+                            unit.Armor.LoadShield();
                         }
                     }
                     else
@@ -1386,9 +1398,6 @@ namespace Engine.Master
                         unit.Power--;
                     }
                     totalNumberOfUnits++;
-                    // Cannot update every frame
-                    //if (!changedUnits.ContainsKey(unit.Pos))
-                    //    changedUnits.Add(unit.Pos, unit);
                 }
                 else
                 {
@@ -1396,6 +1405,7 @@ namespace Engine.Master
                     {
                         // Unpowered unit
                         unit.Owner = NeutralPlayer;
+                        unit.ResetGameCommand();
 
                         if (!changedUnits.ContainsKey(unit.Pos))
                             changedUnits.Add(unit.Pos, unit);
@@ -1408,20 +1418,24 @@ namespace Engine.Master
             int totalStoredPower = 0;
             foreach (Unit reactor in reactors)
             {
-                totalAvailablePower += reactor.Reactor.AvailablePower;
+                // Max output of one reactor
+                if (reactor.Reactor.AvailablePower > maxPowerPerTurn)
+                    totalAvailablePower += maxPowerPerTurn;
+                else
+                    totalAvailablePower += reactor.Reactor.AvailablePower;
+
                 totalStoredPower += reactor.Reactor.StoredPower;
             }
 
+            int availablePower = totalAvailablePower;
             int totalPowerRemoved = 0;
+            int totalPowerMissing = 0;
 
             if (mapInfo.PlayerInfo.ContainsKey(player.PlayerModel.Id) && totalNumberOfUnits > 0)
             {
-                MapPlayerInfo mapPlayerInfo = mapInfo.PlayerInfo[player.PlayerModel.Id];
-                mapPlayerInfo.TotalPower = totalStoredPower + totalAvailablePower;
-
                 // Recharge units
                 bool allUnitsCharged = false;
-                while (totalAvailablePower > 0 && !allUnitsCharged)
+                while (availablePower > 0 && !allUnitsCharged)
                 {
                     allUnitsCharged = true;
                     int maxPowerPerUnit = (totalAvailablePower / totalNumberOfUnits) + 1;
@@ -1444,19 +1458,10 @@ namespace Engine.Master
                                 canCharge = true;
                                 break;
                             }
-
                         }
                         if (!canCharge)
                             continue;
 
-                        if (unit.Armor != null)
-                        {
-                            int chargedPower = unit.Armor.LoadShield(totalAvailablePower);
-                            totalAvailablePower -= chargedPower;
-                            totalPowerRemoved += chargedPower;
-                        }
-
-                        // Only own units
                         if (unit.Power < unit.MaxPower)
                         {
                             int chargedPower = maxPowerPerUnit;
@@ -1465,12 +1470,29 @@ namespace Engine.Master
                             {
                                 chargedPower = unit.MaxPower - unit.Power;
                             }
+                            if (chargedPower > availablePower)
+                            {
+                                totalPowerMissing += chargedPower - availablePower;
+                                chargedPower = availablePower;
+                            }
+
                             unit.Power += chargedPower;
                             if (unit.Power < unit.MaxPower)
                             {
                                 allUnitsCharged = false;
                             }
-                            totalAvailablePower -= chargedPower;
+                            availablePower -= chargedPower;
+                            totalPowerRemoved += chargedPower;
+                        }
+                        if (unit.Armor != null)
+                        {
+                            int chargedPower = unit.Armor.LoadShield();
+                            if (chargedPower > availablePower)
+                            {
+                                totalPowerMissing += chargedPower - availablePower;
+                                chargedPower = availablePower;
+                            }
+                            availablePower -= chargedPower;
                             totalPowerRemoved += chargedPower;
                         }
                     }
@@ -1499,19 +1521,40 @@ namespace Engine.Master
                 }
             }
 
+            if (totalPowerRemoved > totalAvailablePower)
+            {
+                int x = 0;
+            }
+            MapPlayerInfo mapPlayerInfo;
+            if (mapInfo.PlayerInfo.TryGetValue(player.PlayerModel.Id, out mapPlayerInfo))
+            {
+                if (totalPowerRemoved == 0)
+                    mapPlayerInfo.PowerOutInTurns = 9999;
+                else
+                    mapPlayerInfo.PowerOutInTurns = totalStoredPower / (totalPowerRemoved + totalPowerMissing);
+                if (totalAvailablePower > 0)
+                {
+                    mapPlayerInfo.TotalPower = ((totalPowerRemoved + totalPowerMissing) * 100) / totalAvailablePower;
+                }
+                else
+                {
+                    mapPlayerInfo.TotalPower = 100;
+                }
+            }
             int att = 100;
-
             while (totalPowerRemoved > 0 && att-- > 0)
             {
                 // Consume the charged power from the reactors
                 int removePowerFromEachReactor = (totalPowerRemoved / reactors.Count) + 1;
+                if (removePowerFromEachReactor > maxPowerPerTurn)
+                    removePowerFromEachReactor = maxPowerPerTurn;
+
                 foreach (Unit reactor in reactors)
                 {
-                    int powerConsumed = reactor.Reactor.ConsumePower(removePowerFromEachReactor, changedUnits);
+                    int powerConsumed = reactor.Reactor.ConsumePower(removePowerFromEachReactor);
                     totalPowerRemoved -= powerConsumed;
                 }
             }
-
         }
 
         private void HandleCollisions(List<Move> newMoves)

@@ -41,25 +41,19 @@ namespace Engine.Master
             ShieldActive = false;
         }
 
-        public int LoadShield(int availablePower)
+        public int LoadShield()
         {
             int consumed = 0;
             if (!Unit.ExtractMe)
             {
-                if (availablePower > 0)
+                if (ShieldPower < 10)
                 {
-                    for (int i = 0; i < 2; i++)
-                    {
-                        if (ShieldPower < 10)
-                        {
-                            ShieldPower++;
-                            consumed++;
-                        }
-                        if (ShieldPower >= 10)
-                        {
-                            ShieldActive = true;
-                        }
-                    }
+                    ShieldPower++;
+                    consumed++;
+                }
+                if (ShieldPower >= 10)
+                {
+                    ShieldActive = true;
                 }
             }
             return consumed;

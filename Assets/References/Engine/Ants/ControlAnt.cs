@@ -94,7 +94,7 @@ namespace Engine.Ants
             {
                 foreach (BlueprintCommand blueprintCommand in player.Game.Blueprints.Commands)
                 {
-                    if (blueprintCommand.Name == "Units")
+                    if (blueprintCommand.Name == "Fighter")
                     {
                         patrolCommand = new GameCommand(blueprintCommand);
                         foreach (GameCommandItem gameCommandItem in patrolCommand.GameCommandItems)
@@ -111,7 +111,7 @@ namespace Engine.Ants
             }
             else
             {
-                if (MapPlayerInfo.TotalMinerals > 40)
+                if (MapPlayerInfo.TotalMinerals > 40 && MapPlayerInfo.TotalPower < 80 && MapPlayerInfo.PowerOutInTurns > 40)
                 {
                     bool commandComplete = true;
                     foreach (GameCommandItem gameCommandItem in patrolCommand.GameCommandItems)
@@ -2508,7 +2508,7 @@ namespace Engine.Ants
             // DEBUG! 
             //if (NumberOfWorkers > 0) CreateCommandForContainerInZone(player, player.StartZone.ZoneId);
 
-            if (MapPlayerInfo.TotalPower == 0)
+            if (MapPlayerInfo.PowerOutInTurns < 10)
             {
                 // Sacrifice a unit
                 SacrificeAnt(player, unmovedAnts);

@@ -32,7 +32,7 @@ namespace Engine.Interface
         Assemble,
         Extract,
         CommandComplete,
-
+        Burn,
         VisibleTiles,
         HiddenTiles,
         UpdateAll

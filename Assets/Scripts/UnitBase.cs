@@ -700,6 +700,42 @@ namespace Assets.Scripts
             }
         }
 
+        // Reactor burned something
+        public void BurnMove(Move move)
+        {
+            if (IsVisible)
+            {
+                
+                foreach (UnitBasePart unitBasePart in UnitBaseParts)
+                {
+                    if (unitBasePart.PartType == TileObjectType.PartReactor)
+                    {
+                        foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
+                        {
+                            // Transit the ingrdient into the weapon. This is the reloaded ammo. (Can be empty)
+                            UnitBaseTileObject unitBaseTileObject;
+                            unitBaseTileObject = RemoveTileObject(moveRecipeIngredient);
+                            if (unitBaseTileObject != null)
+                            {
+                                // Transit ingredient
+                                TransitObject transitObject = new TransitObject();
+                                transitObject.GameObject = unitBaseTileObject.GameObject;
+                                transitObject.TargetPosition = unitBasePart.Part.transform.position;
+                                transitObject.DestroyAtArrival = true;
+
+                                unitBaseTileObject.GameObject = null;
+                                HexGrid.MainGrid.AddTransitTileObject(transitObject);
+                            }
+                        }
+
+                        unitBasePart.AnimateFrom = Time.time + (0.3f * HexGrid.MainGrid.GameSpeed);
+                        unitBasePart.AnimateTo = Time.time + (0.99f * HexGrid.MainGrid.GameSpeed);
+                        break;
+                    }
+                }
+            }
+        }
+
         public void Upgrade(Move move, UnitBase upgradedUnit)
         {
             foreach (UnitBasePart upgradedBasePart in upgradedUnit.UnitBaseParts)
@@ -728,7 +764,6 @@ namespace Assets.Scripts
                         GameObject upgradedSubPart;
                         for (int level = 1; level <= upgradedBasePart.CompleteLevel; level++)
                         {
-                            //upgradedSubPart = FindChildNyName(upgradedMainPart, upgradedBasePart.Name + upgradedBasePart.CompleteLevel + "-" + nextLevel); always the same in loop? Why?
                             upgradedSubPart = FindChildNyName(upgradedMainPart, upgradedBasePart.Name + upgradedBasePart.CompleteLevel + "-" + level);
                             if (upgradedSubPart != null)
                             {

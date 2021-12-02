@@ -22,6 +22,7 @@ namespace Engine.Interface
         public int TotalMinerals { get; set; }
         public int TotalUnits { get; set; }
         public int TotalPower { get; set; }
+        public int PowerOutInTurns { get; set; }
 
         public List<MapGameCommand> GameCommands { get; set; }
     }

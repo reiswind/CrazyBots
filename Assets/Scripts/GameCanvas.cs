@@ -1109,7 +1109,7 @@ namespace Assets.Scripts
                     //UIMineralText.text = mapPlayerInfo.TotalMetal + " / " + mapPlayerInfo.TotalCapacity;
                     UIMineralText.text = mapPlayerInfo.TotalMinerals + " / " + mapPlayerInfo.TotalCapacity + " " + HexGrid.MainGrid.MapInfo.TotalMetal.ToString();
                     UIUnitText.text = mapPlayerInfo.TotalUnits.ToString();
-                    UIPowerText.text = mapPlayerInfo.TotalPower.ToString();
+                    UIPowerText.text = mapPlayerInfo.TotalPower.ToString() + "%  " + mapPlayerInfo.PowerOutInTurns.ToString();
                 }
                 else
                 {

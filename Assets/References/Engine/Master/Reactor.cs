@@ -62,15 +62,16 @@ namespace Engine.Master
                 return range;
             }
         }
-        public void BurnIfNeccessary(Dictionary<Position2, Unit> changedUnits)
+        public Move BurnIfNeccessary(int minPower, Dictionary<Position2, Unit> changedUnits)
         {
-            if (AvailablePower == 0)
+            Move move = null;
+            if (AvailablePower < minPower)
             {
                 MoveRecipeIngredient moveRecipeIngredient = Unit.FindIngredientToBurn();
 
                 if (moveRecipeIngredient != null)
                 {
-                    AvailablePower = TileObject.GetPowerForTileObjectType(moveRecipeIngredient.TileObjectType);
+                    AvailablePower += TileObject.GetPowerForTileObjectType(moveRecipeIngredient.TileObjectType);
 
                     // Animation missing, no move
                     Unit.Changed = true;
@@ -79,12 +80,22 @@ namespace Engine.Master
                     if (tileObject != null)
                        Unit.Game.Map.AddOpenTileObject(tileObject);
 
+                    move = new Move();
+                    move.MoveType = MoveType.Burn;
+                    move.UnitId = Unit.UnitId;
+                    move.Positions = new List<Position2>();
+                    move.Positions.Add(Unit.Pos);
+                    move.PlayerId = Unit.Owner.PlayerModel.Id;
+                    move.MoveRecipe = new MoveRecipe();
+                    move.MoveRecipe.Ingredients.Add(moveRecipeIngredient);
+
                     //TileContainer.Clear();
                 }
             }
+            return move;
         }
 
-        public int ConsumePower(int remove, Dictionary<Position2, Unit> changedUnits)
+        public int ConsumePower(int remove)
         {
             //remove *= 20;
 
@@ -99,12 +110,6 @@ namespace Engine.Master
                 AvailablePower -= remove;
                 removed = remove;
             }
-
-            if (AvailablePower == 0)
-            {
-                BurnIfNeccessary(changedUnits);
-            }
-
             return removed;
         }
 

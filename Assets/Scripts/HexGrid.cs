@@ -27,7 +27,7 @@ namespace Assets.Scripts
 
         internal Dictionary<Position2, GroundCell> GroundCells { get; private set; }
         internal Dictionary<string, UnitBase> BaseUnits { get; private set; }
-        
+
         /// <summary>
         /// All human commands?
         /// </summary>
@@ -894,7 +894,7 @@ namespace Assets.Scripts
                         unitBase.DestinationPos = Position2.Null;
                     }
                     unitBase.Direction = unitBase.TurnIntoDirection;
-                    
+
                     unitBase.PutAtCurrentPosition(true, false);
                 }
                 // Finish all open hits
@@ -937,6 +937,14 @@ namespace Assets.Scripts
                     else if (move.MoveType == MoveType.Hit)
                     {
                         HitMove(move);
+                    }
+                    else if (move.MoveType == MoveType.Burn)
+                    {
+                        if (BaseUnits.ContainsKey(move.UnitId))
+                        {
+                            UnitBase unit = BaseUnits[move.UnitId];
+                            unit.BurnMove(move);
+                        }
                     }
                     else if (move.MoveType == MoveType.Fire)
                     {
