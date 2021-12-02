@@ -70,6 +70,8 @@ namespace Assets.Scripts
             hexGrid = this;
         }
 
+        public bool ShowDebuginfo = false;
+
         public MapInfo MapInfo;
 
         internal void StartGame()
@@ -83,10 +85,10 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
             GameModel gameModel;
 
@@ -829,9 +831,11 @@ namespace Assets.Scripts
                         foreach (MapPlayerInfo mapPlayerInfo in MapInfo.PlayerInfo.Values)
                         {
                             // Only for current player
-                            //if (mapPlayerInfo.PlayerId != 1)
-                            //    continue;
-
+                            if (!ShowDebuginfo)
+                            {
+                                if (mapPlayerInfo.PlayerId != 1)
+                                    continue;
+                            }
                             if (mapPlayerInfo.GameCommands != null && mapPlayerInfo.GameCommands.Count > 0)
                             {
                                 foreach (MapGameCommand gameCommand in mapPlayerInfo.GameCommands)
@@ -1054,8 +1058,16 @@ namespace Assets.Scripts
                             {
                                 hexCell.Stats = move.Stats;
 
-                                hexCell.Visible = move.Stats.MoveUpdateGroundStat.VisibilityMask != 0;
-                                hexCell.VisibleByPlayer = (move.Stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
+                                if (HexGrid.MainGrid.ShowDebuginfo)
+                                {
+                                    hexCell.Visible = move.Stats.MoveUpdateGroundStat.VisibilityMask != 0;
+                                    hexCell.VisibleByPlayer = (move.Stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
+                                }
+                                else
+                                {
+                                    hexCell.Visible = (move.Stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
+                                    hexCell.VisibleByPlayer = (move.Stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
+                                }
                                 hexCell.UpdateGround();
                             }
                             else
@@ -1795,10 +1807,16 @@ namespace Assets.Scripts
             }
             else
             {
-                
-                groundCell.Visible = stats.MoveUpdateGroundStat.VisibilityMask != 0;
-                groundCell.VisibleByPlayer = (stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
-
+                if (ShowDebuginfo)
+                {
+                    groundCell.Visible = stats.MoveUpdateGroundStat.VisibilityMask != 0;
+                    groundCell.VisibleByPlayer = (stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
+                }
+                else
+                {
+                    groundCell.Visible = (stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
+                    groundCell.VisibleByPlayer = (stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
+                }
                 float height = stats.MoveUpdateGroundStat.Height;
                 gridPos3.y += height + 0.3f;
                 gameObjectCell.transform.localPosition = gridPos3;

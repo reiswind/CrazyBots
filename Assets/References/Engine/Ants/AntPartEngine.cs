@@ -974,7 +974,11 @@ namespace Engine.Ants
                         else
                         {
                             // Transporter is full, move to target
-                            Unit targetUnit = player.Game.Map.Units.FindUnit(cntrlUnit.CurrentGameCommand.TargetUnit.UnitId);
+                            Unit targetUnit = null;
+                            if (cntrlUnit.CurrentGameCommand.TargetUnit.UnitId != null)
+                            {
+                                targetUnit = player.Game.Map.Units.FindUnit(cntrlUnit.CurrentGameCommand.TargetUnit.UnitId);
+                            }                            
                             if (targetUnit == null)
                             {
                                 cntrlUnit.CurrentGameCommand.AttachedUnit.UnitId = null;
