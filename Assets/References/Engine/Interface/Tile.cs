@@ -162,17 +162,24 @@ namespace Engine.Interface
                     UpdateCache();
                 }
             }
-            RemoveBio();
+            RemoveBio(true);
         }
 
-        internal bool RemoveBio()
+        internal bool RemoveBio(bool hitByBullet)
         {
             bool changed = false;
 
             foreach (TileObject tileObject in TileContainer.TileObjects)
             {
-                if (//tileObject.TileObjectType == TileObjectType.Gras || 
-                    tileObject.TileObjectType == TileObjectType.TreeTrunk)
+                if (hitByBullet && tileObject.TileObjectType == TileObjectType.Gras)
+                {
+                    TileContainer.Remove(tileObject);
+                    UpdateCache();
+                    changed = true;
+                    break;
+                }
+
+                if (tileObject.TileObjectType == TileObjectType.TreeTrunk)
                 {
                     TileContainer.Remove(tileObject);
                     UpdateCache();
@@ -180,8 +187,6 @@ namespace Engine.Interface
                     break;
                 }
             }
-            //if (changed)
-            //    AdjustTerrainType();
             return changed;
         }
 

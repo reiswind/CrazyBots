@@ -1749,7 +1749,7 @@ namespace Engine.Ants
                     }
 
                     if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build &&
-                        gameCommandItem.AttachedUnit.UnitId != null && gameCommandItem.TransportUnit.UnitId == null) // .FactoryUnit
+                        gameCommandItem.AttachedUnit.UnitId != null && gameCommandItem.FactoryUnit.UnitId == null)
                     {
                         // Check if the unit to be build is there
                         Unit unit = player.Game.Map.Units.FindUnit(gameCommandItem.AttachedUnit.UnitId);
@@ -2363,9 +2363,25 @@ namespace Engine.Ants
                                     Unit factoryUnit = player.Game.Map.Units.FindUnit(ant.Unit.CurrentGameCommand.FactoryUnit.UnitId);
                                     if (factoryUnit != null)
                                     {
+                                        // If the assembler is kept, it will have no content and hang around useless
                                         factoryUnit.ResetGameCommand();
+
+                                        // Kill the moving assembler
+                                        if (ant.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Build &&
+                                            factoryUnit.Engine != null)
+                                        {
+                                            // Let the new unit extract the assembler
+                                            factoryUnit.ExtractUnit();
+                                        }
                                     }
-                                    if (ant.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                                    if (ant.Unit.CurrentGameCommand.AssemblerToBuild)
+                                    {
+                                        // The attached unit is the assmbler to exexcute the build
+                                        ant.Unit.CurrentGameCommand.FactoryUnit.UnitId = ant.Unit.UnitId;
+                                        ant.Unit.CurrentGameCommand.AssemblerToBuild = false;
+                                        ant.Unit.CurrentGameCommand.AttachedUnit.UnitId = null;
+                                    }
+                                    else if (ant.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                                     {
                                         // The transpor unit is the one, who delivers the content (Need resevation!)
                                         ant.Unit.CurrentGameCommand.TransportUnit.SetStatus("PickUpFrom: " + ant.Unit.CurrentGameCommand.AttachedUnit.UnitId);

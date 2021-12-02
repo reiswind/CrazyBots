@@ -425,7 +425,14 @@ namespace Engine.Master
 
                                 if (move.GameCommandItem != null)
                                 {
-                                    if (move.GameCommandItem.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                                    if (move.GameCommandItem.AssemblerToBuild)
+                                    {
+                                        // The new unit will be the factory for the build target
+                                        move.GameCommandItem.AttachedUnit.UnitId = thisUnit.UnitId;
+                                        thisUnit.Changed = true;
+                                        move.GameCommandItem.AttachedUnit.SetStatus("AssemblerToBuildCreated");
+                                    }
+                                    else if (move.GameCommandItem.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                                     {
                                         move.GameCommandItem.TransportUnit.UnitId = thisUnit.UnitId;
                                         thisUnit.Changed = true;
@@ -488,7 +495,7 @@ namespace Engine.Master
                     addedUnits.Add(thisUnit);
 
                     Tile t = Map.GetTile(Destination);
-                    if (t.RemoveBio())
+                    if (t.RemoveBio(false))
                     {
                         if (!changedGroundPositions.ContainsKey(Destination))
                             changedGroundPositions.Add(Destination, null);

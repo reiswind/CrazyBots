@@ -14,7 +14,7 @@ namespace Engine.Interface
         None,
         Attack,
         Defend,
-        Scout,
+        //Scout,
         Cancel,
         Move,
         Collect,
@@ -96,6 +96,7 @@ namespace Engine.Interface
         internal GameCommandItemUnit TargetUnit { get; private set; }
         internal GameCommandItemUnit FactoryUnit { get; private set; }
 
+        public bool AssemblerToBuild { get; set; }
         public bool DeleteWhenDestroyed { get; set; }
         public bool FollowPheromones { get; set; }
 

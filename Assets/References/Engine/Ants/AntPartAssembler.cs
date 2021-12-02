@@ -245,6 +245,7 @@ namespace Engine.Ants
                             else
                             {
                                 // If not neighbor, need to build an assembler to move there BUILD-STEP3
+                                // This is just a fake to compute the possible moves. The command will not be excecuted
                                 BlueprintCommand blueprintCommand = new BlueprintCommand();
                                 blueprintCommand.GameCommandType = GameCommandType.Build;
                                 blueprintCommand.Name = "BuildUnitForAssemble";
@@ -311,6 +312,9 @@ namespace Engine.Ants
                                 Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Assemble, moveRecipeIngredient);
 
                                 Assembler.Unit.SetTempGameCommand(selectedGameCommand);
+
+                                selectedGameCommand.AssemblerToBuild = true;
+
                                 passGameCommandToNewUnit = selectedGameCommand;
                                 //assemblerUsedToBuild = true;
                             }

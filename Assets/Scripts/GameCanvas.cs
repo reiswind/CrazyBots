@@ -1183,6 +1183,10 @@ namespace Assets.Scripts
 
         void UpdateCommandMode()
         {
+            if (selectedUnitFrame == null)
+            {
+                int x = 0;
+            }
             if (CheckMouseButtons()) return;
             HitByMouseClick hitByMouseClick = GetClickedInfo();
 
