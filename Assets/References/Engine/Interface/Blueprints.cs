@@ -27,7 +27,7 @@ namespace Engine.Interface
             blueprint.Parts.Add(new BlueprintPart("S-PartExtractor"));
             blueprint.Parts.Add(new BlueprintPart("S-PartAssembler", TileObjectType.PartAssembler, 1, 4, 0));
             blueprint.Parts.Add(new BlueprintPart("S-PartContainer", 24, 6));
-            blueprint.Parts.Add(new BlueprintPart("S-PartReactor", 6, 6));
+            blueprint.Parts.Add(new BlueprintPart("S-PartReactor", 6, 12));
             Items.Add(blueprint);
 
             // Container

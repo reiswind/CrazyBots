@@ -216,6 +216,7 @@ namespace Engine.Master
                         {
                             if (Unit.Engine == null)
                             {
+                                bool added = false;
                                 if (Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                                 {
                                     if (Unit.UnitId == Unit.CurrentGameCommand.TargetUnit.UnitId &&
@@ -226,10 +227,11 @@ namespace Engine.Master
                                         if (move != null)
                                         {
                                             possibleMoves.Add(move);
+                                            added = true;
                                         }
                                     }
                                 }
-                                else
+                                if (!added)
                                 {
                                     if (t.Unit.CurrentGameCommand != null && t.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                                     {

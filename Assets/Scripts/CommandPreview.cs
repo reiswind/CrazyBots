@@ -635,7 +635,7 @@ namespace Assets.Scripts
         }
         private void Hide()
         {
-            Debug.Log("SetPosition NO GROUND null");
+            
             if (previewGameCommand != null)
                 previewGameCommand.SetActive(false);
             displayPosition = Position2.Null;

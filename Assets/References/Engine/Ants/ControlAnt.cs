@@ -979,14 +979,16 @@ namespace Engine.Ants
             bool occupied = false;
 
             // Check if the
-            
+
+            Tile dest = player.Game.Map.GetTile(destination);
+            Unit unitAtDestination = dest.Unit;
+
             //foreach (PlayerUnit currentUnit in player.PlayerUnits.Values)
-            foreach (Ant ant in Ants.Values)
+            //foreach (Ant ant in Ants.Values)
             {
-                if (ant.Unit.Pos == destination)
+                if (unitAtDestination != null)
                 {
-                    if (ant.Unit.Owner.PlayerModel.Id == player.PlayerModel.Id &&
-                        ant.Unit.Engine != null)
+                    if (unitAtDestination.Owner.PlayerModel.Id == player.PlayerModel.Id && unitAtDestination.Engine != null)
                     {
                         occupied = true;
 
@@ -994,7 +996,7 @@ namespace Engine.Ants
                         foreach (Move intendedMove in moves)
                         {
                             if ((intendedMove.MoveType == MoveType.Move || intendedMove.MoveType == MoveType.Add || intendedMove.MoveType == MoveType.Build) &&
-                                ant.Unit.UnitId == intendedMove.UnitId)
+                                unitAtDestination.UnitId == intendedMove.UnitId)
                             {
                                 if (intendedMove.Positions[0] == destination)
                                 {
@@ -1011,7 +1013,7 @@ namespace Engine.Ants
                         // cannot move here or did unit move away?
                         occupied = true;
                     }
-                    break;
+                    //break;
                 }
             }
             
@@ -1748,6 +1750,13 @@ namespace Engine.Ants
                         requestUnit = true;
                     }
 
+                    if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.ItemRequest &&
+                        gameCommandItem.TransportUnit.UnitId == null && gameCommandItem.TargetUnit.UnitId != null)
+                    {
+                        // Target waiting, assign transporter
+                        requestUnit = true;
+                    }
+
                     if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build &&
                         gameCommandItem.AttachedUnit.UnitId != null && gameCommandItem.FactoryUnit.UnitId == null)
                     {
@@ -1889,13 +1898,6 @@ namespace Engine.Ants
 
                                             // The attached unit is the one, who delivers the content (Need resevation!)
                                             gameCommandItem.AttachedUnit.UnitId = deliverySourceAnt.Unit.UnitId;
-
-                                            // The (factory) unit is the one who transports the content. (First Job => Move to Attached?)
-                                            if (transportAnt.Unit.Assembler != null && transportAnt.Unit.Engine != null)
-                                            {
-                                                int x = 0;
-                                            }
-
                                             gameCommandItem.TransportUnit.UnitId = transportAnt.Unit.UnitId;
                                             gameCommandItem.TransportUnit.SetStatus("AttachedTransport: " + gameCommandItem.FactoryUnit.UnitId + " take from " + gameCommandItem.AttachedUnit.UnitId);
                                             transportAnt.Unit.Changed = true;
