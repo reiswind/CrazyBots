@@ -728,8 +728,17 @@ namespace Assets.Scripts
                             }
                         }
 
-                        unitBasePart.AnimateFrom = Time.time + (0.3f * HexGrid.MainGrid.GameSpeed);
-                        unitBasePart.AnimateTo = Time.time + (0.99f * HexGrid.MainGrid.GameSpeed);
+                        GameObject activeGameobject = FindChildNyName(gameObject, "Active");
+                        if (activeGameobject != null)
+                        {
+                            ParticleSystem particleSystem = activeGameobject.GetComponent<ParticleSystem>();
+                            particleSystem.Play();
+                        }
+                        else
+                        {
+                            unitBasePart.AnimateFrom = Time.time + (0.3f * HexGrid.MainGrid.GameSpeed);
+                            unitBasePart.AnimateTo = Time.time + (0.99f * HexGrid.MainGrid.GameSpeed);
+                        }
                         break;
                     }
                 }
