@@ -664,17 +664,24 @@ namespace Assets.Scripts
                 if (GameCommands != null && GameCommands.Count > 0)
                     body = JsonConvert.SerializeObject(GameCommands);
 
-                using (UnityWebRequest www = UnityWebRequest.Post(serverUrl + "GameMove/" + remoteGameIndex, body))
+                var request = new UnityWebRequest(serverUrl + "GameMove/" + remoteGameIndex, "POST");
+                byte[] bodyRaw = Encoding.UTF8.GetBytes(body);
+                request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
+                request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+                yield return request.SendWebRequest();
+
+                //using (UnityWebRequest www = UnityWebRequest.Post(serverUrl + "GameMove/" + remoteGameIndex, body))
                 {
-                    yield return www.SendWebRequest();
+                    //yield return www.SendWebRequest();
                     GameCommands.Clear();
-                    if (www.result == UnityWebRequest.Result.ProtocolError)
+                    if (request.result == UnityWebRequest.Result.ProtocolError)
                     {
-                        Debug.Log(www.error);
+                        Debug.Log(request.error);
                     }
                     else
                     {
-                        string movesJson = www.downloadHandler.text;
+                        string movesJson = request.downloadHandler.text;
                         if (!string.IsNullOrEmpty(movesJson))
                         {
                             List<Move> current = JsonConvert.DeserializeObject(movesJson, typeof(List<Move>)) as List<Move>;

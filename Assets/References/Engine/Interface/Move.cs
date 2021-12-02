@@ -189,12 +189,16 @@ namespace Engine.Interface
             //return PlantLevel == 0 && TerrainTypeIndex == 0;
         }
     }
-
+    [DataContract]
     public class MoveRecipeIngredient
     {
+        [DataMember(EmitDefaultValue = false)]
         public TileObjectType Source { get; set; }
+        [DataMember(EmitDefaultValue = false)]
         public TileObjectType TileObjectType { get; set; }
+        [DataMember(EmitDefaultValue = false)]
         public int Count { get; set; }
+        [DataMember(EmitDefaultValue = false)]
         public Position2 Position { get; set; }
 
         public override string ToString()
@@ -202,14 +206,16 @@ namespace Engine.Interface
             return Count.ToString() + "x " +  TileObjectType.ToString() + " at " + Position.ToString();
         }
     }
-
+    [DataContract]
     public class MoveRecipe
     {
         public MoveRecipe()
         {
             Ingredients = new List<MoveRecipeIngredient>();
         }
+        [DataMember(EmitDefaultValue = false)]
         public List<MoveRecipeIngredient> Ingredients { get;  set; }
+        [DataMember(EmitDefaultValue = false)]
         public TileObjectType Result { get; set; }
     }
 
@@ -278,7 +284,8 @@ namespace Engine.Interface
         /// <summary>
         /// Only for Upgrade moves
         /// </summary>
-        public MoveRecipe MoveRecipe { get; set; }
+        [DataMember(EmitDefaultValue = false)] 
+        public MoveRecipe MoveRecipe { get; set; }        
         /// <summary>
         /// Add=new Unitmodel
         /// Move=what it is
