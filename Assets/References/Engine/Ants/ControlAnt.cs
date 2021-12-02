@@ -2376,10 +2376,20 @@ namespace Engine.Ants
                                     }
                                     if (ant.Unit.CurrentGameCommand.AssemblerToBuild)
                                     {
-                                        // The attached unit is the assmbler to exexcute the build
-                                        ant.Unit.CurrentGameCommand.FactoryUnit.UnitId = ant.Unit.UnitId;
-                                        ant.Unit.CurrentGameCommand.AssemblerToBuild = false;
-                                        ant.Unit.CurrentGameCommand.AttachedUnit.UnitId = null;
+                                        if (ant.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                                        {
+                                            // The attached unit is the transporter to exexcute the build
+                                            ant.Unit.CurrentGameCommand.TransportUnit.UnitId = ant.Unit.UnitId;
+                                            ant.Unit.CurrentGameCommand.AssemblerToBuild = false;
+                                            ant.Unit.CurrentGameCommand.AttachedUnit.UnitId = null;
+                                        }
+                                        if (ant.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Build)
+                                        {
+                                            // The attached unit is the assmbler to exexcute the build
+                                            ant.Unit.CurrentGameCommand.FactoryUnit.UnitId = ant.Unit.UnitId;
+                                            ant.Unit.CurrentGameCommand.AssemblerToBuild = false;
+                                            ant.Unit.CurrentGameCommand.AttachedUnit.UnitId = null;
+                                        }
                                     }
                                     else if (ant.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                                     {

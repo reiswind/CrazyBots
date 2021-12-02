@@ -18,7 +18,7 @@
       "Name": "Container",
       "PlayerId": 1,
 	  "ContainerFilledx": 0,
-      "Blueprint": "Outpost",
+      "Blueprint": "Container",
       "Position": "0,0"
     },
     {
