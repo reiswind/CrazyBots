@@ -423,7 +423,7 @@ namespace Engine.Interface
                     }
                     else if (mapVegetation.TileFitType == TileFitType.Tree)
                     {
-                        count = 2;
+                        count = 4;
                         tileObjectType = TileObjectType.Tree;
                     }
                     else if (mapVegetation.TileFitType == TileFitType.BushGras)
@@ -435,7 +435,7 @@ namespace Engine.Interface
                     else if (mapVegetation.TileFitType == TileFitType.TreeBush)
                     {
                         direction = CreateObjects(tileObjects, map, TileObjectType.Bush, direction, 2);
-                        count = 1;
+                        count = 2;
                         tileObjectType = TileObjectType.Tree;
                     }
                     else if (mapVegetation.TileFitType == TileFitType.Gras)

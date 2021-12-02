@@ -71,12 +71,41 @@ namespace Assets.Scripts
 
         public void UpdateColor()
         {
+            foreach (UnitBaseTileObject unitBaseTileObject1 in GameObjects)
+            {
+                if (unitBaseTileObject1.TileObject.TileObjectType == TileObjectType.Tree)
+                {
+                    int x = 0;
+                    //renderer = unitBaseTileObject1.GameObject.GetComponent<Renderer>();
+                    //if (renderer != null)
+                    //renderer.material.SetFloat("Darkness", Diffuse);
+                }
+            }
+            
             Renderer[] rr = GetComponentsInChildren<Renderer>();
             foreach (Renderer renderer in rr)
             // Set color
             //Renderer renderer = GetComponent<Renderer>();
             {
-                renderer.material.SetFloat("Darkness", Diffuse);
+
+                if (renderer.materials.Length > 1)
+                {
+                    renderer.materials[0].SetFloat("Darkness", Diffuse);
+                    renderer.materials[1].SetFloat("Darkness", Diffuse);
+
+                    /*
+                    renderer.materials[0].SetColor("_TopTint", Color.blue);
+                    renderer.materials[0].SetColor("_BottomTint", Color.blue);
+                    renderer.materials[0].SetColor("_RandomColorTint", Color.blue);
+
+                    renderer.materials[1].SetColor("_TopTint", Color.blue);
+                    renderer.materials[1].SetColor("_BottomTint", Color.blue);
+                    renderer.materials[1].SetColor("_RandomColorTint", Color.blue);*/
+                }
+                else
+                {
+                    renderer.material.SetFloat("Darkness", Diffuse);
+                }
                 /*
                 foreach (UnitBaseTileObject unitBaseTileObject1 in GameObjects)
                 {

@@ -70,7 +70,7 @@ namespace Assets.Scripts
             hexGrid = this;
         }
 
-        public bool ShowDebuginfo = false;
+        internal bool ShowDebuginfo = true;
 
         public MapInfo MapInfo;
 
@@ -192,6 +192,8 @@ namespace Assets.Scripts
 
             foreach (string key in allResources.Keys)
             {
+                if (key.StartsWith("xTree"))
+                    treeResources.Add(key, allResources[key]);
                 if (key.StartsWith("Tree"))
                     treeResources.Add(key, allResources[key]);
             }
