@@ -214,10 +214,10 @@ Material:
     - Color_C9A10623: {r: 1, g: 1, b: 1, a: 0}
     - Color_FB151A2: {r: 0, g: 11.98431, b: 8.282353, a: 0}
     - Vector2_92E06CBD: {r: 1, g: 1, b: 0, a: 0}
-    - _BaseColor: {r: 1, g: 1, b: 0, a: 0.07058824}
+    - _BaseColor: {r: 1, g: 1, b: 0, a: 0.29803923}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
     - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
-    - _Color: {r: 1, g: 1, b: 0, a: 0.07058824}
+    - _Color: {r: 1, g: 1, b: 0, a: 0.29803923}
     - _ColorBottom: {r: 1, g: 1, b: 1, a: 1}
     - _ColorTop: {r: 1, g: 1, b: 1, a: 1}
     - _Debug: {r: 0, g: 0, b: 0, a: 0}

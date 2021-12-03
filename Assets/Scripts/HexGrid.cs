@@ -85,10 +85,10 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
             GameModel gameModel;
 
@@ -1421,12 +1421,12 @@ namespace Assets.Scripts
             {
                 if (hexCell != null)
                 {
-                    Destroy(hexCell.gameObject);
-                    GroundCells.Remove(hitByBullet.TargetPosition);
-
-                    GameObject cellPrefab = GetResource("HexCellCrate");
-                    hexCell = CreateCell(hexCell.Pos, hexCell.Stats, cellPrefab);
-                    GroundCells.Add(hitByBullet.TargetPosition, hexCell);
+                    // No replace...
+                    //Destroy(hexCell.gameObject);
+                    //GroundCells.Remove(hitByBullet.TargetPosition);
+                    //GameObject cellPrefab = GetResource("HexCellCrate");
+                    //hexCell = CreateCell(hexCell.Pos, hexCell.Stats, cellPrefab);
+                    //GroundCells.Add(hitByBullet.TargetPosition, hexCell);
 
                     HitGroundAnimation(hexCell.transform);
                 }

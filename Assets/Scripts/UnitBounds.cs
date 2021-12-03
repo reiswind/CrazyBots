@@ -223,16 +223,179 @@ namespace Assets.Scripts
 
         private void CreateFrame(List<Position3> positions)
         {
+            GameObject lineRendererObject = new GameObject();
+            visibleFrames.Add(positions[0].Pos, lineRendererObject);
+
+            LineRenderer lineRenderer = lineRendererObject.AddComponent<LineRenderer>();
+            lineRenderer.transform.SetParent(HexGrid.MainGrid.transform, false);
+            lineRenderer.material = HexGrid.MainGrid.GetMaterial("test");
+            lineRenderer.loop = true;
+
+            lineRenderer.startColor = Color.yellow;
+            lineRenderer.endColor = Color.yellow;
+
+            lineRenderer.startWidth = 0.15f;
+            lineRenderer.endWidth = 0.15f;
+            //lineRenderer.widthCurve = new AnimationCurve();
+
+            lineRenderer.receiveShadows = false;
+
+            lineRenderer.numCornerVertices = 100;
+            //lineRenderer.numCapVertices = 100;
+            lineRenderer.useWorldSpace = true;
+
+            List<Vector3> allvertices = new List<Vector3>();
+            List<Vector3> meshvertices = new List<Vector3>();
+            
+            meshvertices.Add(new Vector3(0.86f, 0, 0.5f)); // 0
+            meshvertices.Add(new Vector3(0.86f, 0, -0.5f)); // 1
+            meshvertices.Add(new Vector3(0, 0, -1)); // 2
+            meshvertices.Add(new Vector3(0, 0, 1)); // 3
+            meshvertices.Add(new Vector3(-0.86f, 0, 0.5f)); // 4
+            meshvertices.Add(new Vector3(-0.86f, 0, -0.5f)); // 5
+
+            /* Smaller
+            meshvertices.Add(new Vector3(0.6f, 0, 0.4f)); // 0
+            meshvertices.Add(new Vector3(0.6f, 0, -0.4f)); // 1
+            meshvertices.Add(new Vector3(0, 0, -0.8f)); // 2
+            meshvertices.Add(new Vector3(0, 0, 0.8f)); // 3
+            meshvertices.Add(new Vector3(-0.6f, 0, 0.4f)); // 4
+            meshvertices.Add(new Vector3(-0.6f, 0, -0.4f)); // 5
+            */
+
+            Transform lastChild = null;
+            float aboveGround = 0.1f;
+
             for (int i = 0; i < positions.Count; i++)
             {
                 Position3 position = positions[i];
-                Position3 nextPosition;
-                if (i < positions.Count - 1)
-                    nextPosition = positions[i + 1];
-                else
-                    nextPosition = positions[0];
+                bool isBorder = false;
+                if (i > 0)
+                    isBorder = position.Direction != positions[i - 1].Direction;
 
-                CreateFrameBorder(position, nextPosition.Direction != position.Direction);                
+                GroundCell groundCell;
+                if (HexGrid.MainGrid.GroundCells.TryGetValue(position.Pos, out groundCell))
+                {
+                    LODGroup lodGroup = groundCell.GetComponent<LODGroup>();
+                    if (lodGroup != null)
+                    {
+                        Transform lodTransform = lodGroup.transform;
+                        foreach (Transform child in lodTransform)
+                        {
+                            if (!child.name.StartsWith("HexCell"))
+                                continue;
+
+                            var renderer = child.GetComponent<Renderer>();
+                            if (renderer != null)
+                            {
+                                Vector3 transVert;
+                                if (position.Direction == Direction.NE)
+                                {
+                                    transVert = child.transform.TransformPoint(meshvertices[4]);
+                                    transVert.y += aboveGround;
+                                    allvertices.Add(transVert);
+
+                                    transVert = child.transform.TransformPoint(meshvertices[3]);
+                                    transVert.y += aboveGround;
+                                    allvertices.Add(transVert);
+
+                                    transVert = child.transform.TransformPoint(meshvertices[0]);
+                                    transVert.y += aboveGround;
+                                    allvertices.Add(transVert);
+                                }
+
+                                if (position.Direction == Direction.SE)
+                                {
+                                    transVert = child.transform.TransformPoint(meshvertices[3]);
+                                    transVert.y += aboveGround;
+                                    allvertices.Add(transVert);
+
+                                    transVert = child.transform.TransformPoint(meshvertices[0]);
+                                    transVert.y += aboveGround;
+                                    allvertices.Add(transVert);
+                                }
+                                if (position.Direction == Direction.S)
+                                {
+                                    if (isBorder)
+                                    {
+                                        transVert = lastChild.transform.TransformPoint(meshvertices[1]);
+                                        transVert.y += aboveGround;
+                                        allvertices.Add(transVert);
+
+                                        transVert = lastChild.transform.TransformPoint(meshvertices[2]);
+                                        transVert.y += aboveGround;
+                                        allvertices.Add(transVert);
+                                    }
+                                    transVert = child.transform.TransformPoint(meshvertices[1]);
+                                    transVert.y += aboveGround;
+                                    allvertices.Add(transVert);
+                                    transVert = child.transform.TransformPoint(meshvertices[2]);
+                                    transVert.y += aboveGround;
+                                    allvertices.Add(transVert);
+                                }
+                                if (position.Direction == Direction.SW)
+                                {
+                                    transVert = child.transform.TransformPoint(meshvertices[1]);
+                                    transVert.y += aboveGround;
+                                    allvertices.Add(transVert);
+                                    transVert = child.transform.TransformPoint(meshvertices[2]);
+                                    transVert.y += aboveGround;
+                                    allvertices.Add(transVert);
+                                }
+                                if (position.Direction == Direction.NW)
+                                {
+                                    if (isBorder)
+                                    {
+                                        transVert = lastChild.transform.TransformPoint(meshvertices[5]);
+                                        transVert.y += aboveGround;
+                                        allvertices.Add(transVert);
+
+                                        transVert = lastChild.transform.TransformPoint(meshvertices[4]);
+                                        transVert.y += aboveGround;
+                                        allvertices.Add(transVert);
+                                    }
+
+                                    transVert = child.transform.TransformPoint(meshvertices[5]);
+                                    transVert.y += aboveGround;
+                                    allvertices.Add(transVert);
+                                    transVert = child.transform.TransformPoint(meshvertices[4]);
+                                    transVert.y += aboveGround;
+                                    allvertices.Add(transVert);
+                                }
+                                if (position.Direction == Direction.N)
+                                {
+                                    if (isBorder)
+                                    {
+                                        transVert = lastChild.transform.TransformPoint(meshvertices[4]);
+                                        transVert.y += aboveGround;
+                                        allvertices.Add(transVert);
+
+                                        transVert = lastChild.transform.TransformPoint(meshvertices[3]);
+                                        transVert.y += aboveGround;
+                                        allvertices.Add(transVert);
+                                    }
+
+                                    transVert = child.transform.TransformPoint(meshvertices[4]);
+                                    transVert.y += aboveGround;
+                                    allvertices.Add(transVert);
+
+                                    transVert = child.transform.TransformPoint(meshvertices[3]);
+                                    transVert.y += aboveGround;
+                                    allvertices.Add(transVert);
+                                }
+                            }
+                            lastChild = child;
+                        }
+                    }
+                }
+            }
+
+            //CreateFrameBorder(position, nextPosition.Direction != position.Direction);                
+        
+            lineRenderer.positionCount = allvertices.Count;
+            for (int i = 0; i < allvertices.Count; i++)
+            {
+                lineRenderer.SetPosition(i, allvertices[i]);
             }
         }
 
