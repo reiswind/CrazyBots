@@ -1,7 +1,9 @@
 ﻿using Engine.Master;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -421,7 +423,50 @@ namespace Engine.Interface
 
     }
 
-    public readonly struct Position2 : IEquatable<Position2>
+    public class Position2Converter : JsonConverter
+    {
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            serializer.Serialize(writer, value);
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            var dict = new List<Position2>();
+
+            int x = 0;
+            int y = 0;
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonToken.PropertyName)
+                {
+                    string readerValue = reader.Value.ToString();
+                    if (reader.Read() && reader.TokenType == JsonToken.Integer)
+                    {
+                        if (readerValue == "X")
+                            x = Convert.ToInt32(reader.Value);
+                        if (readerValue == "Y")
+                        {
+                            y = Convert.ToInt32(reader.Value);
+                            dict.Add(new Position2(x, y));
+                        }
+                    }
+                }
+                if (reader.TokenType == JsonToken.EndArray) 
+                    return dict;
+            }
+            return dict;
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            return true; // typeof(List<Position2>.IsAssignableFrom(objectType);
+        }
+    }
+
+    [DataContract]
+    public  struct Position2 : IEquatable<Position2>
     {
         public Position2(int x, int y)
         {
@@ -437,7 +482,7 @@ namespace Engine.Interface
             position = pos;
         }
         private readonly int position;
-
+        [DataMember]
         public int X
         {
             get
@@ -451,6 +496,7 @@ namespace Engine.Interface
                 return (int)x16;
             }
         }
+        [DataMember]
         public int Y
         {
             get

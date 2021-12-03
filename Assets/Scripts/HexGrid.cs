@@ -585,7 +585,7 @@ namespace Assets.Scripts
             }
             else
             {
-                useThread = true;
+                useThread = false;
             }
 
             if (useThread)
@@ -1067,15 +1067,23 @@ namespace Assets.Scripts
                             {
                                 hexCell.Stats = move.Stats;
 
-                                if (HexGrid.MainGrid.ShowDebuginfo)
+                                if (!useThread)
                                 {
-                                    hexCell.Visible = move.Stats.MoveUpdateGroundStat.VisibilityMask != 0;
-                                    hexCell.VisibleByPlayer = (move.Stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
+                                    hexCell.Visible = true;
+                                    hexCell.VisibleByPlayer = true;
                                 }
                                 else
                                 {
-                                    hexCell.Visible = (move.Stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
-                                    hexCell.VisibleByPlayer = (move.Stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
+                                    if (HexGrid.MainGrid.ShowDebuginfo)
+                                    {
+                                        hexCell.Visible = move.Stats.MoveUpdateGroundStat.VisibilityMask != 0;
+                                        hexCell.VisibleByPlayer = (move.Stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
+                                    }
+                                    else
+                                    {
+                                        hexCell.Visible = (move.Stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
+                                        hexCell.VisibleByPlayer = (move.Stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
+                                    }
                                 }
                                 hexCell.UpdateGround();
                             }
