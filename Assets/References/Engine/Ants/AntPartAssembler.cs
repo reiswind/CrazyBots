@@ -136,7 +136,10 @@ namespace Engine.Ants
                 // Need something to assemble
                 if (!Ant.Unit.AreAllIngredientsAvailable(player, player.Game.RecipeForAnyUnit))
                 {
-                    RequestIngredientsForUnit(player);
+                    if (Ant.AntPartEngine == null)
+                    {
+                        RequestIngredientsForUnit(player);
+                    }
                     return false;
                 }
 
@@ -331,7 +334,8 @@ namespace Engine.Ants
                     if (selectedGameCommand.FactoryUnit.UnitId == Ant.Unit.UnitId)
                     {
                         Tile tile = player.Game.Map.GetTile(selectedGameCommand.GameCommand.TargetPosition);
-                        if (!tile.CanBuild())
+                        // Must be possible to move the output there (blocking units..)
+                        if (!tile.CanMoveTo(Ant.Unit.Pos))
                         {
                             // Cannot build here any more. 
                             if (player.PlayerModel.IsHuman)

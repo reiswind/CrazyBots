@@ -728,7 +728,7 @@ namespace Assets.Scripts
                             }
                         }
 
-                        GameObject activeGameobject = FindChildNyName(gameObject, "Active");
+                        GameObject activeGameobject = FindChildNyName(unitBasePart.Part, "Active");
                         if (activeGameobject != null)
                         {
                             ParticleSystem particleSystem = activeGameobject.GetComponent<ParticleSystem>();
@@ -845,7 +845,7 @@ namespace Assets.Scripts
                         {
                             if (unitBasePart.PartType == TileObjectType.PartAssembler)
                             {
-                                GameObject activeGameobject = FindChildNyName(gameObject, "Active");
+                                GameObject activeGameobject = FindChildNyName(unitBasePart.Part, "Active");
                                 if (activeGameobject != null)
                                 {
                                     ParticleSystem particleSystem = activeGameobject.GetComponent<ParticleSystem>();

@@ -224,7 +224,13 @@ namespace Engine.Master
                                     {
                                         // This is the transporter who has reached the target
                                         Move move = CreateExtractMoveIfPossible(t.Unit);
-                                        if (move != null)
+                                        if (move == null)
+                                        {
+                                            // Cannot extract what hat been delivered
+                                            Unit.ResetGameCommand();
+                                            Unit.CurrentGameCommand.GameCommand.CommandCanceled = true;
+                                        }
+                                        else
                                         {
                                             possibleMoves.Add(move);
                                             added = true;
@@ -291,11 +297,17 @@ namespace Engine.Master
                                         if (Unit.UnitId == Unit.CurrentGameCommand.TransportUnit.UnitId) // FactoryUnit
                                         {
                                             // This is the transporter, that should extract from container to deliver it
-                                            // Assembler extract from Container
-                                            Move move = CreateExtractMoveIfPossible(t.Unit);
-                                            if (move != null)
+                                            // Assembler extract from Container. 
+
+                                            // Extract only if the other unit does not have a task (Or the task is to collect)
+                                            if (t.Unit.CurrentGameCommand == null ||
+                                                t.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
                                             {
-                                                possibleMoves.Add(move);
+                                                Move move = CreateExtractMoveIfPossible(t.Unit);
+                                                if (move != null)
+                                                {
+                                                    possibleMoves.Add(move);
+                                                }
                                             }
                                         }
                                     }
