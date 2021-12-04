@@ -280,7 +280,7 @@ namespace Engine.Interface
         /// Fire = From at [0]
         /// </summary>
         [DataMember(EmitDefaultValue = false)]
-        [JsonConverter(typeof(Position2Converter))]
+        //[JsonConverter(typeof(Position2Converter))]
         public List<Position2> Positions { get; set; }
         /// <summary>
         /// Only for Upgrade moves

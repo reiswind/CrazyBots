@@ -585,7 +585,7 @@ namespace Assets.Scripts
             }
             else
             {
-                useThread = false;
+                useThread = true;
             }
 
             if (useThread)
