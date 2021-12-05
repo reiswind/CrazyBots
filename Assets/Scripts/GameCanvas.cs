@@ -1193,12 +1193,12 @@ namespace Assets.Scripts
             HideAllParts();
             if (selectedUnitFrame != null)
             {
-                DisplayUnitframe(selectedUnitFrame);
                 if (selectedUnitFrame.CurrentPos != selectedUnitBounds.Pos)
                 {
                     selectedUnitBounds.Destroy();
                     selectedUnitBounds.Update();
                 }
+                DisplayUnitframe(selectedUnitFrame);
             }
             else
             {
@@ -1223,7 +1223,7 @@ namespace Assets.Scripts
                 }
                 if (Input.GetMouseButtonDown(0))
                 {
-                    //SelectWithLeftClick(hitByMouseClick);
+                    SelectWithLeftClick(hitByMouseClick);
                 }
             }
         }
@@ -1251,7 +1251,7 @@ namespace Assets.Scripts
             {
                 if (Input.GetMouseButtonDown(0))
                 {
-                    //SelectWithLeftClick(hitByMouseClick);
+                    SelectWithLeftClick(hitByMouseClick);
                 }
             }
         }

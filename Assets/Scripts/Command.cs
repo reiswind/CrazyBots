@@ -194,8 +194,10 @@ namespace Assets.Scripts
                         //Debug.Log("Activate: commandAttachedUnit.UnitBase");
                         // Real unit missing, show ghost
                         commandAttachedUnit.AttachedUnit.IsVisible = true;
-                        commandAttachedUnit.AttachedUnit.GhostUnit.IsVisible = true;
-                        commandAttachedUnit.AttachedUnit.GhostUnitBounds.IsVisible = true;
+                        if (commandAttachedUnit.AttachedUnit.GhostUnit != null)
+                            commandAttachedUnit.AttachedUnit.GhostUnit.IsVisible = true;
+                        if (commandAttachedUnit.AttachedUnit.GhostUnitBounds != null)
+                            commandAttachedUnit.AttachedUnit.GhostUnitBounds.IsVisible = true;
                     }
                 }
                 else
@@ -335,8 +337,8 @@ namespace Assets.Scripts
                                 //commandAttachedUnit.Marker.transform.position = unitPos3;
                                 if (commandAttachedItem.AttachedUnit.GhostUnitBounds != null)
                                     commandAttachedItem.AttachedUnit.GhostUnitBounds.Update();
-
-                                commandAttachedItem.AttachedUnit.GhostUnit.IsVisible = true;
+                                if (commandAttachedItem.AttachedUnit.GhostUnit != null)
+                                    commandAttachedItem.AttachedUnit.GhostUnit.IsVisible = true;
                                 commandAttachedItem.AttachedUnit.IsVisible = true;
 
                                 //remainingPos.Remove(position2);
