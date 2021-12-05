@@ -738,7 +738,8 @@ namespace Engine.Interface
                     }
 
                     //BioMass += 300;
-                    mapZone.MaxMinerals = 20;
+                    mapZone.MaxMinerals = 40;
+                    mapZone.MaxMineralsPerTile = 20;
                     mapZone.StartObjectGenerator(this);
                 }
             }
@@ -911,7 +912,7 @@ namespace Engine.Interface
                             {
                                 if (tile.Minerals > 0)
                                 {
-                                    if (tile.Minerals < 10)
+                                    if (tile.Minerals < mapZone.MaxMineralsPerTile)
                                     {
                                         tile.Add(tileObject);
                                         if (!excessTilesObjects.Remove(tileObject))
@@ -931,7 +932,7 @@ namespace Engine.Interface
                                         {
                                             int idx = Game.Random.Next(tile.Neighbors.Count);
                                             Tile n = tile.Neighbors[idx];
-                                            if (n.Minerals < 10)
+                                            if (n.Minerals < mapZone.MaxMineralsPerTile)
                                             {
                                                 if (!Game.changedGroundPositions.ContainsKey(n.Pos))
                                                     Game.changedGroundPositions.Add(n.Pos, null);
@@ -958,7 +959,7 @@ namespace Engine.Interface
                             // Any random position
                             int idx = Game.Random.Next(mapZone.Tiles.Count);
                             Tile t = mapZone.Tiles.ElementAt(idx).Value;
-                            if (t != null && !t.IsUnderwater && t.Minerals < 20)
+                            if (t != null && !t.IsUnderwater && t.Minerals < mapZone.MaxMineralsPerTile)
                             {
                                 if (t.Unit != null && t.Unit.Engine == null)
                                 {

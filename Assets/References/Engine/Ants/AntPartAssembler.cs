@@ -133,16 +133,6 @@ namespace Engine.Ants
 
             if (!upgrading)
             {
-                // Need something to assemble
-                if (!Ant.Unit.AreAllIngredientsAvailable(player, player.Game.RecipeForAnyUnit))
-                {
-                    if (Ant.AntPartEngine == null)
-                    {
-                        RequestIngredientsForUnit(player);
-                    }
-                    return false;
-                }
-
                 GameCommandItem selectedGameCommand = Ant.Unit.CurrentGameCommand;
                 GameCommandItem passGameCommandToNewUnit;
                 
@@ -204,6 +194,16 @@ namespace Engine.Ants
                     }
                     else
                     {
+                        // Need something to assemble (careful, this reserves the indigrients for this move)
+                        if (!Ant.Unit.AreAllIngredientsAvailable(player, player.Game.RecipeForAnyUnit))
+                        {
+                            if (Ant.AntPartEngine == null)
+                            {
+                                RequestIngredientsForUnit(player);
+                            }
+                            return false;
+                        }
+
                         // Structure: Build unit or an assembler that moves ther
                         bool engineFound = false;
                         if (!string.IsNullOrEmpty(selectedGameCommand.BlueprintName))

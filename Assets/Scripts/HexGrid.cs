@@ -85,10 +85,10 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
             GameModel gameModel;
 
@@ -336,10 +336,22 @@ namespace Assets.Scripts
             }
             else if (tileObject.TileObjectType == TileObjectType.Mineral)
             {
-                prefab = GetResource("ItemCrystal");
+                if (tileObject.TileObjectKind == TileObjectKind.Block)
+                {
+                    prefab = GetResource("ItemCrystalBlock");
+                }
+                else if (tileObject.TileObjectKind == TileObjectKind.Many)
+                {
+                    prefab = GetResource("ItemCrystalLarge");
+                }
+                else
+                {
+                    prefab = GetResource("ItemCrystal");
+                }
                 y = 0.05f;
                 x = (randomPos.x * 0.5f);
                 z = (randomPos.y * 0.7f);
+
             }
             else if (tileObject.TileObjectType == TileObjectType.TreeTrunk)
             {

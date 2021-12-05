@@ -400,7 +400,7 @@ namespace Engine.Interface
             numberOfCollectablesCache = 0;
 
             canBuild = true;
-            if (mineralCache >= 20)
+            if (mineralCache >= BlockPathItemCount)
             {
                 canBuild = false;
             }
@@ -483,6 +483,8 @@ namespace Engine.Interface
             }
             return false;
         }
+
+        public static readonly int BlockPathItemCount = 20;
         public bool CanBuildForMove()
         {
             if (IsUnderwater)
@@ -501,7 +503,7 @@ namespace Engine.Interface
                     return false;
             }
 
-            if (mins >= 20)
+            if (mins >= BlockPathItemCount)
             {
                 return false;
             }

@@ -48,18 +48,18 @@ namespace Assets.Scripts
                         {
                             unitBaseTileObject.GameObject.transform.SetParent(parent);
 
-                            Vector3 vector3 = new Vector3();
-                            vector3.y = 4f;
-                            vector3.x = UnityEngine.Random.value;
-                            vector3.z = UnityEngine.Random.value;
+                            Vector3 vector3 = parent.position;
+                            vector3.y -= 0.4f;
+                            //vector3.x = UnityEngine.Random.value;
+                            //vector3.z = UnityEngine.Random.value;
 
                             Rigidbody otherRigid = unitBaseTileObject.GameObject.AddComponent<Rigidbody>();
                             if (otherRigid != null)
                             {
                                 otherRigid.isKinematic = false;
-                                otherRigid.AddExplosionForce(13, parent.position, 2);
-                                otherRigid.velocity = vector3;
-                                otherRigid.rotation = UnityEngine.Random.rotation;
+                                otherRigid.AddExplosionForce(13, vector3, 1);
+                                //otherRigid.velocity = vector3;
+                                //otherRigid.rotation = UnityEngine.Random.rotation;
                             }
                             HexGrid.Destroy(unitBaseTileObject.GameObject, 5);
                         }

@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 3819658307261756434}
   - component: {fileID: 1362006524953886936}
   - component: {fileID: 371340356431461886}
-  - component: {fileID: 5022946539629138290}
   - component: {fileID: 1059984967959027870}
+  - component: {fileID: 5244874410934038699}
   m_Layer: 0
   m_Name: ShellMineral
   m_TagString: Untagged
@@ -103,20 +103,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!136 &5022946539629138290
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 713307927649952013}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  m_Radius: 0.060584523
-  m_Height: 0.18053915
-  m_Direction: 2
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &1059984967959027870
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -130,6 +116,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   HitGroundExplosionParticles: {fileID: 198694502634222740, guid: b3d8264aa7d2d824a8a503e45291ddf4, type: 3}
+--- !u!65 &5244874410934038699
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 713307927649952013}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.08383238, y: 0.1340712, z: 0.06573968}
+  m_Center: {x: -0.003537029, y: 0.05348831, z: -0.0033745766}
 --- !u!1 &844884376414294332
 GameObject:
   m_ObjectHideFlags: 0

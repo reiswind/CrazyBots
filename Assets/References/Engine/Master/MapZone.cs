@@ -26,6 +26,7 @@ namespace Engine.Interface
         public int ZoneId { get; set; }
         //public int TotalMinerals { get; set; }
         public int MaxMinerals { get; set; }
+        public int MaxMineralsPerTile { get; set; }
         public Position2 Center { get; set; }
         public Player Player { get; set; }
 

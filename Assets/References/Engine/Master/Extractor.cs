@@ -227,8 +227,8 @@ namespace Engine.Master
                                         if (move == null)
                                         {
                                             // Cannot extract what hat been delivered
-                                            Unit.ResetGameCommand();
                                             Unit.CurrentGameCommand.GameCommand.CommandCanceled = true;
+                                            Unit.ResetGameCommand();
                                         }
                                         else
                                         {

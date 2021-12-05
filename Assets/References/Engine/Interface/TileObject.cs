@@ -187,7 +187,10 @@ namespace Engine.Interface
         LeaveTree,
 
         LightGras,
-        DarkGras
+        DarkGras,
+
+        Many,
+        Block
     }
 
     public enum TileObjectType

@@ -110,6 +110,12 @@ namespace Assets.Scripts
                                     transitObject.GameObject = transitGameObject;
                                     transitObject.TargetPosition = unit.transform.position;
                                     transitObject.HideAtArrival = true;
+
+                                    if (tileObject.TileObjectType == TileObjectType.Mineral &&
+                                        tileObject.TileObjectKind != TileObjectKind.None)
+                                    {
+                                        int xx = 0;
+                                    }
                                     if (tileObject.TileObjectType != TileObjectType.Mineral)
                                         transitObject.ScaleDown = true;
 

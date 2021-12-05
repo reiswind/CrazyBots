@@ -607,6 +607,9 @@ namespace Engine.Master
                                     // Drop Minerals on the floor, distribute anything else on the map
                                     // (No Trees in Buildings)
                                     fromTile.Add(tileObject);
+
+                                    if (!changedGroundPositions.ContainsKey(fromTile.Pos))
+                                        changedGroundPositions.Add(fromTile.Pos, null);
                                 }
                                 else
                                 {
@@ -840,6 +843,9 @@ namespace Engine.Master
                             else
                             {
                                 targetTile.Add(toDrop);
+
+                                if (!changedGroundPositions.ContainsKey(targetTile.Pos))
+                                    changedGroundPositions.Add(targetTile.Pos, null);
                             }
                         }
                     }
@@ -851,6 +857,9 @@ namespace Engine.Master
                     hitPartTileObject.TileObjectType = TileObjectType.Mineral;
                     hitPartTileObject.Direction = Direction.C;
                     targetTile.Add(hitPartTileObject);
+
+                    if (!changedGroundPositions.ContainsKey(targetTile.Pos))
+                        changedGroundPositions.Add(targetTile.Pos, null);
 
                     // Unit was hit
                     Move hitmove = new Move();

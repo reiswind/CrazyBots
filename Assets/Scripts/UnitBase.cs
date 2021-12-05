@@ -899,23 +899,32 @@ namespace Assets.Scripts
             }
             else
             {
+
                 foreach (UnitBasePart unitBasePart in UnitBaseParts)
                 {
                     if (moveRecipeIngredient.Source == unitBasePart.PartType)
                     {
-                        // From Container
-                        foreach (UnitBaseTileObject unitBaseTileObject in unitBasePart.TileObjectContainer.TileObjects)
+                        if (unitBasePart.TileObjectContainer == null)
                         {
-                            if (unitBaseTileObject.TileObject.TileObjectType == moveRecipeIngredient.TileObjectType &&
-                                unitBaseTileObject.GameObject != null)
+                            // Happend. Destroyed?
+                        }
+                        else
+                        {
+                            // From Container
+                            foreach (UnitBaseTileObject unitBaseTileObject in unitBasePart.TileObjectContainer.TileObjects)
                             {
-                                unitBasePart.TileObjectContainer.Remove(unitBaseTileObject);
-                                return unitBaseTileObject;
+                                if (unitBaseTileObject.TileObject.TileObjectType == moveRecipeIngredient.TileObjectType &&
+                                    unitBaseTileObject.GameObject != null)
+                                {
+                                    unitBasePart.TileObjectContainer.Remove(unitBaseTileObject);
+                                    return unitBaseTileObject;
+                                }
                             }
                         }
+                        break;
                     }
                 }
-            }
+            }            
             return null;
         }
 

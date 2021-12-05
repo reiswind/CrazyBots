@@ -444,6 +444,76 @@ namespace Assets.Scripts
             return neighbor;
         }
 
+        internal TileObject FindTileObject(List<TileObject> tileObjects, TileObjectType tileObjectType)
+        {
+            foreach (TileObject tileObject in tileObjects)
+            {
+                if (tileObject.TileObjectType == tileObjectType)
+                {
+                    return tileObject;
+                }
+            }
+            return null;
+        }
+
+        internal void AddDestructable(List<UnitBaseTileObject> destroyedTileObjects, TileObject tileObject)
+        {
+            foreach (UnitBaseTileObject exisitingDestructable in destroyedTileObjects)
+            {
+                if (exisitingDestructable.TileObject.TileObjectType == tileObject.TileObjectType)
+                {
+                    destroyedTileObjects.Remove(exisitingDestructable);
+                    return;
+                }
+            }
+            GameObject destructable;
+
+            destructable = HexGrid.MainGrid.CreateDestructable(transform, tileObject);
+            if (destructable != null)
+            {
+                destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
+                destructable.name = tileObject.TileObjectType.ToString();
+            }
+            UnitBaseTileObject unitBaseTileObject = new UnitBaseTileObject();
+            unitBaseTileObject.GameObject = destructable;
+            unitBaseTileObject.TileObject = tileObject.Copy();
+
+            GameObjects.Add(unitBaseTileObject);
+        }
+
+        internal void AddDestructableItems(int itemsinLargeMineral, List<UnitBaseTileObject> destroyedTileObjects, TileObjectType tileObjectType, TileObjectKind tileObjectKind)
+        {
+            bool found = false;
+            foreach (UnitBaseTileObject exisitingDestructable in destroyedTileObjects)
+            {
+                if (exisitingDestructable.TileObject.TileObjectType == tileObjectType &&
+                    exisitingDestructable.TileObject.TileObjectKind == tileObjectKind)
+                {
+                    destroyedTileObjects.Remove(exisitingDestructable);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                GameObject destructable;
+                TileObject largeMineral = new TileObject(tileObjectType, Direction.C);
+                largeMineral.TileObjectKind = tileObjectKind;
+
+                destructable = HexGrid.MainGrid.CreateDestructable(transform, largeMineral);
+                if (destructable != null)
+                {
+                    destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
+                    destructable.name = largeMineral.TileObjectType.ToString();
+                }
+                UnitBaseTileObject unitBaseTileObject = new UnitBaseTileObject();
+                unitBaseTileObject.GameObject = destructable;
+                unitBaseTileObject.TileObject = largeMineral;
+
+                GameObjects.Add(unitBaseTileObject);
+            }
+        }
+
         internal void CreateDestructables(bool init)
         {
             SetGroundMaterial();
@@ -451,43 +521,64 @@ namespace Assets.Scripts
             List<UnitBaseTileObject> destroyedTileObjects = new List<UnitBaseTileObject>();
             destroyedTileObjects.AddRange(GameObjects);
 
+            int countMinerals = 0;
             foreach (TileObject tileObject in Stats.MoveUpdateGroundStat.TileObjects)
             {
-                if (tileObject.Direction == Direction.C && tileObject.TileObjectType != TileObjectType.Mineral)
+                if (tileObject.TileObjectType == TileObjectType.Mineral)
+                {
+                    countMinerals++;
+                }
+                else if (tileObject.Direction == Direction.C && tileObject.TileObjectType != TileObjectType.Mineral)
                 {
 
                 }
                 else
                 {
-                    bool found = false;
-                    foreach (UnitBaseTileObject destructable in destroyedTileObjects)
+                    AddDestructable(destroyedTileObjects, tileObject);
+                }
+            }
+
+            if (countMinerals > 0)
+            {
+                List<TileObject> tileObjects = new List<TileObject>();
+                foreach (TileObject tileObject1 in Stats.MoveUpdateGroundStat.TileObjects)
+                {
+                    if (tileObject1.TileObjectType == TileObjectType.Mineral)
+                        tileObjects.Add(tileObject1);
+                }
+                int itemsinLargeMineral = 5;
+                int itemsinBlockingMineral = Tile.BlockPathItemCount;
+                while (tileObjects.Count > 0)
+                {
+                    if (tileObjects.Count > itemsinBlockingMineral)
                     {
-                        if (destructable.TileObject.TileObjectType == tileObject.TileObjectType)
-                        {
-                            found = true;
-                            destroyedTileObjects.Remove(destructable);
-                            break;
-                        }
+                        AddDestructableItems(itemsinBlockingMineral, destroyedTileObjects, TileObjectType.Mineral, TileObjectKind.Block);
+
+                        for (int i = 0; i < itemsinBlockingMineral; i++)
+                            tileObjects.RemoveAt(0);
+                        countMinerals -= itemsinBlockingMineral;
                     }
-                    if (!found)
+                    else if (tileObjects.Count > itemsinLargeMineral)
                     {
+                        AddDestructableItems (itemsinLargeMineral, destroyedTileObjects, TileObjectType.Mineral, TileObjectKind.Many);
 
-                        GameObject destructable;
-
-                        destructable = HexGrid.MainGrid.CreateDestructable(transform, tileObject);
-                        if (destructable != null)
+                        for (int i = 0; i < itemsinLargeMineral; i++)
+                            tileObjects.RemoveAt(0);
+                        countMinerals -= itemsinLargeMineral;
+                    }
+                    else
+                    {
+                        TileObject tileObject = FindTileObject(tileObjects, TileObjectType.Mineral);
+                        if (tileObject != null)
                         {
-                            destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
-                            destructable.name = tileObject.TileObjectType.ToString();
+                            tileObjects.Remove(tileObject);
+                            AddDestructable(destroyedTileObjects, tileObject);
                         }
-                        UnitBaseTileObject unitBaseTileObject = new UnitBaseTileObject();
-                        unitBaseTileObject.GameObject = destructable;
-                        unitBaseTileObject.TileObject = tileObject.Copy();
-
-                        GameObjects.Add(unitBaseTileObject);
+                        countMinerals--;
                     }
                 }
             }
+
             if (init)
             {
                 UpdateColor();
@@ -517,8 +608,18 @@ namespace Assets.Scripts
             {
                 foreach (UnitBaseTileObject destructable in destroyedTileObjects)
                 {
-                    StartCoroutine(FadeOutDestructable(destructable.GameObject, destructable.GameObject.transform.position.y - 0.1f));
-                    GameObjects.Remove(destructable);
+                    if (destructable.GameObject != null)
+                    {
+                        if (destructable.TileObject.TileObjectType == TileObjectType.Mineral)
+                        {
+                            Destroy(destructable.GameObject);
+                        }
+                        else
+                        {
+                            StartCoroutine(FadeOutDestructable(destructable.GameObject, destructable.GameObject.transform.position.y - 0.1f));
+                            GameObjects.Remove(destructable);
+                        }
+                    }
                 }
             }
         }
