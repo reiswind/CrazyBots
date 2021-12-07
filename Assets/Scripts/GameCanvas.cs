@@ -40,7 +40,7 @@ namespace Assets.Scripts
         private GameObject panelArmor;
         private GameObject panelWeapon;
         private GameObject panelReactor;
-        private GameObject panelCommand;
+
         private Text headerText;
         private Text headerSubText;
         private Text headerGroundText;
@@ -90,7 +90,6 @@ namespace Assets.Scripts
             panelArmor = panelParts.Find("PanelArmor").gameObject;
             panelWeapon = panelParts.Find("PanelWeapon").gameObject;
             panelReactor = panelParts.Find("PanelReactor").gameObject;
-            panelCommand = panelParts.Find("PanelCommand").gameObject;
 
             Transform panelSelected = gameControlPanel.Find("PanelSelected");
 
@@ -1611,8 +1610,8 @@ namespace Assets.Scripts
                         }
                         if (part.PartType == TileObjectType.PartExtractor)
                         {
-                            panelExtractor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
-                            panelExtractor.SetActive(true);
+                            //panelExtractor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                            //panelExtractor.SetActive(true);
                         }
                         if (part.PartType == TileObjectType.PartWeapon)
                         {
@@ -1714,8 +1713,8 @@ namespace Assets.Scripts
                         }
                         if (part.PartType == TileObjectType.PartEngine)
                         {
-                            panelEngine.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
-                            panelEngine.SetActive(true);
+                            //panelEngine.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                            //panelEngine.SetActive(true);
                         }
                         if (part.PartType == TileObjectType.PartContainer)
                         {
