@@ -657,6 +657,7 @@ namespace Assets.Scripts
 
                 if (neighbor.Stats.MoveUpdateGroundStat.Owner != Stats.MoveUpdateGroundStat.Owner)
                 {
+                    /*
                     if (Pos.X == 64 && Pos.Y == 80)
                     {
                         Renderer[] rr = neighbor.GetComponentsInChildren<Renderer>();
@@ -664,7 +665,7 @@ namespace Assets.Scripts
                         {
                             renderer.material.SetColor("SurfaceColor", Color.cyan);
                         }
-                    }
+                    }*/
                     if (n.Direction == Direction.N) updateN = true;
                     if (n.Direction == Direction.NE) updateNE = true;
                     if (n.Direction == Direction.NW) updateNW = true;

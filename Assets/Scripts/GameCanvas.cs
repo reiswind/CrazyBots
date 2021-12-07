@@ -1169,6 +1169,7 @@ namespace Assets.Scripts
             if (CheckMouseButtons()) return;
 
             HitByMouseClick hitByMouseClick = GetClickedInfo();
+            HighlightMouseOver(hitByMouseClick);
             UpdateMouseOver(hitByMouseClick);
 
             if (hitByMouseClick != null)
@@ -1189,6 +1190,7 @@ namespace Assets.Scripts
             }
             if (CheckMouseButtons()) return;
             HitByMouseClick hitByMouseClick = GetClickedInfo();
+            HighlightMouseOver(hitByMouseClick);
 
             HideAllParts();
             if (selectedUnitFrame != null)
@@ -1247,6 +1249,8 @@ namespace Assets.Scripts
                 selectedUnitBounds.Update();
             }
             HitByMouseClick hitByMouseClick = GetClickedInfo();
+            HighlightMouseOver(hitByMouseClick);
+
             if (hitByMouseClick != null)
             {
                 if (Input.GetMouseButtonDown(0))
@@ -1265,8 +1269,16 @@ namespace Assets.Scripts
             }
             if (selectedUnitFrame != null)
             {
-                UnselectUnitFrame();
-                UnHighlightUnitFrame();
+                // The highlighted is the one on mouse over, not the selected one
+                if (selectedUnitBounds != null)
+                {
+                    selectedUnitBounds.Destroy();
+                    selectedUnitBounds = null;
+                }
+
+                selectedUnitFrame.SetHighlighted(false);
+                selectedUnitFrame.SetSelected(false);
+                selectedUnitFrame = null;
             }
 
             if (hitByMouseClick.CommandPreview != null)
@@ -1300,11 +1312,11 @@ namespace Assets.Scripts
                     sb.AppendLine(gameCommandItem.ToString());
                 }
 
-
                 Debug.Log(sb.ToString());
 
                 if (hitByMouseClick.UnitBase != null)
                 {
+                    HighlightUnitFrame(hitByMouseClick.UnitBase);
                     SelectUnitFrame(hitByMouseClick.UnitBase);
                 }
 
@@ -1315,8 +1327,8 @@ namespace Assets.Scripts
             }
             else if (hitByMouseClick.UnitBase != null)
             {
-                SelectUnitFrame(hitByMouseClick.UnitBase);
                 HighlightUnitFrame(hitByMouseClick.UnitBase);
+                SelectUnitFrame(hitByMouseClick.UnitBase);
                 SetMode(CanvasMode.Unit);
             }
             else
@@ -1347,30 +1359,30 @@ namespace Assets.Scripts
                             }
                             else
                             {
-                                highlightedCommandPreview.Command.SetHighlighted(false);
+                                //highlightedCommandPreview.Command.SetHighlighted(false);
                                 highlightedCommandPreview.SetActive(false);
                             }
                         }
-                        HighlightGameCommand(hitByMouseClick.CommandPreview);
+                        //HighlightGameCommand(hitByMouseClick.CommandPreview);
                     }
 
                     if (hitByMouseClick.UnitBase != null)
                     {
-                        HighlightUnitFrame(hitByMouseClick.UnitBase);
+                        //HighlightUnitFrame(hitByMouseClick.UnitBase);
                         DisplayUnitframe(hitByMouseClick.UnitBase);
                     }
                     else
                     {
-                        UnHighlightUnitFrame();
+                        //UnHighlightUnitFrame();
                         DisplayGameCommand(highlightedCommandPreview);
                     }
                 }
                 else if (hitByMouseClick.UnitBase != null)
                 {
                     HideAllParts();
-                    UnSelectGroundCell();
-                    HighlightUnitFrame(hitByMouseClick.UnitBase);
-                    UnHighlightGameCommand();
+                    //UnSelectGroundCell();
+                    //HighlightUnitFrame(hitByMouseClick.UnitBase);
+                    //UnHighlightGameCommand();
                     DisplayUnitframe(hitByMouseClick.UnitBase);
                 }
                 else if (hitByMouseClick.GroundCell != null)
@@ -1384,11 +1396,70 @@ namespace Assets.Scripts
                 }
             }
         }
-        private void ShowNothing()
+
+        private void HighlightMouseOver(HitByMouseClick hitByMouseClick)
+        {
+            if (hitByMouseClick == null)
+            {
+                HighlightNothing();
+            }
+            else
+            {
+                if (hitByMouseClick.CommandPreview != null)
+                {
+                    if (highlightedCommandPreview != hitByMouseClick.CommandPreview)
+                    {
+                        if (highlightedCommandPreview != null)
+                        {
+                            if (canvasMode == CanvasMode.Command && highlightedCommandPreview == selectedCommandPreview)
+                            {
+                                // Leave it visible
+                            }
+                            else
+                            {
+                                highlightedCommandPreview.Command.SetHighlighted(false);
+                            }
+                        }
+                        HighlightGameCommand(hitByMouseClick.CommandPreview);
+                    }
+
+                    if (hitByMouseClick.UnitBase != null)
+                    {
+                        HighlightUnitFrame(hitByMouseClick.UnitBase);
+                    }
+                    else
+                    {
+                        UnHighlightUnitFrame();
+                    }
+                }
+                else if (hitByMouseClick.UnitBase != null)
+                {
+                    UnSelectGroundCell();
+                    HighlightUnitFrame(hitByMouseClick.UnitBase);
+                    UnHighlightGameCommand();
+                }
+                else if (hitByMouseClick.GroundCell != null)
+                {
+                    HighlightNothing();
+                }
+                else
+                {
+                    HighlightNothing();
+                }
+            }
+        }
+
+        private void HighlightNothing()
         {
             UnSelectGroundCell();
             UnHighlightUnitFrame();
             UnHighlightGameCommand();
+        }
+
+        private void ShowNothing()
+        {
+            HighlightNothing();
+
             HideAllParts();
             headerText.text = "";
             headerSubText.text = "";
