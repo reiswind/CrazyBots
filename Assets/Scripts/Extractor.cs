@@ -61,6 +61,28 @@ namespace Assets.Scripts
 
         public static void Extract(Move move, UnitBase unit, UnitBase otherUnit)
         {
+            if (move.MoveRecipe != null && move.MoveRecipe.Ingredients.Count > 0)
+            {
+                foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
+                {
+                    // Transit the ingredient into the weapon. This is the reloaded ammo. (Can be empty)
+                    UnitBaseTileObject unitBaseTileObject;
+                    unitBaseTileObject = otherUnit.RemoveTileObject(moveRecipeIngredient);
+                    if (unitBaseTileObject != null)
+                    {
+                        // Transit ingredient
+                        TransitObject transitObject = new TransitObject();
+                        transitObject.GameObject = unitBaseTileObject.GameObject;
+                        transitObject.TargetPosition = unit.transform.position;
+                        transitObject.DestroyAtArrival = true;
+
+                        unitBaseTileObject.GameObject = null;
+                        HexGrid.MainGrid.AddTransitTileObject(transitObject);
+                    }
+                }
+                return;
+            }
+
             bool found;
 
 

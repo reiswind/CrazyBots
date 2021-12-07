@@ -127,8 +127,8 @@ namespace Engine.Master
                         thisUnit.MaxPower = 20;
                         thisUnit.CreateAllPartsFromBlueprint();
                         thisUnit.Pos = posOnMap;
-
-                        if (unitModel.ContainerFilled.HasValue)
+                        /*
+                        if (unitModel.ContainedMinerals.HasValue)
                         {
                             if (thisUnit.Container != null)
                                 thisUnit.Container.TileContainer.Clear();
@@ -138,7 +138,7 @@ namespace Engine.Master
                                 thisUnit.Reactor.TileContainer.Clear();
                             if (thisUnit.Assembler != null)
                                 thisUnit.Assembler.TileContainer.Clear();
-                        }
+                        }*/
                         // Turn into direction missing
                         thisUnit.Direction = Direction.C; // CalcDirection(move.Position2s[0], move.Position2s[1]);
                         thisUnit.Owner = Players[unitModel.PlayerId];
@@ -168,6 +168,8 @@ namespace Engine.Master
                 }
             }
         }
+
+        
 
 
         public void StartWithFactory(List<Move> newMoves)
@@ -216,7 +218,8 @@ namespace Engine.Master
                             if (unitModel.EndlessPower)
                                 thisUnit.EndlessPower = true;
 
-                            if (unitModel.ContainerFilled.HasValue)
+                            if (unitModel.ContainedMinerals.HasValue ||
+                                unitModel.ContainedTrees.HasValue)
                             {
                                 if (thisUnit.Container != null)
                                     thisUnit.Container.TileContainer.Clear();
@@ -226,6 +229,11 @@ namespace Engine.Master
                                     thisUnit.Reactor.TileContainer.Clear();
                                 if (thisUnit.Assembler != null)
                                     thisUnit.Assembler.TileContainer.Clear();
+
+                                if (unitModel.ContainedMinerals.HasValue)
+                                    thisUnit.FillWithTileObjects(TileObjectType.Mineral, unitModel.ContainedMinerals.Value);
+                                if (unitModel.ContainedTrees.HasValue)
+                                    thisUnit.FillWithTileObjects(TileObjectType.Tree, unitModel.ContainedTrees.Value);
                             }
                             Move move = new Move();
                             move.MoveType = MoveType.Add;
@@ -559,10 +567,20 @@ namespace Engine.Master
                         }
                     }
 #endif
+                    if (move.Stats != null && move.MoveRecipe != null)
+                    {
+                        // Insert the previously removed tileobjects into the unit
+                        Unit unit = Map.Units.GetUnitAt(move.Positions[0]);
+                        if (unit != null && unit.Extractor != null)
+                        {
+                            unit.AddIngredients(move.MoveRecipe, changedUnits);
+                        }
+                    }
 
                     if (move.Stats != null &&
                         move.Stats.MoveUpdateGroundStat != null &&
-                        move.Stats.MoveUpdateGroundStat.TileObjects != null)
+                        move.Stats.MoveUpdateGroundStat.TileObjects != null &&
+                        move.Stats.MoveUpdateGroundStat.TileObjects.Count > 0)
                     {
                         List<TileObject> tileObjects = new List<TileObject>();
                         foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
@@ -1211,7 +1229,7 @@ namespace Engine.Master
                         }
                         if (move.MoveType != MoveType.Skip)
                         {
-                            extracted = unit.Extractor.ExtractInto(unit, move, fromTile, this, otherUnit, move.OtherUnitId);
+                            extracted = unit.Extractor.ExtractInto(unit, move, fromTile, this, otherUnit, changedUnits);
 
                             if (extracted)
                             {

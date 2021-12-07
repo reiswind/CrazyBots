@@ -587,7 +587,7 @@ namespace Assets.Scripts
 
         internal void SetHighlighted(bool highlighted)
         {
-            Debug.Log("Highlight: " + this.UnitId + " " + highlighted);
+            //Debug.Log("Highlight: " + this.UnitId + " " + highlighted);
             //if (IsHighlighted != highlighted)
             {
                 IsHighlighted = highlighted;
@@ -706,14 +706,13 @@ namespace Assets.Scripts
         {
             if (IsVisible)
             {
-                
                 foreach (UnitBasePart unitBasePart in UnitBaseParts)
                 {
                     if (unitBasePart.PartType == TileObjectType.PartReactor)
                     {
                         foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
                         {
-                            // Transit the ingrdient into the weapon. This is the reloaded ammo. (Can be empty)
+                            // Transit the ingredient into the weapon. This is the reloaded ammo. (Can be empty)
                             UnitBaseTileObject unitBaseTileObject;
                             unitBaseTileObject = RemoveTileObject(moveRecipeIngredient);
                             if (unitBaseTileObject != null)

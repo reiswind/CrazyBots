@@ -248,7 +248,9 @@ namespace Engine.Interface
         [DataMember]
         public bool UnderConstruction { get; set; }
         [DataMember]
-        public int? ContainerFilled { get; set; }
+        public int? ContainedMinerals { get; set; }
+        [DataMember]
+        public int? ContainedTrees { get; set; }
     }
 
     [DataContract]
