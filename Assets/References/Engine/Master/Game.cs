@@ -2310,17 +2310,19 @@ namespace Engine.Master
                 Tile t = Map.GetTile(pos);
                 if (highestEnergy > 0)
                 {
-                    if (t.Owner != highestPlayerId && !changedGroundPositions.ContainsKey(pos))
+                    if (t.Owner != highestPlayerId)
                     {
-                        changedGroundPositions.Add(pos, null);
+                        if (!changedGroundPositions.ContainsKey(pos))
+                            changedGroundPositions.Add(pos, null);
                         t.Owner = highestPlayerId;
                     }
                 }
                 else
                 {
-                    if (t.Owner != 0 && !changedGroundPositions.ContainsKey(pos))
+                    if (t.Owner != 0)
                     {
-                        changedGroundPositions.Add(pos, null);
+                        if (!changedGroundPositions.ContainsKey(pos))
+                            changedGroundPositions.Add(pos, null);
                         t.Owner = 0;
                     }
                 }
@@ -2341,20 +2343,23 @@ namespace Engine.Master
             foreach (Position2 pos in newUpdatedPosition2s)
             {
                 Tile t = Map.GetTile(pos);
-                bool isBorder = false;
-                foreach (Tile n in t.Neighbors)
+                if (t.Owner != 0)
                 {
-                    if (n.Owner != t.Owner)
+                    bool isBorder = false;
+                    foreach (Tile n in t.Neighbors)
                     {
-                        isBorder = true;
-                        break;
+                        if (n.Owner != t.Owner && !n.IsUnderwater)
+                        {
+                            isBorder = true;
+                            break;
+                        }
                     }
-                }
-                if (t.IsBorder != isBorder)
-                {
-                    t.IsBorder = isBorder;
-                    if (!changedGroundPositions.ContainsKey(pos))
-                        changedGroundPositions.Add(pos, null);
+                    if (t.IsBorder != isBorder)
+                    {
+                        t.IsBorder = isBorder;
+                        if (!changedGroundPositions.ContainsKey(pos))
+                            changedGroundPositions.Add(pos, null);
+                    }
                 }
             }
         }

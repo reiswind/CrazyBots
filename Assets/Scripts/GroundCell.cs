@@ -1,10 +1,26 @@
 using Engine.Interface;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 namespace Assets.Scripts
 {
+    public class GroundCellBorder
+    {
+        public List<Position2> Positions { get; set; }
+        public GameObject Borderline { get; set; }
+
+        public void Delete()
+        {
+            if (Borderline != null)
+            {
+                HexGrid.Destroy(Borderline);
+                Borderline = null;
+            }
+        }
+    }
+
     public class GroundCell : MonoBehaviour
     {
         public Position2 Pos { get; set; }
@@ -14,6 +30,7 @@ namespace Assets.Scripts
         public bool ShowPheromones { get; set; }
 
         public bool VisibleByPlayer { get; set; }
+        //public GroundCellBorder GroundCellBorder { get; set; }
 
         private bool visible;
         public bool Visible
@@ -189,8 +206,8 @@ namespace Assets.Scripts
                     position.x += 0.1f;
                     markerToHome.transform.position = position;
                 }
-                
                 /*
+                
                 if (mapPheromone.IntensityToMineral > 0)
                 {
                     Vector3 position = transform.position;
@@ -377,11 +394,20 @@ namespace Assets.Scripts
 
                 }
             }
-            if (Stats.MoveUpdateGroundStat.IsOpenTile)
+            if (Stats.MoveUpdateGroundStat.IsBorder )
+                
+                //if (Stats.MoveUpdateGroundStat.IsBorder)
             //if (Stats.MoveUpdateGroundStat.ZoneId > 0)
             {
                 //materialName = "DarkSand";
+                //color = Color.red;
             }
+
+            if (Stats.MoveUpdateGroundStat.IsUnderwater)
+            {
+                ColorUtility.TryParseHtmlString("#006080", out color);
+            }
+
             Renderer[] rr = GetComponentsInChildren<Renderer>();
             foreach (Renderer renderer in rr)
             {
@@ -400,38 +426,431 @@ namespace Assets.Scripts
 
         }
 
-        internal void UpdateGround()
+        internal static void CreateBorderLines(List<GroundCellBorder> groundCellBorders, List<Position2> groundCellBorderChanged)
         {
-            UpdateCache();
-            if (Stats.MoveUpdateGroundStat.Owner == 0 || !Stats.MoveUpdateGroundStat.IsBorder || Stats.MoveUpdateGroundStat.IsUnderwater)
+            if (groundCellBorderChanged.Count == 0)
+                return;
+
+            List<Position2> visitedBorders = new List<Position2>();
+
+            foreach (Position2 position2 in groundCellBorderChanged)
             {
-                if (markerEnergy != null)
+                GroundCell gc = HexGrid.MainGrid.GroundCells[position2];
+                if (!visitedBorders.Contains(gc.Pos))
                 {
-                    Vector3 position = transform.position;
-                    position.y -= 2;
-                    markerEnergy.transform.position = position;
+                    if (!gc.IsBorder)
+                    {
+                        visitedBorders.Add(gc.Pos);
+                        foreach (GroundCellBorder groundCellBorder in groundCellBorders)
+                        {
+                            if (groundCellBorder.Positions.Contains(gc.Pos))
+                            {
+                                groundCellBorder.Delete();
+                                groundCellBorders.Remove(groundCellBorder);
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        List<Position2> visitedStartBorders = new List<Position2>();
+                        visitedStartBorders.Add(position2);
+
+                        bool startGcFound = false;
+                        while (!startGcFound)
+                        {
+                            startGcFound = true;
+
+                            // Find start border tile
+                            Position3 position3 = new Position3(gc.Pos);
+                            for (int i = position3.Neighbors.Count - 1; i >= 0; i--)
+                            {
+                                Position3 n = position3.Neighbors[i];
+
+                                GroundCell neighbor;
+                                if (!HexGrid.MainGrid.GroundCells.TryGetValue(n.Pos, out neighbor))
+                                    continue;
+                                if (!visitedStartBorders.Contains(neighbor.Pos) &&
+                                    neighbor.IsBorder && neighbor.Stats.MoveUpdateGroundStat.Owner == gc.Stats.MoveUpdateGroundStat.Owner)
+                                {
+                                    if (!visitedBorders.Contains(neighbor.Pos))
+                                    {
+                                        visitedStartBorders.Add(neighbor.Pos);
+                                        startGcFound = false;
+                                        gc = neighbor;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                        GroundCellBorder groundCellBorder = gc.CreateBorderLine(visitedBorders);
+                        if (groundCellBorder != null)
+                        {
+                            groundCellBorders.Add(groundCellBorder);
+                        }
+                    }
+                }
+            }
+        }
+
+        internal Transform GetDisplayedGroundCell()
+        {
+            LODGroup lodGroup = GetComponent<LODGroup>();
+            if (lodGroup != null)
+            {
+                Transform lodTransform = lodGroup.transform;
+                foreach (Transform child in lodTransform)
+                {
+                    if (!child.name.StartsWith("HexCell"))
+                        continue;
+                    return child;
+                }
+            }
+
+            return null;
+        }
+
+        void UpdateArrow(LineRenderer cachedLineRenderer)
+        {
+            float PercentHead = 0.4f; 
+            Vector3 ArrowOrigin = Vector3.back;
+            Vector3 ArrowTarget = Vector3.back;
+
+            if (cachedLineRenderer == null)
+                cachedLineRenderer = this.GetComponent<LineRenderer>();
+            cachedLineRenderer.widthCurve = new AnimationCurve(
+                new Keyframe(0, 0.4f)
+                , new Keyframe(0.999f - PercentHead, 0.4f)  // neck of arrow
+                , new Keyframe(1 - PercentHead, 1f)  // max width of arrow head
+                , new Keyframe(1, 0f));  // tip of arrow
+            cachedLineRenderer.SetPositions(new Vector3[] {
+              ArrowOrigin
+              , Vector3.Lerp(ArrowOrigin, ArrowTarget, 0.999f - PercentHead)
+              , Vector3.Lerp(ArrowOrigin, ArrowTarget, 1 - PercentHead)
+              , ArrowTarget });
+        }
+
+        void DrawQuadraticBezierCurve(LineRenderer lineRenderer, Vector3 point0, Vector3 point1, Vector3 point2)
+        {
+            lineRenderer.positionCount = 200;
+            float t = 0f;
+            Vector3 B = new Vector3(0, 0, 0);
+            for (int i = 0; i < lineRenderer.positionCount; i++)
+            {
+                B = (1 - t) * (1 - t) * point0 + 2 * (1 - t) * t * point1 + t * t * point2;
+                lineRenderer.SetPosition(i, B);
+                t += (1 / (float)lineRenderer.positionCount);
+            }
+        }
+
+        private static List<Vector3> groundCellMesh;
+
+        public static List<Vector3> GroundCellMesh
+        {
+            get
+            {
+                if (groundCellMesh == null)
+                {
+                    groundCellMesh = new List<Vector3>();
+                    /*
+                    groundCellMesh.Add(new Vector3(0.86f, 0, 0.5f)); // 0
+                    groundCellMesh.Add(new Vector3(0.86f, 0, -0.5f)); // 1
+                    groundCellMesh.Add(new Vector3(0, 0, -1)); // 2
+                    groundCellMesh.Add(new Vector3(0, 0, 1)); // 3
+                    groundCellMesh.Add(new Vector3(-0.86f, 0, 0.5f)); // 4
+                    groundCellMesh.Add(new Vector3(-0.86f, 0, -0.5f)); // 5
+                    */
+                    /* Smaller*/
+                    groundCellMesh.Add(new Vector3(0.81f, 0, 0.45f)); // 0
+                    groundCellMesh.Add(new Vector3(0.81f, 0, -0.45f)); // 1
+                    groundCellMesh.Add(new Vector3(0, 0, -1)); // 2
+                    groundCellMesh.Add(new Vector3(0, 0, 1)); // 3
+                    groundCellMesh.Add(new Vector3(-0.81f, 0, 0.45f)); // 4
+                    groundCellMesh.Add(new Vector3(-0.81f, 0, -0.45f)); // 5
+
+                }
+                return groundCellMesh;
+            }
+        }
+
+        internal GroundCellBorder CreateBorderLine(List<Position2> visitedBorders)
+        {
+            GroundCellBorder groundCellBorder = null;
+            if (Stats.MoveUpdateGroundStat.Owner == 0)
+            {
+                return null;
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("CreateBorderLine at " + Pos.ToString());
+
+            List<Vector3> allvertices = new List<Vector3>();
+            List<Position2> positions = new List<Position2>();
+
+            CreateBorderLine(positions, allvertices, visitedBorders, sb);
+
+            if (allvertices.Count > 1)
+            {
+                groundCellBorder = new GroundCellBorder();
+
+                GameObject lineRendererObject = new GameObject();
+                lineRendererObject.name = "Borderline";
+
+                LineRenderer lineRenderer = lineRendererObject.AddComponent<LineRenderer>();
+                lineRenderer.transform.SetParent(HexGrid.MainGrid.transform, false);
+                lineRenderer.material = HexGrid.MainGrid.GetMaterial("Player" + Stats.MoveUpdateGroundStat.Owner);
+                //lineRenderer.material = HexGrid.MainGrid.GetMaterial("Shield");
+                //lineRenderer.loop = true;
+                //lineRenderer.startColor = Color.yellow;
+                //lineRenderer.endColor = Color.yellow;
+                //lineRenderer.alignment = LineAlignment.View;
+                lineRenderer.allowOcclusionWhenDynamic = true;
+
+                lineRenderer.startWidth = 0.25f;
+                lineRenderer.endWidth = 0.25f;
+                lineRenderer.receiveShadows = false;
+                lineRenderer.numCornerVertices = 10;
+                lineRenderer.useWorldSpace = true;
+
+                groundCellBorder.Positions = positions;
+                groundCellBorder.Borderline = lineRendererObject;
+
+                lineRenderer.positionCount = allvertices.Count;
+                for (int i = 0; i < allvertices.Count; i++)
+                {
+                    lineRenderer.SetPosition(i, allvertices[i]);
+                }
+
+                Debug.Log(sb.ToString());
+            }
+            return groundCellBorder;
+        }
+
+        internal void CreateBorderLine(List<Position2> positions, List<Vector3> allvertices, List<Position2> visitedBorders, StringBuilder sb)
+        {
+            Vector3 transVert;
+            float aboveGround = 0.08f;
+
+            //Transform groundCellObject = GetDisplayedGroundCell();
+            visitedBorders.Add(Pos);
+
+            bool updateNE = false;
+            bool updateN = false;
+            bool updateNW = false;
+            bool updateSE = false;
+            bool updateS = false;
+            bool updateSW = false;
+
+            GroundCell neighborBorder = null;
+
+            Position3 position3 = new Position3(Pos);
+            foreach (Position3 n in position3.Neighbors)
+            {
+                GroundCell neighbor;
+                if (!HexGrid.MainGrid.GroundCells.TryGetValue(n.Pos, out neighbor))
+                    continue;
+                if (neighbor.IsBorder && neighbor.Stats.MoveUpdateGroundStat.Owner == Stats.MoveUpdateGroundStat.Owner && 
+                    /*neighbor.GroundCellBorder == null && */ neighborBorder == null)
+                {
+                    if (!visitedBorders.Contains(neighbor.Pos))
+                        neighborBorder = neighbor;
+                }
+
+                if (neighbor.Stats.MoveUpdateGroundStat.Owner != Stats.MoveUpdateGroundStat.Owner)
+                {
+                    if (Pos.X == 64 && Pos.Y == 80)
+                    {
+                        Renderer[] rr = neighbor.GetComponentsInChildren<Renderer>();
+                        foreach (Renderer renderer in rr)
+                        {
+                            renderer.material.SetColor("SurfaceColor", Color.cyan);
+                        }
+                    }
+                    if (n.Direction == Direction.N) updateN = true;
+                    if (n.Direction == Direction.NE) updateNE = true;
+                    if (n.Direction == Direction.NW) updateNW = true;
+                    if (n.Direction == Direction.S) updateS = true;
+                    if (n.Direction == Direction.SE) updateSE = true;
+                    if (n.Direction == Direction.SW) updateSW = true;
+                }
+            }
+
+            positions.Add(Pos);
+
+            // Middle
+            transVert = transform.position;
+            transVert.y += aboveGround;
+            allvertices.Add(transVert);
+
+
+            /*
+            if (updateN && updateNW)
+            {
+                // other direction
+                if (updateNW)
+                {
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[4]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[3]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+                }
+                if (updateSW)
+                {
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[5]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[4]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+                }
+                if (updateS)
+                {
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[2]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[5]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+                }
+                if (updateSE)
+                {
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[1]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[2]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+                }
+                if (updateNE)
+                {
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[0]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[1]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+                }
+                if (updateN)
+                {
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[3]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[0]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
                 }
             }
             else
             {
-                if (markerEnergy == null)
+                if (updateN)
                 {
-                    CreateMarker();
-                }
-                float highestEnergy = 1;
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[3]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
 
-                Vector3 position = transform.position;
-                position.y += 0.054f + (0.2f * highestEnergy);
-                markerEnergy.transform.position = position;
-                UnitBase.SetPlayerColor(Stats.MoveUpdateGroundStat.Owner, markerEnergy);
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[0]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+                }
+                if (updateNE)
+                {
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[0]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[1]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+                }
+
+                if (updateSE)
+                {
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[1]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[2]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+                }
+
+                if (updateS)
+                {
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[2]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[5]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+                }
+                if (updateSW)
+                {
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[5]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[4]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+                }
+
+                if (updateNW)
+                {
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[4]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+
+                    transVert = groundCellObject.TransformPoint(GroundCellMesh[3]);
+                    transVert.y += aboveGround;
+                    allvertices.Add(transVert);
+                }
             }
+            */
+            if (neighborBorder != null)
+            {
+                sb.AppendLine("Neighbor : " + neighborBorder.Pos.ToString());
+                neighborBorder.CreateBorderLine(positions, allvertices, visitedBorders, sb);
+            }
+        }
+
+        public bool IsBorder
+        {
+            get
+            {
+                //return !(Stats.MoveUpdateGroundStat.Owner == 0 || !Stats.MoveUpdateGroundStat.IsBorder || Stats.MoveUpdateGroundStat.IsUnderwater);
+                return Stats.MoveUpdateGroundStat.IsBorder;
+            }
+        }
+
+        internal Position2 UpdateGround(MoveUpdateStats moveUpdateStats)
+        {
+            bool wasBorder = IsBorder;
+
+            Stats = moveUpdateStats;
+            UpdateCache();
 
             Vector3 vector3 = transform.localPosition;
             vector3.y = Stats.MoveUpdateGroundStat.Height + 0.3f;
             transform.localPosition = vector3;
 
             CreateDestructables(false);
-            
+
+            Position2 borderCell = Position2.Null;
+
+            if (wasBorder != IsBorder)
+            {
+                // Changed border, need update
+                borderCell = Pos;
+            }
+            return borderCell;
         }
 
         internal GroundCell GetNeighbor(Direction direction)
@@ -517,6 +936,7 @@ namespace Assets.Scripts
         internal void CreateDestructables(bool init)
         {
             SetGroundMaterial();
+            //return;
 
             List<UnitBaseTileObject> destroyedTileObjects = new List<UnitBaseTileObject>();
             destroyedTileObjects.AddRange(GameObjects);

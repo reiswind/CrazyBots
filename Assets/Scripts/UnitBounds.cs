@@ -221,6 +221,35 @@ namespace Assets.Scripts
             collectRadius = radius;
         }
 
+        private static List<Vector3> groundCellMesh;
+
+        public static List<Vector3> GroundCellMesh
+        {
+            get
+            {
+                if (groundCellMesh == null)
+                {
+                    groundCellMesh = new List<Vector3>();
+                    groundCellMesh.Add(new Vector3(0.86f, 0, 0.5f)); // 0
+                    groundCellMesh.Add(new Vector3(0.86f, 0, -0.5f)); // 1
+                    groundCellMesh.Add(new Vector3(0, 0, -1)); // 2
+                    groundCellMesh.Add(new Vector3(0, 0, 1)); // 3
+                    groundCellMesh.Add(new Vector3(-0.86f, 0, 0.5f)); // 4
+                    groundCellMesh.Add(new Vector3(-0.86f, 0, -0.5f)); // 5
+
+                    /* Smaller
+                    meshvertices.Add(new Vector3(0.6f, 0, 0.4f)); // 0
+                    meshvertices.Add(new Vector3(0.6f, 0, -0.4f)); // 1
+                    meshvertices.Add(new Vector3(0, 0, -0.8f)); // 2
+                    meshvertices.Add(new Vector3(0, 0, 0.8f)); // 3
+                    meshvertices.Add(new Vector3(-0.6f, 0, 0.4f)); // 4
+                    meshvertices.Add(new Vector3(-0.6f, 0, -0.4f)); // 5
+                    */
+                }
+                return groundCellMesh;
+            }
+        }
+
         private void CreateFrame(List<Position3> positions)
         {
             GameObject lineRendererObject = new GameObject();
@@ -231,8 +260,8 @@ namespace Assets.Scripts
             lineRenderer.material = HexGrid.MainGrid.GetMaterial("test");
             lineRenderer.loop = true;
 
-            lineRenderer.startColor = Color.yellow;
-            lineRenderer.endColor = Color.yellow;
+            //lineRenderer.startColor = Color.yellow;
+            //lineRenderer.endColor = Color.yellow;
 
             lineRenderer.startWidth = 0.15f;
             lineRenderer.endWidth = 0.15f;
@@ -245,23 +274,7 @@ namespace Assets.Scripts
             lineRenderer.useWorldSpace = true;
 
             List<Vector3> allvertices = new List<Vector3>();
-            List<Vector3> meshvertices = new List<Vector3>();
-            
-            meshvertices.Add(new Vector3(0.86f, 0, 0.5f)); // 0
-            meshvertices.Add(new Vector3(0.86f, 0, -0.5f)); // 1
-            meshvertices.Add(new Vector3(0, 0, -1)); // 2
-            meshvertices.Add(new Vector3(0, 0, 1)); // 3
-            meshvertices.Add(new Vector3(-0.86f, 0, 0.5f)); // 4
-            meshvertices.Add(new Vector3(-0.86f, 0, -0.5f)); // 5
 
-            /* Smaller
-            meshvertices.Add(new Vector3(0.6f, 0, 0.4f)); // 0
-            meshvertices.Add(new Vector3(0.6f, 0, -0.4f)); // 1
-            meshvertices.Add(new Vector3(0, 0, -0.8f)); // 2
-            meshvertices.Add(new Vector3(0, 0, 0.8f)); // 3
-            meshvertices.Add(new Vector3(-0.6f, 0, 0.4f)); // 4
-            meshvertices.Add(new Vector3(-0.6f, 0, -0.4f)); // 5
-            */
 
             Transform lastChild = null;
             float aboveGround = 0.1f;
@@ -276,117 +289,109 @@ namespace Assets.Scripts
                 GroundCell groundCell;
                 if (HexGrid.MainGrid.GroundCells.TryGetValue(position.Pos, out groundCell))
                 {
-                    LODGroup lodGroup = groundCell.GetComponent<LODGroup>();
-                    if (lodGroup != null)
+                    Transform child = groundCell.GetDisplayedGroundCell();
+
+                    var renderer = child.GetComponent<Renderer>();
+                    if (renderer != null)
                     {
-                        Transform lodTransform = lodGroup.transform;
-                        foreach (Transform child in lodTransform)
+                        Vector3 transVert;
+                        if (position.Direction == Direction.NE)
                         {
-                            if (!child.name.StartsWith("HexCell"))
-                                continue;
+                            transVert = child.transform.TransformPoint(GroundCellMesh[4]);
+                            transVert.y += aboveGround;
+                            allvertices.Add(transVert);
 
-                            var renderer = child.GetComponent<Renderer>();
-                            if (renderer != null)
-                            {
-                                Vector3 transVert;
-                                if (position.Direction == Direction.NE)
-                                {
-                                    transVert = child.transform.TransformPoint(meshvertices[4]);
-                                    transVert.y += aboveGround;
-                                    allvertices.Add(transVert);
+                            transVert = child.transform.TransformPoint(GroundCellMesh[3]);
+                            transVert.y += aboveGround;
+                            allvertices.Add(transVert);
 
-                                    transVert = child.transform.TransformPoint(meshvertices[3]);
-                                    transVert.y += aboveGround;
-                                    allvertices.Add(transVert);
-
-                                    transVert = child.transform.TransformPoint(meshvertices[0]);
-                                    transVert.y += aboveGround;
-                                    allvertices.Add(transVert);
-                                }
-
-                                if (position.Direction == Direction.SE)
-                                {
-                                    transVert = child.transform.TransformPoint(meshvertices[3]);
-                                    transVert.y += aboveGround;
-                                    allvertices.Add(transVert);
-
-                                    transVert = child.transform.TransformPoint(meshvertices[0]);
-                                    transVert.y += aboveGround;
-                                    allvertices.Add(transVert);
-                                }
-                                if (position.Direction == Direction.S)
-                                {
-                                    if (isBorder)
-                                    {
-                                        transVert = lastChild.transform.TransformPoint(meshvertices[1]);
-                                        transVert.y += aboveGround;
-                                        allvertices.Add(transVert);
-
-                                        transVert = lastChild.transform.TransformPoint(meshvertices[2]);
-                                        transVert.y += aboveGround;
-                                        allvertices.Add(transVert);
-                                    }
-                                    transVert = child.transform.TransformPoint(meshvertices[1]);
-                                    transVert.y += aboveGround;
-                                    allvertices.Add(transVert);
-                                    transVert = child.transform.TransformPoint(meshvertices[2]);
-                                    transVert.y += aboveGround;
-                                    allvertices.Add(transVert);
-                                }
-                                if (position.Direction == Direction.SW)
-                                {
-                                    transVert = child.transform.TransformPoint(meshvertices[1]);
-                                    transVert.y += aboveGround;
-                                    allvertices.Add(transVert);
-                                    transVert = child.transform.TransformPoint(meshvertices[2]);
-                                    transVert.y += aboveGround;
-                                    allvertices.Add(transVert);
-                                }
-                                if (position.Direction == Direction.NW)
-                                {
-                                    if (isBorder)
-                                    {
-                                        transVert = lastChild.transform.TransformPoint(meshvertices[5]);
-                                        transVert.y += aboveGround;
-                                        allvertices.Add(transVert);
-
-                                        transVert = lastChild.transform.TransformPoint(meshvertices[4]);
-                                        transVert.y += aboveGround;
-                                        allvertices.Add(transVert);
-                                    }
-
-                                    transVert = child.transform.TransformPoint(meshvertices[5]);
-                                    transVert.y += aboveGround;
-                                    allvertices.Add(transVert);
-                                    transVert = child.transform.TransformPoint(meshvertices[4]);
-                                    transVert.y += aboveGround;
-                                    allvertices.Add(transVert);
-                                }
-                                if (position.Direction == Direction.N)
-                                {
-                                    if (isBorder)
-                                    {
-                                        transVert = lastChild.transform.TransformPoint(meshvertices[4]);
-                                        transVert.y += aboveGround;
-                                        allvertices.Add(transVert);
-
-                                        transVert = lastChild.transform.TransformPoint(meshvertices[3]);
-                                        transVert.y += aboveGround;
-                                        allvertices.Add(transVert);
-                                    }
-
-                                    transVert = child.transform.TransformPoint(meshvertices[4]);
-                                    transVert.y += aboveGround;
-                                    allvertices.Add(transVert);
-
-                                    transVert = child.transform.TransformPoint(meshvertices[3]);
-                                    transVert.y += aboveGround;
-                                    allvertices.Add(transVert);
-                                }
-                            }
-                            lastChild = child;
+                            transVert = child.transform.TransformPoint(GroundCellMesh[0]);
+                            transVert.y += aboveGround;
+                            allvertices.Add(transVert);
                         }
+                        
+                        if (position.Direction == Direction.SE)
+                        {
+                            transVert = child.transform.TransformPoint(GroundCellMesh[3]);
+                            transVert.y += aboveGround;
+                            allvertices.Add(transVert);
+
+                            transVert = child.transform.TransformPoint(GroundCellMesh[0]);
+                            transVert.y += aboveGround;
+                            allvertices.Add(transVert);
+                        }
+                        if (position.Direction == Direction.S)
+                        {
+                            if (isBorder)
+                            {
+                                transVert = lastChild.transform.TransformPoint(GroundCellMesh[1]);
+                                transVert.y += aboveGround;
+                                allvertices.Add(transVert);
+
+                                transVert = lastChild.transform.TransformPoint(GroundCellMesh[2]);
+                                transVert.y += aboveGround;
+                                allvertices.Add(transVert);
+                            }
+                            transVert = child.transform.TransformPoint(GroundCellMesh[1]);
+                            transVert.y += aboveGround;
+                            allvertices.Add(transVert);
+                            transVert = child.transform.TransformPoint(GroundCellMesh[2]);
+                            transVert.y += aboveGround;
+                            allvertices.Add(transVert);
+                        }
+                        if (position.Direction == Direction.SW)
+                        {
+                            transVert = child.transform.TransformPoint(GroundCellMesh[1]);
+                            transVert.y += aboveGround;
+                            allvertices.Add(transVert);
+                            transVert = child.transform.TransformPoint(GroundCellMesh[2]);
+                            transVert.y += aboveGround;
+                            allvertices.Add(transVert);
+                        }
+                        if (position.Direction == Direction.NW)
+                        {
+                            if (isBorder)
+                            {
+                                transVert = lastChild.transform.TransformPoint(GroundCellMesh[5]);
+                                transVert.y += aboveGround;
+                                allvertices.Add(transVert);
+
+                                transVert = lastChild.transform.TransformPoint(GroundCellMesh[4]);
+                                transVert.y += aboveGround;
+                                allvertices.Add(transVert);
+                            }
+
+                            transVert = child.transform.TransformPoint(GroundCellMesh[5]);
+                            transVert.y += aboveGround;
+                            allvertices.Add(transVert);
+                            transVert = child.transform.TransformPoint(GroundCellMesh[4]);
+                            transVert.y += aboveGround;
+                            allvertices.Add(transVert);
+                        }
+                        if (position.Direction == Direction.N)
+                        {
+                            if (isBorder)
+                            {
+                                transVert = lastChild.transform.TransformPoint(GroundCellMesh[4]);
+                                transVert.y += aboveGround;
+                                allvertices.Add(transVert);
+
+                                transVert = lastChild.transform.TransformPoint(GroundCellMesh[3]);
+                                transVert.y += aboveGround;
+                                allvertices.Add(transVert);
+                            }
+
+                            transVert = child.transform.TransformPoint(GroundCellMesh[4]);
+                            transVert.y += aboveGround;
+                            allvertices.Add(transVert);
+
+                            transVert = child.transform.TransformPoint(GroundCellMesh[3]);
+                            transVert.y += aboveGround;
+                            allvertices.Add(transVert);
+                        }
+                        
                     }
+                    lastChild = child;
                 }
             }
 

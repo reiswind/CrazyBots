@@ -786,6 +786,8 @@ namespace Assets.Scripts
         }
         private List<Position2> updatedPositions = new List<Position2>();
         private List<Position2> groundcellsWithCommands = new List<Position2>();
+        private List<GroundCellBorder> groundCellBorders = new List<GroundCellBorder>();
+
         private bool startPositionSet = false;
         private int moveCounter;
         public int MoveCounter
@@ -825,7 +827,7 @@ namespace Assets.Scripts
 
                 if (MapInfo != null)
                 {
-                    /*
+                    
                     foreach (Position2 pos in MapInfo.Pheromones.Keys)
                     {
                         MapPheromone mapPheromone = MapInfo.Pheromones[pos];
@@ -839,7 +841,7 @@ namespace Assets.Scripts
                     {
                         GroundCell hexCell = GroundCells[pos];
                         hexCell.UpdatePheromones(null);
-                    }*/
+                    }
                     updatedPositions = newUpdatedPositions;
                     if (GroundCells.Count > 0)
                     {
@@ -938,6 +940,8 @@ namespace Assets.Scripts
             Move lastmove = null;
             try
             {
+                List<Position2> groundCellBorderChanged = new List<Position2>();
+
                 foreach (Move move in newMoves)
                 {
                     lastmove = move;
@@ -1077,8 +1081,6 @@ namespace Assets.Scripts
                             GroundCell hexCell;
                             if (GroundCells.TryGetValue(move.Positions[0], out hexCell))
                             {
-                                hexCell.Stats = move.Stats;
-
                                 if (!useThread)
                                 {
                                     hexCell.Visible = true;
@@ -1097,7 +1099,11 @@ namespace Assets.Scripts
                                         hexCell.VisibleByPlayer = (move.Stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
                                     }
                                 }
-                                hexCell.UpdateGround();
+
+                                //hexCell.Stats = move.Stats;
+                                Position2 borderPos = hexCell.UpdateGround(move.Stats);
+                                if (borderPos != Position2.Null)
+                                    groundCellBorderChanged.Add(borderPos);
                             }
                             else
                             {
@@ -1128,6 +1134,9 @@ namespace Assets.Scripts
                     }
                 }
                 newMoves.Clear();
+                //groundCellBorderChanged.Clear();
+                //groundCellBorderChanged.AddRange(GroundCells.Keys);
+                GroundCell.CreateBorderLines(groundCellBorders, groundCellBorderChanged);
             }
             catch (Exception err)
             {
@@ -1431,8 +1440,7 @@ namespace Assets.Scripts
                     {
                         if (hitByBullet.UpdateGroundStats.MoveUpdateGroundStat != null)
                         {
-                            hexCell.Stats = hitByBullet.UpdateGroundStats;
-                            hexCell.UpdateGround();
+                            hexCell.UpdateGround(hitByBullet.UpdateGroundStats);
                         }
                     }
                 }

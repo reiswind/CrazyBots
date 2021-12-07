@@ -334,12 +334,12 @@ namespace Engine.Interface
             get
             {
                 List<Position3> neighbors = new List<Position3>();
-                neighbors.Add(GetNeighbor(Direction.N));
                 neighbors.Add(GetNeighbor(Direction.NE));
-                neighbors.Add(GetNeighbor(Direction.NW));
-                neighbors.Add(GetNeighbor(Direction.S));
                 neighbors.Add(GetNeighbor(Direction.SE));
+                neighbors.Add(GetNeighbor(Direction.S));
                 neighbors.Add(GetNeighbor(Direction.SW));
+                neighbors.Add(GetNeighbor(Direction.NW));
+                neighbors.Add(GetNeighbor(Direction.N));
                 return neighbors;
             }
         }
