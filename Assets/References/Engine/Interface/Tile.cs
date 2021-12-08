@@ -190,8 +190,10 @@ namespace Engine.Interface
             return changed;
         }
 
-        internal void ExtractTileObject(TileObject removedTileObject)
+        internal bool ExtractTileObject(TileObject removedTileObject)
         {
+            bool extracted = false;
+
             foreach (TileObject tileObject in TileContainer.TileObjects)
             {
                 if (tileObject.TileObjectType == removedTileObject.TileObjectType)
@@ -217,9 +219,11 @@ namespace Engine.Interface
                         Map.BioMass++;
                     }
                     UpdateCache();
+                    extracted = true;
                     break;
                 }
             }
+            return extracted;
         }
         
         internal static Direction TurnAround(Direction direction)

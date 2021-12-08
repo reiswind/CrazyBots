@@ -85,9 +85,9 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
             GameModel gameModel;
@@ -540,7 +540,7 @@ namespace Assets.Scripts
                 {
                     Move move = new Move();
                     move.Stats = new MoveUpdateStats();
-                    game.CollectGroundStats(t.Pos, move, null);
+                    game.CollectGroundStats(t.Pos, move);
                     GroundCell hexCell = CreateCell(t.Pos, null, cellPrefab);
                     GroundCells.Add(t.Pos, hexCell);
                 }

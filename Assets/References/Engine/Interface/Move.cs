@@ -59,7 +59,6 @@ namespace Engine.Interface
         public List<TileObject> TileObjects { get; set; }
         public int? Capacity { get; set; }
         public int? AvailablePower { get; set; }
-        public List<string> BildQueue { get; set; }
     }
 
     public class MoveUpdateGroundStat
@@ -194,10 +193,19 @@ namespace Engine.Interface
     {
         [DataMember(EmitDefaultValue = false)]
         public TileObjectType Source { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public TileObjectType Target { get; set; }
+
         [DataMember(EmitDefaultValue = false)]
         public TileObjectType TileObjectType { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public TileObjectKind TileObjectKind { get; set; }
+
         [DataMember(EmitDefaultValue = false)]
         public int Count { get; set; }
+
         [DataMember(EmitDefaultValue = false)]
         public Position2 Position { get; set; }
 

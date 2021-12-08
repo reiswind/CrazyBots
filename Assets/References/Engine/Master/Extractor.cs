@@ -226,7 +226,7 @@ namespace Engine.Master
                                         Move move = CreateExtractMoveIfPossible(t.Unit);
                                         if (move == null)
                                         {
-                                            // Cannot extract what hat been delivered
+                                            // Cannot extract what has been delivered
                                             Unit.CurrentGameCommand.GameCommand.CommandCanceled = true;
                                             Unit.ResetGameCommand();
                                         }
@@ -435,57 +435,81 @@ namespace Engine.Master
             }
         }
 
-        public void ExtractFromUnit(Move move, Unit otherUnit, List<TileObject> removeTileObjects)
+        public void ExtractFromUnit(Move move, Unit otherUnit, List<MoveRecipeIngredient> extractedItems, int capacity, Dictionary<Position2, Unit> changedUnits)
         {
-            Ability hitPart = otherUnit.HitBy(true);
+            if (!changedUnits.ContainsKey(otherUnit.Pos))
+                changedUnits.Add(otherUnit.Pos, otherUnit);
 
-            if (hitPart.Level == 0 && hitPart.TileContainer != null)
+            while (capacity > 0)
             {
-                if (hitPart.TileContainer.TileObjects.Count > 0)
-                {
-                    removeTileObjects.AddRange(hitPart.TileContainer.TileObjects);
-                    hitPart.TileContainer.Clear();
-                }
+                MoveRecipeIngredient realIndigrient = otherUnit.FindIngredient(TileObjectType.All, false);
+                if (realIndigrient == null) break;
+                otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
+                capacity--;
+                extractedItems.Add(realIndigrient);
             }
 
-            TileObject removedTileObject = hitPart.PartTileObjects[0];
-            hitPart.PartTileObjects.Remove(removedTileObject);
-            removeTileObjects.Add(removedTileObject);
-
-            foreach (TileObject removed in removeTileObjects)
+            if (capacity > 0)
             {
-                if (!TileObject.IsTileObjectTypeCollectable(removed.TileObjectType))
+
+                Ability hitPart = otherUnit.HitBy(true);
+                
+                if (hitPart.Level == 0 && hitPart.TileContainer != null)
                 {
-                    if (!TileObject.CanConvertTileObjectIntoMineral(removed.TileObjectType))
+                    if (hitPart.TileContainer.TileObjects.Count > 0)
                     {
-                        throw new Exception();
+                        //removeTileObjects.AddRange(hitPart.TileContainer.TileObjects);
+                        hitPart.TileContainer.Clear();
                     }
                 }
-            }
 
-            move.Stats = new MoveUpdateStats();
-            Unit.Game.CollectGroundStats(otherUnit.Pos, move, removeTileObjects);
+                TileObject removedTileObject = hitPart.PartTileObjects[0];
+                hitPart.PartTileObjects.Remove(removedTileObject);
 
-            if (otherUnit.IsDead())
-            {
-                if (hitPart.PartTileObjects.Count > 0)
-                    throw new Exception();
+                MoveRecipeIngredient indigrient = new MoveRecipeIngredient();
+                indigrient.Count = 1;
+                indigrient.Position = otherUnit.Pos;
+                indigrient.TileObjectType = removedTileObject.TileObjectType;
+                indigrient.Source = removedTileObject.TileObjectType;
+                extractedItems.Add(indigrient);
+
+                //removeTileObjects.Add(removedTileObject);
+                /*
+                foreach (TileObject removed in removeTileObjects)
+                {
+                    if (!TileObject.IsTileObjectTypeCollectable(removed.TileObjectType))
+                    {
+                        if (!TileObject.CanConvertTileObjectIntoMineral(removed.TileObjectType))
+                        {
+                            throw new Exception();
+                        }
+                    }
+                }
+
+                move.Stats = new MoveUpdateStats();
+                Unit.Game.CollectGroundStats(otherUnit.Pos, move, removeTileObjects);
+
+                if (otherUnit.IsDead())
+                {
+                    if (hitPart.PartTileObjects.Count > 0)
+                        throw new Exception();
+                }
+                */
             }
         }
 
-        public bool ExtractInto(Unit unit, Move move, Tile fromTile, Game game, Unit otherUnit, Dictionary<Position2, Unit> changedUnits)
+        public bool ExtractInto(Unit unit, Move move, Tile fromTile, Unit otherUnit, Dictionary<Position2, Unit> changedUnits)
         {
-            List<TileObject> removeTileObjects = new List<TileObject>();
             List<MoveRecipeIngredient> extractedItems = new List<MoveRecipeIngredient>();
 
             if (otherUnit != null)
             {
+                int capacity = Unit.CountCapacity();
+                int minsInContainer = Unit.CountTileObjectsInContainer();
+                capacity -= minsInContainer;
+
                 if (otherUnit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
                 {
-                    int capacity = Unit.CountCapacity();
-                    int minsInContainer = Unit.CountTileObjectsInContainer();
-                    capacity -= minsInContainer;
-
                     bool extractAnything = true;
 
                     if (unit.CurrentGameCommand != null)
@@ -549,12 +573,6 @@ namespace Engine.Master
                                     }
                                 }
                             }
-
-                            /*if (unit.CurrentGameCommand.TargetUnit.UnitId == unit.UnitId)
-                            {
-                                // This is the transporter??. It has extracted the content into the target, command is complete
-                                unit.CurrentGameCommand.GameCommand.CommandComplete = true;
-                            }*/
                         }
                     }
                     if (extractAnything)
@@ -562,22 +580,74 @@ namespace Engine.Master
                         // friendly unit
                         while (capacity > 0)
                         {
-                            MoveRecipeIngredient realIndigrient = unit.FindIngredient(TileObjectType.All, true);
-                            if (realIndigrient == null) break;
-                            unit.ReserveIngredient(realIndigrient);
-                            extractedItems.Add(realIndigrient);
-                            /*
-                            if (!otherUnit.RemoveTileObjects(removeTileObjects, 1, TileObjectType.All, unit))
+                            // Extract only from the unit (false)
+                            bool extractNeighbors = false;
+                            if (otherUnit.Engine != null)
                             {
-                                break;
-                            }*/
+                                // Depends...
+                                extractNeighbors = false;
+                            }
+                            MoveRecipeIngredient realIndigrient = otherUnit.FindIngredient(TileObjectType.All, extractNeighbors);
+                            if (realIndigrient == null) break;
+                            otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
                             capacity--;
+
+                            // Targetposition
+                            if (Unit.AddIngredient(realIndigrient))
+                            {
+                                if (!changedUnits.ContainsKey(Unit.Pos))
+                                    changedUnits.Add(Unit.Pos, Unit);
+
+                                realIndigrient.Position = Unit.Pos;
+                                extractedItems.Add(realIndigrient);
+                            }
                         }
                     }
 
                     if (otherUnit.ExtractMe && !otherUnit.IsDead() && capacity > 0)
                     {
-                        ExtractFromUnit(move, otherUnit, removeTileObjects);
+                        ExtractFromUnit(move, otherUnit, extractedItems, capacity, changedUnits);
+                    }
+
+                    // Near Field Delivery. Extract all items from the transporter and place it in nearby untis
+                    if (unit.Extractor != null && otherUnit.Engine != null && otherUnit.Container != null)
+                    {
+                        Tile unitTile = Unit.Game.Map.GetTile(Unit.Pos);
+
+                        List<TileObject> availableTileObjects = new List<TileObject>();
+                        availableTileObjects.AddRange(otherUnit.Container.TileContainer.TileObjects);
+
+                        foreach (TileObject tileObject in availableTileObjects)
+                        {
+                            bool outOfIndigrients = false;
+                            foreach (Tile n in unitTile.Neighbors)
+                            {
+                                if (n.Unit != null &&
+                                    n.Unit != Unit &&
+                                    n.Unit.IsComplete() &&
+                                    n.Unit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
+                                {
+                                    if (n.Unit.IsSpaceForTileObject(tileObject))
+                                    {
+                                        MoveRecipeIngredient realIndigrient = otherUnit.GetConsumableIngredient(tileObject.TileObjectType, false);
+                                        if (realIndigrient == null)
+                                        {
+                                            outOfIndigrients = true;
+                                            break;
+                                        }
+                                        otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
+
+                                        if (!changedUnits.ContainsKey(n.Unit.Pos))
+                                            changedUnits.Add(n.Unit.Pos, n.Unit);
+
+                                        realIndigrient.Position = n.Unit.Pos;
+                                        extractedItems.Add(realIndigrient);
+                                    }
+                                }
+                            }
+                            if (outOfIndigrients)
+                                break;
+                        }
                     }
                 }
                 else
@@ -585,7 +655,7 @@ namespace Engine.Master
                     // enemy unit
                     if (!otherUnit.IsDead())
                     {
-                        ExtractFromUnit(move, otherUnit, removeTileObjects);
+                        ExtractFromUnit(move, otherUnit, extractedItems, capacity, changedUnits);
                     }
                 }
             }
@@ -598,21 +668,44 @@ namespace Engine.Master
 
                     if (Unit.IsSpaceForTileObject(tileObject))
                     {
-                        fromTile.ExtractTileObject(tileObject);
-                        removeTileObjects.Add(tileObject);
-                        break;
+                        if (fromTile.ExtractTileObject(tileObject))
+                        {
+                            MoveRecipeIngredient indigrient = new MoveRecipeIngredient();
+                            indigrient.Count = 1;
+                            indigrient.Position = fromTile.Pos;
+                            indigrient.TileObjectType = tileObject.TileObjectType;
+                            indigrient.Source = TileObjectType.Ground;
+                            extractedItems.Add(indigrient);
+
+                            if (!Unit.AddIngredient(indigrient))
+                            {
+                                throw new Exception("Why? Cant believe");
+                            }
+                            break;
+                        }
                     }
                 }
             }
 
             // The removed tileobjects will be in the move until the next move
             move.Stats = unit.CollectStats();
-            Unit.Game.CollectGroundStats(unit.Pos, move, removeTileObjects);
+            Unit.Game.CollectGroundStats(unit.Pos, move);
             move.MoveRecipe = new MoveRecipe();
             move.MoveRecipe.Ingredients = extractedItems;
 
-            bool didRemove = removeTileObjects.Count > 0 || extractedItems.Count > 0;
+            bool didRemove = extractedItems.Count > 0;
+            if (didRemove)
+            {
+                if (!changedUnits.ContainsKey(unit.Pos))
+                    changedUnits.Add(unit.Pos, Unit);
 
+                // Book immediatly. Items appear in ui before they arrive. But this is not an issue here
+                if (otherUnit != null)
+                {
+                    if (!changedUnits.ContainsKey(otherUnit.Pos))
+                        changedUnits.Add(otherUnit.Pos, otherUnit);
+                }
+            }
             return didRemove;
         }
     }

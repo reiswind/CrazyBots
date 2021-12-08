@@ -260,7 +260,7 @@ namespace Engine.Master
             }
         }
 
-        public MoveRecipeIngredient ConsumeIngredient(TileObjectType tileObjectType, bool searchNeighbors)
+        public MoveRecipeIngredient GetConsumableIngredient(TileObjectType tileObjectType, bool searchNeighbors)
         {
             MoveRecipeIngredient moveRecipeIngredient = new MoveRecipeIngredient();
             moveRecipeIngredient.TileObjectType = tileObjectType;
@@ -293,7 +293,7 @@ namespace Engine.Master
                     Tile t = Game.Map.GetTile(n3.Pos);
                     if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id)
                     {
-                        moveRecipeIngredient = t.Unit.ConsumeIngredient(tileObjectType, false);
+                        moveRecipeIngredient = t.Unit.GetConsumableIngredient(tileObjectType, false);
                         if (moveRecipeIngredient != null)
                             return moveRecipeIngredient;
                     }
@@ -587,19 +587,38 @@ namespace Engine.Master
             }
             return null;
         }
-        public List<TileObject> AddIngredients(MoveRecipe moveRecipe, Dictionary<Position2, Unit> changedUnits)
+        public bool AddIngredient(MoveRecipeIngredient ingredient)
         {
-            List<TileObject> tileObjects = new List<TileObject>();
-            foreach (MoveRecipeIngredient moveRecipeIngredient in moveRecipe.Ingredients)
+            TileObject tileObject = new TileObject();
+            tileObject.TileObjectType = ingredient.TileObjectType;
+            tileObject.TileObjectKind = ingredient.TileObjectKind;
+            tileObject.Direction = Direction.C;
+
+            if (Reactor != null && Reactor.TileContainer != null && Reactor.TileContainer.Accepts(tileObject))
             {
-                TileObject tileObject = new TileObject();
-                tileObject.TileObjectType = moveRecipeIngredient.TileObjectType;
-                //tileObject.TileObjectType = ingredient.TileObjectType;
-                tileObject.Direction = Direction.C;
-                tileObjects.Add(tileObject);
+                ingredient.Target = TileObjectType.PartReactor;
+                Reactor.TileContainer.Add(tileObject);
+                return true;
             }
-            AddTileObjects(tileObjects);
-            return tileObjects;
+            if (Assembler != null && Assembler.TileContainer != null && Assembler.TileContainer.Accepts(tileObject))
+            {
+                ingredient.Target = TileObjectType.PartAssembler;
+                Assembler.TileContainer.Add(tileObject);
+                return true;
+            }
+            if (Container != null && Container.TileContainer != null && Container.TileContainer.Accepts(tileObject))
+            {
+                ingredient.Target = TileObjectType.PartContainer;
+                Container.TileContainer.Add(tileObject);
+                return true;
+            }
+            if (Weapon != null && Weapon.TileContainer != null && Weapon.TileContainer.Accepts(tileObject))
+            {
+                ingredient.Target = TileObjectType.PartWeapon;
+                Weapon.TileContainer.Add(tileObject);
+                return true;
+            }
+            return false;
         }
 
         public TileObject ConsumeIngredient(MoveRecipeIngredient ingredient, Dictionary<Position2, Unit> changedUnits)
@@ -1099,12 +1118,6 @@ namespace Engine.Master
                     moveUpdateUnitPart.Level = Assembler.Level;
                     moveUpdateUnitPart.TileObjects = CopyContainer(Assembler.TileContainer);
                     moveUpdateUnitPart.Capacity = Assembler.TileContainer.Capacity;
-
-                    if (Assembler.BuildQueue != null)
-                    {
-                        moveUpdateUnitPart.BildQueue = new List<string>();
-                        moveUpdateUnitPart.BildQueue.AddRange(Assembler.BuildQueue);
-                    }
                 }
                 else if (blueprintPart.PartType == TileObjectType.PartContainer && Container != null)
                 {
@@ -1198,7 +1211,7 @@ namespace Engine.Master
             bool missingIngredient = false;
             foreach (MoveRecipeIngredient moveRecipeIngredient in moveRecipe.Ingredients)
             {
-                MoveRecipeIngredient realIngredient = ConsumeIngredient(moveRecipeIngredient.TileObjectType, true);
+                MoveRecipeIngredient realIngredient = GetConsumableIngredient(moveRecipeIngredient.TileObjectType, true);
                 if (realIngredient == null)
                 {
                     missingIngredient = true;

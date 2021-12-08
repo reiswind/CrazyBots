@@ -1639,60 +1639,34 @@ namespace Assets.Scripts
                             panelAssembler.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                             panelAssembler.SetActive(true);
 
-                            if (part.Exists)
-                            {
-                                StringBuilder sb = new StringBuilder();
-                                sb.Append("Minerals  ");
-                                sb.Append(part.TileObjects.Count);
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append("Minerals  ");
+                            sb.Append(part.TileObjects.Count);
 
-                                if (part.Capacity.HasValue)
-                                    sb.Append("/" + part.Capacity.Value);
+                            if (part.Capacity.HasValue)
+                                sb.Append("/" + part.Capacity.Value);
 
-                                panelAssembler.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
-
-                                sb = new StringBuilder();
-                                if (part.BildQueue != null)
-                                {
-                                    foreach (string b in part.BildQueue)
-                                    {
-                                        if (sb.Length > 0) sb.Append(" ");
-                                        sb.Append(b);
-                                    }
-                                }
-                                panelAssembler.transform.Find("BuildQueue").GetComponent<Text>().text = sb.ToString();
-
-                            }
-                            else
-                            {
-                                panelWeapon.transform.Find("Content").GetComponent<Text>().text = "Destroyed";
-                            }
-
+                            panelAssembler.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+                            panelAssembler.transform.Find("BuildQueue").GetComponent<Text>().text = "";
                         }
                         if (part.PartType == TileObjectType.PartReactor)
                         {
                             panelReactor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                             panelReactor.SetActive(true);
 
-                            if (part.Exists)
-                            {
-                                StringBuilder sb = new StringBuilder();
-                                sb.Append("Minerals  ");
-                                sb.Append(part.TileObjects.Count);
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append("Minerals  ");
+                            sb.Append(part.TileObjects.Count);
 
-                                if (part.Capacity.HasValue)
-                                    sb.Append("/" + part.Capacity.Value);
+                            if (part.Capacity.HasValue)
+                                sb.Append("/" + part.Capacity.Value);
 
-                                sb.Append(" Power  ");
-                                if (part.AvailablePower.HasValue)
-                                    sb.Append(part.AvailablePower.Value);
-                                else
-                                    sb.Append("0");
-                                panelReactor.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
-                            }
+                            sb.Append(" Power  ");
+                            if (part.AvailablePower.HasValue)
+                                sb.Append(part.AvailablePower.Value);
                             else
-                            {
-                                panelWeapon.transform.Find("Content").GetComponent<Text>().text = "Destroyed";
-                            }
+                                sb.Append("0");
+                            panelReactor.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
                         }
                         if (part.PartType == TileObjectType.PartArmor)
                         {
@@ -1721,21 +1695,15 @@ namespace Assets.Scripts
                             panelContainer.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                             panelContainer.SetActive(true);
 
-                            if (part.Exists)
-                            {
-                                StringBuilder sb = new StringBuilder();
-                                sb.Append("Minerals  ");
-                                sb.Append(part.TileObjects.Count);
 
-                                if (part.Capacity.HasValue)
-                                    sb.Append("/" + part.Capacity.Value);
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append("Minerals  ");
+                            sb.Append(part.TileObjects.Count);
 
-                                panelContainer.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
-                            }
-                            else
-                            {
-                                panelWeapon.transform.Find("Content").GetComponent<Text>().text = "Destroyed";
-                            }
+                            if (part.Capacity.HasValue)
+                                sb.Append("/" + part.Capacity.Value);
+
+                            panelContainer.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
                         }
                     }
                 }

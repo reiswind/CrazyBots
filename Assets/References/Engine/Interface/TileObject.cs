@@ -199,6 +199,7 @@ namespace Engine.Interface
         All,
         Burn,
         Unit,
+        Ground, // Source
 
         // Collectable
         Mineral,

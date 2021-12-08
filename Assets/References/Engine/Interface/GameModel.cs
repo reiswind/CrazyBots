@@ -187,7 +187,7 @@ namespace Engine.Interface
         Map Map { get; }
         Blueprints Blueprints { get; }
         void CreateUnits();
-        void CollectGroundStats(Position2 pos, Move move, List<TileObject> tileObjects);
+        void CollectGroundStats(Position2 pos, Move move);
     }
 
     [DataContract]
@@ -247,6 +247,8 @@ namespace Engine.Interface
         public bool EndlessPower { get; set; }
         [DataMember]
         public bool UnderConstruction { get; set; }
+        [DataMember]
+        public bool MarkForExtraction { get; set; }
         [DataMember]
         public int? ContainedMinerals { get; set; }
         [DataMember]

@@ -217,7 +217,8 @@ namespace Engine.Master
                                 thisUnit.Weapon.EndlessAmmo = true;
                             if (unitModel.EndlessPower)
                                 thisUnit.EndlessPower = true;
-
+                            if (unitModel.MarkForExtraction)
+                                thisUnit.ExtractUnit();
                             if (unitModel.ContainedMinerals.HasValue ||
                                 unitModel.ContainedTrees.HasValue)
                             {
@@ -567,6 +568,7 @@ namespace Engine.Master
                         }
                     }
 #endif
+                    /*
                     if (move.Stats != null && move.MoveRecipe != null)
                     {
                         // Insert the previously removed tileobjects into the unit
@@ -574,9 +576,19 @@ namespace Engine.Master
                         if (unit != null && unit.Extractor != null)
                         {
                             unit.AddIngredients(move.MoveRecipe, changedUnits);
-                        }
-                    }
 
+                            // Insert an update move, so the client knows that tileobjects have been added
+                            Move moveUpdate = new Move();
+                            moveUpdate.PlayerId = unit.Owner.PlayerModel.Id;
+                            moveUpdate.MoveType = MoveType.UpdateStats;
+                            moveUpdate.UnitId = unit.UnitId;
+                            moveUpdate.Positions = new List<Position2>();
+                            moveUpdate.Positions.Add(unit.Pos);
+                            moveUpdate.Stats = unit.CollectStats();
+                            nextMoves.Add(moveUpdate);
+                        }
+                    }*/
+                    /*
                     if (move.Stats != null &&
                         move.Stats.MoveUpdateGroundStat != null &&
                         move.Stats.MoveUpdateGroundStat.TileObjects != null &&
@@ -641,7 +653,7 @@ namespace Engine.Master
                             CollectGroundStats(from, updateGroundMove);
                             nextMoves.Add(updateGroundMove);
                         }
-                    }
+                    }*/
                     finishedMoves.Add(move);
 
 #if MEASURE_MINS
@@ -1229,7 +1241,7 @@ namespace Engine.Master
                         }
                         if (move.MoveType != MoveType.Skip)
                         {
-                            extracted = unit.Extractor.ExtractInto(unit, move, fromTile, this, otherUnit, changedUnits);
+                            extracted = unit.Extractor.ExtractInto(unit, move, fromTile, otherUnit, changedUnits);
 
                             if (extracted)
                             {
@@ -1848,7 +1860,7 @@ namespace Engine.Master
             }
             changedGroundPositions.Clear();
         }
-
+        /*
         public void CollectGroundStats(Position2 pos, Move move, List<TileObject> tileObjects)
         {
             CollectGroundStats(pos, move);
@@ -1862,7 +1874,7 @@ namespace Engine.Master
                 }
             }
         }
-
+        */
         public void CollectGroundStats(Position2 pos, Move move)
         {
             if (move.Stats == null)

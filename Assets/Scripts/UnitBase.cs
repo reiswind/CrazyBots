@@ -880,7 +880,7 @@ namespace Assets.Scripts
                         return unitBase.RemoveTileObject(moveRecipeIngredient);
                 }
             }
-            if (moveRecipeIngredient.Source == TileObjectType.None)
+            if (moveRecipeIngredient.Source == TileObjectType.None || moveRecipeIngredient.Source == TileObjectType.Ground)
             {
                 // From ground
                 GroundCell gc;
@@ -904,20 +904,47 @@ namespace Assets.Scripts
                 {
                     if (moveRecipeIngredient.Source == unitBasePart.PartType)
                     {
-                        if (unitBasePart.TileObjectContainer == null)
+                        if (TileObject.CanConvertTileObjectIntoMineral(moveRecipeIngredient.TileObjectType))
                         {
-                            // Happend. Destroyed?
+                            // Remove the part, not the content
+                            UnitBaseTileObject unitBaseTileObject = new UnitBaseTileObject();
+
+                            unitBaseTileObject.TileObject = new TileObject();
+                            unitBaseTileObject.TileObject.TileObjectType = TileObjectType.Mineral;
+                            unitBaseTileObject.TileObject.Direction = Direction.C;
+
+                            GameObject partObject;
+                            if (unitBasePart.CompleteLevel > 1)
+                            {
+                                partObject = UnitBase.FindChildNyName(unitBasePart.Part, unitBasePart.Name + unitBasePart.CompleteLevel + "-" + unitBasePart.Level);
+                            }
+                            else
+                            {
+
+                                partObject = unitBasePart.Part;
+                            }
+                            unitBaseTileObject.GameObject = HexGrid.Instantiate(partObject, transform);
+                            partObject.SetActive(false);
+
+                            return unitBaseTileObject;
                         }
                         else
                         {
-                            // From Container
-                            foreach (UnitBaseTileObject unitBaseTileObject in unitBasePart.TileObjectContainer.TileObjects)
+                            if (unitBasePart.TileObjectContainer == null)
                             {
-                                if (unitBaseTileObject.TileObject.TileObjectType == moveRecipeIngredient.TileObjectType &&
-                                    unitBaseTileObject.GameObject != null)
+                                // Happend. Destroyed?
+                            }
+                            else
+                            {
+                                // From Container
+                                foreach (UnitBaseTileObject unitBaseTileObject in unitBasePart.TileObjectContainer.TileObjects)
                                 {
-                                    unitBasePart.TileObjectContainer.Remove(unitBaseTileObject);
-                                    return unitBaseTileObject;
+                                    if (unitBaseTileObject.TileObject.TileObjectType == moveRecipeIngredient.TileObjectType &&
+                                        unitBaseTileObject.GameObject != null)
+                                    {
+                                        unitBasePart.TileObjectContainer.Remove(unitBaseTileObject);
+                                        return unitBaseTileObject;
+                                    }
                                 }
                             }
                         }

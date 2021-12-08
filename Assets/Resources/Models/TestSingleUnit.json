@@ -9,14 +9,14 @@
       "ControlLevel": 1,
       "Id": 1,
       "Zone": 0,
-	  "IsHumanx": true,
+	  "IsHuman": true,
       "Name": "Green"
     },
 	{
       "ControlLevel": 1,
       "Id": 2,
       "Zone": 1,
-	  "IsHumanx": true,
+	  "IsHuman": true,
       "Name": "Red"
     }
   ],
@@ -30,16 +30,19 @@
 	  "FireAtGround": false,
 	  "EndlessAmmo": false,
 	  "EndlessPower": false,
+	  "ContainedMineralsx": 5,
       "Position": "0,0"
     },
 	{
       "Name": "Container",
       "PlayerId": 1,
       "Blueprint": "Container",
+	  "ContainedMinerals": 18,
 	  "HoldPosition": false,
 	  "FireAtGround": false,
 	  "EndlessAmmo": false,
 	  "EndlessPower": false,
+	  "MarkForExtraction": false,
       "Position": "1,0"
     
     },
