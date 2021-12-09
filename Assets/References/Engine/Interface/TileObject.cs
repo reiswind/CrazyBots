@@ -63,7 +63,7 @@ namespace Engine.Interface
             reservedTileObjectTypes.Remove(tileObjectType);
         }
         
-        public bool Contains(TileObjectType tileObjectType)
+        public TileObject GetMatchingTileObject(TileObjectType tileObjectType)
         {
             List<TileObjectType> reserved = new List<TileObjectType>();
             reserved.AddRange(reservedTileObjectTypes);
@@ -71,14 +71,17 @@ namespace Engine.Interface
             foreach (TileObject tileObject in tileObjects)
             {
                 // Burn everything
-                if (tileObject.TileObjectType == TileObjectType.Burn)
+                if (tileObjectType == TileObjectType.Burn)
                 {
-                    if (reserved.Contains(tileObject.TileObjectType))
+                    if (TileObject.GetPowerForTileObjectType(tileObject.TileObjectType) > 0)
                     {
-                        reserved.Remove(tileObject.TileObjectType);
-                        continue;
+                        if (reserved.Contains(tileObject.TileObjectType))
+                        {
+                            reserved.Remove(tileObject.TileObjectType);
+                            continue;
+                        }
                     }
-                    return true;
+                    return tileObject;
                 }
 
                 if (tileObject.TileObjectType == tileObjectType || tileObjectType == TileObjectType.All)
@@ -88,10 +91,10 @@ namespace Engine.Interface
                         reserved.Remove(tileObject.TileObjectType);
                         continue;
                     }
-                    return true;
+                    return tileObject;
                 }
             }
-            return false;
+            return null;
         }
         public void AddRange(List<TileObject> ptileObjects)
         {
@@ -119,6 +122,15 @@ namespace Engine.Interface
             tileObjects.Remove(tileObject);
         }
 
+        public bool Accepts(MoveRecipeIngredient realIndigrient)
+        {
+            if (AcceptedTileObjectTypes != TileObjectType.All)
+            {
+                if (AcceptedTileObjectTypes != realIndigrient.TileObjectType)
+                    return false;
+            }
+            return true;
+        }
         public bool Accepts(TileObject tileObject)
         {
             if (AcceptedTileObjectTypes != TileObjectType.All)
@@ -126,7 +138,6 @@ namespace Engine.Interface
                 if (AcceptedTileObjectTypes != tileObject.TileObjectType)
                     return false;
             }
-
             return true;
         }
 
@@ -198,6 +209,7 @@ namespace Engine.Interface
         None,
         All,
         Burn,
+        Ammo,
         Unit,
         Ground, // Source
 

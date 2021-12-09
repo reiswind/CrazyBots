@@ -92,7 +92,7 @@ namespace Assets.Scripts
             {
                 if (unitBaseTileObject1.TileObject.TileObjectType == TileObjectType.Tree)
                 {
-                    int x = 0;
+
                     //renderer = unitBaseTileObject1.GameObject.GetComponent<Renderer>();
                     //if (renderer != null)
                     //renderer.material.SetFloat("Darkness", Diffuse);

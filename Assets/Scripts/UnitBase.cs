@@ -251,6 +251,21 @@ namespace Assets.Scripts
                     gameObject.SetActive(targetCell.Visible);
                 }*/
             }
+
+            if (TurnIntoDirection != Direction.C)
+            {
+                Position3 relativePosition3 = new Position3(CurrentPos);
+                //if (isMoveMode)
+                //    neighborPosition3 = relativePosition3.GetNeighbor(commandAttachedUnit.RotatedDirection);
+                //else
+                Position3 neighborPosition3 = relativePosition3.GetNeighbor(TurnIntoDirection);
+
+                GroundCell neighbor;
+                if (HexGrid.MainGrid.GroundCells.TryGetValue(neighborPosition3.Pos, out neighbor))
+                {
+                    UpdateDirection(neighbor.transform.position, true);
+                }
+            }
         }
 
         // Update is called once per frame

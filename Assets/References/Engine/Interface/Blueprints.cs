@@ -51,7 +51,7 @@ namespace Engine.Interface
             blueprint.Name = "Reactor";
             blueprint.Layout = "S-Reactor";
             blueprint.Parts.Add(new BlueprintPart("S-PartExtractor"));
-            blueprint.Parts.Add(new BlueprintPart("S-PartReactor", TileObjectType.PartReactor, 3, 18, 8));
+            blueprint.Parts.Add(new BlueprintPart("S-PartReactor", TileObjectType.PartReactor, 3, 12, 8));
             Items.Add(blueprint);
 
             // Factory

@@ -951,7 +951,7 @@ namespace Assets.Scripts
             {
                 leftMouseButtonDown = false;
                 executeCommand = true;
-                Debug.Log("Input.GetMouseButtonUp");
+                //Debug.Log("Input.GetMouseButtonUp");
             }
             else
             {
@@ -1183,10 +1183,6 @@ namespace Assets.Scripts
 
         void UpdateCommandMode()
         {
-            if (selectedUnitFrame == null)
-            {
-                int x = 0;
-            }
             if (CheckMouseButtons()) return;
             HitByMouseClick hitByMouseClick = GetClickedInfo();
             HighlightMouseOver(hitByMouseClick);
@@ -1695,15 +1691,21 @@ namespace Assets.Scripts
                             panelContainer.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                             panelContainer.SetActive(true);
 
+                            if (part.TileObjects != null)
+                            {
+                                StringBuilder sb = new StringBuilder();
+                                sb.Append("Minerals  ");
+                                sb.Append(part.TileObjects.Count);
 
-                            StringBuilder sb = new StringBuilder();
-                            sb.Append("Minerals  ");
-                            sb.Append(part.TileObjects.Count);
+                                if (part.Capacity.HasValue)
+                                    sb.Append("/" + part.Capacity.Value);
 
-                            if (part.Capacity.HasValue)
-                                sb.Append("/" + part.Capacity.Value);
-
-                            panelContainer.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+                                panelContainer.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+                            }
+                            else
+                            {
+                                panelContainer.transform.Find("Content").GetComponent<Text>().text = "";
+                            }
                         }
                     }
                 }

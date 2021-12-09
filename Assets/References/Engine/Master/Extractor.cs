@@ -444,21 +444,35 @@ namespace Engine.Master
             {
                 MoveRecipeIngredient realIndigrient = otherUnit.FindIngredient(TileObjectType.All, false);
                 if (realIndigrient == null) break;
-                otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
+
+                if (!Unit.IsSpaceForIngredient(realIndigrient))
+                {
+                    break;
+                }
                 capacity--;
+
+                otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
+
+                // Add it to target
+                Unit.AddIngredient(realIndigrient);
+
+                if (!changedUnits.ContainsKey(Unit.Pos))
+                    changedUnits.Add(Unit.Pos, Unit);
+
+                realIndigrient.TargetPosition = Unit.Pos;
+
+                // Report this
                 extractedItems.Add(realIndigrient);
             }
 
             if (capacity > 0)
             {
-
                 Ability hitPart = otherUnit.HitBy(true);
                 
                 if (hitPart.Level == 0 && hitPart.TileContainer != null)
                 {
                     if (hitPart.TileContainer.TileObjects.Count > 0)
                     {
-                        //removeTileObjects.AddRange(hitPart.TileContainer.TileObjects);
                         hitPart.TileContainer.Clear();
                     }
                 }
@@ -474,30 +488,14 @@ namespace Engine.Master
                 indigrient.Source = removedTileObject.TileObjectType;
                 extractedItems.Add(indigrient);
 
-                //removeTileObjects.Add(removedTileObject);
-                /*
-                foreach (TileObject removed in removeTileObjects)
-                {
-                    if (!TileObject.IsTileObjectTypeCollectable(removed.TileObjectType))
-                    {
-                        if (!TileObject.CanConvertTileObjectIntoMineral(removed.TileObjectType))
-                        {
-                            throw new Exception();
-                        }
-                    }
-                }
-
-                move.Stats = new MoveUpdateStats();
-                Unit.Game.CollectGroundStats(otherUnit.Pos, move, removeTileObjects);
-
                 if (otherUnit.IsDead())
                 {
                     if (hitPart.PartTileObjects.Count > 0)
                         throw new Exception();
                 }
-                */
             }
         }
+
 
         public bool ExtractInto(Unit unit, Move move, Tile fromTile, Unit otherUnit, Dictionary<Position2, Unit> changedUnits)
         {
@@ -531,11 +529,26 @@ namespace Engine.Master
                                         int cnt = moveRecipeIngredient.Count;
                                         while (cnt-- > 0 && capacity > 0)
                                         {
-                                            MoveRecipeIngredient realIndigrient = otherUnit.FindIngredientToBurn();
+                                            MoveRecipeIngredient realIndigrient = otherUnit.FindIngredient(TileObjectType.Burn, false);
                                             if (realIndigrient == null) break;
-                                            otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
                                             capacity--;
-                                            
+                                            if (!Unit.IsSpaceForIngredient(realIndigrient))
+                                            {
+                                                break;
+                                            }
+
+                                            // Remove it from source
+                                            otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
+
+                                            // Add it to target
+                                            Unit.AddIngredient(realIndigrient);
+
+                                            if (!changedUnits.ContainsKey(Unit.Pos))
+                                                changedUnits.Add(Unit.Pos, Unit);
+
+                                            realIndigrient.TargetPosition = Unit.Pos;
+
+                                            // Report this
                                             extractedItems.Add(realIndigrient);
                                         }
                                     }
@@ -556,8 +569,26 @@ namespace Engine.Master
                                         {
                                             MoveRecipeIngredient realIndigrient = otherUnit.FindIngredientToBurn();
                                             if (realIndigrient == null) break;
-                                            otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
+
+                                            if (!Unit.IsSpaceForIngredient(realIndigrient))
+                                            {
+                                                break;
+                                            }
+
                                             capacity--;
+
+                                            // Remove it from source
+                                            otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
+
+                                            // Add it to target
+                                            Unit.AddIngredient(realIndigrient);
+                                            
+                                            if (!changedUnits.ContainsKey(Unit.Pos))
+                                                changedUnits.Add(Unit.Pos, Unit);
+
+                                            realIndigrient.TargetPosition = Unit.Pos;
+
+                                            // Report this
                                             extractedItems.Add(realIndigrient);
                                         }
                                     }
@@ -568,8 +599,25 @@ namespace Engine.Master
                                         {
                                             MoveRecipeIngredient realIndigrient = otherUnit.FindIngredient(TileObjectType.All, true);
                                             if (realIndigrient == null) break;
-                                            otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
+                                            if (!Unit.IsSpaceForIngredient(realIndigrient))
+                                            {
+                                                break;
+                                            }
+
                                             capacity--;
+
+                                            // Remove it from source
+                                            otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
+
+                                            // Add it to target
+                                            Unit.AddIngredient(realIndigrient);
+
+                                            if (!changedUnits.ContainsKey(Unit.Pos))
+                                                changedUnits.Add(Unit.Pos, Unit);
+
+                                            realIndigrient.TargetPosition = Unit.Pos;
+
+                                            // Report this
                                             extractedItems.Add(realIndigrient);
                                         }
                                     }
@@ -591,18 +639,22 @@ namespace Engine.Master
                             }
                             MoveRecipeIngredient realIndigrient = otherUnit.FindIngredient(TileObjectType.All, extractNeighbors);
                             if (realIndigrient == null) break;
+                            if (!Unit.IsSpaceForIngredient(realIndigrient))
+                            {
+                                break;
+                            }
+
                             otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
                             capacity--;
 
                             // Targetposition
-                            if (Unit.AddIngredient(realIndigrient))
-                            {
-                                if (!changedUnits.ContainsKey(Unit.Pos))
-                                    changedUnits.Add(Unit.Pos, Unit);
+                            Unit.AddIngredient(realIndigrient);
 
-                                realIndigrient.TargetPosition = Unit.Pos;
-                                extractedItems.Add(realIndigrient);
-                            }
+                            if (!changedUnits.ContainsKey(Unit.Pos))
+                                changedUnits.Add(Unit.Pos, Unit);
+
+                            realIndigrient.TargetPosition = Unit.Pos;
+                            extractedItems.Add(realIndigrient);
                         }
                     }
 
@@ -630,25 +682,23 @@ namespace Engine.Master
                                     n.Unit.IsComplete() &&
                                     n.Unit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
                                 {
-                                    if (n.Unit.IsSpaceForTileObject(tileObject))
+                                    MoveRecipeIngredient realIndigrient = otherUnit.GetConsumableIngredient(tileObject.TileObjectType, false);
+                                    if (realIndigrient == null)
                                     {
-                                        MoveRecipeIngredient realIndigrient = otherUnit.GetConsumableIngredient(tileObject.TileObjectType, false);
-                                        if (realIndigrient == null)
-                                        {
-                                            outOfIndigrients = true;
-                                            break;
-                                        }
+                                        outOfIndigrients = true;
+                                        break;
+                                    }
+                                    if (Unit.IsSpaceForIngredient(realIndigrient))
+                                    {                                        
                                         otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
 
                                         if (!changedUnits.ContainsKey(n.Unit.Pos))
                                             changedUnits.Add(n.Unit.Pos, n.Unit);
 
                                         realIndigrient.TargetPosition = n.Unit.Pos;
+                                        Unit.AddIngredient(realIndigrient);
+
                                         extractedItems.Add(realIndigrient);
-                                        if (!n.Unit.AddIngredient(realIndigrient))
-                                        {
-                                            throw new Exception("Why? Cant believe");
-                                        }
                                     }
                                 }
                             }
@@ -685,10 +735,7 @@ namespace Engine.Master
                             indigrient.Source = TileObjectType.Ground;
                             extractedItems.Add(indigrient);
 
-                            if (!Unit.AddIngredient(indigrient))
-                            {
-                                throw new Exception("Why? Cant believe");
-                            }
+                            Unit.AddIngredient(indigrient);
                             break;
                         }
                     }

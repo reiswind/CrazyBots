@@ -81,6 +81,8 @@ namespace Assets.Scripts
 
                     GameObject transitGameObject = null;
                     UnitBaseTileObject unitBaseTileObject = null;
+                    TileObjectType transitType = TileObjectType.None;
+
                     if (otherUnit == null)
                     {
                         foreach (UnitBaseTileObject groundBaseTileObject in sourceCell.GameObjects)
@@ -90,6 +92,7 @@ namespace Assets.Scripts
                                 transitGameObject = groundBaseTileObject.GameObject;
                                 sourceCell.GameObjects.Remove(groundBaseTileObject);
                                 unitBaseTileObject = groundBaseTileObject;
+                                transitType = unitBaseTileObject.TileObject.TileObjectType;
                                 break;
                             }
                         }
@@ -99,12 +102,23 @@ namespace Assets.Scripts
                         unitBaseTileObject = otherUnit.RemoveTileObject(moveRecipeIngredient);
                         if (unitBaseTileObject == null)
                         {
-                            throw new Exception("Wrong");
+                            // May happend it the unit extracts something and in the next move, another unit extracts from this unit.
+                            // The other unit will try to extract, what has been added previouly. But in the client, the container is
+                            // updated later through the update stats. (where the unit will be empty).
+
+                            // For now it's ok, to transit a ghost 
+                            TileObject tileObject = new TileObject();
+                            tileObject.TileObjectType = moveRecipeIngredient.TileObjectType;
+                            tileObject.TileObjectKind = moveRecipeIngredient.TileObjectKind;
+                            transitType = moveRecipeIngredient.TileObjectType;
+                            transitGameObject = HexGrid.MainGrid.CreateDestructable(sourceCell.transform, tileObject);
+                            targetPosition = targetCell.transform.position;
                         }
                         else
                         {
                             targetPosition = targetCell.transform.position;
                             transitGameObject = unitBaseTileObject.GameObject;
+                            transitType = unitBaseTileObject.TileObject.TileObjectType;
                             unitBaseTileObject.GameObject = null;
                         }
                         /*
@@ -148,6 +162,9 @@ namespace Assets.Scripts
                         transitObject.GameObject = transitGameObject;
                         transitObject.TargetPosition = vector3;
                         transitObject.DestroyAtArrival = true;
+
+                        if (transitType != TileObjectType.Mineral)
+                            transitObject.ScaleDown = true;
 
                         HexGrid.MainGrid.AddTransitTileObject(transitObject);
                     }

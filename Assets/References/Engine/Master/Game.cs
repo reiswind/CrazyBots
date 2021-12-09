@@ -1562,7 +1562,7 @@ namespace Engine.Master
 
             if (totalPowerRemoved > totalAvailablePower)
             {
-                int x = 0;
+                throw new Exception("Can it be true?");
             }
             MapPlayerInfo mapPlayerInfo;
             if (mapInfo.PlayerInfo.TryGetValue(player.PlayerModel.Id, out mapPlayerInfo))

@@ -84,10 +84,10 @@ namespace Assets.Scripts
             {
                 Vector3 targetPos = weaponTargetCell.transform.position;
                 Rigidbody rigidbody = shell.GetComponent<Rigidbody>();
-                rigidbody.velocity = calcBallisticVelocityVector(shell.transform.position, targetPos, UnitBase.HasEngine()?30:1);
+                rigidbody.velocity = CalcBallisticVelocityVector(shell.transform.position, targetPos, UnitBase.HasEngine()?30:1);
             }
         }
-        private Vector3 calcBallisticVelocityVector(Vector3 initialPos, Vector3 finalPos, float angle)
+        private Vector3 CalcBallisticVelocityVector(Vector3 initialPos, Vector3 finalPos, float angle)
         {
             var toPos = initialPos - finalPos;
 
