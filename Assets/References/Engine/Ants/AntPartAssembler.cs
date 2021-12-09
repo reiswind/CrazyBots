@@ -29,9 +29,75 @@ namespace Engine.Ants
             
             bool moved;
 
-            moved = Assemble(control, player, moves);
+            if (Assembler.Unit.CurrentGameCommand != null &&
+                Assembler.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Build &&
+                Assembler.Unit.CurrentGameCommand.BuildPositionReached &&
+                Assembler.Unit.CurrentGameCommand.FactoryUnit.UnitId == Ant.Unit.UnitId)
+            {
+                // This is the assembler unit
+                moved = BuildStructure(control, player, moves);
+            }
+            else
+            {
 
+                moved = Assemble(control, player, moves);
+            }
             return moved;
+        }
+
+        public bool BuildStructure(ControlAnt control, Player player, List<Move> moves)
+        {
+            List<Position2> includePositions = new List<Position2>();
+            includePositions.Add(Assembler.Unit.CurrentGameCommand.GameCommand.TargetPosition);
+
+            MoveRecipeIngredient moveRecipeIngredient = new MoveRecipeIngredient();
+            moveRecipeIngredient.Count = 1;
+            moveRecipeIngredient.SourcePosition = Ant.Unit.Pos;
+
+            List<Move> possiblemoves = new List<Move>();
+            if (Ant.Unit.IsComplete())
+            {
+                moveRecipeIngredient.Source = Ant.Unit.Engine.PartType;
+                moveRecipeIngredient.TileObjectType = moveRecipeIngredient.Source;
+
+                // Create the foundation
+                Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Assemble, moveRecipeIngredient);
+                
+            }
+            else
+            {
+                if (Ant.Unit.Extractor != null)
+                {
+                    moveRecipeIngredient.Source = Ant.Unit.Extractor.PartType;
+                    moveRecipeIngredient.TileObjectType = moveRecipeIngredient.Source;
+                }
+                else if (Ant.Unit.Armor != null)
+                {
+                    moveRecipeIngredient.Source = Ant.Unit.Armor.PartType;
+                    moveRecipeIngredient.TileObjectType = moveRecipeIngredient.Source;
+                }
+                else if (Ant.Unit.Assembler != null)
+                {
+                    moveRecipeIngredient.Source = Ant.Unit.Assembler.PartType;
+                    moveRecipeIngredient.TileObjectType = moveRecipeIngredient.Source;
+                }
+
+                // Foundation build, upgrade
+                Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Upgrade, moveRecipeIngredient);
+            }
+            if (possiblemoves.Count != 1)
+            {
+                // Impossible to build, cancel this
+                Assembler.Unit.CurrentGameCommand.GameCommand.CommandCanceled = true;
+                Ant.Unit.ResetGameCommand();
+            }
+            else
+            {
+                Move move = possiblemoves[0];
+                move.GameCommandItem = Assembler.Unit.CurrentGameCommand;
+                moves.Add(move);
+            }
+            return possiblemoves.Count == 1;
         }
 
         private void RequestIngredientsForUnit(Player player)
@@ -160,6 +226,8 @@ namespace Engine.Ants
                         selectedGameCommand.FactoryUnit.UnitId != Ant.Unit.UnitId)
                     {
                         // This is not the factory to build the transporter
+
+                        // This blocks a factory to do something, while waiting for delivery
                         return false;
                     }
 
@@ -319,7 +387,6 @@ namespace Engine.Ants
                                 selectedGameCommand.AssemblerToBuild = true;
 
                                 passGameCommandToNewUnit = selectedGameCommand;
-                                //assemblerUsedToBuild = true;
                             }
                         }
                     }
@@ -330,7 +397,6 @@ namespace Engine.Ants
 
                 if (possiblemoves.Count == 0)
                 {
-                    //if (selectedGameCommand.GameCommand.GameCommandType == GameCommandType.Build) // Fails for ItemRequest
                     if (selectedGameCommand.FactoryUnit.UnitId == Ant.Unit.UnitId)
                     {
                         Tile tile = player.Game.Map.GetTile(selectedGameCommand.GameCommand.TargetPosition);

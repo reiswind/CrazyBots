@@ -392,6 +392,7 @@ namespace Engine.Master
             }
 
             List<Unit> addedUnits = new List<Unit>();
+            List<Unit> deletedUnits = new List<Unit>();
 
             foreach (Move move in newMoves)
             {
@@ -407,7 +408,10 @@ namespace Engine.Master
                         // Release the reservations, so the ingredients can be used
                         factory.ClearReservations();
                         List<TileObject> results = factory.ConsumeIngredients(move.MoveRecipe, changedUnits);
-
+                        if (factory.IsDead())
+                        {
+                            deletedUnits.Add(factory);
+                        }
                         if (results == null || results.Count == 0)
                         {
                             move.MoveType = MoveType.Skip;
@@ -510,6 +514,27 @@ namespace Engine.Master
                             changedGroundPositions.Add(Destination, null);
                     }
                 }
+            }
+
+            foreach (Unit deletedUnit in deletedUnits)
+            {
+                if (deletedUnit.CurrentGameCommand != null)
+                {
+                    deletedUnit.CurrentGameCommand.GameCommand.CommandComplete = true;
+                    deletedUnit.ResetGameCommand();
+                }
+                
+                // Unit has died!
+                Move deleteMove = new Move();
+                deleteMove.PlayerId = deletedUnit.Owner.PlayerModel.Id;
+                deleteMove.MoveType = MoveType.Delete;
+                deleteMove.Positions = new List<Position2>();
+                deleteMove.Positions.Add(deletedUnit.Pos);
+                deleteMove.UnitId = deletedUnit.UnitId;
+                newMoves.Add(deleteMove);
+
+                Map.Units.Remove(deletedUnit.UnitId);
+                Map.Units.Remove(deletedUnit.Pos);                
             }
 
             foreach (Unit addedUnit in addedUnits)
@@ -1178,10 +1203,6 @@ namespace Engine.Master
                 {
                     lastMoves.Add(move);
                 }
-                if (move.MoveType == MoveType.Delete)
-                {
-                    lastMoves.Add(move);
-                }
                 if (move.MoveType == MoveType.Move)
                 {
                     lastMoves.Add(move);
@@ -1369,6 +1390,15 @@ namespace Engine.Master
 #endif
                 }
             }
+            // Move all units to their new location
+            foreach (Move move in newMoves)
+            {
+                if (move.MoveType == MoveType.Delete)
+                {
+                    lastMoves.Add(move);
+                }
+            }
+
             newMoves.Clear();
         }
 

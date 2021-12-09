@@ -96,7 +96,7 @@ namespace Engine.Interface
             blueprint.Name = "Assembler";
             blueprint.Layout = "U-Assembler";
             blueprint.Parts.Add(new BlueprintPart("PartEngine"));
-            blueprint.Parts.Add(new BlueprintPart("PartAssembler", TileObjectType.PartAssembler, 1, 4, 0));
+            blueprint.Parts.Add(new BlueprintPart("PartAssembler", TileObjectType.PartAssembler, 1, 0, 0));
             blueprint.Parts.Add(new BlueprintPart("PartExtractor"));
             blueprint.Parts.Add(new BlueprintPart("PartArmor"));
             Items.Add(blueprint);

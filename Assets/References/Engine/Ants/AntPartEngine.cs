@@ -1040,33 +1040,24 @@ namespace Engine.Ants
                 {
                     if (cntrlUnit.Assembler != null)
                     {
-                        //cntrlUnit.CurrentGameCommand.GameCommand.RequestedItems !?
-                        if (cntrlUnit.AreAllIngredientsAvailable(player, player.Game.RecipeForAnyUnit))
+                        cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("AssemblerMovingToTarget", false);
+                        cntrlUnit.Changed = true;
+
+                        Tile t = player.Game.Map.GetTile(cntrlUnit.Pos);
+                        foreach (Tile n in t.Neighbors)
                         {
-                            cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("AssemblerMovingToTarget", false);
-                            cntrlUnit.Changed = true;
-
-                            Tile t = player.Game.Map.GetTile(cntrlUnit.Pos);
-                            foreach (Tile n in t.Neighbors)
+                            if (n.Pos == cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition)
                             {
-                                if (n.Pos == cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition)
-                                {
-                                    cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("BuildPositionReached " + n.Pos.ToString());
-                                    cntrlUnit.Changed = true;
+                                cntrlUnit.CurrentGameCommand.BuildPositionReached = true;
+                                cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("BuildPositionReached " + n.Pos.ToString());
+                                cntrlUnit.Changed = true;
 
-                                    // Next to build target
-                                    Ant.FollowThisRoute = null;
-                                    return false;
-                                }
+                                // Next to build target
+                                Ant.FollowThisRoute = null;
+                                return false;
                             }
                         }
-                        else
-                        {
-                            cntrlUnit.CurrentGameCommand.FactoryUnit.SetStatus("NeedResources", false);
-                            cntrlUnit.Changed = true;
-
-                            FindPathForCollect(player, cntrlUnit);
-                        }
+                        calcPathToPosition = cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition;
                     }
                 }
                 

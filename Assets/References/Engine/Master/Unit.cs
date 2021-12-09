@@ -650,37 +650,85 @@ namespace Engine.Master
             }
         }
 
+        private TileObject RemovePart(TileObjectType tileObjectType)
+        {
+            TileObject tileObject = null;
+            if (tileObjectType == TileObjectType.PartEngine)
+            {
+                tileObject = Engine.PartTileObjects[0];
+                Engine.PartTileObjects.RemoveAt(0);
+                Engine.Level--;
+                if (Engine.Level == 0)
+                    Engine = null;
+            }
+            if (tileObjectType == TileObjectType.PartExtractor)
+            {
+                tileObject = Extractor.PartTileObjects[0];
+                Extractor.PartTileObjects.RemoveAt(0);
+                Extractor.Level--;
+                if (Extractor.Level == 0)
+                    Extractor = null;
+            }
+            if (tileObjectType == TileObjectType.PartArmor)
+            {
+                tileObject = Armor.PartTileObjects[0];
+                Armor.PartTileObjects.RemoveAt(0);
+                Armor.Level--;
+                if (Armor.Level == 0)
+                    Armor = null;
+            }
+            if (tileObjectType == TileObjectType.PartAssembler)
+            {
+                tileObject = Assembler.PartTileObjects[0];
+                Assembler.PartTileObjects.RemoveAt(0);
+                Assembler.Level--;
+                if (Assembler.Level == 0)
+                    Assembler = null;
+            }
+            CountParts();
+            return tileObject;
+        }
+
         public TileObject ConsumeIngredient(MoveRecipeIngredient ingredient, Dictionary<Position2, Unit> changedUnits)
         {
             TileObject tileObject = null;
             if (ingredient.SourcePosition == Pos)
             {
-                if (ingredient.Source == TileObjectType.PartAssembler && Assembler != null && Assembler.TileContainer != null)
+                if (TileObject.CanConvertTileObjectIntoMineral(ingredient.TileObjectType))
                 {
-                    tileObject = Assembler.TileContainer.GetMatchingTileObject(ingredient.TileObjectType);
-                    if (tileObject != null)
-                        Assembler.TileContainer.Remove(tileObject);
+                    tileObject = RemovePart(ingredient.TileObjectType);
                 }
-                if (ingredient.Source == TileObjectType.PartContainer && Container != null && Container.TileContainer != null)
+                else
                 {
-                    tileObject = Container.TileContainer.GetMatchingTileObject(ingredient.TileObjectType);
-                    if (tileObject != null)
-                        Container.TileContainer.Remove(tileObject);
-                }
-                if (ingredient.Source == TileObjectType.PartReactor && Reactor != null && Reactor.TileContainer != null)
-                {
-                    tileObject = Reactor.TileContainer.GetMatchingTileObject(ingredient.TileObjectType);
-                    if (tileObject != null)
-                        Reactor.TileContainer.Remove(tileObject);
-                }
-                if (ingredient.Source == TileObjectType.PartWeapon && Weapon != null && Weapon.TileContainer != null)
-                {
-                    tileObject = Weapon.TileContainer.GetMatchingTileObject(ingredient.TileObjectType);
-                    if (tileObject != null)
-                        Weapon.TileContainer.Remove(tileObject);
+                    if (ingredient.Source == TileObjectType.PartAssembler && Assembler != null && Assembler.TileContainer != null)
+                    {
+                        tileObject = Assembler.TileContainer.GetMatchingTileObject(ingredient.TileObjectType);
+                        if (tileObject != null)
+                            Assembler.TileContainer.Remove(tileObject);
+                    }
+                    if (ingredient.Source == TileObjectType.PartContainer && Container != null && Container.TileContainer != null)
+                    {
+                        tileObject = Container.TileContainer.GetMatchingTileObject(ingredient.TileObjectType);
+                        if (tileObject != null)
+                            Container.TileContainer.Remove(tileObject);
+                    }
+                    if (ingredient.Source == TileObjectType.PartReactor && Reactor != null && Reactor.TileContainer != null)
+                    {
+                        tileObject = Reactor.TileContainer.GetMatchingTileObject(ingredient.TileObjectType);
+                        if (tileObject != null)
+                            Reactor.TileContainer.Remove(tileObject);
+                    }
+                    if (ingredient.Source == TileObjectType.PartWeapon && Weapon != null && Weapon.TileContainer != null)
+                    {
+                        tileObject = Weapon.TileContainer.GetMatchingTileObject(ingredient.TileObjectType);
+                        if (tileObject != null)
+                            Weapon.TileContainer.Remove(tileObject);
+                    }
                 }
                 if (tileObject == null)
+                {
                     throw new Exception("Consume failed");
+                }
 
                 // Take it from container, whatever
                 /*
@@ -1249,13 +1297,21 @@ namespace Engine.Master
             bool missingIngredient = false;
             foreach (MoveRecipeIngredient moveRecipeIngredient in moveRecipe.Ingredients)
             {
-                MoveRecipeIngredient realIngredient = GetConsumableIngredient(moveRecipeIngredient.TileObjectType, true);
-                if (realIngredient == null)
+                if (TileObject.CanConvertTileObjectIntoMineral(moveRecipeIngredient.TileObjectType))
                 {
-                    missingIngredient = true;
-                    break;
+                    // Consume a part of the unit
+                    realIngredients.Add(moveRecipeIngredient);
                 }
-                realIngredients.Add(realIngredient);
+                else
+                {
+                    MoveRecipeIngredient realIngredient = GetConsumableIngredient(moveRecipeIngredient.TileObjectType, true);
+                    if (realIngredient == null)
+                    {
+                        missingIngredient = true;
+                        break;
+                    }
+                    realIngredients.Add(realIngredient);
+                }
             }
             if (missingIngredient)
                 return null;
