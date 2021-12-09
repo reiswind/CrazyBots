@@ -193,9 +193,14 @@ namespace Engine.Interface
     {
         [DataMember(EmitDefaultValue = false)]
         public TileObjectType Source { get; set; }
+        [DataMember(EmitDefaultValue = false)]
+        public Position2 SourcePosition { get; set; }
+
 
         [DataMember(EmitDefaultValue = false)]
         public TileObjectType Target { get; set; }
+        [DataMember(EmitDefaultValue = false)]
+        public Position2 TargetPosition { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
         public TileObjectType TileObjectType { get; set; }
@@ -206,12 +211,11 @@ namespace Engine.Interface
         [DataMember(EmitDefaultValue = false)]
         public int Count { get; set; }
 
-        [DataMember(EmitDefaultValue = false)]
-        public Position2 Position { get; set; }
+
 
         public override string ToString()
         {
-            return Count.ToString() + "x " +  TileObjectType.ToString() + " at " + Position.ToString();
+            return Count.ToString() + "x " +  TileObjectType.ToString() + " at " + SourcePosition.ToString();
         }
     }
     [DataContract]

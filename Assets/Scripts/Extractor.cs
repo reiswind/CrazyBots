@@ -1,4 +1,5 @@
 using Engine.Interface;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -63,77 +64,95 @@ namespace Assets.Scripts
         {
             if (move.MoveRecipe != null && move.MoveRecipe.Ingredients.Count > 0)
             {
-                GroundCell targetCell;
-                if (HexGrid.MainGrid.GroundCells.TryGetValue(unit.CurrentPos, out targetCell))
+                foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
                 {
-                    foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
+                    GroundCell targetCell;
+                    if (!HexGrid.MainGrid.GroundCells.TryGetValue(moveRecipeIngredient.TargetPosition, out targetCell))
                     {
-                        GroundCell sourceCell;
-                        if (HexGrid.MainGrid.GroundCells.TryGetValue(moveRecipeIngredient.Position, out sourceCell))
+                        throw new Exception("Wrong");
+                    }
+                    GroundCell sourceCell;
+                    if (!HexGrid.MainGrid.GroundCells.TryGetValue(moveRecipeIngredient.SourcePosition, out sourceCell))
+
+                    {
+                        throw new Exception("Wrong");
+                    }
+                    Vector3 targetPosition = unit.transform.position;
+
+                    GameObject transitGameObject = null;
+                    UnitBaseTileObject unitBaseTileObject = null;
+                    if (otherUnit == null)
+                    {
+                        foreach (UnitBaseTileObject groundBaseTileObject in sourceCell.GameObjects)
                         {
-                            Vector3 targetPosition = unit.transform.position;
-
-                            GameObject transitGameObject = null;
-                            UnitBaseTileObject unitBaseTileObject = null;
-                            if (otherUnit == null)
+                            if (groundBaseTileObject.TileObject.TileObjectType == moveRecipeIngredient.TileObjectType)
                             {
-                                foreach (UnitBaseTileObject groundBaseTileObject in sourceCell.GameObjects)
-                                {
-                                    if (groundBaseTileObject.TileObject.TileObjectType == moveRecipeIngredient.TileObjectType)
-                                    {
-                                        transitGameObject = groundBaseTileObject.GameObject;
-                                        sourceCell.GameObjects.Remove(groundBaseTileObject);
-                                        unitBaseTileObject = groundBaseTileObject;
-                                        break;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                // Default  target unit
-                                if (moveRecipeIngredient.Position == unit.CurrentPos)
-                                {
-                                    unitBaseTileObject = otherUnit.RemoveTileObject(moveRecipeIngredient);
-                                    if (unitBaseTileObject == null)
-                                    {
-                                        int xx = 0;
-                                    }
-                                    else
-                                    {
-                                        transitGameObject = unitBaseTileObject.GameObject;
-                                        unitBaseTileObject.GameObject = null;
-                                    }
-                                }
-                                else
-                                {
-                                    // Near delivery position
-                                    UnitBase nearDeliveryUnit = sourceCell.FindUnit();
-                                    targetPosition = nearDeliveryUnit.transform.position;
-
-                                    unitBaseTileObject = otherUnit.RemoveTileObject(moveRecipeIngredient);
-                                    if (unitBaseTileObject != null)
-                                    {
-                                        transitGameObject = unitBaseTileObject.GameObject;
-                                        unitBaseTileObject.GameObject = null;
-                                    }
-                                }
-                            }
-
-                            if (transitGameObject != null)
-                            {
-                                // Transit ingredient
-                                TransitObject transitObject = new TransitObject();
-                                transitObject.GameObject = transitGameObject;
-                                transitObject.TargetPosition = targetPosition;
-                                transitObject.DestroyAtArrival = true;
-
-                                HexGrid.MainGrid.AddTransitTileObject(transitObject);
+                                transitGameObject = groundBaseTileObject.GameObject;
+                                sourceCell.GameObjects.Remove(groundBaseTileObject);
+                                unitBaseTileObject = groundBaseTileObject;
+                                break;
                             }
                         }
                     }
+                    else
+                    {
+                        unitBaseTileObject = otherUnit.RemoveTileObject(moveRecipeIngredient);
+                        if (unitBaseTileObject == null)
+                        {
+                            throw new Exception("Wrong");
+                        }
+                        else
+                        {
+                            targetPosition = targetCell.transform.position;
+                            transitGameObject = unitBaseTileObject.GameObject;
+                            unitBaseTileObject.GameObject = null;
+                        }
+                        /*
+                        // Default  target unit
+                        if (moveRecipeIngredient.SourcePosition == unit.CurrentPos)
+                        {
+                            unitBaseTileObject = otherUnit.RemoveTileObject(moveRecipeIngredient);
+                            if (unitBaseTileObject == null)
+                            {
+                                int xx = 0;
+                            }
+                            else
+                            {
+                                targetPosition = otherUnit.transform.position;
+                                transitGameObject = unitBaseTileObject.GameObject;
+                                unitBaseTileObject.GameObject = null;
+                            }
+                        }
+                        else
+                        {
+                            // Near delivery position
+                            UnitBase nearDeliveryUnit = sourceCell.FindUnit();
+                            targetPosition = nearDeliveryUnit.transform.position;
+
+                            unitBaseTileObject = otherUnit.RemoveTileObject(moveRecipeIngredient);
+                            if (unitBaseTileObject != null)
+                            {
+                                transitGameObject = unitBaseTileObject.GameObject;
+                                unitBaseTileObject.GameObject = null;
+                            }
+                        }*/
+                    }
+
+                    if (transitGameObject != null)
+                    {
+                        Vector3 vector3 = targetPosition;
+                        vector3.y += 0.4f;
+
+                        // Transit ingredient
+                        TransitObject transitObject = new TransitObject();
+                        transitObject.GameObject = transitGameObject;
+                        transitObject.TargetPosition = vector3;
+                        transitObject.DestroyAtArrival = true;
+
+                        HexGrid.MainGrid.AddTransitTileObject(transitObject);
+                    }
+
                 }
-            
-                return;
             }
 #if OLDEXTRACT
             bool found;

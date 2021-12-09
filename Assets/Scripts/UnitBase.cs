@@ -62,6 +62,7 @@ namespace Assets.Scripts
         public float HitTime { get; set; }
         public TileObject Bullet { get; set; }
         public bool ShieldHit { get; set; }
+        public bool UpdateStats { get; set; }
         public bool Deleted { get; set; }
         public bool BulletImpact { get; set; }
         public Position2 FireingPosition { get; set; }
@@ -870,10 +871,10 @@ namespace Assets.Scripts
 
         internal UnitBaseTileObject RemoveTileObject(MoveRecipeIngredient moveRecipeIngredient)
         {
-            if (moveRecipeIngredient.Position != CurrentPos)
+            if (moveRecipeIngredient.SourcePosition != CurrentPos)
             {
                 GroundCell gc;
-                if (HexGrid.MainGrid.GroundCells.TryGetValue(moveRecipeIngredient.Position, out gc))
+                if (HexGrid.MainGrid.GroundCells.TryGetValue(moveRecipeIngredient.SourcePosition, out gc))
                 {
                     UnitBase unitBase = gc.FindUnit();
                     if (unitBase != null)
@@ -884,7 +885,7 @@ namespace Assets.Scripts
             {
                 // From ground
                 GroundCell gc;
-                if (HexGrid.MainGrid.GroundCells.TryGetValue(moveRecipeIngredient.Position, out gc))
+                if (HexGrid.MainGrid.GroundCells.TryGetValue(moveRecipeIngredient.SourcePosition, out gc))
                 {
                     foreach (UnitBaseTileObject unitBaseTileObject in gc.GameObjects)
                     {

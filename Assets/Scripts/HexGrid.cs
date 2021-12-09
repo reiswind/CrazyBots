@@ -85,9 +85,9 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
             GameModel gameModel;
@@ -1022,7 +1022,22 @@ namespace Assets.Scripts
                                 {
                                     unit.ChangePlayer(move.PlayerId);
                                 }
-                                unit.UpdateStats(move.Stats);
+                                int countBefore = CountItems(unit.MoveUpdateStats);
+                                int countAfter = CountItems(move.Stats);
+                                if (countBefore < countAfter)
+                                {
+                                    // The unit has more items than before. Update the stats at the begining of the next move, so that
+                                    // the animation has time to complete and the new items appear at the end of the animation
+                                    HitByBullet hitByBullet = new HitByBullet(move.Positions[0]);
+                                    hitByBullet.UpdateUnitStats = move.Stats;
+                                    hitByBullet.TargetUnit = unit;
+                                    hitByBullet.UpdateStats = true;
+                                    hitByBullets.Add(hitByBullet);
+                                }
+                                else
+                                {
+                                    unit.UpdateStats(move.Stats);
+                                }
                             }
                         }
                     }
@@ -1207,6 +1222,21 @@ namespace Assets.Scripts
                     WaitForDraw.Set();
                 }
             }
+        }
+
+        private int CountItems(MoveUpdateStats moveUpdateStats)
+        {
+            if (moveUpdateStats == null || moveUpdateStats.UnitParts == null)
+                return 0;
+            int count = 0;
+            foreach (MoveUpdateUnitPart moveUpdateUnitPart in moveUpdateStats.UnitParts)
+            {
+                if (moveUpdateUnitPart.TileObjects != null)
+                {
+                    count += moveUpdateUnitPart.TileObjects.Count;
+                }
+            }
+            return count;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Type Safety", "UNT0014:Invalid type for call to GetComponent", Justification = "<Pending>")]
@@ -1461,21 +1491,28 @@ namespace Assets.Scripts
             }
             else
             {
-                hitByBullet.TargetUnit.HitByShell();
-
-                if (hitByBullet.ShieldHit)
+                if (hitByBullet.UpdateStats)
                 {
                     hitByBullet.TargetUnit.UpdateStats(hitByBullet.UpdateUnitStats);
                 }
                 else
                 {
-                    UnitBasePart unitBasePart = hitByBullet.TargetUnit.PartHitByShell(hitByBullet.HitPartTileObjectType, hitByBullet.UpdateUnitStats);
-                    hitByBullet.TargetUnit.UpdateStats(hitByBullet.UpdateUnitStats);
+                    hitByBullet.TargetUnit.HitByShell();
 
-                    if (hitByBullet.Deleted)
+                    if (hitByBullet.ShieldHit)
                     {
-                        hitByBullet.TargetUnit.HasBeenDestroyed = true;
-                        Destroy(hitByBullet.TargetUnit.gameObject, 10);
+                        hitByBullet.TargetUnit.UpdateStats(hitByBullet.UpdateUnitStats);
+                    }
+                    else
+                    {
+                        UnitBasePart unitBasePart = hitByBullet.TargetUnit.PartHitByShell(hitByBullet.HitPartTileObjectType, hitByBullet.UpdateUnitStats);
+                        hitByBullet.TargetUnit.UpdateStats(hitByBullet.UpdateUnitStats);
+
+                        if (hitByBullet.Deleted)
+                        {
+                            hitByBullet.TargetUnit.HasBeenDestroyed = true;
+                            Destroy(hitByBullet.TargetUnit.gameObject, 10);
+                        }
                     }
                 }
             }
@@ -1560,7 +1597,7 @@ namespace Assets.Scripts
                     {
                         Vector3 vector3 = transitObject.TargetPosition;
 
-                        float speed = 2.0f / GameSpeed;
+                        float speed = 3.0f / GameSpeed;
                         float step = speed * Time.deltaTime;
 
 

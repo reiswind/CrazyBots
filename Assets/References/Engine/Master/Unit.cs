@@ -226,7 +226,7 @@ namespace Engine.Master
             if (Container != null && Container.TileContainer != null && Container.TileContainer.Contains(TileObjectType.All))
             {
                 moveRecipeIngredient.TileObjectType = Container.TileContainer.TileObjects[0].TileObjectType;
-                moveRecipeIngredient.Position = Pos;
+                moveRecipeIngredient.SourcePosition = Pos;
                 moveRecipeIngredient.Source = TileObjectType.PartContainer;
                 return moveRecipeIngredient;
             }
@@ -270,7 +270,7 @@ namespace Engine.Master
             {
                 if (tileObjectType == TileObjectType.All)
                     moveRecipeIngredient.TileObjectType = Assembler.TileContainer.TileObjects[0].TileObjectType;
-                moveRecipeIngredient.Position = Pos;
+                moveRecipeIngredient.SourcePosition = Pos;
                 moveRecipeIngredient.Source = TileObjectType.PartAssembler;
                 return moveRecipeIngredient;
             }
@@ -278,7 +278,7 @@ namespace Engine.Master
             {
                 if (tileObjectType == TileObjectType.All)
                     moveRecipeIngredient.TileObjectType = Container.TileContainer.TileObjects[0].TileObjectType;
-                moveRecipeIngredient.Position = Pos;
+                moveRecipeIngredient.SourcePosition = Pos;
                 moveRecipeIngredient.Source = TileObjectType.PartContainer;
                 return moveRecipeIngredient;
             }
@@ -354,7 +354,7 @@ namespace Engine.Master
 
         public void ReleaseReservedIngredient(MoveRecipeIngredient ingredient)
         {
-            if (ingredient.Position == Pos)
+            if (ingredient.SourcePosition == Pos)
             {
                 if (ingredient.Source == TileObjectType.PartAssembler && Assembler != null && Assembler.TileContainer != null)
                 {
@@ -378,7 +378,7 @@ namespace Engine.Master
                 Position3 position3 = new Position3(Pos);
                 foreach (Position3 n3 in position3.Neighbors)
                 {
-                    if (n3.Pos == ingredient.Position)
+                    if (n3.Pos == ingredient.SourcePosition)
                     {
                         Tile t = Game.Map.GetTile(n3.Pos);
                         if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id)
@@ -393,7 +393,7 @@ namespace Engine.Master
 
         public void ReserveIngredient(MoveRecipeIngredient ingredient)
         {
-            if (ingredient.Position == Pos)
+            if (ingredient.SourcePosition == Pos)
             {
                 if (ingredient.Source == TileObjectType.PartAssembler && Assembler != null && Assembler.TileContainer != null)
                 {
@@ -417,7 +417,7 @@ namespace Engine.Master
                 Position3 position3 = new Position3(Pos);
                 foreach (Position3 n3 in position3.Neighbors)
                 {
-                    if (n3.Pos == ingredient.Position)
+                    if (n3.Pos == ingredient.SourcePosition)
                     {
                         Tile t = Game.Map.GetTile(n3.Pos);
                         if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id)
@@ -438,7 +438,7 @@ namespace Engine.Master
                 {
                     MoveRecipeIngredient moveRecipeIngredient = new MoveRecipeIngredient();
                     moveRecipeIngredient.TileObjectType = tileObject.TileObjectType;
-                    moveRecipeIngredient.Position = Pos;
+                    moveRecipeIngredient.SourcePosition = Pos;
                     moveRecipeIngredient.Source = sourceContainerType;
                     moveRecipeIngredient.Count = 1;
                     allIngredients.Add(moveRecipeIngredient);
@@ -498,7 +498,7 @@ namespace Engine.Master
                 else
                     currentScore += TileObject.GetPowerForTileObjectType(moveRecipeIngredient.TileObjectType);
 
-                if (moveRecipeIngredient.Position != Pos)
+                if (moveRecipeIngredient.SourcePosition != Pos)
                 {
                     if (moveRecipeIngredient.Source == TileObjectType.PartContainer)
                     {
@@ -555,7 +555,7 @@ namespace Engine.Master
             {
                 if (tileObjectType == TileObjectType.All)
                     moveRecipeIngredient.TileObjectType = Container.TileContainer.TileObjects[0].TileObjectType;
-                moveRecipeIngredient.Position = Pos;
+                moveRecipeIngredient.SourcePosition = Pos;
                 moveRecipeIngredient.Source = TileObjectType.PartContainer;
                 return moveRecipeIngredient;
             }
@@ -563,7 +563,7 @@ namespace Engine.Master
             {
                 if (tileObjectType == TileObjectType.All)
                     moveRecipeIngredient.TileObjectType = Assembler.TileContainer.TileObjects[0].TileObjectType;
-                moveRecipeIngredient.Position = Pos;
+                moveRecipeIngredient.SourcePosition = Pos;
                 moveRecipeIngredient.Source = TileObjectType.PartAssembler;
                 return moveRecipeIngredient;
             }
@@ -624,7 +624,7 @@ namespace Engine.Master
         public TileObject ConsumeIngredient(MoveRecipeIngredient ingredient, Dictionary<Position2, Unit> changedUnits)
         {
             TileObject tileObject = null;
-            if (ingredient.Position == Pos)
+            if (ingredient.SourcePosition == Pos)
             {
                 if (ingredient.Source == TileObjectType.PartAssembler &&
                     Assembler != null && Assembler.TileContainer != null && Assembler.TileContainer.Contains(ingredient.TileObjectType))
@@ -660,7 +660,7 @@ namespace Engine.Master
                 Position3 position3 = new Position3(Pos);
                 foreach (Position3 n3 in position3.Neighbors)
                 {
-                    if (n3.Pos == ingredient.Position)
+                    if (n3.Pos == ingredient.SourcePosition)
                     {
                         Tile t = Game.Map.GetTile(n3.Pos);
                         if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id)
