@@ -580,16 +580,6 @@ namespace Engine.Master
 #if MEASURE_MINS
                     MapInfo mapInfoPrev = new MapInfo();
                     mapInfoPrev.ComputeMapInfo(this, null);
-                    int countMin = mapInfoPrev.TotalMetal;
-                    if (move.MoveType != MoveType.Skip)
-                    {
-                        foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
-                        {
-                            if (tileObject.TileObjectType == TileObjectType.Mineral ||
-                                TileObject.CanConvertTileObjectIntoMineral(tileObject.TileObjectType))
-                                countMin++;
-                        }
-                    }
 #endif
                     /*
                     if (move.Stats != null && move.MoveRecipe != null)
@@ -682,7 +672,7 @@ namespace Engine.Master
 #if MEASURE_MINS
                     MapInfo mapInfoNow = new MapInfo();
                     mapInfoNow.ComputeMapInfo(this, null);
-                    if (mapInfoNow.TotalMetal != countMin)
+                    if (mapInfoNow.TotalMetal != mapInfoPrev.TotalMetal)
                     {
                         throw new Exception();
                     }
@@ -1306,17 +1296,8 @@ namespace Engine.Master
 #if MEASURE_MINS
                     MapInfo mapInfoNow = new MapInfo();
                     mapInfoNow.ComputeMapInfo(this, null);
-                    int countMin = 0;
-                    if (move.MoveType != MoveType.Skip)
-                    {
-                        foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
-                        {
-                            if (tileObject.TileObjectType == TileObjectType.Mineral ||
-                                TileObject.CanConvertTileObjectIntoMineral(tileObject.TileObjectType))
-                                countMin++;
-                        }
-                    }
-                    if (mapInfoNow.TotalMetal + countMin != mapInfoPrev.TotalMetal)
+                    
+                    if (mapInfoNow.TotalMetal != mapInfoPrev.TotalMetal)
                     {
                         throw new Exception();
                     }
@@ -1373,17 +1354,8 @@ namespace Engine.Master
 #if MEASURE_MINS
                     MapInfo mapInfoNow = new MapInfo();
                     mapInfoNow.ComputeMapInfo(this, null);
-                    int countMin = 0;
-                    if (move.MoveType != MoveType.Skip)
-                    {
-                        foreach (TileObject tileObject in move.Stats.MoveUpdateGroundStat.TileObjects)
-                        {
-                            if (tileObject.TileObjectType == TileObjectType.Mineral ||
-                                TileObject.CanConvertTileObjectIntoMineral(tileObject.TileObjectType))
-                                countMin++;
-                        }
-                    }
-                    if (mapInfoNow.TotalMetal + countMin != mapInfoPrev.TotalMetal)
+
+                    if (mapInfoNow.TotalMetal != mapInfoPrev.TotalMetal)
                     {
                         throw new Exception();
                     }

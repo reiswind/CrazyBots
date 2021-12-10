@@ -271,7 +271,7 @@ namespace Engine.Interface
                     }
                 }
             }
-
+            /*
             if (moves != null)
             {
                 foreach (Move move in moves)
@@ -291,7 +291,7 @@ namespace Engine.Interface
                         }
                     }
                 }
-            }
+            }*/
             /*
             if (checkTotalMetal != 0)
             {
@@ -328,6 +328,8 @@ namespace Engine.Interface
         {
             if (BioMass > 0)
             {
+                int bioBefore = BioMass;
+
                 int attempts = 50;
 
                 while (attempts-- > 0)
@@ -344,6 +346,8 @@ namespace Engine.Interface
                             break;
                     }
                 }
+                UnityEngine.Debug.Log("GrowBio " + bioBefore + " after " + BioMass);
+
             }
         }
 

@@ -1614,7 +1614,7 @@ namespace Assets.Scripts
                             panelWeapon.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                             panelWeapon.SetActive(true);
 
-                            if (part.Exists)
+                            if (part.TileObjects != null)
                             {
                                 StringBuilder sb = new StringBuilder();
                                 sb.Append("Ammunition  ");
@@ -1627,7 +1627,7 @@ namespace Assets.Scripts
                             }
                             else
                             {
-                                panelWeapon.transform.Find("Content").GetComponent<Text>().text = "Destroyed";
+                                panelWeapon.transform.Find("Content").GetComponent<Text>().text = "";
                             }
                         }
                         if (part.PartType == TileObjectType.PartAssembler)
@@ -1635,34 +1635,43 @@ namespace Assets.Scripts
                             panelAssembler.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                             panelAssembler.SetActive(true);
 
-                            StringBuilder sb = new StringBuilder();
-                            sb.Append("Minerals  ");
-                            sb.Append(part.TileObjects.Count);
+                            if (part.TileObjects != null)
+                            {
+                                StringBuilder sb = new StringBuilder();
+                                sb.Append("Minerals  ");
+                                sb.Append(part.TileObjects.Count);
 
-                            if (part.Capacity.HasValue)
-                                sb.Append("/" + part.Capacity.Value);
+                                if (part.Capacity.HasValue)
+                                    sb.Append("/" + part.Capacity.Value);
 
-                            panelAssembler.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
-                            panelAssembler.transform.Find("BuildQueue").GetComponent<Text>().text = "";
+                                panelAssembler.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+                            }
                         }
                         if (part.PartType == TileObjectType.PartReactor)
                         {
                             panelReactor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                             panelReactor.SetActive(true);
 
-                            StringBuilder sb = new StringBuilder();
-                            sb.Append("Minerals  ");
-                            sb.Append(part.TileObjects.Count);
+                            if (part.TileObjects != null)
+                            {
+                                StringBuilder sb = new StringBuilder();
+                                sb.Append("Minerals  ");
+                                sb.Append(part.TileObjects.Count);
 
-                            if (part.Capacity.HasValue)
-                                sb.Append("/" + part.Capacity.Value);
+                                if (part.Capacity.HasValue)
+                                    sb.Append("/" + part.Capacity.Value);
 
-                            sb.Append(" Power  ");
-                            if (part.AvailablePower.HasValue)
-                                sb.Append(part.AvailablePower.Value);
+                                sb.Append(" Power  ");
+                                if (part.AvailablePower.HasValue)
+                                    sb.Append(part.AvailablePower.Value);
+                                else
+                                    sb.Append("0");
+                                panelReactor.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+                            }
                             else
-                                sb.Append("0");
-                            panelReactor.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
+                            {
+                                panelReactor.transform.Find("Content").GetComponent<Text>().text = "";
+                            }
                         }
                         if (part.PartType == TileObjectType.PartArmor)
                         {

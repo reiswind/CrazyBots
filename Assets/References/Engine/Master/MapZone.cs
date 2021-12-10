@@ -171,12 +171,13 @@ namespace Engine.Interface
                 else if (freeSpaceSW) tileObject.Direction = Direction.SW;
                 else throw new Exception("No free space");
 
-                UnityEngine.Debug.Log("Add " + addObjectType.ToString() + " at " + tile.Pos);
+                //UnityEngine.Debug.Log("Add " + addObjectType.ToString() + " at " + tile.Pos);
 
                 tile.Add(tileObject);
                 if (!changedGroundPositions.ContainsKey(tile.Pos))
                     changedGroundPositions.Add(tile.Pos, tile);
-                if (addGras)
+
+                if (addObjectType == TileObjectType.Gras)
                     return false; // Gras is no biomass
 
                 return true;
@@ -190,7 +191,7 @@ namespace Engine.Interface
                         tileObject.TileObjectType = newObjectType;
                         tileObject.TileObjectKind = tileObjectKind;
 
-                        UnityEngine.Debug.Log("Replace " + replaceObjectType.ToString() + " with " + newObjectType.ToString() + " at " + tile.Pos);
+                        //UnityEngine.Debug.Log("Replace " + replaceObjectType.ToString() + " with " + newObjectType.ToString() + " at " + tile.Pos);
 
                         if (!changedGroundPositions.ContainsKey(tile.Pos))
                             changedGroundPositions.Add(tile.Pos, tile);
