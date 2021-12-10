@@ -324,6 +324,29 @@ namespace Engine.Interface
 
         public int BioMass { get; set; }
 
+        public void GrowBio(Dictionary<Position2, Tile> changedGroundPositions)
+        {
+            if (BioMass > 0)
+            {
+                int attempts = 50;
+
+                while (attempts-- > 0)
+                {
+                    int zoneIdx = Game.Random.Next(Zones.Count);
+                    MapZone mapZone = Zones[zoneIdx];
+                    if (mapZone.IsUnderwater)
+                        continue;
+
+                    if (mapZone.GrowBio(this, changedGroundPositions))
+                    {
+                        BioMass--;
+                        if (BioMass <= 0)
+                            break;
+                    }
+                }
+            }
+        }
+
         public void AddOpenTileObject(TileObject tileObject)
         {
             if (TileObject.CanConvertTileObjectIntoMineral(tileObject.TileObjectType))

@@ -39,6 +39,184 @@ namespace Engine.Interface
 
         private List<Tile> openTiles;
 
+        public bool GrowBio(Map map, Dictionary<Position2, Tile> changedGroundPositions)
+        {
+            int attempts = Tiles.Count;
+
+            while (attempts-- > 0)
+            {
+                int tileIdx = map.Game.Random.Next(Tiles.Count);
+                Tile tile = Tiles.Values.ElementAt(tileIdx);
+                if (tile.Unit != null)
+                    continue;
+
+                int countGras = 0;
+                int countBush = 0;
+                int countTree = 0;
+                int countSand = 0;
+                int countRock = 0;
+                int countTrunk = 0;
+                int countWater = 0;
+                int countNone = 6;
+
+                bool freeSpaceC = true;
+                bool freeSpaceN = true;
+                bool freeSpaceNE = true;
+                bool freeSpaceNW = true;
+                bool freeSpaceS = true;
+                bool freeSpaceSW = true;
+                bool freeSpaceSE = true;
+
+                foreach (TileObject tileObject in tile.TileObjects)
+                {
+                    if (tileObject.Direction == Direction.C) freeSpaceC = false;
+                    if (tileObject.Direction == Direction.N) freeSpaceN = false;
+                    if (tileObject.Direction == Direction.NE) freeSpaceNE = false;
+                    if (tileObject.Direction == Direction.NW) freeSpaceNW = false;
+                    if (tileObject.Direction == Direction.S) freeSpaceS = false;
+                    if (tileObject.Direction == Direction.SE) freeSpaceSE = false;
+                    if (tileObject.Direction == Direction.SW) freeSpaceSW = false;
+
+                    if (tileObject.TileObjectType == TileObjectType.Gras)
+                    {
+                        countGras++;
+                        countNone--;
+                    }
+                    else if (tileObject.TileObjectType == TileObjectType.TreeTrunk)
+                    {
+                        countTrunk++;
+                        countNone--;
+                    }
+                    else if (tileObject.TileObjectType == TileObjectType.Bush)
+                    {
+                        countBush++;
+                        countNone--;
+                    }
+                    else if (tileObject.TileObjectType == TileObjectType.Tree)
+                    {
+                        countTree++;
+                        countNone--;
+                    }
+                    else if (tileObject.TileObjectType == TileObjectType.Sand)
+                    {
+                        countSand++;
+                        countNone--;
+                    }
+                    else if (tileObject.TileObjectType == TileObjectType.Rock)
+                    {
+                        countRock++;
+                        countNone--;
+                    }
+                    else if (tileObject.TileObjectType == TileObjectType.Water)
+                    {
+                        countWater++;
+                        countNone--;
+                    }
+                }
+
+                TileObjectType replaceObjectType = TileObjectType.None;
+                TileObjectType newObjectType = TileObjectType.None;
+                TileObjectType addObjectType = TileObjectType.None;
+                TileObjectKind tileObjectKind = TileObjectKind.None;
+
+                bool addGras = false;
+
+                if (countSand == 0 && countRock == 0 && countWater == 0)
+                {                    
+                    if (countNone > 0 && countBush == 0 && countTree == 0 && countTrunk == 0)
+                    {
+                        //  Add gras
+                        addGras = true;
+                    }
+                    else if (countTrunk >= 4)
+                    {
+                        // grow bush from trunk
+                        replaceObjectType = TileObjectType.TreeTrunk;
+                        newObjectType = TileObjectType.Bush;
+                    }
+                    else if (countTrunk > 0 && countTrunk < 3 && countNone > 0)
+                    {
+                        // Add gras
+                        addGras = true;
+                    }
+                    else if (countBush > 0 && countBush < 3 && countNone > 0)
+                    {
+                        // Add gras
+                        addGras = true;
+                    }
+                    else if (countBush > 0 && countBush < 3 && countGras > 0)
+                    {
+                        // Place a bush next to a bush on gras
+                        replaceObjectType = TileObjectType.Gras;
+                        newObjectType = TileObjectType.Bush;
+                    }
+                    else if ((countTree > 0 && countTree < 3) && countNone > 3)
+                    {
+                        // Place a bush next to lonely trees
+                        addObjectType = TileObjectType.Bush;
+                    }
+                    else if ((countTree > 0 && countTree < 3) && countBush > 2)
+                    {
+                        // Grow a tree from a bush
+                        replaceObjectType = TileObjectType.Bush;
+                        newObjectType = TileObjectType.Tree;
+                    }
+                    else if (countNone == 0 && countGras > 4)
+                    {
+
+                    }
+                }
+                if (addGras)
+                {
+                    addObjectType = TileObjectType.Gras;
+                    int grasIdx = map.Game.Random.Next(3);
+                    if (grasIdx == 1) tileObjectKind = TileObjectKind.DarkGras;
+                    if (grasIdx == 2) tileObjectKind = TileObjectKind.LightGras;
+                }
+                if (addObjectType != TileObjectType.None)
+                {
+                    TileObject tileObject = new TileObject();
+                    tileObject.TileObjectType = addObjectType;
+                    tileObject.TileObjectKind = tileObjectKind;
+
+                    if (freeSpaceN) tileObject.Direction = Direction.N;
+                    if (freeSpaceNE) tileObject.Direction = Direction.NE;
+                    if (freeSpaceNW) tileObject.Direction = Direction.NW;
+                    if (freeSpaceS) tileObject.Direction = Direction.S;
+                    if (freeSpaceSE) tileObject.Direction = Direction.SE;
+                    if (freeSpaceSW) tileObject.Direction = Direction.SW;
+
+                    UnityEngine.Debug.Log("Add " + addObjectType.ToString() + " at " + tile.Pos);
+
+                    tile.Add(tileObject);
+                    if (!changedGroundPositions.ContainsKey(tile.Pos))
+                        changedGroundPositions.Add(tile.Pos, tile);
+                    if (addGras)
+                        return false; // Gras is no biomass
+
+                    return true;
+                }
+                if (replaceObjectType != TileObjectType.None)
+                {
+                    foreach (TileObject tileObject in tile.TileObjects)
+                    {
+                        if (tileObject.TileObjectType == replaceObjectType)
+                        {
+                            tileObject.TileObjectType = newObjectType;
+                            tileObject.TileObjectKind = tileObjectKind;
+
+                            UnityEngine.Debug.Log("Replace " + replaceObjectType.ToString() + " with " + newObjectType.ToString() + " at " + tile.Pos);
+
+                            if (!changedGroundPositions.ContainsKey(tile.Pos))
+                                changedGroundPositions.Add(tile.Pos, tile);
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
         public void MakeCrate(Map map, Dictionary<int, MapZone> zones)
         {
             List<Tile> openTiles = new List<Tile>();
@@ -245,7 +423,7 @@ namespace Engine.Interface
 
                     foreach (Tile n in bestTile.Neighbors)
                     {
-                        
+
 
                         if (Position3.Distance(n.Pos, Center) > 20)
                             continue;
@@ -419,7 +597,7 @@ namespace Engine.Interface
                     }
                     else if (mapVegetation.TileFitType == TileFitType.Stone)
                     {
-                        count = map.Game.Random.Next(3)+1;
+                        count = map.Game.Random.Next(3) + 1;
                         tileObjectType = TileObjectType.Rock;
                     }
                     else if (mapVegetation.TileFitType == TileFitType.Tree)

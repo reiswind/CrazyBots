@@ -51,7 +51,8 @@ namespace Assets.Scripts
                     HexGrid.MainGrid.AddTransitTileObject(transitObject);
                 }
             }
-            if (TileObjectContainer.TileObjects.Count == 0)
+            if (TileObjectContainer.TileObjects == null ||
+                TileObjectContainer.TileObjects.Count == 0)
             {
                 int why = 0;
             }

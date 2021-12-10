@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using HighlightPlus;
+using System;
 
 namespace Assets.Scripts
 {
@@ -930,7 +931,7 @@ namespace Assets.Scripts
                             unitBaseTileObject.TileObject.Direction = Direction.C;
 
                             GameObject partObject;
-                            if (unitBasePart.CompleteLevel > 1)
+                            if (unitBasePart.Level > 0 && unitBasePart.CompleteLevel > 1)
                             {
                                 partObject = UnitBase.FindChildNyName(unitBasePart.Part, unitBasePart.Name + unitBasePart.CompleteLevel + "-" + unitBasePart.Level);
                             }
@@ -939,10 +940,17 @@ namespace Assets.Scripts
 
                                 partObject = unitBasePart.Part;
                             }
-                            unitBaseTileObject.GameObject = HexGrid.Instantiate(partObject, transform);
-                            partObject.SetActive(false);
+                            if (partObject == null)
+                            {
+                                throw new Exception("Missing partobject");
+                            }
+                            else
+                            {
+                                unitBaseTileObject.GameObject = HexGrid.Instantiate(partObject, transform);
+                                partObject.SetActive(false);
 
-                            return unitBaseTileObject;
+                                return unitBaseTileObject;
+                            }
                         }
                         else
                         {

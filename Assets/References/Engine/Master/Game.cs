@@ -2016,6 +2016,7 @@ namespace Engine.Master
 
                 // Place tile objects (For Debug)
                 CreateTileObjects(1);
+                Map.GrowBio(changedGroundPositions);
 #if DEBUG
                 Validate(lastMoves);
 #endif

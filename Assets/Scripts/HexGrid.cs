@@ -85,10 +85,10 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
             GameModel gameModel;
 
@@ -287,10 +287,12 @@ namespace Assets.Scripts
             float y;
             float z = 0;
 
+            bool scale = false;
             Vector2 randomPos = UnityEngine.Random.insideUnitCircle;
 
             if (tileObject.TileObjectType == TileObjectType.Tree)
             {
+                scale = true;
                 if (tileObject.TileObjectKind == TileObjectKind.LeaveTree)
                 {
                     int idx = Random.Next(leaveTreeResources.Count);
@@ -306,12 +308,14 @@ namespace Assets.Scripts
             }
             else if (tileObject.TileObjectType == TileObjectType.Bush)
             {
+                scale = true;
                 int idx = Random.Next(bushResources.Count);
                 prefab = bushResources.Values.ElementAt(idx);
                 y = prefab.transform.position.y;
             }
             else if (tileObject.TileObjectType == TileObjectType.Rock)
             {
+                scale = true;
                 int idx = Random.Next(rockResources.Count);
                 prefab = rockResources.Values.ElementAt(idx);
                 y = prefab.transform.position.y;
@@ -331,8 +335,8 @@ namespace Assets.Scripts
                     prefab = GetResource("Gras1");
                 }
                 y = 0.05f;
-                x = (randomPos.x * 0.05f);
-                z = (randomPos.y * 0.07f);
+                //x = (randomPos.x * 0.05f);
+                //z = (randomPos.y * 0.07f);
             }
             else if (tileObject.TileObjectType == TileObjectType.Mineral)
             {
@@ -400,20 +404,22 @@ namespace Assets.Scripts
                     unitPos3.x -= 0.5f;
                 }
 
-                float scalex = UnityEngine.Random.value / 10;
-                float scaley = UnityEngine.Random.value / 10;
-                float scalez = UnityEngine.Random.value / 10;
+                if (scale)
+                {
+                    float scalex = UnityEngine.Random.value / 10;
+                    float scaley = UnityEngine.Random.value / 10;
+                    float scalez = UnityEngine.Random.value / 10;
 
-                Vector3 scaleChange;
-                scaleChange = new Vector3(scalex, scaley, scalez);
-
-                gameTileObject.transform.localScale += scaleChange;
-
+                    Vector3 scaleChange;
+                    scaleChange = new Vector3(scalex, scaley, scalez);
+                    gameTileObject.transform.localScale += scaleChange;
+                }
                 unitPos3.x += x;
                 unitPos3.z += z;
                 unitPos3.y += y;
                 gameTileObject.transform.position = unitPos3;
-                gameTileObject.name = tileObject.TileObjectType.ToString();
+
+                gameTileObject.name = tileObject.TileObjectType.ToString() + tileObject.Direction.ToString();
             }
             return gameTileObject;
         }
@@ -1118,8 +1124,9 @@ namespace Assets.Scripts
                                         hexCell.VisibleByPlayer = (move.Stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
                                     }
                                 }
-
-                                //hexCell.Stats = move.Stats;
+                                hexCell.Visible = true;
+                                hexCell.VisibleByPlayer = true;
+                                
                                 Position2 borderPos = hexCell.UpdateGround(move.Stats);
                                 if (borderPos != Position2.Null)
                                     groundCellBorderChanged.Add(borderPos);

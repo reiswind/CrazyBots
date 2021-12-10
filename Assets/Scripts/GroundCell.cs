@@ -98,7 +98,7 @@ namespace Assets.Scripts
                     //renderer.material.SetFloat("Darkness", Diffuse);
                 }
             }
-            
+
             Renderer[] rr = GetComponentsInChildren<Renderer>();
             foreach (Renderer renderer in rr)
             // Set color
@@ -191,7 +191,7 @@ namespace Assets.Scripts
                     CreateMarker();
                 }
 
-                
+
                 if (mapPheromone.IntensityContainer > 0)
                 {
                     Vector3 position = transform.position;
@@ -332,7 +332,7 @@ namespace Assets.Scripts
                     int x = 0;
                 }
                 */
-                
+
                 if (Stats.MoveUpdateGroundStat.IsHill())
                 {
                     //materialName = "Hill";
@@ -394,9 +394,9 @@ namespace Assets.Scripts
 
                 }
             }
-            if (Stats.MoveUpdateGroundStat.IsBorder )
-                
-                //if (Stats.MoveUpdateGroundStat.IsBorder)
+            if (Stats.MoveUpdateGroundStat.IsBorder)
+
+            //if (Stats.MoveUpdateGroundStat.IsBorder)
             //if (Stats.MoveUpdateGroundStat.ZoneId > 0)
             {
                 //materialName = "DarkSand";
@@ -512,7 +512,7 @@ namespace Assets.Scripts
 
         void UpdateArrow(LineRenderer cachedLineRenderer)
         {
-            float PercentHead = 0.4f; 
+            float PercentHead = 0.4f;
             Vector3 ArrowOrigin = Vector3.back;
             Vector3 ArrowTarget = Vector3.back;
 
@@ -648,7 +648,7 @@ namespace Assets.Scripts
                 GroundCell neighbor;
                 if (!HexGrid.MainGrid.GroundCells.TryGetValue(n.Pos, out neighbor))
                     continue;
-                if (neighbor.IsBorder && neighbor.Stats.MoveUpdateGroundStat.Owner == Stats.MoveUpdateGroundStat.Owner && 
+                if (neighbor.IsBorder && neighbor.Stats.MoveUpdateGroundStat.Owner == Stats.MoveUpdateGroundStat.Owner &&
                     /*neighbor.GroundCellBorder == null && */ neighborBorder == null)
                 {
                     if (!visitedBorders.Contains(neighbor.Pos))
@@ -876,14 +876,14 @@ namespace Assets.Scripts
             return null;
         }
 
-        internal void AddDestructable(List<UnitBaseTileObject> destroyedTileObjects, TileObject tileObject)
+        internal UnitBaseTileObject AddDestructable(List<UnitBaseTileObject> destroyedTileObjects, TileObject tileObject)
         {
             foreach (UnitBaseTileObject exisitingDestructable in destroyedTileObjects)
             {
                 if (exisitingDestructable.TileObject.TileObjectType == tileObject.TileObjectType)
                 {
                     destroyedTileObjects.Remove(exisitingDestructable);
-                    return;
+                    return null;
                 }
             }
             GameObject destructable;
@@ -892,13 +892,13 @@ namespace Assets.Scripts
             if (destructable != null)
             {
                 destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
-                destructable.name = tileObject.TileObjectType.ToString();
             }
             UnitBaseTileObject unitBaseTileObject = new UnitBaseTileObject();
             unitBaseTileObject.GameObject = destructable;
             unitBaseTileObject.TileObject = tileObject.Copy();
 
             GameObjects.Add(unitBaseTileObject);
+            return unitBaseTileObject;
         }
 
         internal void AddDestructableItems(int itemsinLargeMineral, List<UnitBaseTileObject> destroyedTileObjects, TileObjectType tileObjectType, TileObjectKind tileObjectKind)
@@ -939,6 +939,7 @@ namespace Assets.Scripts
             SetGroundMaterial();
             //return;
 
+            List<UnitBaseTileObject> addedTileObjects = new List<UnitBaseTileObject>();
             List<UnitBaseTileObject> destroyedTileObjects = new List<UnitBaseTileObject>();
             destroyedTileObjects.AddRange(GameObjects);
 
@@ -955,7 +956,9 @@ namespace Assets.Scripts
                 }
                 else
                 {
-                    AddDestructable(destroyedTileObjects, tileObject);
+                    UnitBaseTileObject addedObject = AddDestructable(destroyedTileObjects, tileObject);
+                    if (addedObject != null)
+                        addedTileObjects.Add(addedObject);
                 }
             }
 
@@ -981,7 +984,7 @@ namespace Assets.Scripts
                     }
                     else if (tileObjects.Count > itemsinLargeMineral)
                     {
-                        AddDestructableItems (itemsinLargeMineral, destroyedTileObjects, TileObjectType.Mineral, TileObjectKind.Many);
+                        AddDestructableItems(itemsinLargeMineral, destroyedTileObjects, TileObjectType.Mineral, TileObjectKind.Many);
 
                         for (int i = 0; i < itemsinLargeMineral; i++)
                             tileObjects.RemoveAt(0);
@@ -1042,6 +1045,42 @@ namespace Assets.Scripts
                         }
                     }
                 }
+                foreach (UnitBaseTileObject destructable in addedTileObjects)
+                {
+                    break;
+                    if (destructable.GameObject != null)
+                    {
+                        float amount = 0.0001f;
+                        float sink = 0.1f;
+
+                        if (destructable.TileObject.TileObjectType == TileObjectType.Gras)
+                        {
+                            sink = 0.1f;
+                            amount = 0.0001f;
+                        }
+                        else if (destructable.TileObject.TileObjectType == TileObjectType.TreeTrunk)
+                        {
+                            amount = 0;
+                        }
+                        else
+                        {
+                            sink = 1f;
+                            amount = 0.01f;
+                        }
+
+                        // Raise
+                        if (amount != 0)
+                        {
+                            Vector3 vector3 = destructable.GameObject.transform.position;
+                            float raiseTo = vector3.y;
+
+                            vector3.y -= sink;
+                            destructable.GameObject.transform.position = vector3;
+
+                            StartCoroutine(FadeInDestructable(destructable.GameObject, raiseTo, amount));
+                        }
+                    }
+                }
             }
         }
 
@@ -1055,10 +1094,26 @@ namespace Assets.Scripts
             }
             yield break;
         }
+        private IEnumerator FadeInDestructable(GameObject gameObject, float raiseTo, float amount)
+        {
+            while (gameObject.transform.position.y < raiseTo)
+            {
+                if (gameObject == null)
+                    yield break;
+                Vector3 pos = gameObject.transform.position;
+                pos.y += amount;
+                gameObject.transform.position = pos;
+                yield return null;
+            }
+            HexGrid.Destroy(gameObject);
+            yield break;
+        }
         private IEnumerator FadeOutDestructable(GameObject gameObject, float sinkTo)
         {
             while (gameObject.transform.position.y > sinkTo)
             {
+                if (gameObject == null)
+                    yield break;
                 Vector3 pos = gameObject.transform.position;
                 pos.y -= 0.0001f;
                 gameObject.transform.position = pos;
@@ -1066,7 +1121,7 @@ namespace Assets.Scripts
             }
             HexGrid.Destroy(gameObject);
             yield break;
-        }        
+        }
 
         public bool IsHighlighted { get; private set; }
         internal void SetHighlighted(bool isHighlighted)
@@ -1126,7 +1181,7 @@ namespace Assets.Scripts
         private void UpdateCache()
         {
             cacheUpdated = true;
-            mineralCache =0;
+            mineralCache = 0;
             numberOfCollectablesCache = 0;
 
             canBuild = true;
@@ -1239,7 +1294,7 @@ namespace Assets.Scripts
                 if (commandPreview == null)
                 {
                     cellGameCommand = new CommandPreview();
-                    
+
                     cellGameCommand.CreateCommandPreview(gameCommand);
                     cellGameCommand.SetActive(false);
                     cellGameCommand.SetPosition(this);
