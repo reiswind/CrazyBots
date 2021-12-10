@@ -114,9 +114,10 @@ namespace Engine.Interface
             Pos = pos;
 
             TileContainer = new TileContainer();
+            Counter = new TileCounter();
         }
         private TileContainer TileContainer { get; set; }
-
+        public TileCounter Counter { get; private set; }
         public int Count
         {
             get
@@ -412,6 +413,15 @@ namespace Engine.Interface
             if (IsUnderwater)
                 canBuild = false;
 
+            Counter.Gras = 0;
+            Counter.Bush = 0;
+            Counter.Tree = 0;
+            Counter.Sand = 0;
+            Counter.Rock = 0;
+            Counter.Trunk = 0;
+            Counter.Water = 0;
+            Counter.None = 6;
+
             canMove = canBuild;
             foreach (TileObject tileObject in TileContainer.TileObjects)
             {
@@ -419,7 +429,6 @@ namespace Engine.Interface
                 {
                     canBuild = false;
                     canMove = false;
-                    break;
                 }
                 if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
                 {
@@ -427,8 +436,45 @@ namespace Engine.Interface
                     if (tileObject.TileObjectType != TileObjectType.Mineral)
                         canMove = false;
                 }
+
+                if (tileObject.TileObjectType == TileObjectType.Gras)
+                {
+                    Counter.Gras++;
+                    Counter.None--;
+                }
+                else if (tileObject.TileObjectType == TileObjectType.TreeTrunk)
+                {
+                    Counter.Trunk++;
+                    Counter.None--;
+                }
+                else if (tileObject.TileObjectType == TileObjectType.Bush)
+                {
+                    Counter.Bush++;
+                    Counter.None--;
+                }
+                else if (tileObject.TileObjectType == TileObjectType.Tree)
+                {
+                    Counter.Tree++;
+                    Counter.None--;
+                }
+                else if (tileObject.TileObjectType == TileObjectType.Sand)
+                {
+                    Counter.Sand++;
+                    Counter.None--;
+                }
+                else if (tileObject.TileObjectType == TileObjectType.Rock)
+                {
+                    Counter.Rock++;
+                    Counter.None--;
+                }
+                else if (tileObject.TileObjectType == TileObjectType.Water)
+                {
+                    Counter.Water++;
+                    Counter.None--;
+                }
             }
         }
+
 
         private int mineralCache;
         private int numberOfCollectablesCache;

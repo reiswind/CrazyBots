@@ -97,6 +97,11 @@ namespace Engine.Master
         }        
         internal void SetGameCommand(GameCommandItem gameCommand)
         {
+            if (gameCommand.BuildPositionReached)
+            {
+                if (gameCommand.FactoryUnit.UnitId == UnitId)
+                    gameCommand.BuildPositionReached = false;
+            }
             CurrentGameCommand = gameCommand;
             Changed = true;
         }
@@ -161,13 +166,6 @@ namespace Engine.Master
                 CurrentGameCommand = null;
             }
         }
-        public void ClearGameCommand()
-        {
-            if (CurrentGameCommand != null)
-            {
-                CurrentGameCommand = null;
-            }
-        }
 
         public int PrevPower { get; set; }
         public int Power { get; set; }
@@ -186,6 +184,7 @@ namespace Engine.Master
             {
                 Armor.RemoveShield();
             }
+            //ResetGameCommand();
             CurrentGameCommand = null;
             ExtractMe = true;
         }

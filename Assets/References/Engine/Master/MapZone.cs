@@ -21,6 +21,9 @@ namespace Engine.Interface
         public int Percent { get; set; }
         public TileFitType TileFitType { get; set; }
     }
+
+
+
     public class MapZone
     {
         public int ZoneId { get; set; }
@@ -49,168 +52,149 @@ namespace Engine.Interface
                 Tile tile = Tiles.Values.ElementAt(tileIdx);
                 if (tile.Unit != null)
                     continue;
+                if (GrowBio(map, tile, changedGroundPositions))
+                    return true;
+            }
+            return false;
+        }
+        public bool GrowBio(Map map, Tile tile, Dictionary<Position2, Tile> changedGroundPositions)
+        {
+            bool freeSpaceC = true;
+            bool freeSpaceN = true;
+            bool freeSpaceNE = true;
+            bool freeSpaceNW = true;
+            bool freeSpaceS = true;
+            bool freeSpaceSW = true;
+            bool freeSpaceSE = true;            
 
-                int countGras = 0;
-                int countBush = 0;
-                int countTree = 0;
-                int countSand = 0;
-                int countRock = 0;
-                int countTrunk = 0;
-                int countWater = 0;
-                int countNone = 6;
+            foreach (TileObject tileObject in tile.TileObjects)
+            {
+                if (tileObject.Direction == Direction.C) freeSpaceC = false;
+                if (tileObject.Direction == Direction.N) freeSpaceN = false;
+                if (tileObject.Direction == Direction.NE) freeSpaceNE = false;
+                if (tileObject.Direction == Direction.NW) freeSpaceNW = false;
+                if (tileObject.Direction == Direction.S) freeSpaceS = false;
+                if (tileObject.Direction == Direction.SE) freeSpaceSE = false;
+                if (tileObject.Direction == Direction.SW) freeSpaceSW = false;
+            }
 
-                bool freeSpaceC = true;
-                bool freeSpaceN = true;
-                bool freeSpaceNE = true;
-                bool freeSpaceNW = true;
-                bool freeSpaceS = true;
-                bool freeSpaceSW = true;
-                bool freeSpaceSE = true;
+            TileObjectType replaceObjectType = TileObjectType.None;
+            TileObjectType newObjectType = TileObjectType.None;
+            TileObjectType addObjectType = TileObjectType.None;
+            TileObjectKind tileObjectKind = TileObjectKind.None;
 
-                foreach (TileObject tileObject in tile.TileObjects)
+            bool addGras = false;
+
+            if (tile.Counter.Sand == 0 && tile.Counter.Rock == 0 && tile.Counter.Water == 0)
+            {
+                if (tile.Counter.None > 0 && tile.Counter.Bush == 0 && tile.Counter.Tree == 0 && tile.Counter.Trunk == 0)
                 {
-                    if (tileObject.Direction == Direction.C) freeSpaceC = false;
-                    if (tileObject.Direction == Direction.N) freeSpaceN = false;
-                    if (tileObject.Direction == Direction.NE) freeSpaceNE = false;
-                    if (tileObject.Direction == Direction.NW) freeSpaceNW = false;
-                    if (tileObject.Direction == Direction.S) freeSpaceS = false;
-                    if (tileObject.Direction == Direction.SE) freeSpaceSE = false;
-                    if (tileObject.Direction == Direction.SW) freeSpaceSW = false;
-
-                    if (tileObject.TileObjectType == TileObjectType.Gras)
-                    {
-                        countGras++;
-                        countNone--;
-                    }
-                    else if (tileObject.TileObjectType == TileObjectType.TreeTrunk)
-                    {
-                        countTrunk++;
-                        countNone--;
-                    }
-                    else if (tileObject.TileObjectType == TileObjectType.Bush)
-                    {
-                        countBush++;
-                        countNone--;
-                    }
-                    else if (tileObject.TileObjectType == TileObjectType.Tree)
-                    {
-                        countTree++;
-                        countNone--;
-                    }
-                    else if (tileObject.TileObjectType == TileObjectType.Sand)
-                    {
-                        countSand++;
-                        countNone--;
-                    }
-                    else if (tileObject.TileObjectType == TileObjectType.Rock)
-                    {
-                        countRock++;
-                        countNone--;
-                    }
-                    else if (tileObject.TileObjectType == TileObjectType.Water)
-                    {
-                        countWater++;
-                        countNone--;
-                    }
+                    //  Add gras
+                    addGras = true;
                 }
-
-                TileObjectType replaceObjectType = TileObjectType.None;
-                TileObjectType newObjectType = TileObjectType.None;
-                TileObjectType addObjectType = TileObjectType.None;
-                TileObjectKind tileObjectKind = TileObjectKind.None;
-
-                bool addGras = false;
-
-                if (countSand == 0 && countRock == 0 && countWater == 0)
-                {                    
-                    if (countNone > 0 && countBush == 0 && countTree == 0 && countTrunk == 0)
+                else if (tile.Counter.Trunk >= 4)
+                {
+                    // grow bush from trunk
+                    replaceObjectType = TileObjectType.TreeTrunk;
+                    newObjectType = TileObjectType.Bush;
+                }
+                else if (tile.Counter.Trunk > 0 && tile.Counter.Trunk < 3 && tile.Counter.None > 0)
+                {
+                    // Add gras
+                    addGras = true;
+                }
+                else if (tile.Counter.Bush > 0 && tile.Counter.Bush < 3 && tile.Counter.None > 0)
+                {
+                    // Add gras
+                    addGras = true;
+                }
+                else if (tile.Counter.Bush > 0 && tile.Counter.Bush < 3 && tile.Counter.Gras > 0)
+                {
+                    // Place a bush next to a bush on gras
+                    replaceObjectType = TileObjectType.Gras;
+                    newObjectType = TileObjectType.Bush;
+                }
+                else if (tile.Counter.Tree > 0 && tile.Counter.Tree < 3 && tile.Counter.None > 3)
+                {
+                    // Place a bush next to lonely trees
+                    addObjectType = TileObjectType.Bush;
+                }
+                else if (tile.Counter.Tree > 0 && tile.Counter.Tree < 3 && tile.Counter.Bush > 2)
+                {
+                    // Grow a tree from a bush
+                    replaceObjectType = TileObjectType.Bush;
+                    newObjectType = TileObjectType.Tree;
+                }
+                else if (tile.Counter.None == 0 && tile.Counter.Gras > 4)
+                {
+                    if (map.Game.Random.Next(3) == 0)
                     {
-                        //  Add gras
-                        addGras = true;
-                    }
-                    else if (countTrunk >= 4)
-                    {
-                        // grow bush from trunk
-                        replaceObjectType = TileObjectType.TreeTrunk;
-                        newObjectType = TileObjectType.Bush;
-                    }
-                    else if (countTrunk > 0 && countTrunk < 3 && countNone > 0)
-                    {
-                        // Add gras
-                        addGras = true;
-                    }
-                    else if (countBush > 0 && countBush < 3 && countNone > 0)
-                    {
-                        // Add gras
-                        addGras = true;
-                    }
-                    else if (countBush > 0 && countBush < 3 && countGras > 0)
-                    {
-                        // Place a bush next to a bush on gras
+                        // Grow random bush
                         replaceObjectType = TileObjectType.Gras;
                         newObjectType = TileObjectType.Bush;
                     }
-                    else if ((countTree > 0 && countTree < 3) && countNone > 3)
-                    {
-                        // Place a bush next to lonely trees
-                        addObjectType = TileObjectType.Bush;
-                    }
-                    else if ((countTree > 0 && countTree < 3) && countBush > 2)
-                    {
-                        // Grow a tree from a bush
-                        replaceObjectType = TileObjectType.Bush;
-                        newObjectType = TileObjectType.Tree;
-                    }
-                    else if (countNone == 0 && countGras > 4)
+                    else
                     {
 
-                    }
-                }
-                if (addGras)
-                {
-                    addObjectType = TileObjectType.Gras;
-                    int grasIdx = map.Game.Random.Next(3);
-                    if (grasIdx == 1) tileObjectKind = TileObjectKind.DarkGras;
-                    if (grasIdx == 2) tileObjectKind = TileObjectKind.LightGras;
-                }
-                if (addObjectType != TileObjectType.None)
-                {
-                    TileObject tileObject = new TileObject();
-                    tileObject.TileObjectType = addObjectType;
-                    tileObject.TileObjectKind = tileObjectKind;
-
-                    if (freeSpaceN) tileObject.Direction = Direction.N;
-                    if (freeSpaceNE) tileObject.Direction = Direction.NE;
-                    if (freeSpaceNW) tileObject.Direction = Direction.NW;
-                    if (freeSpaceS) tileObject.Direction = Direction.S;
-                    if (freeSpaceSE) tileObject.Direction = Direction.SE;
-                    if (freeSpaceSW) tileObject.Direction = Direction.SW;
-
-                    UnityEngine.Debug.Log("Add " + addObjectType.ToString() + " at " + tile.Pos);
-
-                    tile.Add(tileObject);
-                    if (!changedGroundPositions.ContainsKey(tile.Pos))
-                        changedGroundPositions.Add(tile.Pos, tile);
-                    if (addGras)
-                        return false; // Gras is no biomass
-
-                    return true;
-                }
-                if (replaceObjectType != TileObjectType.None)
-                {
-                    foreach (TileObject tileObject in tile.TileObjects)
-                    {
-                        if (tileObject.TileObjectType == replaceObjectType)
+                        // Only gras...
+                        int surroundingTrees = 0;
+                        foreach (Tile n in tile.Neighbors)
                         {
-                            tileObject.TileObjectType = newObjectType;
-                            tileObject.TileObjectKind = tileObjectKind;
-
-                            UnityEngine.Debug.Log("Replace " + replaceObjectType.ToString() + " with " + newObjectType.ToString() + " at " + tile.Pos);
-
-                            if (!changedGroundPositions.ContainsKey(tile.Pos))
-                                changedGroundPositions.Add(tile.Pos, tile);
-                            return true;
+                            surroundingTrees += n.Counter.Tree;
                         }
+                        if (surroundingTrees > 4)
+                        {
+                            replaceObjectType = TileObjectType.Gras;
+                            newObjectType = TileObjectType.Tree;
+                        }
+                    }
+                }
+            }
+            if (addGras)
+            {
+                addObjectType = TileObjectType.Gras;
+                int grasIdx = map.Game.Random.Next(3);
+                if (grasIdx == 1) tileObjectKind = TileObjectKind.DarkGras;
+                if (grasIdx == 2) tileObjectKind = TileObjectKind.LightGras;
+            }
+            if (addObjectType != TileObjectType.None)
+            {
+                TileObject tileObject = new TileObject();
+                tileObject.TileObjectType = addObjectType;
+                tileObject.TileObjectKind = tileObjectKind;
+
+                if (freeSpaceN) tileObject.Direction = Direction.N;
+                else if (freeSpaceNE) tileObject.Direction = Direction.NE;
+                else if (freeSpaceNW) tileObject.Direction = Direction.NW;
+                else if (freeSpaceS) tileObject.Direction = Direction.S;
+                else if (freeSpaceSE) tileObject.Direction = Direction.SE;
+                else if (freeSpaceSW) tileObject.Direction = Direction.SW;
+                else throw new Exception("No free space");
+
+                UnityEngine.Debug.Log("Add " + addObjectType.ToString() + " at " + tile.Pos);
+
+                tile.Add(tileObject);
+                if (!changedGroundPositions.ContainsKey(tile.Pos))
+                    changedGroundPositions.Add(tile.Pos, tile);
+                if (addGras)
+                    return false; // Gras is no biomass
+
+                return true;
+            }
+            if (replaceObjectType != TileObjectType.None)
+            {
+                foreach (TileObject tileObject in tile.TileObjects)
+                {
+                    if (tileObject.TileObjectType == replaceObjectType)
+                    {
+                        tileObject.TileObjectType = newObjectType;
+                        tileObject.TileObjectKind = tileObjectKind;
+
+                        UnityEngine.Debug.Log("Replace " + replaceObjectType.ToString() + " with " + newObjectType.ToString() + " at " + tile.Pos);
+
+                        if (!changedGroundPositions.ContainsKey(tile.Pos))
+                            changedGroundPositions.Add(tile.Pos, tile);
+                        return true;
                     }
                 }
             }

@@ -140,6 +140,24 @@ namespace Engine.Master
                 }
                 else
                 {
+                    if (neighbor.Unit.CurrentGameCommand != null)
+                    {
+                        if (neighbor.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Build &&
+                            neighbor.Unit.CurrentGameCommand.AttachedUnit.UnitId == neighbor.Unit.UnitId)
+                        {
+                            // The unit to upgrade is upgraded by a command. If this unit is not the factory,
+                            // do not upgrade the unit
+                            if (neighbor.Unit.CurrentGameCommand.FactoryUnit != null &&
+                                neighbor.Unit.CurrentGameCommand.FactoryUnit.UnitId != Unit.UnitId)
+                            {
+                                // Do not upgrade. This will lead to double upgrade, cause the command factory will try to
+                                // upgrade too
+                                continue;
+                            }
+                        }
+
+                    }
+
                     if (moveRecipeIngredient != null &&
                         neighbor.Unit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
                     {

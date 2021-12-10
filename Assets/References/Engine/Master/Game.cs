@@ -442,22 +442,20 @@ namespace Engine.Master
                                     {
                                         // The new unit will be the factory for the build target
                                         move.GameCommandItem.AttachedUnit.UnitId = thisUnit.UnitId;
-                                        thisUnit.Changed = true;
                                         move.GameCommandItem.AttachedUnit.SetStatus("AssemblerToBuildCreated");
                                     }
                                     else if (move.GameCommandItem.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                                     {
                                         move.GameCommandItem.TransportUnit.UnitId = thisUnit.UnitId;
-                                        thisUnit.Changed = true;
                                         move.GameCommandItem.TransportUnit.SetStatus("TransporterCreated");
                                     }
                                     else
                                     {
                                         move.GameCommandItem.AttachedUnit.UnitId = thisUnit.UnitId;
-                                        thisUnit.Changed = true;
                                         move.GameCommandItem.AttachedUnit.SetStatus("UnitCreated");
                                     }
                                     thisUnit.SetGameCommand(move.GameCommandItem);
+                                    thisUnit.Changed = true;
                                 }
                                 addedUnits.Add(thisUnit);
                             }
@@ -521,7 +519,7 @@ namespace Engine.Master
                 if (deletedUnit.CurrentGameCommand != null)
                 {
                     deletedUnit.CurrentGameCommand.GameCommand.CommandComplete = true;
-                    deletedUnit.ResetGameCommand();
+                    deletedUnit.OnDestroyed();
                 }
                 
                 // Unit has died!
@@ -944,6 +942,7 @@ namespace Engine.Master
                         deleteMove.UnitId = targetUnit.UnitId;
                         nextMoves.Add(deleteMove);
 
+                        Map.Units.Remove(targetUnit.UnitId);
                         Map.Units.Remove(targetUnit.Pos);
                     }
                 }
@@ -1287,6 +1286,7 @@ namespace Engine.Master
                                     deleteMove.UnitId = otherUnit.UnitId;
                                     lastMoves.Add(deleteMove);
 
+                                    Map.Units.Remove(otherUnit.UnitId);
                                     Map.Units.Remove(otherUnit.Pos);
                                 }
 
@@ -1803,7 +1803,6 @@ namespace Engine.Master
             }
             newMoves.Clear();
             newMoves.AddRange(acceptedMoves);
-
         }
 
         private void RevokeUnblockedMoves(List<Move> unblockedMoves, Position2 blockedPosition, List<Move> revokedMoves, List<Move> acceptedMoves)
@@ -1954,6 +1953,10 @@ namespace Engine.Master
         {
             List<Move> returnMoves = new List<Move>();
 
+            if (MoveNr == 126)
+            {
+                int x = 0;
+            }
             if (myMove != null && myMove.MoveType == MoveType.UpdateAll)
             {
                 UpdateAll(playerId, returnMoves);

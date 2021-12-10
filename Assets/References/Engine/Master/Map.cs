@@ -369,7 +369,7 @@ namespace Engine.Interface
             }
             else
             {
-                BioMass += TileObject.GetBioMass(tileObject.TileObjectType);
+                BioMass += 1; // TileObject.GetBioMass(tileObject.TileObjectType);
             }
         }
 

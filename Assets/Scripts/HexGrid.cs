@@ -1124,8 +1124,9 @@ namespace Assets.Scripts
                                         hexCell.VisibleByPlayer = (move.Stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
                                     }
                                 }
-                                hexCell.Visible = true;
-                                hexCell.VisibleByPlayer = true;
+                                //Debug show all
+                                //hexCell.Visible = true;
+                                //hexCell.VisibleByPlayer = true;
                                 
                                 Position2 borderPos = hexCell.UpdateGround(move.Stats);
                                 if (borderPos != Position2.Null)

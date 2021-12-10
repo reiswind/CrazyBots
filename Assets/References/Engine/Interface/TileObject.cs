@@ -237,6 +237,17 @@ namespace Engine.Interface
         PartReactor,
         PartRadar
     }
+    public class TileCounter
+    {
+        public int Gras;
+        public int Bush;
+        public int Tree;
+        public int Sand;
+        public int Rock;
+        public int Trunk;
+        public int Water;
+        public int None;
+    }
 
     public class TileObject
     {

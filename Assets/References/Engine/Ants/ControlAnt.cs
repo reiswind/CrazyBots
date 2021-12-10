@@ -1876,14 +1876,10 @@ namespace Engine.Ants
                                 // deliverySourceAnt is the ant, that has the items requested
                                 if (deliverySourceAnt.AntPartEngine != null)
                                 {
-                                    deliverySourceAnt.Unit.SetGameCommand(gameCommandItem);
-
-                                    if (deliverySourceAnt.Unit.Assembler != null && deliverySourceAnt.Unit.Engine != null)
-                                    {
-                                        int x = 0;
-                                    }
                                     gameCommandItem.TransportUnit.UnitId = deliverySourceAnt.Unit.UnitId;
                                     gameCommandItem.TransportUnit.SetStatus("TransportUnitId for Delivery: " + gameCommandItem.AttachedUnit.UnitId);
+
+                                    deliverySourceAnt.Unit.SetGameCommand(gameCommandItem);
                                     deliverySourceAnt.Unit.Changed = true;
                                     requestUnit = false;
                                 }
@@ -1894,12 +1890,12 @@ namespace Engine.Ants
                                         Ant transportAnt = FindTransporter(gameCommandItem);
                                         if (transportAnt != null)
                                         {
-                                            transportAnt.Unit.SetGameCommand(gameCommandItem);
-
                                             // The attached unit is the one, who delivers the content (Need resevation!)
                                             gameCommandItem.AttachedUnit.UnitId = deliverySourceAnt.Unit.UnitId;
                                             gameCommandItem.TransportUnit.UnitId = transportAnt.Unit.UnitId;
                                             gameCommandItem.TransportUnit.SetStatus("AttachedTransport: " + gameCommandItem.FactoryUnit.UnitId + " take from " + gameCommandItem.AttachedUnit.UnitId);
+
+                                            transportAnt.Unit.SetGameCommand(gameCommandItem);
                                             transportAnt.Unit.Changed = true;
                                             requestUnit = false;
                                         }
@@ -1968,9 +1964,9 @@ namespace Engine.Ants
                         if (bestAnt != null)
                         {
                             // Assign the build command to an assembler COMMAND-STEP2 BUILD-STEP2
-                            bestAnt.Unit.SetGameCommand(gameCommandItem);
                             gameCommandItem.FactoryUnit.UnitId = bestAnt.Unit.UnitId;
                             gameCommandItem.FactoryUnit.SetStatus("BuildingUnit for " + gameCommand.GameCommandType.ToString());
+                            bestAnt.Unit.SetGameCommand(gameCommandItem);
                             bestAnt.Unit.Changed = true;
                         }
                     }
@@ -2368,7 +2364,8 @@ namespace Engine.Ants
                                         // If the assembler is kept, it will have no content and hang around useless
                                         factoryUnit.ResetGameCommand();
 
-                                        // Kill the moving assembler
+                                        // Kill the moving assembler (No more)
+                                        
                                         if (ant.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Build &&
                                             factoryUnit.Engine != null)
                                         {
