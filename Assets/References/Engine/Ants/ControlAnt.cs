@@ -192,10 +192,10 @@ namespace Engine.Ants
         public void UpdatePheromones(Player player)
         {
 
-            //AntCollects.Clear();
+            /*
 
-            List<Position2> minerals = new List<Position2>();
-            minerals.AddRange(staticMineralDeposits.Keys);
+            List<Position2> deposits = new List<Position2>();
+            deposits.AddRange(staticMineralDeposits.Keys);
 
             foreach (Position2 pos in player.VisiblePositions.Keys)
             {
@@ -216,10 +216,10 @@ namespace Engine.Ants
                 {
                     float intensity = 0.1f * ((float)mins);
 
-                    MineralDeposit mineralDeposit;
-                    if (minerals.Contains(pos))
+                    PheromoneDeposit mineralDeposit;
+                    if (deposits.Contains(pos))
                     {
-                        minerals.Remove(pos);
+                        deposits.Remove(pos);
                         mineralDeposit = staticMineralDeposits[pos];
 
                         if (intensity > mineralDeposit.Intensitiy + 0.1f || intensity < mineralDeposit.Intensitiy - 0.1f)
@@ -231,7 +231,7 @@ namespace Engine.Ants
                     }
                     else
                     {
-                        mineralDeposit = new MineralDeposit();
+                        mineralDeposit = new PheromoneDeposit();
 
                         int sectorSize = player.Game.Map.SectorSize;
 
@@ -248,19 +248,21 @@ namespace Engine.Ants
                         antCollect = new AntCollect();
                         AntCollects.Add(tile.ZoneId, antCollect);
                     }
-                    antCollect.Minerals += mins;*/
+                    antCollect.Minerals += mins;* /
                 }
             }
 
-            foreach (Position2 pos in minerals)
+            foreach (Position2 pos in deposits)
             {
-                MineralDeposit mineralDeposit = staticMineralDeposits[pos];
+                PheromoneDeposit mineralDeposit = staticMineralDeposits[pos];
                 player.Game.Pheromones.DeletePheromones(mineralDeposit.DepositId);
                 staticMineralDeposits.Remove(pos);
             }
+            */
 
-            minerals = new List<Position2>();
-            minerals.AddRange(staticContainerDeposits.Keys);
+            // Detect missing units with this lise
+            List<Position2> deposits = new List<Position2>();
+            deposits.AddRange(staticContainerDeposits.Keys);
 
             foreach (Ant ant in Ants.Values)
             {
@@ -273,10 +275,10 @@ namespace Engine.Ants
                     float intensity = 0.1f;
                     Position2 pos = ant.Unit.Pos;
 
-                    MineralDeposit mineralDeposit;
-                    if (minerals.Contains(pos))
+                    PheromoneDeposit mineralDeposit;
+                    if (staticContainerDeposits.ContainsKey(pos))
                     {
-                        minerals.Remove(pos);
+                        deposits.Remove(pos);
                         mineralDeposit = staticContainerDeposits[pos];
 
                         if (intensity > mineralDeposit.Intensitiy + 0.1f || intensity < mineralDeposit.Intensitiy - 0.1f)
@@ -288,7 +290,7 @@ namespace Engine.Ants
                     }
                     else
                     {
-                        mineralDeposit = new MineralDeposit();
+                        mineralDeposit = new PheromoneDeposit();
                         mineralDeposit.Intensitiy = intensity;
                         mineralDeposit.Pos = pos;
                         mineralDeposit.DepositId = player.Game.Pheromones.DropStaticPheromones(player, ant.Unit.Pos, sectorSize, PheromoneType.Container, intensity, 0.01f);
@@ -296,15 +298,15 @@ namespace Engine.Ants
                     }
                 }
             }
-            foreach (Position2 pos in minerals)
+            foreach (Position2 pos in deposits)
             {
-                MineralDeposit mineralDeposit = staticContainerDeposits[pos];
+                PheromoneDeposit mineralDeposit = staticContainerDeposits[pos];
                 player.Game.Pheromones.DeletePheromones(mineralDeposit.DepositId);
                 staticContainerDeposits.Remove(pos);
             }
 
-            minerals = new List<Position2>();
-            minerals.AddRange(staticReactorDeposits.Keys);
+            deposits = new List<Position2>();
+            deposits.AddRange(staticReactorDeposits.Keys);
 
             foreach (Ant ant in Ants.Values)
             {
@@ -313,42 +315,50 @@ namespace Engine.Ants
                     ant.AntPartEngine == null &&
                     ant.AntPartReactor != null)
                 {
-                    if (ant.Unit.Reactor.AvailablePower > 0)
+                    float intensity = 1f;
+                    Position2 pos = ant.Unit.Pos;
+
+                    PheromoneDeposit pheromoneDeposit;
+                    if (staticReactorDeposits.ContainsKey(pos))
                     {
-                        float intensity = 1f;
-                        Position2 pos = ant.Unit.Pos;
+                        deposits.Remove(pos);
 
-                        MineralDeposit mineralDeposit;
-                        if (minerals.Contains(pos))
+                        pheromoneDeposit = staticReactorDeposits[pos];
+                        //if (ant.Unit.Reactor.AvailablePower > 0)
+                        if (ant.Unit.Reactor.StoredPower > 0)
                         {
-                            minerals.Remove(pos);
-                            mineralDeposit = staticReactorDeposits[pos];
-
-                            if (intensity > mineralDeposit.Intensitiy + 0.1f || intensity < mineralDeposit.Intensitiy - 0.1f)
+                            if (intensity > pheromoneDeposit.Intensitiy + 0.1f || intensity < pheromoneDeposit.Intensitiy - 0.1f)
                             {
                                 // update
-                                player.Game.Pheromones.UpdatePheromones(mineralDeposit.DepositId, intensity);
-                                mineralDeposit.Intensitiy = intensity;
+                                player.Game.Pheromones.UpdatePheromones(pheromoneDeposit.DepositId, intensity);
+                                pheromoneDeposit.Intensitiy = intensity;
                             }
                         }
                         else
                         {
-                            mineralDeposit = new MineralDeposit();
-                            mineralDeposit.Intensitiy = intensity;
-                            mineralDeposit.Pos = pos;
-                            mineralDeposit.DepositId = player.Game.Pheromones.DropStaticPheromones(player, ant.Unit.Pos, ant.Unit.Reactor.Range, PheromoneType.Energy, intensity);
-                            staticReactorDeposits.Add(ant.Unit.Pos, mineralDeposit);
+                            player.Game.Pheromones.DeletePheromones(pheromoneDeposit.DepositId);
+                            staticReactorDeposits.Remove(pos);
+                        }
+                    }
+                    else
+                    {
+                        if (ant.Unit.Reactor.StoredPower > 0)
+                        {
+                            pheromoneDeposit = new PheromoneDeposit();
+                            pheromoneDeposit.Intensitiy = intensity;
+                            pheromoneDeposit.Pos = pos;
+                            pheromoneDeposit.DepositId = player.Game.Pheromones.DropStaticPheromones(player, ant.Unit.Pos, ant.Unit.Reactor.Range, PheromoneType.Energy, intensity);
+                            staticReactorDeposits.Add(ant.Unit.Pos, pheromoneDeposit);
                         }
                     }
                 }
             }
-            foreach (Position2 pos in minerals)
+            foreach (Position2 pos in deposits)
             {
-                MineralDeposit mineralDeposit = staticReactorDeposits[pos];
+                PheromoneDeposit mineralDeposit = staticReactorDeposits[pos];
                 player.Game.Pheromones.DeletePheromones(mineralDeposit.DepositId);
-                staticReactorDeposits.Remove(pos);
+                staticContainerDeposits.Remove(pos);
             }
-
         }
         public void CreateAttackCommand(Player player, Position2 pos)
         {
@@ -803,9 +813,9 @@ namespace Engine.Ants
         }
 
         //private Dictionary<Position2, MineralDeposit> mineralsDeposits = new Dictionary<Position2, MineralDeposit>();
-        private Dictionary<Position2, MineralDeposit> staticMineralDeposits = new Dictionary<Position2, MineralDeposit>();
-        private Dictionary<Position2, MineralDeposit> staticContainerDeposits = new Dictionary<Position2, MineralDeposit>();
-        private Dictionary<Position2, MineralDeposit> staticReactorDeposits = new Dictionary<Position2, MineralDeposit>();
+        private Dictionary<Position2, PheromoneDeposit> staticMineralDeposits = new Dictionary<Position2, PheromoneDeposit>();
+        private Dictionary<Position2, PheromoneDeposit> staticContainerDeposits = new Dictionary<Position2, PheromoneDeposit>();
+        private Dictionary<Position2, PheromoneDeposit> staticReactorDeposits = new Dictionary<Position2, PheromoneDeposit>();
         //private Dictionary<Position2, int> workDeposits = new Dictionary<Position2, int>();
         //private Dictionary<Position2, int> enemyDeposits = new Dictionary<Position2, int>();
 

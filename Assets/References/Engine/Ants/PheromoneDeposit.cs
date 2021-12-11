@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Engine.Ants
 {
-    class MineralDeposit
+    class PheromoneDeposit
     {
         public Position2 Pos { get; set; }
         public int Minerals { get; set; }

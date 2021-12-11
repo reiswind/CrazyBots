@@ -80,7 +80,7 @@ namespace Assets.Scripts
         {
             GameObjects = new List<UnitBaseTileObject>();
             UnitCommands = new List<UnitCommand>();
-            ShowPheromones = false;
+            ShowPheromones = true;
             visible = true;
             targetDiffuse = 0.1f;
             Diffuse = 0.1f;
@@ -146,18 +146,18 @@ namespace Assets.Scripts
 
                 markerToHome = Instantiate(markerPrefab, transform, false);
                 markerToHome.name = name + "-Home";
-                MeshRenderer meshRenderer = markerToHome.GetComponent<MeshRenderer>();
-                meshRenderer.material.color = new Color(0, 0, 0.6f);
+                //MeshRenderer meshRenderer = markerToHome.GetComponent<MeshRenderer>();
+                //meshRenderer.material.color = new Color(0, 0, 0.6f);
 
                 markerToMineral = Instantiate(markerPrefab, transform, false);
                 markerToMineral.name = name + "-Mineral";
-                meshRenderer = markerToMineral.GetComponent<MeshRenderer>();
-                meshRenderer.material.color = new Color(0, 0.4f, 0);
+                //meshRenderer = markerToMineral.GetComponent<MeshRenderer>();
+                //meshRenderer.material.color = new Color(0, 0.4f, 0);
 
                 markerToEnemy = Instantiate(markerPrefab, transform, false);
                 markerToEnemy.name = name + "-Mineral";
-                meshRenderer = markerToEnemy.GetComponent<MeshRenderer>();
-                meshRenderer.material.color = new Color(0.4f, 0, 0);
+                //meshRenderer = markerToEnemy.GetComponent<MeshRenderer>();
+                //meshRenderer.material.color = new Color(0.4f, 0, 0);
             }
         }
 
@@ -191,7 +191,7 @@ namespace Assets.Scripts
                     CreateMarker();
                 }
 
-
+                /*
                 if (mapPheromone.IntensityContainer > 0)
                 {
                     Vector3 position = transform.position;
@@ -206,6 +206,7 @@ namespace Assets.Scripts
                     position.x += 0.1f;
                     markerToHome.transform.position = position;
                 }
+                */
                 /*
                 
                 if (mapPheromone.IntensityToMineral > 0)
@@ -243,7 +244,7 @@ namespace Assets.Scripts
                     markerToEnemy.transform.position = position;
                 }*/
 
-                /*
+                
                 float highestEnergy = -1;
                 int highestPlayerId = 0;
 
@@ -264,7 +265,7 @@ namespace Assets.Scripts
                     Vector3 position = transform.position;
                     position.y += 0.054f + (0.2f * highestEnergy);
                     markerToEnemy.transform.position = position;
-                    //UnitBase.SetPlayerColor(HexGrid, highestPlayerId, markerToEnemy);
+                    UnitBase.SetPlayerColor(highestPlayerId, markerToEnemy);
                 }
                 else
                 {
@@ -272,7 +273,7 @@ namespace Assets.Scripts
                     position.y -= 1;
                     markerToEnemy.transform.position = position;
                 }
-                */
+                
             }
         }
 
