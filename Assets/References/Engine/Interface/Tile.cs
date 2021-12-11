@@ -207,8 +207,6 @@ namespace Engine.Interface
                         newTileObject.TileObjectType = TileObjectType.TreeTrunk;
                         newTileObject.Direction = tileObject.Direction;
                         TileContainer.Add(newTileObject);
-
-                        Map.BioMass++;
                     }
                     else if (tileObject.TileObjectType == TileObjectType.Bush)
                     {
@@ -217,7 +215,8 @@ namespace Engine.Interface
                         newTileObject.Direction = tileObject.Direction;
                         TileContainer.Add(newTileObject);
 
-                        Map.BioMass++;
+                        // +17.000
+                        //Map.BioMass++;
                     }
                     UpdateCache();
                     extracted = true;

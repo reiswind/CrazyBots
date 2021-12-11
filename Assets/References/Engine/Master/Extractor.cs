@@ -788,6 +788,23 @@ namespace Engine.Master
                 }
             }
 
+            if (Unit.CurrentGameCommand != null &&
+                Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest &&
+                !Unit.CurrentGameCommand.GameCommand.CommandComplete &&
+                Unit.CurrentGameCommand.TargetUnit.UnitId == Unit.UnitId)
+            {
+                // This container has been filled, delivery is complete
+                foreach (RecipeIngredient recipeIngredient in Unit.CurrentGameCommand.GameCommand.RequestedItems)
+                {
+                    if (Unit.AreAllIngredientsAvailable(Unit.CurrentGameCommand.GameCommand.RequestedItems))
+                    {
+                        Unit.CurrentGameCommand.GameCommand.CommandComplete = true;
+                        unit.ResetGameCommand();
+                    }
+                    Unit.ClearReservations();
+                }
+            }
+
             // The removed tileobjects will be in the move until the next move
             move.Stats = unit.CollectStats();
             Unit.Game.CollectGroundStats(unit.Pos, move);

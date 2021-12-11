@@ -346,7 +346,7 @@ namespace Engine.Interface
                             break;
                     }
                 }
-                UnityEngine.Debug.Log("GrowBio " + bioBefore + " after " + BioMass);
+                //UnityEngine.Debug.Log("GrowBio " + bioBefore + " after " + BioMass);
 
             }
         }

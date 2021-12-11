@@ -130,6 +130,16 @@ namespace Engine.Master
                                 blueprintCommandItem.AttachedUnit.ResetStatus();
                                 blueprintCommandItem.AttachedUnit.UnitId = null;
                             }
+                            if (blueprintCommandItem.TransportUnit.UnitId == UnitId)
+                            {
+                                blueprintCommandItem.TransportUnit.ResetStatus();
+                                blueprintCommandItem.TransportUnit.UnitId = null;
+                            }
+                            if (blueprintCommandItem.TargetUnit.UnitId == UnitId)
+                            {
+                                blueprintCommandItem.TargetUnit.ResetStatus();
+                                blueprintCommandItem.TargetUnit.UnitId = null;
+                            }
                             if (blueprintCommandItem.FactoryUnit.UnitId == UnitId)
                             {
                                 blueprintCommandItem.FactoryUnit.ResetStatus();
@@ -151,6 +161,11 @@ namespace Engine.Master
                         CurrentGameCommand.AttachedUnit.SetStatus("Removed: " + UnitId);
                     }
                     CurrentGameCommand.AttachedUnit.UnitId = null;
+                }
+                if (CurrentGameCommand.TransportUnit.UnitId == UnitId)
+                {
+                    CurrentGameCommand.TransportUnit.ResetStatus();
+                    CurrentGameCommand.TransportUnit.UnitId = null;
                 }
                 if (CurrentGameCommand.FactoryUnit.UnitId == UnitId)
                 {
@@ -314,12 +329,12 @@ namespace Engine.Master
             return null;
         }
 
-        public bool AreAllIngredientsAvailable(Player player, Recipe recipe)
+        public bool AreAllIngredientsAvailable(List<RecipeIngredient> ingredients)
         {
             List<MoveRecipeIngredient> reservedIngredients = new List<MoveRecipeIngredient>();
             bool allFound = true;
 
-            foreach (RecipeIngredient recipeIngredient in recipe.Ingredients)
+            foreach (RecipeIngredient recipeIngredient in ingredients)
             {
                 int count = recipeIngredient.Count;
                 while (count-- > 0)

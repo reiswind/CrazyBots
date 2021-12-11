@@ -1,5 +1,5 @@
 ﻿//#define MEASURE_TIMINGS
-#define MEASURE_MINS
+//#define MEASURE_MINS
 
 using Engine.Algorithms;
 using Engine.Ants;

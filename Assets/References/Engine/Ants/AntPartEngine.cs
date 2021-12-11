@@ -918,7 +918,7 @@ namespace Engine.Ants
                     }
                     else if (Ant.Unit.UnitId == cntrlUnit.CurrentGameCommand.FactoryUnit.UnitId)
                     {
-                        if (Ant.Unit.AreAllIngredientsAvailable(player, player.Game.RecipeForAnyUnit))
+                        if (Ant.Unit.AreAllIngredientsAvailable(player.Game.RecipeForAnyUnit.Ingredients))
                         {
                             int x = 0;
                         }

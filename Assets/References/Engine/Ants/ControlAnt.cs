@@ -276,10 +276,9 @@ namespace Engine.Ants
                     Position2 pos = ant.Unit.Pos;
 
                     PheromoneDeposit mineralDeposit;
-                    if (staticContainerDeposits.ContainsKey(pos))
+                    if (staticContainerDeposits.TryGetValue(pos, out mineralDeposit))
                     {
                         deposits.Remove(pos);
-                        mineralDeposit = staticContainerDeposits[pos];
 
                         if (intensity > mineralDeposit.Intensitiy + 0.1f || intensity < mineralDeposit.Intensitiy - 0.1f)
                         {
@@ -319,25 +318,18 @@ namespace Engine.Ants
                     Position2 pos = ant.Unit.Pos;
 
                     PheromoneDeposit pheromoneDeposit;
-                    if (staticReactorDeposits.ContainsKey(pos))
+                    if (staticReactorDeposits.TryGetValue(pos, out pheromoneDeposit))
                     {
-                        deposits.Remove(pos);
-
-                        pheromoneDeposit = staticReactorDeposits[pos];
-                        //if (ant.Unit.Reactor.AvailablePower > 0)
                         if (ant.Unit.Reactor.StoredPower > 0)
                         {
+                            deposits.Remove(pos);
+
                             if (intensity > pheromoneDeposit.Intensitiy + 0.1f || intensity < pheromoneDeposit.Intensitiy - 0.1f)
                             {
                                 // update
                                 player.Game.Pheromones.UpdatePheromones(pheromoneDeposit.DepositId, intensity);
                                 pheromoneDeposit.Intensitiy = intensity;
                             }
-                        }
-                        else
-                        {
-                            player.Game.Pheromones.DeletePheromones(pheromoneDeposit.DepositId);
-                            staticReactorDeposits.Remove(pos);
                         }
                     }
                     else
@@ -357,7 +349,7 @@ namespace Engine.Ants
             {
                 PheromoneDeposit mineralDeposit = staticReactorDeposits[pos];
                 player.Game.Pheromones.DeletePheromones(mineralDeposit.DepositId);
-                staticContainerDeposits.Remove(pos);
+                staticReactorDeposits.Remove(pos);
             }
         }
         public void CreateAttackCommand(Player player, Position2 pos)
@@ -2293,9 +2285,9 @@ namespace Engine.Ants
 #endif
 
             moveNr++;
-            if (moveNr == 106)
+            if (moveNr == 441)
             {
-
+                int x = 0;
             }
 
             // Returned moves

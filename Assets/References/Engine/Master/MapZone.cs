@@ -677,12 +677,10 @@ namespace Engine.Interface
             {
                 int rnd = map.Game.Random.Next(8);
 
-                if (map.BioMass <= 3)
-                {
-                    // Sprinkles sand
-                    if (rnd != 7)
-                        rnd = 3;
-                }
+                // Sprinkles sand
+                if (rnd != 7)
+                    rnd = 3;
+                
                 if (rnd == 0)
                 {
                     tileFit.TileFitType = TileFitType.Tree;

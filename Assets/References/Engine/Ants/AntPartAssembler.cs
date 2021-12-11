@@ -263,7 +263,7 @@ namespace Engine.Ants
                     else
                     {
                         // Need something to assemble (careful, this reserves the indigrients for this move)
-                        if (!Ant.Unit.AreAllIngredientsAvailable(player, player.Game.RecipeForAnyUnit))
+                        if (!Ant.Unit.AreAllIngredientsAvailable(player.Game.RecipeForAnyUnit.Ingredients))
                         {
                             if (Ant.AntPartEngine == null)
                             {

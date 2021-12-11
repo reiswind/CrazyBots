@@ -751,14 +751,14 @@ namespace Assets.Scripts
                         }
                     }
 
-                    long iTicks = DateTime.Now.Ticks;
+                   
                     DateTime tStart = DateTime.Now;
 
                     List<Move> current = game.ProcessMove(id, nextMove, newGameCommands);
                     newGameCommands = null;
 
                     double mstotal = (DateTime.Now - tStart).TotalMilliseconds;
-                    if (mstotal > 20000)
+                    if (mstotal > 20)
                         Debug.Log("Move Time: " + mstotal);
 
                     //Debug.Log("Move Time: " + (DateTime.Now.Ticks - iTicks).ToString());
@@ -1225,7 +1225,13 @@ namespace Assets.Scripts
                             newGameCommands.AddRange(GameCommands);
                             GameCommands.Clear();
                         }
+                        DateTime tStart = DateTime.Now;
+
                         ProcessNewMoves();
+
+                        double mstotal = (DateTime.Now - tStart).TotalMilliseconds;
+                        if (mstotal > 20)
+                            Debug.Log("ProcessNewMoves: " + mstotal);
                     }
                     catch (Exception)
                     {
