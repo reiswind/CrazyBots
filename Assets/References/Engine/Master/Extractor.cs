@@ -523,8 +523,17 @@ namespace Engine.Master
                 realIndigrient.Source = removedTileObject.TileObjectType;
 
                 // Add it to target
-                Unit.AddIngredient(realIndigrient);
-
+                if (Unit.IsSpaceForIngredient(realIndigrient))
+                {
+                    Unit.AddIngredient(realIndigrient);
+                }
+                else
+                {
+                    TileObject tileObject = new TileObject();
+                    tileObject.TileObjectType = TileObjectType.Mineral;
+                    tileObject.Direction = Direction.C;
+                    Unit.Game.Map.AddOpenTileObject(tileObject);
+                }
                 if (otherUnit.IsDead())
                 {
                     if (hitPart.PartTileObjects.Count > 0)
