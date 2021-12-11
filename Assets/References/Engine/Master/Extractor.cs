@@ -473,7 +473,34 @@ namespace Engine.Master
                 {
                     if (hitPart.TileContainer.TileObjects.Count > 0)
                     {
-                        hitPart.TileContainer.Clear();
+                        int cntrIndex = 0;
+                        while (capacity > 1 && hitPart.TileContainer.Count > cntrIndex)
+                        {
+                            TileObject tileObject = hitPart.TileContainer.TileObjects[cntrIndex];
+                            MoveRecipeIngredient unitIndigrient = new MoveRecipeIngredient();
+                            unitIndigrient.Count = 1;
+                            unitIndigrient.SourcePosition = otherUnit.Pos;
+                            unitIndigrient.TargetPosition = Unit.Pos;
+                            unitIndigrient.TileObjectType = tileObject.TileObjectType;
+                            unitIndigrient.Source = unitIndigrient.TileObjectType;
+
+                            // Add it to target
+                            if (Unit.IsSpaceForIngredient(unitIndigrient))
+                            {
+                                Unit.AddIngredient(unitIndigrient);
+                                hitPart.TileContainer.Remove(tileObject);
+                            }
+                            else
+                            {
+                                cntrIndex++;
+                            }
+                        }
+                        while (hitPart.TileContainer.Count > 0)
+                        {
+                            TileObject tileObject = hitPart.TileContainer.TileObjects[0];
+                            Unit.Game.Map.AddOpenTileObject(tileObject);
+                            hitPart.TileContainer.Remove(tileObject);
+                        }
                     }
                 }
 
@@ -487,6 +514,16 @@ namespace Engine.Master
                 indigrient.TileObjectType = removedTileObject.TileObjectType;
                 indigrient.Source = removedTileObject.TileObjectType;
                 extractedItems.Add(indigrient);
+
+                MoveRecipeIngredient realIndigrient = new MoveRecipeIngredient();
+                realIndigrient.Count = 1;
+                realIndigrient.SourcePosition = otherUnit.Pos;
+                realIndigrient.TargetPosition = Unit.Pos;
+                realIndigrient.TileObjectType = TileObjectType.Mineral;
+                realIndigrient.Source = removedTileObject.TileObjectType;
+
+                // Add it to target
+                Unit.AddIngredient(realIndigrient);
 
                 if (otherUnit.IsDead())
                 {

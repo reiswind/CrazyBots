@@ -1,5 +1,5 @@
 ﻿//#define MEASURE_TIMINGS
-//#define MEASURE_MINS
+#define MEASURE_MINS
 
 using Engine.Algorithms;
 using Engine.Ants;
@@ -1925,7 +1925,7 @@ namespace Engine.Master
         {
             List<Move> returnMoves = new List<Move>();
 
-            if (MoveNr == 126)
+            if (MoveNr == 172)
             {
                 int x = 0;
             }
