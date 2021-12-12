@@ -125,6 +125,45 @@ namespace Assets.Scripts
             InvokeRepeating(nameof(invoke), 0.5f, GameSpeed);
         }
 
+        public void RunFaster()
+        {
+            if (GameSpeed > 0.3f)
+            {
+                CancelInvoke();
+                GameSpeed -= 0.1f;
+                isPause = false;
+                InvokeRepeating(nameof(invoke), 0.5f, GameSpeed);
+
+                Debug.Log("Gamespeed set to " + GameSpeed);
+            }
+        }
+        private bool isPause;
+        public void Pause()
+        {
+            if (isPause)
+            {
+                Debug.Log("Resume");
+                isPause = false;
+                InvokeRepeating(nameof(invoke), 0.5f, GameSpeed);
+            }
+            else            
+            {
+                Debug.Log("Pause");
+                isPause = true;
+                CancelInvoke();
+            }
+        }
+        public void RunSlower()
+        {
+            if (GameSpeed < 10)
+            {
+                CancelInvoke();
+                GameSpeed += 0.1f;
+                isPause = false;
+                InvokeRepeating(nameof(invoke), 0.5f, GameSpeed);
+                Debug.Log("Gamespeed set to " + GameSpeed);
+            }
+        }
 
         private Dictionary<string, GameObject> allResources = new Dictionary<string, GameObject>();
         private Dictionary<string, GameObject> treeResources = new Dictionary<string, GameObject>();

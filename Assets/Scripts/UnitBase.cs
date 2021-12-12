@@ -604,13 +604,25 @@ namespace Assets.Scripts
 
         internal void SetHighlighted(bool highlighted)
         {
+            
             //Debug.Log("Highlight: " + this.UnitId + " " + highlighted);
             //if (IsHighlighted != highlighted)
             {
                 IsHighlighted = highlighted;
                 if (highlightEffect)
-                    highlightEffect.SetHighlighted(highlighted);
-
+                {
+                    if (highlighted)
+                    {
+                        highlightEffect.outlineWidth = 0.2f;
+                        highlightEffect.outlineColor = Color.yellow;
+                    }
+                    else
+                    {
+                        highlightEffect.outlineWidth = 0.1f;
+                        highlightEffect.outlineColor = Color.black;
+                    }
+                    //highlightEffect.SetHighlighted(highlighted);
+                }
                 if (!Temporary)
                 {
                 }
@@ -1300,7 +1312,9 @@ namespace Assets.Scripts
             {
                 highlightEffect.ProfileLoad(defaultProfile);
             }
-                   
+            highlightEffect.SetHighlighted(true);
+            highlightEffect.outlineColor = Color.black;
+            highlightEffect.outlineWidth = 0.1f;
 
             /*
             highlightEffect.ProfileLoad(highlightProfile);

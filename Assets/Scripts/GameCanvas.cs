@@ -11,6 +11,10 @@ namespace Assets.Scripts
 {
     public class GameCanvas : MonoBehaviour
     {
+        public Button ButtonFaster;
+        public Button ButtonPause;
+        public Button ButtonSlower;
+
         public GameObject MineralText;
         public GameObject UnitText;
         public GameObject PowerText;
@@ -130,6 +134,13 @@ namespace Assets.Scripts
             actions[2].onClick.AddListener(OnClickAction3);
             actions[3].onClick.AddListener(OnClickAction4);
 
+            if (ButtonFaster != null)
+                ButtonFaster.onClick.AddListener(OnFaster);
+            if (ButtonPause != null)
+                ButtonPause.onClick.AddListener(OnPause); 
+            if (ButtonSlower != null)
+                ButtonSlower.onClick.AddListener(OnSlower);
+
             //SetActionText(1, "(t) Select");
             //SetActionText(2, "(g) Command");
             //SetActionText(3, "(b) Build");            
@@ -173,6 +184,20 @@ namespace Assets.Scripts
             {
                 SetMode(CanvasMode.Select);
             }
+        }
+
+        void OnFaster()
+        {
+            HexGrid.MainGrid.RunFaster();
+        }
+
+        void OnPause()
+        {
+            HexGrid.MainGrid.Pause();
+        }
+        void OnSlower()
+        {
+            HexGrid.MainGrid.RunSlower();
         }
 
         void OnClickAction2()
