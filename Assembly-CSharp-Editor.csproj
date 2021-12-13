@@ -63,6 +63,7 @@
     <Compile Include="Assets\HighlightPlus\Editor\HighlightEffectEditor.cs" />
     <Compile Include="Assets\HighlightPlus\Editor\HighlightManagerEditor.cs" />
     <Compile Include="Assets\StrategyCameraLite\Scripts\Editor\StrategyCameraEditor.cs" />
+    <Compile Include="Assets\TutorialInfo\Scripts\Editor\ReadmeEditor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

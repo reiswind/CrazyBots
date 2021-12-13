@@ -144,6 +144,23 @@
     <Compile Include="Assets\References\Engine\Algorithms\PriorityQueueB.cs" />
     <Compile Include="Assets\Scripts\CommandPreview.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartReactor.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\VFX Library\PEButtonScript.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXSceneManager.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXProjectileScript.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXMouseOrbit.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\VFX Library\ParticleEffectsLibrary.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXLoopScript.cs" />
+    <Compile Include="Assets\Epic Toon FX\Scripts\ETFXRotation.cs" />
+    <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\VFX Library\UICanvasManager.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXFireProjectile.cs" />
+    <Compile Include="Assets\Epic Toon FX\Scripts\ETFXPitchRandomizer.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXTarget.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXEffectController.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXEffectControllerPooled.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXEffectCycler.cs" />
+    <Compile Include="Assets\Epic Toon FX\Scripts\ETFXLightFade.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXButtonScript.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\HighlightPlus\README.txt" />

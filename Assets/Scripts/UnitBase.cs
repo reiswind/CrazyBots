@@ -607,6 +607,12 @@ namespace Assets.Scripts
                 }
                 MoveUpdateStats = stats;
                 UpdateParts();
+
+                if (stats.Stunned > 0)
+                {
+                    GameObject stun = HexGrid.Instantiate<GameObject>(HexGrid.MainGrid.Stun, transform);
+                    HexGrid.Destroy(stun, 1);
+                }
             }
         }
 
@@ -1279,8 +1285,21 @@ namespace Assets.Scripts
                         unitBasePart.Destroyed = true;
 
                         HexGrid.MainGrid.HitUnitPartAnimation(currentCell.transform);
+
+                        GameObject stun;
+                        if (HexGrid.MainGrid.Random.Next(2) == 0)
+                        {
+                            stun = HexGrid.Instantiate<GameObject>(HexGrid.MainGrid.Explo, currentCell.transform);
+                        }
+                        else
+                        {
+                            stun = HexGrid.Instantiate<GameObject>(HexGrid.MainGrid.Explo1, currentCell.transform);
+                        }
+                        HexGrid.Destroy(stun, 1);
+
                     }
-                    
+
+
                     GameObject smoke = FindChildNyName(gameObject, "SmokeEffect");
                     if (smoke != null)
                         smoke.SetActive(true);

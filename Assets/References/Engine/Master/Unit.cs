@@ -1254,6 +1254,7 @@ namespace Engine.Master
             }
 
             stats.Power = Power;
+            stats.Stunned = Stunned;
 
             if (CurrentGameCommand != null)
             {

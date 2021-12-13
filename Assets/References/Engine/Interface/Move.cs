@@ -265,6 +265,8 @@ namespace Engine.Interface
         [DataMember]
         public int Power { get; set; }
         [DataMember]
+        public int Stunned { get; set; }
+        [DataMember]
         public Direction Direction { get; set; }
     }
 

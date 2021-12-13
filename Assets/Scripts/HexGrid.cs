@@ -19,6 +19,11 @@ namespace Assets.Scripts
 {
     public class HexGrid : MonoBehaviour
     {
+        public GameObject Stun;
+        public GameObject Explo;
+        public GameObject Explo1;
+
+
         internal float hexCellHeight = 0.0f;
 
         public int gridWidth = 20;
@@ -89,6 +94,7 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+
 
             GameModel gameModel;
 
@@ -1683,15 +1689,18 @@ namespace Assets.Scripts
                 }
                 if (!transitObject.RigidBodyDeactivated)
                 {
-                    Rigidbody otherRigid = transitObject.GameObject.GetComponent<Rigidbody>();
-                    if (otherRigid != null) otherRigid.isKinematic = true;
-                    transitObject.RigidBodyDeactivated = true;
-
-                    if (transitObject.TargetDirection.HasValue)
+                    if (transitObject.GameObject != null)
                     {
-                        Vector3 vector3 = transitObject.GameObject.transform.position + transitObject.TargetDirection.Value;                        
-                        transitObject.TargetPosition = vector3;
+                        Rigidbody otherRigid = transitObject.GameObject.GetComponent<Rigidbody>();
+                        if (otherRigid != null) otherRigid.isKinematic = true;
+
+                        if (transitObject.TargetDirection.HasValue)
+                        {
+                            Vector3 vector3 = transitObject.GameObject.transform.position + transitObject.TargetDirection.Value;
+                            transitObject.TargetPosition = vector3;
+                        }
                     }
+                    transitObject.RigidBodyDeactivated = true;
                 }
 
                 if (transitObject.GameObject == null)
