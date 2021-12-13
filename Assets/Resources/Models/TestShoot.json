@@ -48,6 +48,7 @@
       "Name": "Bomber1",
       "PlayerId": 2,
       "Blueprint": "Bomber",
+	  "Direction": "SW",
 	  "ContainerFilled": 0,
 	  "HoldPosition": true,
 	  "HoldFire": true,

@@ -1041,44 +1041,11 @@ namespace Assets.Scripts
                         }
                         else
                         {
-                            StartCoroutine(FadeOutDestructable(destructable.GameObject, destructable.GameObject.transform.position.y - 0.1f));
-                            GameObjects.Remove(destructable);
-                        }
-                    }
-                }
-                foreach (UnitBaseTileObject destructable in addedTileObjects)
-                {
-                    break;
-                    if (destructable.GameObject != null)
-                    {
-                        float amount = 0.0001f;
-                        float sink = 0.1f;
-
-                        if (destructable.TileObject.TileObjectType == TileObjectType.Gras)
-                        {
-                            sink = 0.1f;
-                            amount = 0.0001f;
-                        }
-                        else if (destructable.TileObject.TileObjectType == TileObjectType.TreeTrunk)
-                        {
-                            amount = 0;
-                        }
-                        else
-                        {
-                            sink = 1f;
-                            amount = 0.01f;
-                        }
-
-                        // Raise
-                        if (amount != 0)
-                        {
                             Vector3 vector3 = destructable.GameObject.transform.position;
-                            float raiseTo = vector3.y;
-
-                            vector3.y -= sink;
-                            destructable.GameObject.transform.position = vector3;
-
-                            StartCoroutine(FadeInDestructable(destructable.GameObject, raiseTo, amount));
+                            vector3.y -= 0.1f;
+                            HexGrid.MainGrid.FadeOutGameObject(destructable.GameObject, vector3, 0.1f);
+                            //StartCoroutine(FadeOutDestructable(destructable.GameObject, destructable.GameObject.transform.position.y - 0.1f));
+                            GameObjects.Remove(destructable);
                         }
                     }
                 }

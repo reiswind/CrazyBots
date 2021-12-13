@@ -39,17 +39,23 @@ namespace Assets.Scripts
     {
         public TransitObject()
         {
-
+            Speed = 3.0f;
         }
-        public float StartAfterThis { get; set; }
+        public  bool RigidBodyDeactivated { get; set; }
+
+        public float? StartAfterThis { get; set; }
+        public float? EndAfterThis { get; set; }
+        public float Speed { get; set; }
         public GameObject GameObject { get; set; }
         public GameObject ActivateAtArrival { get; set; }
         public Vector3 TargetPosition { get; set; }
+        public Vector3? TargetDirection { get; set; }
         public Quaternion TargetRotation { get; set; }
         public bool DestroyAtArrival { get; set; }
         public bool HideAtArrival { get; set; }
         public bool ScaleDown { get; set; }
         public bool ScaleUp { get; set; }
+        public bool TargetReached { get; set; }
     }
 
     public class HitByBullet
@@ -143,7 +149,7 @@ namespace Assets.Scripts
         private GameObject _alert;
 
         private bool teleportToPosition;
-        //private int fixedFrameCounter;
+        
         private Vector3 moveToVector;
         private int moveToVectorTimes;
 
@@ -208,8 +214,8 @@ namespace Assets.Scripts
 
         public void TeleportToPosition(bool force)
         {
-            //Debug.Log("Frames" + fixedFrameCounter);
-            //fixedFrameCounter = 0;
+            
+            
             //moveToVector = Vector3.zero;
             if (CurrentPos == Position2.Null)
                 return;
@@ -442,7 +448,14 @@ namespace Assets.Scripts
                 }
             }
 
-            if (TurnIntoDirection != Direction.C)
+            if (TurnIntoDirection == Direction.C)
+            {
+                if (_rigidbody != null)
+                {
+                    StayUpright();
+                }
+            }
+            else
             {
                 Position3 position3 = new Position3(CurrentPos);
                 Position3 neighbor = position3.GetNeighbor(TurnIntoDirection);
@@ -464,6 +477,20 @@ namespace Assets.Scripts
             }
         }
         
+        private void StayUpright()
+        {
+            Quaternion deltaQuat = Quaternion.FromToRotation(_rigidbody.transform.up, Vector3.up);
+
+            Vector3 axis;
+            float angle;
+            deltaQuat.ToAngleAxis(out angle, out axis);
+
+            float dampenFactor = 0.8f; // this value requires tuning
+            _rigidbody.AddTorque(-_rigidbody.angularVelocity * dampenFactor, ForceMode.Acceleration);
+
+            float adjustFactor = 0.5f; // this value requires tuning
+            _rigidbody.AddTorque(axis.normalized * angle * adjustFactor, ForceMode.Acceleration);
+        }
 
         public void UpdateDirection(Vector3 position, bool teleportToPosition)
         {
@@ -485,7 +512,7 @@ namespace Assets.Scripts
             Vector3 forward = transform.forward;
             // Rotate the forward vector towards the target direction by one step
             Vector3 newDirection = Vector3.RotateTowards(forward, targetDirection, singleStep, 0.0f);
-            newDirection.y = 0;
+            //newDirection.y = 0;
 
             // Draw a ray pointing at our target in
             //Debug.DrawRay(transform.position, newDirection, Color.red);
@@ -498,6 +525,8 @@ namespace Assets.Scripts
                 }
                 else
                 {
+                    StayUpright();
+
                     _rigidbody.MoveRotation(Quaternion.LookRotation(newDirection));
                 }
             }

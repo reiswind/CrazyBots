@@ -127,38 +127,12 @@ namespace Engine.Master
                         thisUnit.MaxPower = 20;
                         thisUnit.CreateAllPartsFromBlueprint();
                         thisUnit.Pos = posOnMap;
-                        /*
-                        if (unitModel.ContainedMinerals.HasValue)
-                        {
-                            if (thisUnit.Container != null)
-                                thisUnit.Container.TileContainer.Clear();
-                            if (thisUnit.Weapon != null)
-                                thisUnit.Weapon.TileContainer.Clear();
-                            if (thisUnit.Reactor != null)
-                                thisUnit.Reactor.TileContainer.Clear();
-                            if (thisUnit.Assembler != null)
-                                thisUnit.Assembler.TileContainer.Clear();
-                        }*/
-                        // Turn into direction missing
-                        thisUnit.Direction = Direction.C; // CalcDirection(move.Position2s[0], move.Position2s[1]);
                         thisUnit.Owner = Players[unitModel.PlayerId];
 
                         if (Map.Units.GetUnitAt(thisUnit.Pos) == null)
                             Map.Units.Add(thisUnit);
 
-                        if (unitModel.HoldPosition && thisUnit.Engine != null)
-                            thisUnit.Engine.HoldPosition = true;
-
-                        if (unitModel.FireAtGround && thisUnit.Weapon != null)
-                            thisUnit.Weapon.FireAtGround = true;
-                        if (unitModel.HoldFire && thisUnit.Weapon != null)
-                            thisUnit.Weapon.HoldFire = true;
-                        if (unitModel.EndlessAmmo && thisUnit.Weapon != null)
-                            thisUnit.Weapon.EndlessAmmo = true;
-                        if (unitModel.EndlessPower)
-                            thisUnit.EndlessPower = true;
-                        if (unitModel.UnderConstruction)
-                            thisUnit.UnderConstruction = true;
+                        InitUnitWithModel(thisUnit, unitModel);
 
                         t.Owner = unitModel.PlayerId;
                         ResetTile(t);
@@ -170,7 +144,43 @@ namespace Engine.Master
         }
 
         
+        private void InitUnitWithModel(Unit thisUnit, UnitModel unitModel)
+        {
+            if (unitModel.HoldPosition && thisUnit.Engine != null)
+                thisUnit.Engine.HoldPosition = true;
 
+            if (unitModel.FireAtGround && thisUnit.Weapon != null)
+                thisUnit.Weapon.FireAtGround = true;
+            if (unitModel.HoldFire && thisUnit.Weapon != null)
+                thisUnit.Weapon.HoldFire = true;
+            if (unitModel.EndlessAmmo && thisUnit.Weapon != null)
+                thisUnit.Weapon.EndlessAmmo = true;
+            if (unitModel.EndlessPower)
+                thisUnit.EndlessPower = true;
+            if (unitModel.MarkForExtraction)
+                thisUnit.ExtractUnit();
+            if (unitModel.ContainedMinerals.HasValue ||
+                unitModel.ContainedTrees.HasValue)
+            {
+                if (thisUnit.Container != null)
+                    thisUnit.Container.TileContainer.Clear();
+                if (thisUnit.Weapon != null)
+                    thisUnit.Weapon.TileContainer.Clear();
+                if (thisUnit.Reactor != null)
+                    thisUnit.Reactor.TileContainer.Clear();
+                if (thisUnit.Assembler != null)
+                    thisUnit.Assembler.TileContainer.Clear();
+
+                if (unitModel.ContainedMinerals.HasValue)
+                    thisUnit.FillWithTileObjects(TileObjectType.Mineral, unitModel.ContainedMinerals.Value);
+                if (unitModel.ContainedTrees.HasValue)
+                    thisUnit.FillWithTileObjects(TileObjectType.Tree, unitModel.ContainedTrees.Value);
+            }
+            if (string.IsNullOrEmpty(unitModel.Direction))
+                thisUnit.Direction = Direction.C;
+            else if (unitModel.Direction == "SW")
+                thisUnit.Direction = Direction.SW;
+        }
 
         public void StartWithFactory(List<Move> newMoves)
         {
@@ -206,36 +216,8 @@ namespace Engine.Master
                             if (Map.Units.GetUnitAt(thisUnit.Pos) == null)
                                 Map.Units.Add(thisUnit);
 
-                            if (unitModel.HoldPosition && thisUnit.Engine != null)
-                                thisUnit.Engine.HoldPosition = true;
-
-                            if (unitModel.FireAtGround && thisUnit.Weapon != null)
-                                thisUnit.Weapon.FireAtGround = true;
-                            if (unitModel.HoldFire && thisUnit.Weapon != null)
-                                thisUnit.Weapon.HoldFire = true;
-                            if (unitModel.EndlessAmmo && thisUnit.Weapon != null)
-                                thisUnit.Weapon.EndlessAmmo = true;
-                            if (unitModel.EndlessPower)
-                                thisUnit.EndlessPower = true;
-                            if (unitModel.MarkForExtraction)
-                                thisUnit.ExtractUnit();
-                            if (unitModel.ContainedMinerals.HasValue ||
-                                unitModel.ContainedTrees.HasValue)
-                            {
-                                if (thisUnit.Container != null)
-                                    thisUnit.Container.TileContainer.Clear();
-                                if (thisUnit.Weapon != null)
-                                    thisUnit.Weapon.TileContainer.Clear();
-                                if (thisUnit.Reactor != null)
-                                    thisUnit.Reactor.TileContainer.Clear();
-                                if (thisUnit.Assembler != null)
-                                    thisUnit.Assembler.TileContainer.Clear();
-
-                                if (unitModel.ContainedMinerals.HasValue)
-                                    thisUnit.FillWithTileObjects(TileObjectType.Mineral, unitModel.ContainedMinerals.Value);
-                                if (unitModel.ContainedTrees.HasValue)
-                                    thisUnit.FillWithTileObjects(TileObjectType.Tree, unitModel.ContainedTrees.Value);
-                            }
+                            InitUnitWithModel(thisUnit, unitModel);
+                            
                             Move move = new Move();
                             move.MoveType = MoveType.Add;
                             move.PlayerId = unitModel.PlayerId;

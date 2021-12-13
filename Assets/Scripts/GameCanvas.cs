@@ -727,19 +727,48 @@ namespace Assets.Scripts
                 int num = 0;
                 foreach (RaycastHit raycastHit in raycastHits)
                 {
-                    //GroundCell debuggc = raycastHit.collider.gameObject.GetComponent<GroundCell>();
-                    //if (debuggc != null)
-                    //    Debug.Log(num + " Raycast hit GroundCell " + debuggc.Pos.ToString());
+
+                    GroundCell hitGroundCell = null;
+
+                    if (raycastHit.collider.gameObject.name == "HexCell1")
+                    {
+                        Debug.Log(num + " Raycast parent hit  " + raycastHit.collider.gameObject.transform.parent.name);
+                        hitGroundCell = raycastHit.collider.gameObject.transform.parent.GetComponent<GroundCell>();
+                    }
+                    else
+                    { 
+                        Debug.Log(num + " Raycast hit  " + raycastHit.collider.gameObject.name);
+                        hitGroundCell = raycastHit.collider.gameObject.transform.GetComponent<GroundCell>();
+                    }
 
                     num++;
-
-                    if (hitByMouseClick.GroundCell == null)
+                    
+                    if (hitGroundCell != null)
                     {
-                        hitByMouseClick.GroundCell = raycastHit.collider.gameObject.transform.parent.GetComponentInParent<GroundCell>();
-                        if (hitByMouseClick.GroundCell != null)
+                        Debug.Log("Raycast hit GroundCell " + hitGroundCell.Pos.ToString());
+                    }
+                    else
+                    {
+                        /*
+                        hitGroundCell = raycastHit.collider.gameObject.transform.parent.GetComponentInParent<GroundCell>();
+                        if (hitGroundCell != null)
                         {
-                            //Debug.Log("Raycast hit GroundCell " + Position.GetX(hitByMouseClick.GroundCell.Pos) + "," + Position.GetY(hitByMouseClick.GroundCell.Pos));
+                            Debug.Log("Raycast hit Parent GroundCell " + hitGroundCell.Pos.ToString());
                         }
+                        else
+                        {
+                            hitGroundCell = raycastHit.collider.gameObject.transform.parent.GetComponentInChildren<GroundCell>();
+                            if (hitGroundCell != null)
+                            {
+                                Debug.Log("Raycast hit Child GroundCell " + hitGroundCell.Pos.ToString());
+                            }
+                        }*/
+                    }
+                    
+                    if (hitGroundCell != null)
+                    {
+                        // Take the last hit, which sould be the topmost
+                        hitByMouseClick.GroundCell = hitGroundCell;
                     }
                     if (commandPreview == null)
                     {
@@ -763,8 +792,8 @@ namespace Assets.Scripts
                         else
                             Debug.Log("Raycast hit Unit " + unitBase.UnitId);
                         */
-
-                        hitByMouseClick.Units.Add(unitBase);
+                        if (!unitBase.IsGhost)
+                            hitByMouseClick.Units.Add(unitBase);
                     }
                 }
                 // Find command by pos

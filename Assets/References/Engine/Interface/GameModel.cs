@@ -235,6 +235,8 @@ namespace Engine.Interface
         public string Parts { get; set; }
         [DataMember]
         public string Blueprint { get; set; }
+        [DataMember]
+        public string Direction { get; set; }
 
         [DataMember]
         public bool HoldPosition { get; set; }

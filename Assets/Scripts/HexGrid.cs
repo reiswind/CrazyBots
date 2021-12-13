@@ -85,10 +85,10 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
             GameModel gameModel;
 
@@ -1352,8 +1352,22 @@ namespace Assets.Scripts
             return extract;
         }
 
-        private List<TransitObject> tileObjectsInTransit;
+        private List<TransitObject> tileObjectsInTransit = new List<TransitObject>();
         private List<HitByBullet> hitByBullets;
+
+        public void FadeOutGameObject(GameObject gameObject, Vector3 targetDirection, float speed)
+        {
+            TransitObject transitObject = new TransitObject();
+            transitObject.DestroyAtArrival = true;
+            transitObject.GameObject = gameObject;
+            transitObject.TargetDirection = targetDirection;
+            transitObject.Speed = speed;
+
+            transitObject.StartAfterThis = Time.time + (0.5f * HexGrid.MainGrid.GameSpeed);
+            transitObject.EndAfterThis = Time.time + (2.5f * HexGrid.MainGrid.GameSpeed);
+
+            tileObjectsInTransit.Add(transitObject);
+        }
 
         public HitByBullet Fire(UnitBase fireingUnit, TileObject ammo)
         {
@@ -1421,7 +1435,12 @@ namespace Assets.Scripts
                 debris.transform.position = unitPos3;
                 debris.transform.rotation = UnityEngine.Random.rotation;
 
+                Vector3 vector3 = transform.position;
+                vector3.y -= 0.2f;
+                Rigidbody otherRigid = debris.GetComponent<Rigidbody>();
+                otherRigid.AddExplosionForce(3.5f, vector3, 1);
 
+                FadeOutGameObject(debris, Vector3.down, 0.1f);
 
                 /*
 				Vector3 vector3 = new Vector3();
@@ -1433,7 +1452,7 @@ namespace Assets.Scripts
 				otherRigid.velocity = vector3;
 				otherRigid.rotation = UnityEngine.Random.rotation;*/
 
-                StartCoroutine(DelayFadeOutDebris(debris, transform.position.y - 0.1f));
+                //StartCoroutine(DelayFadeOutDebris(debris, transform.position.y - 0.1f));
                 //Destroy(debris, 12 * UnityEngine.Random.value);
             }
         }
@@ -1484,8 +1503,7 @@ namespace Assets.Scripts
         {
             GameObject debrisDirt = GetResource("DebrisUnit");
 
-            Vector3 vector3 = transform.position;
-            vector3.y -= 0.2f;
+
             
 
             for (int i = 0; i < 30; i++)
@@ -1497,6 +1515,7 @@ namespace Assets.Scripts
                 unitPos3.x += (randomPos.x * 0.25f);
                 unitPos3.z += (randomPos.y * 0.27f);
                 unitPos3.y += 1;
+                debris.transform.SetParent(transform);
                 debris.transform.position = unitPos3;
                 debris.transform.rotation = UnityEngine.Random.rotation;
 
@@ -1506,13 +1525,17 @@ namespace Assets.Scripts
                 vector3.x = UnityEngine.Random.value;
                 vector3.z = UnityEngine.Random.value;
                 */
+                Vector3 vector3 = transform.position;
+                vector3.y -= 0.2f;
                 Rigidbody otherRigid = debris.GetComponent<Rigidbody>();
-                otherRigid.AddExplosionForce(3, vector3, 1);
+                otherRigid.AddExplosionForce(3.5f, vector3, 1);
 
                 //otherRigid.velocity = vector3;
                 //otherRigid.rotation = UnityEngine.Random.rotation;
 
-                StartCoroutine(DelayFadeOutDebris(debris, debris.transform.position.y - 0.1f));
+                FadeOutGameObject(debris, Vector3.down, 0.1f);
+
+                //StartCoroutine(DelayFadeOutDebris(debris, debris.transform.position.y - 0.1f));
             }
         }
 
@@ -1598,23 +1621,27 @@ namespace Assets.Scripts
 
         public void AddTransitTileObject(TransitObject transitObject)
         {
-            if (tileObjectsInTransit == null)
-                tileObjectsInTransit = new List<TransitObject>();
             tileObjectsInTransit.Add(transitObject);
         }
         public void FinishTransits()
         {
-            if (tileObjectsInTransit != null)
+            List<TransitObject> finishedTransits = new List<TransitObject>();
+            foreach (TransitObject transitObject in tileObjectsInTransit)
             {
-                foreach (TransitObject transitObject in tileObjectsInTransit)
+                if (FinishTransit(transitObject))
                 {
-                    FinishTransit(transitObject);
+                    finishedTransits.Add(transitObject);
                 }
-                tileObjectsInTransit = null;
             }
+            foreach (TransitObject transitObject1 in finishedTransits)
+                tileObjectsInTransit.Remove(transitObject1);
         }
-        public void FinishTransit(TransitObject transitObject)
+
+        public bool FinishTransit(TransitObject transitObject)
         {
+            if (transitObject.EndAfterThis.HasValue && !transitObject.TargetReached)
+                return false;
+
             if (transitObject.DestroyAtArrival)
                 Destroy(transitObject.GameObject);
             else if (transitObject.HideAtArrival)
@@ -1622,6 +1649,8 @@ namespace Assets.Scripts
 
             if (transitObject.ActivateAtArrival != null)
                 transitObject.ActivateAtArrival.SetActive(true);
+
+            return true;
         }
 
         private void Update()
@@ -1632,105 +1661,97 @@ namespace Assets.Scripts
 
         private void MoveTransits()
         {
-            if (tileObjectsInTransit != null)
+            foreach (TransitObject transitObject in tileObjectsInTransit)
             {
-                List<TransitObject> transit = new List<TransitObject>();
-                transit.AddRange(tileObjectsInTransit);
-
-                foreach (TransitObject transitObject in transit)
+                if (transitObject.EndAfterThis.HasValue)
                 {
-                    if (transitObject.StartAfterThis != 0)
+                    if (Time.time > transitObject.EndAfterThis)
                     {
-                        if (Time.time < transitObject.StartAfterThis)
-                        {
-                            //Debug.Log("Skip Transit " + Time.time + " < " + transitObject.StartAfterThis);
-
-                            continue;
-                        }
-                        //Debug.Log("Transit " + Time.time);
+                        transitObject.TargetReached = true;
                     }
+                }
 
-                    if (transitObject.GameObject == null)
+                if (transitObject.StartAfterThis.HasValue)
+                {
+                    if (Time.time < transitObject.StartAfterThis)
                     {
-                        tileObjectsInTransit.Remove(transitObject);
+                        //Debug.Log("Skip Transit " + Time.time + " < " + transitObject.StartAfterThis);
+
+                        continue;
                     }
-                    else
+                    //Debug.Log("Transit " + Time.time);
+                }
+                if (!transitObject.RigidBodyDeactivated)
+                {
+                    Rigidbody otherRigid = transitObject.GameObject.GetComponent<Rigidbody>();
+                    if (otherRigid != null) otherRigid.isKinematic = true;
+                    transitObject.RigidBodyDeactivated = true;
+
+                    if (transitObject.TargetDirection.HasValue)
                     {
-                        Vector3 vector3 = transitObject.TargetPosition;
+                        Vector3 vector3 = transitObject.GameObject.transform.position + transitObject.TargetDirection.Value;                        
+                        transitObject.TargetPosition = vector3;
+                    }
+                }
 
-                        float speed = 3.0f / GameSpeed;
-                        float step = speed * Time.deltaTime;
+                if (transitObject.GameObject == null)
+                {
+                    transitObject.TargetReached = true;
+                }
+                else
+                {
+                    Vector3 vector3 = transitObject.TargetPosition;
 
+                    float speed = transitObject.Speed / GameSpeed;
+                    float step = speed * Time.deltaTime;
 
-                        if (transitObject.ScaleUp)
+                    if (transitObject.ScaleUp)
+                    {
+                        Vector3 scaleChange = transitObject.GameObject.transform.localScale;
+                        if (scaleChange.x < 1)
+                            scaleChange.x *= 1.05f;
+                        if (scaleChange.y < 1)
+                            scaleChange.y *= 1.05f;
+                        if (scaleChange.z < 1)
+                            scaleChange.z *= 1.05f;
+                        transitObject.GameObject.transform.localScale = scaleChange;
+                    }
+                    if (transitObject.ScaleDown)
+                    {
+                        Vector3 scaleChange = transitObject.GameObject.transform.localScale;
+                        if (scaleChange.x > 0.1f)
+                            scaleChange.x *= 0.98f;
+                        if (scaleChange.y > 0.1f)
+                            scaleChange.y *= 0.98f;
+                        if (scaleChange.z > 0.1f)
+                            scaleChange.z *= 0.98f;
+                        transitObject.GameObject.transform.localScale = scaleChange;
+                    }
+                    if (false && transitObject.ScaleDown)
+                    {
+                        MeshRenderer mesh = transitObject.GameObject.GetComponent<MeshRenderer>();
+                        if (mesh != null)
                         {
-                            Vector3 scaleChange = transitObject.GameObject.transform.localScale;
-                            if (scaleChange.x < 1)
-                                scaleChange.x *= 1.05f;
-                            if (scaleChange.y < 1)
-                                scaleChange.y *= 1.05f;
-                            if (scaleChange.z < 1)
-                                scaleChange.z *= 1.05f;
-                            transitObject.GameObject.transform.localScale = scaleChange;
-                        }
-                        if (transitObject.ScaleDown)
-                        {
-                            Vector3 scaleChange = transitObject.GameObject.transform.localScale;
-                            if (scaleChange.x > 0.1f)
-                                scaleChange.x *= 0.98f;
-                            if (scaleChange.y > 0.1f)
-                                scaleChange.y *= 0.98f;
-                            if (scaleChange.z > 0.1f)
-                                scaleChange.z *= 0.98f;
-                            transitObject.GameObject.transform.localScale = scaleChange;
-                        }
-                        if (false && transitObject.ScaleDown)
-                        {
-                            MeshRenderer mesh = transitObject.GameObject.GetComponent<MeshRenderer>();
-                            if (mesh != null)
+                            // if larger
+                            if (mesh.bounds.size.y > 0.2f || mesh.bounds.size.x > 0.2f || mesh.bounds.size.z > 0.2f)
                             {
-                                // if larger
-                                if (mesh.bounds.size.y > 0.2f || mesh.bounds.size.x > 0.2f || mesh.bounds.size.z > 0.2f)
+                                // but not to small
+                                if (mesh.bounds.size.y > 0.1f && mesh.bounds.size.x > 0.1f && mesh.bounds.size.z > 0.1f)
                                 {
-                                    // but not to small
-                                    if (mesh.bounds.size.y > 0.1f && mesh.bounds.size.x > 0.1f && mesh.bounds.size.z > 0.1f)
-                                    {
-                                        float scalex = mesh.bounds.size.x / 200;
-                                        float scaley = mesh.bounds.size.y / 200;
-                                        float scalez = mesh.bounds.size.z / 200;
+                                    float scalex = mesh.bounds.size.x / 200;
+                                    float scaley = mesh.bounds.size.y / 200;
+                                    float scalez = mesh.bounds.size.z / 200;
 
-                                        Vector3 scaleChange;
-                                        scaleChange = new Vector3(-scalex, -scaley, -scalez);
+                                    Vector3 scaleChange;
+                                    scaleChange = new Vector3(-scalex, -scaley, -scalez);
 
-                                        transitObject.GameObject.transform.localScale += scaleChange;
-                                    }
+                                    transitObject.GameObject.transform.localScale += scaleChange;
                                 }
                             }
                         }
-                        transitObject.GameObject.transform.position = Vector3.MoveTowards(transitObject.GameObject.transform.position, vector3, step);
-                        if (transitObject.GameObject.transform.position == transitObject.TargetPosition)
-                        {
-                            FinishTransit(transitObject);
-                            /*
-							if (transitObject.DestroyAtArrival)
-							{
-								Destroy(transitObject.GameObject);
-							}
-							else if (transitObject.HideAtArrival)
-							{
-								transitObject.GameObject.SetActive(false);
-							}
-							else
-							{
-								// int x=0;
-							}
-							*/
-                            tileObjectsInTransit.Remove(transitObject);
-                        }
                     }
+                    transitObject.GameObject.transform.position = Vector3.MoveTowards(transitObject.GameObject.transform.position, vector3, step);
                 }
-                if (tileObjectsInTransit.Count == 0)
-                    tileObjectsInTransit = null;
             }
         }
 
