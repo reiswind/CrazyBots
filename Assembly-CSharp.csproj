@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -53,10 +53,14 @@
     <UnityVersion>2021.2.6f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="Assets\References\Engine\Map\HexDirection.cs" />
     <Compile Include="Assets\References\Engine\Interface\Player.cs" />
     <Compile Include="Assets\Scripts\TileObjectContainer.cs" />
     <Compile Include="Assets\References\Engine\Master\Reactor.cs" />
+    <Compile Include="Assets\CanvasButtons.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPart.cs" />
     <Compile Include="Assets\References\Engine\Ants\Ant.cs" />
     <Compile Include="Assets\References\Engine\Interface\Area.cs" />
@@ -140,7 +144,6 @@
     <Compile Include="Assets\References\Engine\Algorithms\PriorityQueueB.cs" />
     <Compile Include="Assets\Scripts\CommandPreview.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartReactor.cs" />
-    <Compile Include="Assets\CanvasButtons.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\HighlightPlus\README.txt" />

@@ -127,29 +127,33 @@ namespace Assets.Scripts
 
         public void RunFaster()
         {
-            if (GameSpeed > 0.3f)
+            if (GameSpeed > 0.1f)
             {
                 CancelInvoke();
                 GameSpeed -= 0.1f;
-                isPause = false;
+                IsPause = false;
                 InvokeRepeating(nameof(invoke), 0.5f, GameSpeed);
 
                 Debug.Log("Gamespeed set to " + GameSpeed);
             }
+            else
+            {
+                GameSpeed = 0.01f;
+            }
         }
-        private bool isPause;
+        public bool IsPause { get; private set; }
         public void Pause()
         {
-            if (isPause)
+            if (IsPause)
             {
                 Debug.Log("Resume");
-                isPause = false;
+                IsPause = false;
                 InvokeRepeating(nameof(invoke), 0.5f, GameSpeed);
             }
             else            
             {
                 Debug.Log("Pause");
-                isPause = true;
+                IsPause = true;
                 CancelInvoke();
             }
         }
@@ -159,7 +163,7 @@ namespace Assets.Scripts
             {
                 CancelInvoke();
                 GameSpeed += 0.1f;
-                isPause = false;
+                IsPause = false;
                 InvokeRepeating(nameof(invoke), 0.5f, GameSpeed);
                 Debug.Log("Gamespeed set to " + GameSpeed);
             }

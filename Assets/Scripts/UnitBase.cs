@@ -274,6 +274,8 @@ namespace Assets.Scripts
         {
             if (IsGhost)
                 return;
+            if (HexGrid.MainGrid.IsPause)
+                return;
 
             //fixedFrameCounter++;
 
@@ -319,6 +321,7 @@ namespace Assets.Scripts
                     }
                 }
             }
+
 
             float timeNow = Time.time;
             foreach (UnitBasePart unitBasePart in UnitBaseParts)
@@ -386,7 +389,7 @@ namespace Assets.Scripts
 
                         //Debug.Log("MoveToVector" + moveToVector.ToString());
 
-                        
+
                         if (moveToVectorTimes > 0)
                         {
                             // Avoid accelaration, reason...?
@@ -404,14 +407,14 @@ namespace Assets.Scripts
                             }
                             else
                             {*/
-                                float speed = 2.75f / HexGrid.MainGrid.GameSpeed;
-                                float step = speed * Time.deltaTime;
-                                Vector3 unitPos3 = targetCell.transform.position;
-                                unitPos3.y += HexGrid.MainGrid.hexCellHeight + AboveGround;
-                                _rigidbody.MovePosition(Vector3.MoveTowards(transform.position, unitPos3, step));
-                            
+                            float speed = 2.75f / HexGrid.MainGrid.GameSpeed;
+                            float step = speed * Time.deltaTime;
+                            Vector3 unitPos3 = targetCell.transform.position;
+                            unitPos3.y += HexGrid.MainGrid.hexCellHeight + AboveGround;
+                            _rigidbody.MovePosition(Vector3.MoveTowards(transform.position, unitPos3, step));
+
                         }
-                                
+
                         /*
                         float speed = 1.75f / HexGrid.MainGrid.GameSpeed;
                         float step = speed * Time.deltaTime;
