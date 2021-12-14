@@ -814,23 +814,11 @@ namespace Assets.Scripts
             return hitByMouseClick;
         }
 
-        private UnitBase GetUnitFrameFromRayCast(RaycastHit raycastHit)
+        private static UnitBase GetUnitFrameFromRayCast(RaycastHit raycastHit)
         {
-            UnitBase unitBase = raycastHit.collider.GetComponent<UnitBase>();
-            if (unitBase != null) return unitBase;
-
-            Transform transform = raycastHit.collider.transform;
-
-            while (transform.parent != null)
-            {
-                unitBase = transform.parent.GetComponent<UnitBase>();
-                if (unitBase != null) return unitBase;
-                if (transform.parent == null)
-                    break;
-                transform = transform.parent;
-            }
-            return null;
+            return UnitBase.GetUnitFrameColilder(raycastHit.collider);
         }
+
 
         private void AppendGroundInfo(GroundCell gc, bool showTitle)
         {

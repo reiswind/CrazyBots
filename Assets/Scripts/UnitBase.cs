@@ -607,12 +607,6 @@ namespace Assets.Scripts
                 }
                 MoveUpdateStats = stats;
                 UpdateParts();
-
-                if (stats.Stunned > 0)
-                {
-                    GameObject stun = HexGrid.Instantiate<GameObject>(HexGrid.MainGrid.Stun, transform);
-                    HexGrid.Destroy(stun, 1);
-                }
             }
         }
 
@@ -1238,7 +1232,23 @@ namespace Assets.Scripts
                 }
             }
         }
+        public static UnitBase GetUnitFrameColilder(Collider collider)
+        {
+            UnitBase unitBase = collider.GetComponent<UnitBase>();
+            if (unitBase != null) return unitBase;
 
+            Transform transform = collider.transform;
+
+            while (transform.parent != null)
+            {
+                unitBase = transform.parent.GetComponent<UnitBase>();
+                if (unitBase != null) return unitBase;
+                if (transform.parent == null)
+                    break;
+                transform = transform.parent;
+            }
+            return null;
+        }
         public UnitBasePart PartHitByShell(TileObjectType hitPart, MoveUpdateStats stats)
         {
             foreach (UnitBasePart unitBasePart in UnitBaseParts)
@@ -1286,16 +1296,16 @@ namespace Assets.Scripts
 
                         HexGrid.MainGrid.HitUnitPartAnimation(currentCell.transform);
 
-                        GameObject stun;
+                        GameObject animation;
                         if (HexGrid.MainGrid.Random.Next(2) == 0)
                         {
-                            stun = HexGrid.Instantiate<GameObject>(HexGrid.MainGrid.Explo, currentCell.transform);
+                            animation = HexGrid.Instantiate<GameObject>(HexGrid.MainGrid.Explo, currentCell.transform);
                         }
                         else
                         {
-                            stun = HexGrid.Instantiate<GameObject>(HexGrid.MainGrid.Explo1, currentCell.transform);
+                            animation = HexGrid.Instantiate<GameObject>(HexGrid.MainGrid.Explo1, currentCell.transform);
                         }
-                        HexGrid.Destroy(stun, 1);
+                        HexGrid.Destroy(animation, 1);
 
                     }
 

@@ -1044,7 +1044,8 @@ namespace Assets.Scripts
                             Vector3 vector3 = destructable.GameObject.transform.position;
                             vector3.y -= 0.1f;
                             HexGrid.MainGrid.FadeOutGameObject(destructable.GameObject, vector3, 0.1f);
-                            //StartCoroutine(FadeOutDestructable(destructable.GameObject, destructable.GameObject.transform.position.y - 0.1f));
+                            destructable.GameObject = null;
+
                             GameObjects.Remove(destructable);
                         }
                     }

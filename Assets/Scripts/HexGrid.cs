@@ -1419,8 +1419,31 @@ namespace Assets.Scripts
 
         public void HitGroundAnimation(Transform transform)
         {
+            int mask = LayerMask.GetMask("Units");
+
+            List<UnitBase> hitOtherUnits = new List<UnitBase>();
+
+            Vector3 explosionPos = transform.position;
+            Collider[] colliders = Physics.OverlapSphere(explosionPos, 2, mask);
+            foreach (Collider hit in colliders)
+            {
+                UnitBase unitBase = UnitBase.GetUnitFrameColilder(hit);
+                if (unitBase != null && !hitOtherUnits.Contains(unitBase))
+                    hitOtherUnits.Add(unitBase);
+            }
+            foreach (UnitBase unit in hitOtherUnits)
+            {
+                GameObject stun = HexGrid.Instantiate<GameObject>(HexGrid.MainGrid.Stun, unit.transform);
+                HexGrid.Destroy(stun, 1);
+
+                // No real good effect
+                Rigidbody rb = unit.GetComponent<Rigidbody>();
+                if (rb != null)
+                    rb.AddExplosionForce(70, explosionPos, 2, 3.0F);
+            }
+
             GameObject animation = HexGrid.Instantiate<GameObject>(HexGrid.MainGrid.GroundHit, transform);
-            HexGrid.Destroy(animation, 1);
+            HexGrid.Destroy(animation, 1.5f);
 
             GameObject debrisDirt = GetResource("DebrisUnit");
 

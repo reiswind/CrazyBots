@@ -95,7 +95,6 @@ GameObject:
   - component: {fileID: 2218448623008363288}
   - component: {fileID: -5323496324376851735}
   - component: {fileID: 7470750898792419437}
-  - component: {fileID: 3645163131483179096}
   m_Layer: 3
   m_Name: U-Worker
   m_TagString: Untagged
@@ -266,19 +265,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!65 &3645163131483179096
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8557575328208266235}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.45865893, y: 0.09289877, z: 0.794139}
-  m_Center: {x: 0.02060166, y: 0.051995747, z: 0.030038044}
 --- !u!1001 &1229824235498462524
 PrefabInstance:
   m_ObjectHideFlags: 0

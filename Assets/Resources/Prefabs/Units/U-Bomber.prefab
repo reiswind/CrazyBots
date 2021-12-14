@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 2218448623008363288}
   - component: {fileID: 4991405978590719686}
   - component: {fileID: 1684761503844406517}
-  - component: {fileID: 2161924482214666155}
   m_Layer: 3
   m_Name: U-Bomber
   m_TagString: Untagged
@@ -181,19 +180,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!65 &2161924482214666155
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8557575328208266235}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.47635412, y: 0.12161378, z: 0.80828804}
-  m_Center: {x: 0.0019658804, y: 0.049944844, z: -0.023400813}
 --- !u!1001 &1229824235498462524
 PrefabInstance:
   m_ObjectHideFlags: 0
