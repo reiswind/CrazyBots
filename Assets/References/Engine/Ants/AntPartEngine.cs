@@ -272,9 +272,48 @@ namespace Engine.Ants
                     }
                     else
                     {
-                        Ant.FollowThisRoute.RemoveAt(0);
-                        if (Ant.FollowThisRoute.Count == 0)
-                            Ant.FollowThisRoute = null;
+                        bool canMoveTo = false;
+
+                        List<Tile> tiles = MakeForwardTilesList(player, cntrlUnit);
+                        foreach (Tile tile in tiles)
+                        {
+                            if (tile.Pos == moveToPosition)
+                            {
+                                canMoveTo = true;
+                                break;
+                            }
+                        }
+                        if (canMoveTo)
+                        {
+                            Ant.FollowThisRoute.RemoveAt(0);
+                            if (Ant.FollowThisRoute.Count == 0)
+                                Ant.FollowThisRoute = null;
+                        }
+                        else
+                        {
+                            Direction old = cntrlUnit.Direction;
+                            Position3 position3 = new Position3(cntrlUnit.Pos);
+                            foreach (Position3 n in position3.Neighbors)
+                            {
+                                if (n.Pos == moveToPosition)
+                                {
+                                    cntrlUnit.Direction = n.Direction;
+                                    break;
+                                }
+                            }
+                            if (old == cntrlUnit.Direction) // Safety
+                                cntrlUnit.Direction = TurnAround(cntrlUnit.Direction);
+
+                            Move turnMove = new Move();
+                            turnMove.MoveType = MoveType.Move;
+                            turnMove.UnitId = cntrlUnit.UnitId;
+                            turnMove.PlayerId = player.PlayerModel.Id;
+                            turnMove.Positions = new List<Position2>();
+                            turnMove.Positions.Add(cntrlUnit.Pos);
+                            moves.Add(turnMove);
+
+                            return true;
+                        }
                     }
                 }
             }
