@@ -22,12 +22,9 @@ namespace Assets.Scripts
         public GameObject Stun;
         public GameObject Explo;
         public GameObject Explo1;
-
+        public GameObject GroundHit;
 
         internal float hexCellHeight = 0.0f;
-
-        public int gridWidth = 20;
-        public int gridHeight = 20;
         public float GameSpeed = 0.01f;
 
         internal Dictionary<Position2, GroundCell> GroundCells { get; private set; }
@@ -112,19 +109,13 @@ namespace Assets.Scripts
             else
             {
                 gameModel = new GameModel();
-                gameModel.MapHeight = gridHeight;
-                gameModel.MapWidth = gridWidth;
+                gameModel.Players = new List<PlayerModel>();
 
-                if (gridWidth > 10)
-                {
-                    gameModel.Players = new List<PlayerModel>();
-
-                    PlayerModel p = new PlayerModel();
-                    p.ControlLevel = 1;
-                    p.Id = 1;
-                    p.Name = "WebPLayer";
-                    gameModel.Players.Add(p);
-                }
+                PlayerModel p = new PlayerModel();
+                p.ControlLevel = 1;
+                p.Id = 1;
+                p.Name = "WebPLayer";
+                gameModel.Players.Add(p);
             }
             CreateGame(gameModel);
 
@@ -383,7 +374,7 @@ namespace Assets.Scripts
                 {
                     prefab = GetResource("Gras1");
                 }
-                y = 0.05f;
+                y = 0.02f;
                 //x = (randomPos.x * 0.05f);
                 //z = (randomPos.y * 0.07f);
             }
@@ -1369,7 +1360,7 @@ namespace Assets.Scripts
             transitObject.TargetDirection = targetDirection;
             transitObject.Speed = speed;
 
-            transitObject.StartAfterThis = Time.time + (0.5f * HexGrid.MainGrid.GameSpeed);
+            transitObject.StartAfterThis = Time.time + (0.6f * HexGrid.MainGrid.GameSpeed);
             transitObject.EndAfterThis = Time.time + (2.5f * HexGrid.MainGrid.GameSpeed);
 
             tileObjectsInTransit.Add(transitObject);
@@ -1428,89 +1419,10 @@ namespace Assets.Scripts
 
         public void HitGroundAnimation(Transform transform)
         {
-            GameObject debrisDirt = GetResource("DebrisDirt");
+            GameObject animation = HexGrid.Instantiate<GameObject>(HexGrid.MainGrid.GroundHit, transform);
+            HexGrid.Destroy(animation, 1);
 
-            for (int i = 0; i < 40; i++)
-            {
-                GameObject debris = Instantiate(debrisDirt, transform, false);
-
-                Vector2 randomPos = UnityEngine.Random.insideUnitCircle;
-                Vector3 unitPos3 = transform.position;
-                unitPos3.x += (randomPos.x * 0.25f);
-                unitPos3.z += (randomPos.y * 0.27f);
-                debris.transform.position = unitPos3;
-                debris.transform.rotation = UnityEngine.Random.rotation;
-
-                Vector3 vector3 = transform.position;
-                vector3.y -= 0.2f;
-                Rigidbody otherRigid = debris.GetComponent<Rigidbody>();
-                otherRigid.AddExplosionForce(3.5f, vector3, 1);
-
-                FadeOutGameObject(debris, Vector3.down, 0.1f);
-
-                /*
-				Vector3 vector3 = new Vector3();
-				vector3.y = 0.1f;
-				vector3.x = UnityEngine.Random.value;
-				vector3.z = UnityEngine.Random.value;
-
-				Rigidbody otherRigid = debris.GetComponent<Rigidbody>();
-				otherRigid.velocity = vector3;
-				otherRigid.rotation = UnityEngine.Random.rotation;*/
-
-                //StartCoroutine(DelayFadeOutDebris(debris, transform.position.y - 0.1f));
-                //Destroy(debris, 12 * UnityEngine.Random.value);
-            }
-        }
-
-        private IEnumerator DelayFadeOutDebris(GameObject gameObject, float sinkTo)
-        {
-            if (gameObject == null)
-            {
-                yield break;
-            }
-            else
-            {
-                yield return new WaitForSeconds(12 + 12 * (UnityEngine.Random.value));
-                yield return StartCoroutine(FadeOutDebris(gameObject, sinkTo));
-            }
-        }
-        private IEnumerator FadeOutDebris(GameObject gameObject, float sinkTo)
-        {
-            if (gameObject == null)
-            {
-                yield break;
-            }
-            else
-            {
-                Rigidbody otherRigid = gameObject.GetComponent<Rigidbody>();
-                if (otherRigid != null) otherRigid.isKinematic = true;
-
-                while (true)
-                {
-                    if (gameObject != null && gameObject.transform.position.y > sinkTo)
-                    {
-                        Vector3 pos = gameObject.transform.position;
-                        pos.y -= 0.01f;
-                        gameObject.transform.position = pos;
-                        yield return new WaitForSeconds(0.01f);
-                    }
-                    else
-                    {
-                        if (gameObject != null)
-                            Destroy(gameObject);
-                        yield break;
-                    }
-                }
-            }
-        }
-
-        public void HitUnitPartAnimation(Transform transform)
-        {
             GameObject debrisDirt = GetResource("DebrisUnit");
-
-
-            
 
             for (int i = 0; i < 30; i++)
             {
@@ -1525,23 +1437,37 @@ namespace Assets.Scripts
                 debris.transform.position = unitPos3;
                 debris.transform.rotation = UnityEngine.Random.rotation;
 
-                /*
-                Vector3 vector3 = new Vector3();
-                vector3.y = 1f;
-                vector3.x = UnityEngine.Random.value;
-                vector3.z = UnityEngine.Random.value;
-                */
                 Vector3 vector3 = transform.position;
                 vector3.y -= 0.2f;
                 Rigidbody otherRigid = debris.GetComponent<Rigidbody>();
                 otherRigid.AddExplosionForce(3.5f, vector3, 1);
 
-                //otherRigid.velocity = vector3;
-                //otherRigid.rotation = UnityEngine.Random.rotation;
+                FadeOutGameObject(debris, Vector3.down, 0.1f);
+            }
+        }
+
+        public void HitUnitPartAnimation(Transform transform)
+        {
+            GameObject debrisDirt = GetResource("DebrisUnit");
+            for (int i = 0; i < 30; i++)
+            {
+                GameObject debris = Instantiate(debrisDirt);
+
+                Vector2 randomPos = UnityEngine.Random.insideUnitCircle;
+                Vector3 unitPos3 = transform.position;
+                unitPos3.x += (randomPos.x * 0.25f);
+                unitPos3.z += (randomPos.y * 0.27f);
+                unitPos3.y += 1;
+                debris.transform.SetParent(transform);
+                debris.transform.position = unitPos3;
+                debris.transform.rotation = UnityEngine.Random.rotation;
+
+                Vector3 vector3 = transform.position;
+                vector3.y -= 0.2f;
+                Rigidbody otherRigid = debris.GetComponent<Rigidbody>();
+                otherRigid.AddExplosionForce(3.5f, vector3, 1);
 
                 FadeOutGameObject(debris, Vector3.down, 0.1f);
-
-                //StartCoroutine(DelayFadeOutDebris(debris, debris.transform.position.y - 0.1f));
             }
         }
 

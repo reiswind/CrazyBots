@@ -804,7 +804,6 @@ namespace Engine.Master
         {
             Position2 pos = move.Positions[move.Positions.Count - 1];
             Tile targetTile = Map.GetTile(pos);
-            BulletImpact(targetTile);
 
             foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
             {
@@ -921,6 +920,8 @@ namespace Engine.Master
             }
             else
             {
+                BulletImpact(targetTile);
+
                 // Ground was hit
                 Move hitmove = new Move();
                 hitmove.MoveType = MoveType.Hit;

@@ -56,22 +56,28 @@
     <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Epic Toon FX\Scripts\ETFXPitchRandomizer.cs" />
     <Compile Include="Assets\References\Engine\Map\HexDirection.cs" />
     <Compile Include="Assets\References\Engine\Interface\Player.cs" />
     <Compile Include="Assets\Scripts\TileObjectContainer.cs" />
     <Compile Include="Assets\References\Engine\Master\Reactor.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXFireProjectile.cs" />
     <Compile Include="Assets\CanvasButtons.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPart.cs" />
     <Compile Include="Assets\References\Engine\Ants\Ant.cs" />
     <Compile Include="Assets\References\Engine\Interface\Area.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXButtonScript.cs" />
+    <Compile Include="Assets\Epic Toon FX\Scripts\ETFXLightFade.cs" />
     <Compile Include="Assets\character shader pack\4_freeze\scripts\Ice_animation_control.cs" />
     <Compile Include="Assets\References\Engine\Ants\Pheromone.cs" />
     <Compile Include="Assets\Corvostudio\Demo-Shared\SimpleCameraControllerCS.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\PathFinderFast.cs" />
     <Compile Include="Assets\References\Engine\Map\ListPool.cs" />
     <Compile Include="Assets\StrategyCameraLite\Example\Scripts\HelpUI.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\VFX Library\ParticleEffectsLibrary.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartAssembler.cs" />
     <Compile Include="Assets\References\Engine\Map\HexCell.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXMouseOrbit.cs" />
     <Compile Include="Assets\character shader pack\scripts\Selected_effect_mouse_click.cs" />
     <Compile Include="Assets\StrategyCameraLite\Scripts\StrategyCamera.cs" />
     <Compile Include="Assets\References\Engine\Map\HexMetrics.cs" />
@@ -80,7 +86,9 @@
     <Compile Include="Assets\References\Engine\Ants\AntPartArmor.cs" />
     <Compile Include="Assets\References\Engine\Master\Container.cs" />
     <Compile Include="Assets\References\Engine\Master\ControlMaster.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXTarget.cs" />
     <Compile Include="Assets\References\Engine\Map\HexCoordinates.cs" />
+    <Compile Include="Assets\Epic Toon FX\Scripts\ETFXRotation.cs" />
     <Compile Include="Assets\References\Engine\Master\Armor .cs" />
     <Compile Include="Assets\Scripts\Transport.cs" />
     <Compile Include="Assets\References\Engine\Map\HexCellPriorityQueue.cs" />
@@ -94,16 +102,20 @@
     <Compile Include="Assets\Scripts\HexMapEditor.cs" />
     <Compile Include="Assets\References\Engine\Interface\Move.cs" />
     <Compile Include="Assets\References\Engine\Interface\IControl.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXEffectController.cs" />
     <Compile Include="Assets\StrategyCameraLite\Example\Scripts\DemoUI.cs" />
     <Compile Include="Assets\References\Engine\Ants\PheromoneDeposit.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartRadar.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\AuthorAttribute.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXSceneManager.cs" />
     <Compile Include="Assets\Scripts\GroundCell.cs" />
     <Compile Include="Assets\References\Engine\Master\Assembler.cs" />
     <Compile Include="Assets\References\Engine\Master\Radar.cs" />
     <Compile Include="Assets\References\Engine\Master\Game.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\VFX Library\PEButtonScript.cs" />
     <Compile Include="Assets\Scripts\HexGrid.cs" />
     <Compile Include="Assets\character shader pack\scripts\Rotate_self.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXLoopScript.cs" />
     <Compile Include="Assets\References\Engine\Master\Bullet.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartWeapon.cs" />
     <Compile Include="Assets\Scripts\Command.cs" />
@@ -116,7 +128,11 @@
     <Compile Include="Assets\Scripts\UnitBasePart.cs" />
     <Compile Include="Assets\character shader pack\scripts\Selected_effect_touch.cs" />
     <Compile Include="Assets\References\Engine\Master\Weapon.cs" />
+    <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXEffectCycler.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\VFX Library\UICanvasManager.cs" />
     <Compile Include="Assets\character shader pack\scripts\Switch_material.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXEffectControllerPooled.cs" />
     <Compile Include="Assets\References\Engine\Interface\GameModel.cs" />
     <Compile Include="Assets\References\Engine\Master\MapSector.cs" />
     <Compile Include="Assets\character shader pack\scripts\Demo_control.cs" />
@@ -131,6 +147,7 @@
     <Compile Include="Assets\References\Engine\Master\Unit.cs" />
     <Compile Include="Assets\Scripts\UnitBase.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\IPathFinder.cs" />
+    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXProjectileScript.cs" />
     <Compile Include="Assets\References\Engine\Interface\TileObject.cs" />
     <Compile Include="Assets\References\Engine\Master\Ability.cs" />
     <Compile Include="Assets\character shader pack\6_petrify\scripts\Statue_base_control.cs" />
@@ -144,23 +161,6 @@
     <Compile Include="Assets\References\Engine\Algorithms\PriorityQueueB.cs" />
     <Compile Include="Assets\Scripts\CommandPreview.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartReactor.cs" />
-    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\VFX Library\PEButtonScript.cs" />
-    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXSceneManager.cs" />
-    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXProjectileScript.cs" />
-    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXMouseOrbit.cs" />
-    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\VFX Library\ParticleEffectsLibrary.cs" />
-    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXLoopScript.cs" />
-    <Compile Include="Assets\Epic Toon FX\Scripts\ETFXRotation.cs" />
-    <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
-    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\VFX Library\UICanvasManager.cs" />
-    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXFireProjectile.cs" />
-    <Compile Include="Assets\Epic Toon FX\Scripts\ETFXPitchRandomizer.cs" />
-    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXTarget.cs" />
-    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXEffectController.cs" />
-    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXEffectControllerPooled.cs" />
-    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXEffectCycler.cs" />
-    <Compile Include="Assets\Epic Toon FX\Scripts\ETFXLightFade.cs" />
-    <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXButtonScript.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\HighlightPlus\README.txt" />
