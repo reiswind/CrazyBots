@@ -2,14 +2,14 @@
   "Name": "Test",
   "MapWidth": 2,
   "MapHeight": 2,
-  "Seed": 376070477,
+  "Seed": 3,
   "MapType": "2",
   "Players": [
     {
       "ControlLevel": 1,
       "Id": 1,
       "Zone": 1,
-      "IsHuman": true,
+      "IsHumanx": true,
       "Name": "Player1"
     }
   ],

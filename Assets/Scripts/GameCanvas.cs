@@ -1751,6 +1751,21 @@ namespace Assets.Scripts
                                 if (part.Capacity.HasValue)
                                     sb.Append("/" + part.Capacity.Value);
 
+                                sb.Clear();
+                                TileCounter tileCounter = new TileCounter();
+                                tileCounter.Update(part.TileObjects.AsReadOnly());
+
+                                if (tileCounter.Gras > 0)
+                                    sb.Append(tileCounter.Gras + "x Gras ");
+                                if (tileCounter.Bush > 0)
+                                    sb.Append(tileCounter.Bush + "x Bush ");
+                                if (tileCounter.Tree > 0)
+                                    sb.Append(tileCounter.Tree + "x Tree ");
+                                if (tileCounter.Stone > 0)
+                                    sb.Append(tileCounter.Stone + "x Stone ");
+                                if (tileCounter.Mineral > 0)
+                                    sb.Append(tileCounter.Mineral + "x Min ");
+
                                 panelContainer.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
                             }
                             else

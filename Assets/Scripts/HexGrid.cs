@@ -87,9 +87,9 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 
@@ -324,7 +324,7 @@ namespace Assets.Scripts
         {
             GameObject prefab;
             float x = 0;
-            float y;
+            float y = 0;
             float z = 0;
 
             bool scale = false;
@@ -353,12 +353,19 @@ namespace Assets.Scripts
                 prefab = bushResources.Values.ElementAt(idx);
                 y = prefab.transform.position.y;
             }
-            else if (tileObject.TileObjectType == TileObjectType.Rock)
+            else if (tileObject.TileObjectType == TileObjectType.Stone)
             {
-                scale = true;
-                int idx = Random.Next(rockResources.Count);
-                prefab = rockResources.Values.ElementAt(idx);
-                y = prefab.transform.position.y;
+                if (tileObject.TileObjectKind == TileObjectKind.Block)
+                {
+                    scale = true;
+                    int idx = Random.Next(rockResources.Count);
+                    prefab = rockResources.Values.ElementAt(idx);
+                    y = prefab.transform.position.y;
+                }
+                else
+                {
+                    prefab = GetResource("ItemStone");
+                }
             }
             else if (tileObject.TileObjectType == TileObjectType.Gras)
             {

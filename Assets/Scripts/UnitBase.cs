@@ -512,7 +512,10 @@ namespace Assets.Scripts
             Vector3 forward = transform.forward;
             // Rotate the forward vector towards the target direction by one step
             Vector3 newDirection = Vector3.RotateTowards(forward, targetDirection, singleStep, 0.0f);
-            //newDirection.y = 0;
+            if (newDirection.y < -0.001f)
+                newDirection.y = -0.001f;
+            else if (newDirection.y > 0.001f)
+                newDirection.y = 0.001f;
 
             // Draw a ray pointing at our target in
             //Debug.DrawRay(transform.position, newDirection, Color.red);

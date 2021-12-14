@@ -570,12 +570,17 @@ namespace Engine.Master
                                 // unit is the recipient. otherunit is transporter
                                 foreach (RecipeIngredient moveRecipeIngredient in unit.CurrentGameCommand.GameCommand.RequestedItems)
                                 {
-                                    if (moveRecipeIngredient.TileObjectType == TileObjectType.Burn)
+                                    if (moveRecipeIngredient.TileObjectType == TileObjectType.Mineral)
+                                    {
+                                        int x = 0;
+                                    }
+                                    if (moveRecipeIngredient.TileObjectType == TileObjectType.Burn ||
+                                        moveRecipeIngredient.TileObjectType == TileObjectType.Mineral)
                                     {
                                         int cnt = moveRecipeIngredient.Count;
                                         while (cnt-- > 0 && capacity > 0)
                                         {
-                                            MoveRecipeIngredient realIndigrient = otherUnit.FindIngredient(TileObjectType.Burn, false);
+                                            MoveRecipeIngredient realIndigrient = otherUnit.FindIngredient(moveRecipeIngredient.TileObjectType, false);
                                             if (realIndigrient == null) break;
                                             capacity--;
                                             if (!Unit.IsSpaceForIngredient(realIndigrient))

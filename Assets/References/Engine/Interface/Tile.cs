@@ -411,17 +411,10 @@ namespace Engine.Interface
 
             if (IsUnderwater)
                 canBuild = false;
-
-            Counter.Gras = 0;
-            Counter.Bush = 0;
-            Counter.Tree = 0;
-            Counter.Sand = 0;
-            Counter.Rock = 0;
-            Counter.Trunk = 0;
-            Counter.Water = 0;
-            Counter.None = 6;
-
             canMove = canBuild;
+
+            Counter.Update(TileContainer.TileObjects);
+
             foreach (TileObject tileObject in TileContainer.TileObjects)
             {
                 if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
@@ -434,42 +427,6 @@ namespace Engine.Interface
                     numberOfCollectablesCache++;
                     if (tileObject.TileObjectType != TileObjectType.Mineral)
                         canMove = false;
-                }
-
-                if (tileObject.TileObjectType == TileObjectType.Gras)
-                {
-                    Counter.Gras++;
-                    Counter.None--;
-                }
-                else if (tileObject.TileObjectType == TileObjectType.TreeTrunk)
-                {
-                    Counter.Trunk++;
-                    Counter.None--;
-                }
-                else if (tileObject.TileObjectType == TileObjectType.Bush)
-                {
-                    Counter.Bush++;
-                    Counter.None--;
-                }
-                else if (tileObject.TileObjectType == TileObjectType.Tree)
-                {
-                    Counter.Tree++;
-                    Counter.None--;
-                }
-                else if (tileObject.TileObjectType == TileObjectType.Sand)
-                {
-                    Counter.Sand++;
-                    Counter.None--;
-                }
-                else if (tileObject.TileObjectType == TileObjectType.Rock)
-                {
-                    Counter.Rock++;
-                    Counter.None--;
-                }
-                else if (tileObject.TileObjectType == TileObjectType.Water)
-                {
-                    Counter.Water++;
-                    Counter.None--;
                 }
             }
         }

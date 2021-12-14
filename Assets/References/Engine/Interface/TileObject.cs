@@ -219,13 +219,12 @@ namespace Engine.Interface
         Gras,
         Bush,
         Tree,
-        Stone,
 
         // Environment
         TreeTrunk,
         Water,
         Sand,
-        Rock,
+        Stone,
 
         // Parts
         PartExtractor, 
@@ -243,10 +242,66 @@ namespace Engine.Interface
         public int Bush;
         public int Tree;
         public int Sand;
-        public int Rock;
+        public int Mineral;
+        public int Stone;
         public int Trunk;
         public int Water;
         public int None;
+
+        public void Update(ReadOnlyCollection<TileObject> tileObjects)
+        {
+            Gras = 0;
+            Bush = 0;
+            Tree = 0;
+            Sand = 0;
+            Stone = 0;
+            Trunk = 0;
+            Water = 0;
+            None = 7;
+
+            foreach (TileObject tileObject in tileObjects)
+            {
+                if (tileObject.TileObjectType == TileObjectType.Mineral)
+                {
+                    Mineral++;
+                }
+                if (tileObject.TileObjectType == TileObjectType.Gras)
+                {
+                    Gras++;
+                    None--;
+                }
+                else if (tileObject.TileObjectType == TileObjectType.TreeTrunk)
+                {
+                    Trunk++;
+                    None--;
+                }
+                else if (tileObject.TileObjectType == TileObjectType.Bush)
+                {
+                    Bush++;
+                    None--;
+                }
+                else if (tileObject.TileObjectType == TileObjectType.Tree)
+                {
+                    Tree++;
+                    None--;
+                }
+                else if (tileObject.TileObjectType == TileObjectType.Sand)
+                {
+                    Sand++;
+                    None--;
+                }
+                else if (tileObject.TileObjectType == TileObjectType.Stone)
+                {
+                    Stone++;
+                    None--;
+                }
+                else if (tileObject.TileObjectType == TileObjectType.Water)
+                {
+                    Water++;
+                    None--;
+                }
+            }
+        }
     }
 
     public class TileObject
@@ -283,12 +338,12 @@ namespace Engine.Interface
             if (tileObjectType == TileObjectType.Mineral) return true;
             if (tileObjectType == TileObjectType.Tree) return true;
             if (tileObjectType == TileObjectType.Bush) return true;
+            if (tileObjectType == TileObjectType.Stone) return true;
 
             return false;
         }
         public static bool IsTileObjectTypeObstacle(TileObjectType tileObjectType)
         {
-            if (tileObjectType == TileObjectType.Rock) return true;
 
             return false;
         }
@@ -308,8 +363,8 @@ namespace Engine.Interface
         public static int GetPowerForTileObjectType(TileObjectType tileObjectType)
         {
             if (tileObjectType == TileObjectType.Mineral) return 100;
-            if (tileObjectType == TileObjectType.Tree) return 40;
-            if (tileObjectType == TileObjectType.Bush) return 20;
+            if (tileObjectType == TileObjectType.Tree) return 150;
+            if (tileObjectType == TileObjectType.Bush) return 80;
 
             return 10;
         }

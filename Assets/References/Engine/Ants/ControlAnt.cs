@@ -260,7 +260,7 @@ namespace Engine.Ants
             }
             */
 
-            // Detect missing units with this lise
+            // Detect missing units with this lines
             List<Position2> deposits = new List<Position2>();
             deposits.AddRange(staticContainerDeposits.Keys);
 
@@ -1746,7 +1746,7 @@ namespace Engine.Ants
                     bool requestUnit = false;
 
                     if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.ItemRequest &&
-                        gameCommandItem.AttachedUnit.UnitId == null && gameCommandItem.TransportUnit.UnitId != null) // .FactoryUnit
+                        gameCommandItem.AttachedUnit.UnitId == null && gameCommandItem.TransportUnit.UnitId != null)
                     {
                         // Transporter without source
                         requestUnit = true;
@@ -1822,44 +1822,55 @@ namespace Engine.Ants
                         int bestDeliveryScore = 0;
                         Ant deliverySourceAnt = null;
 
-                        // Find a existing unit that can do it
+                        // Find a existing unit that can do/deliver it
                         foreach (Ant ant in unmovedAnts)
                         {
-                            if (ant.Unit.CurrentGameCommand == null && !ant.Unit.UnderConstruction && !ant.Unit.ExtractMe)
+                            if (!ant.Unit.UnderConstruction && !ant.Unit.ExtractMe)
                             {
-                                if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                                if (ant.Unit.CurrentGameCommand == null)
                                 {
-                                    int score = ant.GetDeliveryScore(gameCommandItem.GameCommand);
-                                    if (score > bestDeliveryScore)
+                                    if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                                     {
-                                        bestDeliveryScore = score;
-                                        deliverySourceAnt = ant;
+                                        int score = ant.GetDeliveryScore(gameCommandItem.GameCommand);
+                                        if (score > bestDeliveryScore)
+                                        {
+                                            bestDeliveryScore = score;
+                                            deliverySourceAnt = ant;
+                                        }
                                     }
-                                }
-                                else if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build)
-                                {
-                                    if (ant.Unit.Blueprint.Name == "Assembler")
+                                    else if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build)
                                     {
-                                        gameCommandItem.FactoryUnit.UnitId = ant.Unit.UnitId;
-                                        gameCommandItem.FactoryUnit.SetStatus("BuildAssembler for " + gameCommand.GameCommandType);
-                                        ant.Unit.SetGameCommand(gameCommandItem);
-                                        requestUnit = false;
+                                        if (ant.Unit.Blueprint.Name == "Assembler")
+                                        {
+                                            gameCommandItem.FactoryUnit.UnitId = ant.Unit.UnitId;
+                                            gameCommandItem.FactoryUnit.SetStatus("BuildAssembler for " + gameCommand.GameCommandType);
+                                            ant.Unit.SetGameCommand(gameCommandItem);
+                                            requestUnit = false;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (ant.Unit.Blueprint.Name == gameCommandItem.BlueprintName)
+                                        {
+                                            gameCommandItem.AttachedUnit.UnitId = ant.Unit.UnitId;
+                                            gameCommandItem.AttachedUnit.SetStatus("AttachedUnitId: " + gameCommandItem.AttachedUnit.UnitId);
+                                            ant.Unit.SetGameCommand(gameCommandItem);
+                                            requestUnit = false;
+                                        }
                                     }
                                 }
                                 else
                                 {
-                                    if (ant.Unit.Blueprint.Name == gameCommandItem.BlueprintName)
+                                    if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.ItemRequest &&
+                                        ant.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
                                     {
-                                        if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Collect &&
-                                            ant.Unit.Assembler != null)
+                                        // Is there a worker collecting stuff, that can be used to satisfy the delivery request?
+                                        int score = ant.GetDeliveryScore(gameCommandItem.GameCommand);
+                                        if (score > bestDeliveryScore)
                                         {
-                                            int x = 0;
+                                            bestDeliveryScore = score;
+                                            deliverySourceAnt = ant;
                                         }
-
-                                        gameCommandItem.AttachedUnit.UnitId = ant.Unit.UnitId;
-                                        gameCommandItem.AttachedUnit.SetStatus("AttachedUnitId: " + gameCommandItem.AttachedUnit.UnitId);
-                                        ant.Unit.SetGameCommand(gameCommandItem);
-                                        requestUnit = false;
                                     }
                                 }
                             }

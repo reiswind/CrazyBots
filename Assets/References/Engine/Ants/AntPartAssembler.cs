@@ -22,8 +22,6 @@ namespace Engine.Ants
             return "AntPartAssembler";
         }
 
-
-
         public override bool Move(ControlAnt control, Player player, List<Move> moves)
         {
             

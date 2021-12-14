@@ -85,9 +85,9 @@ namespace Engine.Interface
 
             bool addGras = false;
 
-            if (tile.Counter.Sand == 0 && tile.Counter.Rock == 0 && tile.Counter.Water == 0)
+            if (tile.Counter.Sand == 0 && tile.Counter.Stone == 0 && tile.Counter.Water == 0)
             {
-                if (tile.Counter.None > 0 && tile.Counter.Bush == 0 && tile.Counter.Tree == 0 && tile.Counter.Trunk == 0)
+                if (tile.Counter.None > 1 && tile.Counter.Bush == 0 && tile.Counter.Tree == 0 && tile.Counter.Trunk == 0)
                 {
                     //  Add gras
                     addGras = true;
@@ -98,12 +98,12 @@ namespace Engine.Interface
                     replaceObjectType = TileObjectType.TreeTrunk;
                     newObjectType = TileObjectType.Bush;
                 }
-                else if (tile.Counter.Trunk > 0 && tile.Counter.Trunk < 3 && tile.Counter.None > 0)
+                else if (tile.Counter.Trunk > 0 && tile.Counter.Trunk < 3 && tile.Counter.None > 1)
                 {
                     // Add gras
                     addGras = true;
                 }
-                else if (tile.Counter.Bush > 0 && tile.Counter.Bush < 3 && tile.Counter.None > 0)
+                else if (tile.Counter.Bush > 0 && tile.Counter.Bush < 3 && tile.Counter.None > 1)
                 {
                     // Add gras
                     addGras = true;
@@ -466,7 +466,7 @@ namespace Engine.Interface
             return pos;
         }
 
-        internal Direction CreateObjects(List<TileObject> tileObjects, Map map, TileObjectType tileObjectType, Direction direction, int count)
+        internal Direction CreateObjects(List<TileObject> tileObjects, Map map, TileObjectType tileObjectType, TileObjectKind tileObjectKind, Direction direction, int count)
         {
             /*
             int bio = TileObject.GetBioMass(tileObjectType);
@@ -482,6 +482,7 @@ namespace Engine.Interface
 
                 TileObject tileObject = new TileObject();
                 tileObject.TileObjectType = tileObjectType;
+                tileObject.TileObjectKind = tileObjectKind;
                 tileObject.Direction = direction;
                 tileObjects.Add(tileObject);
 
@@ -502,7 +503,7 @@ namespace Engine.Interface
                 tileObjectType = TileObjectType.Tree;
 
             Direction direction = Direction.N;
-            direction = CreateObjects(tileObjects, map, tileObjectType, direction, count);
+            direction = CreateObjects(tileObjects, map, tileObjectType, TileObjectKind.None, direction, count);
             if (direction != Direction.C)
                 return tileObjects;
 
@@ -514,9 +515,9 @@ namespace Engine.Interface
             List<TileObject> tileObjects = new List<TileObject>();
 
             Direction direction = Direction.N;
-            direction = CreateObjects(tileObjects, map, TileObjectType.Tree, direction, 3);
+            direction = CreateObjects(tileObjects, map, TileObjectType.Tree, TileObjectKind.None, direction, 3);
             if (direction != Direction.C)
-                direction = CreateObjects(tileObjects, map, TileObjectType.Bush, direction, 3);
+                direction = CreateObjects(tileObjects, map, TileObjectType.Bush, TileObjectKind.None, direction, 3);
             if (direction != Direction.C)
                 return tileObjects;
 
@@ -528,9 +529,9 @@ namespace Engine.Interface
             List<TileObject> tileObjects = new List<TileObject>();
 
             Direction direction = Direction.N;
-            direction = CreateObjects(tileObjects, map, TileObjectType.Bush, direction, 3);
+            direction = CreateObjects(tileObjects, map, TileObjectType.Bush, TileObjectKind.None, direction, 3);
             if (direction != Direction.C)
-                direction = CreateObjects(tileObjects, map, TileObjectType.Gras, direction, 3);
+                direction = CreateObjects(tileObjects, map, TileObjectType.Gras, TileObjectKind.None, direction, 3);
             if (direction != Direction.C)
                 return tileObjects;
 
@@ -542,7 +543,7 @@ namespace Engine.Interface
             List<TileObject> tileObjects = new List<TileObject>();
 
             Direction direction = Direction.N;
-            direction = CreateObjects(tileObjects, map, tileObjectType, direction, count);
+            direction = CreateObjects(tileObjects, map, tileObjectType, TileObjectKind.None, direction, count);
             if (direction != Direction.C)
                 return tileObjects;
 
@@ -567,6 +568,7 @@ namespace Engine.Interface
                     tileFit.TileFitType = mapVegetation.TileFitType;
 
                     TileObjectType tileObjectType = TileObjectType.None;
+                    TileObjectKind tileObjectKind = TileObjectKind.None;
 
                     if (mapVegetation.TileFitType == TileFitType.Water)
                     {
@@ -583,7 +585,8 @@ namespace Engine.Interface
                     else if (mapVegetation.TileFitType == TileFitType.Stone)
                     {
                         count = map.Game.Random.Next(3) + 1;
-                        tileObjectType = TileObjectType.Rock;
+                        tileObjectType = TileObjectType.Stone;
+                        tileObjectKind = TileObjectKind.Block;
                     }
                     else if (mapVegetation.TileFitType == TileFitType.Tree)
                     {
@@ -592,13 +595,13 @@ namespace Engine.Interface
                     }
                     else if (mapVegetation.TileFitType == TileFitType.BushGras)
                     {
-                        direction = CreateObjects(tileObjects, map, TileObjectType.Gras, direction, 2);
+                        direction = CreateObjects(tileObjects, map, TileObjectType.Gras, TileObjectKind.None, direction, 2);
                         count = 1;
                         tileObjectType = TileObjectType.Bush;
                     }
                     else if (mapVegetation.TileFitType == TileFitType.TreeBush)
                     {
-                        direction = CreateObjects(tileObjects, map, TileObjectType.Bush, direction, 2);
+                        direction = CreateObjects(tileObjects, map, TileObjectType.Bush, TileObjectKind.None, direction, 2);
                         count = 2;
                         tileObjectType = TileObjectType.Tree;
                     }
@@ -609,7 +612,7 @@ namespace Engine.Interface
 
                         return CreateGrasObjects(map);
                     }
-                    CreateObjects(tileObjects, map, tileObjectType, direction, count);
+                    CreateObjects(tileObjects, map, tileObjectType, tileObjectKind, direction, count);
                     break;
                 }
             }

@@ -577,7 +577,7 @@ namespace Assets.Scripts
                     {
                         bool positionok;
 
-                        if (GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                        if (!IsPreview || GameCommand.GameCommandType == GameCommandType.ItemRequest)
                         {
                             positionok = true;
                         }
