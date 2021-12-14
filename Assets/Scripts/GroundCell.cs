@@ -160,6 +160,7 @@ namespace Assets.Scripts
                 //meshRenderer.material.color = new Color(0.4f, 0, 0);
             }
         }
+        public float cntInt;
 
         internal void UpdatePheromones(MapPheromone mapPheromone)
         {
@@ -191,7 +192,7 @@ namespace Assets.Scripts
                     CreateMarker();
                 }
 
-                
+                cntInt = mapPheromone.IntensityContainer;
                 if (mapPheromone.IntensityContainer > 0)
                 {
                     Vector3 position = transform.position;

@@ -272,7 +272,13 @@ namespace Engine.Ants
                     ant.AntPartContainer != null && ant.AntPartContainer.Container.TileContainer.IsFreeSpace)
                 {
                     int sectorSize = player.Game.Map.SectorSize;
+
+                    float percentFilled = 0;
+                    if (ant.AntPartContainer.Container.TileContainer.Capacity > 0)
+                        percentFilled = (ant.AntPartContainer.Container.TileContainer.Count * 100) / ant.AntPartContainer.Container.TileContainer.Capacity;
+
                     float intensity = 0.1f;
+                    intensity = (100 - percentFilled) / 1000;
                     Position2 pos = ant.Unit.Pos;
 
                     PheromoneDeposit mineralDeposit;
@@ -280,7 +286,10 @@ namespace Engine.Ants
                     {
                         deposits.Remove(pos);
 
-                        if (intensity > mineralDeposit.Intensitiy + 0.1f || intensity < mineralDeposit.Intensitiy - 0.1f)
+                        float upper = mineralDeposit.Intensitiy + 0.01f;
+                        float lower = mineralDeposit.Intensitiy - 0.01f;
+
+                        if (intensity > mineralDeposit.Intensitiy + 0.01f || intensity < mineralDeposit.Intensitiy - 0.01f)
                         {
                             // update
                             player.Game.Pheromones.UpdatePheromones(mineralDeposit.DepositId, intensity, 0.01f);
