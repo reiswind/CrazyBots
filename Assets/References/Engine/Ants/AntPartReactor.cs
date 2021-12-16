@@ -73,34 +73,10 @@ namespace Engine.Ants
 
             MoveRecipeIngredient moveRecipeIngredient = Ant.Unit.FindIngredientToBurn();
 
-            if (moveRecipeIngredient == null) // Reactor.TileContainer.Count == 0 && Ant.Unit.CurrentGameCommand == null)
+            if (moveRecipeIngredient == null)
             {
                 // Need something to burn!
-                GameCommand gameCommand = new GameCommand();
-                gameCommand.GameCommandType = GameCommandType.ItemRequest;
-                gameCommand.Layout = "UIDelivery";
-                gameCommand.TargetPosition = Ant.Unit.Pos;
-                gameCommand.DeleteWhenFinished = true;
-                gameCommand.PlayerId = player.PlayerModel.Id;
-
-                BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
-                blueprintCommandItem.BlueprintName = Ant.Unit.Blueprint.Name;
-                blueprintCommandItem.Direction = Direction.C;
-
-                GameCommandItem gameCommandItem = new GameCommandItem(gameCommand, blueprintCommandItem);
-                gameCommandItem.TargetUnit.UnitId = Ant.Unit.UnitId;
-                gameCommandItem.TargetUnit.SetStatus("ReactorWaitingForDelivery");
-                Ant.Unit.Changed = true;
-
-                gameCommand.RequestedItems = new List<RecipeIngredient>();
-
-                RecipeIngredient recipeIngredient = new RecipeIngredient(TileObjectType.Burn, Reactor.TileContainer.Capacity);
-                gameCommand.RequestedItems.Add(recipeIngredient);
-
-                Ant.Unit.SetGameCommand(gameCommandItem);
-
-                gameCommand.GameCommandItems.Add(gameCommandItem);
-                player.GameCommands.Add(gameCommand);
+                Ant.Unit.DeliveryRequest(TileObjectType.Burn, Reactor.TileContainer.Capacity);                
             }
             /*
             if (Reactor.TileContainer.Count < Reactor.TileContainer.Capacity)

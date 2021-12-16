@@ -9,7 +9,7 @@
       "ControlLevel": 1,
       "Id": 1,
       "Zone": 1,
-      "IsHumanx": true,
+      "IsHuman": true,
       "Name": "Player1"
     }
   ],
@@ -19,15 +19,23 @@
       "PlayerId": 1,
 	  "ContainedMinerals": 5,
 	  "ContainedTrees": 15,
+	  "ContainedStones": 17,
       "Blueprint": "Container",
       "Position": "0,0"
     },
     {
       "Name": "Reactor",
       "PlayerId": 1,
-      "ContainedMinerals": 0,
+      "ContainedMinerals": 1,
       "Blueprint": "Reactor",
       "Position": "2,2"
+    },
+    {
+      "Name": "Turret",
+      "PlayerId": 1,
+      "ContainedMinerals": 0,
+      "Blueprint": "Turret",
+      "Position": "2,4"
     },
     {
       "Name": "Factory",

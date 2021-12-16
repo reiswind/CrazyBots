@@ -105,6 +105,7 @@ namespace Engine.Ants
                 // Only for structures!
                 return;
             }
+
             foreach (GameCommand gameCommand1 in player.GameCommands)
             {
                 if (gameCommand1.TargetPosition == Ant.Unit.Pos &&

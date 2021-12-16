@@ -24,6 +24,12 @@ namespace Engine.Ants
         {
             Unit cntrlUnit = Weapon.Unit;
 
+            if (Weapon.TileContainer.Count == 0)
+            {
+                // Request some ammo
+                Ant.Unit.DeliveryRequest(TileObjectType.Ammo, Weapon.TileContainer.Capacity);
+            }
+
             List<Move> possiblemoves = new List<Move>();
             cntrlUnit.Weapon.ComputePossibleMoves(possiblemoves, null, MoveFilter.Fire);
             if (possiblemoves.Count > 0)

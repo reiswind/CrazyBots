@@ -303,6 +303,10 @@ namespace Assets.Scripts
             {
                 prefab = GetResource("ItemBush");
             }
+            else if (tileObject.TileObjectType == TileObjectType.Stone)
+            {
+                prefab = GetResource("ItemStone");
+            }
             else if (tileObject.TileObjectType == TileObjectType.Mineral)
             {
                 prefab = GetResource("ItemCrystal");

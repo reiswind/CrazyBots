@@ -160,7 +160,8 @@ namespace Engine.Master
             if (unitModel.MarkForExtraction)
                 thisUnit.ExtractUnit();
             if (unitModel.ContainedMinerals.HasValue ||
-                unitModel.ContainedTrees.HasValue)
+                unitModel.ContainedTrees.HasValue ||
+                unitModel.ContainedStones.HasValue)
             {
                 if (thisUnit.Container != null)
                     thisUnit.Container.TileContainer.Clear();
@@ -175,6 +176,8 @@ namespace Engine.Master
                     thisUnit.FillWithTileObjects(TileObjectType.Mineral, unitModel.ContainedMinerals.Value);
                 if (unitModel.ContainedTrees.HasValue)
                     thisUnit.FillWithTileObjects(TileObjectType.Tree, unitModel.ContainedTrees.Value);
+                if (unitModel.ContainedStones.HasValue)
+                    thisUnit.FillWithTileObjects(TileObjectType.Stone, unitModel.ContainedStones.Value);
             }
             if (string.IsNullOrEmpty(unitModel.Direction))
                 thisUnit.Direction = Direction.C;

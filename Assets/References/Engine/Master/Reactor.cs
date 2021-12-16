@@ -11,7 +11,6 @@ namespace Engine.Master
     {
         public Reactor(Unit owner, int level, int range) : base(owner, TileObjectType.PartReactor)
         {
-            AvailablePower = 100;
             this.range = range;
             Level = level;
 
@@ -89,6 +88,7 @@ namespace Engine.Master
                     move.MoveRecipe = new MoveRecipe();
                     move.MoveRecipe.Ingredients.Add(moveRecipeIngredient);
 
+                    // Debug to burn faster
                     //TileContainer.Clear();
                 }
             }

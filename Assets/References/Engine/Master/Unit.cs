@@ -252,6 +252,45 @@ namespace Engine.Master
             return null;
         }
 
+        public void DeliveryRequest(TileObjectType tileObjectType, int capacity)
+        {
+            foreach (GameCommand gameCommand1 in Owner.GameCommands)
+            {
+                if (gameCommand1.TargetPosition == Pos &&
+                    gameCommand1.GameCommandType == GameCommandType.ItemRequest)
+                {
+                    // Already requested
+                    return;
+                }
+            }
+
+            GameCommand gameCommand = new GameCommand();
+            gameCommand.GameCommandType = GameCommandType.ItemRequest;
+            gameCommand.Layout = "UIDelivery";
+            gameCommand.TargetPosition = Pos;
+            gameCommand.DeleteWhenFinished = true;
+            gameCommand.PlayerId = Owner.PlayerModel.Id;
+
+            BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem.BlueprintName = Blueprint.Name;
+            blueprintCommandItem.Direction = Direction.C;
+
+            GameCommandItem gameCommandItem = new GameCommandItem(gameCommand, blueprintCommandItem);
+            gameCommandItem.TargetUnit.UnitId = UnitId;
+            gameCommandItem.TargetUnit.SetStatus(Blueprint.Name + " WaitingForDelivery");
+            Changed = true;
+
+            gameCommand.RequestedItems = new List<RecipeIngredient>();
+
+            RecipeIngredient recipeIngredient = new RecipeIngredient(TileObjectType.Burn, capacity);
+            gameCommand.RequestedItems.Add(recipeIngredient);
+
+            SetGameCommand(gameCommandItem);
+
+            gameCommand.GameCommandItems.Add(gameCommandItem);
+            Owner.GameCommands.Add(gameCommand);
+        }
+
         public void FillWithTileObjects(TileObjectType tileObjectType, int count)
         {
             for (int i = 0; i < count; i++)

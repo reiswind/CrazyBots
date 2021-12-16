@@ -256,6 +256,8 @@ namespace Engine.Interface
         public int? ContainedMinerals { get; set; }
         [DataMember]
         public int? ContainedTrees { get; set; }
+        [DataMember]
+        public int? ContainedStones { get; set; }
     }
 
     [DataContract]
