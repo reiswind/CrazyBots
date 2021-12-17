@@ -368,7 +368,7 @@ namespace Assets.Scripts
             }
             else if (tileObject.TileObjectType == TileObjectType.Stone)
             {
-                if (tileObject.TileObjectKind == TileObjectKind.Block)
+                if (tileObject.TileObjectKind == TileObjectKind.Block || tileObject.TileObjectKind == TileObjectKind.Many)
                 {
                     scale = true;
                     int idx = Random.Next(rockResources.Count);

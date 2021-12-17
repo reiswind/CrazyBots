@@ -946,12 +946,18 @@ namespace Assets.Scripts
             destroyedTileObjects.AddRange(GameObjects);
 
             int countMinerals = 0;
+            int countStones = 0;
             foreach (TileObject tileObject in Stats.MoveUpdateGroundStat.TileObjects)
             {
                 if (tileObject.TileObjectType == TileObjectType.Mineral)
                 {
                     countMinerals++;
                 }
+                else if (tileObject.TileObjectType == TileObjectType.Stone)
+                {
+                    countStones++;
+                }
+
                 else if (tileObject.Direction == Direction.C && tileObject.TileObjectType != TileObjectType.Mineral)
                 {
 
@@ -1001,6 +1007,47 @@ namespace Assets.Scripts
                             AddDestructable(destroyedTileObjects, tileObject);
                         }
                         countMinerals--;
+                    }
+                }
+            }
+
+            if (countStones > 0)
+            {
+                List<TileObject> tileObjects = new List<TileObject>();
+                foreach (TileObject tileObject1 in Stats.MoveUpdateGroundStat.TileObjects)
+                {
+                    if (tileObject1.TileObjectType == TileObjectType.Stone)
+                        tileObjects.Add(tileObject1);
+                }
+                int itemsinLargeMineral = 5;
+                int itemsinBlockingMineral = Tile.BlockPathItemCount;
+                while (tileObjects.Count > 0)
+                {
+                    if (tileObjects.Count > itemsinBlockingMineral)
+                    {
+                        AddDestructableItems(itemsinBlockingMineral, destroyedTileObjects, TileObjectType.Stone, TileObjectKind.Block);
+
+                        for (int i = 0; i < itemsinBlockingMineral; i++)
+                            tileObjects.RemoveAt(0);
+                        countStones -= itemsinBlockingMineral;
+                    }
+                    else if (tileObjects.Count > itemsinLargeMineral)
+                    {
+                        AddDestructableItems(itemsinLargeMineral, destroyedTileObjects, TileObjectType.Stone, TileObjectKind.Many);
+
+                        for (int i = 0; i < itemsinLargeMineral; i++)
+                            tileObjects.RemoveAt(0);
+                        countStones -= itemsinLargeMineral;
+                    }
+                    else
+                    {
+                        TileObject tileObject = FindTileObject(tileObjects, TileObjectType.Stone);
+                        if (tileObject != null)
+                        {
+                            tileObjects.Remove(tileObject);
+                            AddDestructable(destroyedTileObjects, tileObject);
+                        }
+                        countStones--;
                     }
                 }
             }

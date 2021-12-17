@@ -86,6 +86,12 @@ namespace Engine.Master
                 tileObject.TileObjectType = TileObjectType.Mineral;
 
                 Map.DistributeTileObject(tileObject);
+
+                tileObject = new TileObject();
+                tileObject.Direction = Direction.C;
+                tileObject.TileObjectType = TileObjectType.Stone;
+
+                Map.DistributeTileObject(tileObject);
             }
 
         }

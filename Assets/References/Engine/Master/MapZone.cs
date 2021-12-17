@@ -359,10 +359,11 @@ namespace Engine.Interface
                         {
                             bestTile.Height = 0.1f;
                         }
+                        /*
                         else if (bestTileFit.TileFitType == TileFitType.Stone)
                         {
                             bestTile.Height = 0.15f;
-                        }
+                        }*/
                         else if (bestTileFit.TileFitType == TileFitType.Gras)
                         {
                             bestTile.Height = 0.2f;
@@ -582,12 +583,13 @@ namespace Engine.Interface
                         direction = Direction.C;
                         tileObjectType = TileObjectType.Sand;
                     }
+                    /*
                     else if (mapVegetation.TileFitType == TileFitType.Stone)
                     {
                         count = map.Game.Random.Next(3) + 1;
                         tileObjectType = TileObjectType.Stone;
                         tileObjectKind = TileObjectKind.Block;
-                    }
+                    }*/
                     else if (mapVegetation.TileFitType == TileFitType.Tree)
                     {
                         count = 4;

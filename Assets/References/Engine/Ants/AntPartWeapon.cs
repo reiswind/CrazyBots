@@ -24,7 +24,8 @@ namespace Engine.Ants
         {
             Unit cntrlUnit = Weapon.Unit;
 
-            if (Weapon.TileContainer.Count == 0)
+            // Not yet for moving units
+            if (cntrlUnit.Engine == null && Weapon.TileContainer.Count == 0)
             {
                 // Request some ammo
                 Ant.Unit.DeliveryRequest(TileObjectType.Ammo, Weapon.TileContainer.Capacity);

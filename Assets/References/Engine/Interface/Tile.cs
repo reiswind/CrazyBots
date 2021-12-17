@@ -51,14 +51,6 @@ namespace Engine.Interface
             }     
         }
 
-        public int Minerals
-        {
-            get
-            {
-                return tile.Minerals;
-            }
-        }
-
         public int ZoneId
         {
             get
@@ -86,8 +78,7 @@ namespace Engine.Interface
         BushGras,
         Gras,
         Water,
-        Sand,
-        Stone
+        Sand
     }
 
     internal class TileFit
@@ -114,10 +105,21 @@ namespace Engine.Interface
             Pos = pos;
 
             TileContainer = new TileContainer();
-            Counter = new TileCounter();
+            counter = new TileCounter();
         }
         private TileContainer TileContainer { get; set; }
-        public TileCounter Counter { get; private set; }
+        private TileCounter counter;
+        public TileCounter Counter 
+        { 
+            get
+            {
+                if (!cacheUpdated)
+                {
+                    UpdateCache();
+                }
+                return counter;
+            }
+        }
         public int Count
         {
             get
@@ -400,20 +402,20 @@ namespace Engine.Interface
         private void UpdateCache()
         {
             cacheUpdated = true;
-            mineralCache = TileContainer.Minerals;
             numberOfCollectablesCache = 0;
 
             canBuild = true;
-            if (mineralCache >= BlockPathItemCount)
-            {
-                canBuild = false;
-            }
+
 
             if (IsUnderwater)
                 canBuild = false;
             canMove = canBuild;
 
             Counter.Update(TileContainer.TileObjects);
+            if (Counter.Mineral >= BlockPathItemCount)
+            {
+                canBuild = false;
+            }
 
             foreach (TileObject tileObject in TileContainer.TileObjects)
             {
@@ -431,8 +433,6 @@ namespace Engine.Interface
             }
         }
 
-
-        private int mineralCache;
         private int numberOfCollectablesCache;
         private bool canBuild;
         private bool canMove;
@@ -448,17 +448,7 @@ namespace Engine.Interface
                 return numberOfCollectablesCache;
             }
         }
-        public int Minerals
-        {  
-            get
-            {  
-                if (!cacheUpdated)
-                {
-                    UpdateCache();
-                }
-                return mineralCache;
-            }
-        }
+
         public int ZoneId { get; set; }
         
         public bool IsUnderwater { get; set; }

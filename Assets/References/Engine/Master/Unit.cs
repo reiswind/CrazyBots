@@ -239,7 +239,7 @@ namespace Engine.Master
 
             if (Container != null && Container.TileContainer != null)
             {
-                TileObject tileObject = Container.TileContainer.GetMatchingTileObject(TileObjectType.All);
+                TileObject tileObject = Container.TileContainer.GetMatchingTileObject(TileObjectType.Ammo);
                 if (tileObject != null)
                 {
                     moveRecipeIngredient.TileObjectType = tileObject.TileObjectType;

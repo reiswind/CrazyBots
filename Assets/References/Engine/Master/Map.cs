@@ -190,7 +190,7 @@ namespace Engine.Interface
 
             foreach (Tile t in game.Map.Tiles.Values)
             {
-                TotalMetal += t.Minerals;
+                TotalMetal += t.Counter.Mineral;
                 if (t.Unit != null)
                 {
                     TotalMetal += t.Unit.CountMineral();
@@ -731,7 +731,7 @@ namespace Engine.Interface
                         int rnd = Game.Random.Next(4);
                         if (rnd == 0)
                         {
-                            mapZone.Vegetation.Add(new MapVegetation(Game.Random.Next(2), TileFitType.Stone));
+                            //mapZone.Vegetation.Add(new MapVegetation(Game.Random.Next(2), TileFitType.Stone));
                             mapZone.Vegetation.Add(new MapVegetation(Game.Random.Next(2), TileFitType.Water));
                             mapZone.Vegetation.Add(new MapVegetation(Game.Random.Next(7), TileFitType.Sand));
                             mapZone.Vegetation.Add(new MapVegetation(Game.Random.Next(8) + 2, TileFitType.BushGras));
@@ -742,12 +742,12 @@ namespace Engine.Interface
                         else if (rnd == 1)
                         {
                             mapZone.Vegetation.Add(new MapVegetation(3, TileFitType.Water));
-                            mapZone.Vegetation.Add(new MapVegetation(5, TileFitType.Stone));
+                            //mapZone.Vegetation.Add(new MapVegetation(5, TileFitType.Stone));
                             mapZone.Vegetation.Add(new MapVegetation(100, TileFitType.Sand));
                         }
                         else if (rnd == 3)
                         {
-                            mapZone.Vegetation.Add(new MapVegetation(Game.Random.Next(2), TileFitType.Stone));
+                            //mapZone.Vegetation.Add(new MapVegetation(Game.Random.Next(2), TileFitType.Stone));
                             mapZone.Vegetation.Add(new MapVegetation(20, TileFitType.Gras));
                             mapZone.Vegetation.Add(new MapVegetation(30, TileFitType.TreeBush));
                             mapZone.Vegetation.Add(new MapVegetation(100, TileFitType.Tree));
@@ -902,7 +902,8 @@ namespace Engine.Interface
         {
             excessTilesObjects.Clear();
         }
-        public void DistributeTileObject(TileObject tileObject)
+
+        public void DistributeStone(TileObject tileObject)
         {
             if (Zones.Count <= 1)
                 return;
@@ -923,12 +924,12 @@ namespace Engine.Interface
 
                 if (mapZone.Tiles != null && mapZone.Tiles.Count > 0 && mapZone.MaxMinerals > 0)
                 {
-                    int totalMins = 0;
+                    int totalItems = 0;
                     foreach (Tile tile in mapZone.Tiles.Values)
                     {
-                        totalMins += tile.Minerals;
+                        totalItems += tile.Counter.Stone;
                     }
-                    if (totalMins < mapZone.MaxMinerals)
+                    if (totalItems < mapZone.MaxMinerals)
                     {
                         int rnd = Game.Random.Next(10);
                         if (rnd != 0)
@@ -937,9 +938,9 @@ namespace Engine.Interface
                             // Put it next to another
                             foreach (Tile tile in mapZone.Tiles.Values)
                             {
-                                if (tile.Minerals > 0)
+                                if (tile.Counter.Stone > 0)
                                 {
-                                    if (tile.Minerals < mapZone.MaxMineralsPerTile)
+                                    if (tile.Counter.Stone < mapZone.MaxMineralsPerTile)
                                     {
                                         tile.Add(tileObject);
                                         if (!excessTilesObjects.Remove(tileObject))
@@ -959,7 +960,125 @@ namespace Engine.Interface
                                         {
                                             int idx = Game.Random.Next(tile.Neighbors.Count);
                                             Tile n = tile.Neighbors[idx];
-                                            if (n.Minerals < mapZone.MaxMineralsPerTile)
+                                            if (n.Counter.Stone < mapZone.MaxMineralsPerTile)
+                                            {
+                                                if (!Game.changedGroundPositions.ContainsKey(n.Pos))
+                                                    Game.changedGroundPositions.Add(n.Pos, null);
+
+                                                n.Add(tileObject);
+                                                if (!excessTilesObjects.Remove(tileObject))
+                                                {
+
+                                                }
+
+                                                placed = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                if (placed) break;
+                            }
+                            if (!placed)
+                                rnd = 0;
+                        }
+                        if (rnd == 0)
+                        {
+                            // Any random position
+                            int idx = Game.Random.Next(mapZone.Tiles.Count);
+                            Tile t = mapZone.Tiles.ElementAt(idx).Value;
+                            if (t != null && !t.IsUnderwater && t.Counter.Stone < mapZone.MaxMineralsPerTile)
+                            {
+                                if (t.Unit != null && t.Unit.Engine == null)
+                                {
+                                    // Dont drop on buildings
+                                }
+                                else
+                                {
+                                    if (!Game.changedGroundPositions.ContainsKey(t.Pos))
+                                        Game.changedGroundPositions.Add(t.Pos, null);
+
+                                    if (!excessTilesObjects.Remove(tileObject))
+                                    {
+
+                                    }
+                                    t.Add(tileObject);
+                                    break;
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+
+        public void DistributeTileObject(TileObject tileObject)
+        {
+            if (tileObject.TileObjectType == TileObjectType.Mineral)
+                DistributeMineral(tileObject);
+            if (tileObject.TileObjectType == TileObjectType.Stone)
+                DistributeStone(tileObject);
+        }
+
+        public void DistributeMineral(TileObject tileObject)
+        {
+            if (Zones.Count <= 1)
+                return;
+
+            //if (zoneCounter == 0)
+            //    zoneCounter = 1;
+            if (!excessTilesObjects.Contains(tileObject))
+                excessTilesObjects.Add(tileObject);
+
+            int max = Zones.Count;
+            while (excessTilesObjects.Count > 0 && max-- > 0)
+            {
+                KeyValuePair<int, MapZone> zoneItem = Zones.ElementAt(zoneCounter);
+                MapZone mapZone = zoneItem.Value;
+
+                if (++zoneCounter >= Zones.Count)
+                    zoneCounter = 0;
+
+                if (mapZone.Tiles != null && mapZone.Tiles.Count > 0 && mapZone.MaxMinerals > 0)
+                {
+                    int totalItems = 0;
+                    foreach (Tile tile in mapZone.Tiles.Values)
+                    {
+                        totalItems += tile.Counter.Mineral;
+                    }
+                    if (totalItems < mapZone.MaxMinerals)
+                    {
+                        int rnd = Game.Random.Next(10);
+                        if (rnd != 0)
+                        {
+                            bool placed = false;
+                            // Put it next to another
+                            foreach (Tile tile in mapZone.Tiles.Values)
+                            {
+                                if (tile.Counter.Mineral > 0)
+                                {
+                                    if (tile.Counter.Mineral < mapZone.MaxMineralsPerTile)
+                                    {
+                                        tile.Add(tileObject);
+                                        if (!excessTilesObjects.Remove(tileObject))
+                                        {
+
+                                        }
+
+                                        if (!Game.changedGroundPositions.ContainsKey(tile.Pos))
+                                            Game.changedGroundPositions.Add(tile.Pos, null);
+
+                                        placed = true;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        for (int i = 0; i < 4 && !placed; i++)
+                                        {
+                                            int idx = Game.Random.Next(tile.Neighbors.Count);
+                                            Tile n = tile.Neighbors[idx];
+                                            if (n.Counter.Mineral < mapZone.MaxMineralsPerTile)
                                             {
                                                 if (!Game.changedGroundPositions.ContainsKey(n.Pos))
                                                     Game.changedGroundPositions.Add(n.Pos, null);
@@ -986,7 +1105,7 @@ namespace Engine.Interface
                             // Any random position
                             int idx = Game.Random.Next(mapZone.Tiles.Count);
                             Tile t = mapZone.Tiles.ElementAt(idx).Value;
-                            if (t != null && !t.IsUnderwater && t.Minerals < mapZone.MaxMineralsPerTile)
+                            if (t != null && !t.IsUnderwater && t.Counter.Mineral < mapZone.MaxMineralsPerTile)
                             {
                                 if (t.Unit != null && t.Unit.Engine == null)
                                 {
