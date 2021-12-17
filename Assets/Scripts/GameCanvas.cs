@@ -9,6 +9,18 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts
 {
+    public class CanvasItem
+    {
+        public TileObjectType TileObjectType { get; set; }
+        public Text Count { get; set; }
+        public GameObject State { get; set; }
+        
+        public void SetCount(int count)
+        {
+            Count.text = count.ToString();
+        }
+    }
+
     public class GameCanvas : MonoBehaviour
     {
         public Button ButtonFaster;
@@ -54,6 +66,8 @@ namespace Assets.Scripts
 
         private LayerMask mask;
 
+        private List<CanvasItem> canvasItems;
+
         // Start is called before the first frame update
         void Start()
         {
@@ -94,6 +108,30 @@ namespace Assets.Scripts
             panelArmor = panelParts.Find("PanelArmor").gameObject;
             panelWeapon = panelParts.Find("PanelWeapon").gameObject;
             panelReactor = panelParts.Find("PanelReactor").gameObject;
+
+            canvasItems = new List<CanvasItem>();
+            for (int i = 0; i < panelContainer.transform.childCount; i++)
+            {
+                Transform transform = panelContainer.transform.GetChild(i);
+                string name = transform.gameObject.name;
+                if (name.StartsWith("Item"))
+                {
+                    CanvasItem canvasItem = new CanvasItem();
+                    if (name == "ItemMineral")                    
+                        canvasItem.TileObjectType = TileObjectType.Mineral;
+                    if (name == "ItemBush")
+                        canvasItem.TileObjectType = TileObjectType.Bush;
+                    if (name == "ItemTree")
+                        canvasItem.TileObjectType = TileObjectType.Tree;
+                    if (name == "ItemStone")
+                        canvasItem.TileObjectType = TileObjectType.Stone;
+
+                    canvasItem.Count = transform.Find("Count").GetComponent<Text>();
+                    canvasItem.State = transform.Find("State").gameObject;
+
+                    canvasItems.Add(canvasItem);
+                }
+            }
 
             Transform panelSelected = gameControlPanel.Find("PanelSelected");
 
@@ -1590,6 +1628,24 @@ namespace Assets.Scripts
             }*/
         }
 
+        private void UpdateContainer(TileCounter tileCounter)
+        {
+            foreach (CanvasItem canvasItem in canvasItems)
+            {
+                if (canvasItem.TileObjectType == TileObjectType.Mineral)
+                    canvasItem.SetCount(tileCounter.Mineral);
+                if (canvasItem.TileObjectType == TileObjectType.Tree)
+                    canvasItem.SetCount(tileCounter.Tree);
+                if (canvasItem.TileObjectType == TileObjectType.Bush)
+                    canvasItem.SetCount(tileCounter.Bush);
+                if (canvasItem.TileObjectType == TileObjectType.Stone)
+                    canvasItem.SetCount(tileCounter.Stone);
+
+                canvasItem.State.SetActive(false);
+            }
+            
+        }
+
         private void DisplayUnitframe(UnitBase unit)
         {
             if (unit == null)
@@ -1600,6 +1656,9 @@ namespace Assets.Scripts
             {
                 UnselectUnitFrame();
             }
+
+            bool showContainer = false;
+            TileCounter tileCounter = new TileCounter();
             if (unit.MoveUpdateStats == null)
             {
             }
@@ -1657,64 +1716,24 @@ namespace Assets.Scripts
                             panelWeapon.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                             panelWeapon.SetActive(true);
 
-                            if (part.TileObjects != null)
-                            {
-                                StringBuilder sb = new StringBuilder();
-                                sb.Append("Ammunition  ");
-                                sb.Append(part.TileObjects.Count);
-
-                                if (part.Capacity.HasValue)
-                                    sb.Append("/" + part.Capacity.Value);
-
-                                panelWeapon.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
-                            }
-                            else
-                            {
-                                panelWeapon.transform.Find("Content").GetComponent<Text>().text = "";
-                            }
+                            tileCounter.Add(part.TileObjects.AsReadOnly());
+                            showContainer = true;
                         }
                         if (part.PartType == TileObjectType.PartAssembler)
                         {
                             panelAssembler.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                             panelAssembler.SetActive(true);
 
-                            if (part.TileObjects != null)
-                            {
-                                StringBuilder sb = new StringBuilder();
-                                sb.Append("Minerals  ");
-                                sb.Append(part.TileObjects.Count);
-
-                                if (part.Capacity.HasValue)
-                                    sb.Append("/" + part.Capacity.Value);
-
-                                panelAssembler.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
-                            }
+                            tileCounter.Add(part.TileObjects.AsReadOnly());
+                            showContainer = true;
                         }
                         if (part.PartType == TileObjectType.PartReactor)
                         {
                             panelReactor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                             panelReactor.SetActive(true);
 
-                            if (part.TileObjects != null)
-                            {
-                                StringBuilder sb = new StringBuilder();
-                                sb.Append("Minerals  ");
-                                sb.Append(part.TileObjects.Count);
-
-                                if (part.Capacity.HasValue)
-                                    sb.Append("/" + part.Capacity.Value);
-
-                                sb.Append(" Power  ");
-                                if (part.AvailablePower.HasValue)
-                                    sb.Append(part.AvailablePower.Value);
-                                else
-                                    sb.Append("0");
-                                panelReactor.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
-                            }
-                            else
-                            {
-                                panelReactor.transform.Find("Content").GetComponent<Text>().text = "";
-                            }
+                            tileCounter.Add(part.TileObjects.AsReadOnly());
+                            showContainer = true;
                         }
                         if (part.PartType == TileObjectType.PartArmor)
                         {
@@ -1740,42 +1759,21 @@ namespace Assets.Scripts
                         }
                         if (part.PartType == TileObjectType.PartContainer)
                         {
-                            panelContainer.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
-                            panelContainer.SetActive(true);
-
-                            if (part.TileObjects != null)
-                            {
-                                StringBuilder sb = new StringBuilder();
-                                sb.Append("Minerals  ");
-                                sb.Append(part.TileObjects.Count);
-
-                                if (part.Capacity.HasValue)
-                                    sb.Append("/" + part.Capacity.Value);
-
-                                sb.Clear();
-                                TileCounter tileCounter = new TileCounter();
-                                tileCounter.Update(part.TileObjects.AsReadOnly());
-
-                                if (tileCounter.Gras > 0)
-                                    sb.Append(tileCounter.Gras + "x Gras ");
-                                if (tileCounter.Bush > 0)
-                                    sb.Append(tileCounter.Bush + "x Bush ");
-                                if (tileCounter.Tree > 0)
-                                    sb.Append(tileCounter.Tree + "x Tree ");
-                                if (tileCounter.Stone > 0)
-                                    sb.Append(tileCounter.Stone + "x Stone ");
-                                if (tileCounter.Mineral > 0)
-                                    sb.Append(tileCounter.Mineral + "x Min ");
-
-                                panelContainer.transform.Find("Content").GetComponent<Text>().text = sb.ToString();
-                            }
-                            else
-                            {
-                                panelContainer.transform.Find("Content").GetComponent<Text>().text = "";
-                            }
+                            tileCounter.Add(part.TileObjects.AsReadOnly());
+                            showContainer = true;
                         }
                     }
                 }
+            }
+            if (showContainer)
+            {
+                panelContainer.transform.Find("Partname").GetComponent<Text>().text = "Container";
+                panelContainer.SetActive(true);
+                UpdateContainer(tileCounter);
+            }
+            else
+            {
+
             }
 
             if (unit.CurrentPos != Position2.Null)

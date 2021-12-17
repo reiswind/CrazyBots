@@ -282,6 +282,14 @@ namespace Engine.Interface
             Water = 0;
             None = 7;
 
+            Add(tileObjects);
+        }
+
+        public void Add(ReadOnlyCollection<TileObject> tileObjects)
+        {
+            if (tileObjects == null)
+                return;
+
             foreach (TileObject tileObject in tileObjects)
             {
                 if (tileObject.TileObjectType == TileObjectType.Mineral)
