@@ -778,11 +778,30 @@ namespace Assets.Scripts
                             }
                         }
 
-                        GameObject activeGameobject = FindChildNyName(unitBasePart.Part, "Active");
-                        if (activeGameobject != null)
+                        TileObjectType tileObjectType = move.MoveRecipe.Ingredients[0].TileObjectType;
+
+                        GameObject gameObject = null;
+                        if (tileObjectType == TileObjectType.Mineral)
                         {
-                            ParticleSystem particleSystem = activeGameobject.GetComponent<ParticleSystem>();
+                            gameObject = HexGrid.Instantiate(HexGrid.MainGrid.ReactorBurnMineral, unitBasePart.Part.transform);
+                        }
+                        else if (tileObjectType == TileObjectType.Tree)
+                        {
+                            gameObject = HexGrid.Instantiate(HexGrid.MainGrid.ReactorBurnTree, unitBasePart.Part.transform);
+                        }
+
+                        if (gameObject != null)
+                        {
+                            Vector3 vector3 = unitBasePart.Part.transform.position;
+                            if (MoveUpdateStats.BlueprintName == "Outpost")
+                                vector3.y += 0.8f;
+                            else
+                                vector3.y += 2;
+                            gameObject.transform.position = vector3;
+
+                            ParticleSystem particleSystem = gameObject.GetComponent<ParticleSystem>();
                             particleSystem.Play();
+                            Destroy(gameObject, 3 * HexGrid.MainGrid.GameSpeed);
                         }
                         else
                         {
@@ -1302,11 +1321,11 @@ namespace Assets.Scripts
                         GameObject animation;
                         if (HexGrid.MainGrid.Random.Next(2) == 0)
                         {
-                            animation = HexGrid.Instantiate<GameObject>(HexGrid.MainGrid.Explo, currentCell.transform);
+                            animation = HexGrid.Instantiate<GameObject>(HexGrid.MainGrid.UnitHitByMineral1, currentCell.transform);
                         }
                         else
                         {
-                            animation = HexGrid.Instantiate<GameObject>(HexGrid.MainGrid.Explo1, currentCell.transform);
+                            animation = HexGrid.Instantiate<GameObject>(HexGrid.MainGrid.UnitHitByMineral2, currentCell.transform);
                         }
                         HexGrid.Destroy(animation, 1);
 

@@ -19,13 +19,22 @@ namespace Assets.Scripts
 {
     public class HexGrid : MonoBehaviour
     {
-        public GameObject Stun;
-        public GameObject Explo;
-        public GameObject Explo1;
+        [Header("Unit Settings")]
+        public GameObject UnitStunned;
+
+        [Header("Reactor Settings")]
+        public GameObject ReactorBurnMineral;
+        public GameObject ReactorBurnTree;
+
+        [Header("Explosion Settings")]
+        public GameObject UnitHitByMineral1;
+        public GameObject UnitHitByMineral2;
         public GameObject GroundHit;
 
-        internal float hexCellHeight = 0.0f;
+        [Header("Game Settings")]
         public float GameSpeed = 0.01f;
+
+        internal float hexCellHeight = 0.0f;
 
         internal Dictionary<Position2, GroundCell> GroundCells { get; private set; }
         internal Dictionary<string, UnitBase> BaseUnits { get; private set; }
@@ -87,9 +96,9 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 
@@ -1444,7 +1453,7 @@ namespace Assets.Scripts
             }
             foreach (UnitBase unit in hitOtherUnits)
             {
-                GameObject stun = HexGrid.Instantiate<GameObject>(HexGrid.MainGrid.Stun, unit.transform);
+                GameObject stun = HexGrid.Instantiate<GameObject>(HexGrid.MainGrid.UnitStunned, unit.transform);
                 HexGrid.Destroy(stun, 1);
 
                 // No real good effect

@@ -572,16 +572,20 @@ namespace Engine.Master
 
             foreach (MoveRecipeIngredient moveRecipeIngredient in allIngredients)
             {
-                int currentScore = 0;
+                int currentScore;
 
                 // Prefer anything but minerals
+                currentScore = TileObject.GetDeliveryScoreForBurnType(moveRecipeIngredient.TileObjectType);
+                if (currentScore == 0) 
+                    continue;
+                /*
                 if (moveRecipeIngredient.TileObjectType == TileObjectType.Mineral)
                     currentScore += 20;
                 else if (moveRecipeIngredient.TileObjectType == TileObjectType.Tree)
                     currentScore += 10;
-                else if (moveRecipeIngredient.TileObjectType == TileObjectType.Stone)
-                    currentScore += 30;
-
+                else if (moveRecipeIngredient.TileObjectType == TileObjectType.Bush)
+                    currentScore += 10;
+                */
                 if (moveRecipeIngredient.SourcePosition != Pos)
                 {
                     if (moveRecipeIngredient.Source == TileObjectType.PartContainer)

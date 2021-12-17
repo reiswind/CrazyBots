@@ -124,22 +124,32 @@ namespace Engine.Interface
 
         public bool Accepts(MoveRecipeIngredient realIndigrient)
         {
-            if (AcceptedTileObjectTypes != TileObjectType.All)
-            {
-                if (AcceptedTileObjectTypes != realIndigrient.TileObjectType)
-                    return false;
-            }
-            return true;
+            return Accepts(realIndigrient.TileObjectType);
         }
         public bool Accepts(TileObject tileObject)
         {
-            if (AcceptedTileObjectTypes != TileObjectType.All)
-            {
-                if (AcceptedTileObjectTypes != tileObject.TileObjectType)
-                    return false;
-            }
-            return true;
+            return Accepts(tileObject.TileObjectType);
         }
+
+        public bool Accepts(TileObjectType tileObjectType)
+        {
+            if (AcceptedTileObjectTypes == TileObjectType.All)
+                return true;
+
+            if (AcceptedTileObjectTypes == TileObjectType.Burn &&
+                TileObject.GetDeliveryScoreForBurnType(tileObjectType) > 0)
+                return true;
+
+            if (AcceptedTileObjectTypes == TileObjectType.Ammo &&
+                TileObject.GetDeliveryScoreForAmmoType(tileObjectType) > 0)
+                return true;
+
+            if (AcceptedTileObjectTypes == tileObjectType)
+                return true;
+
+            return false;
+        }
+
 
         public TileObject RemoveTileObject(TileObjectType tileObjectType)
         {
