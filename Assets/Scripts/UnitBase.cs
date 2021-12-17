@@ -1427,7 +1427,17 @@ namespace Assets.Scripts
             }
             if (ghost)
             {
-                SetMaterialGhost(PlayerId, gameObject);
+                highlightEffect.SetHighlighted(true);
+                highlightEffect.overlay = 0.05f;
+                highlightEffect.overlayColor = Color.white;
+                highlightEffect.outlineColor = GetPlayerColor(1);
+                //highlightEffect.outlineWidth = 3;
+                highlightEffect.glow = 0;
+                highlightEffect.innerGlow = 0;
+                //highlightEffect.seeThrough =  SeeThroughMode.WhenHighlighted;
+
+                //SetMaterialGhost(PlayerId, gameObject);
+                SetPlayerColor(PlayerId, gameObject);
             }
             else if (underConstruction)
             {
