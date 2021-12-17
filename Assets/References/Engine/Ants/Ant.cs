@@ -91,28 +91,28 @@ namespace Engine.Ants
                 }
             }*/
         }
-        public int GetDeliveryScoreForTileObjectType(TileObjectType presentType)
-        {
-            if (presentType == TileObjectType.Tree)
-                return 10;
-            if (presentType == TileObjectType.Bush)
-                return 10;
-            if (presentType == TileObjectType.Mineral)
-                return 1;
-            return 0;
-        }
+
         public int GetDeliveryScoreForTileObjectType(TileObjectType requestType, TileObjectType presentType)
         {
             if (requestType == presentType)
-                return GetDeliveryScoreForTileObjectType(presentType);
+                return TileObject.GetDeliveryScoreForBurnType(presentType);
             if (requestType == TileObjectType.Burn)
             {
                 if (presentType == TileObjectType.Tree) 
-                    return GetDeliveryScoreForTileObjectType(presentType);
+                    return TileObject.GetDeliveryScoreForBurnType(presentType);
                 if (presentType == TileObjectType.Bush) 
-                    return GetDeliveryScoreForTileObjectType(presentType);
+                    return TileObject.GetDeliveryScoreForBurnType(presentType);
                 if (presentType == TileObjectType.Mineral)
-                    return GetDeliveryScoreForTileObjectType(presentType);
+                    return TileObject.GetDeliveryScoreForBurnType(presentType);
+            }
+            if (requestType == TileObjectType.Ammo)
+            {
+                if (presentType == TileObjectType.Tree)
+                    return TileObject.GetDeliveryScoreForAmmoType(presentType);
+                if (presentType == TileObjectType.Stone)
+                    return TileObject.GetDeliveryScoreForAmmoType(presentType);
+                if (presentType == TileObjectType.Mineral)
+                    return TileObject.GetDeliveryScoreForAmmoType(presentType);
             }
             return 0;
         }

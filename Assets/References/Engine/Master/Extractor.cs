@@ -614,7 +614,37 @@ namespace Engine.Master
                                 // Pick up from container, unit is the transporter. otherUnit is delivering
                                 foreach (RecipeIngredient moveRecipeIngredient in unit.CurrentGameCommand.GameCommand.RequestedItems)
                                 {
-                                    if (moveRecipeIngredient.TileObjectType == TileObjectType.Burn)
+                                    if (moveRecipeIngredient.TileObjectType == TileObjectType.Ammo)
+                                    {
+                                        int cnt = moveRecipeIngredient.Count;
+                                        while (cnt-- > 0 && capacity > 0)
+                                        {
+                                            MoveRecipeIngredient realIndigrient = otherUnit.FindIngredientForAmmo();
+                                            if (realIndigrient == null) break;
+
+                                            if (!Unit.IsSpaceForIngredient(realIndigrient))
+                                            {
+                                                break;
+                                            }
+
+                                            capacity--;
+
+                                            // Remove it from source
+                                            otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
+
+                                            // Add it to target
+                                            Unit.AddIngredient(realIndigrient);
+
+                                            if (!changedUnits.ContainsKey(Unit.Pos))
+                                                changedUnits.Add(Unit.Pos, Unit);
+
+                                            realIndigrient.TargetPosition = Unit.Pos;
+
+                                            // Report this
+                                            extractedItems.Add(realIndigrient);
+                                        }
+                                    }
+                                    else if (moveRecipeIngredient.TileObjectType == TileObjectType.Burn)
                                     {
                                         int cnt = moveRecipeIngredient.Count;
                                         while (cnt-- > 0 && capacity > 0)

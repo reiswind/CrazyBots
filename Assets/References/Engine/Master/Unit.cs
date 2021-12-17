@@ -282,7 +282,7 @@ namespace Engine.Master
 
             gameCommand.RequestedItems = new List<RecipeIngredient>();
 
-            RecipeIngredient recipeIngredient = new RecipeIngredient(TileObjectType.Burn, capacity);
+            RecipeIngredient recipeIngredient = new RecipeIngredient(tileObjectType, capacity);
             gameCommand.RequestedItems.Add(recipeIngredient);
 
             SetGameCommand(gameCommandItem);
@@ -511,6 +511,22 @@ namespace Engine.Master
                 }
             }
         }
+                
+        private void CollectAmmoIngredientsFromContainer(List<MoveRecipeIngredient> allIngredients, TileContainer tileContainer, TileObjectType sourceContainerType)
+        {
+            foreach (TileObject tileObject in tileContainer.TileObjects)
+            {
+                if (TileObject.IsAmmo(tileObject.TileObjectType))
+                {
+                    MoveRecipeIngredient moveRecipeIngredient = new MoveRecipeIngredient();
+                    moveRecipeIngredient.TileObjectType = tileObject.TileObjectType;
+                    moveRecipeIngredient.SourcePosition = Pos;
+                    moveRecipeIngredient.Source = sourceContainerType;
+                    moveRecipeIngredient.Count = 1;
+                    allIngredients.Add(moveRecipeIngredient);
+                }
+            }
+        }
 
         private void CollectBurnableIngredients(List<MoveRecipeIngredient> allIngredients)
         {
@@ -560,9 +576,11 @@ namespace Engine.Master
 
                 // Prefer anything but minerals
                 if (moveRecipeIngredient.TileObjectType == TileObjectType.Mineral)
+                    currentScore += 20;
+                else if (moveRecipeIngredient.TileObjectType == TileObjectType.Tree)
                     currentScore += 10;
-                else
-                    currentScore += TileObject.GetPowerForTileObjectType(moveRecipeIngredient.TileObjectType);
+                else if (moveRecipeIngredient.TileObjectType == TileObjectType.Stone)
+                    currentScore += 30;
 
                 if (moveRecipeIngredient.SourcePosition != Pos)
                 {
@@ -571,6 +589,104 @@ namespace Engine.Master
                         // From neighbor
                         currentScore += 10;
                         
+                    }
+                    if (moveRecipeIngredient.Source == TileObjectType.PartAssembler)
+                    {
+                        currentScore += 5;
+                    }
+                    if (moveRecipeIngredient.Source == TileObjectType.PartWeapon)
+                    {
+                        currentScore += 4;
+                    }
+                }
+                else
+                {
+                    if (moveRecipeIngredient.Source == TileObjectType.PartContainer)
+                    {
+                        // Own container
+                        currentScore += 90;
+                    }
+                    if (moveRecipeIngredient.Source == TileObjectType.PartAssembler)
+                    {
+                        currentScore += 8;
+                    }
+                    if (moveRecipeIngredient.Source == TileObjectType.PartWeapon)
+                    {
+                        currentScore += 7;
+                    }
+                    if (moveRecipeIngredient.Source == TileObjectType.PartReactor)
+                    {
+                        // Use own stuff
+                        currentScore += 1;
+                    }
+                }
+                if (bestIngredient == null || currentScore > bestScore)
+                {
+                    bestIngredient = moveRecipeIngredient;
+                    bestScore = currentScore;
+                }
+            }
+            return bestIngredient;
+        }
+        private void CollectAmmoIngredients(List<MoveRecipeIngredient> allIngredients)
+        {
+            if (Container != null && Container.TileContainer != null)
+            {
+                CollectAmmoIngredientsFromContainer(allIngredients, Container.TileContainer, TileObjectType.PartContainer);
+            }
+            if (Assembler != null && Assembler.TileContainer != null)
+            {
+                CollectAmmoIngredientsFromContainer(allIngredients, Assembler.TileContainer, TileObjectType.PartAssembler);
+            }
+            if (Weapon != null && Weapon.TileContainer != null)
+            {
+                CollectAmmoIngredientsFromContainer(allIngredients, Weapon.TileContainer, TileObjectType.PartWeapon);
+            }
+            if (Reactor != null && Reactor.TileContainer != null)
+            {
+                CollectAmmoIngredientsFromContainer(allIngredients, Reactor.TileContainer, TileObjectType.PartReactor);
+            }
+        }
+        public MoveRecipeIngredient FindIngredientForAmmo()
+        {
+            List<MoveRecipeIngredient> allIngredients = new List<MoveRecipeIngredient>();
+
+            CollectAmmoIngredients(allIngredients);
+
+            // Near transport, possible with extractor
+            if (Extractor != null)
+            {
+                Position3 position3 = new Position3(Pos);
+                foreach (Position3 n3 in position3.Neighbors)
+                {
+                    Tile t = Game.Map.GetTile(n3.Pos);
+                    if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id)
+                    {
+                        t.Unit.CollectAmmoIngredients(allIngredients);
+                    }
+                }
+            }
+            // Find best ingredient
+            MoveRecipeIngredient bestIngredient = null;
+            int bestScore = 0;
+
+            foreach (MoveRecipeIngredient moveRecipeIngredient in allIngredients)
+            {
+                int currentScore = 0;
+
+                // Prefer anything but minerals
+                if (moveRecipeIngredient.TileObjectType == TileObjectType.Mineral)
+                    currentScore += 10;
+                else
+                    currentScore += TileObject.GetDeliveryScoreForAmmoType(moveRecipeIngredient.TileObjectType);
+
+                if (moveRecipeIngredient.SourcePosition != Pos)
+                {
+                    if (moveRecipeIngredient.Source == TileObjectType.PartContainer)
+                    {
+                        // From neighbor
+                        currentScore += 10;
+
                     }
                     if (moveRecipeIngredient.Source == TileObjectType.PartAssembler)
                     {

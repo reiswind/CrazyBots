@@ -26,7 +26,7 @@
     {
       "Name": "Reactor",
       "PlayerId": 1,
-      "ContainedMinerals": 1,
+      "ContainedMinerals": 12,
       "Blueprint": "Reactor",
       "Position": "2,2"
     },

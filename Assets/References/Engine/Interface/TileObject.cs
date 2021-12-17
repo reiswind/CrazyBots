@@ -342,6 +342,14 @@ namespace Engine.Interface
 
             return false;
         }
+        public static bool IsAmmo(TileObjectType tileObjectType)
+        {
+            if (tileObjectType == TileObjectType.Mineral) return true;
+            if (tileObjectType == TileObjectType.Tree) return true;
+            if (tileObjectType == TileObjectType.Stone) return true;
+
+            return false;
+        }
         public static bool IsTileObjectTypeObstacle(TileObjectType tileObjectType)
         {
 
@@ -368,7 +376,26 @@ namespace Engine.Interface
 
             return 10;
         }
-
+        public static int GetDeliveryScoreForBurnType(TileObjectType presentType)
+        {
+            if (presentType == TileObjectType.Tree)
+                return 10;
+            if (presentType == TileObjectType.Bush)
+                return 10;
+            if (presentType == TileObjectType.Mineral)
+                return 1;
+            return 0;
+        }
+        public static int GetDeliveryScoreForAmmoType(TileObjectType presentType)
+        {
+            if (presentType == TileObjectType.Tree)
+                return 10;
+            if (presentType == TileObjectType.Stone)
+                return 30;
+            if (presentType == TileObjectType.Mineral)
+                return 10;
+            return 0;
+        }
         public static bool CanConvertTileObjectIntoMineral(TileObjectType tileObjectType)
         {
             if (tileObjectType == TileObjectType.PartArmor) return true;
