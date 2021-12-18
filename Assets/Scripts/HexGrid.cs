@@ -24,7 +24,7 @@ namespace Assets.Scripts
 
         [Header("Reactor Settings")]
         public GameObject ReactorBurnMineral;
-        public GameObject ReactorBurnTree;
+        public GameObject ReactorBurnWood;
 
         [Header("Explosion Settings")]
         public GameObject UnitHitByMineral1;
@@ -96,10 +96,10 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 
             GameModel gameModel;
@@ -279,9 +279,13 @@ namespace Assets.Scripts
         {
             GameObject prefab;
 
-            if (tileObject.TileObjectType == TileObjectType.Tree)
+            if (tileObject.TileObjectType == TileObjectType.Wood)
             {
-                prefab = GetResource("ShellTree");
+                prefab = GetResource("ShellWood");
+            }
+            else if (tileObject.TileObjectType == TileObjectType.Stone)
+            {
+                prefab = GetResource("ShellStone");
             }
             else if (tileObject.TileObjectType == TileObjectType.Mineral)
             {
@@ -304,13 +308,9 @@ namespace Assets.Scripts
         {
             GameObject prefab;
 
-            if (tileObject.TileObjectType == TileObjectType.Tree)
+            if (tileObject.TileObjectType == TileObjectType.Wood)
             {
                 prefab = GetResource("ItemWood");
-            }
-            else if (tileObject.TileObjectType == TileObjectType.Bush)
-            {
-                prefab = GetResource("ItemBush");
             }
             else if (tileObject.TileObjectType == TileObjectType.Stone)
             {
@@ -365,6 +365,10 @@ namespace Assets.Scripts
                 int idx = Random.Next(bushResources.Count);
                 prefab = bushResources.Values.ElementAt(idx);
                 y = prefab.transform.position.y;
+            }
+            else if (tileObject.TileObjectType == TileObjectType.Wood)
+            {
+                prefab = GetResource("ItemWood");
             }
             else if (tileObject.TileObjectType == TileObjectType.Stone)
             {

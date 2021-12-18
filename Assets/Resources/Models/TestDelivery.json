@@ -18,7 +18,7 @@
       "Name": "Container",
       "PlayerId": 1,
 	  "ContainedMinerals": 5,
-	  "ContainedTrees": 15,
+	  "ContainedWood": 15,
 	  "ContainedStones": 17,
       "Blueprint": "Container",
       "Position": "0,0"
@@ -26,7 +26,7 @@
     {
       "Name": "Reactor",
       "PlayerId": 1,
-      "ContainedTrees": 12,
+      "ContainedWood": 12,
       "Blueprint": "Reactor",
       "Position": "2,2"
     },

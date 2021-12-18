@@ -419,16 +419,28 @@ namespace Engine.Interface
 
             foreach (TileObject tileObject in TileContainer.TileObjects)
             {
-                if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
-                {
-                    canBuild = false;
-                    canMove = false;
-                }
                 if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
                 {
                     numberOfCollectablesCache++;
-                    if (tileObject.TileObjectType != TileObjectType.Mineral)
+                }
+                if (tileObject.TileObjectType == TileObjectType.Mineral ||
+                    tileObject.TileObjectType == TileObjectType.Stone)
+                {
+                    if (tileObject.TileObjectKind == TileObjectKind.Many ||
+                        tileObject.TileObjectKind == TileObjectKind.Block)
+                    {
                         canMove = false;
+                    }
+                }
+                else if (tileObject.TileObjectType == TileObjectType.Gras ||
+                         tileObject.TileObjectType == TileObjectType.Sand ||
+                         tileObject.TileObjectType == TileObjectType.TreeTrunk)
+                {
+                    // ok
+                }
+                else
+                {
+                    canMove = false;
                 }
             }
         }

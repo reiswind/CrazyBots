@@ -1705,6 +1705,42 @@ namespace Engine.Master
             }
             return false;
         }
+        public bool IsSpaceForTileObject(TileObjectType tileObjectType)
+        {
+            if (Reactor != null && Reactor.TileContainer != null)
+            {
+                //while (tileObjects.Count > 0 && Reactor.TileContainer.Loaded < Reactor.TileContainer.Capacity)
+                if (Reactor.TileContainer.Count < Reactor.TileContainer.Capacity && Reactor.TileContainer.Accepts(tileObjectType))
+                {
+                    return true;
+                }
+            }
+            if (Assembler != null && Assembler.TileContainer != null)
+            {
+                //while (tileObjects.Count > 0 && Assembler.TileContainer.Loaded < Assembler.TileContainer.Capacity)
+                if (Assembler.TileContainer.Count < Assembler.TileContainer.Capacity && Assembler.TileContainer.Accepts(tileObjectType))
+                {
+                    return true;
+                }
+            }
+            if (Weapon != null && Weapon.TileContainer != null)
+            {
+                //while (tileObjects.Count > 0 && Weapon.TileContainer.Loaded < Weapon.TileContainer.Capacity)
+                if (Weapon.TileContainer.Count < Weapon.TileContainer.Capacity && Weapon.TileContainer.Accepts(tileObjectType))
+                {
+                    return true;
+                }
+            }
+            if (Container != null)
+            {
+                //while (tileObjects.Count > 0 && Container.TileContainer.Loaded < Container.TileContainer.Capacity)
+                if (Container.TileContainer.Count < Container.TileContainer.Capacity && Container.TileContainer.Accepts(tileObjectType))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         public bool IsSpaceForTileObject(TileObject tileObject)
         {
             if (Reactor != null && Reactor.TileContainer != null)

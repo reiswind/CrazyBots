@@ -43,8 +43,7 @@ namespace Engine.Interface
 
             RecipeList.Add(new Recipe(new RecipeIngredient(TileObjectType.Mineral, 4), new RecipeIngredient(TileObjectType.Unit)));
 
-            RecipeList.Add(new Recipe(new RecipeIngredient(TileObjectType.Bush, 4), new RecipeIngredient(TileObjectType.Tree)));
-            RecipeList.Add(new Recipe(new RecipeIngredient(TileObjectType.Tree, 4), new RecipeIngredient(TileObjectType.TreeTrunk)));
+            RecipeList.Add(new Recipe(new RecipeIngredient(TileObjectType.Wood, 4), new RecipeIngredient(TileObjectType.Coal)));
         }
 
     }

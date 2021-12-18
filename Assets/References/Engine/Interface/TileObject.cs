@@ -62,7 +62,7 @@ namespace Engine.Interface
         {
             reservedTileObjectTypes.Remove(tileObjectType);
         }
-        
+
         public TileObject GetMatchingTileObject(TileObjectType tileObjectType)
         {
             List<TileObjectType> reserved = new List<TileObjectType>();
@@ -163,7 +163,6 @@ namespace Engine.Interface
             return false;
         }
 
-
         public TileObject RemoveTileObject(TileObjectType tileObjectType)
         {
             foreach (TileObject tileObject in tileObjects)
@@ -229,6 +228,7 @@ namespace Engine.Interface
 
     public enum TileObjectType
     {
+        // Groups
         None,
         All,
         Burn,
@@ -239,15 +239,17 @@ namespace Engine.Interface
         // Collectable
         Mineral,
         Dirt,
-        Gras,
-        Bush,
-        Tree,
+        Stone,
+        Wood,
+        Coal,
 
         // Environment
+        Gras,
         TreeTrunk,
         Water,
         Sand,
-        Stone,
+        Bush,
+        Tree,
 
         // Parts
         PartExtractor, 
@@ -263,6 +265,7 @@ namespace Engine.Interface
     {
         public int Gras;
         public int Bush;
+        public int Wood;
         public int Tree;
         public int Sand;
         public int Mineral;
@@ -275,6 +278,7 @@ namespace Engine.Interface
         {
             Gras = 0;
             Bush = 0;
+            Wood = 0;
             Tree = 0;
             Sand = 0;
             Stone = 0;
@@ -296,7 +300,7 @@ namespace Engine.Interface
                 {
                     Mineral++;
                 }
-                if (tileObject.TileObjectType == TileObjectType.Gras)
+                else if (tileObject.TileObjectType == TileObjectType.Gras)
                 {
                     Gras++;
                     None--;
@@ -304,6 +308,11 @@ namespace Engine.Interface
                 else if (tileObject.TileObjectType == TileObjectType.TreeTrunk)
                 {
                     Trunk++;
+                    None--;
+                }
+                else if (tileObject.TileObjectType == TileObjectType.Wood)
+                {
+                    Wood++;
                     None--;
                 }
                 else if (tileObject.TileObjectType == TileObjectType.Bush)
@@ -339,7 +348,7 @@ namespace Engine.Interface
     {
         public TileObject()
         {
-
+            Direction = Direction.C;
         }
 
         public TileObject Copy()
@@ -367,8 +376,7 @@ namespace Engine.Interface
         public static bool IsTileObjectTypeCollectable(TileObjectType tileObjectType)
         {
             if (tileObjectType == TileObjectType.Mineral) return true;
-            if (tileObjectType == TileObjectType.Tree) return true;
-            if (tileObjectType == TileObjectType.Bush) return true;
+            if (tileObjectType == TileObjectType.Wood) return true;
             if (tileObjectType == TileObjectType.Stone) return true;
 
             return false;
@@ -376,7 +384,7 @@ namespace Engine.Interface
         public static bool IsAmmo(TileObjectType tileObjectType)
         {
             if (tileObjectType == TileObjectType.Mineral) return true;
-            if (tileObjectType == TileObjectType.Tree) return true;
+            if (tileObjectType == TileObjectType.Wood) return true;
             if (tileObjectType == TileObjectType.Stone) return true;
 
             return false;
@@ -402,16 +410,13 @@ namespace Engine.Interface
         public static int GetPowerForTileObjectType(TileObjectType tileObjectType)
         {
             if (tileObjectType == TileObjectType.Mineral) return 100;
-            if (tileObjectType == TileObjectType.Tree) return 150;
-            if (tileObjectType == TileObjectType.Bush) return 80;
+            if (tileObjectType == TileObjectType.Wood) return 150;
 
-            return 10;
+            return 0;
         }
         public static int GetDeliveryScoreForBurnType(TileObjectType presentType)
         {
-            if (presentType == TileObjectType.Tree)
-                return 10;
-            if (presentType == TileObjectType.Bush)
+            if (presentType == TileObjectType.Wood)
                 return 10;
             if (presentType == TileObjectType.Mineral)
                 return 1;
@@ -419,8 +424,8 @@ namespace Engine.Interface
         }
         public static int GetDeliveryScoreForAmmoType(TileObjectType presentType)
         {
-            if (presentType == TileObjectType.Tree)
-                return 10;
+            if (presentType == TileObjectType.Wood)
+                return 20;
             if (presentType == TileObjectType.Stone)
                 return 30;
             if (presentType == TileObjectType.Mineral)

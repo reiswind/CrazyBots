@@ -119,10 +119,8 @@ namespace Assets.Scripts
                     CanvasItem canvasItem = new CanvasItem();
                     if (name == "ItemMineral")                    
                         canvasItem.TileObjectType = TileObjectType.Mineral;
-                    if (name == "ItemBush")
-                        canvasItem.TileObjectType = TileObjectType.Bush;
-                    if (name == "ItemTree")
-                        canvasItem.TileObjectType = TileObjectType.Tree;
+                    if (name == "ItemWood")
+                        canvasItem.TileObjectType = TileObjectType.Wood;
                     if (name == "ItemStone")
                         canvasItem.TileObjectType = TileObjectType.Stone;
 
@@ -1634,10 +1632,8 @@ namespace Assets.Scripts
             {
                 if (canvasItem.TileObjectType == TileObjectType.Mineral)
                     canvasItem.SetCount(tileCounter.Mineral);
-                if (canvasItem.TileObjectType == TileObjectType.Tree)
-                    canvasItem.SetCount(tileCounter.Tree);
-                if (canvasItem.TileObjectType == TileObjectType.Bush)
-                    canvasItem.SetCount(tileCounter.Bush);
+                if (canvasItem.TileObjectType == TileObjectType.Wood)
+                    canvasItem.SetCount(tileCounter.Wood);
                 if (canvasItem.TileObjectType == TileObjectType.Stone)
                     canvasItem.SetCount(tileCounter.Stone);
 
@@ -1713,27 +1709,36 @@ namespace Assets.Scripts
                         }
                         if (part.PartType == TileObjectType.PartWeapon)
                         {
-                            panelWeapon.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
-                            panelWeapon.SetActive(true);
+                            //panelWeapon.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                            //panelWeapon.SetActive(true);
 
-                            tileCounter.Add(part.TileObjects.AsReadOnly());
-                            showContainer = true;
+                            if (part.TileObjects != null)
+                            {
+                                tileCounter.Add(part.TileObjects.AsReadOnly());
+                                showContainer = true;
+                            }
                         }
                         if (part.PartType == TileObjectType.PartAssembler)
                         {
-                            panelAssembler.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
-                            panelAssembler.SetActive(true);
+                            //panelAssembler.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                            //panelAssembler.SetActive(true);
 
-                            tileCounter.Add(part.TileObjects.AsReadOnly());
-                            showContainer = true;
+                            if (part.TileObjects != null)
+                            {
+                                tileCounter.Add(part.TileObjects.AsReadOnly());
+                                showContainer = true;
+                            }
                         }
                         if (part.PartType == TileObjectType.PartReactor)
                         {
-                            panelReactor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
-                            panelReactor.SetActive(true);
+                            //panelReactor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                            //panelReactor.SetActive(true);
 
-                            tileCounter.Add(part.TileObjects.AsReadOnly());
-                            showContainer = true;
+                            if (part.TileObjects != null)
+                            {
+                                tileCounter.Add(part.TileObjects.AsReadOnly());
+                                showContainer = true;
+                            }
                         }
                         if (part.PartType == TileObjectType.PartArmor)
                         {
@@ -1757,7 +1762,7 @@ namespace Assets.Scripts
                             //panelEngine.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
                             //panelEngine.SetActive(true);
                         }
-                        if (part.PartType == TileObjectType.PartContainer)
+                        if (part.PartType == TileObjectType.PartContainer && part.TileObjects != null)
                         {
                             tileCounter.Add(part.TileObjects.AsReadOnly());
                             showContainer = true;

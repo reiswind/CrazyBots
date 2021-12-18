@@ -270,6 +270,7 @@ namespace Engine.Ants
                             }
                             return false;
                         }
+                        Ant.Unit.ClearReservations();
 
                         // Structure: Build unit or an assembler that moves ther
                         bool engineFound = false;

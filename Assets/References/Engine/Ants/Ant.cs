@@ -100,18 +100,20 @@ namespace Engine.Ants
             {
                 if (presentType == TileObjectType.Tree) 
                     return TileObject.GetDeliveryScoreForBurnType(presentType);
-                if (presentType == TileObjectType.Bush) 
+                else if (presentType == TileObjectType.Bush) 
                     return TileObject.GetDeliveryScoreForBurnType(presentType);
-                if (presentType == TileObjectType.Mineral)
+                else if (presentType == TileObjectType.Wood)
+                    return TileObject.GetDeliveryScoreForBurnType(presentType);
+                else if (presentType == TileObjectType.Mineral)
                     return TileObject.GetDeliveryScoreForBurnType(presentType);
             }
             if (requestType == TileObjectType.Ammo)
             {
-                if (presentType == TileObjectType.Tree)
+                if (presentType == TileObjectType.Wood)
                     return TileObject.GetDeliveryScoreForAmmoType(presentType);
-                if (presentType == TileObjectType.Stone)
+                else if (presentType == TileObjectType.Stone)
                     return TileObject.GetDeliveryScoreForAmmoType(presentType);
-                if (presentType == TileObjectType.Mineral)
+                else if (presentType == TileObjectType.Mineral)
                     return TileObject.GetDeliveryScoreForAmmoType(presentType);
             }
             return 0;

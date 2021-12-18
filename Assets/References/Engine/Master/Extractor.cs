@@ -805,7 +805,18 @@ namespace Engine.Master
                     if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
                         continue;
 
-                    if (Unit.IsSpaceForTileObject(tileObject))
+                    TileObjectType collectedTileObjectType;
+                    if (tileObject.TileObjectType == TileObjectType.Bush ||
+                        tileObject.TileObjectType == TileObjectType.Tree)
+                    {
+                        collectedTileObjectType = TileObjectType.Wood;
+                    }
+                    else 
+                    {
+                        collectedTileObjectType = tileObject.TileObjectType;
+                    }
+
+                    if (Unit.IsSpaceForTileObject(collectedTileObjectType))
                     {
                         if (fromTile.ExtractTileObject(tileObject))
                         {
@@ -813,7 +824,7 @@ namespace Engine.Master
                             indigrient.Count = 1;
                             indigrient.SourcePosition = fromTile.Pos;
                             indigrient.TargetPosition = Unit.Pos;
-                            indigrient.TileObjectType = tileObject.TileObjectType;
+                            indigrient.TileObjectType = collectedTileObjectType;
                             indigrient.Source = TileObjectType.Ground;
                             extractedItems.Add(indigrient);
 
