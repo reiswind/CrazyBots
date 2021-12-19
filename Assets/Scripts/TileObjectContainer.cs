@@ -11,7 +11,6 @@ namespace Assets.Scripts
 {
     public class TileObjectContainer
     {
-
         public TileObjectContainer()
         {
             mineralCubes = new List<GameObject>();

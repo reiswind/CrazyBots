@@ -29,7 +29,15 @@ namespace Assets.Scripts
 
                 IsHighlighted = isHighlighted;
                 if (highlightEffect)
-                    highlightEffect.SetHighlighted(IsHighlighted);
+                {
+                    if (isHighlighted)
+                        highlightEffect.outlineColor = Color.yellow;
+                    else
+                        highlightEffect.outlineColor = UnitBase.GetPlayerColor(CommandPreview.GameCommand.PlayerId);
+
+                    //highlightEffect.SetHighlighted(IsHighlighted);
+                }
+
                 if (!IsHighlighted)
                 {
                     foreach (GroundCell groundCell in highlightedGroundCells.Values)

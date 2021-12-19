@@ -1732,7 +1732,9 @@ namespace Assets.Scripts
                         if (part.PartType == TileObjectType.PartReactor)
                         {
                             //panelReactor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
-                            //panelReactor.SetActive(true);
+                            panelReactor.SetActive(true);
+
+                            panelReactor.transform.Find("Partname").GetComponent<Text>().text = "Power " + part.AvailablePower.ToString();
 
                             if (part.TileObjects != null)
                             {

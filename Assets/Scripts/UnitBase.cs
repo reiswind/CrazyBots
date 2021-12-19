@@ -512,10 +512,10 @@ namespace Assets.Scripts
             Vector3 forward = transform.forward;
             // Rotate the forward vector towards the target direction by one step
             Vector3 newDirection = Vector3.RotateTowards(forward, targetDirection, singleStep, 0.0f);
-            if (newDirection.y < -0.01f)
-                newDirection.y = -0.01f;
-            else if (newDirection.y > 0.01f)
-                newDirection.y = 0.01f;
+            if (newDirection.y < -0.1f)
+                newDirection.y = -0.1f;
+            else if (newDirection.y > 0.1f)
+                newDirection.y = 0.1f;
 
             // Draw a ray pointing at our target in
             //Debug.DrawRay(transform.position, newDirection, Color.red);
@@ -1371,7 +1371,6 @@ namespace Assets.Scripts
         private static HighlightProfile defaultProfile;
         private void SetupHighlightEffect()
         {
-
             if (MoveUpdateStats.BlueprintName == "Outpost")
             {
                 if (defaultProfile == null)
@@ -1418,9 +1417,14 @@ namespace Assets.Scripts
                     unitBasePart.Part = part;
                     if (!ghost)
                         part.SetActive(false);
+
                     if (moveUpdateUnitPart.TileObjects != null)
                     {
                         unitBasePart.TileObjectContainer = new TileObjectContainer();
+                    }
+                    if (IsGhost)
+                    {
+                        TileObjectContainer.HidePlaceholders(unitBasePart.Part);
                     }
                     UnitBaseParts.Add(unitBasePart);
                 }
@@ -1430,11 +1434,10 @@ namespace Assets.Scripts
                 highlightEffect.SetHighlighted(true);
                 highlightEffect.overlay = 0.05f;
                 highlightEffect.overlayColor = Color.white;
-                highlightEffect.outlineColor = GetPlayerColor(1);
+                highlightEffect.outlineColor = GetPlayerColor(PlayerId);
                 //highlightEffect.outlineWidth = 3;
                 highlightEffect.glow = 0;
                 highlightEffect.innerGlow = 0;
-                //highlightEffect.seeThrough =  SeeThroughMode.WhenHighlighted;
 
                 //SetMaterialGhost(PlayerId, gameObject);
                 SetPlayerColor(PlayerId, gameObject);

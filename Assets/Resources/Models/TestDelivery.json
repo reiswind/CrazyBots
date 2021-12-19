@@ -33,7 +33,7 @@
     {
       "Name": "Turret",
       "PlayerId": 1,
-      "ContainedMinerals": 0,
+      "ContainedMineralsx": 0,
       "Blueprint": "Turret",
       "Position": "2,4"
     },
