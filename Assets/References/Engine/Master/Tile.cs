@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Engine.Interface
+namespace Engine.Master
 {
     public class TileWithDistance 
     {
@@ -228,37 +228,6 @@ namespace Engine.Interface
             return extracted;
         }
         
-        internal static Direction TurnAround(Direction direction)
-        {
-            if (direction == Direction.N) return Direction.S;
-            if (direction == Direction.NE) return Direction.SW;
-            if (direction == Direction.SE) return Direction.NW;
-            if (direction == Direction.S) return Direction.N;
-            if (direction == Direction.SW) return Direction.NE;
-            if (direction == Direction.NW) return Direction.SE;
-            return Direction.C;
-        }
-        internal static Direction TurnLeft(Direction direction)
-        {
-            if (direction == Direction.N) return Direction.NW;
-            if (direction == Direction.NW) return Direction.SW;
-            if (direction == Direction.SW) return Direction.S;
-            if (direction == Direction.S) return Direction.SE;
-            if (direction == Direction.SE) return Direction.NE;
-            if (direction == Direction.NE) return Direction.N;
-            return Direction.C;
-        }
-        internal static Direction TurnRight(Direction direction)
-        {
-            if (direction == Direction.N) return Direction.NE;
-            if (direction == Direction.NE) return Direction.SE;
-            if (direction == Direction.SE) return Direction.S;
-            if (direction == Direction.S) return Direction.SW;
-            if (direction == Direction.SW) return Direction.NW;
-            if (direction == Direction.NW) return Direction.N;
-            return Direction.C;
-        }
-
         internal TileFit CalcFit(Tile openTile, TileFit randomTileFit)
         {
             TileFit tileFit = new TileFit(openTile);
@@ -268,7 +237,7 @@ namespace Engine.Interface
             foreach (TileObject tileObject in randomTileFit.TileObjects)
             {
                 TileObject rotatedTileObject = tileObject.Copy();
-                rotatedTileObject.Direction = TurnLeft(tileObject.Direction);
+                rotatedTileObject.Direction = Dir.TurnLeft(tileObject.Direction);
 
                 tileFit.TileObjects.Add(rotatedTileObject);
             }
@@ -293,7 +262,7 @@ namespace Engine.Interface
         {
             foreach (TileObject tileObject in tileObjects)
             {
-                tileObject.Direction = TurnLeft(tileObject.Direction);
+                tileObject.Direction = Dir.TurnLeft(tileObject.Direction);
             }
         }
 
@@ -335,7 +304,7 @@ namespace Engine.Interface
                 Tile forwardTile = Map.GetTile(position);
                 if (forwardTile != null && forwardTile.TileContainer != null)
                 {
-                    Direction backDirection = TurnAround(tileObject.Direction);
+                    Direction backDirection = Dir.TurnAround(tileObject.Direction);
 
                     foreach (TileObject forwardTileObject in forwardTile.TileContainer.TileObjects)
                     {
@@ -363,10 +332,10 @@ namespace Engine.Interface
                 Position2 pos = Ants.AntPartEngine.GetPositionInDirection(Pos, tileObject.Direction);
                 score += GetScoreForPos(tileObject, pos);
 
-                pos = Ants.AntPartEngine.GetPositionInDirection(Pos,TurnLeft( tileObject.Direction));
+                pos = Ants.AntPartEngine.GetPositionInDirection(Pos, Dir.TurnLeft( tileObject.Direction));
                 score += GetScoreForPos(tileObject, pos);
 
-                pos = Ants.AntPartEngine.GetPositionInDirection(Pos, TurnRight(tileObject.Direction));
+                pos = Ants.AntPartEngine.GetPositionInDirection(Pos, Dir.TurnRight(tileObject.Direction));
                 score += GetScoreForPos(tileObject, pos);
             }
             return score;
@@ -412,7 +381,7 @@ namespace Engine.Interface
             canMove = canBuild;
 
             Counter.Update(TileContainer.TileObjects);
-            if (Counter.Mineral >= BlockPathItemCount)
+            if (Counter.Mineral >= Position2.BlockPathItemCount)
             {
                 canBuild = false;
             }
@@ -492,7 +461,7 @@ namespace Engine.Interface
             return false;
         }
 
-        public static readonly int BlockPathItemCount = 20;
+
         public bool CanBuildForMove()
         {
             if (IsUnderwater)
@@ -511,7 +480,7 @@ namespace Engine.Interface
                     return false;
             }
 
-            if (mins >= BlockPathItemCount)
+            if (mins >= Position2.BlockPathItemCount)
             {
                 return false;
             }

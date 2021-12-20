@@ -54,7 +54,7 @@ namespace Assets.Scripts
             if (TileObjectContainer.TileObjects == null ||
                 TileObjectContainer.TileObjects.Count == 0)
             {
-                int why = 0;
+                throw new Exception("NoAmmo");
             }
             else
             {

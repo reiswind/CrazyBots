@@ -42,8 +42,8 @@ namespace Assets.Scripts
         /// <summary>
         /// All human commands?
         /// </summary>
-        internal List<CommandPreview> CommandPreviews { get; private set; }
-
+        internal Dictionary<int,CommandPreview> CommandPreviews { get; private set; }
+        internal List<CommandPreview> CreatedCommandPreviews { get; private set; }
 
         /// <summary>
         /// Filled in UI Thread and transfered on next move
@@ -598,13 +598,15 @@ namespace Assets.Scripts
             game.CreateUnits();
 
             GameCommands = new List<MapGameCommand>();
-            CommandPreviews = new List<CommandPreview>();
+            CommandPreviews = new Dictionary<int, CommandPreview>();
+            CreatedCommandPreviews = new List<CommandPreview>();
+
             GroundCells = new Dictionary<Position2, GroundCell>();
             BaseUnits = new Dictionary<string, UnitBase>();
             hitByBullets = new List<HitByBullet>();
 
             GameObject cellPrefab = GetResource("HexCell");
-            foreach (Tile t in game.Map.Tiles.Values)
+            foreach (Engine.Master.Tile t in game.Map.Tiles.Values)
             {
                 if (!GroundCells.ContainsKey(t.Pos))
                 {
@@ -641,7 +643,8 @@ namespace Assets.Scripts
 
 
             GameCommands = new List<MapGameCommand>();
-            CommandPreviews = new List<CommandPreview>();
+            CommandPreviews = new Dictionary<int, CommandPreview>();
+            CreatedCommandPreviews = new List<CommandPreview>();
             GroundCells = new Dictionary<Position2, GroundCell>();
             BaseUnits = new Dictionary<string, UnitBase>();
             hitByBullets = new List<HitByBullet>();
@@ -786,8 +789,6 @@ namespace Assets.Scripts
             {
                 while (!windowClosed)
                 {
-
-
                     while (!windowClosed)
                     {
                         if (!WaitForDraw.WaitOne(10))
@@ -810,7 +811,7 @@ namespace Assets.Scripts
                         {
                             if (gameCommand.GameCommandType == GameCommandType.Move)
                             {
-                                UpdateMoveCommand(gameCommand);
+                                //UpdateMoveCommand(gameCommand);
                             }
                         }
                     }
@@ -855,7 +856,6 @@ namespace Assets.Scripts
             windowClosed = true;
         }
         private List<Position2> updatedPositions = new List<Position2>();
-        private List<Position2> groundcellsWithCommands = new List<Position2>();
         private List<GroundCellBorder> groundCellBorders = new List<GroundCellBorder>();
 
         private bool startPositionSet = false;
@@ -868,31 +868,12 @@ namespace Assets.Scripts
             }
         }
 
-        public void UpdateMoveCommand(MapGameCommand gameCommand)
-        {
-            CommandPreview commandPreview = null;
-
-            groundcellsWithCommands.Remove(gameCommand.TargetPosition);
-            GroundCell gc;
-            if (HexGrid.MainGrid.GroundCells.TryGetValue(gameCommand.TargetPosition, out gc))
-            {
-                commandPreview = gc.RemoveGameCommand(gameCommand);
-            }
-            commandPreview.GameCommand.TargetPosition = gameCommand.MoveToPosition;
-            groundcellsWithCommands.Add(gameCommand.MoveToPosition);
-
-            if (HexGrid.MainGrid.GroundCells.TryGetValue(gameCommand.MoveToPosition, out gc))
-            {
-                gc.UpdateMoveCommand(commandPreview);
-            }
-        }
-
         private void ProcessNewMoves()
         {
             moveCounter++;
             if (moveCounter == 112)
             {
-                int x = 0;
+
             }
             List<Position2> newUpdatedPositions = new List<Position2>();
 
@@ -917,6 +898,8 @@ namespace Assets.Scripts
                         hexCell.UpdatePheromones(null);
                     }
                     updatedPositions = newUpdatedPositions;
+
+                    /*
                     if (GroundCells.Count > 0)
                     {
                         foreach (Position2 pos in groundcellsWithCommands)
@@ -965,6 +948,7 @@ namespace Assets.Scripts
                             groundcellsWithCommands.Remove(pos);
                         }
                     }
+                    */
 
                     /* Update all
 					foreach (Position pos in GroundCells.Keys)
@@ -1011,6 +995,9 @@ namespace Assets.Scripts
                 Debug.Log("FATAL in ProcessMoves. Finish" + err.Message);
                 throw;
             }
+
+
+
             Move lastmove = null;
             try
             {
@@ -1132,19 +1119,6 @@ namespace Assets.Scripts
                             }
                         }
                     }
-                    else if (move.MoveType == MoveType.CommandComplete)
-                    {
-                        /*
-                        if (UnitsInBuild.ContainsKey(move.Positions[0]))
-                        {
-                            // Remove Ghost from command
-                            UnitBase unit = UnitsInBuild[move.Positions[0]];
-                            if (unit != null)
-                                unit.Delete();
-                            GroundCell hexCell = GroundCells[move.Positions[0]];
-                            UnitsInBuild.Remove(move.Positions[0]);
-                        }*/
-                    }
                     else if (move.MoveType == MoveType.Upgrade)
                     {
                         if (BaseUnits.ContainsKey(move.UnitId))
@@ -1153,6 +1127,10 @@ namespace Assets.Scripts
                             UnitBase upgradedUnit = BaseUnits[move.OtherUnitId];
                             unit.Upgrade(move, upgradedUnit);
                         }
+                    }
+                    else if (move.MoveType == MoveType.Command)
+                    {
+                        CommandMove(move);
                     }
                     else if (move.MoveType == MoveType.UpdateGround)
                     {
@@ -1224,6 +1202,7 @@ namespace Assets.Scripts
                         }
                     }
                 }
+
                 newMoves.Clear();
                 //groundCellBorderChanged.Clear();
                 //groundCellBorderChanged.AddRange(GroundCells.Keys);
@@ -1277,21 +1256,25 @@ namespace Assets.Scripts
             }
             if (useThread)
             {
-                if (WaitForTurn.WaitOne(10))
+                if (WaitForTurn.WaitOne(100))
                 {
                     try
                     {
+
+                        DateTime tStart = DateTime.Now;
+
+                        ProcessNewMoves();
+
                         if (newGameCommands == null)
                             newGameCommands = new List<MapGameCommand>();
                         newGameCommands.Clear();
                         if (GameCommands.Count > 0)
                         {
+                            Debug.Log("TransferCommands");
+
                             newGameCommands.AddRange(GameCommands);
                             GameCommands.Clear();
                         }
-                        DateTime tStart = DateTime.Now;
-
-                        ProcessNewMoves();
 
                         double mstotal = (DateTime.Now - tStart).TotalMilliseconds;
                         if (mstotal > 20)
@@ -1398,7 +1381,61 @@ namespace Assets.Scripts
             hitByBullets.Add(hitByBullet);
             return hitByBullet;
         }
+        public void CommandMove(Move move)
+        {
+            Debug.Log("Command " + move.Command.TargetPosition.ToString());
+            MapGameCommand gameCommand = move.Command;
 
+            CommandPreview commandPreview;
+            if (CommandPreviews.TryGetValue(gameCommand.CommandId, out commandPreview))
+            {
+
+            }
+            else
+            {
+                foreach (CommandPreview existingPreview in CreatedCommandPreviews)
+                {
+                    if (existingPreview.GameCommand.TargetPosition == gameCommand.TargetPosition &&
+                        existingPreview.GameCommand.PlayerId == gameCommand.PlayerId &&
+                        existingPreview.GameCommand.GameCommandType == gameCommand.GameCommandType)
+                    {
+                        commandPreview = existingPreview;
+                        CommandPreviews.Add(gameCommand.CommandId, commandPreview);
+                        CreatedCommandPreviews.Remove(existingPreview);
+                        break;
+                    }
+                }
+            }
+            if (commandPreview == null)
+            { 
+                // New (form other player)
+                commandPreview = new CommandPreview();
+
+                commandPreview.CreateCommandPreview(gameCommand);
+                commandPreview.IsPreview = false;
+                commandPreview.SetActive(false);
+                if (gameCommand.TargetPosition != Position2.Null)
+                    commandPreview.UpdatePositions(GroundCells[gameCommand.TargetPosition]);
+
+                CommandPreviews.Add(gameCommand.CommandId, commandPreview);
+            }
+            
+            if (commandPreview.UpdateCommandPreview(gameCommand))
+            {
+                commandPreview.SetPosition(GroundCells[gameCommand.TargetPosition]);
+            }
+            
+            /*
+            GroundCell hexCell = GroundCells[gameCommand.TargetPosition];
+            CommandPreview commandPreview = hexCell.UpdateCommands(gameCommand, null);
+
+            if (commandPreview != null && commandPreview.GameCommand.TargetPosition != Position2.Null)
+            {
+                if (!groundcellsWithCommands.Contains(commandPreview.GameCommand.TargetPosition))
+                    groundcellsWithCommands.Add(commandPreview.GameCommand.TargetPosition);
+            }*/
+
+        }
         public void HitMove(Move move)
         {
             Position2 fireingPostion = move.Positions[0];
@@ -1903,7 +1940,7 @@ namespace Assets.Scripts
 
         public CommandPreview FindCommandForUnit(UnitBase unitBase)
         {
-            foreach (CommandPreview mapGameCommand in CommandPreviews)
+            foreach (CommandPreview mapGameCommand in CommandPreviews.Values)
             {
                 foreach (CommandAttachedItem commandAttachedUnit in mapGameCommand.PreviewUnits)
                 {

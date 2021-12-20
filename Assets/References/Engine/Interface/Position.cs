@@ -20,6 +20,40 @@ namespace Engine.Interface
         SW = 3
     }
 
+    public class Dir
+    {
+        public static Direction TurnAround(Direction direction)
+        {
+            if (direction == Direction.N) return Direction.S;
+            if (direction == Direction.NE) return Direction.SW;
+            if (direction == Direction.SE) return Direction.NW;
+            if (direction == Direction.S) return Direction.N;
+            if (direction == Direction.SW) return Direction.NE;
+            if (direction == Direction.NW) return Direction.SE;
+            return Direction.C;
+        }
+        public static Direction TurnLeft(Direction direction)
+        {
+            if (direction == Direction.N) return Direction.NW;
+            if (direction == Direction.NW) return Direction.SW;
+            if (direction == Direction.SW) return Direction.S;
+            if (direction == Direction.S) return Direction.SE;
+            if (direction == Direction.SE) return Direction.NE;
+            if (direction == Direction.NE) return Direction.N;
+            return Direction.C;
+        }
+        public static Direction TurnRight(Direction direction)
+        {
+            if (direction == Direction.N) return Direction.NE;
+            if (direction == Direction.NE) return Direction.SE;
+            if (direction == Direction.SE) return Direction.S;
+            if (direction == Direction.S) return Direction.SW;
+            if (direction == Direction.SW) return Direction.NW;
+            if (direction == Direction.NW) return Direction.N;
+            return Direction.C;
+        }
+    }
+
     public readonly struct Position3 //: IEquatable<Position3>
     {
         public Position3(Position2 pos)
@@ -466,8 +500,10 @@ namespace Engine.Interface
     }
 
     [DataContract]
-    public  struct Position2 : IEquatable<Position2>
+    public struct Position2 : IEquatable<Position2>
     {
+        public static readonly int BlockPathItemCount = 20;
+
         public Position2(int x, int y)
         {
             uint ux = ((uint)x << 16);

@@ -31,7 +31,7 @@ namespace Engine.Interface
         UpdateGround,
         Assemble,
         Extract,
-        CommandComplete,
+        Command,
         Burn,
         VisibleTiles,
         HiddenTiles,
@@ -325,10 +325,14 @@ namespace Engine.Interface
         /// </summary>
         [DataMember(EmitDefaultValue = false)]
         public MoveUpdateStats Stats { get; set; }
-        /// <summary>
-        /// Transfer attached command
-        /// </summary>
-        internal GameCommandItem GameCommandItem { get; set; }
+        [DataMember(EmitDefaultValue = false)]
+
+        public MapGameCommand Command { get; set; }
+
+    /// <summary>
+    /// Transfer attached command
+    /// </summary>
+    internal Master.GameCommandItem GameCommandItem { get; set; }
         /// <summary>
         /// Text of unit
         /// </summary>

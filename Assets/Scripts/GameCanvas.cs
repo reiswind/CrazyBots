@@ -559,8 +559,8 @@ namespace Assets.Scripts
             {
                 if (selectedCommandPreview.GameCommand.GameCommandType == GameCommandType.Collect)
                 {
-                    HideButton(1);
-                    HideButton(2);
+                    SetButtonText(1, "(q) Decrease");
+                    SetButtonText(2, "(e) Increase");
                 }
                 else
                 {
@@ -607,12 +607,20 @@ namespace Assets.Scripts
                 SetMode(CanvasMode.Preview);
             }
         }
+        void IncreaseRadius()
+        {
+            selectedCommandPreview.IncreaseRadius();
+        }
+        void DecreaseRadius()
+        {
+            selectedCommandPreview.DecreaseRadius();
+        }
 
-        void RotateCommand()
+        void RotateCommand(bool turnRight)
         {
             if (selectedCommandPreview != null)
             {
-                selectedCommandPreview.RotateCommand();
+                selectedCommandPreview.RotateCommand(turnRight);
                 SetMode(CanvasMode.Preview);
             }
         }
@@ -637,13 +645,33 @@ namespace Assets.Scripts
                 selectedCommandPreview.SetSelected(true);
                 highlightedCommandPreview = selectedCommandPreview;
                 SetMode(CanvasMode.Preview);
+
+                return;
             }
 
             if (canvasMode == CanvasMode.Preview)
             {
-                if (btn == 1)
+                if (selectedCommandPreview.GameCommand.GameCommandType == GameCommandType.Collect)
                 {
-                    RotateCommand();
+                    if (btn == 1)
+                    {
+                        IncreaseRadius();
+                    }
+                    if (btn == 2)
+                    {
+                        DecreaseRadius();
+                    }
+                }
+                else
+                {
+                    if (btn == 1)
+                    {
+                        RotateCommand(true);
+                    }
+                    if (btn == 2)
+                    {
+                        RotateCommand(false);
+                    }
                 }
             }
             if (canvasMode == CanvasMode.Command)
@@ -768,12 +796,12 @@ namespace Assets.Scripts
 
                     if (raycastHit.collider.gameObject.name == "HexCell1")
                     {
-                        Debug.Log(num + " Raycast parent hit  " + raycastHit.collider.gameObject.transform.parent.name);
+                        //Debug.Log(num + " Raycast parent hit  " + raycastHit.collider.gameObject.transform.parent.name);
                         hitGroundCell = raycastHit.collider.gameObject.transform.parent.GetComponent<GroundCell>();
                     }
                     else
                     { 
-                        Debug.Log(num + " Raycast hit  " + raycastHit.collider.gameObject.name);
+                        //Debug.Log(num + " Raycast hit  " + raycastHit.collider.gameObject.name);
                         hitGroundCell = raycastHit.collider.gameObject.transform.GetComponent<GroundCell>();
                     }
 
@@ -781,7 +809,7 @@ namespace Assets.Scripts
                     
                     if (hitGroundCell != null)
                     {
-                        Debug.Log("Raycast hit GroundCell " + hitGroundCell.Pos.ToString());
+                        //Debug.Log("Raycast hit GroundCell " + hitGroundCell.Pos.ToString());
                     }
                     else
                     {
@@ -835,7 +863,7 @@ namespace Assets.Scripts
                 // Find command by pos
                 if (commandPreview == null && hitByMouseClick.GroundCell != null && HexGrid.MainGrid.CommandPreviews != null)
                 {
-                    foreach (CommandPreview commandPreview1 in HexGrid.MainGrid.CommandPreviews)
+                    foreach (CommandPreview commandPreview1 in HexGrid.MainGrid.CommandPreviews.Values)
                     {
                         if (commandPreview1.GameCommand.TargetPosition == hitByMouseClick.GroundCell.Pos)
                         {
@@ -1137,17 +1165,31 @@ namespace Assets.Scripts
 
             if (Input.GetKeyDown(KeyCode.Q))
             {
-
+                if (canvasMode == CanvasMode.Preview)
+                {
+                    if (selectedCommandPreview.GameCommand.GameCommandType == GameCommandType.Collect)
+                    {
+                        DecreaseRadius();
+                    }
+                    else
+                    {
+                        RotateCommand(false);
+                    }
+                }
             }
-            if (Input.GetKeyDown(KeyCode.W))
-            {
 
-            }
             if (Input.GetKeyDown(KeyCode.E))
             {
                 if (canvasMode == CanvasMode.Preview)
                 {
-                    RotateCommand();
+                    if (selectedCommandPreview.GameCommand.GameCommandType == GameCommandType.Collect)
+                    {
+                        IncreaseRadius();
+                    }
+                    else
+                    { 
+                        RotateCommand(true);
+                    }
                 }
                 if (canvasMode == CanvasMode.Command)
                 {
@@ -1159,18 +1201,7 @@ namespace Assets.Scripts
 
             }
 
-            if (Input.GetKeyDown(KeyCode.A))
-            {
-
-            }
-            if (Input.GetKeyDown(KeyCode.S))
-            {
-
-            }
-            if (Input.GetKeyDown(KeyCode.D))
-            {
-
-            }
+            
             if (Input.GetKeyDown(KeyCode.F))
             {
 

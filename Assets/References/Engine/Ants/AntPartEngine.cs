@@ -960,7 +960,6 @@ namespace Engine.Ants
                         if (Ant.Unit.AreAllIngredientsAvailable(player.Game.RecipeForAnyUnit.Ingredients))
                         {
                             Ant.Unit.ClearReservations();
-                            int x = 0;
                         }
                         else
                         {

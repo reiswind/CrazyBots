@@ -59,7 +59,7 @@ namespace Engine.Interface
         }
         public bool GrowBio(Map map, Tile tile, Dictionary<Position2, Tile> changedGroundPositions)
         {
-            bool freeSpaceC = true;
+            //bool freeSpaceC = true;
             bool freeSpaceN = true;
             bool freeSpaceNE = true;
             bool freeSpaceNW = true;
@@ -69,7 +69,7 @@ namespace Engine.Interface
 
             foreach (TileObject tileObject in tile.TileObjects)
             {
-                if (tileObject.Direction == Direction.C) freeSpaceC = false;
+                //if (tileObject.Direction == Direction.C) freeSpaceC = false;
                 if (tileObject.Direction == Direction.N) freeSpaceN = false;
                 if (tileObject.Direction == Direction.NE) freeSpaceNE = false;
                 if (tileObject.Direction == Direction.NW) freeSpaceNW = false;

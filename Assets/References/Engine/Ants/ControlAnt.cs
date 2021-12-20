@@ -694,7 +694,6 @@ namespace Engine.Ants
                         gameCommand.GameCommandType = GameCommandType.Build;
                         gameCommand.TargetPosition = buildPosition;
                         gameCommand.PlayerId = player.PlayerModel.Id;
-                        gameCommand.TargetZone = zoneId;
                         gameCommand.DeleteWhenFinished = true;
 
                         foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
@@ -1620,6 +1619,8 @@ namespace Engine.Ants
 
         private void AttachGamecommands(Player player, List<Ant> unmovedAnts, List<Move> moves)
         {
+            UnityEngine.Debug.Log("AttachGamecommands");
+
             List<GameCommand> completedCommands = new List<GameCommand>();
             List<GameCommand> cancelCommands = new List<GameCommand>();
             List<GameCommand> removeCommands = new List<GameCommand>();
@@ -1633,8 +1634,7 @@ namespace Engine.Ants
 
                     foreach (GameCommand otherGameCommand in player.GameCommands)
                     {
-                        if (otherGameCommand != gameCommand &&
-                            otherGameCommand.TargetPosition == gameCommand.TargetPosition)
+                        if (otherGameCommand.CommandId == gameCommand.CommandId)
                         {
                             foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
                             {
@@ -1653,9 +1653,12 @@ namespace Engine.Ants
                 }
                 if (gameCommand.GameCommandType == GameCommandType.Move)
                 {
+                    UnityEngine.Debug.Log("AttachGamecommands MOVE");
+
                     foreach (GameCommand moveGameCommand in player.GameCommands)
                     {
-                        if (moveGameCommand.TargetPosition == gameCommand.TargetPosition)
+                        //if (moveGameCommand.TargetPosition == gameCommand.TargetPosition)
+                        if (moveGameCommand.CommandId == gameCommand.CommandId)
                         {
                             foreach (GameCommandItem moveGameCommandItem in moveGameCommand.GameCommandItems)
                             {
@@ -1669,7 +1672,7 @@ namespace Engine.Ants
                                     }
                                 }
                             }
-                            moveGameCommand.TargetPosition = gameCommand.MoveToPosition;
+                            moveGameCommand.TargetPosition = gameCommand.TargetPosition; //.MoveToPosition;
                             moveGameCommand.IncludedPositions = gameCommand.IncludedPositions;
 
                             gameCommand.CommandComplete = true;
@@ -1690,9 +1693,11 @@ namespace Engine.Ants
 
                     foreach (GameCommand otherGameCommand in player.GameCommands)
                     {
-                        if (otherGameCommand != gameCommand &&
+                        if (otherGameCommand.CommandId == gameCommand.CommandId)
+                            /*
+                            if (otherGameCommand != gameCommand &&
                             otherGameCommand.TargetPosition == gameCommand.TargetPosition &&
-                            otherGameCommand.BlueprintName == gameCommand.BlueprintName)
+                            otherGameCommand.BlueprintName == gameCommand.BlueprintName)*/
                         {
                             foreach (Ant ant in unmovedAnts)
                             {
@@ -1727,8 +1732,9 @@ namespace Engine.Ants
             {
                 foreach (GameCommand gameCommand in player.GameCommands)
                 {
-                    if (cancelGameCommand.TargetPosition == gameCommand.TargetPosition &&
-                        cancelGameCommand.PlayerId == gameCommand.PlayerId)
+                    if (cancelGameCommand.CommandId == gameCommand.CommandId)
+                    //if (cancelGameCommand.TargetPosition == gameCommand.TargetPosition &&
+                    //    cancelGameCommand.PlayerId == gameCommand.PlayerId)
                     {
                         gameCommand.CommandCanceled = true;
                         completedCommands.Add(gameCommand);
@@ -1925,7 +1931,7 @@ namespace Engine.Ants
                                         {
                                             if (deliverySourceAnt.Unit.Assembler != null && deliverySourceAnt.Unit.Engine != null)
                                             {
-                                                int x = 0;
+
                                             }
                                             // The attached unit is the one, who delivers the content (Need resevation!)
                                             gameCommandItem.AttachedUnit.UnitId = deliverySourceAnt.Unit.UnitId;
@@ -1940,7 +1946,7 @@ namespace Engine.Ants
                                     {
                                         if (deliverySourceAnt.Unit.Assembler != null && deliverySourceAnt.Unit.Engine != null)
                                         {
-                                            int x = 0;
+
                                         }
                                         // The attached unit is the one, who delivers the content (Need resevation!)
                                         gameCommandItem.AttachedUnit.UnitId = deliverySourceAnt.Unit.UnitId;
@@ -2307,7 +2313,7 @@ namespace Engine.Ants
             moveNr++;
             if (moveNr == 441)
             {
-                int x = 0;
+
             }
 
             // Returned moves

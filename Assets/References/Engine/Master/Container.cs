@@ -40,7 +40,7 @@ namespace Engine.Master
         }
         public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position2> includedPosition2s, MoveFilter moveFilter)
         {
-            return;
+            /*
 
             if ((moveFilter & MoveFilter.Transport) == 0)
                 return;
@@ -113,7 +113,7 @@ namespace Engine.Master
                         possibleMoves.Add(move);
                     }
                 }
-            }
+            }*/
         }
     }
 }

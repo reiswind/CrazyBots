@@ -24,7 +24,7 @@ namespace Engine.Interface
         public int TotalPower { get; set; }
         public int PowerOutInTurns { get; set; }
 
-        public List<MapGameCommand> GameCommands { get; set; }
+        //public List<MapGameCommand> GameCommands { get; set; }
     }
 
     /*
@@ -41,16 +41,17 @@ namespace Engine.Interface
         {
             GameCommandItems = new List<MapGameCommandItem>();
         }
+        public int CommandId { get; set; }
         public string Layout { get; set; }
         public bool CommandComplete { get; set; }
         public bool DeleteWhenFinished { get; set; }
         public bool CommandCanceled { get; set; }
         public int Radius { get; set; }
+        
         public Direction Direction { get; set; }
         public int PlayerId { get; set; }
-        public int TargetZone { get; set; }
         public Position2 TargetPosition { get; set; }
-        public Position2 MoveToPosition { get; set; }
+        //public Position2 MoveToPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }
 
         public List<MapGameCommandItem> GameCommandItems { get; private set; }
@@ -212,65 +213,6 @@ namespace Engine.Interface
                 }
             }
 
-            foreach (KeyValuePair<int, MapPlayerInfo> valuePair in PlayerInfo)
-            {
-                if (valuePair.Key != 0)
-                {
-                    Player player = game.Players[valuePair.Key];
-                    MapPlayerInfo mapPlayerInfo = valuePair.Value;
-
-                    if (player.GameCommands != null)
-                    {
-                        mapPlayerInfo.GameCommands = new List<MapGameCommand>();
-                        foreach (GameCommand gameCommand in player.GameCommands)
-                        {
-                            MapGameCommand mapGameCommand = new MapGameCommand();
-
-                            mapGameCommand.CommandCanceled = gameCommand.CommandCanceled;
-                            mapGameCommand.CommandComplete = gameCommand.CommandComplete;
-                            mapGameCommand.DeleteWhenFinished = gameCommand.DeleteWhenFinished;
-                            mapGameCommand.GameCommandType = gameCommand.GameCommandType;
-                            mapGameCommand.MoveToPosition = gameCommand.MoveToPosition;
-                            mapGameCommand.PlayerId = gameCommand.PlayerId;
-                            mapGameCommand.TargetPosition = gameCommand.TargetPosition;
-                            mapGameCommand.TargetZone = gameCommand.TargetZone;
-                            mapGameCommand.Radius = gameCommand.Radius;
-                            mapGameCommand.Layout = gameCommand.Layout;
-
-                            foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
-                            {
-                                MapGameCommandItem mapGameCommandItem = new MapGameCommandItem(mapGameCommand);
-                                mapGameCommandItem.BlueprintName = gameCommandItem.BlueprintName;
-                                mapGameCommandItem.Direction = gameCommandItem.Direction;
-                                mapGameCommandItem.Position3 = gameCommandItem.Position3;
-
-                                mapGameCommandItem.AttachedUnit = new MapGameCommandItemUnit();
-                                mapGameCommandItem.AttachedUnit.UnitId = gameCommandItem.AttachedUnit.UnitId;
-                                mapGameCommandItem.AttachedUnit.Status = gameCommandItem.AttachedUnit.Status;
-                                mapGameCommandItem.AttachedUnit.Alert = gameCommandItem.AttachedUnit.Alert;
-
-                                mapGameCommandItem.FactoryUnit = new MapGameCommandItemUnit();
-                                mapGameCommandItem.FactoryUnit.UnitId = gameCommandItem.FactoryUnit.UnitId;
-                                mapGameCommandItem.FactoryUnit.Status = gameCommandItem.FactoryUnit.Status;
-                                mapGameCommandItem.FactoryUnit.Alert = gameCommandItem.FactoryUnit.Alert;
-
-                                mapGameCommandItem.TransportUnit = new MapGameCommandItemUnit();
-                                mapGameCommandItem.TransportUnit.UnitId = gameCommandItem.TransportUnit.UnitId;
-                                mapGameCommandItem.TransportUnit.Status = gameCommandItem.TransportUnit.Status;
-                                mapGameCommandItem.TransportUnit.Alert = gameCommandItem.TransportUnit.Alert;
-
-                                mapGameCommandItem.TargetUnit = new MapGameCommandItemUnit();
-                                mapGameCommandItem.TargetUnit.UnitId = gameCommandItem.TargetUnit.UnitId;
-                                mapGameCommandItem.TargetUnit.Status = gameCommandItem.TargetUnit.Status;
-                                mapGameCommandItem.TargetUnit.Alert = gameCommandItem.TargetUnit.Alert;
-
-                                mapGameCommand.GameCommandItems.Add(mapGameCommandItem);
-                            }
-                            mapPlayerInfo.GameCommands.Add(mapGameCommand);
-                        }
-                    }
-                }
-            }
             /*
             if (moves != null)
             {

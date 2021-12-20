@@ -635,13 +635,14 @@ namespace Assets.Scripts
             //Transform groundCellObject = GetDisplayedGroundCell();
             visitedBorders.Add(Pos);
 
+            /*
             bool updateNE = false;
             bool updateN = false;
             bool updateNW = false;
             bool updateSE = false;
             bool updateS = false;
             bool updateSW = false;
-
+            */
             GroundCell neighborBorder = null;
 
             Position3 position3 = new Position3(Pos);
@@ -668,12 +669,15 @@ namespace Assets.Scripts
                             renderer.material.SetColor("SurfaceColor", Color.cyan);
                         }
                     }*/
+
+                    /*
                     if (n.Direction == Direction.N) updateN = true;
                     if (n.Direction == Direction.NE) updateNE = true;
                     if (n.Direction == Direction.NW) updateNW = true;
                     if (n.Direction == Direction.S) updateS = true;
                     if (n.Direction == Direction.SE) updateSE = true;
                     if (n.Direction == Direction.SW) updateSW = true;
+                    */
                 }
             }
 
@@ -979,7 +983,7 @@ namespace Assets.Scripts
                         tileObjects.Add(tileObject1);
                 }
                 int itemsinLargeMineral = 5;
-                int itemsinBlockingMineral = Tile.BlockPathItemCount;
+                int itemsinBlockingMineral = Position2.BlockPathItemCount;
                 while (tileObjects.Count > 0)
                 {
                     if (tileObjects.Count > itemsinBlockingMineral)
@@ -1020,7 +1024,7 @@ namespace Assets.Scripts
                         tileObjects.Add(tileObject1);
                 }
                 int itemsinLargeMineral = 5;
-                int itemsinBlockingMineral = Tile.BlockPathItemCount;
+                int itemsinBlockingMineral = Position2.BlockPathItemCount;
                 while (tileObjects.Count > 0)
                 {
                     if (tileObjects.Count > itemsinBlockingMineral)
@@ -1150,50 +1154,6 @@ namespace Assets.Scripts
             }
         }
 
-        private List<CommandPreview> cellGameCommands = new List<CommandPreview>();
-
-        public bool ClearCommands()
-        {
-            List<CommandPreview> deletedCommands = new List<CommandPreview>();
-            foreach (CommandPreview cellGameCommand in cellGameCommands)
-            {
-                if (cellGameCommand.Touched == false)
-                {
-                    cellGameCommand.Delete();
-                    deletedCommands.Add(cellGameCommand);
-                }
-            }
-            foreach (CommandPreview deletedCellGameCommand in deletedCommands)
-            {
-                cellGameCommands.Remove(deletedCellGameCommand);
-                HexGrid.MainGrid.CommandPreviews.Remove(deletedCellGameCommand);
-            }
-            return cellGameCommands.Count == 0;
-        }
-
-        public void UntouchCommands()
-        {
-            foreach (CommandPreview cellGameCommand in cellGameCommands)
-            {
-                cellGameCommand.Touched = false;
-            }
-        }
-
-        public CommandPreview RemoveGameCommand(MapGameCommand gameCommand)
-        {
-            foreach (CommandPreview checkCellGameCommand in cellGameCommands)
-            {
-                if (checkCellGameCommand.GameCommand.TargetPosition == gameCommand.TargetPosition &&
-                    //checkCellGameCommand.GameCommand.GameCommandType == gameCommand.GameCommandType && Attack -> Move
-                    checkCellGameCommand.GameCommand.PlayerId == gameCommand.PlayerId)
-                {
-                    cellGameCommands.Remove(checkCellGameCommand);
-                    return checkCellGameCommand;
-                }
-            }
-            return null;
-        }
-
         private bool cacheUpdated;
         private void UpdateCache()
         {
@@ -1226,7 +1186,7 @@ namespace Assets.Scripts
                         canMove = false;
                 }
             }
-            if (mineralCache >= 20)
+            if (mineralCache >= Position2.BlockPathItemCount)
             {
                 canBuild = false;
             }
@@ -1258,98 +1218,6 @@ namespace Assets.Scripts
                 return mineralCache;
             }
         }
-        public void UpdateMoveCommand(CommandPreview commandPreview)
-        {
-            cellGameCommands.Add(commandPreview);
-        }
-
-        public CommandPreview UpdateCommands(MapGameCommand gameCommand, CommandPreview commandPreview)
-        {
-            CommandPreview cellGameCommand = null;
-
-            if (gameCommand.GameCommandType == GameCommandType.Cancel ||
-                gameCommand.GameCommandType == GameCommandType.Move)
-            {
-                foreach (CommandPreview checkCellGameCommand in cellGameCommands)
-                {
-                    if (checkCellGameCommand.GameCommand.TargetPosition == gameCommand.TargetPosition &&
-                        checkCellGameCommand.GameCommand.PlayerId == gameCommand.PlayerId)
-                    {
-                        checkCellGameCommand.Touched = false;
-                    }
-                }
-                return null;
-            }
-            else
-            {
-                foreach (CommandPreview checkCellGameCommand in cellGameCommands)
-                {
-                    if (checkCellGameCommand.GameCommand.TargetPosition == gameCommand.TargetPosition &&
-                        checkCellGameCommand.GameCommand.PlayerId == gameCommand.PlayerId &&
-                        checkCellGameCommand.GameCommand.GameCommandType == gameCommand.GameCommandType)
-                    {
-                        cellGameCommand = checkCellGameCommand;
-                        cellGameCommand.Touched = true;
-
-                        if (HexGrid.MainGrid.MoveCounter <= checkCellGameCommand.ValidAfterThisMoveNr)
-                        {
-                            // commands returned may contain an old version
-                        }
-                        else
-                        {
-                            if (cellGameCommand.UpdateCommandPreview(gameCommand))
-                            {
-                                cellGameCommand.SetPosition(this);
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-            if (cellGameCommand == null)
-            {
-                if (commandPreview == null)
-                {
-                    cellGameCommand = new CommandPreview();
-
-                    cellGameCommand.CreateCommandPreview(gameCommand);
-                    cellGameCommand.IsPreview = false;
-                    cellGameCommand.SetActive(false);
-                    cellGameCommand.SetPosition(this);
-                    cellGameCommand.Touched = true;
-                    HexGrid.MainGrid.CommandPreviews.Add(cellGameCommand);
-                }
-                else
-                {
-                    cellGameCommand = commandPreview;
-                }
-
-                if (cellGameCommand.Command != null)
-                {
-                    MeshRenderer meshRenderer = cellGameCommand.Command.GetComponent<MeshRenderer>();
-                    if (meshRenderer != null)
-                    {
-                        if (HexMapEditor.IsPlaying)
-                        {
-                            if (meshRenderer.materials.Length == 1)
-                            {
-                                meshRenderer.material.SetColor("Color_main", UnitBase.GetPlayerColor(gameCommand.PlayerId));
-                            }
-                        }
-                    }
-                }
-                cellGameCommands.Add(cellGameCommand);
-            }
-            return cellGameCommand;
-        }
-    }
-
-    public class CellGameCommandx
-    {
-        public UnitBase GhostUnit { get; set; }
-        public MapGameCommand GameCommand { get; set; }
-        public GameObject Command { get; set; }
-        public bool Touched { get; set; }
     }
 
 }

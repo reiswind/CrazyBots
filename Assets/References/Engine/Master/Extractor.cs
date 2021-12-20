@@ -570,10 +570,6 @@ namespace Engine.Master
                                 // unit is the recipient. otherunit is transporter
                                 foreach (RecipeIngredient moveRecipeIngredient in unit.CurrentGameCommand.GameCommand.RequestedItems)
                                 {
-                                    if (moveRecipeIngredient.TileObjectType == TileObjectType.Ammo)
-                                    {
-                                        int x = 0;
-                                    }
                                     if (moveRecipeIngredient.TileObjectType == TileObjectType.Burn ||
                                         moveRecipeIngredient.TileObjectType == TileObjectType.Ammo ||
                                         moveRecipeIngredient.TileObjectType == TileObjectType.Mineral)

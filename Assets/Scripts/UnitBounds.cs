@@ -8,28 +8,55 @@ using UnityEngine;
 
 namespace Assets.Scripts
 {
-    public class UnitBounds
+    public class CollectBounds
     {
-        public UnitBase UnitBase { get; private set; }
-        public UnitBounds(UnitBase unitBase)
+        private Position2 collectPosition;
+        private GameFrame gameFrame;
+        public CollectBounds(Position2 position, int radius)
         {
-            UnitBase = unitBase;
-            visible = true;
+            collectRadius = radius;
+            collectPosition = position;
+            gameFrame = new GameFrame();
         }
 
-        public Position2 Pos
+        private int collectRadius;
+
+        public bool IsVisible
         {
             get
             {
-                return lastPosition;
-
+                return gameFrame.IsVisible;
+            }
+            set
+            {
+                gameFrame.IsVisible = value;
             }
         }
+        public void Update()
+        {
+            gameFrame.Destroy();
+            if (collectPosition != Position2.Null)
+            {
+                Position3 position3 = new Position3(collectPosition);
+                List<Position3> positions = position3.CreateRing(collectRadius);
+                gameFrame.CreateFrame(positions);
+            }
+        }
+        public void Destroy()
+        {
+            gameFrame.Destroy();
+        }
+    }
 
-        private Position2 lastPosition;
-        //private List<GameObject> visibleFrames = new List<GameObject>();
+    public class GameFrame
+    {
+        public GameFrame()
+        {
+            visible = true;
+        }
+
         private Dictionary<Position2, GameObject> visibleFrames = new Dictionary<Position2, GameObject>();
-        private void CreateTargetFrame(Position3 position)
+        public void CreateTargetFrame(Position3 position)
         {
             if (!visibleFrames.ContainsKey(position.Pos))
             {
@@ -48,7 +75,7 @@ namespace Assets.Scripts
             }
         }
 
-        private void CreateBuildFrame(Position3 position)
+        public void CreateBuildFrame(Position3 position)
         {
             if (!visibleFrames.ContainsKey(position.Pos))
             {
@@ -66,7 +93,7 @@ namespace Assets.Scripts
                 }
             }
         }
-        private void CreateUnitFrame(Position3 position)
+        public void CreateUnitFrame(Position3 position)
         {
             if (!visibleFrames.ContainsKey(position.Pos))
             {
@@ -85,18 +112,17 @@ namespace Assets.Scripts
             }
         }
 
-
-        private void CreateFrameBorder(Position3 position, bool isCorner)
+        public void CreateFrameBorder(Position3 position, bool isCorner)
         {
             if (visibleFrames.ContainsKey(position.Pos))
                 return;
 
-                //if (!isCorner)
-                //    return;
-                //if (position.Direction != Direction.SW)
-                //    return;
-                //if (position.Direction != Direction.NE && position.Direction != Direction.N)
-                //    return;
+            //if (!isCorner)
+            //    return;
+            //if (position.Direction != Direction.SW)
+            //    return;
+            //if (position.Direction != Direction.NE && position.Direction != Direction.N)
+            //    return;
             GroundCell groundCell;
             if (HexGrid.MainGrid.GroundCells.TryGetValue(position.Pos, out groundCell))
             {
@@ -134,7 +160,7 @@ namespace Assets.Scripts
                     if (isCorner && previewUnitMarker3 != null)
                         previewUnitMarker3.transform.rotation = Quaternion.AngleAxis(30, Vector3.up);
                 }
-                
+
                 if (position.Direction == Direction.NE)
                 {
                     previewUnitMarker1.transform.rotation = Quaternion.AngleAxis(-30, Vector3.up);
@@ -176,14 +202,14 @@ namespace Assets.Scripts
                         previewUnitMarker3.transform.rotation = Quaternion.AngleAxis(270, Vector3.up);
                 }
 
-                
+
                 //visibleFrames.Add(previewUnitMarker1);
                 //visibleFrames.Add(previewUnitMarker2);
                 //if (previewUnitMarker3 != null)
                 //    visibleFrames.Add(previewUnitMarker3);
 
-                
-                    visibleFrames.Add(position.Pos, previewUnitMarker);
+
+                visibleFrames.Add(position.Pos, previewUnitMarker);
             }
 
         }
@@ -207,18 +233,6 @@ namespace Assets.Scripts
                     }
                 }
             }
-        }
-
-        private bool addBuildGrid;
-        public void AddBuildGrid()
-        {
-            addBuildGrid = true;
-        }
-
-        private int? collectRadius;
-        public void AddCollectRange(int radius)
-        {
-            collectRadius = radius;
         }
 
         private static List<Vector3> groundCellMesh;
@@ -250,7 +264,7 @@ namespace Assets.Scripts
             }
         }
 
-        private void CreateFrame(List<Position3> positions)
+        public void CreateFrame(List<Position3> positions)
         {
             GameObject lineRendererObject = new GameObject();
             visibleFrames.Add(positions[0].Pos, lineRendererObject);
@@ -309,7 +323,7 @@ namespace Assets.Scripts
                             transVert.y += aboveGround;
                             allvertices.Add(transVert);
                         }
-                        
+
                         if (position.Direction == Direction.SE)
                         {
                             transVert = child.transform.TransformPoint(GroundCellMesh[3]);
@@ -389,14 +403,14 @@ namespace Assets.Scripts
                             transVert.y += aboveGround;
                             allvertices.Add(transVert);
                         }
-                        
+
                     }
                     lastChild = child;
                 }
             }
 
             //CreateFrameBorder(position, nextPosition.Direction != position.Direction);                
-        
+
             lineRenderer.positionCount = allvertices.Count;
             for (int i = 0; i < allvertices.Count; i++)
             {
@@ -404,10 +418,59 @@ namespace Assets.Scripts
             }
         }
 
+        public void Destroy()
+        {
+            foreach (GameObject gameObject in visibleFrames.Values)
+            {
+                HexGrid.Destroy(gameObject);
+            }
+            visibleFrames.Clear();
+        }
+    }
+
+    public class UnitBounds
+    {
+        public UnitBase UnitBase { get; private set; }
+
+        private GameFrame gameFrame;
+
+        public UnitBounds(UnitBase unitBase)
+        {
+            UnitBase = unitBase;
+            gameFrame = new GameFrame();
+        }
+
+        public Position2 Pos
+        {
+            get
+            {
+                return lastPosition;
+            }
+        }
+
+        private Position2 lastPosition;
+
+        private bool addBuildGrid;
+        public void AddBuildGrid()
+        {
+            addBuildGrid = true;
+        }
+
+        public bool IsVisible
+        {
+            get
+            {
+                return gameFrame.IsVisible;
+            }
+            set
+            {
+                gameFrame.IsVisible = value;
+            }
+        }
+
         public void Update()
         {
-            if (visibleFrames.Count > 0)
-                Destroy();
+            gameFrame.Destroy();
 
             bool hasEngine = UnitBase.HasEngine();
 
@@ -418,12 +481,12 @@ namespace Assets.Scripts
                 if (!hasEngine && unitBasePart.PartType == TileObjectType.PartReactor)
                 {
                     List<Position3> positions = position3.CreateRing(unitBasePart.Range);
-                    CreateFrame(positions);
+                    gameFrame.CreateFrame(positions);
                 }
                 if (!hasEngine && unitBasePart.PartType == TileObjectType.PartContainer)
                 {
                     List<Position3> positions = position3.CreateRing(unitBasePart.Range);
-                    CreateFrame(positions);
+                    gameFrame.CreateFrame(positions);
                 }
                 if (unitBasePart.PartType == TileObjectType.PartWeapon)
                 {
@@ -440,17 +503,17 @@ namespace Assets.Scripts
 
                         canFireAt = positions[positions.Count - 2];
 
-                        Position3 canFireLeft = canFireAt.GetNeighbor(Tile.TurnLeft(canFireAt.Direction));
+                        Position3 canFireLeft = canFireAt.GetNeighbor(Dir.TurnLeft(canFireAt.Direction));
                         positions.Add(canFireLeft);
 
                         positions.AddRange(canFireAt.DrawLine(canFireLeft));
 
-                        Position3 canFireRight = canFireAt.GetNeighbor(Tile.TurnRight(canFireAt.Direction));
+                        Position3 canFireRight = canFireAt.GetNeighbor(Dir.TurnRight(canFireAt.Direction));
                         positions.Add(canFireRight);
 
                         foreach (Position3 position in positions)
                         {
-                            CreateTargetFrame(position);
+                            gameFrame.CreateTargetFrame(position);
                         }
                     }
                     else
@@ -458,35 +521,26 @@ namespace Assets.Scripts
                         List<Position3> positions = position3.CreateRing(unitBasePart.Range);
                         foreach (Position3 position in positions)
                         {
-                            CreateTargetFrame(position);
+                            gameFrame.CreateTargetFrame(position);
                         }
                     }
                 }
             }
-            if (collectRadius.HasValue)
-            {
-                List<Position3> positions = position3.CreateRing(collectRadius.Value);
-                CreateFrame(positions);
-            }
+
             if (addBuildGrid)
             {
                 List<Position3> positions = position3.GetNeighbors(2);
                 foreach (Position3 position in positions)
                 {
-                    CreateBuildFrame(position);
+                    gameFrame.CreateBuildFrame(position);
                 }
-                CreateUnitFrame(position3);
+                gameFrame.CreateUnitFrame(position3);
             }
-            
         }
-
         public void Destroy()
         {
-            foreach (GameObject gameObject in visibleFrames.Values)
-            {
-                HexGrid.Destroy(gameObject);
-            }
-            visibleFrames.Clear();
+            gameFrame.Destroy();
         }
+        
     }
 }
