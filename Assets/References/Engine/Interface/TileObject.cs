@@ -360,9 +360,9 @@ namespace Engine.Interface
             return copy;
         }
 
-        public static int GetBioMass(TileObjectType tileObjectType)
+        public static int GetWoodForObjectType(TileObjectType tileObjectType)
         {
-            if (tileObjectType == TileObjectType.Tree) return 3;
+            if (tileObjectType == TileObjectType.Tree) return 1;
             if (tileObjectType == TileObjectType.Bush) return 1;
 
             return 0;
@@ -411,6 +411,7 @@ namespace Engine.Interface
         {
             if (tileObjectType == TileObjectType.Mineral) return 100;
             if (tileObjectType == TileObjectType.Wood) return 150;
+            if (tileObjectType == TileObjectType.Stone) return 15;
 
             return 0;
         }
@@ -445,6 +446,35 @@ namespace Engine.Interface
 
             return false;
         }
+
+        public static bool CanMoveTo (ReadOnlyCollection<TileObject> tileObjects)
+        {
+            bool canMove = true;
+            foreach (TileObject tileObject in tileObjects)
+            {
+                if (tileObject.TileObjectType == TileObjectType.Mineral ||
+                    tileObject.TileObjectType == TileObjectType.Stone)
+                {
+                    if (tileObject.TileObjectKind == TileObjectKind.Many ||
+                        tileObject.TileObjectKind == TileObjectKind.Block)
+                    {
+                        canMove = false;
+                    }
+                }
+                else if (tileObject.TileObjectType == TileObjectType.Gras ||
+                         tileObject.TileObjectType == TileObjectType.Sand ||
+                         tileObject.TileObjectType == TileObjectType.TreeTrunk)
+                {
+                    // ok
+                }
+                else
+                {
+                    canMove = false;
+                }
+            }
+            return canMove;
+        }
+
 
         public static TileObjectType GetTileObjectTypeFromString(string unitCode, out int unitCodeLevel)
         {

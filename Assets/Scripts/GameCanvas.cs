@@ -1628,25 +1628,57 @@ namespace Assets.Scripts
                     headerSubText.text += " ALERT";
                 break;
             }
-            /*
-            panelCommand.transform.Find("Partname").GetComponent<Text>().text = gameCommand.GameCommandType.ToString();
-            panelCommand.transform.Find("Content").GetComponent<Text>().text = "Radius " + gameCommand.Radius.ToString();
-            panelCommand.SetActive(true);
-            */
 
-            if (position2 != Position2.Null)
+            if (commandPreview.GameCommand.GameCommandType == GameCommandType.Collect &&
+                commandPreview.CollectBounds != null)
             {
-                GroundCell gc;
-                if (HexGrid.MainGrid.GroundCells.TryGetValue(position2, out gc))
-                    AppendGroundInfo(gc, false);
-                else
-                    headerGroundText.text = "";
+                TileCounter tileCounter = new TileCounter();
+
+                foreach (Position2 position in commandPreview.CollectBounds.CollectedPositions)
+                {
+                    GroundCell gc;
+                    if (HexGrid.MainGrid.GroundCells.TryGetValue(position, out gc))
+                    {
+                        foreach (UnitBaseTileObject unitBaseTileObject in gc.GameObjects)
+                        {
+                            if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.Mineral)
+                            {
+                                tileCounter.Mineral++;
+                            }
+                            if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.Wood)
+                            {
+                                tileCounter.Wood++;
+                            }
+                            if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.Stone)
+                            {
+                                tileCounter.Stone++;
+                            }
+                            tileCounter.Wood += TileObject.GetWoodForObjectType(unitBaseTileObject.TileObject.TileObjectType);
+                        }
+                    }
+                }
+                //headerGroundText.text = "Min: " + min + " Stone: " + stone + " Wood: " + wood;
+
+                panelContainer.transform.Find("Partname").GetComponent<Text>().text = "Resources";
+                panelContainer.SetActive(true);
+                UpdateContainer(tileCounter);
             }
             else
             {
-                headerGroundText.text = "";
-            }
 
+                if (position2 != Position2.Null)
+                {
+                    GroundCell gc;
+                    if (HexGrid.MainGrid.GroundCells.TryGetValue(position2, out gc))
+                        AppendGroundInfo(gc, false);
+                    else
+                        headerGroundText.text = "";
+                }
+                else
+                {
+                    headerGroundText.text = "";
+                }
+            }
             /*
             foreach (MapGameCommandItem gameCommandItem in gameCommand.GameCommandItems)
             {

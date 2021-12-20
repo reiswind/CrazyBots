@@ -20,7 +20,14 @@ namespace Assets.Scripts
         }
 
         private int collectRadius;
-
+        private List<Position2> collectedPositions = new List<Position2>();
+        public IReadOnlyCollection<Position2> CollectedPositions
+        {
+            get
+            {
+                return collectedPositions;
+            }
+        }
         public bool IsVisible
         {
             get
@@ -37,13 +44,23 @@ namespace Assets.Scripts
             gameFrame.Destroy();
             if (collectPosition != Position2.Null)
             {
+                collectedPositions.Add(collectPosition);
+
                 Position3 position3 = new Position3(collectPosition);
                 List<Position3> positions = position3.CreateRing(collectRadius);
                 gameFrame.CreateFrame(positions);
+
+                positions = position3.GetNeighbors(collectRadius);
+                foreach (Position3 position31 in positions)
+                {
+                    collectedPositions.Add(position31.Pos);
+                    gameFrame.CreateBuildFrame(position31);
+                }
             }
         }
         public void Destroy()
         {
+            collectedPositions.Clear();
             gameFrame.Destroy();
         }
     }
@@ -56,6 +73,7 @@ namespace Assets.Scripts
         }
 
         private Dictionary<Position2, GameObject> visibleFrames = new Dictionary<Position2, GameObject>();
+        private List<GameObject> visibleGameObjects = new List<GameObject>();
         public void CreateTargetFrame(Position3 position)
         {
             if (!visibleFrames.ContainsKey(position.Pos))
@@ -267,7 +285,7 @@ namespace Assets.Scripts
         public void CreateFrame(List<Position3> positions)
         {
             GameObject lineRendererObject = new GameObject();
-            visibleFrames.Add(positions[0].Pos, lineRendererObject);
+            visibleGameObjects.Add(lineRendererObject);
 
             LineRenderer lineRenderer = lineRendererObject.AddComponent<LineRenderer>();
             lineRenderer.transform.SetParent(HexGrid.MainGrid.transform, false);
@@ -420,6 +438,12 @@ namespace Assets.Scripts
 
         public void Destroy()
         {
+            foreach (GameObject gameObject in visibleGameObjects)
+            {
+                HexGrid.Destroy(gameObject);
+            }
+            visibleGameObjects.Clear();
+
             foreach (GameObject gameObject in visibleFrames.Values)
             {
                 HexGrid.Destroy(gameObject);

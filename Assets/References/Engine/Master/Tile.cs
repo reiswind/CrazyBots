@@ -386,32 +386,11 @@ namespace Engine.Master
                 canBuild = false;
             }
 
-            foreach (TileObject tileObject in TileContainer.TileObjects)
-            {
-                if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
-                {
-                    numberOfCollectablesCache++;
-                }
-                if (tileObject.TileObjectType == TileObjectType.Mineral ||
-                    tileObject.TileObjectType == TileObjectType.Stone)
-                {
-                    if (tileObject.TileObjectKind == TileObjectKind.Many ||
-                        tileObject.TileObjectKind == TileObjectKind.Block)
-                    {
-                        canMove = false;
-                    }
-                }
-                else if (tileObject.TileObjectType == TileObjectType.Gras ||
-                         tileObject.TileObjectType == TileObjectType.Sand ||
-                         tileObject.TileObjectType == TileObjectType.TreeTrunk)
-                {
-                    // ok
-                }
-                else
-                {
-                    canMove = false;
-                }
-            }
+            canMove = TileObject.CanMoveTo(TileContainer.TileObjects);
+
+            numberOfCollectablesCache += Counter.Mineral;
+            numberOfCollectablesCache += Counter.Stone;
+            numberOfCollectablesCache += Counter.Wood;
         }
 
         private int numberOfCollectablesCache;

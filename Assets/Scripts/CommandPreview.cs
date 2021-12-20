@@ -165,20 +165,8 @@ namespace Assets.Scripts
                 if (stats.IsUnderwater)
                     return false;
 
-                int mins = 0;
-                foreach (TileObject tileObject in stats.TileObjects)
-                {
-                    if (tileObject.TileObjectType == TileObjectType.Mineral)
-                    {
-                        mins++;
-                    }
-                    else if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
-                        return false;
-                    else if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
-                        return false;
-                }
-
-                if (mins >= 20)
+                bool canMove = TileObject.CanMoveTo(stats.TileObjects.AsReadOnly());
+                if (!canMove)
                 {
                     return false;
                 }
@@ -345,8 +333,6 @@ namespace Assets.Scripts
             }
         }
 
-        private Position2 hasBeenMovedToThisPosition;
-
         public void Execute()
         {
             if (displayPosition != Position2.Null)
@@ -394,12 +380,6 @@ namespace Assets.Scripts
                     addPreviewGhost = null;
                     addPreviewUnitMarker = null;
 
-                    /*
-                    GroundCell gc;
-                    if (HexGrid.MainGrid.GroundCells.TryGetValue(GameCommand.TargetPosition, out gc))
-                    {
-                        CreateCommandPreview(gameCommand);
-                    }*/
 
                 }
                 else if (isMoveMode)
@@ -425,13 +405,7 @@ namespace Assets.Scripts
 
                         moveGameCommand.GameCommandItems.Add(gameCommandItem);
                     }
-
-                    Debug.Log("MoveCommand " + displayPosition.ToString());
-
                     HexGrid.MainGrid.GameCommands.Add(moveGameCommand);
-                    hasBeenMovedToThisPosition = displayPosition;
-
-                    //HexGrid.MainGrid.UpdateMoveCommand(GameCommand, moveGameCommand);
 
                     // Preview remains, the real gamecommand should be at the same position
                     isMoveMode = false;
@@ -467,12 +441,6 @@ namespace Assets.Scripts
 
                     HexGrid.MainGrid.GameCommands.Add(GameCommand);
                     HexGrid.MainGrid.CreatedCommandPreviews.Add(this);
-                    /*
-                    GroundCell gc;
-                    if (HexGrid.MainGrid.GroundCells.TryGetValue(displayPosition, out gc))
-                    {
-                        gc.UpdateCommands(GameCommand, this);
-                    }*/
                 }
             }
         }
@@ -494,13 +462,7 @@ namespace Assets.Scripts
             }            
             return true;
         }
-        /*
-        public void CreateAtPosition(GroundCell groundCell)
-        {
-            if (previewGameCommand == null)
-                CreateCommandLogo();
-            UpdatePositions(groundCell);
-        }*/
+
         private int displayRadius;
         private Position2 displayPosition;
         private Direction displayDirection = Direction.C;
@@ -671,6 +633,13 @@ namespace Assets.Scripts
         }
 
         private CollectBounds collectUnitBounds;
+        public CollectBounds CollectBounds
+        {
+            get
+            {
+                return collectUnitBounds;
+            }
+        }
 
         private void UpdateCollectPosition(GroundCell groundCell)
         {

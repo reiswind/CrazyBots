@@ -161,7 +161,12 @@ namespace Engine.Master
                     foreach (TileObject tileObject in t.Tile.TileObjects)
                     {
                         if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
-                            continue;
+                        {
+                            if (TileObject.GetWoodForObjectType(tileObject.TileObjectType) == 0)
+                            {
+                                continue;
+                            }
+                        }
 
                         if (Unit.CurrentGameCommand != null &&
                             Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest &&
