@@ -165,10 +165,57 @@ namespace Assets.Scripts
             transform.rotation = Quaternion.LookRotation(newDirection);
         }
 
+        private List<GameObject> lineRendererList = new List<GameObject>();
+
+
+        void UpdateArrow(LineRenderer cachedLineRenderer, Vector3 from, Vector3 to)
+        {
+            float PercentHead = 0.4f;
+            Vector3 ArrowOrigin = from;
+            Vector3 ArrowTarget = to;
+
+            cachedLineRenderer.widthCurve = new AnimationCurve(
+                new Keyframe(0, 0.4f)
+                , new Keyframe(0.999f - PercentHead, 0.4f)  // neck of arrow
+                , new Keyframe(1 - PercentHead, 1f)  // max width of arrow head
+                , new Keyframe(1, 0f));  // tip of arrow
+            cachedLineRenderer.SetPositions(new Vector3[] {
+              ArrowOrigin
+              , Vector3.Lerp(ArrowOrigin, ArrowTarget, 0.999f - PercentHead)
+              , Vector3.Lerp(ArrowOrigin, ArrowTarget, 1 - PercentHead)
+              , ArrowTarget });
+        }
+
+        private void DrawLine(Transform unit)
+        {
+            GameObject lineRendererObject = new GameObject();
+            lineRendererObject.name = "UnitLine";
+
+            LineRenderer lineRenderer = lineRendererObject.AddComponent<LineRenderer>();
+            lineRenderer.transform.SetParent(HexGrid.MainGrid.transform, false);
+            lineRenderer.material = HexGrid.MainGrid.GetMaterial("Player1");
+            
+            lineRenderer.startWidth = 0.05f;
+            lineRenderer.endWidth = 0.05f;
+            lineRenderer.positionCount = 2;
+            lineRenderer.SetPosition(0, transform.position);
+            lineRenderer.SetPosition(1, unit.position);
+
+            //UpdateArrow(lineRenderer, transform.position, unit.transform.position);
+
+            lineRendererList.Add(lineRendererObject);
+        }
+
         private void Update()
         {
             if (CommandPreview == null)
                 return;
+
+            foreach (GameObject line in lineRendererList)
+            {
+                Destroy(line);
+            }
+            lineRendererList.Clear();
 
             Position3 targetPosition3;
             if (CommandPreview.IsMoveMode)
@@ -179,6 +226,43 @@ namespace Assets.Scripts
             {
                 targetPosition3 = new Position3(CommandPreview.GameCommand.TargetPosition);
             }
+
+            foreach (MapGameCommandItem mapGameCommandItem in CommandPreview.GameCommand.GameCommandItems)
+            {
+                if (mapGameCommandItem.FactoryUnit.UnitId != null)
+                {
+                    UnitBase unitBase;
+                    if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.FactoryUnit.UnitId, out unitBase))
+                    {
+                        DrawLine(unitBase.transform);
+                    }
+                }
+                if (mapGameCommandItem.AttachedUnit.UnitId != null)
+                {
+                    UnitBase unitBase;
+                    if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.AttachedUnit.UnitId, out unitBase))
+                    {
+                        DrawLine(unitBase.transform);
+                    }
+                }
+                if (mapGameCommandItem.TransportUnit.UnitId != null)
+                {
+                    UnitBase unitBase;
+                    if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.TransportUnit.UnitId, out unitBase))
+                    {
+                        DrawLine(unitBase.transform);
+                    }
+                }
+                if (mapGameCommandItem.TargetUnit.UnitId != null)
+                {
+                    UnitBase unitBase;
+                    if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.TargetUnit.UnitId, out unitBase))
+                    {
+                        DrawLine(unitBase.transform);
+                    }
+                }
+            }
+
 
             //bool showAlert = false;
 

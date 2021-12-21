@@ -1619,8 +1619,6 @@ namespace Engine.Ants
 
         private void AttachGamecommands(Player player, List<Ant> unmovedAnts, List<Move> moves)
         {
-            UnityEngine.Debug.Log("AttachGamecommands");
-
             List<GameCommand> completedCommands = new List<GameCommand>();
             List<GameCommand> cancelCommands = new List<GameCommand>();
             List<GameCommand> removeCommands = new List<GameCommand>();
@@ -1653,7 +1651,7 @@ namespace Engine.Ants
                 }
                 if (gameCommand.GameCommandType == GameCommandType.Move)
                 {
-                    UnityEngine.Debug.Log("AttachGamecommands MOVE");
+                    //UnityEngine.Debug.Log("AttachGamecommands MOVE");
 
                     foreach (GameCommand moveGameCommand in player.GameCommands)
                     {
