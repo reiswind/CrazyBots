@@ -6,6 +6,13 @@ using UnityEngine;
 
 namespace Assets.Scripts
 {
+    public enum CollectionType
+    {
+        None,
+        Single,
+        Many,
+        Block
+    }
     public class GroundCellBorder
     {
         public List<Position2> Positions { get; set; }
@@ -78,6 +85,7 @@ namespace Assets.Scripts
 
         public GroundCell()
         {
+            TileCounter = new TileCounter();
             GameObjects = new List<UnitBaseTileObject>();
             UnitCommands = new List<UnitCommand>();
             ShowPheromones = false;
@@ -86,70 +94,38 @@ namespace Assets.Scripts
             Diffuse = 0.1f;
         }
 
-        public void CountObjects(TileCounter tileCounter)
-        {
-            foreach (UnitBaseTileObject unitBaseTileObject in GameObjects)
-            {
-                if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.Mineral)
-                {
-                    tileCounter.Mineral++;
-                }
-                else if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.Wood)
-                {
-                    tileCounter.Wood++;
-                }
-                else if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.Stone)
-                {
-                    tileCounter.Stone++;
-                }
-                else if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.Tree)
-                {
-                    tileCounter.Tree++;
-                }
-                else if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.Bush)
-                {
-                    tileCounter.Bush++;
-                }
-                else if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.Gras)
-                {
-                    tileCounter.Gras++;
-                }
-                else if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.Sand)
-                {
-                    tileCounter.Sand++;
-                }
-                else if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.TreeTrunk)
-                {
-                    tileCounter.TreeTrunk++;
-                }
-
-                tileCounter.Wood += TileObject.GetWoodForObjectType(unitBaseTileObject.TileObject.TileObjectType);
-            }
-        }
 
         public void UpdateColor()
         {
-            foreach (UnitBaseTileObject unitBaseTileObject1 in GameObjects)
-            {
-                if (unitBaseTileObject1.TileObject.TileObjectType == TileObjectType.Tree)
-                {
+            float value = Diffuse;
 
-                    //renderer = unitBaseTileObject1.GameObject.GetComponent<Renderer>();
-                    //if (renderer != null)
-                    //renderer.material.SetFloat("Darkness", Diffuse);
-                }
+            if (Pos.X == 77 && Pos.Y == 89)
+            {
+                int x = 0;
             }
+            if (IsHighlighted)
+            {
+                value = 1;
+                /*
+                foreach (UnitBaseTileObject unitBaseTileObject1 in GameObjects)
+                {
+                    if (unitBaseTileObject1.TileObject.TileObjectType == TileObjectType.Tree)
+                    {
+                        Renderer renderer = unitBaseTileObject1.GameObject.GetComponent<Renderer>();
+                        if (renderer != null)
+                            renderer.material.SetFloat("Darkness", 1);
+                    }
+                }*/
+            }
+
 
             Renderer[] rr = GetComponentsInChildren<Renderer>();
             foreach (Renderer renderer in rr)
-            // Set color
-            //Renderer renderer = GetComponent<Renderer>();
             {
-
                 if (renderer.materials.Length > 1)
                 {
-                    renderer.materials[0].SetFloat("Darkness", Diffuse);
-                    renderer.materials[1].SetFloat("Darkness", Diffuse);
+                    renderer.materials[0].SetFloat("Darkness", value);
+                    renderer.materials[1].SetFloat("Darkness", value);
 
                     /*
                     renderer.materials[0].SetColor("_TopTint", Color.blue);
@@ -162,7 +138,7 @@ namespace Assets.Scripts
                 }
                 else
                 {
-                    renderer.material.SetFloat("Darkness", Diffuse);
+                    renderer.material.SetFloat("Darkness", value);
                 }
                 /*
                 foreach (UnitBaseTileObject unitBaseTileObject1 in GameObjects)
@@ -176,6 +152,7 @@ namespace Assets.Scripts
                 }*/
             }
         }
+        
 
         private void CreateMarker()
         {
@@ -883,7 +860,6 @@ namespace Assets.Scripts
             bool wasBorder = IsBorder;
 
             Stats = moveUpdateStats;
-            UpdateCache();
 
             Vector3 vector3 = transform.localPosition;
             vector3.y = Stats.MoveUpdateGroundStat.Height + 0.3f;
@@ -935,7 +911,7 @@ namespace Assets.Scripts
             }
             GameObject destructable;
 
-            destructable = HexGrid.MainGrid.CreateDestructable(transform, tileObject);
+            destructable = HexGrid.MainGrid.CreateDestructable(transform, tileObject, CollectionType.Single);
             if (destructable != null)
             {
                 destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
@@ -948,13 +924,13 @@ namespace Assets.Scripts
             return unitBaseTileObject;
         }
 
-        internal void AddDestructableItems(int itemsinLargeMineral, List<UnitBaseTileObject> destroyedTileObjects, TileObjectType tileObjectType, TileObjectKind tileObjectKind)
+        internal void AddDestructableItems(int itemsinLargeMineral, List<UnitBaseTileObject> destroyedTileObjects, TileObjectType tileObjectType, CollectionType collectionType)
         {
             bool found = false;
             foreach (UnitBaseTileObject exisitingDestructable in destroyedTileObjects)
             {
                 if (exisitingDestructable.TileObject.TileObjectType == tileObjectType &&
-                    exisitingDestructable.TileObject.TileObjectKind == tileObjectKind)
+                    exisitingDestructable.CollectionType == collectionType)
                 {
                     destroyedTileObjects.Remove(exisitingDestructable);
                     found = true;
@@ -965,9 +941,8 @@ namespace Assets.Scripts
             {
                 GameObject destructable;
                 TileObject largeMineral = new TileObject(tileObjectType, Direction.C);
-                largeMineral.TileObjectKind = tileObjectKind;
 
-                destructable = HexGrid.MainGrid.CreateDestructable(transform, largeMineral);
+                destructable = HexGrid.MainGrid.CreateDestructable(transform, largeMineral, collectionType);
                 if (destructable != null)
                 {
                     destructable.transform.Rotate(Vector3.up, Random.Range(0, 360));
@@ -976,13 +951,18 @@ namespace Assets.Scripts
                 UnitBaseTileObject unitBaseTileObject = new UnitBaseTileObject();
                 unitBaseTileObject.GameObject = destructable;
                 unitBaseTileObject.TileObject = largeMineral;
-
+                unitBaseTileObject.CollectionType = collectionType;
                 GameObjects.Add(unitBaseTileObject);
             }
         }
 
         internal void CreateDestructables(bool init)
         {
+            if (Pos.X == 59 && Pos.Y == 87)
+            {
+                int x = 0;
+            }
+            UpdateCache();
             SetGroundMaterial();
             //return;
 
@@ -992,6 +972,9 @@ namespace Assets.Scripts
 
             int countMinerals = 0;
             int countStones = 0;
+
+            bool objectsAdded = false;
+
             foreach (TileObject tileObject in Stats.MoveUpdateGroundStat.TileObjects)
             {
                 if (tileObject.TileObjectType == TileObjectType.Mineral)
@@ -1009,6 +992,7 @@ namespace Assets.Scripts
                 }
                 else
                 {
+                    objectsAdded = true;
                     UnitBaseTileObject addedObject = AddDestructable(destroyedTileObjects, tileObject);
                     if (addedObject != null)
                         addedTileObjects.Add(addedObject);
@@ -1027,9 +1011,10 @@ namespace Assets.Scripts
                 int itemsinBlockingMineral = Position2.BlockPathItemCount;
                 while (tileObjects.Count > 0)
                 {
-                    if (tileObjects.Count > itemsinBlockingMineral)
+                    if (tileObjects.Count >= itemsinBlockingMineral)
                     {
-                        AddDestructableItems(itemsinBlockingMineral, destroyedTileObjects, TileObjectType.Mineral, TileObjectKind.Block);
+                        objectsAdded = true;
+                        AddDestructableItems(itemsinBlockingMineral, destroyedTileObjects, TileObjectType.Mineral, CollectionType.Block);
 
                         for (int i = 0; i < itemsinBlockingMineral; i++)
                             tileObjects.RemoveAt(0);
@@ -1037,7 +1022,8 @@ namespace Assets.Scripts
                     }
                     else if (tileObjects.Count > itemsinLargeMineral)
                     {
-                        AddDestructableItems(itemsinLargeMineral, destroyedTileObjects, TileObjectType.Mineral, TileObjectKind.Many);
+                        objectsAdded = true;
+                        AddDestructableItems(itemsinLargeMineral, destroyedTileObjects, TileObjectType.Mineral, CollectionType.Many);
 
                         for (int i = 0; i < itemsinLargeMineral; i++)
                             tileObjects.RemoveAt(0);
@@ -1048,6 +1034,7 @@ namespace Assets.Scripts
                         TileObject tileObject = FindTileObject(tileObjects, TileObjectType.Mineral);
                         if (tileObject != null)
                         {
+                            objectsAdded = true;
                             tileObjects.Remove(tileObject);
                             AddDestructable(destroyedTileObjects, tileObject);
                         }
@@ -1070,7 +1057,8 @@ namespace Assets.Scripts
                 {
                     if (tileObjects.Count > itemsinBlockingMineral)
                     {
-                        AddDestructableItems(itemsinBlockingMineral, destroyedTileObjects, TileObjectType.Stone, TileObjectKind.Block);
+                        objectsAdded = true;
+                        AddDestructableItems(itemsinBlockingMineral, destroyedTileObjects, TileObjectType.Stone, CollectionType.Block);
 
                         for (int i = 0; i < itemsinBlockingMineral; i++)
                             tileObjects.RemoveAt(0);
@@ -1078,7 +1066,8 @@ namespace Assets.Scripts
                     }
                     else if (tileObjects.Count > itemsinLargeMineral)
                     {
-                        AddDestructableItems(itemsinLargeMineral, destroyedTileObjects, TileObjectType.Stone, TileObjectKind.Many);
+                        objectsAdded = true;
+                        AddDestructableItems(itemsinLargeMineral, destroyedTileObjects, TileObjectType.Stone, CollectionType.Many);
 
                         for (int i = 0; i < itemsinLargeMineral; i++)
                             tileObjects.RemoveAt(0);
@@ -1089,6 +1078,7 @@ namespace Assets.Scripts
                         TileObject tileObject = FindTileObject(tileObjects, TileObjectType.Stone);
                         if (tileObject != null)
                         {
+                            objectsAdded = true;
                             tileObjects.Remove(tileObject);
                             AddDestructable(destroyedTileObjects, tileObject);
                         }
@@ -1116,7 +1106,7 @@ namespace Assets.Scripts
                     targetDiffuse = 0.1f;
 
                 }
-                if (targetDiffuse < (Diffuse + 0.03f) || targetDiffuse > (Diffuse - 0.03f))
+                if (objectsAdded || targetDiffuse < (Diffuse - 0.03f) || targetDiffuse > (Diffuse + 0.03f))
                 {
                     StartCoroutine(UpdateColorLerp());
                 }
@@ -1148,14 +1138,17 @@ namespace Assets.Scripts
 
         private IEnumerator UpdateColorLerp()
         {
-            while (targetDiffuse < (Diffuse - 0.03f) || targetDiffuse > (Diffuse + 0.03f))
+            do
             {
                 Diffuse = Mathf.Lerp(Diffuse, targetDiffuse, 0.03f);
                 UpdateColor();
                 yield return null;
             }
+            while (targetDiffuse < (Diffuse - 0.03f) || targetDiffuse > (Diffuse + 0.03f));
+
             yield break;
         }
+        /*
         private IEnumerator FadeInDestructable(GameObject gameObject, float raiseTo, float amount)
         {
             while (gameObject.transform.position.y < raiseTo)
@@ -1184,81 +1177,23 @@ namespace Assets.Scripts
             HexGrid.Destroy(gameObject);
             yield break;
         }
-
+        */
         public bool IsHighlighted { get; private set; }
         internal void SetHighlighted(bool isHighlighted)
         {
             if (IsHighlighted != isHighlighted)
             {
                 IsHighlighted = isHighlighted;
-
+                UpdateColor();
             }
         }
 
-        private bool cacheUpdated;
+        public TileCounter TileCounter { get; private set; }
+
         private void UpdateCache()
         {
-            cacheUpdated = true;
-            mineralCache = 0;
-            numberOfCollectablesCache = 0;
-
-            canBuild = true;
-
-
-            if (Stats.MoveUpdateGroundStat.IsUnderwater)
-                canBuild = false;
-
-            canMove = canBuild;
-            foreach (TileObject tileObject in Stats.MoveUpdateGroundStat.TileObjects)
-            {
-                if (tileObject.TileObjectType == TileObjectType.Mineral)
-                    mineralCache++;
-
-                if (TileObject.IsTileObjectTypeObstacle(tileObject.TileObjectType))
-                {
-                    canBuild = false;
-                    canMove = false;
-                    break;
-                }
-                if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
-                {
-                    numberOfCollectablesCache++;
-                    if (tileObject.TileObjectType != TileObjectType.Mineral)
-                        canMove = false;
-                }
-            }
-            if (mineralCache >= Position2.BlockPathItemCount)
-            {
-                canBuild = false;
-            }
-        }
-
-        private int mineralCache;
-        private int numberOfCollectablesCache;
-        private bool canBuild;
-        private bool canMove;
-        public int NumberOfCollectables
-        {
-            get
-            {
-                if (!cacheUpdated)
-                {
-                    UpdateCache();
-                }
-                return numberOfCollectablesCache;
-            }
-        }
-        public int Minerals
-        {
-            get
-            {
-                if (!cacheUpdated)
-                {
-                    UpdateCache();
-                }
-                return mineralCache;
-            }
+            TileCounter.Clear();
+            TileCounter.Add(Stats.MoveUpdateGroundStat.TileObjects.AsReadOnly());
         }
     }
-
 }

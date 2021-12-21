@@ -144,9 +144,27 @@ namespace Assets.Scripts
         internal void SetHighlighted(bool isHighlighted)
         {
             Command.SetHighlighted(isHighlighted);
+
+            if (GameCommand.GameCommandType == GameCommandType.Collect)
+            {
+                if (isHighlighted && collectUnitBounds == null)
+                {
+                    GroundCell gc;
+                    if (HexGrid.MainGrid.GroundCells.TryGetValue(GameCommand.TargetPosition, out gc))
+                    {
+                        UpdatePositions(gc);
+                    }
+                }
+                else if (!isHighlighted && collectUnitBounds != null)
+                {
+                    collectUnitBounds.Destroy();
+                    collectUnitBounds = null;
+                }
+            }
             foreach (CommandAttachedItem commandAttachedUnit in PreviewUnits)
             {
-                commandAttachedUnit.AttachedUnit.GhostUnit.SetHighlighted(isHighlighted);
+                if (commandAttachedUnit.AttachedUnit.GhostUnit != null)
+                    commandAttachedUnit.AttachedUnit.GhostUnit.SetHighlighted(isHighlighted);
             }
         }
 
@@ -165,14 +183,15 @@ namespace Assets.Scripts
                 if (stats.IsUnderwater)
                     return false;
 
-                bool canMove;
+                bool canMove = false;
                 if (GameCommand.GameCommandType == GameCommandType.Collect)
                 {
-                    canMove = true;
+                    if (groundCell.Stats.MoveUpdateGroundStat.Owner == 1)
+                        canMove = true;
                 }
                 else
                 {
-                    canMove = TileObject.CanMoveTo(stats.TileObjects.AsReadOnly());
+                    canMove = TileObject.CanMoveTo(groundCell.TileCounter);
                 }
                 if (!canMove)
                 {
@@ -658,7 +677,7 @@ namespace Assets.Scripts
             if (collectUnitBounds != null)
                 collectUnitBounds.Destroy();
 
-            if (IsPreview || IsSelected)
+            if (IsPreview || IsSelected || IsHighlighted)
             {
                 collectUnitBounds = new CollectBounds(groundCell.Pos, displayRadius);
                 collectUnitBounds.Update();
@@ -770,6 +789,14 @@ namespace Assets.Scripts
             {
                 if (Command == null) return false;
                 return Command.IsSelected;
+            }
+        }
+        public bool IsHighlighted
+        {
+            get
+            {
+                if (Command == null) return false;
+                return Command.IsHighlighted;
             }
         }
 

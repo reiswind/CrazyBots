@@ -103,7 +103,7 @@ namespace Engine.Interface
 
                 int numberOfCollectables;
 
-                numberOfCollectables = tileWithDistance.Tile.NumberOfCollectables;
+                numberOfCollectables = tileWithDistance.Tile.Counter.NumberOfCollectables;
                 if (tileWithDistance.Tile.Unit != null)
                 {
                     if (tileWithDistance.Tile.Unit.Owner.PlayerModel.Id == 0)

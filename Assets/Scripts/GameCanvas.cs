@@ -335,7 +335,7 @@ namespace Assets.Scripts
                     highlightedCommandPreview = commandPreview;
                     if (commandPreview != null)
                     {
-                        highlightedCommandPreview.Command.SetHighlighted(true);
+                        highlightedCommandPreview.SetHighlighted(true);
                         highlightedCommandPreview.SetActive(true);
                     }
                 }
@@ -352,8 +352,7 @@ namespace Assets.Scripts
                 }
                 else
                 {
-                    if (highlightedCommandPreview.Command != null)
-                        highlightedCommandPreview.Command.SetHighlighted(false);
+                    highlightedCommandPreview.SetHighlighted(false);
                     highlightedCommandPreview.SetActive(false);
                     highlightedCommandPreview = null;
                 }
@@ -922,16 +921,7 @@ namespace Assets.Scripts
                 }
                 else if (gc.GameObjects.Count > 0)
                 {
-                    int mins = 0;
-                    int other = 0;
-                    foreach (UnitBaseTileObject item in gc.GameObjects)
-                    {
-                        if (item.TileObject.TileObjectType == TileObjectType.Mineral)
-                            mins++;
-                        else
-                            other++;
-                    }
-                    sb.Append("Mins: " + mins + " Other: " + other);
+                    
                 }
                 headerGroundText.text = sb.ToString();
             }
@@ -1478,11 +1468,11 @@ namespace Assets.Scripts
                             }
                             else
                             {
-                                //highlightedCommandPreview.Command.SetHighlighted(false);
+                                //highlightedCommandPreview.SetHighlighted(false);
                                 highlightedCommandPreview.SetActive(false);
                             }
                         }
-                        //HighlightGameCommand(hitByMouseClick.CommandPreview);
+                        HighlightGameCommand(hitByMouseClick.CommandPreview);
                     }
 
                     if (hitByMouseClick.UnitBase != null)
@@ -1536,7 +1526,7 @@ namespace Assets.Scripts
                             }
                             else
                             {
-                                highlightedCommandPreview.Command.SetHighlighted(false);
+                                highlightedCommandPreview.SetHighlighted(false);
                             }
                         }
                         HighlightGameCommand(hitByMouseClick.CommandPreview);
@@ -1618,13 +1608,9 @@ namespace Assets.Scripts
         {
             AppendGroundInfo(groundCell, true);
 
-            TileCounter tileCounter = new TileCounter();
-
-            groundCell.CountObjects(tileCounter);
-
             panelContainer.transform.Find("Partname").GetComponent<Text>().text = "Resources";
             panelContainer.SetActive(true);
-            UpdateContainer(tileCounter);
+            UpdateContainer(groundCell.TileCounter);
         }
 
         private void DisplayGameCommand(CommandPreview commandPreview)
@@ -1666,7 +1652,7 @@ namespace Assets.Scripts
                     GroundCell gc;
                     if (HexGrid.MainGrid.GroundCells.TryGetValue(position, out gc))
                     {
-                        gc.CountObjects(tileCounter);
+                        tileCounter.Add(gc.TileCounter);
                     }
                 }
 

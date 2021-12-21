@@ -88,13 +88,12 @@ namespace Assets.Scripts
                         {
                             if (groundBaseTileObject.TileObject.TileObjectType == moveRecipeIngredient.TileObjectType)
                             {
-                                if (groundBaseTileObject.TileObject.TileObjectKind == TileObjectKind.Many ||
-                                    groundBaseTileObject.TileObject.TileObjectKind == TileObjectKind.Block)
+                                if (groundBaseTileObject.CollectionType != CollectionType.Single)
                                 {
                                     TileObject tileObject = new TileObject();
                                     tileObject.TileObjectType = groundBaseTileObject.TileObject.TileObjectType;
                                     tileObject.TileObjectKind = TileObjectKind.None;
-                                    transitGameObject = HexGrid.MainGrid.CreateDestructable(sourceCell.transform, tileObject);
+                                    transitGameObject = HexGrid.MainGrid.CreateDestructable(sourceCell.transform, tileObject, CollectionType.Single);
                                     transitType = groundBaseTileObject.TileObject.TileObjectType;
 
                                     HexGrid.Destroy(groundBaseTileObject.GameObject);
@@ -125,7 +124,7 @@ namespace Assets.Scripts
                             tileObject.TileObjectType = moveRecipeIngredient.TileObjectType;
                             tileObject.TileObjectKind = moveRecipeIngredient.TileObjectKind;
                             transitType = moveRecipeIngredient.TileObjectType;
-                            transitGameObject = HexGrid.MainGrid.CreateDestructable(sourceCell.transform, tileObject);
+                            transitGameObject = HexGrid.MainGrid.CreateDestructable(sourceCell.transform, tileObject, CollectionType.Single);
                             targetPosition = targetCell.transform.position;
                         }
                         else

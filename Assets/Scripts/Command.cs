@@ -288,6 +288,9 @@ namespace Assets.Scripts
 
                     if (CommandPreview.GameCommand.GameCommandType == GameCommandType.Collect)
                     {
+                        //if (CommandPreview.CollectBounds == null)
+                        //    CommandPreview.UpdateCommandPreview();
+                        /*
                         List<Position3> groundPositions = centerPosition3.GetNeighbors(CommandPreview.GameCommand.Radius);
                         foreach (Position3 position3 in groundPositions)
                         {
@@ -322,7 +325,7 @@ namespace Assets.Scripts
 
                                 }
                             }
-                        }
+                        }*/
                     }
                 }
 

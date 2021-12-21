@@ -34,6 +34,8 @@ namespace Assets.Scripts
         public GameObject Placeholder { get; set; }
         public GameObject GameObject { get; set; }
         public TileObject TileObject { get; set; }
+        public CollectionType CollectionType { get; set; }
+        
     }
     public class TransitObject
     {

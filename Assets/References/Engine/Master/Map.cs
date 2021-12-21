@@ -299,7 +299,8 @@ namespace Engine.Interface
             {
                 tileObject.TileObjectType = TileObjectType.Mineral;
             }
-            if (tileObject.TileObjectType == TileObjectType.Mineral)
+            if (tileObject.TileObjectType == TileObjectType.Mineral ||
+                tileObject.TileObjectType == TileObjectType.Stone)
             {
                 /*
                 if (excessTilesObjects.Count > 0)
@@ -709,6 +710,7 @@ namespace Engine.Interface
                     //BioMass += 300;
                     mapZone.MaxMinerals = 40;
                     mapZone.MaxMineralsPerTile = 20;
+                    mapZone.MaxStonesPerTile = 40;
                     mapZone.StartObjectGenerator(this);
                 }
             }
@@ -882,7 +884,7 @@ namespace Engine.Interface
                             {
                                 if (tile.Counter.Stone > 0)
                                 {
-                                    if (tile.Counter.Stone < mapZone.MaxMineralsPerTile)
+                                    if (tile.Counter.Stone < mapZone.MaxStonesPerTile)
                                     {
                                         tile.Add(tileObject);
                                         if (!excessTilesObjects.Remove(tileObject))
@@ -902,7 +904,7 @@ namespace Engine.Interface
                                         {
                                             int idx = Game.Random.Next(tile.Neighbors.Count);
                                             Tile n = tile.Neighbors[idx];
-                                            if (n.Counter.Stone < mapZone.MaxMineralsPerTile)
+                                            if (n.Counter.Stone < mapZone.MaxStonesPerTile)
                                             {
                                                 if (!Game.changedGroundPositions.ContainsKey(n.Pos))
                                                     Game.changedGroundPositions.Add(n.Pos, null);
@@ -929,7 +931,7 @@ namespace Engine.Interface
                             // Any random position
                             int idx = Game.Random.Next(mapZone.Tiles.Count);
                             Tile t = mapZone.Tiles.ElementAt(idx).Value;
-                            if (t != null && !t.IsUnderwater && t.Counter.Stone < mapZone.MaxMineralsPerTile)
+                            if (t != null && !t.IsUnderwater && t.Counter.Stone < mapZone.MaxStonesPerTile)
                             {
                                 if (t.Unit != null && t.Unit.Engine == null)
                                 {

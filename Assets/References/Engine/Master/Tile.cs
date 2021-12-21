@@ -152,17 +152,17 @@ namespace Engine.Master
             }
             else
             {
-                // Anything but minerals are distributed
-                if (bulletTileObject.TileObjectType != TileObjectType.Mineral)
-                {
-                    Map.AddOpenTileObject(bulletTileObject);
-                }
-                else
+                // Anything but minerals/stone are distributed
+                if (bulletTileObject.TileObjectType == TileObjectType.Mineral ||
+                    bulletTileObject.TileObjectType == TileObjectType.Stone)
                 {
                     // Minerals stay on hit tile
-
                     TileContainer.Add(bulletTileObject);
                     UpdateCache();
+                }
+                else
+                { 
+                    Map.AddOpenTileObject(bulletTileObject);
                 }
             }
             RemoveBio(true);
@@ -371,7 +371,6 @@ namespace Engine.Master
         private void UpdateCache()
         {
             cacheUpdated = true;
-            numberOfCollectablesCache = 0;
 
             canBuild = true;
 
@@ -385,30 +384,15 @@ namespace Engine.Master
             {
                 canBuild = false;
             }
-
-            canMove = TileObject.CanMoveTo(TileContainer.TileObjects);
-
-            numberOfCollectablesCache += Counter.Mineral;
-            numberOfCollectablesCache += Counter.Stone;
-            numberOfCollectablesCache += Counter.Wood;
+            if (Pos.X == 71 && Pos.Y == 88)
+            {
+                int x = 0;
+            }
+            canMove = TileObject.CanMoveTo(Counter);
         }
 
-        private int numberOfCollectablesCache;
         private bool canBuild;
         private bool canMove;
-
-        public int NumberOfCollectables
-        {
-            get
-            {
-                if (!cacheUpdated)
-                {
-                    UpdateCache();
-                }
-                return numberOfCollectablesCache;
-            }
-        }
-
         public int ZoneId { get; set; }
         
         public bool IsUnderwater { get; set; }

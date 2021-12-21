@@ -54,12 +54,25 @@ namespace Assets.Scripts
                 foreach (Position3 position31 in positions)
                 {
                     collectedPositions.Add(position31.Pos);
-                    gameFrame.CreateBuildFrame(position31);
+                    GroundCell groundCell;
+                    if (HexGrid.MainGrid.GroundCells.TryGetValue(position31.Pos, out groundCell))
+                    {
+                        if (groundCell.TileCounter.NumberOfCollectables > 0)
+                            groundCell.SetHighlighted(true);
+                    }
                 }
             }
         }
         public void Destroy()
         {
+            foreach (Position2 position in collectedPositions)
+            {
+                GroundCell groundCell;
+                if (HexGrid.MainGrid.GroundCells.TryGetValue(position, out groundCell))
+                {
+                    groundCell.SetHighlighted(false);
+                }
+            }
             collectedPositions.Clear();
             gameFrame.Destroy();
         }

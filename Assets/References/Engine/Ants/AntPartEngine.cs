@@ -776,7 +776,7 @@ namespace Engine.Ants
                     }
 
                     // Look for ammo
-                    if (tile.Tile.NumberOfCollectables == 0)
+                    if (tile.Tile.Counter.NumberOfCollectables == 0)
                         return false;
                 }
                 return true;
@@ -859,7 +859,7 @@ namespace Engine.Ants
                     continue;
 
                 // Collect all
-                if (tileWithDistance.Tile.NumberOfCollectables == 0)
+                if (tileWithDistance.Tile.Counter.NumberOfCollectables == 0)
                     continue;
 
                 // Is it in powered zone?

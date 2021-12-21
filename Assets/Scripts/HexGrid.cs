@@ -333,7 +333,7 @@ namespace Assets.Scripts
             return gameTileObject;
         }
 
-        public GameObject CreateDestructable(Transform transform, TileObject tileObject)
+        public GameObject CreateDestructable(Transform transform, TileObject tileObject, CollectionType collectionType)
         {
             GameObject prefab;
             float x = 0;
@@ -372,17 +372,25 @@ namespace Assets.Scripts
             }
             else if (tileObject.TileObjectType == TileObjectType.Stone)
             {
-                if (tileObject.TileObjectKind == TileObjectKind.Block || tileObject.TileObjectKind == TileObjectKind.Many)
+                if (collectionType == CollectionType.Block)
                 {
                     scale = true;
                     int idx = Random.Next(rockResources.Count);
                     prefab = rockResources.Values.ElementAt(idx);
                     y = prefab.transform.position.y;
                 }
+                else if (collectionType == CollectionType.Many)
+                {
+                    prefab = GetResource("ItemStoneLarge");
+                }
+
                 else
                 {
                     prefab = GetResource("ItemStone");
                 }
+                y = 0.05f;
+                x = (randomPos.x * 0.5f);
+                z = (randomPos.y * 0.7f);
             }
             else if (tileObject.TileObjectType == TileObjectType.Gras)
             {
@@ -404,11 +412,11 @@ namespace Assets.Scripts
             }
             else if (tileObject.TileObjectType == TileObjectType.Mineral)
             {
-                if (tileObject.TileObjectKind == TileObjectKind.Block)
+                if (collectionType == CollectionType.Block)
                 {
                     prefab = GetResource("ItemCrystalBlock");
                 }
-                else if (tileObject.TileObjectKind == TileObjectKind.Many)
+                else if (collectionType == CollectionType.Many)
                 {
                     prefab = GetResource("ItemCrystalLarge");
                 }
@@ -1134,6 +1142,11 @@ namespace Assets.Scripts
                     }
                     else if (move.MoveType == MoveType.UpdateGround)
                     {
+                        if (move.Positions[0].X == 77 && move.Positions[0].Y == 89)
+                        {
+                            int x = 0;
+                        }
+
                         bool skip = false;
                         foreach (HitByBullet hitByBullet in hitByBullets)
                         {
@@ -1995,6 +2008,7 @@ namespace Assets.Scripts
                 float height = stats.MoveUpdateGroundStat.Height;
                 gridPos3.y += height + 0.3f;
                 gameObjectCell.transform.localPosition = gridPos3;
+
                 groundCell.CreateDestructables(true);
             }
             return groundCell;

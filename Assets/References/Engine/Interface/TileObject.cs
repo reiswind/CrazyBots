@@ -220,10 +220,8 @@ namespace Engine.Interface
         LeaveTree,
 
         LightGras,
-        DarkGras,
+        DarkGras
 
-        Many,
-        Block
     }
 
     public enum TileObjectType
@@ -273,22 +271,43 @@ namespace Engine.Interface
         public int TreeTrunk;
         public int Water;
         public int None;
+        public int NumberOfCollectables;
 
         public void Update(ReadOnlyCollection<TileObject> tileObjects)
+        {
+            Clear();
+            Add(tileObjects);
+        }
+
+        public void Clear()
         {
             Gras = 0;
             Bush = 0;
             Wood = 0;
             Tree = 0;
             Sand = 0;
+            Mineral = 0;
             Stone = 0;
             TreeTrunk = 0;
             Water = 0;
+            NumberOfCollectables = 0;
             None = 7;
-
-            Add(tileObjects);
         }
 
+        public void Add(TileCounter t)
+        {
+            Gras += t.Gras;
+            Bush += t.Bush;
+            Wood += t.Wood;
+            Tree += t.Tree;
+            Sand += t.Sand;
+            Mineral += t.Mineral;
+            Stone += t.Stone;
+            TreeTrunk += t.TreeTrunk;
+            Water += t.Water;
+            NumberOfCollectables += t.NumberOfCollectables;
+            None += t.None;
+        }
         public void Add(ReadOnlyCollection<TileObject> tileObjects)
         {
             if (tileObjects == null)
@@ -340,6 +359,13 @@ namespace Engine.Interface
                     Water++;
                     None--;
                 }
+                if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
+                    NumberOfCollectables++;
+                // Sure?
+                int convertable;
+                convertable = TileObject.GetWoodForObjectType(tileObject.TileObjectType);
+                Wood += convertable;
+                NumberOfCollectables += convertable;
             }
         }
     }
@@ -447,31 +473,21 @@ namespace Engine.Interface
             return false;
         }
 
-        public static bool CanMoveTo (ReadOnlyCollection<TileObject> tileObjects)
+        public static bool CanMoveTo (TileCounter tileCounter)
         {
             bool canMove = true;
-            foreach (TileObject tileObject in tileObjects)
-            {
-                if (tileObject.TileObjectType == TileObjectType.Mineral ||
-                    tileObject.TileObjectType == TileObjectType.Stone)
-                {
-                    if (tileObject.TileObjectKind == TileObjectKind.Many ||
-                        tileObject.TileObjectKind == TileObjectKind.Block)
-                    {
-                        canMove = false;
-                    }
-                }
-                else if (tileObject.TileObjectType == TileObjectType.Gras ||
-                         tileObject.TileObjectType == TileObjectType.Sand ||
-                         tileObject.TileObjectType == TileObjectType.TreeTrunk)
-                {
-                    // ok
-                }
-                else
-                {
-                    canMove = false;
-                }
-            }
+
+            if (tileCounter.Mineral >= Position2.BlockPathItemCount)
+                canMove = false;
+            if (tileCounter.Stone >= Position2.BlockPathItemCount)
+                canMove = false;
+            if (tileCounter.Tree > 0)
+                canMove = false;
+            if (tileCounter.Bush > 0)
+                canMove = false;
+            if (tileCounter.Water > 0)
+                canMove = false;
+
             return canMove;
         }
 
