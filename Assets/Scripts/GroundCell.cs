@@ -919,6 +919,7 @@ namespace Assets.Scripts
             UnitBaseTileObject unitBaseTileObject = new UnitBaseTileObject();
             unitBaseTileObject.GameObject = destructable;
             unitBaseTileObject.TileObject = tileObject.Copy();
+            unitBaseTileObject.CollectionType = CollectionType.Single;
 
             GameObjects.Add(unitBaseTileObject);
             return unitBaseTileObject;

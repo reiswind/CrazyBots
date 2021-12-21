@@ -195,6 +195,7 @@ namespace Assets.Scripts
             {
                 UnitBaseTileObject newUnitBaseTileObject = new UnitBaseTileObject();
                 newUnitBaseTileObject.TileObject = tileObject.Copy();
+                newUnitBaseTileObject.CollectionType = CollectionType.Single;
                 tileObjects.Add(newUnitBaseTileObject);
 
                 if (oneItemPerCube && emptyCubes.Count > 0)

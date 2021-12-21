@@ -233,7 +233,7 @@ namespace Assets.Scripts
 
             foreach (MapGameCommandItem mapGameCommandItem in CommandPreview.GameCommand.GameCommandItems)
             {
-                if (mapGameCommandItem.FactoryUnit.UnitId != null)
+                if (mapGameCommandItem.FactoryUnit?.UnitId != null)
                 {
                     UnitBase unitBase;
                     if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.FactoryUnit.UnitId, out unitBase))
@@ -241,7 +241,7 @@ namespace Assets.Scripts
                         DrawLine(unitBase.transform);
                     }
                 }
-                if (mapGameCommandItem.AttachedUnit.UnitId != null)
+                if (mapGameCommandItem.AttachedUnit?.UnitId != null)
                 {
                     UnitBase unitBase;
                     if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.AttachedUnit.UnitId, out unitBase))
@@ -249,7 +249,7 @@ namespace Assets.Scripts
                         DrawLine(unitBase.transform);
                     }
                 }
-                if (mapGameCommandItem.TransportUnit.UnitId != null)
+                if (mapGameCommandItem.TransportUnit?.UnitId != null)
                 {
                     UnitBase unitBase;
                     if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.TransportUnit.UnitId, out unitBase))
@@ -257,7 +257,7 @@ namespace Assets.Scripts
                         DrawLine(unitBase.transform);
                     }
                 }
-                if (mapGameCommandItem.TargetUnit.UnitId != null)
+                if (mapGameCommandItem.TargetUnit?.UnitId != null)
                 {
                     UnitBase unitBase;
                     if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.TargetUnit.UnitId, out unitBase))

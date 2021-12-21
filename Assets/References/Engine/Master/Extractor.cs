@@ -79,6 +79,8 @@ namespace Engine.Master
                     {
                         if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
                             return true;
+                        if (TileObject.GetWoodForObjectType(tileObject.TileObjectType) > 0)
+                            return true;
                     }
                 }
                 return false;
@@ -356,8 +358,12 @@ namespace Engine.Master
             foreach (TileObject tileObject in otherInit.Container.TileContainer.TileObjects)
             {
                 if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
-                    continue;
-
+                {
+                    if (TileObject.GetWoodForObjectType(tileObject.TileObjectType) == 0)
+                    {
+                        continue;
+                    }
+                }
                 if (Unit.IsSpaceForTileObject(tileObject))
                 {
                     possibleItem = true;
@@ -806,9 +812,6 @@ namespace Engine.Master
             {
                 foreach (TileObject tileObject in fromTile.TileObjects)
                 {
-                    if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
-                        continue;
-
                     TileObjectType collectedTileObjectType;
                     if (tileObject.TileObjectType == TileObjectType.Bush ||
                         tileObject.TileObjectType == TileObjectType.Tree)

@@ -86,7 +86,19 @@ namespace Assets.Scripts
                     {
                         foreach (UnitBaseTileObject groundBaseTileObject in sourceCell.GameObjects)
                         {
+                            bool isSame = false;
                             if (groundBaseTileObject.TileObject.TileObjectType == moveRecipeIngredient.TileObjectType)
+                                isSame = true;
+                            else
+                            {
+                                if (groundBaseTileObject.TileObject.TileObjectType == TileObjectType.Bush ||
+                                    groundBaseTileObject.TileObject.TileObjectType == TileObjectType.Tree)
+                                {
+                                    if (moveRecipeIngredient.TileObjectType == TileObjectType.Wood)
+                                        isSame = true;
+                                }
+                            }
+                            if (isSame)
                             {
                                 if (groundBaseTileObject.CollectionType != CollectionType.Single)
                                 {

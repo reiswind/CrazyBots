@@ -31,6 +31,10 @@ namespace Assets.Scripts
     }
     public class UnitBaseTileObject
     {
+        public UnitBaseTileObject()
+        {
+
+        }
         public GameObject Placeholder { get; set; }
         public GameObject GameObject { get; set; }
         public TileObject TileObject { get; set; }
@@ -983,6 +987,7 @@ namespace Assets.Scripts
                             unitBaseTileObject.TileObject = new TileObject();
                             unitBaseTileObject.TileObject.TileObjectType = TileObjectType.Mineral;
                             unitBaseTileObject.TileObject.Direction = Direction.C;
+                            unitBaseTileObject.CollectionType = CollectionType.Single;
 
                             GameObject partObject;
                             if (unitBasePart.Level > 0 && unitBasePart.CompleteLevel > 1)
