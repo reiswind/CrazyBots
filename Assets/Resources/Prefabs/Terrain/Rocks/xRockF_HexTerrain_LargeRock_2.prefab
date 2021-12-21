@@ -260,7 +260,7 @@ GameObject:
   - component: {fileID: 5125723633285661165}
   - component: {fileID: 105876191778420380}
   m_Layer: 0
-  m_Name: RockF_HexTerrain_LargeRock_2
+  m_Name: xRockF_HexTerrain_LargeRock_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

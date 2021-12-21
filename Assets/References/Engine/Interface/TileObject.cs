@@ -270,7 +270,7 @@ namespace Engine.Interface
         public int Sand;
         public int Mineral;
         public int Stone;
-        public int Trunk;
+        public int TreeTrunk;
         public int Water;
         public int None;
 
@@ -282,7 +282,7 @@ namespace Engine.Interface
             Tree = 0;
             Sand = 0;
             Stone = 0;
-            Trunk = 0;
+            TreeTrunk = 0;
             Water = 0;
             None = 7;
 
@@ -307,7 +307,7 @@ namespace Engine.Interface
                 }
                 else if (tileObject.TileObjectType == TileObjectType.TreeTrunk)
                 {
-                    Trunk++;
+                    TreeTrunk++;
                     None--;
                 }
                 else if (tileObject.TileObjectType == TileObjectType.Wood)

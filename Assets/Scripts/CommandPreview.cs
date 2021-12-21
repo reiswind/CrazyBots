@@ -165,7 +165,15 @@ namespace Assets.Scripts
                 if (stats.IsUnderwater)
                     return false;
 
-                bool canMove = TileObject.CanMoveTo(stats.TileObjects.AsReadOnly());
+                bool canMove;
+                if (GameCommand.GameCommandType == GameCommandType.Collect)
+                {
+                    canMove = true;
+                }
+                else
+                {
+                    canMove = TileObject.CanMoveTo(stats.TileObjects.AsReadOnly());
+                }
                 if (!canMove)
                 {
                     return false;

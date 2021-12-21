@@ -280,7 +280,7 @@ namespace Assets.Scripts
         {
             if (IsGhost)
                 return;
-            if (HexGrid.MainGrid.IsPause)
+            if (HexGrid.MainGrid.IsPause || HexGrid.MainGrid.GroundCells == null)
                 return;
 
             //fixedFrameCounter++;

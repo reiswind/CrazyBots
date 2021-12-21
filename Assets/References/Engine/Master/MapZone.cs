@@ -87,18 +87,18 @@ namespace Engine.Interface
 
             if (tile.Counter.Sand == 0 && tile.Counter.Stone == 0 && tile.Counter.Water == 0)
             {
-                if (tile.Counter.None > 1 && tile.Counter.Bush == 0 && tile.Counter.Tree == 0 && tile.Counter.Trunk == 0)
+                if (tile.Counter.None > 1 && tile.Counter.Bush == 0 && tile.Counter.Tree == 0 && tile.Counter.TreeTrunk == 0)
                 {
                     //  Add gras
                     addGras = true;
                 }
-                else if (tile.Counter.Trunk >= 4)
+                else if (tile.Counter.TreeTrunk >= 4)
                 {
                     // grow bush from trunk
                     replaceObjectType = TileObjectType.TreeTrunk;
                     newObjectType = TileObjectType.Bush;
                 }
-                else if (tile.Counter.Trunk > 0 && tile.Counter.Trunk < 3 && tile.Counter.None > 1)
+                else if (tile.Counter.TreeTrunk > 0 && tile.Counter.TreeTrunk < 3 && tile.Counter.None > 1)
                 {
                     // Add gras
                     addGras = true;

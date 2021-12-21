@@ -86,6 +86,47 @@ namespace Assets.Scripts
             Diffuse = 0.1f;
         }
 
+        public void CountObjects(TileCounter tileCounter)
+        {
+            foreach (UnitBaseTileObject unitBaseTileObject in GameObjects)
+            {
+                if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.Mineral)
+                {
+                    tileCounter.Mineral++;
+                }
+                else if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.Wood)
+                {
+                    tileCounter.Wood++;
+                }
+                else if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.Stone)
+                {
+                    tileCounter.Stone++;
+                }
+                else if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.Tree)
+                {
+                    tileCounter.Tree++;
+                }
+                else if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.Bush)
+                {
+                    tileCounter.Bush++;
+                }
+                else if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.Gras)
+                {
+                    tileCounter.Gras++;
+                }
+                else if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.Sand)
+                {
+                    tileCounter.Sand++;
+                }
+                else if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.TreeTrunk)
+                {
+                    tileCounter.TreeTrunk++;
+                }
+
+                tileCounter.Wood += TileObject.GetWoodForObjectType(unitBaseTileObject.TileObject.TileObjectType);
+            }
+        }
+
         public void UpdateColor()
         {
             foreach (UnitBaseTileObject unitBaseTileObject1 in GameObjects)

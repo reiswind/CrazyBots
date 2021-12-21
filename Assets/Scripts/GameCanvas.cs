@@ -11,9 +11,14 @@ namespace Assets.Scripts
 {
     public class CanvasItem
     {
+        public CanvasItem()
+        {
+
+        }
         public TileObjectType TileObjectType { get; set; }
         public Text Count { get; set; }
         public GameObject State { get; set; }
+        public GameObject Icon { get; set; }
         
         public void SetCount(int count)
         {
@@ -126,6 +131,7 @@ namespace Assets.Scripts
 
                     canvasItem.Count = transform.Find("Count").GetComponent<Text>();
                     canvasItem.State = transform.Find("State").gameObject;
+                    canvasItem.Icon = transform.Find("Icon").gameObject;
 
                     canvasItems.Add(canvasItem);
                 }
@@ -980,6 +986,14 @@ namespace Assets.Scripts
         // Update is called once per frame
         void Update()
         {
+            foreach (CanvasItem canvasItem in canvasItems)
+            {
+                if (canvasItem.Icon != null)
+                {
+                    canvasItem.Icon.transform.Rotate(Vector3.up, 0.1f);
+                }
+
+            }
             UpdateHeader();
             ExecuteHotkeys();
 
@@ -1493,7 +1507,7 @@ namespace Assets.Scripts
                 else if (hitByMouseClick.GroundCell != null)
                 {
                     ShowNothing();
-                    AppendGroundInfo(hitByMouseClick.GroundCell, true);
+                    DisplayGroundInfo(hitByMouseClick.GroundCell);
                 }
                 else
                 {
@@ -1600,6 +1614,19 @@ namespace Assets.Scripts
             alertText.text = unit.UnitAlert.Text;
         }
 
+        private void DisplayGroundInfo(GroundCell groundCell)
+        {
+            AppendGroundInfo(groundCell, true);
+
+            TileCounter tileCounter = new TileCounter();
+
+            groundCell.CountObjects(tileCounter);
+
+            panelContainer.transform.Find("Partname").GetComponent<Text>().text = "Resources";
+            panelContainer.SetActive(true);
+            UpdateContainer(tileCounter);
+        }
+
         private void DisplayGameCommand(CommandPreview commandPreview)
         {
             if (commandPreview == null) return;
@@ -1639,25 +1666,9 @@ namespace Assets.Scripts
                     GroundCell gc;
                     if (HexGrid.MainGrid.GroundCells.TryGetValue(position, out gc))
                     {
-                        foreach (UnitBaseTileObject unitBaseTileObject in gc.GameObjects)
-                        {
-                            if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.Mineral)
-                            {
-                                tileCounter.Mineral++;
-                            }
-                            if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.Wood)
-                            {
-                                tileCounter.Wood++;
-                            }
-                            if (unitBaseTileObject.TileObject.TileObjectType == TileObjectType.Stone)
-                            {
-                                tileCounter.Stone++;
-                            }
-                            tileCounter.Wood += TileObject.GetWoodForObjectType(unitBaseTileObject.TileObject.TileObjectType);
-                        }
+                        gc.CountObjects(tileCounter);
                     }
                 }
-                //headerGroundText.text = "Min: " + min + " Stone: " + stone + " Wood: " + wood;
 
                 panelContainer.transform.Find("Partname").GetComponent<Text>().text = "Resources";
                 panelContainer.SetActive(true);
