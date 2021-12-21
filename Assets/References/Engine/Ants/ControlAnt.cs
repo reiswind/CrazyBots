@@ -1616,12 +1616,14 @@ namespace Engine.Ants
             }
             return false;
         }*/
+        
 
         private void AttachGamecommands(Player player, List<Ant> unmovedAnts, List<Move> moves)
         {
-            List<GameCommand> completedCommands = new List<GameCommand>();
             List<GameCommand> cancelCommands = new List<GameCommand>();
             List<GameCommand> removeCommands = new List<GameCommand>();
+
+            player.CompletedCommands.Clear();
 
             foreach (GameCommand gameCommand in player.GameCommands)
             {
@@ -1675,7 +1677,7 @@ namespace Engine.Ants
 
                             gameCommand.CommandComplete = true;
                             removeCommands.Add(gameCommand);
-                            completedCommands.Add(gameCommand);
+                            player.CompletedCommands.Add(gameCommand);
                             break;
                         }
                     }
@@ -1707,7 +1709,7 @@ namespace Engine.Ants
                             }
                             otherGameCommand.CommandComplete = true;
                             otherGameCommand.DeleteWhenFinished = true;
-                            completedCommands.Add(otherGameCommand);
+                            player.CompletedCommands.Add(otherGameCommand);
                             cancelCommands.Add(otherGameCommand);
                         }
                     }
@@ -1735,7 +1737,7 @@ namespace Engine.Ants
                     //    cancelGameCommand.PlayerId == gameCommand.PlayerId)
                     {
                         gameCommand.CommandCanceled = true;
-                        completedCommands.Add(gameCommand);
+                        player.CompletedCommands.Add(gameCommand);
                     }
                 }
             }
@@ -1746,11 +1748,11 @@ namespace Engine.Ants
             // Attach gamecommands to idle units
             foreach (GameCommand gameCommand in player.GameCommands)
             {
-                if (completedCommands.Contains(gameCommand))
+                if (player.CompletedCommands.Contains(gameCommand))
                     continue;
                 if (gameCommand.CommandCanceled || gameCommand.CommandComplete)
                 {
-                    completedCommands.Add(gameCommand);
+                    player.CompletedCommands.Add(gameCommand);
                     continue;
                 }
 
@@ -1998,7 +2000,7 @@ namespace Engine.Ants
                     }
                 }
             }
-            foreach (GameCommand gameCommand in completedCommands)
+            foreach (GameCommand gameCommand in player.CompletedCommands)
             {
                 if (gameCommand.DeleteWhenFinished)
                 {

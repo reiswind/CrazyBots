@@ -160,12 +160,15 @@ namespace Engine.Master
                 {
                     foreach (TileObject tileObject in t.Tile.TileObjects)
                     {
+                        TileObjectType tileObjectType = tileObject.TileObjectType;
+
                         if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
                         {
                             if (TileObject.GetWoodForObjectType(tileObject.TileObjectType) == 0)
                             {
                                 continue;
                             }
+                            tileObjectType = TileObjectType.Wood;
                         }
 
                         if (Unit.CurrentGameCommand != null &&
@@ -176,7 +179,7 @@ namespace Engine.Master
                             continue;
                         }
 
-                        if (Unit.IsSpaceForTileObject(tileObject))
+                        if (Unit.IsSpaceForTileObject(tileObjectType))
                         {
                             Move move = new Move();
 

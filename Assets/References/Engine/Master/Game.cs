@@ -2264,6 +2264,24 @@ namespace Engine.Master
                     if (player.Control != null)
                         player.Control.ProcessMoves(player, lastMoves);
                 }
+                foreach (GameCommand gameCommand in player.CompletedCommands)
+                {
+                    Move moveCommand = new Move();
+                    moveCommand.PlayerId = player.PlayerModel.Id;
+                    moveCommand.MoveType = MoveType.Command;
+
+                    MapGameCommand mapGameCommand = new MapGameCommand();
+
+                    mapGameCommand.CommandId = gameCommand.CommandId;
+                    mapGameCommand.CommandCanceled = gameCommand.CommandCanceled;
+                    mapGameCommand.CommandComplete = gameCommand.CommandComplete;
+                    mapGameCommand.GameCommandType = gameCommand.GameCommandType;
+
+                    moveCommand.Command = mapGameCommand;
+
+                    lastMoves.Add(moveCommand);
+
+                }
                 foreach (GameCommand gameCommand in player.GameCommands)
                 {
                     Move moveCommand = new Move();

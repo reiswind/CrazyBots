@@ -60,6 +60,11 @@ namespace Assets.Scripts
 
         private void OnDestroy()
         {
+            foreach (GameObject line in lineRendererList)
+            {
+                Destroy(line);
+            }
+            lineRendererList.Clear();
             SetHighlighted(false);
         }
 
@@ -85,7 +90,6 @@ namespace Assets.Scripts
             }
         }
 
-        
         private Dictionary<UnitBase, CommandAttachedItem> selectedCommandUnits = new Dictionary<UnitBase, CommandAttachedItem>();
 
         private void RemoveAttachedUnits()

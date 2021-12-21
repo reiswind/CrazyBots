@@ -302,24 +302,16 @@ namespace Assets.Scripts
 
             LineRenderer lineRenderer = lineRendererObject.AddComponent<LineRenderer>();
             lineRenderer.transform.SetParent(HexGrid.MainGrid.transform, false);
-            lineRenderer.material = HexGrid.MainGrid.GetMaterial("test");
+            lineRenderer.material = HexGrid.MainGrid.GetMaterial("Player1");
             lineRenderer.loop = true;
-
-            //lineRenderer.startColor = Color.yellow;
-            //lineRenderer.endColor = Color.yellow;
-
             lineRenderer.startWidth = 0.15f;
             lineRenderer.endWidth = 0.15f;
-            //lineRenderer.widthCurve = new AnimationCurve();
-
             lineRenderer.receiveShadows = false;
-
             lineRenderer.numCornerVertices = 100;
             //lineRenderer.numCapVertices = 100;
             lineRenderer.useWorldSpace = true;
 
             List<Vector3> allvertices = new List<Vector3>();
-
 
             Transform lastChild = null;
             float aboveGround = 0.1f;

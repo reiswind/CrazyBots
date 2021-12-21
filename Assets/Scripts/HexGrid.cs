@@ -1142,11 +1142,6 @@ namespace Assets.Scripts
                     }
                     else if (move.MoveType == MoveType.UpdateGround)
                     {
-                        if (move.Positions[0].X == 77 && move.Positions[0].Y == 89)
-                        {
-                            int x = 0;
-                        }
-
                         bool skip = false;
                         foreach (HitByBullet hitByBullet in hitByBullets)
                         {
@@ -1399,55 +1394,53 @@ namespace Assets.Scripts
             Debug.Log("Command " + move.Command.TargetPosition.ToString());
             MapGameCommand gameCommand = move.Command;
 
-            CommandPreview commandPreview;
-            if (CommandPreviews.TryGetValue(gameCommand.CommandId, out commandPreview))
+            if (gameCommand.CommandCanceled || gameCommand.CommandComplete)
             {
-
+                CommandPreview commandPreview;
+                if (CommandPreviews.TryGetValue(gameCommand.CommandId, out commandPreview))
+                {
+                    commandPreview.Delete();
+                    CommandPreviews.Remove(gameCommand.CommandId);
+                }
             }
             else
             {
-                foreach (CommandPreview existingPreview in CreatedCommandPreviews)
+                CommandPreview commandPreview;
+                if (!CommandPreviews.TryGetValue(gameCommand.CommandId, out commandPreview))
                 {
-                    if (existingPreview.GameCommand.TargetPosition == gameCommand.TargetPosition &&
-                        existingPreview.GameCommand.PlayerId == gameCommand.PlayerId &&
-                        existingPreview.GameCommand.GameCommandType == gameCommand.GameCommandType)
+                    foreach (CommandPreview existingPreview in CreatedCommandPreviews)
                     {
-                        commandPreview = existingPreview;
-                        CommandPreviews.Add(gameCommand.CommandId, commandPreview);
-                        CreatedCommandPreviews.Remove(existingPreview);
-                        break;
+                        if (existingPreview.GameCommand.TargetPosition == gameCommand.TargetPosition &&
+                            existingPreview.GameCommand.PlayerId == gameCommand.PlayerId &&
+                            existingPreview.GameCommand.GameCommandType == gameCommand.GameCommandType)
+                        {
+                            commandPreview = existingPreview;
+                            CommandPreviews.Add(gameCommand.CommandId, commandPreview);
+                            CreatedCommandPreviews.Remove(existingPreview);
+                            break;
+                        }
                     }
                 }
+
+                if (commandPreview == null)
+                {
+                    // New (form other player)
+                    commandPreview = new CommandPreview();
+
+                    commandPreview.CreateCommandPreview(gameCommand);
+                    commandPreview.IsPreview = false;
+                    commandPreview.SetActive(false);
+                    if (gameCommand.TargetPosition != Position2.Null)
+                        commandPreview.UpdatePositions(GroundCells[gameCommand.TargetPosition]);
+
+                    CommandPreviews.Add(gameCommand.CommandId, commandPreview);
+                }
+
+                if (commandPreview.UpdateCommandPreview(gameCommand))
+                {
+                    commandPreview.SetPosition(GroundCells[gameCommand.TargetPosition]);
+                }
             }
-            if (commandPreview == null)
-            { 
-                // New (form other player)
-                commandPreview = new CommandPreview();
-
-                commandPreview.CreateCommandPreview(gameCommand);
-                commandPreview.IsPreview = false;
-                commandPreview.SetActive(false);
-                if (gameCommand.TargetPosition != Position2.Null)
-                    commandPreview.UpdatePositions(GroundCells[gameCommand.TargetPosition]);
-
-                CommandPreviews.Add(gameCommand.CommandId, commandPreview);
-            }
-            
-            if (commandPreview.UpdateCommandPreview(gameCommand))
-            {
-                commandPreview.SetPosition(GroundCells[gameCommand.TargetPosition]);
-            }
-            
-            /*
-            GroundCell hexCell = GroundCells[gameCommand.TargetPosition];
-            CommandPreview commandPreview = hexCell.UpdateCommands(gameCommand, null);
-
-            if (commandPreview != null && commandPreview.GameCommand.TargetPosition != Position2.Null)
-            {
-                if (!groundcellsWithCommands.Contains(commandPreview.GameCommand.TargetPosition))
-                    groundcellsWithCommands.Add(commandPreview.GameCommand.TargetPosition);
-            }*/
-
         }
         public void HitMove(Move move)
         {

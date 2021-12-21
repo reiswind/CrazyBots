@@ -54,6 +54,8 @@ namespace Engine.Interface
         public List<Move> LastMoves;
 
         internal List<GameCommand> GameCommands = new List<GameCommand>();
+        internal List<GameCommand> CompletedCommands = new List<GameCommand>();
+
         public Dictionary<Position2, PlayerVisibleInfo> VisiblePositions = new Dictionary<Position2, PlayerVisibleInfo>();
         public Dictionary<Position2, PlayerVisibleInfo> Discoveries = new Dictionary<Position2, PlayerVisibleInfo>();
 
