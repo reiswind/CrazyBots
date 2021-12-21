@@ -96,9 +96,9 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 
@@ -1435,10 +1435,12 @@ namespace Assets.Scripts
 
                     CommandPreviews.Add(gameCommand.CommandId, commandPreview);
                 }
-
-                if (commandPreview.UpdateCommandPreview(gameCommand))
+                if (gameCommand.TargetPosition != Position2.Null)
                 {
-                    commandPreview.SetPosition(GroundCells[gameCommand.TargetPosition]);
+                    if (commandPreview.UpdateCommandPreview(gameCommand))
+                    {
+                        commandPreview.SetPosition(GroundCells[gameCommand.TargetPosition]);
+                    }
                 }
             }
         }
@@ -1780,13 +1782,12 @@ namespace Assets.Scripts
             }
         }
 
-        public UnitBase CreateTempUnit(Blueprint blueprint)
+        public UnitBase CreateTempUnit(Blueprint blueprint, int playerId)
         {
             UnitBase unit = InstantiatePrefab<UnitBase>(blueprint.Layout);
+            unit.PlayerId = playerId;
             unit.name = blueprint.Name;
             unit.Temporary = true;
-            unit.PlayerId = 1;
-
             MoveUpdateStats stats = new MoveUpdateStats();
             stats.BlueprintName = blueprint.Name;
 

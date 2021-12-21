@@ -1623,8 +1623,6 @@ namespace Engine.Ants
             List<GameCommand> cancelCommands = new List<GameCommand>();
             List<GameCommand> removeCommands = new List<GameCommand>();
 
-            player.CompletedCommands.Clear();
-
             foreach (GameCommand gameCommand in player.GameCommands)
             {
                 if (gameCommand.GameCommandType == GameCommandType.AddUnits)
@@ -2315,6 +2313,7 @@ namespace Engine.Ants
             {
 
             }
+            player.CompletedCommands.Clear();
 
             // Returned moves
             List<Move> moves = new List<Move>();
@@ -2326,6 +2325,7 @@ namespace Engine.Ants
                 foreach (GameCommand gameCommand in player.GameCommands)
                 {
                     gameCommand.CommandCanceled = true;
+                    player.CompletedCommands.Add(gameCommand);
                 }
                 player.GameCommands.Clear();
                 // Player is dead, no more units

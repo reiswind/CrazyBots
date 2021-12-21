@@ -223,7 +223,8 @@ namespace Assets.Scripts
         public void AddUnitCommand(string bluePrint)
         {
             Blueprint blueprint = HexGrid.MainGrid.game.Blueprints.FindBlueprint(bluePrint);
-            addPreviewGhost = HexGrid.MainGrid.CreateTempUnit(blueprint);
+            addPreviewGhost = HexGrid.MainGrid.CreateTempUnit(blueprint, GameCommand.PlayerId);
+            
             addPreviewGhost.DectivateUnit();
             addPreviewGhost.Direction = GameCommand.Direction;
             addPreviewGhost.TurnIntoDirection = GameCommand.Direction;
@@ -909,8 +910,8 @@ namespace Assets.Scripts
                         if (mapGameCommandItem.BlueprintName != null)
                         {
                             Blueprint blueprint = HexGrid.MainGrid.game.Blueprints.FindBlueprint(mapGameCommandItem.BlueprintName);
-                            UnitBase previewUnit = HexGrid.MainGrid.CreateTempUnit(blueprint);
-                            previewUnit.PlayerId = GameCommand.PlayerId;
+                            UnitBase previewUnit = HexGrid.MainGrid.CreateTempUnit(blueprint, GameCommand.PlayerId);
+                            
                             previewUnit.Direction = GameCommand.Direction;                            
                             previewUnit.DectivateUnit();
                             previewUnit.transform.SetParent(HexGrid.MainGrid.transform, false);

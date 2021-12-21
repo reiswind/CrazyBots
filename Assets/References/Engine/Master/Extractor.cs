@@ -820,6 +820,8 @@ namespace Engine.Master
                     }
                     else 
                     {
+                        if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
+                            continue;
                         collectedTileObjectType = tileObject.TileObjectType;
                     }
 
