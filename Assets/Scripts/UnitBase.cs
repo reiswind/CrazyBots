@@ -208,8 +208,17 @@ namespace Assets.Scripts
                 _alert = child.gameObject;
 
             _rigidbody = GetComponent<Rigidbody>();
-            if (_rigidbody != null && IsGhost)
-                _rigidbody.Sleep();
+            if (_rigidbody != null)
+            {
+                if (IsGhost)
+                {
+                    _rigidbody.Sleep();
+                }
+                else
+                {
+                    //_rigidbody.detectCollisions = false;
+                }
+            }
             if (IsGhost)
             {
                 RemoveColider();
@@ -291,12 +300,6 @@ namespace Assets.Scripts
 
             //fixedFrameCounter++;
 
-            if (selectionChanged)
-            {
-                UpdateWayPoints();
-                selectionChanged = false;
-            }
-
             if (TurnWeaponIntoDirection != Vector3.zero)
             {
                 foreach (UnitBasePart unitBasePart in UnitBaseParts)
@@ -334,7 +337,6 @@ namespace Assets.Scripts
                 }
             }
 
-
             float timeNow = Time.time;
             foreach (UnitBasePart unitBasePart in UnitBaseParts)
             {
@@ -353,89 +355,74 @@ namespace Assets.Scripts
                 teleportToPosition = false;
                 TeleportToPosition(false);
             }
-            else if (_rigidbody != null || DestinationPos != Position2.Null)
+
+            /* OMG!!
+                * How to Set Up Dynamic Water Physics and Boat Movement in Unity
+                * https://www.youtube.com/watch?v=eL_zHQEju8s
+            if (transform.position.y < 1f)
             {
-                /* OMG!!
-                 * How to Set Up Dynamic Water Physics and Boat Movement in Unity
-                 * https://www.youtube.com/watch?v=eL_zHQEju8s
-                if (transform.position.y < 1f)
-                {
-                    float displacementMultiplier;
-                    displacementMultiplier = Mathf.Clamp01(1 - transform.position.y / 1f) * 3f;
-                    y = Mathf.Abs(Physics.gravity.y) * displacementMultiplier;
-                    //_rigidbody.AddForce(new Vector3(0, Mathf.Abs(Physics.gravity.y) * displacementMultiplier, 0), ForceMode.Acceleration);
-                }*/
+                float displacementMultiplier;
+                displacementMultiplier = Mathf.Clamp01(1 - transform.position.y / 1f) * 3f;
+                y = Mathf.Abs(Physics.gravity.y) * displacementMultiplier;
+                //_rigidbody.AddForce(new Vector3(0, Mathf.Abs(Physics.gravity.y) * displacementMultiplier, 0), ForceMode.Acceleration);
+            }*/
+            Position2 position2;
+            if (DestinationPos == Position2.Null)
+                position2 = CurrentPos;
+            else
+                position2 = DestinationPos;
 
-                Position2 position2 = DestinationPos;
-                if (DestinationPos == Position2.Null)
-                    position2 = CurrentPos;
-
-                GroundCell targetCell;
-                if (HexGrid.MainGrid.GroundCells.TryGetValue(position2, out targetCell))
+            GroundCell targetCell;
+            if (HexGrid.MainGrid.GroundCells.TryGetValue(position2, out targetCell))
+            {
+                if (_rigidbody != null)
                 {
-                    if (_rigidbody != null && !IsGhost)
+                    // Countermeassures / Gegensteuern
+                    if (_rigidbody.velocity.x != 0 || _rigidbody.velocity.y != 0 || _rigidbody.velocity.z != 0)
                     {
-                        /*
-                        float maxVector = 0.9f;
-                        float maxVectorn = -0.9f;
+                        Vector3 vector3 = _rigidbody.velocity;
+                        //Debug.Log("Countermeassures: " + UnitId);
 
-                        Vector3 vector = targetCell.transform.position - transform.position;
-                        while (vector.x > maxVector || vector.x < maxVectorn || vector.z > maxVector || vector.z < maxVectorn)
-                            vector *= 0.9f;
+                        vector3.x *= -1;
+                        vector3.y *= -1;
+                        vector3.z *= -1;
+                        _rigidbody.AddForce(vector3 * 0.8f, ForceMode.Acceleration);
+                    }
 
-                        // Shake while not moving
-                        if (vector.x < 0.1 && vector.x > -0.1 && vector.z < 0.1 && vector.z > -0.1)
-                        {
-                            int n = HexGrid.MainGrid.Random.Next(35);
-                            if (n == 0) vector.x = 0.05f;
-                            if (n == 1) vector.x = -0.05f;
-                            if (n == 2) vector.z = 0.05f;
-                            if (n == 3) vector.z = -0.05f;
-                            if (n == 4) vector.y = 0.2f;
-                        }
+                    // Not much influence
+                    /*
+                        Vector3 vector3 = new Vector3();
+                        Debug.Log("Shake: " + UnitId);
 
-                        float speed = 2.15f / HexGrid.MainGrid.GameSpeed;
-                        float step = speed * Time.deltaTime;
-                        */
-                        //_rigidbody.MovePosition(transform.position + vector * step);
+                        int n = HexGrid.MainGrid.Random.Next(5);
+                        if (n == 0) vector3.x = 2f;
+                        if (n == 1) vector3.y = 12f;
+                        if (n == 2) vector3.z = 2f;
+                        _rigidbody.AddForce(vector3, ForceMode.Acceleration);
+                    */
 
-                        //Debug.Log("MoveToVector" + moveToVector.ToString());
+                    if (moveToVectorTimes > 0)
+                    {
+                        // Avoid accelaration, reason...?
+                        _rigidbody.velocity = Vector3.zero;
 
-
-                        if (moveToVectorTimes > 0)
-                        {
-                            // Avoid accelaration, reason...?
-                            _rigidbody.velocity = Vector3.zero;
-
-                            _rigidbody.MovePosition(transform.position + moveToVector);
-                            moveToVectorTimes--;
-                        }
-                        else
-                        {
-                            /*
-                            if (_rigidbody.position == targetCell.transform.position)
-                            {
-                                _rigidbody.velocity = Vector3.zero;
-                            }
-                            else
-                            {*/
-                            float speed = 2.75f / HexGrid.MainGrid.GameSpeed;
-                            float step = speed * Time.deltaTime;
-                            Vector3 unitPos3 = targetCell.transform.position;
-                            unitPos3.y += HexGrid.MainGrid.hexCellHeight + AboveGround;
-                            _rigidbody.MovePosition(Vector3.MoveTowards(transform.position, unitPos3, step));
-
-                        }
-
-                        /*
-                        float speed = 1.75f / HexGrid.MainGrid.GameSpeed;
+                        _rigidbody.MovePosition(transform.position + moveToVector);
+                        moveToVectorTimes--;
+                    }
+                    else
+                    {
+                        float speed = 2.75f / HexGrid.MainGrid.GameSpeed;
                         float step = speed * Time.deltaTime;
                         Vector3 unitPos3 = targetCell.transform.position;
                         unitPos3.y += HexGrid.MainGrid.hexCellHeight + AboveGround;
+
                         _rigidbody.MovePosition(Vector3.MoveTowards(transform.position, unitPos3, step));
-                        */
                     }
-                    else
+                }
+                else
+                {
+                    // Move without rigidbody
+                    if (DestinationPos != Position2.Null)
                     {
                         float speed = 1.75f / HexGrid.MainGrid.GameSpeed;
                         float step = speed * Time.deltaTime;
@@ -443,14 +430,12 @@ namespace Assets.Scripts
                         unitPos3.y += HexGrid.MainGrid.hexCellHeight + AboveGround;
                         transform.position = Vector3.MoveTowards(transform.position, unitPos3, step);
                     }
-                    if (!IsGhost)
-                    {
-                        if (IsVisible != targetCell.Visible)
-                        {
-                            IsVisible = targetCell.Visible;
-                            gameObject.SetActive(targetCell.Visible);
-                        }
-                    }
+                }
+
+                if (IsVisible != targetCell.Visible)
+                {
+                    IsVisible = targetCell.Visible;
+                    gameObject.SetActive(targetCell.Visible);
                 }
             }
 
@@ -466,7 +451,6 @@ namespace Assets.Scripts
                 Position3 position3 = new Position3(CurrentPos);
                 Position3 neighbor = position3.GetNeighbor(TurnIntoDirection);
 
-                GroundCell targetCell;
                 if (HexGrid.MainGrid.GroundCells.TryGetValue(neighbor.Pos, out targetCell))
                 {
                     Vector3 unitPos3 = targetCell.transform.position;
@@ -476,10 +460,6 @@ namespace Assets.Scripts
                         UpdateDirection(unitPos3, teleportToPosition);
                     }
                 }
-            }
-            if (teleportToPosition)
-            {
-                teleportToPosition = false;
             }
         }
         

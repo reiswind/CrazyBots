@@ -1391,7 +1391,7 @@ namespace Assets.Scripts
         }
         public void CommandMove(Move move)
         {
-            Debug.Log("Command " + move.Command.TargetPosition.ToString());
+            //Debug.Log("Command " + move.Command.TargetPosition.ToString());
             MapGameCommand gameCommand = move.Command;
 
             if (gameCommand.CommandCanceled || gameCommand.CommandComplete)
