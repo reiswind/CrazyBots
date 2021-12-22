@@ -625,6 +625,9 @@ namespace Assets.Scripts
 
         internal void SetHighlighted(bool highlighted)
         {
+            if (IsGhost)
+                return;
+
             //Debug.Log("Highlight: " + this.UnitId + " " + highlighted);
             if (IsHighlighted != highlighted)
             {

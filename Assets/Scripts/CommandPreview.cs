@@ -189,6 +189,13 @@ namespace Assets.Scripts
                     if (groundCell.Stats.MoveUpdateGroundStat.Owner == 1)
                         canMove = true;
                 }
+                else if (GameCommand.GameCommandType == GameCommandType.Build)
+                {
+                    if (groundCell.Stats.MoveUpdateGroundStat.Owner == 1)
+                    {
+                        canMove = TileObject.CanMoveTo(groundCell.TileCounter);
+                    }
+                }
                 else
                 {
                     canMove = TileObject.CanMoveTo(groundCell.TileCounter);

@@ -34,8 +34,6 @@ namespace Assets.Scripts
                         highlightEffect.outlineColor = Color.yellow;
                     else
                         highlightEffect.outlineColor = UnitBase.GetPlayerColor(CommandPreview.GameCommand.PlayerId);
-
-                    //highlightEffect.SetHighlighted(IsHighlighted);
                 }
 
                 if (!IsHighlighted)
@@ -205,8 +203,6 @@ namespace Assets.Scripts
             lineRenderer.SetPosition(0, transform.position);
             lineRenderer.SetPosition(1, unit.position);
 
-            //UpdateArrow(lineRenderer, transform.position, unit.transform.position);
-
             lineRendererList.Add(lineRendererObject);
         }
 
@@ -304,20 +300,27 @@ namespace Assets.Scripts
                     {
                         if (commandAttachedUnit.AttachedUnit.IsVisible)
                         {
-                            // Unit exists
-                            if (realUnit.UnderConstruction)
+                            if (CommandPreview.GameCommand.GameCommandType == GameCommandType.Build)
                             {
-                                // Wait for completion (Keep Ghost)
-                                //commandAttachedUnit.Marker.SetActive(true);
+                                // Build: Ghost stays until completion
                             }
                             else
                             {
-                                // Unit complete, hide ghost
-                                //Debug.Log("Deactivate: commandAttachedUnit.UnitBase");
+                                // Unit exists
+                                if (realUnit.UnderConstruction)
+                                {
+                                    // Wait for completion (Keep Ghost)
+                                    //commandAttachedUnit.Marker.SetActive(true);
+                                }
+                                else
+                                {
+                                    // Unit complete, hide ghost
+                                    //Debug.Log("Deactivate: commandAttachedUnit.UnitBase");
 
-                                // Real unit exists, deactivate ghost
-                                if (commandAttachedUnit.AttachedUnit.GhostUnit != null)
-                                    commandAttachedUnit.AttachedUnit.GhostUnit.IsVisible = false;
+                                    // Real unit exists, deactivate ghost
+                                    if (commandAttachedUnit.AttachedUnit.GhostUnit != null)
+                                        commandAttachedUnit.AttachedUnit.GhostUnit.IsVisible = false;
+                                }
                             }
                         }
                         if (commandAttachedUnit.AttachedUnit.GhostUnitBounds != null)
