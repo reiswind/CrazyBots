@@ -364,8 +364,10 @@ namespace Assets.Scripts
         {
             if (selectedCommandPreview != null)
             {
+                UnHighlightGameCommand();
                 if (selectedCommandPreview.IsPreview)
                     selectedCommandPreview.Delete();
+                selectedCommandPreview.SetHighlighted(false);
                 selectedCommandPreview.SetSelected(false);
                 selectedCommandPreview.SetActive(false);
                 selectedCommandPreview = null;
@@ -401,6 +403,7 @@ namespace Assets.Scripts
                 else
                 {
                     //Debug.Log("UnselectUnitFrame " + selectedUnitFrame.CurrentPos.ToString());
+                    selectedUnitFrame.SetHighlighted(false);
                     selectedUnitFrame.SetSelected(false);
                 }
                 if (selectedUnitBounds != null)
@@ -778,7 +781,7 @@ namespace Assets.Scripts
 
         private UnitBase selectedUnitFrame;
         private UnitBounds selectedUnitBounds;
-        private GroundCell lastSelectedGroundCell;
+        private GroundCell lastHighlightedGroundCell;
 
         private HitByMouseClick GetClickedInfo()
         {
@@ -952,25 +955,23 @@ namespace Assets.Scripts
             */
         }
 
-
-
-        private void UnSelectGroundCell()
+        private void UnHighlightGroundCell()
         {
-            if (lastSelectedGroundCell != null)
+            if (lastHighlightedGroundCell != null)
             {
                 //Debug.Log("UnSelectGroundCell " + lastSelectedGroundCell.Pos.ToString());
 
-                lastSelectedGroundCell.SetHighlighted(false);
-                lastSelectedGroundCell = null;
+                lastHighlightedGroundCell.SetHighlighted(false);
+                lastHighlightedGroundCell = null;
             }
         }
         private void SelectGroundCell(GroundCell groundCell)
         {
-            if (lastSelectedGroundCell != groundCell)
+            if (lastHighlightedGroundCell != groundCell)
             {
-                UnSelectGroundCell();
+                UnHighlightGroundCell();
                 groundCell.SetHighlighted(true);
-                lastSelectedGroundCell = groundCell;
+                lastHighlightedGroundCell = groundCell;
             }
         }
         // Update is called once per frame
@@ -1005,13 +1006,12 @@ namespace Assets.Scripts
             }
         }
 
-
         private bool CheckMouseButtons()
         {
             if (Input.GetMouseButtonDown(0))
             {
                 //Debug.Log("LEFT MOUSE DOWN");
-                lastSelectedGroundCell = null;
+                lastHighlightedGroundCell = null;
             }
             if (Input.GetMouseButtonUp(0))
             {
@@ -1022,7 +1022,7 @@ namespace Assets.Scripts
                 //Debug.Log("RIGHT MOUSE DOWN");
 
                 SelectNothing();
-                UnSelectGroundCell();
+                UnHighlightGroundCell();
                 return true;
 
             }
@@ -1371,24 +1371,7 @@ namespace Assets.Scripts
 
         private void SelectWithLeftClick(HitByMouseClick hitByMouseClick)
         {
-            if (selectedCommandPreview != null &&
-                selectedCommandPreview != hitByMouseClick.CommandPreview)
-            {
-                CloseCommandPreview();
-            }
-            if (selectedUnitFrame != null)
-            {
-                // The highlighted is the one on mouse over, not the selected one
-                if (selectedUnitBounds != null)
-                {
-                    selectedUnitBounds.Destroy();
-                    selectedUnitBounds = null;
-                }
-
-                selectedUnitFrame.SetHighlighted(false);
-                selectedUnitFrame.SetSelected(false);
-                selectedUnitFrame = null;
-            }
+            SelectNothing();
 
             if (hitByMouseClick.CommandPreview != null)
             {
@@ -1396,6 +1379,8 @@ namespace Assets.Scripts
                 {
                     selectedCommandPreview.SetSelected(false);
                 }
+                HighlightGameCommand(hitByMouseClick.CommandPreview);
+
                 selectedCommandPreview = hitByMouseClick.CommandPreview;
                 selectedCommandPreview.SetSelected(true);
 
@@ -1439,10 +1424,6 @@ namespace Assets.Scripts
                 HighlightUnitFrame(hitByMouseClick.UnitBase);
                 SelectUnitFrame(hitByMouseClick.UnitBase);
                 SetMode(CanvasMode.Unit);
-            }
-            else
-            {
-                SelectNothing();
             }
         }
 
@@ -1543,7 +1524,7 @@ namespace Assets.Scripts
                 }
                 else if (hitByMouseClick.UnitBase != null)
                 {
-                    UnSelectGroundCell();
+                    UnHighlightGroundCell();
                     HighlightUnitFrame(hitByMouseClick.UnitBase);
                     UnHighlightGameCommand();
                 }
@@ -1560,7 +1541,7 @@ namespace Assets.Scripts
 
         private void HighlightNothing()
         {
-            UnSelectGroundCell();
+            UnHighlightGroundCell();
             UnHighlightUnitFrame();
             UnHighlightGameCommand();
         }
@@ -1579,11 +1560,8 @@ namespace Assets.Scripts
 
         private void SelectNothing()
         {
-            ShowNothing();
-            if (selectedUnitFrame != null)
-            {
-                UnselectUnitFrame();
-            }
+            UnselectUnitFrame();
+
             if (selectedCommandPreview != null && selectedCommandPreview.IsInSubCommandMode)
             {
                 selectedCommandPreview.CancelSubCommand();
@@ -1594,6 +1572,7 @@ namespace Assets.Scripts
                 CloseCommandPreview();
                 SetMode(CanvasMode.Select);
             }
+            ShowNothing();
         }
 
         private CommandPreview highlightedCommandPreview;
