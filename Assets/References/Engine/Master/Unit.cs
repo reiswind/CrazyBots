@@ -97,7 +97,7 @@ namespace Engine.Master
         }        
         internal void SetGameCommand(GameCommandItem gameCommand)
         {
-            if (gameCommand.BuildPositionReached)
+            if (gameCommand != null && gameCommand.BuildPositionReached)
             {
                 if (gameCommand.FactoryUnit.UnitId == UnitId)
                     gameCommand.BuildPositionReached = false;
@@ -128,22 +128,22 @@ namespace Engine.Master
                             if (blueprintCommandItem.AttachedUnit.UnitId == UnitId)
                             {
                                 blueprintCommandItem.AttachedUnit.ResetStatus();
-                                blueprintCommandItem.AttachedUnit.UnitId = null;
+                                blueprintCommandItem.AttachedUnit.ResetUnitId();
                             }
                             if (blueprintCommandItem.TransportUnit.UnitId == UnitId)
                             {
                                 blueprintCommandItem.TransportUnit.ResetStatus();
-                                blueprintCommandItem.TransportUnit.UnitId = null;
+                                blueprintCommandItem.TransportUnit.ResetUnitId();
                             }
                             if (blueprintCommandItem.TargetUnit.UnitId == UnitId)
                             {
                                 blueprintCommandItem.TargetUnit.ResetStatus();
-                                blueprintCommandItem.TargetUnit.UnitId = null;
+                                blueprintCommandItem.TargetUnit.ResetUnitId();
                             }
                             if (blueprintCommandItem.FactoryUnit.UnitId == UnitId)
                             {
                                 blueprintCommandItem.FactoryUnit.ResetStatus();
-                                blueprintCommandItem.FactoryUnit.UnitId = null;
+                                blueprintCommandItem.FactoryUnit.ResetUnitId();
                             }
                         }
                     }
@@ -160,22 +160,22 @@ namespace Engine.Master
                     {
                         CurrentGameCommand.AttachedUnit.SetStatus("Removed: " + UnitId);
                     }
-                    CurrentGameCommand.AttachedUnit.UnitId = null;
+                    CurrentGameCommand.AttachedUnit.ResetUnitId();
                 }
                 if (CurrentGameCommand.TransportUnit.UnitId == UnitId)
                 {
                     CurrentGameCommand.TransportUnit.ResetStatus();
-                    CurrentGameCommand.TransportUnit.UnitId = null;
+                    CurrentGameCommand.TransportUnit.ResetUnitId();
                 }
                 if (CurrentGameCommand.FactoryUnit.UnitId == UnitId)
                 {
                     CurrentGameCommand.FactoryUnit.ResetStatus();
-                    CurrentGameCommand.FactoryUnit.UnitId = null;
+                    CurrentGameCommand.FactoryUnit.ResetUnitId();
                 }
                 if (CurrentGameCommand.TargetUnit.UnitId == UnitId)
                 {
                     CurrentGameCommand.TargetUnit.ResetStatus();
-                    CurrentGameCommand.TargetUnit.UnitId = null;
+                    CurrentGameCommand.TargetUnit.ResetUnitId();
                 }
                 Changed = true;
                 CurrentGameCommand = null;
@@ -276,7 +276,7 @@ namespace Engine.Master
             blueprintCommandItem.Direction = Direction.C;
 
             GameCommandItem gameCommandItem = new GameCommandItem(gameCommand, blueprintCommandItem);
-            gameCommandItem.TargetUnit.UnitId = UnitId;
+            gameCommandItem.TargetUnit.SetUnitId(UnitId);
             gameCommandItem.TargetUnit.SetStatus(Blueprint.Name + " WaitingForDelivery");
             Changed = true;
 
@@ -547,7 +547,7 @@ namespace Engine.Master
                 CollectBurnableIngredientsFromContainer(allIngredients, Reactor.TileContainer, TileObjectType.PartReactor);
             }
         }
-        public MoveRecipeIngredient FindIngredientToBurn()
+        public MoveRecipeIngredient FindIngredientToBurn(Unit excludeUnit)
         {
             List<MoveRecipeIngredient> allIngredients = new List<MoveRecipeIngredient>();
 
@@ -560,7 +560,7 @@ namespace Engine.Master
                 foreach (Position3 n3 in position3.Neighbors)
                 {
                     Tile t = Game.Map.GetTile(n3.Pos);
-                    if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id)
+                    if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id && t.Unit != excludeUnit)
                     {
                         t.Unit.CollectBurnableIngredients(allIngredients);
                     }
@@ -651,7 +651,7 @@ namespace Engine.Master
                 CollectAmmoIngredientsFromContainer(allIngredients, Reactor.TileContainer, TileObjectType.PartReactor);
             }
         }
-        public MoveRecipeIngredient FindIngredientForAmmo()
+        public MoveRecipeIngredient FindIngredientForAmmo(Unit excludeUnit)
         {
             List<MoveRecipeIngredient> allIngredients = new List<MoveRecipeIngredient>();
 
@@ -664,7 +664,7 @@ namespace Engine.Master
                 foreach (Position3 n3 in position3.Neighbors)
                 {
                     Tile t = Game.Map.GetTile(n3.Pos);
-                    if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id)
+                    if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id && t.Unit != excludeUnit)
                     {
                         t.Unit.CollectAmmoIngredients(allIngredients);
                     }

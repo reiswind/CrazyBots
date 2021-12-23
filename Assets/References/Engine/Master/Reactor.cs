@@ -67,7 +67,7 @@ namespace Engine.Master
             Move move = null;
             if (AvailablePower < minPower)
             {
-                MoveRecipeIngredient moveRecipeIngredient = Unit.FindIngredientToBurn();
+                MoveRecipeIngredient moveRecipeIngredient = Unit.FindIngredientToBurn(null);
 
                 if (moveRecipeIngredient != null)
                 {

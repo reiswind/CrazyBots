@@ -29,7 +29,58 @@ namespace Engine.Master
             Alert = false;
         }
 
-        public string UnitId { get; set; }
+        public string UnitId { get; private set; }
+
+        public void ResetUnitId()
+        {
+            UnitId = null;
+        }
+        public void ClearUnitId(Units units)
+        {
+            if (UnitId != null)
+            {
+                string unitId = UnitId; // Can be reset be following code
+                Unit unit = units.FindUnit(unitId);
+                if (unit != null && unit.CurrentGameCommand != null)
+                {
+                    bool reset = false;
+                    if (unit.CurrentGameCommand.AttachedUnit.UnitId == unitId)
+                    {
+                        unit.CurrentGameCommand.AttachedUnit.UnitId = null;
+                        reset = true;
+                    }
+                    if (unit.CurrentGameCommand.TransportUnit.UnitId == unitId)
+                    {
+                        unit.CurrentGameCommand.TransportUnit.UnitId = null;
+                        reset = true;
+                    }
+                    if (unit.CurrentGameCommand.FactoryUnit.UnitId == unitId)
+                    {
+                        unit.CurrentGameCommand.FactoryUnit.UnitId = null;
+                        reset = true;
+                    }
+                    if (unit.CurrentGameCommand.TargetUnit.UnitId == unitId)
+                    {
+                        unit.CurrentGameCommand.TargetUnit.UnitId = null;
+                        reset = true;
+                    }
+                    if (reset)
+                    {
+                        unit.SetGameCommand(null);
+                    }
+                }
+            }
+            UnitId = null;
+        }
+        public void SetUnitId(string unitId)
+        {
+            if (UnitId != null && UnitId != unitId)
+            {
+                int x = 0;
+            }
+            UnitId = unitId;
+        }
+
         public string Status { get; private set; }
         public bool Alert { get; private set; }
 
@@ -86,6 +137,7 @@ namespace Engine.Master
         public bool DeleteWhenDestroyed { get; set; }
         public bool FollowPheromones { get; set; }
         public bool BuildPositionReached { get; set; }
+        public bool DeliverContent { get; set; } // Items have been picked up, deliver the content
 
         public override string ToString()
         {
@@ -100,6 +152,10 @@ namespace Engine.Master
         public GameCommand()
         {
             CommandId = ++staticCommandId;
+            if (CommandId == 33)
+            {
+                int x = 0;
+            }
             GameCommandItems = new List<GameCommandItem>();
         }
         public GameCommand(BlueprintCommand blueprintCommand)

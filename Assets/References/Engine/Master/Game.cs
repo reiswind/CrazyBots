@@ -429,20 +429,24 @@ namespace Engine.Master
 
                                 if (move.GameCommandItem != null)
                                 {
+                                    if (move.GameCommandItem.GameCommand.CommandId == 33)
+                                    {
+                                        int x = 0;
+                                    }
                                     if (move.GameCommandItem.AssemblerToBuild)
                                     {
                                         // The new unit will be the factory for the build target
-                                        move.GameCommandItem.AttachedUnit.UnitId = thisUnit.UnitId;
+                                        move.GameCommandItem.AttachedUnit.SetUnitId(thisUnit.UnitId);
                                         move.GameCommandItem.AttachedUnit.SetStatus("AssemblerToBuildCreated");
                                     }
                                     else if (move.GameCommandItem.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                                     {
-                                        move.GameCommandItem.TransportUnit.UnitId = thisUnit.UnitId;
+                                        move.GameCommandItem.TransportUnit.SetUnitId(thisUnit.UnitId);
                                         move.GameCommandItem.TransportUnit.SetStatus("TransporterCreated");
                                     }
                                     else
                                     {
-                                        move.GameCommandItem.AttachedUnit.UnitId = thisUnit.UnitId;
+                                        move.GameCommandItem.AttachedUnit.SetUnitId(thisUnit.UnitId);
                                         move.GameCommandItem.AttachedUnit.SetStatus("UnitCreated");
                                     }
                                     thisUnit.SetGameCommand(move.GameCommandItem);

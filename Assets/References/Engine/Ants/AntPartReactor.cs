@@ -71,7 +71,7 @@ namespace Engine.Ants
             if (Ant.Unit.CurrentGameCommand != null)
                 return false;
 
-            MoveRecipeIngredient moveRecipeIngredient = Ant.Unit.FindIngredientToBurn();
+            MoveRecipeIngredient moveRecipeIngredient = Ant.Unit.FindIngredientToBurn(null);
 
             if (moveRecipeIngredient == null)
             {

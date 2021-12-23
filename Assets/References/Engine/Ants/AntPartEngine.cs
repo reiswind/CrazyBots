@@ -997,7 +997,7 @@ namespace Engine.Ants
                                 Unit containerUnit = player.Game.Map.Units.FindUnit(cntrlUnit.CurrentGameCommand.AttachedUnit.UnitId);
                                 if (containerUnit == null)
                                 {
-                                    cntrlUnit.CurrentGameCommand.AttachedUnit.UnitId = null;
+                                    cntrlUnit.CurrentGameCommand.AttachedUnit.ClearUnitId(player.Game.Map.Units);
                                     cntrlUnit.CurrentGameCommand.GameCommand.CommandCanceled = true;
                                     cntrlUnit.CurrentGameCommand.TransportUnit.SetStatus("TargetUnitDestroyed");
                                     cntrlUnit.Changed = true;
@@ -1020,7 +1020,7 @@ namespace Engine.Ants
                             }                            
                             if (targetUnit == null)
                             {
-                                cntrlUnit.CurrentGameCommand.AttachedUnit.UnitId = null;
+                                cntrlUnit.CurrentGameCommand.AttachedUnit.ClearUnitId(player.Game.Map.Units);
                                 cntrlUnit.CurrentGameCommand.GameCommand.CommandCanceled = true;
                                 cntrlUnit.CurrentGameCommand.TransportUnit.SetStatus("TargetUnitDestroyed");
                                 cntrlUnit.Changed = true;

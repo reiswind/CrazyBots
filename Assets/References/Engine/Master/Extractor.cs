@@ -449,11 +449,13 @@ namespace Engine.Master
             }
         }
 
-        public void ExtractFromUnit(Move move, Unit otherUnit, List<MoveRecipeIngredient> extractedItems, int capacity, Dictionary<Position2, Unit> changedUnits)
+        public void ExtractFromUnit(Unit unit, Unit otherUnit, List<MoveRecipeIngredient> extractedItems, int capacity, Dictionary<Position2, Unit> changedUnits)
         {
             if (!changedUnits.ContainsKey(otherUnit.Pos))
                 changedUnits.Add(otherUnit.Pos, otherUnit);
 
+            capacity = ExtractFromOtherUnit(unit, otherUnit, TileObjectType.All, changedUnits, extractedItems, capacity, capacity);
+            /*
             while (capacity > 0)
             {
                 MoveRecipeIngredient realIndigrient = otherUnit.FindIngredient(TileObjectType.All, false);
@@ -478,7 +480,7 @@ namespace Engine.Master
                 // Report this
                 extractedItems.Add(realIndigrient);
             }
-
+            */
             if (capacity > 0)
             {
                 Ability hitPart = otherUnit.HitBy(true);
@@ -588,6 +590,8 @@ namespace Engine.Master
                                         moveRecipeIngredient.TileObjectType == TileObjectType.Ammo ||
                                         moveRecipeIngredient.TileObjectType == TileObjectType.Mineral)
                                     {
+                                        capacity = ExtractFromOtherUnit(unit, otherUnit, moveRecipeIngredient.TileObjectType, changedUnits, extractedItems, capacity, moveRecipeIngredient.Count);
+                                        /*
                                         int cnt = moveRecipeIngredient.Count;
                                         while (cnt-- > 0 && capacity > 0)
                                         {
@@ -612,7 +616,7 @@ namespace Engine.Master
 
                                             // Report this
                                             extractedItems.Add(realIndigrient);
-                                        }
+                                        }*/
                                     }
                                 }
                             }
@@ -622,137 +626,23 @@ namespace Engine.Master
                                 extractAnything = false;
 
                                 // Pick up from container, unit is the transporter. otherUnit is delivering
-                                foreach (RecipeIngredient moveRecipeIngredient in unit.CurrentGameCommand.GameCommand.RequestedItems)
-                                {
-                                    if (moveRecipeIngredient.TileObjectType == TileObjectType.Ammo)
-                                    {
-                                        int cnt = moveRecipeIngredient.Count;
-                                        while (cnt-- > 0 && capacity > 0)
-                                        {
-                                            MoveRecipeIngredient realIndigrient = otherUnit.FindIngredientForAmmo();
-                                            if (realIndigrient == null) break;
+                                capacity = PickFromContainer(unit, otherUnit, changedUnits, extractedItems, capacity);
 
-                                            if (!Unit.IsSpaceForIngredient(realIndigrient))
-                                            {
-                                                break;
-                                            }
-
-                                            capacity--;
-
-                                            // Remove it from source
-                                            otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
-
-                                            // Add it to target
-                                            Unit.AddIngredient(realIndigrient);
-
-                                            if (!changedUnits.ContainsKey(Unit.Pos))
-                                                changedUnits.Add(Unit.Pos, Unit);
-
-                                            realIndigrient.TargetPosition = Unit.Pos;
-
-                                            // Report this
-                                            extractedItems.Add(realIndigrient);
-                                        }
-                                    }
-                                    else if (moveRecipeIngredient.TileObjectType == TileObjectType.Burn)
-                                    {
-                                        int cnt = moveRecipeIngredient.Count;
-                                        while (cnt-- > 0 && capacity > 0)
-                                        {
-                                            MoveRecipeIngredient realIndigrient = otherUnit.FindIngredientToBurn();
-                                            if (realIndigrient == null) break;
-
-                                            if (!Unit.IsSpaceForIngredient(realIndigrient))
-                                            {
-                                                break;
-                                            }
-
-                                            capacity--;
-
-                                            // Remove it from source
-                                            otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
-
-                                            // Add it to target
-                                            Unit.AddIngredient(realIndigrient);
-                                            
-                                            if (!changedUnits.ContainsKey(Unit.Pos))
-                                                changedUnits.Add(Unit.Pos, Unit);
-
-                                            realIndigrient.TargetPosition = Unit.Pos;
-
-                                            // Report this
-                                            extractedItems.Add(realIndigrient);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        int cnt = moveRecipeIngredient.Count;
-                                        while (cnt-- > 0 && capacity > 0)
-                                        {
-                                            MoveRecipeIngredient realIndigrient = otherUnit.FindIngredient(TileObjectType.All, true);
-                                            if (realIndigrient == null) break;
-                                            if (!Unit.IsSpaceForIngredient(realIndigrient))
-                                            {
-                                                break;
-                                            }
-
-                                            capacity--;
-
-                                            // Remove it from source
-                                            otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
-
-                                            // Add it to target
-                                            Unit.AddIngredient(realIndigrient);
-
-                                            if (!changedUnits.ContainsKey(Unit.Pos))
-                                                changedUnits.Add(Unit.Pos, Unit);
-
-                                            realIndigrient.TargetPosition = Unit.Pos;
-
-                                            // Report this
-                                            extractedItems.Add(realIndigrient);
-                                        }
-                                    }
-                                }
+                                // Remove the pickup location => deliver the items
+                                unit.CurrentGameCommand.AttachedUnit.ClearUnitId(unit.Owner.Game.Map.Units);
+                                unit.CurrentGameCommand.DeliverContent = true;
                             }
                         }
                     }
                     if (extractAnything)
                     {
                         // friendly unit
-                        while (capacity > 0)
-                        {
-                            // Extract only from the unit (false)
-                            bool extractNeighbors = false;
-                            if (otherUnit.Engine != null)
-                            {
-                                // Depends...
-                                extractNeighbors = false;
-                            }
-                            MoveRecipeIngredient realIndigrient = otherUnit.FindIngredient(TileObjectType.All, extractNeighbors);
-                            if (realIndigrient == null) break;
-                            if (!Unit.IsSpaceForIngredient(realIndigrient))
-                            {
-                                break;
-                            }
-
-                            otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
-                            capacity--;
-
-                            // Targetposition
-                            Unit.AddIngredient(realIndigrient);
-
-                            if (!changedUnits.ContainsKey(Unit.Pos))
-                                changedUnits.Add(Unit.Pos, Unit);
-
-                            realIndigrient.TargetPosition = Unit.Pos;
-                            extractedItems.Add(realIndigrient);
-                        }
+                        capacity = ExtractFromOtherUnit(unit, otherUnit, TileObjectType.All, changedUnits, extractedItems, capacity, capacity);
                     }
 
                     if (otherUnit.ExtractMe && !otherUnit.IsDead() && capacity > 0)
                     {
-                        ExtractFromUnit(move, otherUnit, extractedItems, capacity, changedUnits);
+                        ExtractFromUnit(unit, otherUnit, extractedItems, capacity, changedUnits);
                     }
 
                     // Near Field Delivery. Extract all items from the transporter and place it in nearby untis
@@ -804,7 +694,7 @@ namespace Engine.Master
                     // enemy unit
                     if (!otherUnit.IsDead())
                     {
-                        ExtractFromUnit(move, otherUnit, extractedItems, capacity, changedUnits);
+                        ExtractFromUnit(unit, otherUnit, extractedItems, capacity, changedUnits);
                     }
                 }
             }
@@ -881,6 +771,155 @@ namespace Engine.Master
                 }
             }
             return didRemove;
+        }
+
+        private int ExtractFromOtherUnit(Unit unit, Unit otherUnit, TileObjectType tileObjectType, Dictionary<Position2, Unit> changedUnits, List<MoveRecipeIngredient> extractedItems, int capacity, int max)
+        {
+            while (max > 0 && capacity > 0)
+            {
+                // Extract only from the unit (false)
+                bool extractNeighbors = false;
+                if (otherUnit.Engine != null)
+                {
+                    // Depends...
+                    extractNeighbors = false;
+                }
+                MoveRecipeIngredient realIndigrient = null;
+                if (tileObjectType == TileObjectType.All)
+                    realIndigrient = otherUnit.FindIngredient(TileObjectType.All, extractNeighbors);
+                if (tileObjectType == TileObjectType.Burn)
+                    realIndigrient = otherUnit.FindIngredientToBurn(unit);
+                if (tileObjectType == TileObjectType.Ammo)
+                    realIndigrient = otherUnit.FindIngredientForAmmo(unit);
+
+                if (realIndigrient == null) break;
+                if (!Unit.IsSpaceForIngredient(realIndigrient))
+                {
+                    otherUnit.ReserveIngredient(realIndigrient);
+                    continue;
+                }
+
+                otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
+                capacity--;
+                max--;
+
+                // Targetposition
+                Unit.AddIngredient(realIndigrient);
+
+                if (!changedUnits.ContainsKey(Unit.Pos))
+                    changedUnits.Add(Unit.Pos, Unit);
+
+                realIndigrient.TargetPosition = Unit.Pos;
+                extractedItems.Add(realIndigrient);
+            }
+            otherUnit.ClearReservations();
+            return capacity;
+        }
+
+        private int PickFromContainer(Unit unit, Unit otherUnit, Dictionary<Position2, Unit> changedUnits, List<MoveRecipeIngredient> extractedItems, int capacity)
+        {
+            foreach (RecipeIngredient moveRecipeIngredient in unit.CurrentGameCommand.GameCommand.RequestedItems)
+            {
+                if (moveRecipeIngredient.TileObjectType == TileObjectType.Ammo)
+                {
+                    ExtractFromOtherUnit(unit, otherUnit, TileObjectType.Ammo, changedUnits, extractedItems, capacity, moveRecipeIngredient.Count);
+                    /*
+                    int cnt = moveRecipeIngredient.Count;
+                    while (cnt-- > 0 && capacity > 0)
+                    {
+                        MoveRecipeIngredient realIndigrient = otherUnit.FindIngredientForAmmo(unit);
+                        if (realIndigrient == null) break;
+
+                        if (!Unit.IsSpaceForIngredient(realIndigrient))
+                        {
+                            break;
+                        }
+
+                        capacity--;
+
+                        // Remove it from source
+                        otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
+
+                        // Add it to target
+                        Unit.AddIngredient(realIndigrient);
+
+                        if (!changedUnits.ContainsKey(Unit.Pos))
+                            changedUnits.Add(Unit.Pos, Unit);
+
+                        realIndigrient.TargetPosition = Unit.Pos;
+
+                        // Report this
+                        extractedItems.Add(realIndigrient);
+                    }
+                    */
+                }
+                else if (moveRecipeIngredient.TileObjectType == TileObjectType.Burn)
+                {
+                    ExtractFromOtherUnit(unit, otherUnit, TileObjectType.Ammo, changedUnits, extractedItems, capacity, moveRecipeIngredient.Count);
+                    /*
+                    int cnt = moveRecipeIngredient.Count;
+                    while (cnt-- > 0 && capacity > 0)
+                    {
+                        MoveRecipeIngredient realIndigrient = otherUnit.FindIngredientToBurn(unit);
+                        if (realIndigrient == null) break;
+
+                        if (!Unit.IsSpaceForIngredient(realIndigrient))
+                        {
+                            break;
+                        }
+
+                        capacity--;
+
+                        // Remove it from source
+                        otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
+
+                        // Add it to target
+                        Unit.AddIngredient(realIndigrient);
+
+                        if (!changedUnits.ContainsKey(Unit.Pos))
+                            changedUnits.Add(Unit.Pos, Unit);
+
+                        realIndigrient.TargetPosition = Unit.Pos;
+
+                        // Report this
+                        extractedItems.Add(realIndigrient);
+                    }
+                    */
+                }
+                else
+                {
+                    ExtractFromOtherUnit(unit, otherUnit, TileObjectType.All, changedUnits, extractedItems, capacity, moveRecipeIngredient.Count);
+                    /*
+                    int cnt = moveRecipeIngredient.Count;
+                    while (cnt-- > 0 && capacity > 0)
+                    {
+                        MoveRecipeIngredient realIndigrient = otherUnit.FindIngredient(TileObjectType.All, true);
+                        if (realIndigrient == null) break;
+                        if (!Unit.IsSpaceForIngredient(realIndigrient))
+                        {
+                            break;
+                        }
+
+                        capacity--;
+
+                        // Remove it from source
+                        otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
+
+                        // Add it to target
+                        Unit.AddIngredient(realIndigrient);
+
+                        if (!changedUnits.ContainsKey(Unit.Pos))
+                            changedUnits.Add(Unit.Pos, Unit);
+
+                        realIndigrient.TargetPosition = Unit.Pos;
+
+                        // Report this
+                        extractedItems.Add(realIndigrient);
+                    }*/
+                }
+            }
+
+            return capacity;
         }
     }
 }

@@ -128,7 +128,7 @@ namespace Engine.Ants
             blueprintCommandItem.Direction = Direction.C;
 
             GameCommandItem gameCommandItem = new GameCommandItem(gameCommand, blueprintCommandItem);
-            gameCommandItem.TargetUnit.UnitId = Ant.Unit.UnitId;
+            gameCommandItem.TargetUnit.SetUnitId(Ant.Unit.UnitId);
             gameCommandItem.TargetUnit.SetStatus("WaitingForDelivery");
 
             gameCommand.RequestedItems = new List<RecipeIngredient>();

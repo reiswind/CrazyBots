@@ -774,7 +774,7 @@ namespace Assets.Scripts
                         {
                             gameObject = HexGrid.Instantiate(HexGrid.MainGrid.ReactorBurnMineral, unitBasePart.Part.transform);
                         }
-                        else if (tileObjectType == TileObjectType.Wood)
+                        else //if (tileObjectType == TileObjectType.Wood)
                         {
                             gameObject = HexGrid.Instantiate(HexGrid.MainGrid.ReactorBurnWood, unitBasePart.Part.transform);
                         }
