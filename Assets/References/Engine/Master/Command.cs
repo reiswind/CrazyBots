@@ -128,6 +128,7 @@ namespace Engine.Master
         public int TargetZone { get; set; }
 
         public int Radius { get; set; }
+        public Direction Direction { get; set; }
         public Position2 TargetPosition { get; set; }
         //public Position2 MoveToPosition { get; set; }
         public GameCommandType GameCommandType { get; set; }

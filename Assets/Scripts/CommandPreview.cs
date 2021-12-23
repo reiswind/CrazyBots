@@ -302,9 +302,12 @@ namespace Assets.Scripts
             MapGameCommand gameCommand = new MapGameCommand();
 
             gameCommand.CommandId = GameCommand.CommandId;
+            gameCommand.PlayerId = GameCommand.PlayerId;
             gameCommand.GameCommandType = GameCommandType.Cancel;
 
             HexGrid.MainGrid.GameCommands.Add(gameCommand);
+
+            Delete();
         }
         public bool CanExecute()
         {
@@ -414,8 +417,6 @@ namespace Assets.Scripts
                     PreviewUnits.Add(commandAttachedItem);
                     addPreviewGhost = null;
                     addPreviewUnitMarker = null;
-
-
                 }
                 else if (isMoveMode)
                 {
@@ -837,7 +838,7 @@ namespace Assets.Scripts
                         // On select
                         commandAttachedUnit.AttachedUnit.GhostUnitBounds = new UnitBounds(commandAttachedUnit.AttachedUnit.GhostUnit);
 
-                        if (IsSelected || IsPreview || IsMoveMode)
+                        if (IsPreview || IsMoveMode)
                         {
                             commandAttachedUnit.AttachedUnit.GhostUnitBounds.AddBuildGrid();
                         }

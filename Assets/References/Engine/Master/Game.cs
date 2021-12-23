@@ -2071,6 +2071,7 @@ namespace Engine.Master
                     gameCommand.PlayerId = mapGameCommand.PlayerId;
                     gameCommand.TargetPosition = mapGameCommand.TargetPosition;
                     gameCommand.Radius = mapGameCommand.Radius;
+                    gameCommand.Direction = mapGameCommand.Direction;
                     gameCommand.Layout = mapGameCommand.Layout;
 
                     if (gameCommand.Radius > 0)
@@ -2298,6 +2299,7 @@ namespace Engine.Master
                     mapGameCommand.PlayerId = gameCommand.PlayerId;
                     mapGameCommand.TargetPosition = gameCommand.TargetPosition;
                     mapGameCommand.Radius = gameCommand.Radius;
+                    mapGameCommand.Direction = gameCommand.Direction;
                     mapGameCommand.Layout = gameCommand.Layout;
 
                     foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)

@@ -1620,13 +1620,12 @@ namespace Engine.Ants
 
         private void AttachGamecommands(Player player, List<Ant> unmovedAnts, List<Move> moves)
         {
-            List<GameCommand> cancelCommands = new List<GameCommand>();
             List<GameCommand> removeCommands = new List<GameCommand>();
-
             foreach (GameCommand gameCommand in player.GameCommands)
             {
                 if (gameCommand.GameCommandType == GameCommandType.AddUnits)
                 {
+                    removeCommands.Add(gameCommand);
                     gameCommand.CommandComplete = true;
                     gameCommand.DeleteWhenFinished = true;
 
@@ -1652,7 +1651,7 @@ namespace Engine.Ants
                 if (gameCommand.GameCommandType == GameCommandType.Move)
                 {
                     //UnityEngine.Debug.Log("AttachGamecommands MOVE");
-
+                    removeCommands.Add(gameCommand);
                     foreach (GameCommand moveGameCommand in player.GameCommands)
                     {
                         //if (moveGameCommand.TargetPosition == gameCommand.TargetPosition)
@@ -1670,18 +1669,17 @@ namespace Engine.Ants
                                     }
                                 }
                             }
-                            moveGameCommand.TargetPosition = gameCommand.TargetPosition; //.MoveToPosition;
+                            moveGameCommand.TargetPosition = gameCommand.TargetPosition;
                             moveGameCommand.IncludedPositions = gameCommand.IncludedPositions;
+                            moveGameCommand.Direction = gameCommand.Direction;
 
-                            gameCommand.CommandComplete = true;
-                            removeCommands.Add(gameCommand);
-                            player.CompletedCommands.Add(gameCommand);
                             break;
                         }
                     }
                 }
                 if (gameCommand.GameCommandType == GameCommandType.Cancel)
                 {
+                    removeCommands.Add(gameCommand);
                     gameCommand.CommandComplete = true;
                     gameCommand.DeleteWhenFinished = true;
                     foreach (GameCommandItem gameCommandItem in gameCommand.GameCommandItems)
@@ -1691,55 +1689,23 @@ namespace Engine.Ants
 
                     foreach (GameCommand otherGameCommand in player.GameCommands)
                     {
-                        if (otherGameCommand.CommandId == gameCommand.CommandId)
-                            /*
-                            if (otherGameCommand != gameCommand &&
-                            otherGameCommand.TargetPosition == gameCommand.TargetPosition &&
-                            otherGameCommand.BlueprintName == gameCommand.BlueprintName)*/
+                        if (otherGameCommand.GameCommandType != GameCommandType.Cancel &&
+                            otherGameCommand.CommandId == gameCommand.CommandId)
                         {
-                            foreach (Ant ant in unmovedAnts)
-                            {
-                                if (ant.Unit.CurrentGameCommand != null &&
-                                    ant.Unit.CurrentGameCommand.GameCommand == otherGameCommand)
-                                {
-                                    ant.Unit.ResetGameCommand();
-                                }
-                            }
                             otherGameCommand.CommandComplete = true;
                             otherGameCommand.DeleteWhenFinished = true;
-                            player.CompletedCommands.Add(otherGameCommand);
-                            cancelCommands.Add(otherGameCommand);
+                            break;
                         }
                     }
-                }
-                if (gameCommand.GameCommandType == GameCommandType.Collect)
-                {
-
                 }
                 if (gameCommand.GameCommandType == GameCommandType.Extract)
                 {
                 }
             }
-
             foreach (GameCommand removeCommand in removeCommands)
             {
                 player.GameCommands.Remove(removeCommand);
             }
-
-            foreach (GameCommand cancelGameCommand in cancelCommands)
-            {
-                foreach (GameCommand gameCommand in player.GameCommands)
-                {
-                    if (cancelGameCommand.CommandId == gameCommand.CommandId)
-                    //if (cancelGameCommand.TargetPosition == gameCommand.TargetPosition &&
-                    //    cancelGameCommand.PlayerId == gameCommand.PlayerId)
-                    {
-                        gameCommand.CommandCanceled = true;
-                        player.CompletedCommands.Add(gameCommand);
-                    }
-                }
-            }
-
             Ant bestAnt;
             int bestDistance;
 
@@ -1750,7 +1716,9 @@ namespace Engine.Ants
                     continue;
                 if (gameCommand.CommandCanceled || gameCommand.CommandComplete)
                 {
-                    player.CompletedCommands.Add(gameCommand);
+                    if (gameCommand.GameCommandType != GameCommandType.Cancel &&
+                        gameCommand.GameCommandType != GameCommandType.Move)
+                        player.CompletedCommands.Add(gameCommand);
                     continue;
                 }
 
