@@ -348,6 +348,19 @@ namespace Assets.Scripts
                 {
                     unitBasePart.Part.transform.Rotate(Vector3.up, 1);
                 }
+                if (unitBasePart.PartType == TileObjectType.PartRadar && !unitBasePart.Destroyed)
+                {
+                    GameObject partToTurn;
+                    if (unitBasePart.CompleteLevel == 1)
+                    {
+                        partToTurn = unitBasePart.Part;
+                    }
+                    else
+                    {
+                        partToTurn = FindChildNyName(unitBasePart.Part, unitBasePart.Name + unitBasePart.CompleteLevel + "-" + unitBasePart.CompleteLevel);
+                    }
+                    partToTurn.transform.Rotate(Vector3.up, 1);
+                }
             }
 
             if (teleportToPosition)

@@ -89,12 +89,17 @@ namespace Engine.Interface
         {
             AttachedUnit = new MapGameCommandItemUnit();
             FactoryUnit = new MapGameCommandItemUnit();
+            TransportUnit = new MapGameCommandItemUnit();
+            TargetUnit = new MapGameCommandItemUnit();
             GameCommand = gamecommand;
         }
         internal MapGameCommandItem(MapGameCommand gamecommand, BlueprintCommandItem blueprintCommandItem)
         {
             AttachedUnit = new MapGameCommandItemUnit();
             FactoryUnit = new MapGameCommandItemUnit();
+            TransportUnit = new MapGameCommandItemUnit();
+            TargetUnit = new MapGameCommandItemUnit();
+
             GameCommand = gamecommand;
             Position3 = blueprintCommandItem.Position3;
             Direction = blueprintCommandItem.Direction;

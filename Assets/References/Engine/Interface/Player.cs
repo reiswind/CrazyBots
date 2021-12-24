@@ -79,7 +79,10 @@ namespace Engine.Interface
             int visibilityRange = 2;
             if (!unit.Blueprint.IsMoveable())
             {
-                visibilityRange = 4; // Unit.Reactor.Range;
+                if (unit.Radar != null)
+                    visibilityRange = unit.Radar.Range;
+                else
+                    visibilityRange = 4; // Unit.Reactor.Range;
             }
             Dictionary<Position2, TileWithDistance> tiles = Game.Map.EnumerateTiles(unit.Pos, visibilityRange, true);
             foreach (TileWithDistance tileWithDistance in tiles.Values)

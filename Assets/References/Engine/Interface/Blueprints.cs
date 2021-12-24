@@ -27,7 +27,7 @@ namespace Engine.Interface
             blueprint.Parts.Add(new BlueprintPart("S-PartExtractor"));
             blueprint.Parts.Add(new BlueprintPart("S-PartAssembler", TileObjectType.PartAssembler, 1, 4, 0));
             blueprint.Parts.Add(new BlueprintPart("S-PartContainer", 24, 6));
-            blueprint.Parts.Add(new BlueprintPart("S-PartReactor", 6, 12));
+            blueprint.Parts.Add(new BlueprintPart("S-PartReactor", 6, 6));
             Items.Add(blueprint);
 
             // Container
@@ -60,6 +60,14 @@ namespace Engine.Interface
             blueprint.Layout = "S-Factory";
             blueprint.Parts.Add(new BlueprintPart("S-PartExtractor"));
             blueprint.Parts.Add(new BlueprintPart("S-PartAssembler", TileObjectType.PartAssembler, 3, 12, 0));
+            Items.Add(blueprint);
+
+            // Radar
+            blueprint = new Blueprint();
+            blueprint.Name = "Radar";
+            blueprint.Layout = "S-Radar";
+            blueprint.Parts.Add(new BlueprintPart("S-PartExtractor"));
+            blueprint.Parts.Add(new BlueprintPart("S-PartRadar", TileObjectType.PartRadar, 3, 0, 8));
             Items.Add(blueprint);
 
             // Worker to collect Minerals
@@ -233,7 +241,20 @@ namespace Engine.Interface
 
             Commands.Add(blueprintCommand);
 
-            
+            // Build Radar
+            blueprintCommand = new BlueprintCommand();
+
+            blueprintCommand.Name = "Radar";
+            blueprintCommand.Layout = "UIBuild";
+            blueprintCommand.GameCommandType = GameCommandType.Build;
+
+            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem.BlueprintName = "Radar";
+            blueprintCommand.Units.Add(blueprintCommandItem);
+
+            Commands.Add(blueprintCommand);
+
+
             // Build Fighter
             blueprintCommand = new BlueprintCommand();
 

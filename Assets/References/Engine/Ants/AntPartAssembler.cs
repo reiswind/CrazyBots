@@ -399,20 +399,23 @@ namespace Engine.Ants
                 {
                     if (selectedGameCommand.FactoryUnit.UnitId == Ant.Unit.UnitId)
                     {
-                        Tile tile = player.Game.Map.GetTile(selectedGameCommand.GameCommand.TargetPosition);
-                        // Must be possible to move the output there (blocking units..)
-                        if (!tile.CanMoveTo(Ant.Unit.Pos))
+                        if (selectedGameCommand.GameCommand.TargetPosition != Position2.Null)
                         {
-                            // Cannot build here any more. 
-                            if (player.PlayerModel.IsHuman)
+                            Tile tile = player.Game.Map.GetTile(selectedGameCommand.GameCommand.TargetPosition);
+                            // Must be possible to move the output there (blocking units..)
+                            if (!tile.CanMoveTo(Ant.Unit.Pos))
                             {
-                                // Should be factory state?
-                                selectedGameCommand.FactoryUnit.SetStatus("CannotBuild", true);
-                            }
-                            else
-                            {
-                                Ant.Unit.ResetGameCommand();
-                                selectedGameCommand.GameCommand.CommandCanceled = true;
+                                // Cannot build here any more. 
+                                if (player.PlayerModel.IsHuman)
+                                {
+                                    // Should be factory state?
+                                    selectedGameCommand.FactoryUnit.SetStatus("CannotBuild", true);
+                                }
+                                else
+                                {
+                                    Ant.Unit.ResetGameCommand();
+                                    selectedGameCommand.GameCommand.CommandCanceled = true;
+                                }
                             }
                         }
                     }
