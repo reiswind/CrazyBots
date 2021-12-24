@@ -16,7 +16,7 @@
       "ControlLevel": 1,
       "Id": 2,
       "Zone": 1,
-	  "IsHuman": true,
+	  "IsHumanx": true,
       "Name": "Red"
     }
   ],
@@ -37,7 +37,7 @@
       "Name": "Container",
       "PlayerId": 1,
       "Blueprint": "Container",
-	  "ContainedMinerals": 18,
+	  "ContainedMineralsx": 18,
 	  "HoldPosition": false,
 	  "FireAtGround": false,
 	  "EndlessAmmo": false,
@@ -72,6 +72,15 @@
 	  "EndlessAmmo": false,
 	  "EndlessPower": false,
       "Position": "-1,0"
+    },
+	{
+      "Name": "Radar",
+      "PlayerId": 2,
+      "Blueprint": "Radar",
+	  "FireAtGround": false,
+	  "EndlessAmmo": false,
+	  "EndlessPower": false,
+      "Position": "-1,1"
     }
   ]
 }

@@ -39,7 +39,7 @@ namespace Assets.Scripts
                 gameFrame.IsVisible = value;
             }
         }
-        public void Update()
+        public void Update(int playerId)
         {
             gameFrame.Destroy();
             if (collectPosition != Position2.Null)
@@ -48,7 +48,7 @@ namespace Assets.Scripts
 
                 Position3 position3 = new Position3(collectPosition);
                 List<Position3> positions = position3.CreateRing(collectRadius);
-                gameFrame.CreateFrame(positions);
+                gameFrame.CreateFrame(playerId, positions);
 
                 positions = position3.GetNeighbors(collectRadius);
                 foreach (Position3 position31 in positions)
@@ -295,14 +295,14 @@ namespace Assets.Scripts
             }
         }
 
-        public void CreateFrame(List<Position3> positions)
+        public void CreateFrame(int playerId, List<Position3> positions)
         {
             GameObject lineRendererObject = new GameObject();
             visibleGameObjects.Add(lineRendererObject);
 
             LineRenderer lineRenderer = lineRendererObject.AddComponent<LineRenderer>();
             lineRenderer.transform.SetParent(HexGrid.MainGrid.transform, false);
-            lineRenderer.material = HexGrid.MainGrid.GetMaterial("Player1");
+            lineRenderer.material = HexGrid.MainGrid.GetMaterial("Player" + playerId);
             lineRenderer.loop = true;
             lineRenderer.startWidth = 0.15f;
             lineRenderer.endWidth = 0.15f;
@@ -510,12 +510,17 @@ namespace Assets.Scripts
                 if (!hasEngine && unitBasePart.PartType == TileObjectType.PartReactor)
                 {
                     List<Position3> positions = position3.CreateRing(unitBasePart.Range);
-                    gameFrame.CreateFrame(positions);
+                    gameFrame.CreateFrame(UnitBase.PlayerId, positions);
                 }
                 if (!hasEngine && unitBasePart.PartType == TileObjectType.PartContainer)
                 {
                     List<Position3> positions = position3.CreateRing(unitBasePart.Range);
-                    gameFrame.CreateFrame(positions);
+                    gameFrame.CreateFrame(UnitBase.PlayerId, positions);
+                }
+                if (!hasEngine && unitBasePart.PartType == TileObjectType.PartRadar)
+                {
+                    List<Position3> positions = position3.CreateRing(unitBasePart.Range);
+                    gameFrame.CreateFrame(UnitBase.PlayerId, positions);
                 }
                 if (unitBasePart.PartType == TileObjectType.PartWeapon)
                 {

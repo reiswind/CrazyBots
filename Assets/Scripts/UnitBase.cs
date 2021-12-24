@@ -346,7 +346,7 @@ namespace Assets.Scripts
                 }
                 if (unitBasePart.PartType == TileObjectType.PartContainer && !unitBasePart.Destroyed)
                 {
-                    unitBasePart.Part.transform.Rotate(Vector3.up, 1);
+                    unitBasePart.Part.transform.Rotate(Vector3.up, 1 / HexGrid.MainGrid.GameSpeed);
                 }
                 if (unitBasePart.PartType == TileObjectType.PartRadar && !unitBasePart.Destroyed)
                 {
@@ -359,7 +359,7 @@ namespace Assets.Scripts
                     {
                         partToTurn = FindChildNyName(unitBasePart.Part, unitBasePart.Name + unitBasePart.CompleteLevel + "-" + unitBasePart.CompleteLevel);
                     }
-                    partToTurn.transform.Rotate(Vector3.up, 1);
+                    partToTurn.transform.Rotate(Vector3.up, 1/ HexGrid.MainGrid.GameSpeed);
                 }
             }
 

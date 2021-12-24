@@ -600,7 +600,7 @@ namespace Assets.Scripts
                 collectUnitBounds.Destroy();
                 displayRadius++;
                 collectUnitBounds = new CollectBounds(displayPosition, displayRadius);
-                collectUnitBounds.Update();
+                collectUnitBounds.Update(1);
             }
         }
         public void DecreaseRadius()
@@ -610,7 +610,7 @@ namespace Assets.Scripts
                 collectUnitBounds.Destroy();
                 displayRadius--;
                 collectUnitBounds = new CollectBounds(displayPosition, displayRadius);
-                collectUnitBounds.Update();
+                collectUnitBounds.Update(1);
             }
         }
         public void RotateCommand(bool turnRight)
@@ -689,7 +689,7 @@ namespace Assets.Scripts
             if (IsPreview || IsSelected || IsHighlighted)
             {
                 collectUnitBounds = new CollectBounds(groundCell.Pos, displayRadius);
-                collectUnitBounds.Update();
+                collectUnitBounds.Update(1);
             }
         }
 
@@ -821,7 +821,7 @@ namespace Assets.Scripts
             if (visible == true)
             {
                 collectUnitBounds = new CollectBounds(displayPosition, displayRadius);                
-                collectUnitBounds.Update();
+                collectUnitBounds.Update(1);
             }
             
             foreach (CommandAttachedItem commandAttachedUnit in PreviewUnits)
