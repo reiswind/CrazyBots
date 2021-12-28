@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: CrystalMat
-  m_Shader: {fileID: -6465566751694194690, guid: e22b223eb15148d43b3ce082c074f087, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 583650df00c44154f9061b238dd58adb, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
@@ -20,7 +20,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - BaseMap:
-        m_Texture: {fileID: 2800000, guid: 4af8ffc7b9eaecd43bac628007775546, type: 3}
+        m_Texture: {fileID: 2800000, guid: 3c16c1a45f2117e43b033482984c875b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseMap:
@@ -44,7 +44,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: d48e19ed8c344064ea448d741ac56da7, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
@@ -112,6 +112,7 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
+    - PlayerColor: {r: 0.09019609, g: 0.41823646, b: 0.65882355, a: 0}
     - SurfaceColor: {r: 0.043137256, g: 0.5137255, b: 0.7019608, a: 1}
     - _BaseColor: {r: 0.043137256, g: 0.5137255, b: 0.7019608, a: 1}
     - _Color: {r: 0.043137237, g: 0.5137254, b: 0.7019608, a: 1}

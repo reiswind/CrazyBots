@@ -1086,7 +1086,7 @@ namespace Assets.Scripts
             }
 
         }
-
+        /*
         internal void SetMaterialGhost(int playerId, GameObject unit)
         {
             for (int i = 0; i < unit.transform.childCount; i++)
@@ -1128,7 +1128,7 @@ namespace Assets.Scripts
                 }
             }
         }
-
+        */
         internal static GameObject FindChildNyName(GameObject unit, string name)
         {
             if (unit.name.StartsWith(name))
@@ -1154,7 +1154,8 @@ namespace Assets.Scripts
 
             
             //if (playerId == 1) ColorUtility.TryParseHtmlString("#FFA200", out color);
-            if (playerId == 1) ColorUtility.TryParseHtmlString("#0606AD", out color);
+            if (playerId == 1) ColorUtility.TryParseHtmlString("#0D5093", out color);
+            //if (playerId == 1) ColorUtility.TryParseHtmlString("#0606AD", out color);
             if (playerId == 2) ColorUtility.TryParseHtmlString("#7D0054", out color);
             if (playerId == 3) ColorUtility.TryParseHtmlString("#1FD9D5", out color);
             if (playerId == 4) ColorUtility.TryParseHtmlString("#1FD92B", out color);
