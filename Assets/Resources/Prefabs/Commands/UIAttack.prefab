@@ -44,7 +44,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5641556963960123789}
-  m_Mesh: {fileID: 8691780276856062721, guid: 11558ec19be12de42bf95daa2b7c5eba, type: 3}
+  m_Mesh: {fileID: -2712993080049835545, guid: 11558ec19be12de42bf95daa2b7c5eba, type: 3}
 --- !u!23 &6145771212205641816
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -220,7 +220,7 @@ MonoBehaviour:
   seeThroughBorderColor: {r: 0, g: 0, b: 0, a: 1}
   seeThroughBorderWidth: 0.45
   seeThroughOrdered: 0
-  rmsCount: 2
+  rmsCount: 0
   hitFxInitialIntensity: 0
   hitFxMode: 0
   hitFxFadeOutDuration: 0.25
