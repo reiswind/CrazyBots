@@ -372,14 +372,14 @@ namespace Assets.Scripts
             }
             else if (tileObject.TileObjectType == TileObjectType.Stone)
             {
-                if (collectionType == CollectionType.Block)
+                /*if (collectionType == CollectionType.Block)
                 {
                     scale = true;
                     int idx = Random.Next(rockResources.Count);
                     prefab = rockResources.Values.ElementAt(idx);
                     y = prefab.transform.position.y;
                 }
-                else if (collectionType == CollectionType.Many)
+                else */if (collectionType == CollectionType.Many)
                 {
                     prefab = GetResource("ItemStoneLarge");
                 }
@@ -412,11 +412,12 @@ namespace Assets.Scripts
             }
             else if (tileObject.TileObjectType == TileObjectType.Mineral)
             {
-                if (collectionType == CollectionType.Block)
+                /*if (collectionType == CollectionType.Block)
                 {
                     prefab = GetResource("ItemCrystalBlock");
                 }
-                else if (collectionType == CollectionType.Many)
+                else */
+                if (collectionType == CollectionType.Many)
                 {
                     prefab = GetResource("ItemCrystalLarge");
                 }

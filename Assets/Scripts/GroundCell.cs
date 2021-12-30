@@ -10,8 +10,8 @@ namespace Assets.Scripts
     {
         None,
         Single,
-        Many,
-        Block
+        Many
+        //Block
     }
     public class GroundCellBorder
     {
@@ -1009,9 +1009,10 @@ namespace Assets.Scripts
                         tileObjects.Add(tileObject1);
                 }
                 int itemsinLargeMineral = 5;
-                int itemsinBlockingMineral = Position2.BlockPathItemCount;
+                //int itemsinBlockingMineral = Position2.BlockPathItemCount;
                 while (tileObjects.Count > 0)
                 {
+                    /*
                     if (tileObjects.Count >= itemsinBlockingMineral)
                     {
                         objectsAdded = true;
@@ -1021,7 +1022,8 @@ namespace Assets.Scripts
                             tileObjects.RemoveAt(0);
                         countMinerals -= itemsinBlockingMineral;
                     }
-                    else if (tileObjects.Count > itemsinLargeMineral)
+                    else */
+                    if (tileObjects.Count > itemsinLargeMineral)
                     {
                         objectsAdded = true;
                         AddDestructableItems(itemsinLargeMineral, destroyedTileObjects, TileObjectType.Mineral, CollectionType.Many);
@@ -1053,9 +1055,11 @@ namespace Assets.Scripts
                         tileObjects.Add(tileObject1);
                 }
                 int itemsinLargeMineral = 5;
-                int itemsinBlockingMineral = Position2.BlockPathItemCount;
+                //int itemsinBlockingMineral = Position2.BlockPathItemCount;
+
                 while (tileObjects.Count > 0)
                 {
+                    /*
                     if (tileObjects.Count > itemsinBlockingMineral)
                     {
                         objectsAdded = true;
@@ -1065,7 +1069,8 @@ namespace Assets.Scripts
                             tileObjects.RemoveAt(0);
                         countStones -= itemsinBlockingMineral;
                     }
-                    else if (tileObjects.Count > itemsinLargeMineral)
+                    else */
+                    if (tileObjects.Count > itemsinLargeMineral)
                     {
                         objectsAdded = true;
                         AddDestructableItems(itemsinLargeMineral, destroyedTileObjects, TileObjectType.Stone, CollectionType.Many);
