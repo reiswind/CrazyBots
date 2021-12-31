@@ -13,7 +13,7 @@ namespace Assets.Scripts
 
         internal HitByBullet HitByBullet { get; set; }
 
-        private UnitBase GetUnitFrameFromCollider(Collider other)
+        private UnitBase GetUnitFrameFromCollider(GameObject other)
         {
             UnitBase unitBase = other.GetComponent<UnitBase>();
             if (unitBase != null) return unitBase;
@@ -52,18 +52,41 @@ namespace Assets.Scripts
 
         private void OnCollisionEnter(Collision collision)
         {
-            Destroy(gameObject);
-
             Collider other = collision.collider;
+            
             if (other == null || string.IsNullOrEmpty(other.name))
                 return;
+            
+            UnitBase hitUnit = GetUnitFrameFromCollider(other.gameObject);
+            if (FireingUnit == null || hitUnit == FireingUnit)
+            {
+                return;
+            }
+            if (HitByBullet.BulletImpact == false)
+            {
+                //Debug.Log("BulletImpact");
 
+                HitByBullet.BulletImpact = true;
+
+                // Play the particle system.
+                if (HitGroundExplosionParticles != null && hitUnit != null)
+                {
+                    ParticleSystem particles = Instantiate(HitGroundExplosionParticles, hitUnit.transform);
+                    particles.Play();
+                }
+
+                Destroy(this.gameObject, 1f);
+                //Destroy(m_ExplosionParticles.gameObject, m_ExplosionParticles.main.duration);
+            }
+
+            /*
             Rigidbody otherRigid = other.GetComponent<Rigidbody>();
             if (otherRigid != null)
             {
                 Vector3 velo = otherRigid.velocity;
             }
             HitByBullet.BulletImpact = true;
+            */
             /*
             UnitBase hitUnit = GetUnitFrameFromCollider(other);
             if (hitUnit == null)
@@ -109,7 +132,7 @@ namespace Assets.Scripts
 
         private void OnTriggerEnter(Collider other)
         {
-            UnitBase hitUnit = GetUnitFrameFromCollider(other);
+            UnitBase hitUnit = GetUnitFrameFromCollider(other.gameObject);
             if (FireingUnit == null || hitUnit == FireingUnit)
             {
                 return;

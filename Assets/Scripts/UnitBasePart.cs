@@ -75,18 +75,28 @@ namespace Assets.Scripts
         }
         public void FireBullet()
         {
-            GameObject gameObject = HexGrid.MainGrid.CreateShell(Part.transform, hitByBullet.Bullet);
+            GroundCell weaponSourceCell;
+            if (!HexGrid.MainGrid.GroundCells.TryGetValue(hitByBullet.FireingPosition, out weaponSourceCell))
+            {
+                throw new Exception("wtf");
+            }
+            GroundCell weaponTargetCell;
+            if (!HexGrid.MainGrid.GroundCells.TryGetValue(hitByBullet.TargetPosition, out weaponTargetCell))
+            {
+                throw new Exception("wtf");
+            }
+
+            GameObject gameObject = HexGrid.MainGrid.CreateShell(weaponSourceCell.transform, hitByBullet.Bullet);
+            gameObject.transform.position = Part.transform.position;
+
             Shell shell = gameObject.GetComponent<Shell>();
             shell.FireingUnit = UnitBase;
             shell.HitByBullet = hitByBullet;
 
-            GroundCell weaponTargetCell;
-            if (HexGrid.MainGrid.GroundCells.TryGetValue(hitByBullet.TargetPosition, out weaponTargetCell))
-            {
-                Vector3 targetPos = weaponTargetCell.transform.position;
-                Rigidbody rigidbody = shell.GetComponent<Rigidbody>();
-                rigidbody.velocity = CalcBallisticVelocityVector(shell.transform.position, targetPos, UnitBase.HasEngine()?30:1);
-            }
+            Vector3 targetPos = weaponTargetCell.transform.position;
+            Rigidbody rigidbody = shell.GetComponent<Rigidbody>();
+            rigidbody.velocity = CalcBallisticVelocityVector(shell.transform.position, targetPos, UnitBase.HasEngine()?30:1);
+            
         }
         private Vector3 CalcBallisticVelocityVector(Vector3 initialPos, Vector3 finalPos, float angle)
         {

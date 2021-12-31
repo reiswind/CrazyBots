@@ -1036,7 +1036,7 @@ namespace Assets.Scripts
 
         public void Fire(Move move)
         {
-            if (IsVisible)
+            //if (IsVisible)
             {
                 foreach (UnitBasePart unitBasePart in UnitBaseParts)
                 {

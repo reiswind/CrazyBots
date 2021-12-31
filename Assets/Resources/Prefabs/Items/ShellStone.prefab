@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 371340356431461886}
   - component: {fileID: 1059984967959027870}
   - component: {fileID: 5244874410934038699}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ShellStone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -140,7 +140,7 @@ GameObject:
   - component: {fileID: 5044765118641101453}
   - component: {fileID: 6995129145195308938}
   - component: {fileID: 238766883695972834}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ShellTrail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
