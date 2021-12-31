@@ -747,7 +747,7 @@ namespace Engine.Master
                         Unit.CurrentGameCommand.GameCommand.CommandComplete = true;
                         unit.ResetGameCommand();
                     }
-                    Unit.ClearReservations();
+                    //Unit.ClearReservations();
                 }
             }
 
@@ -775,6 +775,7 @@ namespace Engine.Master
 
         private int ExtractFromOtherUnit(Unit unit, Unit otherUnit, TileObjectType tileObjectType, Dictionary<Position2, Unit> changedUnits, List<MoveRecipeIngredient> extractedItems, int capacity, int max)
         {
+            List<TileObject> excludeTileObjects = new List<TileObject>();
             while (max > 0 && capacity > 0)
             {
                 // Extract only from the unit (false)
@@ -786,7 +787,7 @@ namespace Engine.Master
                 }
                 MoveRecipeIngredient realIndigrient = null;
                 if (tileObjectType == TileObjectType.All)
-                    realIndigrient = otherUnit.FindIngredient(TileObjectType.All, extractNeighbors);
+                    realIndigrient = otherUnit.FindIngredient(TileObjectType.All, extractNeighbors, excludeTileObjects);
                 if (tileObjectType == TileObjectType.Burn)
                     realIndigrient = otherUnit.FindIngredientToBurn(unit);
                 if (tileObjectType == TileObjectType.Ammo)
@@ -795,7 +796,7 @@ namespace Engine.Master
                 if (realIndigrient == null) break;
                 if (!Unit.IsSpaceForIngredient(realIndigrient))
                 {
-                    otherUnit.ReserveIngredient(realIndigrient);
+                    //otherUnit.ReserveIngredient(realIndigrient);
                     continue;
                 }
 
@@ -812,7 +813,7 @@ namespace Engine.Master
                 realIndigrient.TargetPosition = Unit.Pos;
                 extractedItems.Add(realIndigrient);
             }
-            otherUnit.ClearReservations();
+            //otherUnit.ClearReservations();
             return capacity;
         }
 

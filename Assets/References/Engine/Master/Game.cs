@@ -397,7 +397,7 @@ namespace Engine.Master
                     else
                     {
                         // Release the reservations, so the ingredients can be used
-                        factory.ClearReservations();
+                        //factory.ClearReservations();
                         List<TileObject> results = factory.ConsumeIngredients(move.MoveRecipe, changedUnits);
                         if (factory.IsDead())
                         {
@@ -1396,7 +1396,7 @@ namespace Engine.Master
                 if (unit.Owner.PlayerModel.Id != player.PlayerModel.Id)
                     continue;
 
-                unit.ClearReservations();
+                //unit.ClearReservations();
                 if (unit.Changed)
                 {
                     unit.Changed = false;
@@ -2228,6 +2228,10 @@ namespace Engine.Master
                 if (minsAfterStart != mapInfo.TotalMetal)
                 {
                 }
+            }
+            if (MoveNr == 139)
+            {
+                int burnpr = 0;
             }
             foreach (Player player in Players.Values)
             {

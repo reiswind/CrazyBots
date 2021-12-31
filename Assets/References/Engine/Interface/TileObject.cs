@@ -46,8 +46,9 @@ namespace Engine.Interface
                 return tileObjects.Count;
             }
         }
-
+        /*
         private List<TileObjectType> reservedTileObjectTypes = new List<TileObjectType>();
+
 
         public void ClearReservations()
         {
@@ -62,23 +63,27 @@ namespace Engine.Interface
         {
             reservedTileObjectTypes.Remove(tileObjectType);
         }
-
-        public TileObject GetMatchingTileObject(TileObjectType tileObjectType)
+        */
+        public TileObject GetMatchingTileObject(TileObjectType tileObjectType, List<TileObject> excludeIngredients)
         {
-            List<TileObjectType> reserved = new List<TileObjectType>();
-            reserved.AddRange(reservedTileObjectTypes);
+            //List<TileObjectType> reserved = new List<TileObjectType>();
+            //reserved.AddRange(reservedTileObjectTypes);
 
             foreach (TileObject tileObject in tileObjects)
             {
+                if (excludeIngredients != null && excludeIngredients.Contains(tileObject))
+                    continue;
+
                 if (tileObjectType == TileObjectType.Ammo)
                 {
                     if (TileObject.GetDeliveryScoreForAmmoType(tileObject.TileObjectType) > 0)
                     {
+                        /*
                         if (reserved.Contains(tileObject.TileObjectType))
                         {
                             reserved.Remove(tileObject.TileObjectType);
                             continue;
-                        }
+                        }*/
                     }
                     return tileObject;
                 }
@@ -88,22 +93,24 @@ namespace Engine.Interface
                 {
                     if (TileObject.GetPowerForTileObjectType(tileObject.TileObjectType) > 0)
                     {
+                        /*
                         if (reserved.Contains(tileObject.TileObjectType))
                         {
                             reserved.Remove(tileObject.TileObjectType);
                             continue;
-                        }
+                        }*/
                     }
                     return tileObject;
                 }
 
                 if (tileObject.TileObjectType == tileObjectType || tileObjectType == TileObjectType.All)
                 {
+                    /*
                     if (reserved.Contains(tileObject.TileObjectType))
                     {
                         reserved.Remove(tileObject.TileObjectType);
                         continue;
-                    }
+                    }*/
                     return tileObject;
                 }
             }

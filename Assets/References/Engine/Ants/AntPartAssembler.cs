@@ -147,7 +147,7 @@ namespace Engine.Ants
         {
             bool upgrading = false;
 
-            MoveRecipeIngredient moveRecipeIngredient = Ant.Unit.FindIngredient(TileObjectType.Mineral, true);
+            MoveRecipeIngredient moveRecipeIngredient = Ant.Unit.FindIngredient(TileObjectType.Mineral, true, null);
             if (moveRecipeIngredient == null)
             {
                 if (Assembler.Unit.CurrentGameCommand != null)
@@ -270,7 +270,7 @@ namespace Engine.Ants
                             }
                             return false;
                         }
-                        Ant.Unit.ClearReservations();
+                        //Ant.Unit.ClearReservations();
 
                         // Structure: Build unit or an assembler that moves ther
                         bool engineFound = false;

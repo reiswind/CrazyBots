@@ -89,7 +89,7 @@ namespace Engine.Master
 
         public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position2> includedPosition2s, MoveFilter moveFilter)
         {
-            MoveRecipeIngredient moveRecipeIngredient = Unit.FindIngredient(TileObjectType.Mineral, true);
+            MoveRecipeIngredient moveRecipeIngredient = Unit.FindIngredient(TileObjectType.Mineral, true, null);
             if (moveRecipeIngredient != null)
             {
                 ComputePossibleMoves(possibleMoves, includedPosition2s, moveFilter, moveRecipeIngredient);

@@ -239,7 +239,7 @@ namespace Engine.Master
 
             if (Container != null && Container.TileContainer != null)
             {
-                TileObject tileObject = Container.TileContainer.GetMatchingTileObject(TileObjectType.Ammo);
+                TileObject tileObject = Container.TileContainer.GetMatchingTileObject(TileObjectType.Ammo, null);
                 if (tileObject != null)
                 {
                     moveRecipeIngredient.TileObjectType = tileObject.TileObjectType;
@@ -326,7 +326,7 @@ namespace Engine.Master
 
             if (Assembler != null && Assembler.TileContainer != null)
             {
-                TileObject tileObject = Assembler.TileContainer.GetMatchingTileObject(tileObjectType);
+                TileObject tileObject = Assembler.TileContainer.GetMatchingTileObject(tileObjectType, null);
                 if (tileObject != null)
                 {
                     moveRecipeIngredient.TileObjectType = tileObject.TileObjectType;
@@ -338,7 +338,7 @@ namespace Engine.Master
             }
             if (Container != null && Container.TileContainer != null)
             {
-                TileObject tileObject = Container.TileContainer.GetMatchingTileObject(tileObjectType);
+                TileObject tileObject = Container.TileContainer.GetMatchingTileObject(tileObjectType, null);
                 if (tileObject != null)
                 {
                     moveRecipeIngredient.TileObjectType = tileObject.TileObjectType;
@@ -370,7 +370,7 @@ namespace Engine.Master
 
         public bool AreAllIngredientsAvailable(List<RecipeIngredient> ingredients)
         {
-            List<MoveRecipeIngredient> reservedIngredients = new List<MoveRecipeIngredient>();
+            List<TileObject> foundIngredients = new List<TileObject>();
             bool allFound = true;
 
             foreach (RecipeIngredient recipeIngredient in ingredients)
@@ -379,25 +379,27 @@ namespace Engine.Master
                 while (count-- > 0)
                 {
                     MoveRecipeIngredient moveRecipeIngredient;
-                    moveRecipeIngredient = FindIngredient(recipeIngredient.TileObjectType, true);
+                    moveRecipeIngredient = FindIngredient(recipeIngredient.TileObjectType, true, foundIngredients);
                     if (moveRecipeIngredient == null)
                     {
                         allFound = false;
                         break;
                     }
-                    ReserveIngredient(moveRecipeIngredient);
-                    reservedIngredients.Add(moveRecipeIngredient);
+                    //ReserveIngredient(moveRecipeIngredient);
+                    //foundIngredients.Add(moveRecipeIngredient);
                 }
             }
+            /*
             if (allFound == false)
             {
                 foreach (MoveRecipeIngredient moveRecipeIngredient in reservedIngredients)
                 {
-                    ReleaseReservedIngredient(moveRecipeIngredient);
+                    //ReleaseReservedIngredient(moveRecipeIngredient);
                 }
-            }
+            }*/
             return allFound;
         }
+        /*
         public void ClearReservations()
         {
             if (Assembler != null && Assembler.TileContainer != null)
@@ -495,7 +497,7 @@ namespace Engine.Master
                 }
             }
         }
-
+        */
         private void CollectBurnableIngredientsFromContainer (List<MoveRecipeIngredient> allIngredients, TileContainer tileContainer, TileObjectType sourceContainerType)
         {
             foreach (TileObject tileObject in tileContainer.TileObjects)
@@ -731,7 +733,7 @@ namespace Engine.Master
             return bestIngredient;
         }
 
-        public MoveRecipeIngredient FindIngredient(TileObjectType tileObjectType, bool searchNeighbors)
+        public MoveRecipeIngredient FindIngredient(TileObjectType tileObjectType, bool searchNeighbors, List<TileObject> excludeIngredients)
         {
             MoveRecipeIngredient moveRecipeIngredient = new MoveRecipeIngredient();
             moveRecipeIngredient.TileObjectType = tileObjectType;
@@ -739,9 +741,12 @@ namespace Engine.Master
 
             if (Container != null && Container.TileContainer != null)
             {
-                TileObject tileObject = Container.TileContainer.GetMatchingTileObject(tileObjectType);
+                TileObject tileObject = Container.TileContainer.GetMatchingTileObject(tileObjectType, excludeIngredients);
                 if (tileObject != null)
                 {
+                    if (excludeIngredients != null)
+                        excludeIngredients.Add(tileObject);
+
                     moveRecipeIngredient.TileObjectType = tileObject.TileObjectType;
                     moveRecipeIngredient.TileObjectKind = tileObject.TileObjectKind;
                     moveRecipeIngredient.SourcePosition = Pos;
@@ -751,9 +756,12 @@ namespace Engine.Master
             }
             if (Assembler != null && Assembler.TileContainer != null)
             {
-                TileObject tileObject = Assembler.TileContainer.GetMatchingTileObject(tileObjectType);
+                TileObject tileObject = Assembler.TileContainer.GetMatchingTileObject(tileObjectType, excludeIngredients);
                 if (tileObject != null)
                 {
+                    if (excludeIngredients != null)
+                        excludeIngredients.Add(tileObject);
+
                     moveRecipeIngredient.TileObjectType = tileObject.TileObjectType;
                     moveRecipeIngredient.TileObjectKind = tileObject.TileObjectKind;
                     moveRecipeIngredient.SourcePosition = Pos;
@@ -774,7 +782,7 @@ namespace Engine.Master
                     Tile t = Game.Map.GetTile(n3.Pos);
                     if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id)
                     {
-                        moveRecipeIngredient = t.Unit.FindIngredient(tileObjectType, false);
+                        moveRecipeIngredient = t.Unit.FindIngredient(tileObjectType, false, excludeIngredients);
                         if (moveRecipeIngredient != null)
                             return moveRecipeIngredient;
                     }
@@ -875,27 +883,43 @@ namespace Engine.Master
                 {
                     if (ingredient.Source == TileObjectType.PartAssembler && Assembler != null && Assembler.TileContainer != null)
                     {
-                        tileObject = Assembler.TileContainer.GetMatchingTileObject(ingredient.TileObjectType);
+                        tileObject = Assembler.TileContainer.GetMatchingTileObject(ingredient.TileObjectType, null);
                         if (tileObject != null)
                             Assembler.TileContainer.Remove(tileObject);
+                        else
+                        {
+                            int x = 0;
+                        }
                     }
                     if (ingredient.Source == TileObjectType.PartContainer && Container != null && Container.TileContainer != null)
                     {
-                        tileObject = Container.TileContainer.GetMatchingTileObject(ingredient.TileObjectType);
+                        tileObject = Container.TileContainer.GetMatchingTileObject(ingredient.TileObjectType, null);
                         if (tileObject != null)
                             Container.TileContainer.Remove(tileObject);
+                        else
+                        {
+                            int x = 0;
+                        }
                     }
                     if (ingredient.Source == TileObjectType.PartReactor && Reactor != null && Reactor.TileContainer != null)
                     {
-                        tileObject = Reactor.TileContainer.GetMatchingTileObject(ingredient.TileObjectType);
+                        tileObject = Reactor.TileContainer.GetMatchingTileObject(ingredient.TileObjectType, null);
                         if (tileObject != null)
                             Reactor.TileContainer.Remove(tileObject);
+                        else
+                        {
+                            int x = 0;
+                        }
                     }
                     if (ingredient.Source == TileObjectType.PartWeapon && Weapon != null && Weapon.TileContainer != null)
                     {
-                        tileObject = Weapon.TileContainer.GetMatchingTileObject(ingredient.TileObjectType);
+                        tileObject = Weapon.TileContainer.GetMatchingTileObject(ingredient.TileObjectType, null);
                         if (tileObject != null)
                             Weapon.TileContainer.Remove(tileObject);
+                        else
+                        {
+                            int x = 0;
+                        }
                     }
                 }
                 if (tileObject == null)
