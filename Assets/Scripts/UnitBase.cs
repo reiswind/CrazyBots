@@ -346,7 +346,7 @@ namespace Assets.Scripts
                 }
                 if (unitBasePart.PartType == TileObjectType.PartContainer && !unitBasePart.Destroyed)
                 {
-                    unitBasePart.Part.transform.Rotate(Vector3.up, 1 / HexGrid.MainGrid.GameSpeed);
+                    //unitBasePart.Part.transform.Rotate(Vector3.up, 1 / HexGrid.MainGrid.GameSpeed);
                 }
                 if (unitBasePart.PartType == TileObjectType.PartRadar && !unitBasePart.Destroyed)
                 {

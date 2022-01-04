@@ -791,6 +791,9 @@ namespace Assets.Scripts
             }
             Command = previewGameCommand.GetComponent<Command>();
             Command.CommandPreview = this;
+
+            Debug.Log("Logo points to " + displayDirection.ToString());
+
         }
         public bool IsSelected
         {

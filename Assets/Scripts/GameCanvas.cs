@@ -1725,7 +1725,8 @@ namespace Assets.Scripts
                     }
 
                     headerSubText.text += unit.UnitId;
-                    headerSubText.text += " Power: " + unit.MoveUpdateStats.Power;
+                    //headerSubText.text += " Power: " + unit.MoveUpdateStats.Power;
+                    headerSubText.text += " Dir: " + unit.MoveUpdateStats.Direction;
 
                     DisplayUpdateStatsCommand(unit);
 

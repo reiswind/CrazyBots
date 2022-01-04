@@ -29,14 +29,15 @@
 	  "ContainedMinerals": 1,
 	  "ContainedWood": 2,
 	  "ContainedStones": 3,
-	  "HoldPosition": true,
+	  "Direction": "N",
+	  "HoldPosition": false,
       "Blueprint": "Worker",
       "Position": "2,1"
     },
     {
       "Name": "Reactor",
       "PlayerId": 1,
-      "ContainedWood": 0,
+      "ContainedWoodx": 0,
       "Blueprint": "Reactor",
       "Position": "2,2"
     },
