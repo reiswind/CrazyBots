@@ -98,8 +98,8 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 
             GameModel gameModel;
@@ -1674,7 +1674,8 @@ namespace Assets.Scripts
 
             if (transitObject.ActivateAtArrival != null)
                 transitObject.ActivateAtArrival.SetActive(true);
-
+            if (transitObject.ActivateUnitAtArrival != null)
+                transitObject.ActivateUnitAtArrival.ActivateUnit();
             return true;
         }
 
@@ -1904,6 +1905,7 @@ namespace Assets.Scripts
             unit.gameObject.name = move.UnitId;
             
             BaseUnits.Add(move.UnitId, unit);
+            unit.Assemble(move.MoveType == MoveType.Build);
 
             StartCoroutine(AnimateFactoryOutput(move, unit));
         }
@@ -1911,8 +1913,8 @@ namespace Assets.Scripts
         private IEnumerator AnimateFactoryOutput(Move move, UnitBase unit)
         {
             yield return new WaitForSeconds(0.01f);
-            unit.Assemble(move.MoveType == MoveType.Build);
             
+            // Called once for build
             if (move.MoveType == MoveType.Build)
             {
                 UnitBase factory;

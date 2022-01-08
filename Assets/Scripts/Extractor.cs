@@ -11,11 +11,11 @@ namespace Assets.Scripts
         public static void TransitOtherPart(UnitBase unit, UnitBasePart otherUnitBasePart)
         {
             GameObject extractedUnitPart = otherUnitBasePart.Part;
-
+            /*
             if (otherUnitBasePart.CompleteLevel > 1)
             {
                 extractedUnitPart = UnitBase.FindChildNyName(otherUnitBasePart.Part, otherUnitBasePart.Name + otherUnitBasePart.CompleteLevel + "-" + otherUnitBasePart.Level);
-            }
+            }*/
 
 
             if (extractedUnitPart != null)

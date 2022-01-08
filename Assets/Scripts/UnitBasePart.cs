@@ -23,11 +23,19 @@ namespace Assets.Scripts
         public int Level { get; set; }
         public int Range { get; set; }
         public int CompleteLevel { get; set; }
-        public bool IsUnderConstruction { get; set; }
         public bool Destroyed { get; set; }
+        public bool Exists { get; set; }
+        public bool WillExist { get; set; }
         public GameObject Part { get; set; }
 
         private HitByBullet hitByBullet;
+        public bool ReadyToFire
+        {
+            get
+            {
+                return hitByBullet != null;
+            }
+        }
 
         public float AnimateFrom { get; set; }
         public float AnimateTo { get; set; }
@@ -54,7 +62,8 @@ namespace Assets.Scripts
             if (TileObjectContainer.TileObjects == null ||
                 TileObjectContainer.TileObjects.Count == 0)
             {
-                throw new Exception("NoAmmo");
+                //throw new Exception("NoAmmo");
+                int x = 0;
             }
             else
             {
@@ -121,28 +130,6 @@ namespace Assets.Scripts
             velocity.y = Mathf.Sin(a);
 
             return velocity * vI;
-        }
-        public void UpdateContent(List<TileObject> tileObjects, int? capacity)
-        {
-            if (tileObjects == null || TileObjectContainer == null)
-                return;
-
-            if (UnitBase.gameObject == null)
-            {
-
-            }
-            else
-            {
-                try
-                {
-                    if (Part.gameObject != null)
-                        TileObjectContainer.UpdateContent(UnitBase, Part, tileObjects, capacity);
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
-            }
         }
     }
 }

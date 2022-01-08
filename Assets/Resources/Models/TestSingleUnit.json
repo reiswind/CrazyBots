@@ -9,14 +9,14 @@
       "ControlLevel": 1,
       "Id": 1,
       "Zone": 0,
-	  "IsHumanx": true,
+	  "IsHuman": true,
       "Name": "Green"
     },
 	{
       "ControlLevel": 1,
       "Id": 2,
       "Zone": 1,
-	  "IsHumanx": true,
+	  "IsHuman": true,
       "Name": "Red"
     }
   ],
@@ -37,14 +37,22 @@
       "Name": "Container",
       "PlayerId": 1,
       "Blueprint": "Container",
-	  "ContainedMineralsx": 18,
+	  "ContainedMinerals": 18,
 	  "HoldPosition": false,
 	  "FireAtGround": false,
 	  "EndlessAmmo": false,
 	  "EndlessPower": false,
 	  "MarkForExtraction": false,
       "Position": "1,0"
-    
+    },
+	{
+      "Name": "Bomber",
+      "PlayerId": 1,
+      "Blueprint": "Bomber",
+	  "FireAtGround": false,
+	  "EndlessAmmo": true,
+	  "EndlessPower": true,
+      "Position": "1,-2"
     },
 	{
       "Name": "Outpost",
@@ -56,18 +64,18 @@
       "Position": "0,0"
     },
 	{
-      "Name": "Turret",
+      "Name": "Container",
       "PlayerId": 2,
-      "Blueprint": "Turret",
+      "Blueprint": "Container",
 	  "FireAtGround": false,
 	  "EndlessAmmo": false,
 	  "EndlessPower": false,
       "Position": "0,1"
     },
 	{
-      "Name": "Turret",
+      "Name": "Container",
       "PlayerId": 2,
-      "Blueprint": "Turret",
+      "Blueprint": "Container",
 	  "FireAtGround": false,
 	  "EndlessAmmo": false,
 	  "EndlessPower": false,

@@ -502,28 +502,36 @@ namespace Assets.Scripts
             gameFrame.Destroy();
 
             bool hasEngine = UnitBase.HasEngine();
+            bool reactorAdded = false;
+            bool containerAdded = false;
+            bool radarAdded = false;
+            bool weaponAdded = false;
 
             lastPosition = UnitBase.CurrentPos;
             Position3 position3 = new Position3(UnitBase.CurrentPos);
             foreach (UnitBasePart unitBasePart in UnitBase.UnitBaseParts)
             {
-                if (!hasEngine && unitBasePart.PartType == TileObjectType.PartReactor)
+                if (!hasEngine && unitBasePart.PartType == TileObjectType.PartReactor && !reactorAdded)
                 {
+                    reactorAdded = true;
                     List<Position3> positions = position3.CreateRing(unitBasePart.Range);
                     gameFrame.CreateFrame(UnitBase.PlayerId, positions);
                 }
-                if (!hasEngine && unitBasePart.PartType == TileObjectType.PartContainer)
+                if (!hasEngine && unitBasePart.PartType == TileObjectType.PartContainer && !containerAdded)
                 {
+                    containerAdded = true;
                     List<Position3> positions = position3.CreateRing(unitBasePart.Range);
                     gameFrame.CreateFrame(UnitBase.PlayerId, positions);
                 }
-                if (!hasEngine && unitBasePart.PartType == TileObjectType.PartRadar)
+                if (!hasEngine && unitBasePart.PartType == TileObjectType.PartRadar && !radarAdded)
                 {
+                    radarAdded = true;
                     List<Position3> positions = position3.CreateRing(unitBasePart.Range);
                     gameFrame.CreateFrame(UnitBase.PlayerId, positions);
                 }
-                if (unitBasePart.PartType == TileObjectType.PartWeapon)
+                if (unitBasePart.PartType == TileObjectType.PartWeapon && !weaponAdded)
                 {
+                    weaponAdded = true;
                     if (UnitBase.HasEngine())
                     {
                         List<Position3> positions = new List<Position3>();

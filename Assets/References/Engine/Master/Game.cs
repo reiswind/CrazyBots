@@ -429,10 +429,6 @@ namespace Engine.Master
 
                                 if (move.GameCommandItem != null)
                                 {
-                                    if (move.GameCommandItem.GameCommand.CommandId == 33)
-                                    {
-                                        int x = 0;
-                                    }
                                     if (move.GameCommandItem.AssemblerToBuild)
                                     {
                                         // The new unit will be the factory for the build target

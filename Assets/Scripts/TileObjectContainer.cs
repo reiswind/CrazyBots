@@ -21,8 +21,6 @@ namespace Assets.Scripts
         private List<GameObject> mineralCubes;
         private List<GameObject> emptyCubes;
         private List<UnitBaseTileObject> tileObjects;
-        private int filled;
-        private int max;
 
         public ReadOnlyCollection<UnitBaseTileObject> TileObjects
         {
@@ -32,48 +30,34 @@ namespace Assets.Scripts
             }
         }
 
-        public void ExplodeExceedingCapacity(Transform parent, int capacity)
+        public void ExplodeExceedingCapacity(Transform parent, List<TileObject> otherTileObjects)
         {
-            if (oneItemPerCube)
+
+            foreach (UnitBaseTileObject unitBaseTileObject in tileObjects)
             {
-                while (tileObjects.Count > capacity)
+
+                if (unitBaseTileObject.GameObject != null)
                 {
-                    UnitBaseTileObject unitBaseTileObject = tileObjects[tileObjects.Count - 1];
-                    tileObjects.Remove(unitBaseTileObject);
+                    unitBaseTileObject.GameObject.transform.SetParent(parent);
 
-                    try
+                    Vector3 vector3 = parent.position;
+                    vector3.y -= 0.4f;
+                    //vector3.x = UnityEngine.Random.value;
+                    //vector3.z = UnityEngine.Random.value;
+
+                    Rigidbody otherRigid = unitBaseTileObject.GameObject.AddComponent<Rigidbody>();
+                    if (otherRigid != null)
                     {
-                        if (unitBaseTileObject.GameObject != null)
-                        {
-                            unitBaseTileObject.GameObject.transform.SetParent(parent);
-
-                            Vector3 vector3 = parent.position;
-                            vector3.y -= 0.4f;
-                            //vector3.x = UnityEngine.Random.value;
-                            //vector3.z = UnityEngine.Random.value;
-
-                            Rigidbody otherRigid = unitBaseTileObject.GameObject.AddComponent<Rigidbody>();
-                            if (otherRigid != null)
-                            {
-                                otherRigid.isKinematic = false;
-                                otherRigid.AddExplosionForce(13, vector3, 1);
-                                //otherRigid.velocity = vector3;
-                                //otherRigid.rotation = UnityEngine.Random.rotation;
-                            }
-                            HexGrid.Destroy(unitBaseTileObject.GameObject, 5);
-                        }
+                        otherRigid.isKinematic = false;
+                        otherRigid.AddExplosionForce(13, vector3, 1, 1);
+                        //otherRigid.velocity = vector3;
+                        //otherRigid.rotation = UnityEngine.Random.rotation;
                     }
-                    catch (Exception)
-                    {
-                        throw;
-                    }
+                    HexGrid.Destroy(unitBaseTileObject.GameObject, 5);
                 }
-            }
-        }
 
-        public void Explode(Transform parent)
-        {
-            ExplodeExceedingCapacity(parent, 0);
+            }
+            tileObjects.Clear();
         }
 
         public void Remove(UnitBaseTileObject unitBaseTileObject)
@@ -130,191 +114,82 @@ namespace Assets.Scripts
             return true;
         }
 
-        private bool oneItemPerCube;
 
-        public void UpdateContent(UnitBase unitBase, GameObject gameObject1, List<TileObject> otherTileObjects, int? capacity)
+        public void UpdateContent(UnitBase unitBase, GameObject gameObject1, List<TileObject> otherTileObjects)
         {
-            if (!capacity.HasValue || (capacity.HasValue && capacity.Value <= 0))
-                return;
-
-            if (mineralCubes.Count == 0)
+            if (mineralCubes.Count == 0 && gameObject1 != null)
             {
-                if (gameObject1 != null)
-                    AddPlaceholders(gameObject1);
+                AddPlaceholders(gameObject1);
 
                 emptyCubes.Clear();
                 emptyCubes.AddRange(mineralCubes);
-
-                filled = 0;
-                max = mineralCubes.Count;
-                oneItemPerCube = capacity == mineralCubes.Count;
             }
 
             // Match content
             List<TileObject> unassignedTileObjects = new List<TileObject>();
-            if (otherTileObjects != null)
-            {
-                unassignedTileObjects.AddRange(otherTileObjects);
-            }
-            List<UnitBaseTileObject> assignedGameTileObjects = new List<UnitBaseTileObject>();
-            assignedGameTileObjects.AddRange(tileObjects);
+            unassignedTileObjects.AddRange(otherTileObjects);
 
-            List<UnitBaseTileObject> unassignedGameTileObjects = new List<UnitBaseTileObject>();
-            unassignedGameTileObjects.AddRange(tileObjects);
-
-            UnitBaseTileObject hasAmmoBaseTileObject = null;
-            int items = 0;
-            if (otherTileObjects != null)
+            foreach (TileObject otherTileObject in unassignedTileObjects)
             {
-                foreach (TileObject otherTileObject in otherTileObjects)
+                foreach (UnitBaseTileObject unitBaseTileObject in tileObjects)
                 {
-                    foreach (UnitBaseTileObject unitBaseTileObject in unassignedGameTileObjects)
+                    if (otherTileObject.TileObjectType == unitBaseTileObject.TileObject.TileObjectType)
                     {
-                        if (otherTileObject.TileObjectType == unitBaseTileObject.TileObject.TileObjectType)
+                        if (unitBaseTileObject.GameObject == null)
                         {
-                            if (unitBaseTileObject.GameObject == null)
-                            {
-                                
-                            }
-                            else
-                            {
-                                items++;
-                                if (unitBaseTileObject.Placeholder.name.StartsWith("Ammo"))
-                                    hasAmmoBaseTileObject = unitBaseTileObject;
-                                unassignedTileObjects.Remove(otherTileObject);
-                                assignedGameTileObjects.Remove(unitBaseTileObject);
-                                unassignedGameTileObjects.Remove(unitBaseTileObject);
-                            }
-                            break;
+
                         }
+                        else
+                        {
+                            otherTileObjects.Remove(otherTileObject);
+                        }
+                        break;
                     }
                 }
             }
-            // To less
-            foreach (TileObject tileObject in unassignedTileObjects)
+            if (otherTileObjects.Count > 0)
             {
-                UnitBaseTileObject newUnitBaseTileObject = new UnitBaseTileObject();
-                newUnitBaseTileObject.TileObject = tileObject.Copy();
-                newUnitBaseTileObject.CollectionType = CollectionType.Single;
-                tileObjects.Add(newUnitBaseTileObject);
+                unassignedTileObjects.Clear();
+                unassignedTileObjects.AddRange(otherTileObjects);
 
-                if (oneItemPerCube && emptyCubes.Count > 0)
+                List<UnitBaseTileObject> assignedGameTileObjects = new List<UnitBaseTileObject>();
+                assignedGameTileObjects.AddRange(tileObjects);
+
+                List<UnitBaseTileObject> unassignedGameTileObjects = new List<UnitBaseTileObject>();
+                unassignedGameTileObjects.AddRange(tileObjects);
+
+                // To less
+                foreach (TileObject tileObject in unassignedTileObjects)
                 {
+                    if (emptyCubes.Count == 0)
+                        break;
+
+                    UnitBaseTileObject newUnitBaseTileObject = new UnitBaseTileObject();
+                    newUnitBaseTileObject.TileObject = tileObject.Copy();
+                    newUnitBaseTileObject.CollectionType = CollectionType.Single;
+                    tileObjects.Add(newUnitBaseTileObject);
+                    otherTileObjects.Remove(tileObject);
+
                     newUnitBaseTileObject.Placeholder = emptyCubes[0];
                     emptyCubes.Remove(newUnitBaseTileObject.Placeholder);
-                    
+
                     newUnitBaseTileObject.GameObject = HexGrid.MainGrid.CreateTileObject(gameObject1.transform, newUnitBaseTileObject.TileObject);
                     newUnitBaseTileObject.GameObject.transform.position = newUnitBaseTileObject.Placeholder.transform.position;
                 }
-            }
-            // To many 
-            foreach (UnitBaseTileObject unitBaseTileObject in assignedGameTileObjects)
-            {
-                if (unitBaseTileObject.GameObject != null)
+                // To many 
+                foreach (UnitBaseTileObject unitBaseTileObject in assignedGameTileObjects)
                 {
-                    try
+                    if (unitBaseTileObject.GameObject != null)
                     {
                         HexGrid.Destroy(unitBaseTileObject.GameObject);
                         unitBaseTileObject.GameObject = null;
                     }
-                    catch(Exception)
-                    {
-                        throw;
-                    }
+                    tileObjects.Remove(unitBaseTileObject);
 
-                }
-                tileObjects.Remove(unitBaseTileObject);
-
-                if (oneItemPerCube)
-                {
                     if (unitBaseTileObject.Placeholder != null)
                     {
                         emptyCubes.Add(unitBaseTileObject.Placeholder);
-                        try
-                        {
-                            unitBaseTileObject.Placeholder.SetActive(false);
-                        }
-                        catch (Exception)
-                        {
-                            throw;
-                        }
-                    }
-                }
-            }
-            
-            if (oneItemPerCube)
-            {
-                // Make sure that ammo is filled
-                if (hasAmmoBaseTileObject != null && items > 0)
-                {
-                    if (hasAmmoBaseTileObject.GameObject.activeSelf == false)
-                    {
-
-                    }
-                }
-
-                // Attach
-                /*
-                List<UnitBaseTileObject> unattachedTileObjects = new List<UnitBaseTileObject>();
-                unattachedTileObjects.AddRange(extractedBaseTileObjects);
-
-                foreach (UnitBaseTileObject extractedUnitBaseTile in unattachedTileObjects)
-                {
-                    foreach (UnitBaseTileObject tileObject in tileObjects)
-                    {
-                        if (tileObject.GameObject == null && tileObject.TileObject.TileObjectType == extractedUnitBaseTile.TileObject.TileObjectType)
-                        {
-                            tileObject.GameObject = extractedUnitBaseTile.GameObject;
-                            extractedBaseTileObjects.Remove(extractedUnitBaseTile);
-                            break;
-                        }
-                    }
-                }*/
-            }
-            else
-            {
-                int minerals = tileObjects.Count;
-                int mins = minerals;
-
-                if (capacity.HasValue && capacity.Value > 0)
-                {
-                    int minPercent = mins * 100 / capacity.Value;
-                    mins = minPercent * max / 100;
-
-                    if (minerals > 0 && mins == 0)
-                        mins = 1;
-                }
-                if (mins != filled)
-                {
-                    while (filled > mins)
-                    {
-                        filled--;
-                        if (filled < mineralCubes.Count)
-                        {
-                            try 
-                            { 
-                                mineralCubes[filled].SetActive(false);
-                            }
-                            catch (Exception)
-                            {
-                                throw;
-                            }
-                        }
-                    }
-                    while (filled < mins)
-                    {
-                        if (filled < mineralCubes.Count)
-                        {
-                            try 
-                            {
-                                mineralCubes[filled].SetActive(true);
-                            }
-                            catch (Exception)
-                            {
-                                throw;
-                            }
-                        }
-                        filled++;
+                        unitBaseTileObject.Placeholder.SetActive(false);
                     }
                 }
             }
