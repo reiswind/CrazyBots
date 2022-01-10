@@ -215,7 +215,25 @@ namespace Engine.Master
 
         public int Stunned { get; set; }
 
-        public MoveRecipeIngredient FindAmmo(bool searchNeighbors = true)
+        public TileObject FindAmmoTileObject(TileContainer tileContainer)
+        {
+            TileObject bestTileObject = null;
+            int bestscore = 0;
+
+            foreach (TileObject tileObject in tileContainer.TileObjects)
+            {
+                int score = TileObject.GetDeliveryScoreForAmmoType(tileObject.TileObjectType);
+                if (score > bestscore || bestTileObject == null)
+                {
+                    bestTileObject = tileObject;
+                    bestscore = score;
+                }
+            }
+            
+            return bestTileObject;
+        }
+
+        public MoveRecipeIngredient FindRefillAmmo(bool searchNeighbors = true)
         {
             // Near transport, possible with extractor, prefer external ammo source
             MoveRecipeIngredient moveRecipeIngredient;
@@ -227,19 +245,21 @@ namespace Engine.Master
                     Tile t = Game.Map.GetTile(n3.Pos);
                     if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id)
                     {
-                        moveRecipeIngredient = t.Unit.FindAmmo(false);
+                        moveRecipeIngredient = t.Unit.FindRefillAmmo(false);
                         if (moveRecipeIngredient != null)
                             return moveRecipeIngredient;
                     }
                 }
             }
-            // Extract ammo from own unit
+            // Extract ammo from container
             moveRecipeIngredient = new MoveRecipeIngredient();
             moveRecipeIngredient.Count = 1;
 
             if (Container != null && Container.TileContainer != null)
             {
-                TileObject tileObject = Container.TileContainer.GetMatchingTileObject(TileObjectType.Ammo, null);
+                TileObject tileObject = FindAmmoTileObject(Container.TileContainer);
+
+                //TileObject tileObject = Container.TileContainer.GetMatchingTileObject(TileObjectType.Ammo, null);
                 if (tileObject != null)
                 {
                     moveRecipeIngredient.TileObjectType = tileObject.TileObjectType;

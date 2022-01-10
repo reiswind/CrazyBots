@@ -67,6 +67,11 @@ namespace Assets.Scripts
                 emptyCubes.Add(unitBaseTileObject.Placeholder);
                 unitBaseTileObject.Placeholder = null;
             }
+            if (unitBaseTileObject.GameObject != null)
+            {
+                HexGrid.Destroy(unitBaseTileObject.GameObject);
+                unitBaseTileObject.GameObject = null;
+            }
             tileObjects.Remove(unitBaseTileObject);
         }
 
@@ -88,7 +93,7 @@ namespace Assets.Scripts
 
         private bool AddPlaceholders(GameObject container)
         {
-            if (container.name.StartsWith("Mineral") || container.name.StartsWith("Item") || container.name.StartsWith("Ammo"))
+            if (container.name.StartsWith("Mineral") || container.name.StartsWith("Item"))
             {
                 mineralCubes.Add(container);
                 container.SetActive(false);
@@ -98,7 +103,7 @@ namespace Assets.Scripts
                 for (int i = 0; i < container.transform.childCount; i++)
                 {
                     GameObject child = container.transform.GetChild(i).gameObject;
-                    if (child.name.StartsWith("Mineral") || child.name.StartsWith("Item") || child.name.StartsWith("Ammo"))
+                    if (child.name.StartsWith("Mineral") || child.name.StartsWith("Item"))
                     {
                         AddPlaceholders(child);
                         child.SetActive(false);
@@ -129,9 +134,12 @@ namespace Assets.Scripts
             List<TileObject> unassignedTileObjects = new List<TileObject>();
             unassignedTileObjects.AddRange(otherTileObjects);
 
+            List<UnitBaseTileObject> assignedGameTileObjects = new List<UnitBaseTileObject>();
+            assignedGameTileObjects.AddRange(tileObjects);
+
             foreach (TileObject otherTileObject in unassignedTileObjects)
             {
-                foreach (UnitBaseTileObject unitBaseTileObject in tileObjects)
+                foreach (UnitBaseTileObject unitBaseTileObject in assignedGameTileObjects)
                 {
                     if (otherTileObject.TileObjectType == unitBaseTileObject.TileObject.TileObjectType)
                     {
@@ -141,19 +149,18 @@ namespace Assets.Scripts
                         }
                         else
                         {
+                            assignedGameTileObjects.Remove(unitBaseTileObject);
                             otherTileObjects.Remove(otherTileObject);
                         }
                         break;
                     }
                 }
             }
+
             if (otherTileObjects.Count > 0)
             {
                 unassignedTileObjects.Clear();
                 unassignedTileObjects.AddRange(otherTileObjects);
-
-                List<UnitBaseTileObject> assignedGameTileObjects = new List<UnitBaseTileObject>();
-                assignedGameTileObjects.AddRange(tileObjects);
 
                 List<UnitBaseTileObject> unassignedGameTileObjects = new List<UnitBaseTileObject>();
                 unassignedGameTileObjects.AddRange(tileObjects);
@@ -176,22 +183,23 @@ namespace Assets.Scripts
                     newUnitBaseTileObject.GameObject = HexGrid.MainGrid.CreateTileObject(gameObject1.transform, newUnitBaseTileObject.TileObject);
                     newUnitBaseTileObject.GameObject.transform.position = newUnitBaseTileObject.Placeholder.transform.position;
                 }
-                // To many 
-                foreach (UnitBaseTileObject unitBaseTileObject in assignedGameTileObjects)
+            }
+            // To many 
+            foreach (UnitBaseTileObject unitBaseTileObject in assignedGameTileObjects)
+            {
+                if (unitBaseTileObject.GameObject != null)
                 {
-                    if (unitBaseTileObject.GameObject != null)
-                    {
-                        HexGrid.Destroy(unitBaseTileObject.GameObject);
-                        unitBaseTileObject.GameObject = null;
-                    }
-                    tileObjects.Remove(unitBaseTileObject);
-
-                    if (unitBaseTileObject.Placeholder != null)
-                    {
-                        emptyCubes.Add(unitBaseTileObject.Placeholder);
-                        unitBaseTileObject.Placeholder.SetActive(false);
-                    }
+                    HexGrid.Destroy(unitBaseTileObject.GameObject);
+                    unitBaseTileObject.GameObject = null;
                 }
+                tileObjects.Remove(unitBaseTileObject);
+
+                if (unitBaseTileObject.Placeholder != null)
+                {
+                    emptyCubes.Add(unitBaseTileObject.Placeholder);
+                    unitBaseTileObject.Placeholder.SetActive(false);
+                }
+
             }
         }
     }

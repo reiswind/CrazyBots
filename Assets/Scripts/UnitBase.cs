@@ -741,6 +741,28 @@ namespace Assets.Scripts
             }
         }
 
+        public UnitBaseTileObject FindAmmoTileObject(TileObjectType tileObjectType)
+        {
+            foreach (UnitBasePart unitBasePart in UnitBaseParts)
+            {
+                if (unitBasePart.PartType == TileObjectType.PartWeapon)
+                {
+                    if (unitBasePart.TileObjectContainer != null)
+                    {
+                        foreach (UnitBaseTileObject unitBaseTileObject in unitBasePart.TileObjectContainer.TileObjects)
+                        {
+                            if (unitBaseTileObject.TileObject.TileObjectType == tileObjectType)
+                            {
+                                unitBasePart.TileObjectContainer.Remove(unitBaseTileObject);
+                                return unitBaseTileObject;
+                            }
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
         // Reactor burned something
         public void BurnMove(Move move)
         {
@@ -1039,14 +1061,9 @@ namespace Assets.Scripts
             {
                 foreach (UnitBasePart unitBasePart in UnitBaseParts)
                 {
-                    if (unitBasePart.PartType == TileObjectType.PartWeapon &&
-                        unitBasePart.Level == unitBasePart.CompleteLevel)
+                    // Only the highest part can fire
+                    if (unitBasePart.PartType == TileObjectType.PartWeapon && unitBasePart.Level == unitBasePart.CompleteLevel)
                     {
-                        if (unitBasePart.TileObjectContainer == null)
-                        {
-                            // How the fuck?
-                            int x = 0;
-                        }
                         unitBasePart.Fire(move);
                         break;
                     }
@@ -1474,7 +1491,7 @@ namespace Assets.Scripts
 
         public void UpdateParts()
         {
-            if (UnitId == "unit4")
+            if (UnitId == "unit10")
             {
                 int x = 0;
             }

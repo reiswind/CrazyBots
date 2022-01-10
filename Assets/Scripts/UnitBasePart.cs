@@ -42,6 +42,7 @@ namespace Assets.Scripts
 
         public void Fire(Move move)
         {
+            // Reload
             foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
             {
                 // Transit the ingrdient into the weapon. This is the reloaded ammo. (Can be empty)
@@ -59,16 +60,16 @@ namespace Assets.Scripts
                     HexGrid.MainGrid.AddTransitTileObject(transitObject);
                 }
             }
-            if (TileObjectContainer.TileObjects == null ||
-                TileObjectContainer.TileObjects.Count == 0)
+
+            // Find the fileobject to fire with
+            UnitBaseTileObject ammo = UnitBase.FindAmmoTileObject(move.MoveRecipe.Result);
+            if (ammo == null)
             {
-                //throw new Exception("NoAmmo");
-                int x = 0;
+                throw new Exception("NoAmmo");
             }
             else
             {
-                TileObject tileObjectAmmo = TileObjectContainer.TileObjects[0].TileObject;
-                hitByBullet = HexGrid.MainGrid.Fire(UnitBase, tileObjectAmmo);
+                hitByBullet = HexGrid.MainGrid.Fire(UnitBase, ammo.TileObject);
 
                 Position2 targetPosition = move.Positions[move.Positions.Count - 1];
 

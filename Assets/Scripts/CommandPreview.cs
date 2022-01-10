@@ -723,7 +723,12 @@ namespace Assets.Scripts
                 neighborPosition3 = centerPosition3.GetNeighbor(displayDirection);
                 GroundCell neighbor;
                 if (HexGrid.MainGrid.GroundCells.TryGetValue(neighborPosition3.Pos, out neighbor))
+                {
+
+                    Debug.Log("Logo UpdateDirection to " + displayDirection.ToString());
+
                     Command.UpdateDirection(neighbor.transform.position);
+                }
             }
             foreach (CommandAttachedItem commandAttachedUnit in PreviewUnits)
             {
@@ -923,7 +928,9 @@ namespace Assets.Scripts
                             Blueprint blueprint = HexGrid.MainGrid.game.Blueprints.FindBlueprint(mapGameCommandItem.BlueprintName);
                             UnitBase previewUnit = HexGrid.MainGrid.CreateTempUnit(blueprint, GameCommand.PlayerId);
                             
-                            previewUnit.Direction = GameCommand.Direction;                            
+                            previewUnit.Direction = GameCommand.Direction;
+                            Debug.Log("Unit points to " + previewUnit.Direction.ToString());
+
                             previewUnit.DectivateUnit();
                             previewUnit.transform.SetParent(HexGrid.MainGrid.transform, false);
 

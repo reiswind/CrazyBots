@@ -769,12 +769,15 @@ namespace Engine.Master
                 }
             }
         }
+
+
+
         private bool ProcessNewFireMove(Move move)
         {
             bool wasSuccessful = false;
 
             Unit fireingUnit = Map.Units.GetUnitAt(move.Positions[0]);
-            if (fireingUnit != null && fireingUnit.Weapon != null && fireingUnit.Weapon.TileContainer.TileObjects.Count > 0)
+            if (fireingUnit != null && fireingUnit.Weapon != null && fireingUnit.Weapon.WeaponLoaded) //.TileContainer.TileObjects.Count > 0)
             {
                 MoveRecipeIngredient moveRecipeIngredient;
                 if (fireingUnit.Weapon.EndlessAmmo)
@@ -784,7 +787,7 @@ namespace Engine.Master
                 }
                 else
                 {
-                    moveRecipeIngredient = fireingUnit.FindAmmo();
+                    moveRecipeIngredient = fireingUnit.FindRefillAmmo();
                 }
                 move.Stats = fireingUnit.CollectStats();
                 move.MoveRecipe = new MoveRecipe();
@@ -792,10 +795,18 @@ namespace Engine.Master
                 // Ingredient is the reloaded ammo
                 if (moveRecipeIngredient != null)
                 {
+                    if (!changedUnits.ContainsKey(moveRecipeIngredient.SourcePosition))
+                        changedUnits.Add(moveRecipeIngredient.SourcePosition, Map.Units.GetUnitAt(moveRecipeIngredient.SourcePosition));
+
                     move.MoveRecipe.Ingredients.Add(moveRecipeIngredient);
                 }
                 // Result is the ammo that was used to fire
-                move.MoveRecipe.Result = fireingUnit.Weapon.TileContainer.TileObjects[0].TileObjectType;
+                TileObject tileObject = fireingUnit.FindAmmoTileObject(fireingUnit.Weapon.TileContainer);
+                if (tileObject == null)
+                {
+                    throw new Exception("No Ammo");
+                }
+                move.MoveRecipe.Result = tileObject.TileObjectType;
 
                 if (!changedUnits.ContainsKey(fireingUnit.Pos))
                     changedUnits.Add(fireingUnit.Pos, fireingUnit);
@@ -2225,10 +2236,7 @@ namespace Engine.Master
                 {
                 }
             }
-            if (MoveNr == 139)
-            {
-                int burnpr = 0;
-            }
+
             foreach (Player player in Players.Values)
             {
                 ConsumePower(player, lastMoves);

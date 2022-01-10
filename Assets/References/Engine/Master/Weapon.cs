@@ -39,8 +39,8 @@ namespace Engine.Master
                     return false;
                 if (TileContainer != null && TileContainer.Count > 0)
                     return true;
-                if (Unit.Container != null && Unit.Container.TileContainer.Count > 0)
-                    return true;
+                //if (Unit.Container != null && Unit.Container.TileContainer.Count > 0)
+                //    return true;
                 return false;
             }
         }
