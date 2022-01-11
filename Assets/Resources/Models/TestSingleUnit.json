@@ -2,21 +2,21 @@
   "Name": "Test",
   "MapWidth": 2,
   "MapHeight": 2,
-  "Seedx": 290921857,
+  "Seed": 290921857,
   "MapType": "2",
   "Players": [
     {
       "ControlLevel": 1,
       "Id": 1,
       "Zone": 0,
-	  "IsHuman": true,
+	  "IsHumanx": true,
       "Name": "Green"
     },
 	{
       "ControlLevel": 1,
       "Id": 2,
       "Zone": 1,
-	  "IsHuman": true,
+	  "IsHumanx": true,
       "Name": "Red"
     }
   ],
@@ -46,13 +46,15 @@
       "Position": "1,0"
     },
 	{
-      "Name": "Bomber",
+      "Name": "Turret",
       "PlayerId": 1,
-      "Blueprint": "Bomber",
+      "Blueprint": "Turret",
+	  "HoldPosition": false,
 	  "FireAtGround": false,
-	  "EndlessAmmo": true,
-	  "EndlessPower": true,
-      "Position": "1,-2"
+	  "EndlessAmmo": false,
+	  "EndlessPower": false,
+	  "MarkForExtraction": false,
+      "Position": "1,1"
     },
 	{
       "Name": "Outpost",
@@ -64,18 +66,18 @@
       "Position": "0,0"
     },
 	{
-      "Name": "Container",
+      "Name": "Turret",
       "PlayerId": 2,
-      "Blueprint": "Container",
+      "Blueprint": "Turret",
 	  "FireAtGround": false,
 	  "EndlessAmmo": false,
 	  "EndlessPower": false,
       "Position": "0,1"
     },
 	{
-      "Name": "Container",
+      "Name": "Turret",
       "PlayerId": 2,
-      "Blueprint": "Container",
+      "Blueprint": "Turret",
 	  "FireAtGround": false,
 	  "EndlessAmmo": false,
 	  "EndlessPower": false,
