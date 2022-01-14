@@ -63,6 +63,9 @@ namespace Assets.Scripts
         public bool ScaleDown { get; set; }
         public bool ScaleUp { get; set; }
         public bool TargetReached { get; set; }
+
+        public string UnitId { get; set; }
+        public MoveUpdateStats UpdateUnitStats { get; set; }
     }
 
     public class HitByBullet
@@ -201,7 +204,6 @@ namespace Assets.Scripts
             }
         }
 
-
         private void Start()
         {
             Transform child = transform.Find("Alert");
@@ -226,7 +228,6 @@ namespace Assets.Scripts
             }
             TeleportToPosition(true);
         }
-
 
         public void TeleportToPosition(bool force)
         {
@@ -828,10 +829,6 @@ namespace Assets.Scripts
 
         public void Upgrade(Move move, UnitBase upgradedUnit)
         {
-            if (upgradedUnit.UnitId == "unit4")
-            {
-                int x = 0;
-            }
             bool unitComplete = true;
             UnitBasePart upgradedBasePart = null;
             foreach (UnitBasePart unitBasePart in upgradedUnit.UnitBaseParts)
@@ -876,7 +873,7 @@ namespace Assets.Scripts
                 UnitBaseTileObject unitBaseTileObject = unitBaseTileObject = RemoveTileObject(moveRecipeIngredient);
                 if (unitBaseTileObject != null && unitBaseTileObject.GameObject != null)
                 {
-                    // Transit ingredient
+                    // Transit ingredient from builder to structure
                     TransitObject transitObject1 = new TransitObject();
                     transitObject1.GameObject = unitBaseTileObject.GameObject;
                     transitObject1.TargetPosition = transform.position;
@@ -963,6 +960,41 @@ namespace Assets.Scripts
                 }
             }
             return bestPart;
+        }
+
+
+        public Vector3 GetDeliveryPos(Direction direction)
+        {
+            UnitBasePart part = FindHighestPart(TileObjectType.PartContainer);
+            if (part != null)
+            {
+                GameObject positionMarker = FindChildNyNameExact(part.Part, "PositionMarker-" + direction.ToString());
+                if (positionMarker != null)
+                    return positionMarker.transform.position;
+            }
+            part = FindHighestPart(TileObjectType.PartAssembler);
+            if (part != null)
+            {
+                GameObject positionMarker = FindChildNyNameExact(part.Part, "PositionMarker-" + direction.ToString());
+                if (positionMarker != null)
+                    return positionMarker.transform.position;
+            }
+            part = FindHighestPart(TileObjectType.PartWeapon);
+            if (part != null)
+            {
+                GameObject positionMarker = FindChildNyNameExact(part.Part, "PositionMarker-" + direction.ToString());
+                if (positionMarker != null)
+                    return positionMarker.transform.position;
+            }
+            part = FindHighestPart(TileObjectType.PartReactor);
+            if (part != null)
+            {
+                GameObject positionMarker = FindChildNyNameExact(part.Part, "PositionMarker-" + direction.ToString());
+                if (positionMarker != null)
+                    return positionMarker.transform.position;
+            }
+
+            return Vector3.zero;
         }
 
         internal UnitBaseTileObject RemoveTileObject(MoveRecipeIngredient moveRecipeIngredient)
@@ -1159,6 +1191,22 @@ namespace Assets.Scripts
             {
                 GameObject child = unit.transform.GetChild(i).gameObject;
                 if (child.name.StartsWith(name))
+                    return child;
+
+                child = FindChildNyName(child, name);
+                if (child != null)
+                    return child;
+            }
+            return null;
+        }
+        internal static GameObject FindChildNyNameExact(GameObject unit, string name)
+        {
+            if (unit.name == name)
+                return unit;
+            for (int i = 0; i < unit.transform.childCount; i++)
+            {
+                GameObject child = unit.transform.GetChild(i).gameObject;
+                if (child.name == name)
                     return child;
 
                 child = FindChildNyName(child, name);

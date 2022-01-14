@@ -547,6 +547,25 @@ namespace Engine.Interface
             }
         }
 
+        public static Direction GetDirection(Position2 p1, Position2 p2)
+        {
+            Position3 source = new Position3(p1);
+            Position3 target = new Position3(p2);
+            if (source.GetNeighbor(Direction.N) == target)
+                return Direction.N;
+            if (source.GetNeighbor(Direction.NE) == target)
+                return Direction.NE;
+            if (source.GetNeighbor(Direction.NW) == target)
+                return Direction.NW;
+            if (source.GetNeighbor(Direction.S) == target)
+                return Direction.S;
+            if (source.GetNeighbor(Direction.SE) == target)
+                return Direction.SE;
+            if (source.GetNeighbor(Direction.SW) == target)
+                return Direction.SW;
+
+            return Direction.C;
+        }
         public bool Equals(Position2 other)
         {
             return position == other.position;

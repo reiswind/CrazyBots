@@ -264,17 +264,22 @@ namespace Engine.Master
                                                 possibleMoves.Add(move);
                                             }
                                         }
-                                        else
+                                        else if (Unit.Weapon != null)
                                         {
-                                            // Extract from friendly structure next
-                                            if (Unit.Weapon != null)
+                                            // Turret from Container
+                                            Move move = CreateExtractMoveIfPossible(t.Unit);
+                                            if (move != null)
                                             {
-                                                // Turret from Container
-                                                Move move = CreateExtractMoveIfPossible(t.Unit);
-                                                if (move != null)
-                                                {
-                                                    possibleMoves.Add(move);
-                                                }
+                                                possibleMoves.Add(move);
+                                            }
+                                        }
+                                        else if (Unit.Container != null)
+                                        {
+                                            // Transport from Container to Container
+                                            Move move = CreateExtractMoveIfPossible(t.Unit);
+                                            if (move != null)
+                                            {
+                                                possibleMoves.Add(move);
                                             }
                                         }
                                     }
@@ -636,8 +641,16 @@ namespace Engine.Master
                     }
                     if (extractAnything)
                     {
-                        // friendly unit
-                        capacity = ExtractFromOtherUnit(unit, otherUnit, TileObjectType.All, changedUnits, extractedItems, capacity, capacity);
+                        if (otherUnit.Engine == null && otherUnit.Container != null && unit.Container != null)
+                        {
+                            // friendly container, share 
+                            capacity = ExtractFromOtherContainer(unit, otherUnit, changedUnits, extractedItems, capacity);
+                        }
+                        else
+                        {
+                            // friendly unit
+                            capacity = ExtractFromOtherUnit(unit, otherUnit, TileObjectType.All, changedUnits, extractedItems, capacity, capacity);
+                        }
                     }
 
                     if (otherUnit.ExtractMe && !otherUnit.IsDead() && capacity > 0)
@@ -771,6 +784,79 @@ namespace Engine.Master
                 }
             }
             return didRemove;
+        }
+
+        private int ExtractFromOtherContainer(Unit unit, Unit otherUnit, Dictionary<Position2, Unit> changedUnits, List<MoveRecipeIngredient> extractedItems, int capacity)
+        {
+            TileCounter sourceCounter = new TileCounter();
+            sourceCounter.Update(otherUnit.Container.TileContainer.TileObjects);
+
+            TileCounter targetCounter = new TileCounter();
+            targetCounter.Update(unit.Container.TileContainer.TileObjects);
+
+            //BalanceObjects(TileObjectType.Mineral);
+
+            int maxTransfer = 12;
+            int transferMinerals;
+            if (sourceCounter.Mineral - 1 > targetCounter.Mineral)
+            {
+                int total = ((sourceCounter.Mineral + targetCounter.Mineral) / 2) - targetCounter.Mineral;
+
+                if (total > maxTransfer) total = maxTransfer; // max transfer limit
+                transferMinerals = total;
+                maxTransfer -= transferMinerals;
+
+                capacity = TransferObjects(transferMinerals, TileObjectType.Mineral, otherUnit, changedUnits, extractedItems, capacity);
+            }
+
+            int transferStones;
+            if (sourceCounter.Stone - 1 > targetCounter.Stone)
+            {
+                int total = ((sourceCounter.Stone + targetCounter.Stone) / 2) - targetCounter.Stone;
+
+                if (total > maxTransfer) total = maxTransfer; // max transfer limit
+                transferStones = total;
+                maxTransfer -= transferStones;
+
+                capacity = TransferObjects(transferStones, TileObjectType.Stone, otherUnit, changedUnits, extractedItems, capacity);
+            }
+
+            int transferWood;
+            if (sourceCounter.Wood - 1 > targetCounter.Wood)
+            {
+                int total = ((sourceCounter.Wood + targetCounter.Wood) / 2) - targetCounter.Wood;
+
+                if (total > maxTransfer) total = maxTransfer; // max transfer limit
+                transferWood = total;
+                maxTransfer -= transferWood;
+
+                capacity = TransferObjects(transferWood, TileObjectType.Wood, otherUnit, changedUnits, extractedItems, capacity);
+            }
+            return capacity;
+        }
+
+        private int TransferObjects(int transferMinerals, TileObjectType tileObjectType, Unit otherUnit, Dictionary<Position2, Unit> changedUnits, List<MoveRecipeIngredient> extractedItems, int capacity)
+        { 
+            List<TileObject> excludeTileObjects = new List<TileObject>();
+            while (transferMinerals > 0 && capacity > 0)
+            {
+                MoveRecipeIngredient realIndigrient = null;
+                realIndigrient = otherUnit.FindIngredient(tileObjectType, false, excludeTileObjects);
+                if (realIndigrient == null) break;
+
+                otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
+                capacity--;
+                transferMinerals--;
+
+                Unit.AddIngredient(realIndigrient);
+
+                if (!changedUnits.ContainsKey(Unit.Pos))
+                    changedUnits.Add(Unit.Pos, Unit);
+
+                realIndigrient.TargetPosition = Unit.Pos;
+                extractedItems.Add(realIndigrient);
+            }
+            return capacity;
         }
 
         private int ExtractFromOtherUnit(Unit unit, Unit otherUnit, TileObjectType tileObjectType, Dictionary<Position2, Unit> changedUnits, List<MoveRecipeIngredient> extractedItems, int capacity, int max)

@@ -96,9 +96,9 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 
@@ -908,57 +908,6 @@ namespace Assets.Scripts
                     }
                     updatedPositions = newUpdatedPositions;
 
-                    /*
-                    if (GroundCells.Count > 0)
-                    {
-                        foreach (Position2 pos in groundcellsWithCommands)
-                        {
-                            GroundCell hexCell = GroundCells[pos];
-                            hexCell.UntouchCommands();
-                        }
-
-                        foreach (MapPlayerInfo mapPlayerInfo in MapInfo.PlayerInfo.Values)
-                        {
-                            // Only for current player
-                            if (!ShowDebuginfo)
-                            {
-                                if (mapPlayerInfo.PlayerId != 1)
-                                    continue;
-                            }
-                            if (mapPlayerInfo.GameCommands != null && mapPlayerInfo.GameCommands.Count > 0)
-                            {
-                                foreach (MapGameCommand gameCommand in mapPlayerInfo.GameCommands)
-                                {
-                                    if (gameCommand.TargetPosition != Position2.Null)
-                                    {
-                                        GroundCell hexCell = GroundCells[gameCommand.TargetPosition];
-                                        CommandPreview commandPreview = hexCell.UpdateCommands(gameCommand, null);
-
-                                        if (commandPreview != null && commandPreview.GameCommand.TargetPosition != Position2.Null)
-                                        {
-                                            if (!groundcellsWithCommands.Contains(commandPreview.GameCommand.TargetPosition))
-                                                groundcellsWithCommands.Add(commandPreview.GameCommand.TargetPosition);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        List<Position2> clearedPositions = new List<Position2>();
-                        foreach (Position2 pos in groundcellsWithCommands)
-                        {
-                            GroundCell hexCell = GroundCells[pos];
-                            if (hexCell.ClearCommands())
-                            {
-                                clearedPositions.Add(pos);
-                            }
-                        }
-                        foreach (Position2 pos in clearedPositions)
-                        {
-                            groundcellsWithCommands.Remove(pos);
-                        }
-                    }
-                    */
-
                     /* Update all
 					foreach (Position pos in GroundCells.Keys)
 					{
@@ -1012,8 +961,6 @@ namespace Assets.Scripts
                 Debug.Log("FATAL in ProcessMoves. Finish" + err.Message);
                 throw;
             }
-
-
 
             Move lastmove = null;
             try
@@ -1088,6 +1035,14 @@ namespace Assets.Scripts
                             if (hitByBullet.TargetPosition == move.Positions[0])
                             {
                                 hitByBullet.UpdateUnitStats = move.Stats;
+                                skip = true;
+                            }
+                        }
+                        foreach (TransitObject transitObject in tileObjectsInTransit)
+                        {
+                            if (transitObject.UnitId != null && transitObject.UnitId == move.UnitId)
+                            {
+                                transitObject.UpdateUnitStats = move.Stats;
                                 skip = true;
                             }
                         }
@@ -1695,6 +1650,14 @@ namespace Assets.Scripts
                 transitObject.ActivateAtArrival.SetActive(true);
             if (transitObject.ActivateUnitAtArrival != null)
                 transitObject.ActivateUnitAtArrival.ActivateUnit();
+
+            if (transitObject.UpdateUnitStats != null)
+            {
+                UnitBase unit = BaseUnits[transitObject.UnitId];
+                unit.UpdateStats(transitObject.UpdateUnitStats);
+                transitObject.UpdateUnitStats = null;
+            }
+
             return true;
         }
 
@@ -1706,6 +1669,7 @@ namespace Assets.Scripts
 
         private void MoveTransits()
         {
+            List<TransitObject> finishTransits = new List<TransitObject>();
             foreach (TransitObject transitObject in tileObjectsInTransit)
             {
                 if (transitObject.EndAfterThis.HasValue)
@@ -1713,6 +1677,7 @@ namespace Assets.Scripts
                     if (Time.time > transitObject.EndAfterThis)
                     {
                         transitObject.TargetReached = true;
+                        finishTransits.Add(transitObject);
                     }
                 }
 
@@ -1745,6 +1710,7 @@ namespace Assets.Scripts
                 if (transitObject.GameObject == null)
                 {
                     transitObject.TargetReached = true;
+                    finishTransits.Add(transitObject);
                 }
                 else
                 {
@@ -1775,31 +1741,23 @@ namespace Assets.Scripts
                             scaleChange.z *= 0.98f;
                         transitObject.GameObject.transform.localScale = scaleChange;
                     }
-                    if (false && transitObject.ScaleDown)
+
+                    if (Vector3.Distance(transitObject.GameObject.transform.position, vector3) < 0.01)
                     {
-                        MeshRenderer mesh = transitObject.GameObject.GetComponent<MeshRenderer>();
-                        if (mesh != null)
-                        {
-                            // if larger
-                            if (mesh.bounds.size.y > 0.2f || mesh.bounds.size.x > 0.2f || mesh.bounds.size.z > 0.2f)
-                            {
-                                // but not to small
-                                if (mesh.bounds.size.y > 0.1f && mesh.bounds.size.x > 0.1f && mesh.bounds.size.z > 0.1f)
-                                {
-                                    float scalex = mesh.bounds.size.x / 200;
-                                    float scaley = mesh.bounds.size.y / 200;
-                                    float scalez = mesh.bounds.size.z / 200;
-
-                                    Vector3 scaleChange;
-                                    scaleChange = new Vector3(-scalex, -scaley, -scalez);
-
-                                    transitObject.GameObject.transform.localScale += scaleChange;
-                                }
-                            }
-                        }
+                        transitObject.TargetReached = true;
+                        finishTransits.Add(transitObject);
                     }
-                    transitObject.GameObject.transform.position = Vector3.MoveTowards(transitObject.GameObject.transform.position, vector3, step);
+                    else
+                    {
+                        transitObject.GameObject.transform.position = Vector3.MoveTowards(transitObject.GameObject.transform.position, vector3, step);
+                    }
+
                 }
+            }
+            foreach (TransitObject transitObject in finishTransits)
+            {
+                FinishTransit(transitObject);
+                tileObjectsInTransit.Remove(transitObject);
             }
         }
 

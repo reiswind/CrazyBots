@@ -26,9 +26,9 @@
     {
       "Name": "Worker",
       "PlayerId": 1,
-	  "ContainedMinerals": 1,
-	  "ContainedWood": 2,
-	  "ContainedStones": 3,
+	  "ContainedMinerals": 0,
+	  "ContainedWood": 0,
+	  "ContainedStones": 0,
 	  "Direction": "N",
 	  "HoldPosition": false,
       "Blueprint": "Worker",
