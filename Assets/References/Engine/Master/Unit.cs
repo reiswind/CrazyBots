@@ -1518,6 +1518,7 @@ namespace Engine.Master
                 if (TileObject.CanConvertTileObjectIntoMineral(moveRecipeIngredient.TileObjectType))
                 {
                     // Consume a part of the unit
+                    moveRecipeIngredient.TargetPosition = pos;
                     realIngredients.Add(moveRecipeIngredient);
                 }
                 else
@@ -1528,6 +1529,7 @@ namespace Engine.Master
                         missingIngredient = true;
                         break;
                     }
+                    realIngredient.TargetPosition = pos;
                     realIngredients.Add(realIngredient);
                 }
             }

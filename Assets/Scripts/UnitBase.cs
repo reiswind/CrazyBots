@@ -868,8 +868,11 @@ namespace Assets.Scripts
             //if (upgradedBasePart.Destroyed)
             //    upgradedBasePart.Destroyed = false;
 
+            Extractor.Extract(move, upgradedUnit, this);
+            /*
             foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
             {
+
                 UnitBaseTileObject unitBaseTileObject = unitBaseTileObject = RemoveTileObject(moveRecipeIngredient);
                 if (unitBaseTileObject != null && unitBaseTileObject.GameObject != null)
                 {
@@ -878,11 +881,10 @@ namespace Assets.Scripts
                     transitObject1.GameObject = unitBaseTileObject.GameObject;
                     transitObject1.TargetPosition = transform.position;
                     transitObject1.DestroyAtArrival = true;
-
                     unitBaseTileObject.GameObject = null;
                     HexGrid.MainGrid.AddTransitTileObject(transitObject1);
                 }
-            }
+            }*/
             GameObject upgradedPart = upgradedBasePart.Part;
 
             // Output transit
@@ -896,6 +898,9 @@ namespace Assets.Scripts
             transitObject.DestroyAtArrival = true;
             transitObject.ScaleUp = true;
             transitObject.ActivateAtArrival = upgradedPart;
+            transitObject.UpdateUnitStats = move.Stats;
+            transitObject.UnitId = upgradedUnit.UnitId;
+
             if (unitComplete)
                 transitObject.ActivateUnitAtArrival = upgradedUnit;
             transitObject.StartAfterThis = Time.time + (0.5f * HexGrid.MainGrid.GameSpeed);
@@ -968,6 +973,8 @@ namespace Assets.Scripts
             UnitBasePart part = FindHighestPart(TileObjectType.PartContainer);
             if (part != null)
             {
+                if (direction == Direction.C) 
+                    return part.Part.transform.position;
                 GameObject positionMarker = FindChildNyNameExact(part.Part, "PositionMarker-" + direction.ToString());
                 if (positionMarker != null)
                     return positionMarker.transform.position;
@@ -975,6 +982,8 @@ namespace Assets.Scripts
             part = FindHighestPart(TileObjectType.PartAssembler);
             if (part != null)
             {
+                if (direction == Direction.C)
+                    return part.Part.transform.position;
                 GameObject positionMarker = FindChildNyNameExact(part.Part, "PositionMarker-" + direction.ToString());
                 if (positionMarker != null)
                     return positionMarker.transform.position;
@@ -982,6 +991,8 @@ namespace Assets.Scripts
             part = FindHighestPart(TileObjectType.PartWeapon);
             if (part != null)
             {
+                if (direction == Direction.C)
+                    return part.Part.transform.position;
                 GameObject positionMarker = FindChildNyNameExact(part.Part, "PositionMarker-" + direction.ToString());
                 if (positionMarker != null)
                     return positionMarker.transform.position;
@@ -989,6 +1000,8 @@ namespace Assets.Scripts
             part = FindHighestPart(TileObjectType.PartReactor);
             if (part != null)
             {
+                if (direction == Direction.C)
+                    return part.Part.transform.position;
                 GameObject positionMarker = FindChildNyNameExact(part.Part, "PositionMarker-" + direction.ToString());
                 if (positionMarker != null)
                     return positionMarker.transform.position;
@@ -1539,7 +1552,7 @@ namespace Assets.Scripts
 
         public void UpdateParts()
         {
-            if (UnitId == "unit10")
+            if (UnitId == "unit5")
             {
                 int x = 0;
             }

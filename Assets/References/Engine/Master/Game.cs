@@ -396,8 +396,6 @@ namespace Engine.Master
                     }
                     else
                     {
-                        // Release the reservations, so the ingredients can be used
-                        //factory.ClearReservations();
                         List<TileObject> results = factory.ConsumeIngredients(move.MoveRecipe, changedUnits);
                         if (factory.IsDead())
                         {
@@ -460,8 +458,7 @@ namespace Engine.Master
                             }
                             thisUnit.Upgrade(move, results[0]);
 
-                            if (!changedUnits.ContainsKey(thisUnit.Pos))
-                                changedUnits.Add(thisUnit.Pos, thisUnit);
+                            move.Stats = thisUnit.CollectStats();
                         }
                     }
                 }

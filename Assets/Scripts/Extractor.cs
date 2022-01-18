@@ -69,11 +69,12 @@ namespace Assets.Scripts
 
                 foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
                 {
+                    /*
                     GroundCell targetCell;
                     if (!HexGrid.MainGrid.GroundCells.TryGetValue(moveRecipeIngredient.TargetPosition, out targetCell))
                     {
                         throw new Exception("Wrong");
-                    }
+                    }*/
                     GroundCell sourceCell;
                     if (!HexGrid.MainGrid.GroundCells.TryGetValue(moveRecipeIngredient.SourcePosition, out sourceCell))
                     {
@@ -86,7 +87,7 @@ namespace Assets.Scripts
                     }
                     else
                     {
-                        lastTransitObject = ExtractFromStructureToStructure(unit, otherUnit, ref lastTransitObject, ref delayStart, moveRecipeIngredient, sourceCell);
+                        lastTransitObject = ExtractFromStructureToStructure(unit, otherUnit, ref delayStart, moveRecipeIngredient, sourceCell);
                     }
                     delayStart += 0.01f;
                 }
@@ -97,7 +98,7 @@ namespace Assets.Scripts
             }
         }
 
-        private static TransitObject ExtractFromStructureToStructure(UnitBase unit, UnitBase otherUnit, ref TransitObject lastTransitObject, ref float delayStart, MoveRecipeIngredient moveRecipeIngredient, GroundCell sourceCell)
+        private static TransitObject ExtractFromStructureToStructure(UnitBase unit, UnitBase otherUnit, ref float delayStart, MoveRecipeIngredient moveRecipeIngredient, GroundCell sourceCell)
         {
             Direction direction = Position2.GetDirection(moveRecipeIngredient.SourcePosition, moveRecipeIngredient.TargetPosition);
             Vector3 sourcePosition;
@@ -141,7 +142,7 @@ namespace Assets.Scripts
             return transitObject;
         }
 
-        private static GameObject RemoveObjectFromOtherUnit(UnitBase otherUnit, MoveRecipeIngredient moveRecipeIngredient, GroundCell sourceCell, Vector3 sourcePosition)
+        public static GameObject RemoveObjectFromOtherUnit(UnitBase otherUnit, MoveRecipeIngredient moveRecipeIngredient, GroundCell sourceCell, Vector3 sourcePosition)
         {
             GameObject transitGameObject;
 
