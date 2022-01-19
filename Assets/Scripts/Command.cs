@@ -103,57 +103,6 @@ namespace Assets.Scripts
             }
         }
 
-        /*
-        public void UpdateAttachedUnits()
-        {
-            List<UnitBase> allCommandUnits = new List<UnitBase>();
-            allCommandUnits.AddRange(selectedCommandUnits.Keys);
-
-            StringBuilder stringBuilder = new StringBuilder();
-            foreach (MapGameCommandItem mapGameCommandItem in CommandPreview.GameCommand.GameCommandItems)
-            {
-                string unitId = mapGameCommandItem.AttachedUnitId;
-                if (unitId != null)
-                {
-                    UnitBase unitBase;
-                    if (unitId.StartsWith("Assembler"))
-                    {
-                        unitBase = HexGrid.MainGrid.BaseUnits[unitId.Substring(10)];
-                    }
-                    else
-                    {
-                        HexGrid.MainGrid.BaseUnits.TryGetValue(unitId, out unitBase);
-                    }
-                    if (unitBase != null)
-                    {
-                        allCommandUnits.Remove(unitBase);
-                        if (!selectedCommandUnits.ContainsKey(unitBase))
-                        {
-                            CommandAttachedUnit commandAttachedUnit = new CommandAttachedUnit();
-                            commandAttachedUnit.UnitBase = unitBase;
-                            selectedCommandUnits.Add(unitBase, commandAttachedUnit);
-                            //unitBase.SetSelected(true);
-                        }
-                    }
-                    stringBuilder.Append(unitId);
-                }
-            }
-            foreach (UnitBase unitBase in allCommandUnits)
-            {
-                CommandAttachedUnit commandAttachedUnit;
-                if (selectedCommandUnits.TryGetValue(unitBase, out commandAttachedUnit))
-                {
-                    if (commandAttachedUnit.Line != null)
-                    {
-                        Destroy(commandAttachedUnit.Line);
-                        commandAttachedUnit.Line = null;
-                    }
-                    //commandAttachedUnit.UnitBase.SetSelected(false);
-                    selectedCommandUnits.Remove(unitBase);
-                }
-            }
-        }*/
-        
         public void UpdateDirection(Vector3 position)
         {
             // Determine which direction to rotate towards

@@ -862,6 +862,14 @@ namespace Engine.Master
                 if (Engine.Level == 0)
                     Engine = null;
             }
+            if (tileObjectType == TileObjectType.PartContainer)
+            {
+                tileObject = Container.PartTileObjects[0];
+                Container.PartTileObjects.RemoveAt(0);
+                Container.Level--;
+                if (Container.Level == 0)
+                    Container = null;
+            }
             if (tileObjectType == TileObjectType.PartExtractor)
             {
                 tileObject = Extractor.PartTileObjects[0];
@@ -885,6 +893,22 @@ namespace Engine.Master
                 Assembler.Level--;
                 if (Assembler.Level == 0)
                     Assembler = null;
+            }
+            if (tileObjectType == TileObjectType.PartReactor)
+            {
+                tileObject = Reactor.PartTileObjects[0];
+                Reactor.PartTileObjects.RemoveAt(0);
+                Reactor.Level--;
+                if (Reactor.Level == 0)
+                    Reactor = null;
+            }
+            if (tileObjectType == TileObjectType.PartRadar)
+            {
+                tileObject = Radar.PartTileObjects[0];
+                Radar.PartTileObjects.RemoveAt(0);
+                Radar.Level--;
+                if (Radar.Level == 0)
+                    Radar = null;
             }
             CountParts();
             return tileObject;

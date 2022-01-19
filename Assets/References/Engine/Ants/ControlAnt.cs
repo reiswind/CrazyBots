@@ -1833,7 +1833,7 @@ namespace Engine.Ants
                                     }
                                     else if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build)
                                     {
-                                        if (ant.Unit.Blueprint.Name == "Assembler")
+                                        if (ant.Unit.Blueprint.Name == "Builder")
                                         {
                                             gameCommandItem.FactoryUnit.SetUnitId(ant.Unit.UnitId);
                                             gameCommandItem.FactoryUnit.SetStatus("BuildAssembler for " + gameCommand.GameCommandType);
@@ -2172,18 +2172,7 @@ namespace Engine.Ants
 
                         if (ant.AntWorkerType == AntWorkerType.None)
                         {
-                            if (cntrlUnit.Blueprint.Name == "Assembler")
-                            {
-                                ant.AntWorkerType = AntWorkerType.Assembler;
-                            }
-                            if (cntrlUnit.Blueprint.Name == "Fighter" || cntrlUnit.Blueprint.Name == "Bomber")
-                            {
-                                ant.AntWorkerType = AntWorkerType.Fighter;
-                            }
-                            if (cntrlUnit.Blueprint.Name == "Worker")
-                            {
-                                ant.AntWorkerType = AntWorkerType.Worker;
-                            }
+                            ant.GuessWorkerType();
                         }
 #if NOTCALLED
                         if (ant.PlayerUnit == null)
@@ -2240,24 +2229,18 @@ namespace Engine.Ants
                         // Create unit from model
                         if (cntrlUnit.Blueprint.Name == "Assembler" ||
                             cntrlUnit.Blueprint.Name == "Fighter" ||
+                            cntrlUnit.Blueprint.Name == "Builder" ||
                             cntrlUnit.Blueprint.Name == "Worker" ||
                             cntrlUnit.Blueprint.Name == "Bomber")
                         {
                             Ant antWorker = new Ant(this);
-                            //antWorker.PlayerUnit = playerUnit;
                             antWorker.Alive = true;
 
                             if (cntrlUnit.Direction == Direction.C)
                             {
                                 cntrlUnit.Direction = Direction.SW;
                             }
-
-                            if (cntrlUnit.Blueprint.Name == "Assembler")
-                                antWorker.AntWorkerType = AntWorkerType.Assembler;
-                            else if (cntrlUnit.Blueprint.Name == "Fighter" || cntrlUnit.Blueprint.Name == "Bomber")
-                                antWorker.AntWorkerType = AntWorkerType.Fighter;
-                            else if (cntrlUnit.Blueprint.Name == "Worker")
-                                antWorker.AntWorkerType = AntWorkerType.Worker;
+                            antWorker.GuessWorkerType();
                             Ants.Add(cntrlUnit.UnitId, antWorker);
                         }
                         else if (cntrlUnit.Blueprint.Name == "Outpost" ||
@@ -2413,6 +2396,13 @@ namespace Engine.Ants
                                         ant.Unit.CurrentGameCommand.TransportUnit.SetStatus("PickUpFrom: " + ant.Unit.CurrentGameCommand.AttachedUnit.UnitId);
                                     }
                                     else if (ant.Unit.Blueprint.Name == "Assembler")
+                                    {
+                                        ant.Unit.CurrentGameCommand.AttachedUnit.ClearUnitId(player.Game.Map.Units);
+                                        ant.Unit.CurrentGameCommand.FactoryUnit.SetUnitId(ant.Unit.UnitId);
+                                        ant.Unit.CurrentGameCommand.FactoryUnit.SetStatus("Assemble", false);
+                                        ant.Unit.Changed = true;
+                                    }
+                                    else if (ant.Unit.Blueprint.Name == "Builder")
                                     {
                                         ant.Unit.CurrentGameCommand.AttachedUnit.ClearUnitId(player.Game.Map.Units);
                                         ant.Unit.CurrentGameCommand.FactoryUnit.SetUnitId(ant.Unit.UnitId);

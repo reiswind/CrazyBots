@@ -74,12 +74,17 @@ namespace Engine.Ants
                     moveRecipeIngredient.Source = Ant.Unit.Armor.PartType;
                     moveRecipeIngredient.TileObjectType = moveRecipeIngredient.Source;
                 }
+                else if (Ant.Unit.Reactor != null)
+                {
+                    moveRecipeIngredient.Source = Ant.Unit.Reactor.PartType;
+                    moveRecipeIngredient.TileObjectType = moveRecipeIngredient.Source;
+                }
                 else if (Ant.Unit.Assembler != null)
                 {
                     moveRecipeIngredient.Source = Ant.Unit.Assembler.PartType;
                     moveRecipeIngredient.TileObjectType = moveRecipeIngredient.Source;
                 }
-
+                
                 // Foundation build, upgrade
                 Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Upgrade, moveRecipeIngredient);
             }
@@ -324,14 +329,20 @@ namespace Engine.Ants
                                 bool assembler;
                                 bool engine;
                                 bool container;
+                                bool reactor;
                                 foreach (Blueprint blueprint in player.Game.Blueprints.Items)
                                 {
                                     container = false;
                                     assembler = false;
                                     engine = false;
+                                    reactor = false;
 
                                     foreach (BlueprintPart blueprintPart in blueprint.Parts)
                                     {
+                                        if (blueprintPart.PartType == TileObjectType.PartReactor)
+                                        {
+                                            reactor = true;
+                                        }
                                         if (blueprintPart.PartType == TileObjectType.PartAssembler)
                                         {
                                             assembler = true;
@@ -347,7 +358,7 @@ namespace Engine.Ants
                                     }
                                     if (selectedGameCommand.GameCommand.GameCommandType == GameCommandType.Build)
                                     {
-                                        if (assembler && engine)
+                                        if (assembler && engine && reactor) // Select the builder
                                         {
                                             BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
                                             blueprintCommandItem.BlueprintName = blueprint.Name;

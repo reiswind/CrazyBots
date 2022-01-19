@@ -109,6 +109,15 @@ namespace Engine.Interface
             blueprint.Parts.Add(new BlueprintPart("PartArmor"));
             Items.Add(blueprint);
 
+            // Builder (for structures)
+            blueprint = new Blueprint();
+            blueprint.Name = "Builder";
+            blueprint.Layout = "U-Builder";
+            blueprint.Parts.Add(new BlueprintPart("PartEngine"));
+            blueprint.Parts.Add(new BlueprintPart("PartAssembler", TileObjectType.PartAssembler, 1, 0, 0));
+            blueprint.Parts.Add(new BlueprintPart("PartReactor", TileObjectType.PartReactor, 1, 0, 2));
+            blueprint.Parts.Add(new BlueprintPart("PartArmor"));
+            Items.Add(blueprint);
 
             Commands = new List<BlueprintCommand>();
 

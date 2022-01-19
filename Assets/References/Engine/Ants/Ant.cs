@@ -27,14 +27,17 @@ namespace Engine.Ants
             Energy = MaxEnergy;
             AntParts = new List<AntPart>();
 
+            GuessWorkerType();
+        }
 
-            if (unit.Blueprint.Name == "Assembler")
+        public void GuessWorkerType()
+        {
+            if (Unit.Blueprint.Name == "Assembler" || Unit.Blueprint.Name == "Builder")
                 AntWorkerType = AntWorkerType.Assembler;
-            else if (unit.Blueprint.Name == "Fighter" || unit.Blueprint.Name == "Bomber")
+            else if (Unit.Blueprint.Name == "Fighter" || Unit.Blueprint.Name == "Bomber")
                 AntWorkerType = AntWorkerType.Fighter;
-            else if (unit.Blueprint.Name == "Worker")
+            else if (Unit.Blueprint.Name == "Worker")
                 AntWorkerType = AntWorkerType.Worker;
-
         }
 
         public List<AntPart> AntParts { get; private set; }
