@@ -384,10 +384,6 @@ namespace Engine.Master
             {
                 canBuild = false;
             }
-            if (Pos.X == 71 && Pos.Y == 88)
-            {
-                int x = 0;
-            }
             canMove = TileObject.CanMoveTo(Counter);
         }
 

@@ -332,6 +332,10 @@ namespace Assets.Scripts
                     }
                 }
             }
+            if (UnitId == "unit0")
+            {
+                int x = 0;
+            }
 
             float timeNow = Time.time;
             foreach (UnitBasePart unitBasePart in UnitBaseParts)
@@ -344,7 +348,7 @@ namespace Assets.Scripts
                 {
                     //unitBasePart.Part.transform.Rotate(Vector3.up, 1 / HexGrid.MainGrid.GameSpeed);
                 }
-                if (unitBasePart.PartType == TileObjectType.PartRadar && !unitBasePart.Destroyed && unitBasePart.CompleteLevel == 1)
+                if (unitBasePart.PartType == TileObjectType.PartRadar && !unitBasePart.Destroyed && unitBasePart.Level == 3)
                 {
                     GameObject partToTurn;
                     partToTurn = unitBasePart.Part;
@@ -1360,6 +1364,10 @@ namespace Assets.Scripts
         }
         public UnitBasePart PartHitByShell(TileObjectType hitPart, MoveUpdateStats stats)
         {
+            if (UnitId == "unit0")
+            {
+                int x = 0;
+            }
             UnitBasePart unitBasePart = FindHighestPart(hitPart);
             if (unitBasePart == null)
             {

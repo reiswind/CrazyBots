@@ -880,9 +880,9 @@ namespace Assets.Scripts
         private void ProcessNewMoves()
         {
             moveCounter++;
-            if (moveCounter == 112)
+            if (moveCounter == 83)
             {
-
+                int x = 0;
             }
             List<Position2> newUpdatedPositions = new List<Position2>();
 
@@ -1038,12 +1038,15 @@ namespace Assets.Scripts
                                 skip = true;
                             }
                         }
-                        foreach (TransitObject transitObject in tileObjectsInTransit)
+                        if (!skip)
                         {
-                            if (transitObject.UnitId != null && transitObject.UnitId == move.UnitId)
+                            foreach (TransitObject transitObject in tileObjectsInTransit)
                             {
-                                transitObject.UpdateUnitStats = move.Stats;
-                                skip = true;
+                                if (transitObject.UnitId != null && transitObject.UnitId == move.UnitId)
+                                {
+                                    transitObject.UpdateUnitStats = move.Stats;
+                                    skip = true;
+                                }
                             }
                         }
                         if (!skip)

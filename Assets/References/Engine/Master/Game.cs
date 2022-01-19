@@ -1386,7 +1386,7 @@ namespace Engine.Master
             }
         }
 
-        private int maxPowerPerTurn = 10;
+        private int maxPowerPerTurn = 80;
 
         private void ConsumePower(Player player, List<Move> newMoves)
         {

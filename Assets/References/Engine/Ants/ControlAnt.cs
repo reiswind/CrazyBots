@@ -602,6 +602,18 @@ namespace Engine.Ants
                             // Cannot build here, no power
                             continue;
                         }
+                        bool alreadyBuilding = false;
+                        foreach (GameCommand gameCommand in player.GameCommands)
+                        {
+                            if (gameCommand.GameCommandType == GameCommandType.Build &&
+                                gameCommand.TargetPosition == tile.Pos)
+                            {
+                                alreadyBuilding = true;
+                                break;
+                            }
+                        }
+                        if (alreadyBuilding)
+                            continue;
 
                         // Can the location be reached?
                         /*

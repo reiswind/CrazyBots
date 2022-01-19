@@ -90,12 +90,18 @@ namespace Engine.Ants
             }
             if (possiblemoves.Count != 1)
             {
-                // Impossible to build, cancel this
-                Assembler.Unit.CurrentGameCommand.GameCommand.CommandCanceled = true;
-                Ant.Unit.ResetGameCommand();
+                Ant.StuckCounter++;
+                if (Ant.StuckCounter > 5)
+                {
+                    // Impossible to build, cancel this and kill the builder
+                    Assembler.Unit.CurrentGameCommand.GameCommand.CommandCanceled = true;
+                    Ant.Unit.ResetGameCommand();
+                    Ant.Unit.ExtractUnit();
+                }
             }
             else
             {
+                Ant.StuckCounter = 0;
                 Move move = possiblemoves[0];
                 move.GameCommandItem = Assembler.Unit.CurrentGameCommand;
                 moves.Add(move);

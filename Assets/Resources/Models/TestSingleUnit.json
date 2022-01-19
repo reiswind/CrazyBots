@@ -54,7 +54,7 @@
 	  "EndlessAmmo": false,
 	  "EndlessPower": false,
 	  "MarkForExtraction": false,
-      "Position": "1,1"
+      "Position": "-1,0"
     },
 	{
       "Name": "Outpost",
