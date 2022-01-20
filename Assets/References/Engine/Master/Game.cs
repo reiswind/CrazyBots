@@ -377,9 +377,9 @@ namespace Engine.Master
         public void UpdateUnitPositions(List<Move> newMoves)
         {
             CollisionCntr++;
-            if (CollisionCntr == 188)
+            if (CollisionCntr == 230)
             {
-                
+
             }
 
             List<Unit> addedUnits = new List<Unit>();
@@ -774,7 +774,7 @@ namespace Engine.Master
             bool wasSuccessful = false;
 
             Unit fireingUnit = Map.Units.GetUnitAt(move.Positions[0]);
-            if (fireingUnit != null && fireingUnit.Weapon != null && fireingUnit.Weapon.WeaponLoaded) //.TileContainer.TileObjects.Count > 0)
+            if (fireingUnit != null && fireingUnit.Weapon != null && fireingUnit.Weapon.WeaponLoaded)
             {
                 MoveRecipeIngredient moveRecipeIngredient;
                 if (fireingUnit.Weapon.EndlessAmmo)
@@ -1925,8 +1925,9 @@ namespace Engine.Master
         {
             List<Move> returnMoves = new List<Move>();
 
-            if (MoveNr == 172)
+            if (MoveNr == 132)
             {
+
             }
             if (myMove != null && myMove.MoveType == MoveType.UpdateAll)
             {

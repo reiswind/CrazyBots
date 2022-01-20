@@ -76,7 +76,6 @@ namespace Engine.Master
         {
             if (UnitId != null && UnitId != unitId)
             {
-                int x = 0;
             }
             UnitId = unitId;
         }
@@ -154,7 +153,7 @@ namespace Engine.Master
             CommandId = ++staticCommandId;
             if (CommandId == 33)
             {
-                int x = 0;
+
             }
             GameCommandItems = new List<GameCommandItem>();
         }

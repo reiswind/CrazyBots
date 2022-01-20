@@ -99,10 +99,6 @@ namespace Assets.Scripts
         {
             float value = Diffuse;
 
-            if (Pos.X == 77 && Pos.Y == 89)
-            {
-                int x = 0;
-            }
             if (IsHighlighted)
             {
                 value = 1;
@@ -959,10 +955,6 @@ namespace Assets.Scripts
 
         internal void CreateDestructables(bool init)
         {
-            if (Pos.X == 59 && Pos.Y == 87)
-            {
-                int x = 0;
-            }
             UpdateCache();
             SetGroundMaterial();
             //return;

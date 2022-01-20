@@ -372,7 +372,40 @@ namespace Engine.Ants
         }
 
         public List<Position2> FollowThisRoute { get; set; }
-        public virtual bool Move(Player player, List<Move> moves)
+        public virtual bool MoveStructure(Player player, List<Move> moves)
+        {
+            bool moved = false;
+            foreach (AntPart antPart in AntParts)
+            {
+                // extract at the end
+                if (antPart is AntPartExtractor)
+                    continue;
+
+                if (antPart.Move(Control, player, moves))
+                {
+                    moved = true;
+                    break;
+                }
+            }
+            if (!moved)
+            {
+                foreach (AntPart antPart in AntParts)
+                {
+                    // Extract
+                    if (!(antPart is AntPartExtractor))
+                        continue;
+
+                    if (antPart.Move(Control, player, moves))
+                    {
+                        moved = true;
+                        break;
+                    }
+                }
+            }
+            return moved;
+        }
+
+        public virtual bool MoveUnit(Player player, List<Move> moves)
         {
             bool moved = false;
             foreach (AntPart antPart in AntParts)

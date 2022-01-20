@@ -332,10 +332,6 @@ namespace Assets.Scripts
                     }
                 }
             }
-            if (UnitId == "unit0")
-            {
-                int x = 0;
-            }
 
             float timeNow = Time.time;
             foreach (UnitBasePart unitBasePart in UnitBaseParts)
@@ -950,15 +946,22 @@ namespace Assets.Scripts
                 highlightEffect.Refresh();
         }
 
-        private UnitBasePart FindHighestPart(TileObjectType partType)
+        private UnitBasePart FindHighestPart(TileObjectType partType, bool mustExist = true)
         {
             UnitBasePart bestPart = null;
             foreach (UnitBasePart unitBasePart in UnitBaseParts)
             {
-                if (partType == unitBasePart.PartType && (unitBasePart.Exists || unitBasePart.WillExist))
+                if (partType == unitBasePart.PartType)
                 {
+                    if (mustExist)
+                    {
+                        if (!(unitBasePart.Exists || unitBasePart.WillExist))
+                            continue;
+                    }
                     if (bestPart == null)
+                    {
                         bestPart = unitBasePart;
+                    }
                     else
                     {
                         if (bestPart.Level < unitBasePart.Level)
@@ -1364,11 +1367,8 @@ namespace Assets.Scripts
         }
         public UnitBasePart PartHitByShell(TileObjectType hitPart, MoveUpdateStats stats)
         {
-            if (UnitId == "unit0")
-            {
-                int x = 0;
-            }
-            UnitBasePart unitBasePart = FindHighestPart(hitPart);
+            // Hit part must not exist, because UpdatePart may have been called before
+            UnitBasePart unitBasePart = FindHighestPart(hitPart, false);
             if (unitBasePart == null)
             {
                 throw new Exception("Hit part missing");
@@ -1478,12 +1478,6 @@ namespace Assets.Scripts
                 SetupHighlightEffect();
             IsGhost = ghost;
 
-            if (UnitId == "unit6")
-            {
-                int x = 0;
-            }
-
-
             UnitBaseParts.Clear();
             UnderConstruction = underConstruction;
 
@@ -1560,11 +1554,6 @@ namespace Assets.Scripts
 
         public void UpdateParts()
         {
-            if (UnitId == "unit5")
-            {
-                int x = 0;
-            }
-
             if (MoveUpdateStats.UnitParts != null)
             {
                 foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
@@ -1579,6 +1568,13 @@ namespace Assets.Scripts
                     for (int level = 1; level <= moveUpdateUnitPart.CompleteLevel; level++)
                     {
                         UnitBasePart unitBasePart = FindPart(moveUpdateUnitPart, level);
+
+                        // If unit is hit more than one time, the second call to HasBeenHit will not find the part, because the
+                        // state of the part is updated here.
+
+                        // vs. Update must be called at least once to reflect the state. Now back to multiple update calls. Latest counts.
+                        // Solution?
+
                         bool exists = unitBasePart.Level <= moveUpdateUnitPart.Level;
 
                         if (exists)

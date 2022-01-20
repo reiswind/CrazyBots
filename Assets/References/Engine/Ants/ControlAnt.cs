@@ -1560,6 +1560,7 @@ namespace Engine.Ants
             */
         }
 
+        /*
         internal void UpdateUnitCounters(Ant ant)
         {
             if (ant.AntWorkerType == AntWorkerType.Worker)
@@ -1575,7 +1576,7 @@ namespace Engine.Ants
                     NumberOfReactors++;
                 }
             }
-        }
+        }*/
 
         private void SacrificeAnt(Player player, List<Ant> ants)
         {
@@ -1636,7 +1637,7 @@ namespace Engine.Ants
             attachCounter++;
             if (attachCounter == 126)
             {
-                int x = 0;
+
             }
             List<GameCommand> removeCommands = new List<GameCommand>();
             foreach (GameCommand gameCommand in player.GameCommands)
@@ -1732,7 +1733,6 @@ namespace Engine.Ants
             {
                 if (gameCommand.CommandId == 33)
                 {
-                    int x = 0;
                 }
 
                 if (player.CompletedCommands.Contains(gameCommand))
@@ -2451,7 +2451,7 @@ namespace Engine.Ants
                         }
                         ant.UnderConstruction = false;
                     }
-                    UpdateUnitCounters(ant);
+                    //UpdateUnitCounters(ant);
 
                     movableAnts.Add(ant);
                 }
@@ -2467,7 +2467,7 @@ namespace Engine.Ants
                     }
                     else
                     {
-                        UpdateUnitCounters(ant);
+                        //UpdateUnitCounters(ant);
                         // cannot move until complete
                         //movableAnts.Add(ant);
                     }
@@ -2568,26 +2568,7 @@ namespace Engine.Ants
                 start = DateTime.Now;
             }
 #endif
-            // Execute 
-            foreach (Ant ant in unmovedAnts)
-            {
-                if (ant.AntPartExtractor != null)
-                {
-                    if (ant.AntPartExtractor.Move(this, player, moves))
-                    {
-                        movableAnts.Remove(ant);
-                        continue;
-                    }
-                }
-                if (ant.AntPartContainer != null)
-                {
-                    if (CheckTransportMove(ant, moves))
-                    {
-                        movableAnts.Remove(ant);
-                        continue;
-                    }
-                }
-            }
+
 
 #if MEASURE_TIMINGS
             timetaken = (DateTime.Now - start).TotalMilliseconds;
@@ -2603,12 +2584,22 @@ namespace Engine.Ants
             unmovedAnts.AddRange(movableAnts);
             foreach (Ant ant in unmovedAnts)
             {
-                if (ant.Move(player, moves))
+                // Move structures first
+                if (ant.AntPartEngine == null && ant.MoveStructure(player, moves))
                 {
                     movableAnts.Remove(ant);
                 }
             }
-
+            unmovedAnts.Clear();
+            unmovedAnts.AddRange(movableAnts);
+            foreach (Ant ant in unmovedAnts)
+            {
+                // Move units next
+                if (ant.AntPartEngine != null && ant.MoveUnit(player, moves))
+                {
+                    movableAnts.Remove(ant);
+                }
+            }
 #if MEASURE_TIMINGS
             timetaken = (DateTime.Now - start).TotalMilliseconds;
             if (timetaken > 10)
@@ -2620,64 +2611,25 @@ namespace Engine.Ants
 
             movableAnts.Clear();           
             unmovedAnts.Clear();
-            
-            while (unmovedAnts.Count > 0)
-            {
-                foreach (Ant ant in unmovedAnts)
-                {
-                    //if (ant is AntWorker)
-                    {
-                        /*
-                        if (!ant.PlayerUnit.Unit.IsComplete())
-                        {
-                            movableAnts.Remove(ant);
-                            continue;
-                        }*/
-                        //ant.HandleGameCommands(player);
-                        
-                        /*
-                        if (ant.CurrentGameCommand == null && ant.HoldPosition2)
-                        {
-                            movableAnts.Remove(ant);
-                            continue;
-                        }*/
-                        if (IsBeingExtracted(moves, ant.Unit.Pos))
-                        {
-                            movableAnts.Remove(ant);
-                            continue;
-                        }
 
-                        if (ant.Move(player, moves))
-                        {
-                            ant.StuckCounter = 0;
-                            movableAnts.Remove(ant);
-                        }
-                        else
-                        {
-                            ant.StuckCounter++;
-                            if (ant.MoveAttempts == 0)
-                            {
-                                ant.MoveAttempts++;
-                            }
-                            else
-                            {
-                                movableAnts.Remove(ant);
-                            }
-                        }
-                        
+            // Execute extract moves at the end if no other move was possible.
+            /*
+            foreach (Ant ant in unmovedAnts)
+            {
+                // Far transport... not included now
+                if (ant.AntPartContainer != null)
+                {
+                    if (CheckTransportMove(ant, moves))
+                    {
+                        movableAnts.Remove(ant);
+                        continue;
                     }
                 }
-                unmovedAnts.Clear();
-                if (movableAnts.Count > 0)
-                {
-                    unmovedAnts.AddRange(movableAnts);
-                }
             }
-
+            */
             foreach (Ant ant in killedAnts)
             {
                 ant.OnDestroy(player);
-                //Ants.Remove(ant.Unit.UnitId);
             }
 
 #if MEASURE_TIMINGS

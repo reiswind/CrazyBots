@@ -808,6 +808,8 @@ namespace Engine.Master
                 int total = ((sourceCounter.Mineral + targetCounter.Mineral) / 2) - targetCounter.Mineral;
 
                 if (total > maxTransfer) total = maxTransfer; // max transfer limit
+                if (total > capacity) total = capacity;
+
                 transferMinerals = total;
                 maxTransfer -= transferMinerals;
 
@@ -820,6 +822,8 @@ namespace Engine.Master
                 int total = ((sourceCounter.Stone + targetCounter.Stone) / 2) - targetCounter.Stone;
 
                 if (total > maxTransfer) total = maxTransfer; // max transfer limit
+                if (total > capacity) total = capacity;
+
                 transferStones = total;
                 maxTransfer -= transferStones;
 
@@ -832,6 +836,9 @@ namespace Engine.Master
                 int total = ((sourceCounter.Wood + targetCounter.Wood) / 2) - targetCounter.Wood;
 
                 if (total > maxTransfer) total = maxTransfer; // max transfer limit
+                if (total > capacity) 
+                    total = capacity;
+
                 transferWood = total;
                 maxTransfer -= transferWood;
 
@@ -848,6 +855,10 @@ namespace Engine.Master
                 MoveRecipeIngredient realIndigrient = null;
                 realIndigrient = otherUnit.FindIngredient(tileObjectType, false, excludeTileObjects);
                 if (realIndigrient == null) break;
+
+                // Avoid the bug where the transfer fills a container with mins that would accept wood and the remaining wood is not accepted
+                if (!Unit.AcceptsIngredient(realIndigrient))
+                    break;
 
                 otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
                 capacity--;

@@ -2,7 +2,8 @@
   "Name": "Test",
   "MapWidth": 2,
   "MapHeight": 2,
-  "Seed": 290921857,
+  "Seedx": -206391663,
+  "SeedUpdateNeeded": -698798745,
   "MapType": "2",
   "Players": [
     {

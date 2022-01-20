@@ -96,10 +96,10 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 
             GameModel gameModel;
@@ -882,7 +882,7 @@ namespace Assets.Scripts
             moveCounter++;
             if (moveCounter == 83)
             {
-                int x = 0;
+
             }
             List<Position2> newUpdatedPositions = new List<Position2>();
 
@@ -946,7 +946,7 @@ namespace Assets.Scripts
                 // Finish all open hits
                 foreach (HitByBullet hitByBullet in hitByBullets)
                 {
-                    HasBeenHit(hitByBullet, false);
+                    HasBeenHit(hitByBullet);
                     if (hitByBullet.TargetUnit != null)
                     {
                         if (!units.Contains(hitByBullet.TargetUnit))
@@ -1530,7 +1530,7 @@ namespace Assets.Scripts
             }
         }
 
-        public void HasBeenHit(HitByBullet hitByBullet, bool updateUnit)
+        public void HasBeenHit(HitByBullet hitByBullet)
         {
             if (hitByBullet.BulletImpact == false)
             {
@@ -1573,12 +1573,6 @@ namespace Assets.Scripts
                 else
                 {
                     hitByBullet.TargetUnit.HitByShell();
-
-                    if (hitByBullet.TargetUnit.UnitId == "unit18")
-                    {
-                        int x = 0;
-                    }
-
                     if (hitByBullet.ShieldHit)
                     {
                         hitByBullet.TargetUnit.UpdateStats(hitByBullet.UpdateUnitStats);
@@ -1588,12 +1582,8 @@ namespace Assets.Scripts
 
                         UnitBasePart unitBasePart = hitByBullet.TargetUnit.PartHitByShell(hitByBullet.HitPartTileObjectType, hitByBullet.UpdateUnitStats);
 
-                        if (updateUnit)
-                        {
-                            // If unit is hit more than one time, the second call to HasBeenHit will not fiund the part, because the
-                            // state of the part is updated here.
-                            hitByBullet.TargetUnit.UpdateStats(hitByBullet.UpdateUnitStats);
-                        }
+                        hitByBullet.TargetUnit.UpdateStats(hitByBullet.UpdateUnitStats);
+                        
                         if (hitByBullet.Deleted)
                         {
                             hitByBullet.TargetUnit.HasBeenDestroyed = true;
@@ -1614,7 +1604,7 @@ namespace Assets.Scripts
                 {
                     if (hitByBullet.BulletImpact)
                     {
-                        HasBeenHit(hitByBullet, true);
+                        HasBeenHit(hitByBullet);
                         hitByBullets.Remove(hitByBullet);
                     }
                 }

@@ -810,6 +810,41 @@ namespace Engine.Master
             }
             return null;
         }
+
+        public bool AcceptsIngredient(MoveRecipeIngredient ingredient)
+        {
+            TileObject tileObject = new TileObject();
+            tileObject.TileObjectType = ingredient.TileObjectType;
+            tileObject.TileObjectKind = ingredient.TileObjectKind;
+            tileObject.Direction = Direction.C;
+
+            if (Reactor != null && Reactor.TileContainer != null &&
+                Reactor.TileContainer.Count < Reactor.TileContainer.Capacity &&
+                Reactor.TileContainer.Accepts(tileObject))
+            {
+                return true;
+            }
+            else if (Assembler != null && Assembler.TileContainer != null &&
+                Assembler.TileContainer.Count < Assembler.TileContainer.Capacity &&
+                Assembler.TileContainer.Accepts(tileObject))
+            {
+                return true;
+            }
+            else if (Container != null && Container.TileContainer != null &&
+                Container.TileContainer.Count < Container.TileContainer.Capacity &&
+                Container.TileContainer.Accepts(tileObject))
+            {
+                return true;
+            }
+            else if (Weapon != null && Weapon.TileContainer != null &&
+                Weapon.TileContainer.Count < Weapon.TileContainer.Capacity &&
+                Weapon.TileContainer.Accepts(tileObject))
+            {
+                return true;
+            }
+            return false;
+        }
+
         public void AddIngredient(MoveRecipeIngredient ingredient)
         {
             TileObject tileObject = new TileObject();
@@ -930,40 +965,24 @@ namespace Engine.Master
                         tileObject = Assembler.TileContainer.GetMatchingTileObject(ingredient.TileObjectType, null);
                         if (tileObject != null)
                             Assembler.TileContainer.Remove(tileObject);
-                        else
-                        {
-                            int x = 0;
-                        }
                     }
                     if (ingredient.Source == TileObjectType.PartContainer && Container != null && Container.TileContainer != null)
                     {
                         tileObject = Container.TileContainer.GetMatchingTileObject(ingredient.TileObjectType, null);
                         if (tileObject != null)
                             Container.TileContainer.Remove(tileObject);
-                        else
-                        {
-                            int x = 0;
-                        }
                     }
                     if (ingredient.Source == TileObjectType.PartReactor && Reactor != null && Reactor.TileContainer != null)
                     {
                         tileObject = Reactor.TileContainer.GetMatchingTileObject(ingredient.TileObjectType, null);
                         if (tileObject != null)
                             Reactor.TileContainer.Remove(tileObject);
-                        else
-                        {
-                            int x = 0;
-                        }
                     }
                     if (ingredient.Source == TileObjectType.PartWeapon && Weapon != null && Weapon.TileContainer != null)
                     {
                         tileObject = Weapon.TileContainer.GetMatchingTileObject(ingredient.TileObjectType, null);
                         if (tileObject != null)
                             Weapon.TileContainer.Remove(tileObject);
-                        else
-                        {
-                            int x = 0;
-                        }
                     }
                 }
                 if (tileObject == null)
