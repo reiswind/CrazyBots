@@ -377,9 +377,9 @@ namespace Engine.Master
         public void UpdateUnitPositions(List<Move> newMoves)
         {
             CollisionCntr++;
-            if (CollisionCntr == 446)
+            if (CollisionCntr == 188)
             {
-
+                
             }
 
             List<Unit> addedUnits = new List<Unit>();
@@ -1989,8 +1989,8 @@ namespace Engine.Master
                 }*/
 
                 // Place tile objects (For Debug)
-                CreateTileObjects(1);
-                Map.GrowBio(changedGroundPositions);
+                //CreateTileObjects(1);
+                //Map.GrowBio(changedGroundPositions);
 #if DEBUG
                 Validate(lastMoves);
 #endif
@@ -2345,6 +2345,10 @@ namespace Engine.Master
                     lastMoves.Add(moveCommand);
                 }
             }
+            // Place tile objects (For Debug) and grow here, after all moves. So units cannot pick up items that grew in this move without notifing the client
+            CreateTileObjects(1);
+            Map.GrowBio(changedGroundPositions);
+
             // Add changed ground info
             AddChangedGroundInfoMoves(lastMoves);
 

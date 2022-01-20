@@ -151,6 +151,7 @@ namespace Engine.Interface
                     }
                 }
             }
+
             if (addGras)
             {
                 addObjectType = TileObjectType.Gras;

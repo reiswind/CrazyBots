@@ -713,38 +713,7 @@ namespace Engine.Master
             }
             else
             {
-                foreach (TileObject tileObject in fromTile.TileObjects)
-                {
-                    TileObjectType collectedTileObjectType;
-                    if (tileObject.TileObjectType == TileObjectType.Bush ||
-                        tileObject.TileObjectType == TileObjectType.Tree)
-                    {
-                        collectedTileObjectType = TileObjectType.Wood;
-                    }
-                    else 
-                    {
-                        if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
-                            continue;
-                        collectedTileObjectType = tileObject.TileObjectType;
-                    }
-
-                    if (Unit.IsSpaceForTileObject(collectedTileObjectType))
-                    {
-                        if (fromTile.ExtractTileObject(tileObject))
-                        {
-                            MoveRecipeIngredient indigrient = new MoveRecipeIngredient();
-                            indigrient.Count = 1;
-                            indigrient.SourcePosition = fromTile.Pos;
-                            indigrient.TargetPosition = Unit.Pos;
-                            indigrient.TileObjectType = collectedTileObjectType;
-                            indigrient.Source = TileObjectType.Ground;
-                            extractedItems.Add(indigrient);
-
-                            Unit.AddIngredient(indigrient);
-                            break;
-                        }
-                    }
-                }
+                ExtractFromGround(fromTile, extractedItems);
             }
 
             if (Unit.CurrentGameCommand != null &&
@@ -784,6 +753,42 @@ namespace Engine.Master
                 }
             }
             return didRemove;
+        }
+
+        private void ExtractFromGround(Tile fromTile, List<MoveRecipeIngredient> extractedItems)
+        {
+            foreach (TileObject tileObject in fromTile.TileObjects)
+            {
+                TileObjectType collectedTileObjectType;
+                if (tileObject.TileObjectType == TileObjectType.Bush ||
+                    tileObject.TileObjectType == TileObjectType.Tree)
+                {
+                    collectedTileObjectType = TileObjectType.Wood;
+                }
+                else
+                {
+                    if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
+                        continue;
+                    collectedTileObjectType = tileObject.TileObjectType;
+                }
+
+                if (Unit.IsSpaceForTileObject(collectedTileObjectType))
+                {
+                    if (fromTile.ExtractTileObject(tileObject))
+                    {
+                        MoveRecipeIngredient indigrient = new MoveRecipeIngredient();
+                        indigrient.Count = 1;
+                        indigrient.SourcePosition = fromTile.Pos;
+                        indigrient.TargetPosition = Unit.Pos;
+                        indigrient.TileObjectType = collectedTileObjectType;
+                        indigrient.Source = TileObjectType.Ground;
+                        extractedItems.Add(indigrient);
+
+                        Unit.AddIngredient(indigrient);
+                        break;
+                    }
+                }
+            }
         }
 
         private int ExtractFromOtherContainer(Unit unit, Unit otherUnit, Dictionary<Position2, Unit> changedUnits, List<MoveRecipeIngredient> extractedItems, int capacity)
