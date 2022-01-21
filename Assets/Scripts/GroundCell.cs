@@ -312,15 +312,14 @@ namespace Assets.Scripts
             {
                 if (Stats.MoveUpdateGroundStat.Height < 0.1f)
                 {
-                    // Beach
-                    if (ColorUtility.TryParseHtmlString("#D3B396", out color))
+                    // Beach (Depthcolor water shader)
+                    if (ColorUtility.TryParseHtmlString("#09444B", out color))
                     {
                     }
                 }
                 else
                 {
-                    // Sea
-                    //materialName = "Water";
+                    // Not called
                     if (ColorUtility.TryParseHtmlString("#278BB2", out color))
                     {
                     }
@@ -418,11 +417,11 @@ namespace Assets.Scripts
                 //materialName = "DarkSand";
                 //color = Color.red;
             }
-
+            /*
             if (Stats.MoveUpdateGroundStat.IsUnderwater)
             {
                 ColorUtility.TryParseHtmlString("#006080", out color);
-            }
+            }*/
 
             Renderer[] rr = GetComponentsInChildren<Renderer>();
             foreach (Renderer renderer in rr)
@@ -1087,23 +1086,31 @@ namespace Assets.Scripts
 
             if (init)
             {
+                if (Stats.MoveUpdateGroundStat.IsUnderwater)
+                {
+                    targetDiffuse = 1f;
+                }
                 UpdateColor();
             }
             else
             {
-                if (Visible)
+                if (Stats.MoveUpdateGroundStat.IsUnderwater)
+                {
+                    targetDiffuse = 1f;
+                }
+                else if (Visible)
                 {
                     if (VisibleByPlayer)
                         targetDiffuse = 0.8f;
                     else
                         targetDiffuse = 0.3f;
-
                 }
                 else
                 {
                     targetDiffuse = 0.1f;
-
                 }
+
+                
                 if (objectsAdded || targetDiffuse < (Diffuse - 0.03f) || targetDiffuse > (Diffuse + 0.03f))
                 {
                     StartCoroutine(UpdateColorLerp());

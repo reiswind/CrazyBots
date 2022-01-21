@@ -154,14 +154,14 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - Vector1_6B7E5011: 12
+    - Vector1_6B7E5011: 14
     - Vector1_8038E48: 100
     - Vector1_899FB8E4: 0.667
     - Vector1_8C964A08: 0.262
     - Vector1_A7B0B33A: 0.271
     - Vector1_C43B1816: 0.361
     - Vector1_C56F73E2: 0.608
-    - Vector1_CDA9B46F: 1143
+    - Vector1_CDA9B46F: 1097
     - Vector1_D401D9B3: 0.2
     - Vector1_EBCEEFC1: 130
     - _AlphaClip: 0

@@ -1975,6 +1975,11 @@ namespace Assets.Scripts
                 float height = stats.MoveUpdateGroundStat.Height;
                 gridPos3.y += height + 0.3f;
                 gameObjectCell.transform.localPosition = gridPos3;
+                
+                if (stats.MoveUpdateGroundStat.IsUnderwater)
+                {
+                    groundCell.Diffuse = 1f;
+                }
 
                 groundCell.CreateDestructables(true);
             }
