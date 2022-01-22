@@ -25,9 +25,9 @@ namespace Engine.Interface
             blueprint.Name = "Outpost";
             blueprint.Layout = "S-Outpost";
             blueprint.Parts.Add(new BlueprintPart("S-PartExtractor"));
-            blueprint.Parts.Add(new BlueprintPart("S-PartAssembler", TileObjectType.PartAssembler, 1, 4, 0));
+            blueprint.Parts.Add(new BlueprintPart("S-PartAssembler", TileObjectType.PartAssembler, 1, 0, 0));
             blueprint.Parts.Add(new BlueprintPart("S-PartContainer", 24, 6));
-            blueprint.Parts.Add(new BlueprintPart("S-PartReactor", 6, 6));
+            blueprint.Parts.Add(new BlueprintPart("S-PartReactor", 0, 6));
             Items.Add(blueprint);
 
             // Container
