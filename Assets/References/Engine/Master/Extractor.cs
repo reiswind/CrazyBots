@@ -634,7 +634,7 @@ namespace Engine.Master
                                 capacity = PickFromContainer(unit, otherUnit, changedUnits, extractedItems, capacity);
 
                                 // Remove the pickup location => deliver the items
-                                unit.CurrentGameCommand.AttachedUnit.ClearUnitId(unit.Owner.Game.Map.Units);
+                                unit.CurrentGameCommand.AttachedUnit.ClearUnitId(); // unit.Owner.Game.Map.Units);
                                 unit.CurrentGameCommand.DeliverContent = true;
                             }
                         }

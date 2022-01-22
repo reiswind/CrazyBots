@@ -72,6 +72,10 @@ namespace Engine.Master
             }
             UnitId = null;
         }
+        public void ClearUnitId()
+        {
+            UnitId = null;
+        }
         public void SetUnitId(string unitId)
         {
             if (UnitId != null && UnitId != unitId)
