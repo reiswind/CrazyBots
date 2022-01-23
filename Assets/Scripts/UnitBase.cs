@@ -332,23 +332,25 @@ namespace Assets.Scripts
                     }
                 }
             }
-
-            float timeNow = Time.time;
-            foreach (UnitBasePart unitBasePart in UnitBaseParts)
+            if (IsActive)
             {
-                if (!HasEngine() && timeNow > unitBasePart.AnimateFrom && timeNow < unitBasePart.AnimateTo)
+                float timeNow = Time.time;
+                foreach (UnitBasePart unitBasePart in UnitBaseParts)
                 {
-                    unitBasePart.Part.transform.Rotate(Vector3.up, 6);
-                }
-                if (unitBasePart.PartType == TileObjectType.PartContainer && !unitBasePart.Destroyed)
-                {
-                    //unitBasePart.Part.transform.Rotate(Vector3.up, 1 / HexGrid.MainGrid.GameSpeed);
-                }
-                if (unitBasePart.PartType == TileObjectType.PartRadar && !unitBasePart.Destroyed && unitBasePart.Level == 3)
-                {
-                    GameObject partToTurn;
-                    partToTurn = unitBasePart.Part;
-                    partToTurn.transform.Rotate(Vector3.up, 1/ HexGrid.MainGrid.GameSpeed);
+                    if (!HasEngine() && timeNow > unitBasePart.AnimateFrom && timeNow < unitBasePart.AnimateTo)
+                    {
+                        unitBasePart.Part.transform.Rotate(Vector3.up, 6);
+                    }
+                    if (unitBasePart.PartType == TileObjectType.PartContainer && !unitBasePart.Destroyed)
+                    {
+                        //unitBasePart.Part.transform.Rotate(Vector3.up, 1 / HexGrid.MainGrid.GameSpeed);
+                    }
+                    if (unitBasePart.PartType == TileObjectType.PartRadar && !unitBasePart.Destroyed && unitBasePart.Level == 3)
+                    {
+                        GameObject partToTurn;
+                        partToTurn = unitBasePart.Part;
+                        partToTurn.transform.Rotate(Vector3.up, 1 / HexGrid.MainGrid.GameSpeed);
+                    }
                 }
             }
 
@@ -1554,6 +1556,10 @@ namespace Assets.Scripts
 
         public void UpdateParts()
         {
+            if (UnitId == "unit2")
+            {
+                int x = 0;
+            }
             if (MoveUpdateStats.UnitParts != null)
             {
                 foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
@@ -1605,6 +1611,11 @@ namespace Assets.Scripts
                                     unitBasePart.TileObjectContainer = new TileObjectContainer();
 
                                 unitBasePart.TileObjectContainer.UpdateContent(this, unitBasePart.Part, tileObjects);
+
+                                if (level == moveUpdateUnitPart.CompleteLevel && tileObjects.Count != 0)
+                                {
+                                    int x = 0;
+                                }
                             }
                         }
                         else

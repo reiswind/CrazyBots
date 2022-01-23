@@ -42,6 +42,10 @@ namespace Assets.Scripts
 
         public void Fire(Move move)
         {
+            if (UnitBase.UnitId == "unit2")
+            {
+                int x = 0;
+            }
             // Reload
             foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
             {

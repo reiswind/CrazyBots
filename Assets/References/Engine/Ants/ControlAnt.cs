@@ -97,6 +97,7 @@ namespace Engine.Ants
                     if (blueprintCommand.Name == "Fighter")
                     {
                         patrolCommand = new GameCommand(blueprintCommand);
+                        patrolCommand.Priority = 0;
                         foreach (GameCommandItem gameCommandItem in patrolCommand.GameCommandItems)
                         {
                             gameCommandItem.DeleteWhenDestroyed = true;
@@ -1632,20 +1633,23 @@ namespace Engine.Ants
 
         private static int attachCounter;
 
-        private void AttachGamecommands(Player player, List<Ant> unmovedAnts, List<Move> moves)
+        private void AttachGamecommands(Player player, List<Ant> unmovedAnts, List<Move> moves, int priority)
         {
             attachCounter++;
             if (attachCounter == 126)
             {
 
             }
-            
+
             Ant bestAnt;
             int bestDistance;
 
             // Attach gamecommands to idle units
             foreach (GameCommand gameCommand in player.GameCommands)
             {
+                if (gameCommand.Priority != priority)
+                    continue;
+
                 if (gameCommand.CommandId == 33)
                 {
                 }
@@ -1921,6 +1925,11 @@ namespace Engine.Ants
                     }
                 }
             }
+            
+        }
+
+        private void RemoveCompletedCommands(Player player)
+        {
             foreach (GameCommand gameCommand in player.CompletedCommands)
             {
                 if (gameCommand.DeleteWhenFinished)
@@ -1938,7 +1947,7 @@ namespace Engine.Ants
             }
         }
 
-        private static void RemoveCompleteCommands(Player player)
+        private static void FinishCompleteCommands(Player player)
         {
             List<GameCommand> removeCommands = new List<GameCommand>();
             foreach (GameCommand gameCommand in player.GameCommands)
@@ -2568,8 +2577,10 @@ namespace Engine.Ants
                 // Sacrifice a unit
                 SacrificeAnt(player, unmovedAnts);
             }
-            RemoveCompleteCommands(player);
-            AttachGamecommands(player, unmovedAnts, moves);
+            FinishCompleteCommands(player);
+            AttachGamecommands(player, unmovedAnts, moves, 1);
+            AttachGamecommands(player, unmovedAnts, moves, 0);
+            RemoveCompletedCommands(player);
 
 #if MEASURE_TIMINGS
             timetaken = (DateTime.Now - start).TotalMilliseconds;

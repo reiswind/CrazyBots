@@ -351,7 +351,7 @@ namespace Assets.Scripts
             }
             if (!exists)
             {
-                Debug.Log("Add unit at " + groundCell.Pos + " DP: " + displayPosition);
+                //Debug.Log("Add unit at " + groundCell.Pos + " DP: " + displayPosition);
 
                 MapGameCommandItem primary = GameCommand.GameCommandItems[0];
                 MapGameCommandItem mapGameCommandItem = new MapGameCommandItem(GameCommand);
@@ -531,7 +531,7 @@ namespace Assets.Scripts
                     positionok = CanBuildAt(groundCell);
                     if (positionok)
                     {
-                        Debug.Log("addPreviewGhost: " + groundCell.Pos);
+                        //Debug.Log("addPreviewGhost: " + groundCell.Pos);
                         addPreviewGhost.IsVisible = true;
                         addPreviewGhost.CurrentPos = groundCell.Pos;
                         addPreviewGhost.PutAtCurrentPosition(true, true);
@@ -545,7 +545,7 @@ namespace Assets.Scripts
                     }
                     else
                     {
-                        Debug.Log("addPreviewGhost NO GROUND");
+                        //Debug.Log("addPreviewGhost NO GROUND");
                         addPreviewGhost.IsVisible = false;
                         addPreviewUnitMarker.SetActive(false);
                         displayPosition = Position2.Null;
@@ -725,7 +725,7 @@ namespace Assets.Scripts
                 if (HexGrid.MainGrid.GroundCells.TryGetValue(neighborPosition3.Pos, out neighbor))
                 {
 
-                    Debug.Log("Logo UpdateDirection to " + displayDirection.ToString());
+                    //Debug.Log("Logo UpdateDirection to " + displayDirection.ToString());
 
                     Command.UpdateDirection(neighbor.transform.position);
                 }
@@ -797,7 +797,7 @@ namespace Assets.Scripts
             Command = previewGameCommand.GetComponent<Command>();
             Command.CommandPreview = this;
 
-            Debug.Log("Logo points to " + displayDirection.ToString());
+            //Debug.Log("Logo points to " + displayDirection.ToString());
 
         }
         public bool IsSelected
@@ -929,7 +929,7 @@ namespace Assets.Scripts
                             UnitBase previewUnit = HexGrid.MainGrid.CreateTempUnit(blueprint, GameCommand.PlayerId);
                             
                             previewUnit.Direction = GameCommand.Direction;
-                            Debug.Log("Unit points to " + previewUnit.Direction.ToString());
+                            //Debug.Log("Unit points to " + previewUnit.Direction.ToString());
 
                             previewUnit.DectivateUnit();
                             previewUnit.transform.SetParent(HexGrid.MainGrid.transform, false);

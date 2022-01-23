@@ -283,7 +283,10 @@ namespace Engine.Master
                     return;
                 }
             }
-
+            if (Engine != null)
+            {
+                int here = 0;
+            }
             GameCommand gameCommand = new GameCommand();
             gameCommand.GameCommandType = GameCommandType.ItemRequest;
             gameCommand.Layout = "UIDelivery";

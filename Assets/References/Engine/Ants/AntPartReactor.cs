@@ -68,6 +68,10 @@ namespace Engine.Ants
         */
         public override bool Move(ControlAnt control, Player player, List<Move> moves)
         {
+            // Only for structures
+            if (Ant.Unit.Engine != null)
+                return false;
+
             if (Ant.Unit.CurrentGameCommand != null)
                 return false;
 

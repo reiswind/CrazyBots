@@ -55,7 +55,8 @@ namespace Assets.Scripts
                     }
                     HexGrid.Destroy(unitBaseTileObject.GameObject, 5);
                 }
-
+                if (unitBaseTileObject.Placeholder != null)
+                    emptyCubes.Add(unitBaseTileObject.Placeholder);
             }
             tileObjects.Clear();
         }
@@ -199,7 +200,10 @@ namespace Assets.Scripts
                     emptyCubes.Add(unitBaseTileObject.Placeholder);
                     unitBaseTileObject.Placeholder.SetActive(false);
                 }
-
+                else
+                {
+                    int x = 0;
+                }
             }
         }
     }

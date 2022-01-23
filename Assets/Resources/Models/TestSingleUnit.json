@@ -2,7 +2,7 @@
   "Name": "Test",
   "MapWidth": 2,
   "MapHeight": 2,
-  "Seedx": -206391663,
+  "Seed": 1716213553,
   "SeedUpdateNeeded": -698798745,
   "MapType": "2",
   "Players": [
@@ -76,9 +76,9 @@
       "Position": "0,1"
     },
 	{
-      "Name": "Turret",
+      "Name": "Container",
       "PlayerId": 2,
-      "Blueprint": "Turret",
+      "Blueprint": "Container",
 	  "FireAtGround": false,
 	  "EndlessAmmo": false,
 	  "EndlessPower": false,

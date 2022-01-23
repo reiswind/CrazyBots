@@ -776,6 +776,10 @@ namespace Engine.Master
             Unit fireingUnit = Map.Units.GetUnitAt(move.Positions[0]);
             if (fireingUnit != null && fireingUnit.Weapon != null && fireingUnit.Weapon.WeaponLoaded)
             {
+                if (fireingUnit.UnitId == "unit2")
+                {
+                    int x = 0;
+                }
                 MoveRecipeIngredient moveRecipeIngredient;
                 if (fireingUnit.Weapon.EndlessAmmo)
                 {
@@ -798,12 +802,14 @@ namespace Engine.Master
                     move.MoveRecipe.Ingredients.Add(moveRecipeIngredient);
                 }
                 // Result is the ammo that was used to fire
-                TileObject tileObject = fireingUnit.FindAmmoTileObject(fireingUnit.Weapon.TileContainer);
-                if (tileObject == null)
+                TileObject shellTileObject = fireingUnit.FindAmmoTileObject(fireingUnit.Weapon.TileContainer);
+                if (shellTileObject == null)
                 {
                     throw new Exception("No Ammo");
                 }
-                move.MoveRecipe.Result = tileObject.TileObjectType;
+                //TileObject tileObject = fireingUnit.Weapon.TileContainer.TileObjects[0];
+                fireingUnit.Weapon.TileContainer.Remove(shellTileObject);
+                move.MoveRecipe.Result = shellTileObject.TileObjectType;
 
                 if (!changedUnits.ContainsKey(fireingUnit.Pos))
                     changedUnits.Add(fireingUnit.Pos, fireingUnit);
@@ -811,13 +817,13 @@ namespace Engine.Master
                 // Must be before the hit moves
                 lastMoves.Add(move);
 
-                HitByBullet(move, fireingUnit, lastMoves);
+                HitByBullet(move, fireingUnit, lastMoves, shellTileObject);
                 wasSuccessful = true;
             }
             return wasSuccessful;
         }
 
-        internal void HitByBullet(Move move, Unit fireingUnit, List<Move> nextMoves)
+        internal void HitByBullet(Move move, Unit fireingUnit, List<Move> nextMoves, TileObject shellTileObject)
         {
             Position2 pos = move.Positions[move.Positions.Count - 1];
             Tile targetTile = Map.GetTile(pos);
@@ -826,8 +832,8 @@ namespace Engine.Master
             {
                 fireingUnit.ConsumeIngredient(moveRecipeIngredient, changedUnits);
             }
-            TileObject tileObject = fireingUnit.Weapon.TileContainer.TileObjects[0];
-            fireingUnit.Weapon.TileContainer.Remove(tileObject);
+            //TileObject tileObject = fireingUnit.Weapon.TileContainer.TileObjects[0];
+            //fireingUnit.Weapon.TileContainer.Remove(tileObject);
 
             foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
             {
@@ -837,7 +843,7 @@ namespace Engine.Master
                 fireingUnit.Weapon.TileContainer.Add(reloadedAmmo);
             }
 
-            targetTile.HitByBullet(tileObject);
+            targetTile.HitByBullet(shellTileObject);
 
             if (!changedGroundPositions.ContainsKey(pos))
                 changedGroundPositions.Add(pos, null);
@@ -1925,9 +1931,9 @@ namespace Engine.Master
         {
             List<Move> returnMoves = new List<Move>();
 
-            if (MoveNr == 132)
+            if (MoveNr == 63)
             {
-
+                int x = 0;                
             }
             if (myMove != null && myMove.MoveType == MoveType.UpdateAll)
             {

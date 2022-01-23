@@ -126,6 +126,12 @@ namespace Engine.Ants
                     return;
                 }
             }
+
+            if (Ant.Unit.Engine != null)
+            {
+                int here = 0;
+            }
+
             // Need something to assemble
             GameCommand gameCommand = new GameCommand();
             gameCommand.GameCommandType = GameCommandType.ItemRequest;

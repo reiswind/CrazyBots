@@ -155,11 +155,12 @@ namespace Engine.Master
         public GameCommand()
         {
             CommandId = ++staticCommandId;
-            if (CommandId == 33)
+            if (CommandId == 9)
             {
-
+                int x=0;
             }
             GameCommandItems = new List<GameCommandItem>();
+            Priority = 1;
         }
         public GameCommand(BlueprintCommand blueprintCommand)
         {
@@ -173,9 +174,11 @@ namespace Engine.Master
                 GameCommandItem gameCommandItem = new GameCommandItem(this, blueprintCommandItem);
                 GameCommandItems.Add(gameCommandItem);
             }
+            Priority = 1;
         }
 
         public int CommandId { get; set; }
+        public int Priority { get; set; }
 
         public string Layout { get; set; }
         public string BlueprintName { get; set; }
