@@ -192,11 +192,14 @@ namespace Engine.Master
         public int Radius { get; set; }
         public Direction Direction { get; set; }
         public Position2 TargetPosition { get; set; }
-        //public Position2 MoveToPosition { get; set; }
+        
         public GameCommandType GameCommandType { get; set; }
         public List<GameCommandItem> GameCommandItems { get; private set; }
         public List<RecipeIngredient> RequestedItems { get; set; }
         internal Dictionary<Position2, TileWithDistance> IncludedPositions { get; set; }
+
+        public string UnitId { get; set; }
+        public List<UnitItemOrder> UnitItemOrders { get; set; }
 
         public override string ToString()
         {

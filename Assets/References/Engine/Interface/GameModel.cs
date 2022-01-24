@@ -21,7 +21,8 @@ namespace Engine.Interface
         Build,
         AddUnits,
         Extract,
-        ItemRequest
+        ItemRequest,
+        ItemOrder
     }
 
     public enum MoveFilter

@@ -231,6 +231,13 @@ namespace Engine.Interface
 
     }
 
+    public enum TileObjectState
+    {
+        None,
+        Accept,
+        Deny
+    }
+
     public enum TileObjectType
     {
         // Groups

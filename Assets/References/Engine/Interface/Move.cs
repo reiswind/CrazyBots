@@ -227,20 +227,36 @@ namespace Engine.Interface
         }
         [DataMember(EmitDefaultValue = false)]
         public List<MoveRecipeIngredient> Ingredients { get;  set; }
+
         [DataMember(EmitDefaultValue = false)]
         public TileObjectType Result { get; set; }
     }
-
+    [DataContract]
     public class MoveUpdateStatsCommand
     {
+        [DataMember(EmitDefaultValue = false)]
         public Position2 TargetPosition { get; set; }
+        [DataMember(EmitDefaultValue = false)] 
         public GameCommandType GameCommandType { get; set; }
+        [DataMember(EmitDefaultValue = false)]
         public MapGameCommandItemUnit AttachedUnit { get; set; }
+        [DataMember(EmitDefaultValue = false)]
         public MapGameCommandItemUnit FactoryUnit { get; set; }
+        [DataMember(EmitDefaultValue = false)]
         public MapGameCommandItemUnit TargetUnit { get; set; }
+        [DataMember(EmitDefaultValue = false)]
         public MapGameCommandItemUnit TransportUnit { get; set; }
     }
+    [DataContract]
+    public class MoveUnitItemOrder
+    {
+        [DataMember]
+        public TileObjectType TileObjectType { get; set; }
+        [DataMember]
+        public TileObjectState TileObjectState { get; set; }
+    }
 
+    [DataContract]
     public class MoveUpdateStats
     {
         public MoveUpdateStats()
@@ -254,18 +270,23 @@ namespace Engine.Interface
         public List<MoveUpdateUnitPart> UnitParts { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
+        public List<MoveUnitItemOrder> MoveUnitItemOrders { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
         public MoveUpdateGroundStat MoveUpdateGroundStat { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
         public MoveUpdateStatsCommand MoveUpdateStatsCommand { get; set; }
 
-
         [DataMember]
         public bool MarkedForExtraction { get; set; }
+
         [DataMember]
         public int Power { get; set; }
+
         [DataMember]
         public int Stunned { get; set; }
+
         [DataMember]
         public Direction Direction { get; set; }
     }
@@ -329,10 +350,10 @@ namespace Engine.Interface
 
         public MapGameCommand Command { get; set; }
 
-    /// <summary>
-    /// Transfer attached command
-    /// </summary>
-    internal Master.GameCommandItem GameCommandItem { get; set; }
+        /// <summary>
+        /// Transfer attached command
+        /// </summary>
+        internal Master.GameCommandItem GameCommandItem { get; set; }
         /// <summary>
         /// Text of unit
         /// </summary>

@@ -9,22 +9,7 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts
 {
-    public class CanvasItem
-    {
-        public CanvasItem()
-        {
 
-        }
-        public TileObjectType TileObjectType { get; set; }
-        public Text Count { get; set; }
-        public GameObject State { get; set; }
-        public GameObject Icon { get; set; }
-        
-        public void SetCount(int count)
-        {
-            Count.text = count.ToString();
-        }
-    }
 
     public class GameCanvas : MonoBehaviour
     {
@@ -121,7 +106,7 @@ namespace Assets.Scripts
                 string name = transform.gameObject.name;
                 if (name.StartsWith("Item"))
                 {
-                    CanvasItem canvasItem = new CanvasItem();
+                    CanvasItem canvasItem = transform.gameObject.GetComponent<CanvasItem>();
                     if (name == "ItemMineral")                    
                         canvasItem.TileObjectType = TileObjectType.Mineral;
                     if (name == "ItemWood")
@@ -132,6 +117,13 @@ namespace Assets.Scripts
                     canvasItem.Count = transform.Find("Count").GetComponent<Text>();
                     canvasItem.State = transform.Find("State").gameObject;
                     canvasItem.Icon = transform.Find("Icon").gameObject;
+                    canvasItem.TileObjectState = TileObjectState.None;
+
+                    canvasItem.Button = transform.gameObject.GetComponent<Button>();
+                    if (canvasItem.Button != null)
+                    {
+                        canvasItem.Button.onClick.AddListener(delegate { OnClickItem(canvasItem); });
+                    }
 
                     canvasItems.Add(canvasItem);
                 }
@@ -695,6 +687,50 @@ namespace Assets.Scripts
                 else if (btn == 5)
                 {
                     AddUnitCommand("Fighter");
+                }
+            }
+        }
+
+        void OnClickItem(CanvasItem canvasItem)
+        {
+            if (canvasItem.TileObjectState == TileObjectState.None)
+            {
+                canvasItem.TileObjectState = TileObjectState.Accept;
+            }
+            else if (canvasItem.TileObjectState == TileObjectState.Accept)
+            {
+                canvasItem.TileObjectState = TileObjectState.Deny;
+            }
+            else if (canvasItem.TileObjectState == TileObjectState.Deny)
+            {
+                canvasItem.TileObjectState = TileObjectState.None;
+            }
+            canvasItem.UpdateImage();
+
+            if (selectedUnitFrame != null && selectedUnitFrame.MoveUpdateStats != null && selectedUnitFrame.MoveUpdateStats.MoveUnitItemOrders != null)
+            {
+                foreach (MoveUnitItemOrder order in selectedUnitFrame.MoveUpdateStats.MoveUnitItemOrders)
+                {
+                    if (order.TileObjectType == canvasItem.TileObjectType)
+                    {
+                        order.TileObjectState = canvasItem.TileObjectState;
+
+                        MapGameCommand gameCommand = new MapGameCommand();
+
+                        gameCommand.PlayerId = selectedUnitFrame.PlayerId;
+                        gameCommand.GameCommandType = GameCommandType.ItemOrder;
+                        gameCommand.UnitId = selectedUnitFrame.UnitId;
+                        gameCommand.MoveUnitItemOrders = new List<MoveUnitItemOrder>();
+
+                        MoveUnitItemOrder moveUnitItemOrder = new MoveUnitItemOrder();
+                        moveUnitItemOrder.TileObjectType = order.TileObjectType;
+                        moveUnitItemOrder.TileObjectState = order.TileObjectState;
+                        gameCommand.MoveUnitItemOrders.Add(moveUnitItemOrder);
+
+                        HexGrid.MainGrid.GameCommands.Add(gameCommand);
+
+                        break;
+                    }
                 }
             }
         }
@@ -1669,16 +1705,34 @@ namespace Assets.Scripts
         {
             foreach (CanvasItem canvasItem in canvasItems)
             {
+                canvasItem.TileObjectState = TileObjectState.None;
+            }
+
+            if (selectedUnitFrame != null && selectedUnitFrame.MoveUpdateStats != null && selectedUnitFrame.MoveUpdateStats.MoveUnitItemOrders != null)
+            {
+                foreach (MoveUnitItemOrder order in selectedUnitFrame.MoveUpdateStats.MoveUnitItemOrders)
+                {
+                    foreach (CanvasItem canvasItem in canvasItems)
+                    {
+                        if (canvasItem.TileObjectType == order.TileObjectType)
+                        {
+                            canvasItem.TileObjectState = order.TileObjectState;
+                        }
+                    }
+                }
+            }
+
+            foreach (CanvasItem canvasItem in canvasItems)
+            {
                 if (canvasItem.TileObjectType == TileObjectType.Mineral)
                     canvasItem.SetCount(tileCounter.Mineral);
                 if (canvasItem.TileObjectType == TileObjectType.Wood)
                     canvasItem.SetCount(tileCounter.Wood);
                 if (canvasItem.TileObjectType == TileObjectType.Stone)
                     canvasItem.SetCount(tileCounter.Stone);
-
+                canvasItem.UpdateImage();
                 canvasItem.State.SetActive(false);
             }
-            
         }
 
         private void DisplayUnitframe(UnitBase unit)

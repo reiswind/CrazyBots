@@ -2089,6 +2089,19 @@ namespace Engine.Master
                     gameCommand.Direction = mapGameCommand.Direction;
                     gameCommand.Layout = mapGameCommand.Layout;
 
+                    gameCommand.UnitId = mapGameCommand.UnitId;
+                    if (mapGameCommand.MoveUnitItemOrders != null)
+                    {
+                        gameCommand.UnitItemOrders = new List<UnitItemOrder>();
+                        foreach (MoveUnitItemOrder moveUnitItemOrder in mapGameCommand.MoveUnitItemOrders)
+                        {
+                            UnitItemOrder unitItemOrder = new UnitItemOrder();
+                            unitItemOrder.TileObjectType = moveUnitItemOrder.TileObjectType;
+                            unitItemOrder.TileObjectState = moveUnitItemOrder.TileObjectState;
+                            gameCommand.UnitItemOrders.Add(unitItemOrder);
+                        }
+                    }
+
                     if (gameCommand.Radius > 0)
                     {
                         gameCommand.IncludedPositions = Map.EnumerateTiles(gameCommand.TargetPosition, gameCommand.Radius, true);

@@ -120,6 +120,7 @@
     <Compile Include="Assets\References\Engine\Ants\AntPartWeapon.cs" />
     <Compile Include="Assets\Scripts\Command.cs" />
     <Compile Include="Assets\References\Engine\Interface\Blueprints.cs" />
+    <Compile Include="Assets\Scripts\CanvasItem.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntNetwork.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\HighResolutionTime.cs" />
     <Compile Include="Assets\References\Engine\Master\Map.cs" />
@@ -846,6 +847,9 @@
     <Reference Include="UnityEditor.UI">
       <HintPath>Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.PlasticSCM.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.PlasticSCM.Editor.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Rider.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.Rider.Editor.dll</HintPath>
     </Reference>
@@ -890,9 +894,6 @@
     </Reference>
     <Reference Include="Unity.VisualScripting.State">
       <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.State.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.PlasticSCM.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.PlasticSCM.Editor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

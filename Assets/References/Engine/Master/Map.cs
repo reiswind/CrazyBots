@@ -51,7 +51,10 @@ namespace Engine.Interface
         public Direction Direction { get; set; }
         public int PlayerId { get; set; }
         public Position2 TargetPosition { get; set; }
-        //public Position2 MoveToPosition { get; set; }
+
+        public string UnitId { get; set; }
+        public List<MoveUnitItemOrder> MoveUnitItemOrders { get; set; }
+
         public GameCommandType GameCommandType { get; set; }
 
         public List<MapGameCommandItem> GameCommandItems { get; private set; }

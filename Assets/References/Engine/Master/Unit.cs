@@ -58,12 +58,58 @@ namespace Engine.Master
 
 
     // Total Points: 4 increase with xp
+    public class UnitItemOrder
+    {
+        public TileObjectType TileObjectType { get; set; }
+        public TileObjectState TileObjectState { get; set; }
+    }
+
+    public class UnitOrders
+    {
+        public UnitOrders()
+        {
+            unitItemOrders = new List<UnitItemOrder>();
+
+            UnitItemOrder unitItemOrder;
+
+            unitItemOrder = new UnitItemOrder();
+            unitItemOrder.TileObjectType = TileObjectType.Mineral;
+            unitItemOrder.TileObjectState = TileObjectState.None;
+            unitItemOrders.Add(unitItemOrder);
+
+            unitItemOrder = new UnitItemOrder();
+            unitItemOrder.TileObjectType = TileObjectType.Wood;
+            unitItemOrder.TileObjectState = TileObjectState.None;
+            unitItemOrders.Add(unitItemOrder);
+
+            unitItemOrder = new UnitItemOrder();
+            unitItemOrder.TileObjectType = TileObjectType.Stone;
+            unitItemOrder.TileObjectState = TileObjectState.None;
+            unitItemOrders.Add(unitItemOrder);
+        }
+        public List<UnitItemOrder> unitItemOrders { get; set; }
+    }
 
     [DataContract]
     public class Unit
     {
+        public Unit(Game game, string startCode)
+        {
+            UnitOrders = new UnitOrders();
+            Game = game;
+            Pos = Position2.Null;
+            Power = 20;
+            MaxPower = 20;
+            Blueprint = game.Blueprints.FindBlueprint(startCode);
+            if (Blueprint != null)
+            {
+                UnitId = game.GetNextUnitId("unit");
+                UnderConstruction = true;
+            }
+        }
+
         private Position2 pos;
-        // Position2 before any moves have been processed
+
         public Position2 Pos
         {
             get
@@ -87,6 +133,7 @@ namespace Engine.Master
         public Reactor Reactor { get; set; }
         public Radar Radar { get; set; }
 
+        public UnitOrders UnitOrders { get; set; }
         public string UnitId { get; set; }
 
         internal GameCommandItem CurrentGameCommand { get; private set; }
@@ -283,10 +330,7 @@ namespace Engine.Master
                     return;
                 }
             }
-            if (Engine != null)
-            {
-                int here = 0;
-            }
+
             GameCommand gameCommand = new GameCommand();
             gameCommand.GameCommandType = GameCommandType.ItemRequest;
             gameCommand.Layout = "UIDelivery";
@@ -422,105 +466,7 @@ namespace Engine.Master
             }*/
             return allFound;
         }
-        /*
-        public void ClearReservations()
-        {
-            if (Assembler != null && Assembler.TileContainer != null)
-            {
-                Assembler.TileContainer.ClearReservations();
-            }
-            if (Container != null && Container.TileContainer != null)
-            {
-                Container.TileContainer.ClearReservations();
-            }
-            if (Reactor != null && Reactor.TileContainer != null)
-            {
-                Reactor.TileContainer.ClearReservations();
-            }
-            if (Weapon != null && Weapon.TileContainer != null)
-            {
-                Weapon.TileContainer.ClearReservations();
-            }
-        }
-
-        public void ReleaseReservedIngredient(MoveRecipeIngredient ingredient)
-        {
-            if (ingredient.SourcePosition == Pos)
-            {
-                if (ingredient.Source == TileObjectType.PartAssembler && Assembler != null && Assembler.TileContainer != null)
-                {
-                    Assembler.TileContainer.ReleaseReservedIngredient(ingredient.TileObjectType);
-                }
-                if (ingredient.Source == TileObjectType.PartContainer && Container != null && Container.TileContainer != null)
-                {
-                    Container.TileContainer.ReleaseReservedIngredient(ingredient.TileObjectType);
-                }
-                if (ingredient.Source == TileObjectType.PartReactor && Reactor != null && Reactor.TileContainer != null)
-                {
-                    Reactor.TileContainer.ReleaseReservedIngredient(ingredient.TileObjectType);
-                }
-                if (ingredient.Source == TileObjectType.PartWeapon && Weapon != null && Weapon.TileContainer != null)
-                {
-                    Weapon.TileContainer.ReleaseReservedIngredient(ingredient.TileObjectType);
-                }
-            }
-            else
-            {
-                Position3 position3 = new Position3(Pos);
-                foreach (Position3 n3 in position3.Neighbors)
-                {
-                    if (n3.Pos == ingredient.SourcePosition)
-                    {
-                        Tile t = Game.Map.GetTile(n3.Pos);
-                        if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id)
-                        {
-                            t.Unit.ReleaseReservedIngredient(ingredient);
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-
-        public void ReserveIngredient(MoveRecipeIngredient ingredient)
-        {
-            if (ingredient.SourcePosition == Pos)
-            {
-                if (ingredient.Source == TileObjectType.PartAssembler && Assembler != null && Assembler.TileContainer != null)
-                {
-                    Assembler.TileContainer.ReserveIngredient(ingredient.TileObjectType);
-                }
-                if (ingredient.Source == TileObjectType.PartContainer && Container != null && Container.TileContainer != null)
-                {
-                    Container.TileContainer.ReserveIngredient(ingredient.TileObjectType);
-                }
-                if (ingredient.Source == TileObjectType.PartReactor && Reactor != null && Reactor.TileContainer != null)
-                {
-                    Reactor.TileContainer.ReserveIngredient(ingredient.TileObjectType);
-                }
-                if (ingredient.Source == TileObjectType.PartWeapon && Weapon != null && Weapon.TileContainer != null)
-                {
-                    Weapon.TileContainer.ReserveIngredient(ingredient.TileObjectType);
-                }
-            }
-            else
-            {
-                Position3 position3 = new Position3(Pos);
-                foreach (Position3 n3 in position3.Neighbors)
-                {
-                    if (n3.Pos == ingredient.SourcePosition)
-                    {
-                        Tile t = Game.Map.GetTile(n3.Pos);
-                        if (t.Unit != null && t.Unit.Owner.PlayerModel.Id == Owner.PlayerModel.Id)
-                        {
-                            t.Unit.ReserveIngredient(ingredient);
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-        */
+        
         private void CollectBurnableIngredientsFromContainer (List<MoveRecipeIngredient> allIngredients, TileContainer tileContainer, TileObjectType sourceContainerType)
         {
             foreach (TileObject tileObject in tileContainer.TileObjects)
@@ -1369,20 +1315,6 @@ namespace Engine.Master
             UnderConstruction = false;
         }
 
-        public Unit(Game game, string startCode)
-        {
-            Game = game;
-            Pos = Position2.Null;
-            Power = 20;
-            MaxPower = 20;
-            Blueprint = game.Blueprints.FindBlueprint(startCode);
-            if (Blueprint != null)
-            {
-                UnitId = game.GetNextUnitId("unit");
-                UnderConstruction = true;
-            }
-        }
-
         public bool CanFill()
         {
             if (Weapon != null)
@@ -1413,8 +1345,6 @@ namespace Engine.Master
             return false;
         }
         
-
-
         public void Upgrade(Move move, TileObject tileObject)
         {
             foreach (BlueprintPart blueprintPart in Blueprint.Parts)
@@ -1531,6 +1461,16 @@ namespace Engine.Master
                 stats.MoveUpdateStatsCommand.TargetUnit.Status = CurrentGameCommand.TargetUnit.Status;
                 stats.MoveUpdateStatsCommand.TargetUnit.Alert = CurrentGameCommand.TargetUnit.Alert;
             }
+
+            stats.MoveUnitItemOrders = new List<MoveUnitItemOrder>();
+            foreach (UnitItemOrder unitItemOrder in UnitOrders.unitItemOrders)
+            {
+                MoveUnitItemOrder moveUnitItemOrder = new MoveUnitItemOrder();
+                moveUnitItemOrder.TileObjectType = unitItemOrder.TileObjectType;
+                moveUnitItemOrder.TileObjectState = unitItemOrder.TileObjectState;
+                stats.MoveUnitItemOrders.Add(moveUnitItemOrder);
+            }
+
             return stats;
         }
 
