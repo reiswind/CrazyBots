@@ -21,7 +21,7 @@
 	  "ContainedWood": 20,
 	  "ContainedStones": 20,
       "Blueprint": "Container",
-      "Position": "0,0"
+      "Position": "0,1"
     },
     {
       "Name": "Worker",

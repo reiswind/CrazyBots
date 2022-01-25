@@ -814,28 +814,15 @@ namespace Assets.Scripts
                     Move nextMove = new Move();
                     nextMove.MoveType = MoveType.None;
 
-                    if (newGameCommands != null)
-                    {
-                        foreach (MapGameCommand gameCommand in newGameCommands)
-                        {
-                            if (gameCommand.GameCommandType == GameCommandType.Move)
-                            {
-                                //UpdateMoveCommand(gameCommand);
-                            }
-                        }
-                    }
-
-                   
                     DateTime tStart = DateTime.Now;
 
                     List<Move> current = game.ProcessMove(id, nextMove, newGameCommands);
                     newGameCommands = null;
+                    //Debug.Log("ProcessMove " + moveCounter);
 
                     double mstotal = (DateTime.Now - tStart).TotalMilliseconds;
                     if (mstotal > 20)
                         Debug.Log("Move Time: " + mstotal);
-
-                    //Debug.Log("Move Time: " + (DateTime.Now.Ticks - iTicks).ToString());
 
                     if (newMoves.Count > 0)
                     {
@@ -869,13 +856,6 @@ namespace Assets.Scripts
 
         private bool startPositionSet = false;
         private int moveCounter;
-        public int MoveCounter
-        {
-            get
-            {
-                return moveCounter;
-            }
-        }
 
         private void ProcessNewMoves()
         {
@@ -1029,6 +1009,24 @@ namespace Assets.Scripts
                     }
                     else if (move.MoveType == MoveType.UpdateStats)
                     {
+                        // Check if there are outstanding commands for this unit. Since the commands are transfered async. the
+                        // stats may contain old information.
+                        foreach (MapGameCommand mapGameCommand in GameCommands)
+                        {
+                            if (mapGameCommand.GameCommandType == GameCommandType.ItemOrder && mapGameCommand.UnitId == move.UnitId)
+                            {
+                                foreach (MoveUnitItemOrder moveUnitItemOrder in move.Stats.MoveUnitItemOrders)
+                                {
+                                    foreach (MoveUnitItemOrder cmdUnitItemOrder in mapGameCommand.MoveUnitItemOrders)
+                                    {
+                                        if (moveUnitItemOrder.TileObjectType == cmdUnitItemOrder.TileObjectType)
+                                        {
+                                            moveUnitItemOrder.TileObjectState = cmdUnitItemOrder.TileObjectState;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         bool skip = false;
                         foreach (HitByBullet hitByBullet in hitByBullets)
                         {
@@ -1235,7 +1233,6 @@ namespace Assets.Scripts
                 {
                     try
                     {
-
                         DateTime tStart = DateTime.Now;
 
                         ProcessNewMoves();
@@ -1245,8 +1242,6 @@ namespace Assets.Scripts
                         newGameCommands.Clear();
                         if (GameCommands.Count > 0)
                         {
-                            Debug.Log("TransferCommands");
-
                             newGameCommands.AddRange(GameCommands);
                             GameCommands.Clear();
                         }
@@ -1358,7 +1353,6 @@ namespace Assets.Scripts
         }
         public void CommandMove(Move move)
         {
-            //Debug.Log("Command " + move.Command.TargetPosition.ToString());
             MapGameCommand gameCommand = move.Command;
 
             if (gameCommand.CommandCanceled || gameCommand.CommandComplete)
@@ -1685,7 +1679,6 @@ namespace Assets.Scripts
 
                         continue;
                     }
-                    //Debug.Log("Transit " + Time.time);
                 }
                 if (!transitObject.RigidBodyDeactivated)
                 {

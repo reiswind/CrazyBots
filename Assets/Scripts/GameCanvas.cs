@@ -1779,8 +1779,8 @@ namespace Assets.Scripts
                     }
 
                     headerSubText.text += unit.UnitId;
-                    //headerSubText.text += " Power: " + unit.MoveUpdateStats.Power;
-                    headerSubText.text += " Dir: " + unit.MoveUpdateStats.Direction;
+                    headerSubText.text += " Power: " + unit.MoveUpdateStats.Power;
+                    //headerSubText.text += " Dir: " + unit.MoveUpdateStats.Direction;
 
                     DisplayUpdateStatsCommand(unit);
 
@@ -1803,38 +1803,41 @@ namespace Assets.Scripts
                         }
                         if (part.PartType == TileObjectType.PartWeapon)
                         {
-                            //panelWeapon.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
-                            //panelWeapon.SetActive(true);
+                            panelWeapon.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                            panelWeapon.transform.Find("Content").GetComponent<Text>().text = "Ammo " + part.TileObjects.Count.ToString();
+                            panelWeapon.SetActive(true);
 
+                            /*
                             if (part.TileObjects != null)
                             {
                                 tileCounter.Add(part.TileObjects.AsReadOnly());
                                 showContainer = true;
-                            }
+                            }*/
                         }
                         if (part.PartType == TileObjectType.PartAssembler)
                         {
-                            //panelAssembler.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
-                            //panelAssembler.SetActive(true);
+                            panelAssembler.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                            panelAssembler.SetActive(true);
 
+                            /*
                             if (part.TileObjects != null)
                             {
                                 tileCounter.Add(part.TileObjects.AsReadOnly());
                                 showContainer = true;
-                            }
+                            }*/
                         }
                         if (part.PartType == TileObjectType.PartReactor)
                         {
-                            //panelReactor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                            panelReactor.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
+                            panelReactor.transform.Find("Content").GetComponent<Text>().text = "Power " + part.AvailablePower.ToString();
                             panelReactor.SetActive(true);
 
-                            panelReactor.transform.Find("Partname").GetComponent<Text>().text = "Power " + part.AvailablePower.ToString();
-
+                            /*
                             if (part.TileObjects != null)
                             {
                                 tileCounter.Add(part.TileObjects.AsReadOnly());
                                 showContainer = true;
-                            }
+                            }*/
                         }
                         if (part.PartType == TileObjectType.PartArmor)
                         {

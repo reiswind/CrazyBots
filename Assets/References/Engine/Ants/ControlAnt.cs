@@ -1989,6 +1989,7 @@ namespace Engine.Ants
                             if (unitItemOrder.TileObjectType == newUnitItemOrder.TileObjectType)
                             {
                                 unitItemOrder.TileObjectState = newUnitItemOrder.TileObjectState;
+                                break;
                             }
                         }
                     }
