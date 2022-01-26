@@ -69,12 +69,9 @@ namespace Assets.Scripts
 
                 foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
                 {
+                    lastTransitObject = Extractor.TransitIndigirent(unit, moveRecipeIngredient, delayStart);
+
                     /*
-                    GroundCell targetCell;
-                    if (!HexGrid.MainGrid.GroundCells.TryGetValue(moveRecipeIngredient.TargetPosition, out targetCell))
-                    {
-                        throw new Exception("Wrong");
-                    }*/
                     GroundCell sourceCell;
                     if (!HexGrid.MainGrid.GroundCells.TryGetValue(moveRecipeIngredient.SourcePosition, out sourceCell))
                     {
@@ -88,7 +85,7 @@ namespace Assets.Scripts
                     else
                     {
                         lastTransitObject = ExtractFromStructureToStructure(unit, otherUnit, ref delayStart, moveRecipeIngredient, sourceCell);
-                    }
+                    }*/
                     delayStart += 0.01f;
                 }
                 if (lastTransitObject != null)
@@ -96,6 +93,30 @@ namespace Assets.Scripts
                     lastTransitObject.UnitId = unit.UnitId;
                 }
             }
+        }
+
+        public static TransitObject TransitIndigirent(UnitBase unit, MoveRecipeIngredient moveRecipeIngredient, float delayStart)
+        {
+            GroundCell sourceCell;
+            if (!HexGrid.MainGrid.GroundCells.TryGetValue(moveRecipeIngredient.SourcePosition, out sourceCell))
+            {
+                throw new Exception("Wrong");            
+            }
+            UnitBase otherUnit = null;
+            if (moveRecipeIngredient.SourcePosition != unit.CurrentPos)
+            {
+                otherUnit = sourceCell.FindUnit();
+            }
+            TransitObject transitObject;
+            if (otherUnit == null)
+            {
+                transitObject = ExtractFromGroundIntoStructure(moveRecipeIngredient, sourceCell, unit, delayStart);
+            }
+            else
+            {
+                transitObject = ExtractFromStructureToStructure(unit, otherUnit, ref delayStart, moveRecipeIngredient, sourceCell);
+            }
+            return transitObject;
         }
 
         private static TransitObject ExtractFromStructureToStructure(UnitBase unit, UnitBase otherUnit, ref float delayStart, MoveRecipeIngredient moveRecipeIngredient, GroundCell sourceCell)

@@ -21,6 +21,7 @@ namespace Engine.Master
 
         public override string Name { get { return "Reactor"; } }
         public int AvailablePower { get; set; }
+
         public int StoredPower
         {
             get
@@ -33,6 +34,7 @@ namespace Engine.Master
                         storedPower += TileObject.GetPowerForTileObjectType(tileObject.TileObjectType);
                     }
                 }
+                /*
                 if (Unit.Assembler != null && Unit.Assembler.TileContainer != null)
                 {
                     foreach (TileObject tileObject in Unit.Assembler.TileContainer.TileObjects)
@@ -50,7 +52,7 @@ namespace Engine.Master
                 foreach (TileObject tileObject in TileContainer.TileObjects)
                 {
                     storedPower += TileObject.GetPowerForTileObjectType(tileObject.TileObjectType);
-                }
+                }*/
                 return storedPower;
             }
         }
@@ -75,6 +77,7 @@ namespace Engine.Master
 
                     // Animation missing, no move
                     Unit.Changed = true;
+                    moveRecipeIngredient.TargetPosition = Unit.Pos;
 
                     TileObject tileObject = Unit.ConsumeIngredient(moveRecipeIngredient, changedUnits);
                     if (tileObject != null)

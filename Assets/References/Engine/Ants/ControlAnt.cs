@@ -330,7 +330,7 @@ namespace Engine.Ants
                     PheromoneDeposit pheromoneDeposit;
                     if (staticReactorDeposits.TryGetValue(pos, out pheromoneDeposit))
                     {
-                        if (ant.Unit.Reactor.StoredPower > 0)
+                        if (ant.Unit.Reactor.AvailablePower > 0)
                         {
                             deposits.Remove(pos);
 
@@ -344,7 +344,7 @@ namespace Engine.Ants
                     }
                     else
                     {
-                        if (ant.Unit.Reactor.StoredPower > 0)
+                        if (ant.Unit.Reactor.AvailablePower > 0)
                         {
                             pheromoneDeposit = new PheromoneDeposit();
                             pheromoneDeposit.Intensitiy = intensity;

@@ -775,9 +775,14 @@ namespace Assets.Scripts
                 {
                     if (unitBasePart.PartType == TileObjectType.PartReactor && !unitBasePart.Destroyed)
                     {
+                        float delayStart = 0;
                         foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
                         {
+                            Extractor.TransitIndigirent(this, moveRecipeIngredient, delayStart);
+                            delayStart += 0.01f;
+
                             // Transit the ingredient into the weapon. This is the reloaded ammo. (Can be empty)
+                            /*
                             UnitBaseTileObject unitBaseTileObject;
                             unitBaseTileObject = RemoveTileObject(moveRecipeIngredient);
                             if (unitBaseTileObject != null)
@@ -790,12 +795,12 @@ namespace Assets.Scripts
 
                                 unitBaseTileObject.GameObject = null;
                                 HexGrid.MainGrid.AddTransitTileObject(transitObject);
-                            }
+                            }*/
                         }
 
                         TileObjectType tileObjectType = move.MoveRecipe.Ingredients[0].TileObjectType;
 
-                        GameObject gameObject = null;
+                        GameObject gameObject;
                         if (tileObjectType == TileObjectType.Mineral)
                         {
                             gameObject = HexGrid.Instantiate(HexGrid.MainGrid.ReactorBurnMineral, unitBasePart.Part.transform);
@@ -1050,62 +1055,48 @@ namespace Assets.Scripts
             }
             else
             {
-                UnitBasePart unitBasePart = null;
-                foreach (UnitBasePart part in UnitBaseParts)
+                foreach (UnitBasePart unitBasePart in UnitBaseParts)
                 {
-                    if (moveRecipeIngredient.Source == part.PartType)
+                    if (moveRecipeIngredient.Source == unitBasePart.PartType)
                     {
-                        if (unitBasePart == null)
-                            unitBasePart = part;
+                        if (TileObject.CanConvertTileObjectIntoMineral(moveRecipeIngredient.TileObjectType))
+                        {
+                            // Hide the part
+                            UnitBaseTileObject unitBaseTileObject = new UnitBaseTileObject();
+
+                            unitBaseTileObject.TileObject = new TileObject();
+                            unitBaseTileObject.TileObject.TileObjectType = TileObjectType.Mineral;
+                            unitBaseTileObject.TileObject.Direction = Direction.C;
+                            unitBaseTileObject.CollectionType = CollectionType.Single;
+
+                            unitBaseTileObject.GameObject = HexGrid.Instantiate(unitBasePart.Part, transform);
+                            unitBasePart.Part.SetActive(false);
+
+                            return unitBaseTileObject;
+                        }
                         else
                         {
-                            if (unitBasePart.Level < part.Level)
+                            if (unitBasePart.TileObjectContainer == null)
                             {
-                                unitBasePart = part;
+                                // Happend. Destroyed?
                             }
-                        }
-                    }
-                }
-
-                if (unitBasePart != null)
-                {
-                    if (TileObject.CanConvertTileObjectIntoMineral(moveRecipeIngredient.TileObjectType))
-                    {
-                        // Hide the part
-                        UnitBaseTileObject unitBaseTileObject = new UnitBaseTileObject();
-
-                        unitBaseTileObject.TileObject = new TileObject();
-                        unitBaseTileObject.TileObject.TileObjectType = TileObjectType.Mineral;
-                        unitBaseTileObject.TileObject.Direction = Direction.C;
-                        unitBaseTileObject.CollectionType = CollectionType.Single;
-
-                        unitBaseTileObject.GameObject = HexGrid.Instantiate(unitBasePart.Part, transform);
-                        unitBasePart.Part.SetActive(false);
-
-                        return unitBaseTileObject;
-                    }
-                    else
-                    {
-                        if (unitBasePart.TileObjectContainer == null)
-                        {
-                            // Happend. Destroyed?
-                        }
-                        else
-                        {
-                            // From Container
-                            foreach (UnitBaseTileObject unitBaseTileObject in unitBasePart.TileObjectContainer.TileObjects)
+                            else
                             {
-                                if (unitBaseTileObject.TileObject.TileObjectType == moveRecipeIngredient.TileObjectType &&
-                                    unitBaseTileObject.GameObject != null)
+                                // From Container
+                                foreach (UnitBaseTileObject unitBaseTileObject in unitBasePart.TileObjectContainer.TileObjects)
                                 {
-                                    unitBasePart.TileObjectContainer.Remove(unitBaseTileObject);
-                                    return unitBaseTileObject;
+                                    if (unitBaseTileObject.TileObject.TileObjectType == moveRecipeIngredient.TileObjectType &&
+                                        unitBaseTileObject.GameObject != null)
+                                    {
+                                        unitBasePart.TileObjectContainer.Remove(unitBaseTileObject);
+                                        return unitBaseTileObject;
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }            
+            }
             return null;
         }
 

@@ -1462,7 +1462,7 @@ namespace Engine.Master
 
             // Collect the total out power of all reactors
             int totalAvailablePower = 0;
-            int totalStoredPower = 0;
+            //int totalStoredPower = 0;
             foreach (Unit reactor in reactors)
             {
                 // Max output of one reactor
@@ -1471,7 +1471,7 @@ namespace Engine.Master
                 else
                     totalAvailablePower += reactor.Reactor.AvailablePower;
 
-                totalStoredPower += reactor.Reactor.StoredPower;
+                //totalStoredPower += reactor.Reactor.StoredPower;
             }
 
             int availablePower = totalAvailablePower;
@@ -1578,7 +1578,7 @@ namespace Engine.Master
                 if (totalPowerRemoved == 0)
                     mapPlayerInfo.PowerOutInTurns = 9999;
                 else
-                    mapPlayerInfo.PowerOutInTurns = totalStoredPower / (totalPowerRemoved + totalPowerMissing);
+                    mapPlayerInfo.PowerOutInTurns = totalAvailablePower / (totalPowerRemoved + totalPowerMissing);
                 if (totalAvailablePower > 0)
                 {
                     mapPlayerInfo.TotalPower = ((totalPowerRemoved + totalPowerMissing) * 100) / totalAvailablePower;
