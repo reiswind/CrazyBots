@@ -28,9 +28,6 @@ namespace Engine.Master
         public Assembler(Unit owner, int level) : base(owner, TileObjectType.PartAssembler)
         {
             Level = level;
-            TileContainer = new TileContainer();
-            TileContainer.Capacity = 4;
-            TileContainer.AcceptedTileObjectTypes = TileObjectType.Mineral;
         }
 
         /// <summary>

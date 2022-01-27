@@ -79,8 +79,8 @@ namespace Engine.Ants
 
             if (moveRecipeIngredient == null)
             {
-                // Need something to burn!
-                Ant.Unit.DeliveryRequest(TileObjectType.Burn, Reactor.TileContainer.Capacity);                
+                // Need something to burn.
+                //Ant.Unit.DeliveryRequest(TileObjectType.Burn, Reactor.TileContainer.Capacity);                
             }
             /*
             if (Reactor.TileContainer.Count < Reactor.TileContainer.Capacity)

@@ -13,10 +13,6 @@ namespace Engine.Master
         {
             this.range = range;
             Level = level;
-
-            TileContainer = new TileContainer();
-            TileContainer.Capacity = 4;
-            TileContainer.AcceptedTileObjectTypes = TileObjectType.Burn;
         }
 
         public override string Name { get { return "Reactor"; } }

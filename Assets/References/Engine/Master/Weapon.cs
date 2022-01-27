@@ -26,7 +26,6 @@ namespace Engine.Master
                 TileContainer.Capacity = 3;
             else if (level == 3)
                 TileContainer.Capacity = 6;
-            TileContainer.AcceptedTileObjectTypes = TileObjectType.Ammo;
 
             Level = level;
         }

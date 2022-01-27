@@ -12,7 +12,6 @@ namespace Engine.Interface
     {
         public TileContainer()
         {
-            AcceptedTileObjectTypes = TileObjectType.All;
             tileObjects = new List<TileObject>();
         }
 
@@ -45,6 +44,20 @@ namespace Engine.Interface
             {
                 return tileObjects.Count;
             }
+        }
+
+        public int CountTileObjects(TileObjectType tileObjectType)
+        {
+            int count = 0;
+            foreach (TileObject tileObject in tileObjects)
+            {
+                if (tileObjectType == TileObjectType.All ||
+                    tileObjectType == tileObject.TileObjectType)
+                {
+                    count++;
+                }
+            }
+            return count;
         }
         /*
         private List<TileObjectType> reservedTileObjectTypes = new List<TileObjectType>();
@@ -131,17 +144,13 @@ namespace Engine.Interface
                     throw new Exception();
                 }
             }
-            if (!Accepts(tileObject))
-            {
-                throw new Exception("Wrong tile type");
-            }
             tileObjects.Add(tileObject);
         }
         public void Remove(TileObject tileObject)
         {
             tileObjects.Remove(tileObject);
         }
-
+        /*
         public bool Accepts(MoveRecipeIngredient realIndigrient)
         {
             return Accepts(realIndigrient.TileObjectType);
@@ -169,7 +178,7 @@ namespace Engine.Interface
 
             return false;
         }
-
+        */
         public TileObject RemoveTileObject(TileObjectType tileObjectType)
         {
             foreach (TileObject tileObject in tileObjects)
@@ -182,7 +191,7 @@ namespace Engine.Interface
             }
             return null;
         }
-
+        /*
         public TileObject RemoveTileObjectIfFits(Unit targetUnit)
         {
             foreach (TileObject tileObject in tileObjects)
@@ -194,7 +203,7 @@ namespace Engine.Interface
                 }
             }
             return null;
-        }
+        }*/
 
         public void CreateMinerals(int capacity)
         {
@@ -216,7 +225,7 @@ namespace Engine.Interface
         }
 
         public int Capacity { get; set; }
-        public TileObjectType AcceptedTileObjectTypes { get; set; }
+        //public TileObjectType AcceptedTileObjectTypes { get; set; }
     }
 
 

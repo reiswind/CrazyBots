@@ -180,8 +180,8 @@ namespace Engine.Ants
                 }
                 if (Assembler.Unit.CurrentGameCommand == null)
                 {
-                    // Need something to assemble
-                    RequestIngredientsForUnit(player);
+                    // Delivery requst not by assembler!
+                    //RequestIngredientsForUnit(player);
                 }
                 // Cannot build a unit, no mins
                 return false;
@@ -278,12 +278,12 @@ namespace Engine.Ants
                     }
                     else
                     {
-                        // Need something to assemble (careful, this reserves the indigrients for this move)
+                        // Need something to assemble
                         if (!Ant.Unit.AreAllIngredientsAvailable(player.Game.RecipeForAnyUnit.Ingredients))
                         {
                             if (Ant.AntPartEngine == null)
                             {
-                                RequestIngredientsForUnit(player);
+                                //RequestIngredientsForUnit(player);
                             }
                             return false;
                         }

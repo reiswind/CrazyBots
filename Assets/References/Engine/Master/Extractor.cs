@@ -571,7 +571,7 @@ namespace Engine.Master
             if (otherUnit != null)
             {
                 int capacity = Unit.CountCapacity();
-                int minsInContainer = Unit.CountTileObjectsInContainer();
+                int minsInContainer = Unit.CountTileObjectsInContainer(TileObjectType.All);
                 capacity -= minsInContainer;
 
                 if (otherUnit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
@@ -790,17 +790,118 @@ namespace Engine.Master
                 }
             }
         }
+        private int TransferTileObjects(Unit otherUnit, Dictionary<Position2, Unit> changedUnits, List<MoveRecipeIngredient> extractedItems, UnitItemOrder pullItemOrder, int capacity, List<TileObject> excludeTileObjects)
+        {
+            while (capacity > 0 && extractedItems.Count < 12) // 12 max transfer
+            {
+                // ok, give it all to the other container
+                MoveRecipeIngredient realIndigrient = null;
+                realIndigrient = otherUnit.FindIngredient(pullItemOrder.TileObjectType, false, excludeTileObjects);
+                if (realIndigrient == null) break;
+
+                otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
+                capacity--;
+
+                Unit.AddIngredient(realIndigrient);
+
+                if (!changedUnits.ContainsKey(Unit.Pos))
+                    changedUnits.Add(Unit.Pos, Unit);
+
+                realIndigrient.TargetPosition = Unit.Pos;
+                extractedItems.Add(realIndigrient);
+            }
+
+            return capacity;
+        }
+
+        private int PullFromOtherContainer(Unit unit, Unit otherUnit, Dictionary<Position2, Unit> changedUnits, 
+            List<MoveRecipeIngredient> extractedItems, UnitItemOrder pullItemOrder, int capacity)
+        {
+            List<TileObject> excludeTileObjects = new List<TileObject>();
+            foreach (UnitItemOrder unitItemOrder in otherUnit.UnitOrders.unitItemOrders)
+            {
+                if (unitItemOrder.TileObjectType == pullItemOrder.TileObjectType)
+                {
+                    if (unitItemOrder.TileObjectState == pullItemOrder.TileObjectState)
+                    {
+                        BalanceWithOtherContainer(unit, otherUnit, changedUnits, extractedItems, pullItemOrder, capacity);
+                    }
+                    else if (unitItemOrder.TileObjectState == TileObjectState.None || unitItemOrder.TileObjectState == TileObjectState.Deny)
+                    {
+                        capacity = TransferTileObjects(otherUnit, changedUnits, extractedItems, pullItemOrder, capacity, excludeTileObjects);
+                    }
+                }
+            }
+            return capacity;
+        }
+
+        private int BalanceWithOtherContainer(Unit unit, Unit otherUnit, Dictionary<Position2, Unit> changedUnits,
+            List<MoveRecipeIngredient> extractedItems, UnitItemOrder pullItemOrder, int capacity)
+        {
+            List<TileObject> excludeTileObjects = new List<TileObject>();
+            foreach (UnitItemOrder unitItemOrder in otherUnit.UnitOrders.unitItemOrders)
+            {
+                if (unitItemOrder.TileObjectType == pullItemOrder.TileObjectType)
+                {
+                    if (unitItemOrder.TileObjectState == TileObjectState.Deny)
+                    {
+                        // Transfer all 
+                        capacity = TransferTileObjects(otherUnit, changedUnits, extractedItems, pullItemOrder, capacity, excludeTileObjects);
+                    }
+                    else if (unitItemOrder.TileObjectState == TileObjectState.None ||
+                        unitItemOrder.TileObjectState == pullItemOrder.TileObjectState)
+                    {
+                        // Balance the content
+                        int countInUnit = unit.CountTileObjectsInContainer(pullItemOrder.TileObjectType);
+                        int countInOtherUnit = otherUnit.CountTileObjectsInContainer(pullItemOrder.TileObjectType);
+
+                        if (countInOtherUnit > countInUnit)
+                        {
+                            int transfer = ((countInOtherUnit + countInUnit) / 2) - countInUnit;
+                            if (transfer > capacity)
+                                transfer = capacity;
+                            if (transfer > 0)
+                            {
+                                capacity -= TransferTileObjects(otherUnit, changedUnits, extractedItems, pullItemOrder, transfer, excludeTileObjects);
+                            }
+                        }
+                    }
+                }
+            }
+            return capacity;
+        }
 
         private int ExtractFromOtherContainer(Unit unit, Unit otherUnit, Dictionary<Position2, Unit> changedUnits, List<MoveRecipeIngredient> extractedItems, int capacity)
         {
+            /*
             TileCounter sourceCounter = new TileCounter();
             sourceCounter.Update(otherUnit.Container.TileContainer.TileObjects);
 
             TileCounter targetCounter = new TileCounter();
             targetCounter.Update(unit.Container.TileContainer.TileObjects);
+            */
+            foreach (UnitItemOrder unitItemOrder in unit.UnitOrders.unitItemOrders)
+            {
+                if (unitItemOrder.TileObjectState == TileObjectState.None)
+                {
+                    // Dont care
+                    capacity = BalanceWithOtherContainer(unit, otherUnit, changedUnits, extractedItems, unitItemOrder, capacity);
+                }
+                if (unitItemOrder.TileObjectState == TileObjectState.Deny)
+                {
+                    // Push it to other container
+                    continue;
+                }
+                if (unitItemOrder.TileObjectState == TileObjectState.Accept)
+                {
+                    // Pull it from other container
+                    capacity = PullFromOtherContainer(unit, otherUnit, changedUnits, extractedItems, unitItemOrder, capacity);
+                }
+            }
+
 
             //BalanceObjects(TileObjectType.Mineral);
-
+            /*
             int maxTransfer = 12;
             int transferMinerals;
             if (sourceCounter.Mineral - 1 > targetCounter.Mineral)
@@ -843,7 +944,7 @@ namespace Engine.Master
                 maxTransfer -= transferWood;
 
                 capacity = TransferObjects(transferWood, TileObjectType.Wood, otherUnit, changedUnits, extractedItems, capacity);
-            }
+            }*/
             return capacity;
         }
 

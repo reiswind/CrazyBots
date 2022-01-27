@@ -169,13 +169,13 @@ namespace Engine.Master
                 unitModel.ContainedWood.HasValue ||
                 unitModel.ContainedStones.HasValue)
             {
-                if (thisUnit.Container != null)
+                if (thisUnit.Container != null && thisUnit.Container.TileContainer != null)
                     thisUnit.Container.TileContainer.Clear();
-                if (thisUnit.Weapon != null)
+                if (thisUnit.Weapon != null && thisUnit.Weapon.TileContainer != null)
                     thisUnit.Weapon.TileContainer.Clear();
-                if (thisUnit.Reactor != null)
+                if (thisUnit.Reactor != null && thisUnit.Reactor.TileContainer != null)
                     thisUnit.Reactor.TileContainer.Clear();
-                if (thisUnit.Assembler != null)
+                if (thisUnit.Assembler != null && thisUnit.Assembler.TileContainer != null)
                     thisUnit.Assembler.TileContainer.Clear();
 
                 if (unitModel.ContainedMinerals.HasValue)
@@ -189,6 +189,16 @@ namespace Engine.Master
                 thisUnit.Direction = Direction.C;
             else if (unitModel.Direction == "SW")
                 thisUnit.Direction = Direction.SW;
+            else if (unitModel.Direction == "SE")
+                thisUnit.Direction = Direction.SE;
+            else if (unitModel.Direction == "S")
+                thisUnit.Direction = Direction.S;
+            else if (unitModel.Direction == "NW")
+                thisUnit.Direction = Direction.NW;
+            else if (unitModel.Direction == "NE")
+                thisUnit.Direction = Direction.NE;
+            else if (unitModel.Direction == "N")
+                thisUnit.Direction = Direction.N;
         }
 
         public void StartWithFactory(List<Move> newMoves)

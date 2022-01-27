@@ -103,10 +103,11 @@ namespace Assets.Scripts
                 throw new Exception("Wrong");            
             }
             UnitBase otherUnit = null;
-            if (moveRecipeIngredient.SourcePosition != unit.CurrentPos)
-            {
+
+            // Check if source is unitpart, if so, get the unit
+            if (TileObject.CanConvertTileObjectIntoMineral(moveRecipeIngredient.Source))
                 otherUnit = sourceCell.FindUnit();
-            }
+            
             TransitObject transitObject;
             if (otherUnit == null)
             {

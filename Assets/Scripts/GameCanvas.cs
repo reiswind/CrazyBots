@@ -9,8 +9,6 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts
 {
-
-
     public class GameCanvas : MonoBehaviour
     {
         public Button ButtonFaster;
@@ -1485,7 +1483,6 @@ namespace Assets.Scripts
                             }
                             else
                             {
-                                //highlightedCommandPreview.SetHighlighted(false);
                                 highlightedCommandPreview.SetActive(false);
                             }
                         }
@@ -1494,21 +1491,16 @@ namespace Assets.Scripts
 
                     if (hitByMouseClick.UnitBase != null)
                     {
-                        //HighlightUnitFrame(hitByMouseClick.UnitBase);
                         DisplayUnitframe(hitByMouseClick.UnitBase);
                     }
                     else
                     {
-                        //UnHighlightUnitFrame();
                         DisplayGameCommand(highlightedCommandPreview);
                     }
                 }
                 else if (hitByMouseClick.UnitBase != null)
                 {
                     HideAllParts();
-                    //UnSelectGroundCell();
-                    //HighlightUnitFrame(hitByMouseClick.UnitBase);
-                    //UnHighlightGameCommand();
                     DisplayUnitframe(hitByMouseClick.UnitBase);
                 }
                 else if (hitByMouseClick.GroundCell != null)
@@ -1625,7 +1617,7 @@ namespace Assets.Scripts
 
             panelContainer.transform.Find("Partname").GetComponent<Text>().text = "Resources";
             panelContainer.SetActive(true);
-            UpdateContainer(groundCell.TileCounter);
+            UpdateContainer(groundCell.TileCounter, null);
         }
 
         private void DisplayGameCommand(CommandPreview commandPreview)
@@ -1673,7 +1665,7 @@ namespace Assets.Scripts
 
                 panelContainer.transform.Find("Partname").GetComponent<Text>().text = "Resources";
                 panelContainer.SetActive(true);
-                UpdateContainer(tileCounter);
+                UpdateContainer(tileCounter, null);
             }
             else
             {
@@ -1701,16 +1693,16 @@ namespace Assets.Scripts
             }*/
         }
 
-        private void UpdateContainer(TileCounter tileCounter)
+        private void UpdateContainer(TileCounter tileCounter, UnitBase unitBase)
         {
             foreach (CanvasItem canvasItem in canvasItems)
             {
                 canvasItem.TileObjectState = TileObjectState.None;
             }
 
-            if (selectedUnitFrame != null && selectedUnitFrame.MoveUpdateStats != null && selectedUnitFrame.MoveUpdateStats.MoveUnitItemOrders != null)
+            if (unitBase != null && unitBase.MoveUpdateStats != null && unitBase.MoveUpdateStats.MoveUnitItemOrders != null)
             {
-                foreach (MoveUnitItemOrder order in selectedUnitFrame.MoveUpdateStats.MoveUnitItemOrders)
+                foreach (MoveUnitItemOrder order in unitBase.MoveUpdateStats.MoveUnitItemOrders)
                 {
                     foreach (CanvasItem canvasItem in canvasItems)
                     {
@@ -1873,11 +1865,7 @@ namespace Assets.Scripts
             {
                 panelContainer.transform.Find("Partname").GetComponent<Text>().text = "Container";
                 panelContainer.SetActive(true);
-                UpdateContainer(tileCounter);
-            }
-            else
-            {
-
+                UpdateContainer(tileCounter, unit);
             }
 
             if (unit.CurrentPos != Position2.Null)

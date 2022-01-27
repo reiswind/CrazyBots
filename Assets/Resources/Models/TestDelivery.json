@@ -23,6 +23,15 @@
       "Blueprint": "Container",
       "Position": "2,1"
     },
+	{
+      "Name": "Container",
+      "PlayerId": 1,
+	  "ContainedMinerals": 0,
+	  "ContainedWood": 0,
+	  "ContainedStones": 0,
+      "Blueprint": "Container",
+      "Position": "1,1"
+    },
     {
       "Name": "Worker",
       "PlayerId": 1,
@@ -47,6 +56,15 @@
       "ContainedMineralsx": 0,
       "Blueprint": "Turret",
       "Position": "2,4"
+    },
+	{
+      "Name": "Container",
+      "PlayerId": 1,
+	  "ContainedMinerals": 20,
+	  "ContainedWood": 0,
+	  "ContainedStones": 0,
+      "Blueprint": "Container",
+      "Position": "0,-1"
     },
     {
       "Name": "Factory",

@@ -767,6 +767,8 @@ namespace Engine.Master
             tileObject.TileObjectKind = ingredient.TileObjectKind;
             tileObject.Direction = Direction.C;
 
+            int asdfgsdgfsdfg = 0;
+            /*
             if (Reactor != null && Reactor.TileContainer != null &&
                 Reactor.TileContainer.Count < Reactor.TileContainer.Capacity &&
                 Reactor.TileContainer.Accepts(tileObject))
@@ -790,7 +792,7 @@ namespace Engine.Master
                 Weapon.TileContainer.Accepts(tileObject))
             {
                 return true;
-            }
+            }*/
             return false;
         }
 
@@ -802,29 +804,25 @@ namespace Engine.Master
             tileObject.Direction = Direction.C;
 
             if (Reactor != null && Reactor.TileContainer != null &&
-                Reactor.TileContainer.Count < Reactor.TileContainer.Capacity &&
-                Reactor.TileContainer.Accepts(tileObject))
+                Reactor.TileContainer.Count < Reactor.TileContainer.Capacity)
             {
                 ingredient.Target = TileObjectType.PartReactor;
                 Reactor.TileContainer.Add(tileObject);
             }
             else if (Assembler != null && Assembler.TileContainer != null &&
-                Assembler.TileContainer.Count < Assembler.TileContainer.Capacity &&
-                Assembler.TileContainer.Accepts(tileObject))
+                Assembler.TileContainer.Count < Assembler.TileContainer.Capacity)
             {
                 ingredient.Target = TileObjectType.PartAssembler;
                 Assembler.TileContainer.Add(tileObject);
             }
             else if (Container != null && Container.TileContainer != null &&
-                Container.TileContainer.Count < Container.TileContainer.Capacity && 
-                Container.TileContainer.Accepts(tileObject))
+                Container.TileContainer.Count < Container.TileContainer.Capacity)
             {
                 ingredient.Target = TileObjectType.PartContainer;
                 Container.TileContainer.Add(tileObject);
             }
             else if (Weapon != null && Weapon.TileContainer != null &&
-                Weapon.TileContainer.Count < Weapon.TileContainer.Capacity &&
-                Weapon.TileContainer.Accepts(tileObject))
+                Weapon.TileContainer.Count < Weapon.TileContainer.Capacity)
             {
                 ingredient.Target = TileObjectType.PartWeapon;
                 Weapon.TileContainer.Add(tileObject);
@@ -1037,30 +1035,31 @@ namespace Engine.Master
             return metal;
         }
 
-        public int CountTileObjectsInContainer()
+        public int CountTileObjectsInContainer(TileObjectType tileObjectType)
         {
-            int metal = 0;
+            int count = 0;
 
-            if (Container != null) 
-                metal += Container.TileContainer.Count;
-
+            if (Container != null)
+            {
+                count += Container.TileContainer.CountTileObjects(tileObjectType);
+            }
             if (Weapon != null)
             {
                 if (Weapon.TileContainer != null)
-                    metal += Weapon.TileContainer.Count;
+                    count += Weapon.TileContainer.CountTileObjects(tileObjectType);
             }
             if (Assembler != null)
             {
                 if (Assembler.TileContainer != null)
-                    metal += Assembler.TileContainer.Count;
+                    count += Assembler.TileContainer.CountTileObjects(tileObjectType);
             }
             if (Reactor != null)
             {
                 if (Reactor.TileContainer != null)
-                    metal += Reactor.TileContainer.Count;
+                    count += Reactor.TileContainer.CountTileObjects(tileObjectType);
             }
 
-            return metal;
+            return count;
         }
 
         public int CountCapacity()
@@ -1169,9 +1168,9 @@ namespace Engine.Master
                 if (Assembler == null)
                 {
                     Assembler = new Assembler(this, 1);
-                    if (blueprintPart.Capacity.HasValue)
+                    if (blueprintPart.Capacity.HasValue && blueprintPart.Capacity.Value > 0)
                         Assembler.TileContainer.Capacity = blueprintPart.Capacity.Value;
-                    if (fillContainer)
+                    if (fillContainer && Assembler.TileContainer != null)
                     {
                         Assembler.TileContainer.CreateMinerals(Assembler.TileContainer.Capacity);
                     }
@@ -1185,9 +1184,9 @@ namespace Engine.Master
                 if (Weapon == null)
                 {
                     Weapon = new Weapon(this, 1, blueprintPart.Range);
-                    if (blueprintPart.Capacity.HasValue)
+                    if (blueprintPart.Capacity.HasValue && blueprintPart.Capacity.Value > 0)
                         Weapon.TileContainer.Capacity = blueprintPart.Capacity.Value;
-                    if (fillContainer)
+                    if (fillContainer && Weapon.TileContainer != null)
                     {
                         Weapon.TileContainer.CreateMinerals(Weapon.TileContainer.Capacity);
                     }
@@ -1202,9 +1201,9 @@ namespace Engine.Master
                 if (Container == null)
                 {
                     Container = new Container(this, 1, blueprintPart.Range);
-                    if (blueprintPart.Capacity.HasValue)
+                    if (blueprintPart.Capacity.HasValue && blueprintPart.Capacity.Value > 0)
                         Container.TileContainer.Capacity = blueprintPart.Capacity.Value;
-                    if (fillContainer)
+                    if (fillContainer && Container.TileContainer != null)
                     {
                         // TESTEXTRACT
                         if (Container.TileContainer.Capacity < 20)
@@ -1225,9 +1224,9 @@ namespace Engine.Master
                 if (Reactor == null)
                 {
                     Reactor = new Reactor(this, 1, blueprintPart.Range);
-                    if (blueprintPart.Capacity.HasValue)
+                    if (blueprintPart.Capacity.HasValue && blueprintPart.Capacity.Value > 0)
                         Reactor.TileContainer.Capacity = blueprintPart.Capacity.Value;
-                    if (fillContainer)
+                    if (fillContainer && Reactor.TileContainer != null)
                     {
                         Reactor.TileContainer.CreateMinerals(Reactor.TileContainer.Capacity);
                     }
@@ -1389,27 +1388,39 @@ namespace Engine.Master
                 if (blueprintPart.PartType == TileObjectType.PartWeapon && Weapon != null)
                 {
                     moveUpdateUnitPart.Level = Weapon.Level;
-                    moveUpdateUnitPart.TileObjects = CopyContainer(Weapon.TileContainer);
-                    moveUpdateUnitPart.Capacity = Weapon.TileContainer.Capacity;
+                    if (Weapon.TileContainer != null)
+                    {
+                        moveUpdateUnitPart.TileObjects = CopyContainer(Weapon.TileContainer);
+                        moveUpdateUnitPart.Capacity = Weapon.TileContainer.Capacity;
+                    }
                 }
                 else if (blueprintPart.PartType == TileObjectType.PartAssembler && Assembler != null)
                 {
                     moveUpdateUnitPart.Level = Assembler.Level;
-                    moveUpdateUnitPart.TileObjects = CopyContainer(Assembler.TileContainer);
-                    moveUpdateUnitPart.Capacity = Assembler.TileContainer.Capacity;
+                    if (Assembler.TileContainer != null)
+                    {
+                        moveUpdateUnitPart.TileObjects = CopyContainer(Assembler.TileContainer);
+                        moveUpdateUnitPart.Capacity = Assembler.TileContainer.Capacity;
+                    }
                 }
                 else if (blueprintPart.PartType == TileObjectType.PartContainer && Container != null)
                 {
                     moveUpdateUnitPart.Level = Container.Level;
-                    moveUpdateUnitPart.TileObjects = CopyContainer(Container.TileContainer);
-                    moveUpdateUnitPart.Capacity = Container.TileContainer.Capacity;
+                    if (Container.TileContainer != null)
+                    {
+                        moveUpdateUnitPart.TileObjects = CopyContainer(Container.TileContainer);
+                        moveUpdateUnitPart.Capacity = Container.TileContainer.Capacity;
+                    }
                 }
                 else if (blueprintPart.PartType == TileObjectType.PartReactor && Reactor != null)
                 {
                     moveUpdateUnitPart.Level = Reactor.Level;
                     moveUpdateUnitPart.AvailablePower = Reactor.AvailablePower;
-                    moveUpdateUnitPart.TileObjects = CopyContainer(Reactor.TileContainer);
-                    moveUpdateUnitPart.Capacity = Reactor.TileContainer.Capacity;
+                    if (Reactor.TileContainer != null)
+                    {
+                        moveUpdateUnitPart.TileObjects = CopyContainer(Reactor.TileContainer);
+                        moveUpdateUnitPart.Capacity = Reactor.TileContainer.Capacity;
+                    }
                 }
                 else if (blueprintPart.PartType == TileObjectType.PartArmor && Armor != null)
                 {
@@ -1606,7 +1617,7 @@ namespace Engine.Master
             return partHit;
         }
        
-        public bool RemoveTileObjects(List<TileObject> tileObjects, int numberOfObjects, TileObjectType tileObjectType, Unit targetUnit)
+        public bool RemoveTileObjects(List<TileObject> tileObjects, int numberOfObjects, TileObjectType tileObjectType)
         {
             bool removed = false;
             if (Container != null)
@@ -1614,10 +1625,7 @@ namespace Engine.Master
                 while (numberOfObjects > 0)
                 {
                     TileObject tileObject;
-                    if (targetUnit == null)
-                        tileObject = Container.TileContainer.RemoveTileObject(tileObjectType);
-                    else
-                        tileObject = Container.TileContainer.RemoveTileObjectIfFits(targetUnit);
+                    tileObject = Container.TileContainer.RemoveTileObject(tileObjectType);
 
                     if (tileObject == null)
                     {
@@ -1636,11 +1644,7 @@ namespace Engine.Master
                 while (numberOfObjects > 0)
                 {
                     TileObject tileObject;
-                    if (targetUnit == null)
-                        tileObject = Weapon.TileContainer.RemoveTileObject(tileObjectType);
-                    else
-                        tileObject = Weapon.TileContainer.RemoveTileObjectIfFits(targetUnit);
-
+                    tileObject = Weapon.TileContainer.RemoveTileObject(tileObjectType);
 
                     if (tileObject == null)
                     {
@@ -1659,10 +1663,7 @@ namespace Engine.Master
                 while (numberOfObjects > 0)
                 {
                     TileObject tileObject;
-                    if (targetUnit == null)
-                        tileObject = Assembler.TileContainer.RemoveTileObject(tileObjectType);
-                    else
-                        tileObject = Assembler.TileContainer.RemoveTileObjectIfFits(targetUnit);
+                    tileObject = Assembler.TileContainer.RemoveTileObject(tileObjectType);
 
                     if (tileObject == null)
                     {
@@ -1681,10 +1682,7 @@ namespace Engine.Master
                 while (numberOfObjects > 0)
                 {
                     TileObject tileObject;
-                    if (targetUnit == null)
-                        tileObject = Reactor.TileContainer.RemoveTileObject(tileObjectType);
-                    else
-                        tileObject = Reactor.TileContainer.RemoveTileObjectIfFits(targetUnit);
+                    tileObject = Reactor.TileContainer.RemoveTileObject(tileObjectType);
 
                     if (tileObject == null)
                     {
@@ -1706,7 +1704,7 @@ namespace Engine.Master
             if (Reactor != null && Reactor.TileContainer != null)
             {
                 //while (tileObjects.Count > 0 && Reactor.TileContainer.Loaded < Reactor.TileContainer.Capacity)
-                if (Reactor.TileContainer.Count < Reactor.TileContainer.Capacity && Reactor.TileContainer.Accepts(realIndigrient))
+                if (Reactor.TileContainer.Count < Reactor.TileContainer.Capacity)
                 {
                     return true;
                 }
@@ -1714,7 +1712,7 @@ namespace Engine.Master
             if (Assembler != null && Assembler.TileContainer != null)
             {
                 //while (tileObjects.Count > 0 && Assembler.TileContainer.Loaded < Assembler.TileContainer.Capacity)
-                if (Assembler.TileContainer.Count < Assembler.TileContainer.Capacity && Assembler.TileContainer.Accepts(realIndigrient))
+                if (Assembler.TileContainer.Count < Assembler.TileContainer.Capacity)
                 {
                     return true;
                 }
@@ -1722,7 +1720,7 @@ namespace Engine.Master
             if (Weapon != null && Weapon.TileContainer != null)
             {
                 //while (tileObjects.Count > 0 && Weapon.TileContainer.Loaded < Weapon.TileContainer.Capacity)
-                if (Weapon.TileContainer.Count < Weapon.TileContainer.Capacity && Weapon.TileContainer.Accepts(realIndigrient))
+                if (Weapon.TileContainer.Count < Weapon.TileContainer.Capacity)
                 {
                     return true;
                 }
@@ -1730,7 +1728,7 @@ namespace Engine.Master
             if (Container != null)
             {
                 //while (tileObjects.Count > 0 && Container.TileContainer.Loaded < Container.TileContainer.Capacity)
-                if (Container.TileContainer.Count < Container.TileContainer.Capacity && Container.TileContainer.Accepts(realIndigrient))
+                if (Container.TileContainer.Count < Container.TileContainer.Capacity)
                 {
                     return true;
                 }
@@ -1742,7 +1740,7 @@ namespace Engine.Master
             if (Reactor != null && Reactor.TileContainer != null)
             {
                 //while (tileObjects.Count > 0 && Reactor.TileContainer.Loaded < Reactor.TileContainer.Capacity)
-                if (Reactor.TileContainer.Count < Reactor.TileContainer.Capacity && Reactor.TileContainer.Accepts(tileObjectType))
+                if (Reactor.TileContainer.Count < Reactor.TileContainer.Capacity)
                 {
                     return true;
                 }
@@ -1750,7 +1748,7 @@ namespace Engine.Master
             if (Assembler != null && Assembler.TileContainer != null)
             {
                 //while (tileObjects.Count > 0 && Assembler.TileContainer.Loaded < Assembler.TileContainer.Capacity)
-                if (Assembler.TileContainer.Count < Assembler.TileContainer.Capacity && Assembler.TileContainer.Accepts(tileObjectType))
+                if (Assembler.TileContainer.Count < Assembler.TileContainer.Capacity)
                 {
                     return true;
                 }
@@ -1758,7 +1756,7 @@ namespace Engine.Master
             if (Weapon != null && Weapon.TileContainer != null)
             {
                 //while (tileObjects.Count > 0 && Weapon.TileContainer.Loaded < Weapon.TileContainer.Capacity)
-                if (Weapon.TileContainer.Count < Weapon.TileContainer.Capacity && Weapon.TileContainer.Accepts(tileObjectType))
+                if (Weapon.TileContainer.Count < Weapon.TileContainer.Capacity)
                 {
                     return true;
                 }
@@ -1766,7 +1764,7 @@ namespace Engine.Master
             if (Container != null)
             {
                 //while (tileObjects.Count > 0 && Container.TileContainer.Loaded < Container.TileContainer.Capacity)
-                if (Container.TileContainer.Count < Container.TileContainer.Capacity && Container.TileContainer.Accepts(tileObjectType))
+                if (Container.TileContainer.Count < Container.TileContainer.Capacity)
                 {
                     return true;
                 }
@@ -1778,7 +1776,7 @@ namespace Engine.Master
             if (Reactor != null && Reactor.TileContainer != null)
             {
                 //while (tileObjects.Count > 0 && Reactor.TileContainer.Loaded < Reactor.TileContainer.Capacity)
-                if (Reactor.TileContainer.Count < Reactor.TileContainer.Capacity && Reactor.TileContainer.Accepts(tileObject))
+                if (Reactor.TileContainer.Count < Reactor.TileContainer.Capacity)
                 {
                     return true;
                 }
@@ -1786,7 +1784,7 @@ namespace Engine.Master
             if (Assembler != null && Assembler.TileContainer != null)
             {
                 //while (tileObjects.Count > 0 && Assembler.TileContainer.Loaded < Assembler.TileContainer.Capacity)
-                if (Assembler.TileContainer.Count < Assembler.TileContainer.Capacity && Assembler.TileContainer.Accepts(tileObject))
+                if (Assembler.TileContainer.Count < Assembler.TileContainer.Capacity)
                 {
                     return true;
                 }
@@ -1794,7 +1792,7 @@ namespace Engine.Master
             if (Weapon != null && Weapon.TileContainer != null)
             {
                 //while (tileObjects.Count > 0 && Weapon.TileContainer.Loaded < Weapon.TileContainer.Capacity)
-                if (Weapon.TileContainer.Count < Weapon.TileContainer.Capacity && Weapon.TileContainer.Accepts(tileObject))
+                if (Weapon.TileContainer.Count < Weapon.TileContainer.Capacity)
                 {
                     return true;
                 }
@@ -1802,7 +1800,7 @@ namespace Engine.Master
             if (Container != null)
             {
                 //while (tileObjects.Count > 0 && Container.TileContainer.Loaded < Container.TileContainer.Capacity)
-                if (Container.TileContainer.Count < Container.TileContainer.Capacity && Container.TileContainer.Accepts(tileObject))
+                if (Container.TileContainer.Count < Container.TileContainer.Capacity)
                 {
                     return true;
                 }
@@ -1820,7 +1818,7 @@ namespace Engine.Master
                 if (Reactor != null && Reactor.TileContainer != null)
                 {
                     //while (tileObjects.Count > 0 && Reactor.TileContainer.Loaded < Reactor.TileContainer.Capacity)
-                    if (Reactor.TileContainer.Count < Reactor.TileContainer.Capacity && Reactor.TileContainer.Accepts(tileObject))
+                    if (Reactor.TileContainer.Count < Reactor.TileContainer.Capacity)
                     {
                         Reactor.TileContainer.Add(tileObject);
                         tileObjects.Remove(tileObject);
@@ -1832,7 +1830,7 @@ namespace Engine.Master
                 if (Assembler != null && Assembler.TileContainer != null)
                 {
                     //while (tileObjects.Count > 0 && Assembler.TileContainer.Loaded < Assembler.TileContainer.Capacity)
-                    if (Assembler.TileContainer.Count < Assembler.TileContainer.Capacity && Assembler.TileContainer.Accepts(tileObject))
+                    if (Assembler.TileContainer.Count < Assembler.TileContainer.Capacity)
                     {
                         Assembler.TileContainer.Add(tileObject);
                         tileObjects.Remove(tileObject);
@@ -1842,7 +1840,7 @@ namespace Engine.Master
                 if (Weapon != null && Weapon.TileContainer != null)
                 {
                     //while (tileObjects.Count > 0 && Weapon.TileContainer.Loaded < Weapon.TileContainer.Capacity)
-                    if (Weapon.TileContainer.Count < Weapon.TileContainer.Capacity && Weapon.TileContainer.Accepts(tileObject))
+                    if (Weapon.TileContainer.Count < Weapon.TileContainer.Capacity)
                     {
                         Weapon.TileContainer.Add(tileObject);
                         tileObjects.Remove(tileObject);
@@ -1852,7 +1850,7 @@ namespace Engine.Master
                 if (Container != null)
                 {
                     //while (tileObjects.Count > 0 && Container.TileContainer.Loaded < Container.TileContainer.Capacity)
-                    if (Container.TileContainer.Count < Container.TileContainer.Capacity && Container.TileContainer.Accepts(tileObject))
+                    if (Container.TileContainer.Count < Container.TileContainer.Capacity)
                     {
                         Container.TileContainer.Add(tileObject);
                         tileObjects.Remove(tileObject);
