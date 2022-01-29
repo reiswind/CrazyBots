@@ -122,17 +122,36 @@ namespace Assets.Scripts
         {
             get
             {
-                return gameObject.activeSelf;
+                return isVisible;
             }
+            
             set
             {
+                isVisible = value;
                 if (gameObject.activeSelf != value)
-                {
-                    //isVisible = value;
+                {                    
                     gameObject.SetActive(value);
                 }
             }
         }
+
+        private bool isVisible;
+        private bool isVisibleByPlayer;
+
+        public void UpdateVisibility(int visibilityMask)
+        {
+            if (HexGrid.MainGrid.ShowDebuginfo)
+            {
+                isVisible = visibilityMask != 0;
+                isVisibleByPlayer = (visibilityMask & 1) != 0;
+            }
+            else
+            {
+                isVisible = (visibilityMask & 1) != 0;
+                isVisibleByPlayer = (visibilityMask & 1) != 0;
+            }
+        }
+
 
         private UnitAlert unitAlert;
         public UnitAlert UnitAlert { get { return unitAlert;  } }
@@ -200,7 +219,6 @@ namespace Assets.Scripts
                         }
                     }
                 }
-                IsVisible = targetCell.Visible;
             }
         }
 
@@ -438,7 +456,6 @@ namespace Assets.Scripts
 
                 if (IsVisible != targetCell.Visible)
                 {
-                    IsVisible = targetCell.Visible;
                     gameObject.SetActive(targetCell.Visible);
                 }
             }
@@ -599,6 +616,8 @@ namespace Assets.Scripts
                     DectivateUnit();
                 }
                 MoveUpdateStats = stats;
+                if (stats != null)
+                    UpdateVisibility(stats.VisibilityMask);
                 UpdateParts();
             }
         }
@@ -1026,19 +1045,18 @@ namespace Assets.Scripts
 
         internal UnitBaseTileObject RemoveTileObject(MoveRecipeIngredient moveRecipeIngredient)
         {
-            if (moveRecipeIngredient.SourcePosition != CurrentPos)
-            {
-                GroundCell gc;
-                if (HexGrid.MainGrid.GroundCells.TryGetValue(moveRecipeIngredient.SourcePosition, out gc))
-                {
-                    UnitBase unitBase = gc.FindUnit();
-                    if (unitBase != null)
-                        return unitBase.RemoveTileObject(moveRecipeIngredient);
-                }
-            }
+
             if (moveRecipeIngredient.Source == TileObjectType.None || moveRecipeIngredient.Source == TileObjectType.Ground)
             {
                 // From ground
+                if (moveRecipeIngredient.SourcePosition != CurrentPos)
+                {
+                    UnitBase unitBase;
+                    if (HexGrid.MainGrid.BaseUnits.TryGetValue(moveRecipeIngredient.SourceUnitId, out unitBase))
+                    {
+                        return unitBase.RemoveTileObject(moveRecipeIngredient);
+                    }
+                }
                 GroundCell gc;
                 if (HexGrid.MainGrid.GroundCells.TryGetValue(moveRecipeIngredient.SourcePosition, out gc))
                 {
@@ -1055,6 +1073,16 @@ namespace Assets.Scripts
             }
             else
             {
+                // From Unit
+                if (moveRecipeIngredient.SourceUnitId != UnitId)
+                {
+                    UnitBase unitBase;
+                    if (HexGrid.MainGrid.BaseUnits.TryGetValue(moveRecipeIngredient.SourceUnitId, out unitBase))
+                    {
+                        return unitBase.RemoveTileObject(moveRecipeIngredient);
+                    }
+                }
+
                 foreach (UnitBasePart unitBasePart in UnitBaseParts)
                 {
                     if (moveRecipeIngredient.Source == unitBasePart.PartType)

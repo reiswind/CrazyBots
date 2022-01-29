@@ -459,33 +459,6 @@ namespace Engine.Master
             if (!changedUnits.ContainsKey(otherUnit.Pos))
                 changedUnits.Add(otherUnit.Pos, otherUnit);
 
-            capacity = ExtractFromOtherUnit(unit, otherUnit, TileObjectType.All, changedUnits, extractedItems, capacity, capacity);
-            /*
-            while (capacity > 0)
-            {
-                MoveRecipeIngredient realIndigrient = otherUnit.FindIngredient(TileObjectType.All, false);
-                if (realIndigrient == null) break;
-
-                if (!Unit.IsSpaceForIngredient(realIndigrient))
-                {
-                    break;
-                }
-                capacity--;
-
-                otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
-
-                // Add it to target
-                Unit.AddIngredient(realIndigrient);
-
-                if (!changedUnits.ContainsKey(Unit.Pos))
-                    changedUnits.Add(Unit.Pos, Unit);
-
-                realIndigrient.TargetPosition = Unit.Pos;
-
-                // Report this
-                extractedItems.Add(realIndigrient);
-            }
-            */
             if (capacity > 0)
             {
                 Ability hitPart = otherUnit.HitBy(true);
@@ -501,6 +474,7 @@ namespace Engine.Master
                             MoveRecipeIngredient unitIndigrient = new MoveRecipeIngredient();
                             unitIndigrient.Count = 1;
                             unitIndigrient.SourcePosition = otherUnit.Pos;
+                            unitIndigrient.SourceUnitId = otherUnit.UnitId;
                             unitIndigrient.TargetPosition = Unit.Pos;
                             unitIndigrient.TileObjectType = tileObject.TileObjectType;
                             unitIndigrient.Source = unitIndigrient.TileObjectType;
@@ -531,6 +505,7 @@ namespace Engine.Master
                 MoveRecipeIngredient indigrient = new MoveRecipeIngredient();
                 indigrient.Count = 1;
                 indigrient.SourcePosition = otherUnit.Pos;
+                indigrient.SourceUnitId = otherUnit.UnitId;
                 indigrient.TargetPosition = Unit.Pos;
                 indigrient.TileObjectType = removedTileObject.TileObjectType;
                 indigrient.Source = removedTileObject.TileObjectType;
@@ -539,6 +514,7 @@ namespace Engine.Master
                 MoveRecipeIngredient realIndigrient = new MoveRecipeIngredient();
                 realIndigrient.Count = 1;
                 realIndigrient.SourcePosition = otherUnit.Pos;
+                realIndigrient.SourceUnitId = otherUnit.UnitId;
                 realIndigrient.TargetPosition = Unit.Pos;
                 realIndigrient.TileObjectType = TileObjectType.Mineral;
                 realIndigrient.Source = removedTileObject.TileObjectType;
@@ -580,6 +556,7 @@ namespace Engine.Master
 
                     if (unit.CurrentGameCommand != null)
                     {
+                        /*
                         if (unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                         {
                             if (unit.CurrentGameCommand.TargetUnit.UnitId == unit.UnitId &&
@@ -596,32 +573,6 @@ namespace Engine.Master
                                         moveRecipeIngredient.TileObjectType == TileObjectType.Mineral)
                                     {
                                         capacity = ExtractFromOtherUnit(unit, otherUnit, moveRecipeIngredient.TileObjectType, changedUnits, extractedItems, capacity, moveRecipeIngredient.Count);
-                                        /*
-                                        int cnt = moveRecipeIngredient.Count;
-                                        while (cnt-- > 0 && capacity > 0)
-                                        {
-                                            MoveRecipeIngredient realIndigrient = otherUnit.FindIngredient(moveRecipeIngredient.TileObjectType, false);
-                                            if (realIndigrient == null) break;
-                                            capacity--;
-                                            if (!Unit.IsSpaceForIngredient(realIndigrient))
-                                            {
-                                                break;
-                                            }
-
-                                            // Remove it from source
-                                            otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
-
-                                            // Add it to target
-                                            Unit.AddIngredient(realIndigrient);
-
-                                            if (!changedUnits.ContainsKey(Unit.Pos))
-                                                changedUnits.Add(Unit.Pos, Unit);
-
-                                            realIndigrient.TargetPosition = Unit.Pos;
-
-                                            // Report this
-                                            extractedItems.Add(realIndigrient);
-                                        }*/
                                     }
                                 }
                             }
@@ -637,20 +588,12 @@ namespace Engine.Master
                                 unit.CurrentGameCommand.AttachedUnit.ClearUnitId(); // unit.Owner.Game.Map.Units);
                                 unit.CurrentGameCommand.DeliverContent = true;
                             }
-                        }
+                        }*/
                     }
                     if (extractAnything)
                     {
-                        if (otherUnit.Engine == null && otherUnit.Container != null && unit.Container != null)
-                        {
-                            // friendly container, share 
-                            capacity = ExtractFromOtherContainer(unit, otherUnit, changedUnits, extractedItems, capacity);
-                        }
-                        else
-                        {
-                            // friendly unit
-                            capacity = ExtractFromOtherUnit(unit, otherUnit, TileObjectType.All, changedUnits, extractedItems, capacity, capacity);
-                        }
+                        // friendly container, share 
+                        capacity = ExtractFromOtherContainer(unit, otherUnit, changedUnits, extractedItems, capacity);
                     }
 
                     if (otherUnit.ExtractMe && !otherUnit.IsDead() && capacity > 0)
@@ -707,6 +650,7 @@ namespace Engine.Master
                     // enemy unit
                     if (!otherUnit.IsDead())
                     {
+                        capacity = ExtractFromOtherContainer(unit, otherUnit, changedUnits, extractedItems, capacity);
                         ExtractFromUnit(unit, otherUnit, extractedItems, capacity, changedUnits);
                     }
                 }
@@ -729,7 +673,6 @@ namespace Engine.Master
                         Unit.CurrentGameCommand.GameCommand.CommandComplete = true;
                         unit.ResetGameCommand();
                     }
-                    //Unit.ClearReservations();
                 }
             }
 
@@ -822,7 +765,7 @@ namespace Engine.Master
             {
                 if (unitItemOrder.TileObjectType == pullItemOrder.TileObjectType)
                 {
-                    if (unitItemOrder.TileObjectState == pullItemOrder.TileObjectState)
+                    if (unitItemOrder.TileObjectState == pullItemOrder.TileObjectState && otherUnit.Engine == null)
                     {
                         BalanceWithOtherContainer(unit, otherUnit, changedUnits, extractedItems, pullItemOrder, capacity);
                     }
@@ -862,7 +805,7 @@ namespace Engine.Master
                                 transfer = capacity;
                             if (transfer > 0)
                             {
-                                capacity -= TransferTileObjects(otherUnit, changedUnits, extractedItems, pullItemOrder, transfer, excludeTileObjects);
+                                capacity = TransferTileObjects(otherUnit, changedUnits, extractedItems, pullItemOrder, transfer, excludeTileObjects);
                             }
                         }
                     }
@@ -873,19 +816,26 @@ namespace Engine.Master
 
         private int ExtractFromOtherContainer(Unit unit, Unit otherUnit, Dictionary<Position2, Unit> changedUnits, List<MoveRecipeIngredient> extractedItems, int capacity)
         {
-            /*
-            TileCounter sourceCounter = new TileCounter();
-            sourceCounter.Update(otherUnit.Container.TileContainer.TileObjects);
+            if (unit.Engine != null)
+            {
+                int x = 0;
+            }
 
-            TileCounter targetCounter = new TileCounter();
-            targetCounter.Update(unit.Container.TileContainer.TileObjects);
-            */
             foreach (UnitItemOrder unitItemOrder in unit.UnitOrders.unitItemOrders)
             {
                 if (unitItemOrder.TileObjectState == TileObjectState.None)
                 {
                     // Dont care
-                    capacity = BalanceWithOtherContainer(unit, otherUnit, changedUnits, extractedItems, unitItemOrder, capacity);
+                    if (otherUnit.Engine != null)
+                    {
+                        // Pull everything from a worker
+                        capacity = PullFromOtherContainer(unit, otherUnit, changedUnits, extractedItems, unitItemOrder, capacity);
+                    }
+                    else
+                    {
+                        // Share with other container
+                        capacity = BalanceWithOtherContainer(unit, otherUnit, changedUnits, extractedItems, unitItemOrder, capacity);
+                    }
                 }
                 if (unitItemOrder.TileObjectState == TileObjectState.Deny)
                 {
@@ -898,56 +848,9 @@ namespace Engine.Master
                     capacity = PullFromOtherContainer(unit, otherUnit, changedUnits, extractedItems, unitItemOrder, capacity);
                 }
             }
-
-
-            //BalanceObjects(TileObjectType.Mineral);
-            /*
-            int maxTransfer = 12;
-            int transferMinerals;
-            if (sourceCounter.Mineral - 1 > targetCounter.Mineral)
-            {
-                int total = ((sourceCounter.Mineral + targetCounter.Mineral) / 2) - targetCounter.Mineral;
-
-                if (total > maxTransfer) total = maxTransfer; // max transfer limit
-                if (total > capacity) total = capacity;
-
-                transferMinerals = total;
-                maxTransfer -= transferMinerals;
-
-                capacity = TransferObjects(transferMinerals, TileObjectType.Mineral, otherUnit, changedUnits, extractedItems, capacity);
-            }
-
-            int transferStones;
-            if (sourceCounter.Stone - 1 > targetCounter.Stone)
-            {
-                int total = ((sourceCounter.Stone + targetCounter.Stone) / 2) - targetCounter.Stone;
-
-                if (total > maxTransfer) total = maxTransfer; // max transfer limit
-                if (total > capacity) total = capacity;
-
-                transferStones = total;
-                maxTransfer -= transferStones;
-
-                capacity = TransferObjects(transferStones, TileObjectType.Stone, otherUnit, changedUnits, extractedItems, capacity);
-            }
-
-            int transferWood;
-            if (sourceCounter.Wood - 1 > targetCounter.Wood)
-            {
-                int total = ((sourceCounter.Wood + targetCounter.Wood) / 2) - targetCounter.Wood;
-
-                if (total > maxTransfer) total = maxTransfer; // max transfer limit
-                if (total > capacity) 
-                    total = capacity;
-
-                transferWood = total;
-                maxTransfer -= transferWood;
-
-                capacity = TransferObjects(transferWood, TileObjectType.Wood, otherUnit, changedUnits, extractedItems, capacity);
-            }*/
             return capacity;
         }
-
+        /*
         private int TransferObjects(int transferMinerals, TileObjectType tileObjectType, Unit otherUnit, Dictionary<Position2, Unit> changedUnits, List<MoveRecipeIngredient> extractedItems, int capacity)
         { 
             List<TileObject> excludeTileObjects = new List<TileObject>();
@@ -975,7 +878,7 @@ namespace Engine.Master
             }
             return capacity;
         }
-
+        
         private int ExtractFromOtherUnit(Unit unit, Unit otherUnit, TileObjectType tileObjectType, Dictionary<Position2, Unit> changedUnits, List<MoveRecipeIngredient> extractedItems, int capacity, int max)
         {
             List<TileObject> excludeTileObjects = new List<TileObject>();
@@ -1019,7 +922,7 @@ namespace Engine.Master
             //otherUnit.ClearReservations();
             return capacity;
         }
-
+        
         private int PickFromContainer(Unit unit, Unit otherUnit, Dictionary<Position2, Unit> changedUnits, List<MoveRecipeIngredient> extractedItems, int capacity)
         {
             foreach (RecipeIngredient moveRecipeIngredient in unit.CurrentGameCommand.GameCommand.RequestedItems)
@@ -1027,103 +930,21 @@ namespace Engine.Master
                 if (moveRecipeIngredient.TileObjectType == TileObjectType.Ammo)
                 {
                     ExtractFromOtherUnit(unit, otherUnit, TileObjectType.Ammo, changedUnits, extractedItems, capacity, moveRecipeIngredient.Count);
-                    /*
-                    int cnt = moveRecipeIngredient.Count;
-                    while (cnt-- > 0 && capacity > 0)
-                    {
-                        MoveRecipeIngredient realIndigrient = otherUnit.FindIngredientForAmmo(unit);
-                        if (realIndigrient == null) break;
 
-                        if (!Unit.IsSpaceForIngredient(realIndigrient))
-                        {
-                            break;
-                        }
-
-                        capacity--;
-
-                        // Remove it from source
-                        otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
-
-                        // Add it to target
-                        Unit.AddIngredient(realIndigrient);
-
-                        if (!changedUnits.ContainsKey(Unit.Pos))
-                            changedUnits.Add(Unit.Pos, Unit);
-
-                        realIndigrient.TargetPosition = Unit.Pos;
-
-                        // Report this
-                        extractedItems.Add(realIndigrient);
-                    }
-                    */
                 }
                 else if (moveRecipeIngredient.TileObjectType == TileObjectType.Burn)
                 {
                     ExtractFromOtherUnit(unit, otherUnit, TileObjectType.Ammo, changedUnits, extractedItems, capacity, moveRecipeIngredient.Count);
-                    /*
-                    int cnt = moveRecipeIngredient.Count;
-                    while (cnt-- > 0 && capacity > 0)
-                    {
-                        MoveRecipeIngredient realIndigrient = otherUnit.FindIngredientToBurn(unit);
-                        if (realIndigrient == null) break;
-
-                        if (!Unit.IsSpaceForIngredient(realIndigrient))
-                        {
-                            break;
-                        }
-
-                        capacity--;
-
-                        // Remove it from source
-                        otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
-
-                        // Add it to target
-                        Unit.AddIngredient(realIndigrient);
-
-                        if (!changedUnits.ContainsKey(Unit.Pos))
-                            changedUnits.Add(Unit.Pos, Unit);
-
-                        realIndigrient.TargetPosition = Unit.Pos;
-
-                        // Report this
-                        extractedItems.Add(realIndigrient);
-                    }
-                    */
+                    
                 }
                 else
                 {
                     ExtractFromOtherUnit(unit, otherUnit, TileObjectType.All, changedUnits, extractedItems, capacity, moveRecipeIngredient.Count);
-                    /*
-                    int cnt = moveRecipeIngredient.Count;
-                    while (cnt-- > 0 && capacity > 0)
-                    {
-                        MoveRecipeIngredient realIndigrient = otherUnit.FindIngredient(TileObjectType.All, true);
-                        if (realIndigrient == null) break;
-                        if (!Unit.IsSpaceForIngredient(realIndigrient))
-                        {
-                            break;
-                        }
-
-                        capacity--;
-
-                        // Remove it from source
-                        otherUnit.ConsumeIngredient(realIndigrient, changedUnits);
-
-                        // Add it to target
-                        Unit.AddIngredient(realIndigrient);
-
-                        if (!changedUnits.ContainsKey(Unit.Pos))
-                            changedUnits.Add(Unit.Pos, Unit);
-
-                        realIndigrient.TargetPosition = Unit.Pos;
-
-                        // Report this
-                        extractedItems.Add(realIndigrient);
-                    }*/
+                    
                 }
             }
 
             return capacity;
-        }
+        }*/
     }
 }

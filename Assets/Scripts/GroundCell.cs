@@ -51,15 +51,16 @@ namespace Assets.Scripts
                 if (visible != value)
                 {
                     visible = value;
+                    /*
                     UnitBase unitbase = FindUnit();
                     if (unitbase != null)
                     {
                         unitbase.IsVisible = visible;
-                    }
+                    }*/
                 }
             }
         }
-
+        
         public UnitBase FindUnit()
         {
             foreach (UnitBase unitbase in HexGrid.MainGrid.BaseUnits.Values)
@@ -68,8 +69,26 @@ namespace Assets.Scripts
                 {
                     return unitbase;
                 }
+                if (unitbase.DestinationPos == Pos)
+                {
+                    return unitbase;
+                }
             }
             return null;
+        }
+
+        public void UpdateVisibility(int visibilityMask)
+        {
+            if (HexGrid.MainGrid.ShowDebuginfo)
+            {
+                Visible = visibilityMask != 0;
+                VisibleByPlayer = (visibilityMask & 1) != 0;
+            }
+            else
+            {
+                Visible = (visibilityMask & 1) != 0;
+                VisibleByPlayer = (visibilityMask & 1) != 0;
+            }
         }
 
         internal List<UnitCommand> UnitCommands { get; private set; }

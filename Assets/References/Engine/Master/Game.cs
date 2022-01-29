@@ -1904,28 +1904,7 @@ namespace Engine.Master
 
             Tile t = GetTile(pos);
             moveUpdateGroundStat.Owner = t.Owner;
-
-            Player player;
-            if (Players.TryGetValue(1, out player))
-            {
-                if (player.IsVisible(pos))
-                    moveUpdateGroundStat.VisibilityMask |= 1;
-            }
-            if (Players.TryGetValue(2, out player))
-            {
-                if (player.IsVisible(pos))
-                    moveUpdateGroundStat.VisibilityMask |= 2;
-            }
-            if (Players.TryGetValue(3, out player))
-            {
-                if (player.IsVisible(pos))
-                    moveUpdateGroundStat.VisibilityMask |= 4;
-            }
-            if (Players.TryGetValue(4, out player))
-            {
-                if (player.IsVisible(pos))
-                    moveUpdateGroundStat.VisibilityMask |= 8;
-            }
+            SetVisibilityMask(pos, move.Stats);
             moveUpdateGroundStat.IsBorder = t.IsBorder;
             moveUpdateGroundStat.IsUnderwater = t.IsUnderwater;
             moveUpdateGroundStat.TileObjects = new List<TileObject>();
@@ -1935,15 +1914,40 @@ namespace Engine.Master
             moveUpdateGroundStat.ZoneId = t.ZoneId;
         }
 
+        public void SetVisibilityMask(Position2 pos, MoveUpdateStats stats)
+        {
+            Player player;
+            if (Players.TryGetValue(1, out player))
+            {
+                if (player.IsVisible(pos))
+                    stats.VisibilityMask |= 1;
+            }
+            if (Players.TryGetValue(2, out player))
+            {
+                if (player.IsVisible(pos))
+                    stats.VisibilityMask |= 2;
+            }
+            if (Players.TryGetValue(3, out player))
+            {
+                if (player.IsVisible(pos))
+                    stats.VisibilityMask |= 4;
+            }
+            if (Players.TryGetValue(4, out player))
+            {
+                if (player.IsVisible(pos))
+                    stats.VisibilityMask |= 8;
+            }
+        }
+
         private int minsAfterStart;
 
         public List<Move> ProcessMove(int playerId, Move myMove, List<MapGameCommand> gameCommands)
         {
             List<Move> returnMoves = new List<Move>();
 
-            if (MoveNr == 63)
+            if (MoveNr == 9)
             {
-                int x = 0;                
+                int x = 0;
             }
             if (myMove != null && myMove.MoveType == MoveType.UpdateAll)
             {

@@ -96,10 +96,10 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 
             GameModel gameModel;
@@ -1128,16 +1128,7 @@ namespace Assets.Scripts
                                 }
                                 else
                                 {
-                                    if (HexGrid.MainGrid.ShowDebuginfo)
-                                    {
-                                        hexCell.Visible = move.Stats.MoveUpdateGroundStat.VisibilityMask != 0;
-                                        hexCell.VisibleByPlayer = (move.Stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
-                                    }
-                                    else
-                                    {
-                                        hexCell.Visible = (move.Stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
-                                        hexCell.VisibleByPlayer = (move.Stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
-                                    }
+                                    hexCell.UpdateVisibility(move.Stats.VisibilityMask);
                                 }
                                 //Debug show all
                                 //hexCell.Visible = true;
@@ -1958,16 +1949,8 @@ namespace Assets.Scripts
             }
             else
             {
-                if (ShowDebuginfo)
-                {
-                    groundCell.Visible = stats.MoveUpdateGroundStat.VisibilityMask != 0;
-                    groundCell.VisibleByPlayer = (stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
-                }
-                else
-                {
-                    groundCell.Visible = (stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
-                    groundCell.VisibleByPlayer = (stats.MoveUpdateGroundStat.VisibilityMask & 1) != 0;
-                }
+                groundCell.UpdateVisibility(stats.VisibilityMask);
+
                 float height = stats.MoveUpdateGroundStat.Height;
                 gridPos3.y += height + 0.3f;
                 gameObjectCell.transform.localPosition = gridPos3;
@@ -1981,5 +1964,7 @@ namespace Assets.Scripts
             }
             return groundCell;
         }
+
+        
     }
 }

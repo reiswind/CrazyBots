@@ -70,8 +70,7 @@ namespace Engine.Interface
 
         [DataMember]
         public int Owner { get; set; }
-        [DataMember]
-        public int VisibilityMask { get; set; }
+
         [DataMember]
         public bool IsBorder { get; set; }
         /*
@@ -195,12 +194,14 @@ namespace Engine.Interface
         public TileObjectType Source { get; set; }
         [DataMember(EmitDefaultValue = false)]
         public Position2 SourcePosition { get; set; }
+        public string SourceUnitId { get; set; }
 
 
         [DataMember(EmitDefaultValue = false)]
         public TileObjectType Target { get; set; }
         [DataMember(EmitDefaultValue = false)]
         public Position2 TargetPosition { get; set; }
+       
 
         [DataMember(EmitDefaultValue = false)]
         public TileObjectType TileObjectType { get; set; }
@@ -280,6 +281,9 @@ namespace Engine.Interface
 
         [DataMember]
         public bool MarkedForExtraction { get; set; }
+        [DataMember]
+        public int VisibilityMask { get; set; }
+
 
         [DataMember]
         public int Power { get; set; }

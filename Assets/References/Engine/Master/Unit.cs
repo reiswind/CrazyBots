@@ -312,6 +312,7 @@ namespace Engine.Master
                     moveRecipeIngredient.TileObjectType = tileObject.TileObjectType;
                     moveRecipeIngredient.TileObjectKind = tileObject.TileObjectKind;
                     moveRecipeIngredient.SourcePosition = Pos;
+                    moveRecipeIngredient.SourceUnitId = UnitId;
                     moveRecipeIngredient.Source = TileObjectType.PartContainer;
                     return moveRecipeIngredient;
                 }
@@ -399,6 +400,7 @@ namespace Engine.Master
                     moveRecipeIngredient.TileObjectType = tileObject.TileObjectType;
                     moveRecipeIngredient.TileObjectKind = tileObject.TileObjectKind;
                     moveRecipeIngredient.SourcePosition = Pos;
+                    moveRecipeIngredient.SourceUnitId = UnitId;
                     moveRecipeIngredient.Source = TileObjectType.PartAssembler;
                     return moveRecipeIngredient;
                 }
@@ -411,6 +413,7 @@ namespace Engine.Master
                     moveRecipeIngredient.TileObjectType = tileObject.TileObjectType;
                     moveRecipeIngredient.TileObjectKind = tileObject.TileObjectKind;
                     moveRecipeIngredient.SourcePosition = Pos;
+                    moveRecipeIngredient.SourceUnitId = UnitId;
                     moveRecipeIngredient.Source = TileObjectType.PartContainer;
                     return moveRecipeIngredient;
                 }
@@ -476,6 +479,7 @@ namespace Engine.Master
                     MoveRecipeIngredient moveRecipeIngredient = new MoveRecipeIngredient();
                     moveRecipeIngredient.TileObjectType = tileObject.TileObjectType;
                     moveRecipeIngredient.SourcePosition = Pos;
+                    moveRecipeIngredient.SourceUnitId = UnitId;
                     moveRecipeIngredient.Source = sourceContainerType;
                     moveRecipeIngredient.Count = 1;
                     allIngredients.Add(moveRecipeIngredient);
@@ -492,6 +496,7 @@ namespace Engine.Master
                     MoveRecipeIngredient moveRecipeIngredient = new MoveRecipeIngredient();
                     moveRecipeIngredient.TileObjectType = tileObject.TileObjectType;
                     moveRecipeIngredient.SourcePosition = Pos;
+                    moveRecipeIngredient.SourceUnitId = UnitId;
                     moveRecipeIngredient.Source = sourceContainerType;
                     moveRecipeIngredient.Count = 1;
                     allIngredients.Add(moveRecipeIngredient);
@@ -719,6 +724,7 @@ namespace Engine.Master
                     moveRecipeIngredient.TileObjectType = tileObject.TileObjectType;
                     moveRecipeIngredient.TileObjectKind = tileObject.TileObjectKind;
                     moveRecipeIngredient.SourcePosition = Pos;
+                    moveRecipeIngredient.SourceUnitId = UnitId;
                     moveRecipeIngredient.Source = TileObjectType.PartContainer;
                     return moveRecipeIngredient;
                 }
@@ -734,6 +740,7 @@ namespace Engine.Master
                     moveRecipeIngredient.TileObjectType = tileObject.TileObjectType;
                     moveRecipeIngredient.TileObjectKind = tileObject.TileObjectKind;
                     moveRecipeIngredient.SourcePosition = Pos;
+                    moveRecipeIngredient.SourceUnitId = UnitId;
                     moveRecipeIngredient.Source = TileObjectType.PartAssembler;
                     return moveRecipeIngredient;
                 }
@@ -1375,6 +1382,9 @@ namespace Engine.Master
             stats.MarkedForExtraction = ExtractMe;
             stats.Direction = Direction;
             stats.UnitParts = new List<MoveUpdateUnitPart>();
+
+            Game.SetVisibilityMask(pos, stats);
+
             foreach (BlueprintPart blueprintPart in Blueprint.Parts)
             {
                 MoveUpdateUnitPart moveUpdateUnitPart = new MoveUpdateUnitPart();
@@ -1737,6 +1747,18 @@ namespace Engine.Master
         }
         public bool IsSpaceForTileObject(TileObjectType tileObjectType)
         {
+            // Check Container settings
+            foreach (UnitItemOrder unitItemOrder in UnitOrders.unitItemOrders)
+            {
+                if (unitItemOrder.TileObjectType == tileObjectType)
+                {
+                    if (unitItemOrder.TileObjectState == TileObjectState.Deny)
+                    {
+                        return false;
+                    }
+                }
+            }
+            // Check capacity
             if (Reactor != null && Reactor.TileContainer != null)
             {
                 //while (tileObjects.Count > 0 && Reactor.TileContainer.Loaded < Reactor.TileContainer.Capacity)

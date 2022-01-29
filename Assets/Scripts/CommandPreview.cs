@@ -480,7 +480,7 @@ namespace Assets.Scripts
                 }
             }
         }
-
+        /*
         private bool CanCommandAt(GroundCell groundCell)
         {
             if (groundCell == null)
@@ -497,7 +497,7 @@ namespace Assets.Scripts
                     return false;
             }            
             return true;
-        }
+        }*/
 
         private int displayRadius;
         private Position2 displayPosition;

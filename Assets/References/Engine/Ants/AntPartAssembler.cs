@@ -51,6 +51,7 @@ namespace Engine.Ants
             MoveRecipeIngredient moveRecipeIngredient = new MoveRecipeIngredient();
             moveRecipeIngredient.Count = 1;
             moveRecipeIngredient.SourcePosition = Ant.Unit.Pos;
+            moveRecipeIngredient.SourceUnitId = Ant.Unit.UnitId;
 
             List<Move> possiblemoves = new List<Move>();
             if (Ant.Unit.IsComplete())

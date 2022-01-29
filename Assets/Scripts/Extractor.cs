@@ -105,9 +105,10 @@ namespace Assets.Scripts
             UnitBase otherUnit = null;
 
             // Check if source is unitpart, if so, get the unit
-            if (TileObject.CanConvertTileObjectIntoMineral(moveRecipeIngredient.Source))
-                otherUnit = sourceCell.FindUnit();
-            
+            if (moveRecipeIngredient.SourceUnitId != null)
+            {
+                otherUnit = HexGrid.MainGrid.BaseUnits[moveRecipeIngredient.SourceUnitId];
+            }
             TransitObject transitObject;
             if (otherUnit == null)
             {
