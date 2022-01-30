@@ -1181,9 +1181,16 @@ namespace Assets.Scripts
             }
 
         }
-        /*
+        
         internal void SetMaterialGhost(int playerId, GameObject unit)
         {
+            foreach (UnitBasePart unitBasePart in UnitBaseParts)
+            {
+                unitBasePart.SetMeshGhost();
+                unitBasePart.ApplyWireframeMaterial();
+            }
+
+            /*
             for (int i = 0; i < unit.transform.childCount; i++)
             {
                 GameObject child = unit.transform.GetChild(i).gameObject;
@@ -1206,24 +1213,27 @@ namespace Assets.Scripts
                         if (meshRenderer.materials.Length == 1)
                         {
                             Destroy(meshRenderer.material);
-                            meshRenderer.material = HexGrid.MainGrid.GetMaterial("UnitGhost");
-                            meshRenderer.material.SetColor("PlayerColor", GetPlayerColor(playerId));                            
-                            meshRenderer.material.SetFloat("Darkness", 0.9f);
+                            meshRenderer.material = HexGrid.MainGrid.GetMaterial("Basic");
+
+                            meshRenderer.material.SetColor("_WireColor", GetPlayerColor(playerId));
+
+                            //meshRenderer.material.SetColor("PlayerColor", GetPlayerColor(playerId));                            
+                            //meshRenderer.material.SetFloat("Darkness", 0.9f);
                         }
                     }
                     else
                     {
                         if (meshRenderer.sharedMaterials.Length == 1)
                         {
-                            meshRenderer.sharedMaterial = HexGrid.MainGrid.GetMaterial("UnitGhost");
+                            meshRenderer.sharedMaterial = HexGrid.MainGrid.GetMaterial("Basic");
                             //meshRenderer.sharedMaterial.SetColor("PlayerColor", GetPlayerColor(playerId));
                             //meshRenderer.sharedMaterial.SetFloat("Darkness", 0.9f);
                         }
                     }
                 }
-            }
+            }*/
         }
-        */
+        
         internal static GameObject FindChildNyName(GameObject unit, string name)
         {
             if (unit.name.StartsWith(name))
@@ -1538,6 +1548,7 @@ namespace Assets.Scripts
             }
             if (ghost)
             {
+                /*
                 highlightEffect.SetHighlighted(true);
                 highlightEffect.overlay = 0.05f;
                 highlightEffect.overlayColor = Color.white;
@@ -1545,8 +1556,8 @@ namespace Assets.Scripts
                 //highlightEffect.outlineWidth = 3;
                 highlightEffect.glow = 0;
                 highlightEffect.innerGlow = 0;
-
-                //SetMaterialGhost(PlayerId, gameObject);
+                */
+                SetMaterialGhost(PlayerId, gameObject);
                 SetPlayerColor(PlayerId, gameObject);
             }
             else if (underConstruction)

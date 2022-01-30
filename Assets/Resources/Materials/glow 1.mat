@@ -341,6 +341,7 @@ Material:
     - _UVDetailsMappingMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMaskEmissive: {r: 1, g: 0, b: 0, a: 0}
+    - _color_fresnel: {r: 0.12156863, g: 0.8509804, b: 0.16862746, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &5676617978073745963
 MonoBehaviour:

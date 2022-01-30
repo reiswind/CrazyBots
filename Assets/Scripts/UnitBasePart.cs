@@ -40,6 +40,100 @@ namespace Assets.Scripts
         public float AnimateFrom { get; set; }
         public float AnimateTo { get; set; }
 
+        Renderer m_Rd;
+        Material[] m_BackupMaterials;
+        MeshFilter m_SelfMeshFilter;
+        public Mesh m_MeshBackup;
+        public Mesh m_MeshNew;
+        public void SetMeshGhost()
+        {
+            m_Rd = Part.GetComponent<Renderer>();
+
+            // cache all original materials
+            Material[] mats = m_Rd.materials;
+            int len = mats.Length;
+            m_BackupMaterials = new Material[len];
+            for (int i = 0; i < len; i++)
+                m_BackupMaterials[i] = mats[i];
+
+            // generate wireframe mesh vertex
+            m_SelfMeshFilter = Part.GetComponent<MeshFilter>();
+            m_MeshBackup = m_SelfMeshFilter.mesh;   // backup original mesh
+
+            // generate vertices data with barycentric coordinate
+            Vector3[] pos = m_SelfMeshFilter.mesh.vertices;
+            Vector3[] nor = m_SelfMeshFilter.mesh.normals;
+            Vector4[] tan = m_SelfMeshFilter.mesh.tangents;
+            Vector2[] tex = m_SelfMeshFilter.mesh.uv;
+            int[] tri = m_SelfMeshFilter.mesh.triangles;
+            List<Vector3> wireframePos = new List<Vector3>();
+            List<Vector3> wireframeNor = new List<Vector3>();
+            List<Vector4> wireframeTan = new List<Vector4>();
+            List<Vector2> wireframeTex = new List<Vector2>();
+            List<Color> wireframeBc = new List<Color>();
+            List<int> wireframeTriangle = new List<int>();
+            for (int i = 0; i < tri.Length; i += 3)
+            {
+                int ind1 = tri[i + 0];
+                int ind2 = tri[i + 1];
+                int ind3 = tri[i + 2];
+
+                wireframePos.Add(pos[ind1]);
+                wireframePos.Add(pos[ind2]);
+                wireframePos.Add(pos[ind3]);
+
+                wireframeNor.Add(nor[ind1]);
+                wireframeNor.Add(nor[ind2]);
+                wireframeNor.Add(nor[ind3]);
+
+                wireframeTan.Add(tan[ind1]);
+                wireframeTan.Add(tan[ind2]);
+                wireframeTan.Add(tan[ind3]);
+
+                wireframeTex.Add(tex[ind1]);
+                wireframeTex.Add(tex[ind2]);
+                wireframeTex.Add(tex[ind3]);
+
+                wireframeBc.Add(new Color(1, 0, 0));
+                wireframeBc.Add(new Color(0, 1, 0));
+                wireframeBc.Add(new Color(0, 0, 1));
+
+                wireframeTriangle.Add(i + 0);
+                wireframeTriangle.Add(i + 1);
+                wireframeTriangle.Add(i + 2);
+            }
+
+            // create the wireframe mesh
+            m_MeshNew = new Mesh();
+            m_MeshNew.name = m_SelfMeshFilter.mesh.name + "_Wireframe";
+            m_MeshNew.vertices = wireframePos.ToArray();
+            m_MeshNew.normals = wireframeNor.ToArray();
+            m_MeshNew.tangents = wireframeTan.ToArray();
+            m_MeshNew.uv = wireframeTex.ToArray();
+            m_MeshNew.colors = wireframeBc.ToArray();
+            m_MeshNew.triangles = wireframeTriangle.ToArray();
+        }
+        public void ApplyWireframeMaterial()
+        {
+            int len = m_Rd.materials.Length;
+            Material[] mats = new Material[len];
+            for (int i = 0; i < len; i++)
+            {
+                mats[i] = HexGrid.MainGrid.GetMaterial("WireframeBasic");
+                /*
+                mats[i] = HexGrid.MainGrid.GetMaterial("glow 1");
+                mats[i].SetColor("_color_fresnel", UnitBase.GetPlayerColor(UnitBase.PlayerId));
+                mats[i].SetColor("_Color_main", UnitBase.GetPlayerColor(UnitBase.PlayerId));
+                */
+
+                mats[i].SetColor("_LineColor", UnitBase.GetPlayerColor(UnitBase.PlayerId));
+                mats[i].SetFloat("_LineWidth", 0.001f);
+                mats[i].SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Back);
+            }
+            m_Rd.materials = mats;
+            m_SelfMeshFilter.mesh = m_MeshNew;
+        }
+
         public void Fire(Move move)
         {
             if (UnitBase.UnitId == "unit2")

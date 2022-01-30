@@ -165,8 +165,10 @@
     <Compile Include="Assets\References\Engine\Ants\AntPartReactor.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Resources\Shader\Wireframe.cginc" />
     <None Include="Assets\HighlightPlus\README.txt" />
     <None Include="Assets\link.xml" />
+    <None Include="Assets\Resources\Shader\Basic.shader" />
     <None Include="Assets\BrokenVector\LowPolyTreePack\README.txt" />
     <None Include="Assets\Polygonal Particles\Assets\Shaders\GradientBackgroundShader.shader" />
     <None Include="Assets\character shader pack\1_cartoon\Lighting.hlsl" />
