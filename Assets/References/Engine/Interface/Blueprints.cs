@@ -28,6 +28,12 @@ namespace Engine.Interface
             blueprint.Parts.Add(new BlueprintPart("S-PartAssembler", TileObjectType.PartAssembler, 1, 0, 4));
             blueprint.Parts.Add(new BlueprintPart("S-PartContainer", 24, 4));
             blueprint.Parts.Add(new BlueprintPart("S-PartReactor", 0, 6));
+
+            blueprint.BlueprintUnitOrders.AcceptAll();
+            blueprint.BlueprintUnitOrders.Request(TileObjectType.Mineral, TileObjectState.Accept);
+            blueprint.BlueprintUnitOrders.Request(TileObjectType.Wood, TileObjectState.Accept);
+            blueprint.BlueprintUnitOrders.Request(TileObjectType.Stone, TileObjectState.Deny);
+
             Items.Add(blueprint);
 
             // Container
@@ -36,6 +42,8 @@ namespace Engine.Interface
             blueprint.Layout = "S-Container";
             blueprint.Parts.Add(new BlueprintPart("S-PartExtractor"));
             blueprint.Parts.Add(new BlueprintPart("S-PartContainer", TileObjectType.PartContainer, 3, 72, 4));
+            blueprint.BlueprintUnitOrders.AcceptAll();
+
             Items.Add(blueprint);
 
             // Turret
@@ -78,6 +86,8 @@ namespace Engine.Interface
             blueprint.Parts.Add(new BlueprintPart("PartContainer", 12, 0));
             blueprint.Parts.Add(new BlueprintPart("PartExtractor"));
             blueprint.Parts.Add(new BlueprintPart("PartArmor"));
+            blueprint.BlueprintUnitOrders.AcceptAll();
+
             Items.Add(blueprint);
 
             // Fighter
@@ -387,12 +397,13 @@ namespace Engine.Interface
         public Blueprint()
         {
             Parts = new List<BlueprintPart>();
+            BlueprintUnitOrders = new BlueprintUnitOrders();
         }
         public string Name { get; set; }
         public string Layout { get; set; }
 
         public List<BlueprintPart> Parts { get; private set; }
-
+        public BlueprintUnitOrders BlueprintUnitOrders { get; private set; }
         private bool? isMovable;
         public bool IsMoveable()
         {
@@ -415,6 +426,53 @@ namespace Engine.Interface
         {
             return Name;
         }
+    }
+
+    public class BlueprintUnitItemOrder
+    {
+        public TileObjectType TileObjectType { get; set; }
+        public TileObjectState TileObjectState { get; set; }
+    }
+
+    public class BlueprintUnitOrders
+    {
+        public BlueprintUnitOrders()
+        {
+            BlueprintItemOrders = new List<BlueprintUnitItemOrder>();
+        }
+
+        public void Request(TileObjectType tileObjectType, TileObjectState tileObjectState)
+        {
+            foreach (BlueprintUnitItemOrder unitItemOrder in this.BlueprintItemOrders)
+            {
+                if (unitItemOrder.TileObjectType == tileObjectType)
+                {
+                    unitItemOrder.TileObjectState = tileObjectState;
+                }
+            }
+        }
+
+        public void AcceptAll()
+        {
+            BlueprintUnitItemOrder unitItemOrder;
+
+            unitItemOrder = new BlueprintUnitItemOrder();
+            unitItemOrder.TileObjectType = TileObjectType.Mineral;
+            unitItemOrder.TileObjectState = TileObjectState.None;
+            BlueprintItemOrders.Add(unitItemOrder);
+
+            unitItemOrder = new BlueprintUnitItemOrder();
+            unitItemOrder.TileObjectType = TileObjectType.Wood;
+            unitItemOrder.TileObjectState = TileObjectState.None;
+            BlueprintItemOrders.Add(unitItemOrder);
+
+            unitItemOrder = new BlueprintUnitItemOrder();
+            unitItemOrder.TileObjectType = TileObjectType.Stone;
+            unitItemOrder.TileObjectState = TileObjectState.None;
+            BlueprintItemOrders.Add(unitItemOrder);
+        }
+
+        public List<BlueprintUnitItemOrder> BlueprintItemOrders { get; set; }
     }
 
     public class BlueprintPart
@@ -470,5 +528,6 @@ namespace Engine.Interface
         public int Range { get; set; }
         public string Name { get; set; }
         public int? Capacity { get; set; }
+
     }
 }

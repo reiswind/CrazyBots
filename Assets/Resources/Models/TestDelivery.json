@@ -67,9 +67,12 @@
       "Position": "0,-1"
     },
     {
-      "Name": "Factory",
+      "Name": "Outpost",
       "PlayerId": 1,
-      "Blueprint": "Factory",
+	  "ContainedMinerals": 0,
+	  "ContainedWood": 0,
+	  "ContainedStones": 0,
+      "Blueprint": "Outpost",
       "Position": "-1,-1"
     }
 

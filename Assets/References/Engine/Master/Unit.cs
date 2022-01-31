@@ -69,23 +69,6 @@ namespace Engine.Master
         public UnitOrders()
         {
             unitItemOrders = new List<UnitItemOrder>();
-
-            UnitItemOrder unitItemOrder;
-
-            unitItemOrder = new UnitItemOrder();
-            unitItemOrder.TileObjectType = TileObjectType.Mineral;
-            unitItemOrder.TileObjectState = TileObjectState.None;
-            unitItemOrders.Add(unitItemOrder);
-
-            unitItemOrder = new UnitItemOrder();
-            unitItemOrder.TileObjectType = TileObjectType.Wood;
-            unitItemOrder.TileObjectState = TileObjectState.None;
-            unitItemOrders.Add(unitItemOrder);
-
-            unitItemOrder = new UnitItemOrder();
-            unitItemOrder.TileObjectType = TileObjectType.Stone;
-            unitItemOrder.TileObjectState = TileObjectState.None;
-            unitItemOrders.Add(unitItemOrder);
         }
         public List<UnitItemOrder> unitItemOrders { get; set; }
     }
@@ -95,7 +78,6 @@ namespace Engine.Master
     {
         public Unit(Game game, string startCode)
         {
-            UnitOrders = new UnitOrders();
             Game = game;
             Pos = Position2.Null;
             Power = 20;
@@ -105,6 +87,18 @@ namespace Engine.Master
             {
                 UnitId = game.GetNextUnitId("unit");
                 UnderConstruction = true;
+
+                if (Blueprint.BlueprintUnitOrders != null)
+                {
+                    UnitOrders = new UnitOrders();
+                    foreach (BlueprintUnitItemOrder blueprintUnitItemOrder in Blueprint.BlueprintUnitOrders.BlueprintItemOrders)
+                    {
+                        UnitItemOrder unitItemOrder = new UnitItemOrder();
+                        unitItemOrder.TileObjectType = blueprintUnitItemOrder.TileObjectType;
+                        unitItemOrder.TileObjectState = blueprintUnitItemOrder.TileObjectState;
+                        UnitOrders.unitItemOrders.Add(unitItemOrder);
+                    }
+                }
             }
         }
 

@@ -98,8 +98,8 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 
             GameModel gameModel;

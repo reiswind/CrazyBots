@@ -771,7 +771,37 @@ namespace Engine.Master
                     }
                     else if (unitItemOrder.TileObjectState == TileObjectState.None || unitItemOrder.TileObjectState == TileObjectState.Deny)
                     {
-                        capacity = TransferTileObjects(otherUnit, changedUnits, extractedItems, pullItemOrder, capacity, excludeTileObjects);
+                        int transferAmount = capacity;
+
+                        int numberOfRequests = 0;
+                        foreach (UnitItemOrder targetUnitItemOrder in unit.UnitOrders.unitItemOrders)
+                        {
+                            if (targetUnitItemOrder.TileObjectState == TileObjectState.Accept)
+                                numberOfRequests++;
+                        }
+                        if (numberOfRequests > 1)
+                        {
+                            if (unit.UnitId == "unit6" || otherUnit.UnitId == "unit6")
+                            {
+                                int x = 0;
+                            }
+                            int countInUnit = unit.CountTileObjectsInContainer(pullItemOrder.TileObjectType);
+
+                            // Do not accept more than half/third.. of capacity
+                            if (countInUnit >= unit.Container.TileContainer.Capacity / numberOfRequests)
+                            {
+                                // Contains enough, leave room for other
+                                transferAmount = 0;
+                            }
+                            else
+                            {
+                                int maxTransferAmount = (unit.Container.TileContainer.Capacity / numberOfRequests) - countInUnit;
+                                if (transferAmount > maxTransferAmount)
+                                    transferAmount = maxTransferAmount;
+                            }
+                        }
+
+                        capacity = TransferTileObjects(otherUnit, changedUnits, extractedItems, pullItemOrder, transferAmount, excludeTileObjects);
                     }
                 }
             }
@@ -781,6 +811,7 @@ namespace Engine.Master
         private int BalanceWithOtherContainer(Unit unit, Unit otherUnit, Dictionary<Position2, Unit> changedUnits,
             List<MoveRecipeIngredient> extractedItems, UnitItemOrder pullItemOrder, int capacity)
         {
+
             List<TileObject> excludeTileObjects = new List<TileObject>();
             foreach (UnitItemOrder unitItemOrder in otherUnit.UnitOrders.unitItemOrders)
             {
@@ -816,7 +847,7 @@ namespace Engine.Master
 
         private int ExtractFromOtherContainer(Unit unit, Unit otherUnit, Dictionary<Position2, Unit> changedUnits, List<MoveRecipeIngredient> extractedItems, int capacity)
         {
-            if (unit.Engine != null)
+            if (unit.UnitId == "unit6" || otherUnit.UnitId == "unit6")
             {
                 int x = 0;
             }
