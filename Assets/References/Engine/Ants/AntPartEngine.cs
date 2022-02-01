@@ -380,6 +380,19 @@ namespace Engine.Ants
                                 }
                             }
                         }
+                        if (cntrlUnit.CurrentGameCommand != null &&
+                            cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                        {
+                            if (pheromoneType == PheromoneType.Mineral)
+                            {
+                                // Move around                                
+                            }
+                            if (pheromoneType == PheromoneType.Container)
+                            {
+                                FindPathToReturnToTarget(player, cntrlUnit);
+                                return true;
+                            }
+                        }
                         if (cntrlUnit.CurrentGameCommand != null && 
                             cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
                         {
@@ -530,7 +543,8 @@ namespace Engine.Ants
                     }
                     else if (isWorker && possibleTiles.Count == 0)
                     {
-                        if (cntrlUnit.CurrentGameCommand != null)
+                        if (cntrlUnit.CurrentGameCommand != null &&
+                            cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType != GameCommandType.ItemRequest)
                         {
                             // Worker hangs around at command target
                             moveToPosition = control.FindCommandTarget(player, Ant);
@@ -840,6 +854,38 @@ namespace Engine.Ants
             cntrlUnit.Changed = true;
             return false;
         }
+        private void FindPathToReturnToTarget(Player player, Unit cntrlUnit)
+        {
+            if (cntrlUnit.CurrentGameCommand.TargetUnit.UnitId == null)
+                return;
+
+            Unit targetUnit = player.Game.Map.Units.FindUnit(cntrlUnit.CurrentGameCommand.TargetUnit.UnitId);
+            if (targetUnit != null)
+            {
+                // Compute route to target
+                List<Position2> positions = player.Game.FindPath(cntrlUnit.Pos, targetUnit.Pos, cntrlUnit);
+                if (positions == null)
+                {
+                    // Must not be exact
+                    Tile t = player.Game.Map.GetTile(cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition);
+                    foreach (Tile n in t.Neighbors)
+                    {
+                        positions = player.Game.FindPath(cntrlUnit.Pos, n.Pos, cntrlUnit);
+                        if (positions != null)
+                            break;
+                    }
+                }
+
+                if (positions != null)
+                {
+                    Ant.FollowThisRoute = new List<Position2>();
+                    for (int i = 1; i < positions.Count; i++)
+                    {
+                        Ant.FollowThisRoute.Add(positions[i]);
+                    }
+                }
+            }
+        }
 
         private bool FindPathForCollect(Player player, Unit cntrlUnit)
         {
@@ -983,6 +1029,8 @@ namespace Engine.Ants
                     }
                     else if (Ant.Unit.UnitId == cntrlUnit.CurrentGameCommand.TransportUnit.UnitId)
                     {
+                        int x = 0;
+                        /*
                         if (cntrlUnit.Extractor != null && cntrlUnit.Extractor.CanExtract)
                         {
                             if (cntrlUnit.CurrentGameCommand.AttachedUnit.UnitId == null)
@@ -1032,7 +1080,7 @@ namespace Engine.Ants
 
                                 calcPathToPosition = targetUnit.Pos;
                             }
-                        }
+                        }*/
                     }
                 }
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)

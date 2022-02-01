@@ -149,11 +149,12 @@ namespace Engine.Ants
             gameCommandItem.TargetUnit.SetUnitId(Ant.Unit.UnitId);
             gameCommandItem.TargetUnit.SetStatus("WaitingForDelivery");
 
+            /*
             gameCommand.RequestedItems = new List<RecipeIngredient>();
             foreach (RecipeIngredient recipeIngredient in player.Game.RecipeForAnyUnit.Ingredients)
             {
                 gameCommand.RequestedItems.Add(recipeIngredient);
-            }
+            }*/
 
             Ant.Unit.SetGameCommand(gameCommandItem);
 

@@ -41,16 +41,20 @@ namespace Engine.Ants
                 if (runningGameCommand != null)
                     break;
             }
-            
-            foreach (UnitItemOrder unitItemOrder in Ant.Unit.UnitOrders.unitItemOrders)
+
+            if (Container.TileContainer.IsFreeSpace)
             {
-                if (unitItemOrder.TileObjectState == TileObjectState.Accept)
+                foreach (UnitItemOrder unitItemOrder in Ant.Unit.UnitOrders.unitItemOrders)
                 {
-                    int maxTransferAmount = Ant.Unit.UnitOrders.GetAcceptedAmount(Ant.Unit, unitItemOrder.TileObjectType);
-                    if (maxTransferAmount > 0)
+
+                    if (unitItemOrder.TileObjectState == TileObjectState.Accept)
                     {
-                        needItems = true;
-                        break;
+                        int maxTransferAmount = Ant.Unit.UnitOrders.GetAcceptedAmount(Ant.Unit, unitItemOrder.TileObjectType);
+                        if (maxTransferAmount > 0)
+                        {
+                            needItems = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -77,13 +81,14 @@ namespace Engine.Ants
                 gameCommandItem.TargetUnit.SetUnitId(Ant.Unit.UnitId);
                 gameCommandItem.TargetUnit.SetStatus("WaitingForDelivery");
 
+                /*
                 gameCommand.RequestedItems = new List<RecipeIngredient>();
                 foreach (RecipeIngredient recipeIngredient in player.Game.RecipeForAnyUnit.Ingredients)
                 {
                     gameCommand.RequestedItems.Add(recipeIngredient);
-                }
+                }*/
 
-                //Ant.Unit.SetGameCommand(gameCommandItem);
+                Ant.Unit.SetGameCommand(gameCommandItem);
 
                 gameCommand.GameCommandItems.Add(gameCommandItem);
                 player.GameCommands.Add(gameCommand);

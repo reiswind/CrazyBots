@@ -370,10 +370,10 @@ namespace Engine.Master
             gameCommandItem.TargetUnit.SetStatus(Blueprint.Name + " WaitingForDelivery");
             Changed = true;
 
+            /*
             gameCommand.RequestedItems = new List<RecipeIngredient>();
-
             RecipeIngredient recipeIngredient = new RecipeIngredient(tileObjectType, capacity);
-            gameCommand.RequestedItems.Add(recipeIngredient);
+            gameCommand.RequestedItems.Add(recipeIngredient);*/
 
             SetGameCommand(gameCommandItem);
 

@@ -121,6 +121,8 @@ namespace Engine.Ants
             }
             return 0;
         }
+
+        /*
         public int GetDeliveryScore(GameCommand gameCommand)
         {
             if (Unit.Weapon != null)
@@ -172,7 +174,7 @@ namespace Engine.Ants
             return score;
         }
 
-
+        */
         public void CreateAntParts()
         {
             bool changed = false;

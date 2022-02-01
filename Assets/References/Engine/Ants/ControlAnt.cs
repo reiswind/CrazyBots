@@ -1359,13 +1359,13 @@ namespace Engine.Ants
 
         public Position2 FindMineral(Player player, Ant ant)
         {
-            return Position2.Null;
-            /*
+            //return Position2.Null;
+            
             List<Position2> bestPositions = null;
 
             if (ant.AntWorkerType == AntWorkerType.Worker)
             {
-                if (ant.PlayerUnit.Unit.CurrentGameCommand != null)
+                if (ant.Unit.CurrentGameCommand != null)
                 {
                     bestPositions = FindMineralForCommand(player, ant, bestPositions);
                 }
@@ -1392,7 +1392,7 @@ namespace Engine.Ants
                     bestPositions = FindMineralDeposit(player, ant, bestPositions);
             }
             return MakePathFromPositions(bestPositions, ant);
-            */
+            
         }
 
         public Position2 LevelGround(List<Move> moves, Player player, Ant ant)
@@ -1776,6 +1776,10 @@ namespace Engine.Ants
                                             requestUnit = false;
                                         }
                                     }
+                                    else if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                                    {
+                                        int x = 0;
+                                    }
                                     else
                                     {
                                         if (ant.Unit.Blueprint.Name == gameCommandItem.BlueprintName)
@@ -1892,10 +1896,13 @@ namespace Engine.Ants
                             // Currently only structures, not moving assemblers
                             if (ant.AntPartAssembler != null && ant.AntPartEngine == null)
                             {
-                                if (ant.Unit.CurrentGameCommand == null &&
-                                    !ant.Unit.UnderConstruction &&
-                                    !ant.Unit.ExtractMe)
+                                if (!ant.Unit.UnderConstruction && !ant.Unit.ExtractMe)
                                 {
+                                    if (ant.Unit.CurrentGameCommand != null && ant.Unit.CurrentGameCommand.FactoryUnit.UnitId != null)
+                                    {
+                                        // Unit is already creating something
+                                        continue;
+                                    }
                                     if (ant.Unit.Pos == gameCommand.TargetPosition)
                                     {
                                         bestAnt = ant;
@@ -2411,10 +2418,12 @@ namespace Engine.Ants
                                     if (factoryUnit != null)
                                     {
                                         // If the assembler is kept, it will have no content and hang around useless
-                                        factoryUnit.ResetGameCommand();
+                                        //factoryUnit.ResetGameCommand();
+                                        // Leave the command alone, just remove the command from the factory.
+                                        factoryUnit.CurrentGameCommand.FactoryUnit.ResetUnitId();
 
                                         // Kill the moving assembler (No more)
-                                        
+
                                         if (ant.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Build &&
                                             factoryUnit.Engine != null)
                                         {

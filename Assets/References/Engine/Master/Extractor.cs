@@ -238,7 +238,7 @@ namespace Engine.Master
                                         {
                                             // Cannot extract what has been delivered
                                             Unit.CurrentGameCommand.GameCommand.CommandCanceled = true;
-                                            Unit.ResetGameCommand();
+                                            //Unit.ResetGameCommand();
                                         }
                                         else
                                         {

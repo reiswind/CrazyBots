@@ -195,7 +195,7 @@ namespace Engine.Master
         
         public GameCommandType GameCommandType { get; set; }
         public List<GameCommandItem> GameCommandItems { get; private set; }
-        public List<RecipeIngredient> RequestedItems { get; set; }
+        //public List<RecipeIngredient> RequestedItems { get; set; }
         internal Dictionary<Position2, TileWithDistance> IncludedPositions { get; set; }
 
         public string UnitId { get; set; }

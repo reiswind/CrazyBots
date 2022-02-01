@@ -56,6 +56,7 @@
     <Analyzer Include="C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\HighlightPlus\Runtime\Scripts\InputProxy.cs" />
     <Compile Include="Assets\HighlightPlus\Runtime\Scripts\HighlightProfile.cs" />
     <Compile Include="Assets\HighlightPlus\Runtime\Scripts\HighlightEffect.cs" />
     <Compile Include="Assets\HighlightPlus\Runtime\Scripts\HighlightTrigger.cs" />
@@ -64,7 +65,6 @@
     <Compile Include="Assets\HighlightPlus\Runtime\Scripts\HighlightEffectOccluderManager.cs" />
     <Compile Include="Assets\HighlightPlus\Runtime\Scripts\HighlightSeeThroughOccluder.cs" />
     <Compile Include="Assets\HighlightPlus\Runtime\Scripts\ShaderParams.cs" />
-    <Compile Include="Assets\HighlightPlus\Runtime\Scripts\InputProxy.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\HighlightPlus\Runtime\Resources\HighlightPlus\HighlightOverlay.shader" />
