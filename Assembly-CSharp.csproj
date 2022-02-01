@@ -163,6 +163,9 @@
     <Compile Include="Assets\References\Engine\Algorithms\PriorityQueueB.cs" />
     <Compile Include="Assets\Scripts\CommandPreview.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartReactor.cs" />
+    <Compile Include="Assets\HighlightPlus\Demo\Scripts\HitFxDemo.cs" />
+    <Compile Include="Assets\HighlightPlus\Demo\Scripts\SphereSelectionEventsExample.cs" />
+    <Compile Include="Assets\HighlightPlus\Demo\Scripts\SphereHighlightEventExample.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Resources\Shader\Wireframe.cginc" />
@@ -170,6 +173,7 @@
     <None Include="Assets\link.xml" />
     <None Include="Assets\Resources\Shader\Basic.shader" />
     <None Include="Assets\BrokenVector\LowPolyTreePack\README.txt" />
+    <None Include="Assets\HighlightPlusBundle\_README.txt" />
     <None Include="Assets\Polygonal Particles\Assets\Shaders\GradientBackgroundShader.shader" />
     <None Include="Assets\character shader pack\1_cartoon\Lighting.hlsl" />
   </ItemGroup>

@@ -15,9 +15,13 @@ namespace HighlightPlus {
 
         public LayerMask layerMask = -1;
         public Camera raycastCamera;
-		public RayCastSource raycastSource = RayCastSource.MousePosition;
-        [Tooltip("Max Distance for target. 0 = infinity")]
+        public RayCastSource raycastSource = RayCastSource.MousePosition;
+        [Tooltip("Minimum distance for target.")]
+        public float minDistance;
+        [Tooltip("Maximum distance for target. 0 = infinity")]
         public float maxDistance;
+        [Tooltip("Blocks interaction if pointer is over an UI element")]
+        public bool respectUI = true;
 
         [Tooltip("If the object will be selected by clicking with mouse or tapping on it.")]
         public bool selectOnClick;
@@ -36,6 +40,8 @@ namespace HighlightPlus {
         public readonly static List<HighlightEffect> selectedObjects = new List<HighlightEffect>();
         public event OnObjectSelectionEvent OnObjectSelected;
         public event OnObjectSelectionEvent OnObjectUnSelected;
+        public event OnObjectHighlightEvent OnObjectHighlightStart;
+        public event OnObjectHighlightEvent OnObjectHighlightEnd;
         public static int lastTriggerTime;
 
         static HighlightManager _instance;
@@ -46,6 +52,13 @@ namespace HighlightPlus {
                 }
                 return _instance;
             }
+        }
+
+        [RuntimeInitializeOnLoadMethod]
+        void DomainReloadDisabledSupport() {
+            selectedObjects.Clear();
+            lastTriggerTime = 0;
+            _instance = null;
         }
 
         void OnEnable() {
@@ -74,18 +87,21 @@ namespace HighlightPlus {
 
 		void Update () {
 			if (raycastCamera == null)
-				return;
-			Ray ray;
-			if (raycastSource == RayCastSource.MousePosition) {
-				ray = raycastCamera.ScreenPointToRay (Input.mousePosition);
-			} else {
-				ray = new Ray (raycastCamera.transform.position, raycastCamera.transform.forward);
-			}
+                return;
+            Ray ray;
+            if (raycastSource == RayCastSource.MousePosition) {
+                if (!CanInteract()) {
+                    return;
+                }
+                ray = raycastCamera.ScreenPointToRay(InputProxy.mousePosition);
+            } else {
+                ray = new Ray(raycastCamera.transform.position, raycastCamera.transform.forward);
+            }
             RaycastHit hitInfo;
-            if (Physics.Raycast(ray, out hitInfo, maxDistance > 0 ? maxDistance : raycastCamera.farClipPlane, layerMask)) {
+            if (Physics.Raycast(ray, out hitInfo, maxDistance > 0 ? maxDistance : raycastCamera.farClipPlane, layerMask) && Vector3.Distance(hitInfo.point, ray.origin) >= minDistance) {
                 Transform t = hitInfo.collider.transform;
                 // Toggles selection
-                if (Input.GetMouseButtonDown(0)) {
+                if (InputProxy.GetMouseButtonDown(0)) {
                     if (selectOnClick) {
                         ToggleSelection(t);
                     } else if (lastTriggerTime < Time.frameCount) {
@@ -101,7 +117,7 @@ namespace HighlightPlus {
             }
 
             // no hit
-            if (Input.GetMouseButtonDown(0) && lastTriggerTime < Time.frameCount) {
+            if (InputProxy.GetMouseButtonDown(0) && lastTriggerTime < Time.frameCount) {
                 internal_DeselectAll();
             }
             SwitchesCollider (null);
@@ -139,6 +155,17 @@ namespace HighlightPlus {
             if (highlightOnHover) {
                 Highlight(true);
             }
+        }
+
+
+        bool CanInteract() {
+            if (respectUI && UnityEngine.EventSystems.EventSystem.current != null) {
+                if (Application.isMobilePlatform && InputProxy.touchCount > 0 && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject(InputProxy.GetFingerIdFromTouch(0))) {
+                    return false;
+                } else if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject(-1))
+                    return false;
+            }
+            return true;
         }
 
 
@@ -200,6 +227,19 @@ namespace HighlightPlus {
         }
 
         void Highlight(bool state) {
+            if (state) {
+                if (!currentEffect.highlighted) {
+                    if (OnObjectHighlightStart != null && currentEffect.target != null) {
+                        OnObjectHighlightStart(currentEffect.target.gameObject);
+                    }
+                }
+            } else {
+                if (currentEffect.highlighted) {
+                    if (OnObjectHighlightEnd != null && currentEffect.target != null) {
+                        OnObjectHighlightEnd(currentEffect.target.gameObject);
+                    }
+                }
+            }
             if (selectOnClick) {
                 if (currentEffect.isSelected) {
                     if (state) {
@@ -245,6 +285,7 @@ namespace HighlightPlus {
                     hb.SetHighlighted(false);
                 }
             }
+            selectedObjects.Clear();
         }
 
 
@@ -252,9 +293,14 @@ namespace HighlightPlus {
             foreach (HighlightEffect hb in selectedObjects) {
                 if (hb != null && hb.gameObject != null) {
                     hb.isSelected = false;
-                    hb.SetHighlighted(false);
+                    if (hb.highlighted && _instance != null) {
+                        _instance.Highlight(false);
+                    } else {
+                        hb.SetHighlighted(false);
+                    }
                 }
             }
+            selectedObjects.Clear();
         }
 
 

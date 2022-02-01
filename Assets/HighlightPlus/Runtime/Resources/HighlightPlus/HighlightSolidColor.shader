@@ -24,8 +24,8 @@ Properties {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma multi_compile _ HP_ALPHACLIP
-            #pragma multi_compile _ HP_DEPTHCLIP
+            #pragma multi_compile_local _ HP_ALPHACLIP
+            #pragma multi_compile_local _ HP_DEPTHCLIP
 
             #include "UnityCG.cginc"
             #include "CustomVertexTransform.cginc"

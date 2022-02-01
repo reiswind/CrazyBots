@@ -32,7 +32,7 @@ Properties {
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_instancing
-            #pragma multi_compile _ HP_ALPHACLIP
+            #pragma multi_compile_local _ HP_ALPHACLIP
             #include "UnityCG.cginc"
             #include "CustomVertexTransform.cginc"
 

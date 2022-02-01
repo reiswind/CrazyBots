@@ -5,12 +5,14 @@ Properties {
     [HideInInspector] _Cull ("Cull Mode", Int) = 2
     [HideInInspector] _ZTest ("ZTest Mode", Int) = 0
 	[HideInInspector] _Flip("Flip", Vector) = (0, 1, 0)
+	[HideInInspector] _BlendSrc("Blend Src", Int) = 1
+	[HideInInspector] _BlendDst("Blend Dst", Int) = 1
 	_Debug("Debug Color", Color) = (0,0,0,0)
 }
     SubShader
     {
         Tags { "Queue"="Transparent+102" "RenderType"="Transparent" "DisableBatching" = "True" }
-        Blend One One
+        Blend [_BlendSrc] [_BlendDst]
 
         // Compose effect on camera target
         Pass

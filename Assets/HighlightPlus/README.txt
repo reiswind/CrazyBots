@@ -88,6 +88,48 @@ https://assetstore.unity.com/publishers/15018
 Version history
 ---------------
 
+Version 7.8
+- Added outer glow blend mode option
+- API: added OnObjectHighlightStart/End events to HighlightTrigger (check documentation for differences with similar events on Highlight Effect main script)
+- [Fix] API: Fixed specific issues with SetTarget method when used on shader graph based materials that don't use standard texture names
+
+Version 7.7.2
+- [Fix] Fixed fade in/out issue when disabling/enabling objects
+
+Version 7.7
+- Added support for the new Input System
+- [Fix] Fixes to the align to ground option of target fx effect
+
+Version 7.6.2
+- [Fix] VR: fixed target effect "Align to Ground" issue with Single Pass Instanced
+
+Version 7.6.1
+- [Fix] Fixed overlay animation speed issue
+
+Version 7.6
+- Added "Target FX Align to Ground" option
+- Added isSeeThroughOccluded(camera). Is true when any see-through occluder using raycast mode is blocking the see-through effect
+- All shader keywords are now of local type reducing global keyword usage
+- Fixes and improvements to see-through when combined with outline/outer glow
+
+Version 7.5.2
+- [Fix] See-through is now visible when using glow/outline/inner glow with Always Visible option
+
+Version 7.5.1
+- [Fix] Fixed regression bug with Outline in High Quality mode
+
+Version 7.5
+- Added new HitFX style: "Local Hit"
+- Added new demo scene showcasing the HitFx variations
+- Added "Overlay Texture" option
+- Added "Min Distance" option to Highlight Manager and Highlight Trigger
+- Added support for "Domain Reload" disabled option
+- API: added OnObjectHighlightStart, OnObjectHighlightEnd events to HighlightManager
+- [Fix] Fixed inner glow and overlay issue when MaterialPropertyBlock is used on the character material
+
+Version 7.1
+- Added "Respect UI" to Highlight Manager and Trigger which blocks interaction if pointer is over an UI element
+
 Version 7.0.2
 - Memory optimizations
 

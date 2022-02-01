@@ -64,6 +64,7 @@
     <Compile Include="Assets\HighlightPlus\Runtime\Scripts\HighlightEffectOccluderManager.cs" />
     <Compile Include="Assets\HighlightPlus\Runtime\Scripts\HighlightSeeThroughOccluder.cs" />
     <Compile Include="Assets\HighlightPlus\Runtime\Scripts\ShaderParams.cs" />
+    <Compile Include="Assets\HighlightPlus\Runtime\Scripts\InputProxy.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\HighlightPlus\Runtime\Resources\HighlightPlus\HighlightOverlay.shader" />

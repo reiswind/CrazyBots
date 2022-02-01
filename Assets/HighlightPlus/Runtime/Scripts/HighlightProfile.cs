@@ -47,6 +47,9 @@ namespace HighlightPlus {
 		[Range (0, 1)]
 		[Tooltip("Controls the blending or mix of the overlay color with the natural colors of the object.")]
 		public float overlayBlending = 1.0f;
+        [Tooltip("Optional overlay texture.")]
+        public Texture2D overlayTexture;
+        public float overlayTextureScale = 1f;
 
 		[Range (0, 1)]
 		[Tooltip("Intensity of the outline. A value of 0 disables the outline completely.")]
@@ -79,6 +82,7 @@ namespace HighlightPlus {
 		public float glowMagicNumber2 = 0.5f;
 		public float glowAnimationSpeed = 1f;
 		public Visibility glowVisibility = Visibility.Normal;
+        public GlowBlendMode glowBlendMode = GlowBlendMode.Additive;
 		[Tooltip("Blends glow passes one after another. If this option is disabled, glow passes won't overlap (in this case, make sure the glow pass 1 has a smaller offset than pass 2, etc.)")]
 		public bool glowBlendPasses = true;
 		public GlowPassData[] glowPasses;
@@ -98,8 +102,15 @@ namespace HighlightPlus {
 		public float targetFXRotationSpeed = 50f;
 		public float targetFXInitialScale = 4f;
 		public float targetFXEndScale = 1.5f;
-        [Tooltip("Makes target scale relative to object renderer bounds")]
+        [Tooltip("Makes target scale relative to object renderer bounds.")]
         public bool targetFXScaleToRenderBounds;
+        [Tooltip("Places target FX sprite at the bottom of the highlighted object.")]
+        public bool targetFXAlignToGround;
+        [Tooltip("Max distance from the center of the highlighted object to the ground.")]
+        public float targetFXGroundMaxDistance = 15f;
+        public LayerMask targetFXGroundLayerMask = -1;
+		[Tooltip("Fade out effect with altitude")]
+		public float targetFXFadePower = 32;
 		public float targetFXTransitionDuration = 0.5f;
 		public float targetFXStayDuration = 1.5f;
         public Visibility targetFXVisibility = Visibility.AlwaysOnTop;
@@ -134,6 +145,7 @@ namespace HighlightPlus {
         public HitFxMode hitFxMode = HitFxMode.Overlay;
         public float hitFxFadeOutDuration = 0.25f;
 		[ColorUsage(true, true)] public Color hitFxColor = Color.white;
+        public float hitFxRadius = 0.5f;
 
         public void Load(HighlightEffect effect) {
 			effect.effectGroup = effectGroup;
@@ -151,6 +163,8 @@ namespace HighlightPlus {
 			effect.overlayAnimationSpeed = overlayAnimationSpeed;
 			effect.overlayMinIntensity = overlayMinIntensity;
 			effect.overlayBlending = overlayBlending;
+            effect.overlayTexture = overlayTexture;
+            effect.overlayTextureScale = overlayTextureScale;
 			effect.outline = outline;
 			effect.outlineColor = outlineColor;
 			effect.outlineWidth = outlineWidth;
@@ -168,6 +182,7 @@ namespace HighlightPlus {
 			effect.glowMagicNumber2 = glowMagicNumber2;
 			effect.glowAnimationSpeed = glowAnimationSpeed;
 			effect.glowVisibility = glowVisibility;
+            effect.glowBlendMode = glowBlendMode;
             effect.glowBlendPasses = glowBlendPasses;
 			effect.glowPasses = GetGlowPassesCopy (glowPasses);
 			effect.innerGlow = innerGlow;
@@ -179,7 +194,11 @@ namespace HighlightPlus {
             effect.targetFXInitialScale = targetFXInitialScale;
             effect.targetFXEndScale = targetFXEndScale;
             effect.targetFXScaleToRenderBounds = targetFXScaleToRenderBounds;
-            effect.targetFXRotationSpeed = targetFXRotationSpeed;
+            effect.targetFXAlignToGround = targetFXAlignToGround;
+            effect.targetFXGroundMaxDistance = targetFXGroundMaxDistance;
+            effect.targetFXGroundLayerMask = targetFXGroundLayerMask;
+			effect.targetFXFadePower = targetFXFadePower;
+			effect.targetFXRotationSpeed = targetFXRotationSpeed;
 			effect.targetFXStayDuration = targetFXStayDuration;
 			effect.targetFXTexture = targetFXTexture;
 			effect.targetFXTransitionDuration = targetFXTransitionDuration;
@@ -204,6 +223,7 @@ namespace HighlightPlus {
             effect.hitFxMode = hitFxMode;
             effect.hitFxFadeOutDuration = hitFxFadeOutDuration;
             effect.hitFxColor = hitFxColor;
+            effect.hitFxRadius = hitFxRadius;
             effect.UpdateMaterialProperties();
 		}
 
@@ -223,6 +243,8 @@ namespace HighlightPlus {
 			overlayAnimationSpeed = effect.overlayAnimationSpeed;
 			overlayMinIntensity = effect.overlayMinIntensity;
 			overlayBlending = effect.overlayBlending;
+            overlayTexture = effect.overlayTexture;
+            overlayTextureScale = effect.overlayTextureScale;
 			outline = effect.outline;
 			outlineColor = effect.outlineColor;
 			outlineWidth = effect.outlineWidth;
@@ -240,6 +262,7 @@ namespace HighlightPlus {
 			glowMagicNumber2 = effect.glowMagicNumber2;
 			glowAnimationSpeed = effect.glowAnimationSpeed;
             glowVisibility = effect.glowVisibility;
+            glowBlendMode = effect.glowBlendMode;
             glowBlendPasses = effect.glowBlendPasses;
 			glowPasses = GetGlowPassesCopy (effect.glowPasses);
 			innerGlow = effect.innerGlow;
@@ -251,7 +274,11 @@ namespace HighlightPlus {
             targetFXInitialScale = effect.targetFXInitialScale;
             targetFXEndScale = effect.targetFXEndScale;
             targetFXScaleToRenderBounds = effect.targetFXScaleToRenderBounds;
-            targetFXRotationSpeed = effect.targetFXRotationSpeed;
+            targetFXAlignToGround = effect.targetFXAlignToGround;
+            targetFXGroundMaxDistance = effect.targetFXGroundMaxDistance;
+            targetFXGroundLayerMask = effect.targetFXGroundLayerMask;
+			targetFXFadePower = effect.targetFXFadePower;
+			targetFXRotationSpeed = effect.targetFXRotationSpeed;
             targetFXStayDuration = effect.targetFXStayDuration;
 			targetFXTexture = effect.targetFXTexture;
 			targetFXTransitionDuration = effect.targetFXTransitionDuration;
@@ -276,6 +303,7 @@ namespace HighlightPlus {
             hitFxMode = effect.hitFxMode;
             hitFxFadeOutDuration = effect.hitFxFadeOutDuration;
             hitFxColor = effect.hitFxColor;
+            hitFxRadius = effect.hitFxRadius;
 		}
 
 		GlowPassData[] GetGlowPassesCopy (GlowPassData[] glowPasses) {
@@ -295,7 +323,8 @@ namespace HighlightPlus {
 			seeThroughDepthOffset = Mathf.Max(0, seeThroughDepthOffset);
 			seeThroughMaxDepth = Mathf.Max(0, seeThroughMaxDepth);
 			seeThroughBorderWidth = Mathf.Max(0, seeThroughBorderWidth);
-            if (glowPasses == null || glowPasses.Length == 0) {
+			targetFXFadePower = Mathf.Max(0, targetFXFadePower);
+			if (glowPasses == null || glowPasses.Length == 0) {
                 glowPasses = new GlowPassData[4];
                 glowPasses[0] = new GlowPassData() { offset = 4, alpha = 0.1f, color = new Color(0.64f, 1f, 0f, 1f) };
                 glowPasses[1] = new GlowPassData() { offset = 3, alpha = 0.2f, color = new Color(0.64f, 1f, 0f, 1f) };

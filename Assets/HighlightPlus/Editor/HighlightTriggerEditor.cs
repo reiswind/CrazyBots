@@ -5,7 +5,7 @@ namespace HighlightPlus {
     [CustomEditor(typeof(HighlightTrigger))]
     public class HighlightTriggerEditor : Editor {
 
-        SerializedProperty highlightOnHover, triggerMode, raycastCamera, raycastSource, maxDistance, volumeLayerMask;
+        SerializedProperty highlightOnHover, triggerMode, raycastCamera, raycastSource, minDistance, maxDistance, respectUI, volumeLayerMask;
         SerializedProperty selectOnClick, selectedProfile, selectedAndHighlightedProfile, singleSelection, toggleOnClick;
         HighlightTrigger trigger;
 
@@ -14,7 +14,9 @@ namespace HighlightPlus {
             triggerMode = serializedObject.FindProperty("triggerMode");
             raycastCamera = serializedObject.FindProperty("raycastCamera");
             raycastSource = serializedObject.FindProperty("raycastSource");
+            minDistance = serializedObject.FindProperty("minDistance");
             maxDistance = serializedObject.FindProperty("maxDistance");
+            respectUI = serializedObject.FindProperty("respectUI");
             volumeLayerMask = serializedObject.FindProperty("volumeLayerMask");
             selectOnClick = serializedObject.FindProperty("selectOnClick");
             selectedProfile = serializedObject.FindProperty("selectedProfile");
@@ -45,7 +47,8 @@ namespace HighlightPlus {
                     EditorGUI.indentLevel++;
                     EditorGUILayout.PropertyField(raycastCamera);
                     EditorGUILayout.PropertyField(raycastSource);
-                    EditorGUILayout.PropertyField(maxDistance, new GUIContent("Max Distance", "Max distance for target. 0 = infinity")); ;
+                    EditorGUILayout.PropertyField(minDistance);
+                    EditorGUILayout.PropertyField(maxDistance);
                     EditorGUI.indentLevel--;
                     break;
                 case TriggerMode.Volume:
@@ -55,6 +58,9 @@ namespace HighlightPlus {
                     break;
             }
 
+            if (trigger.triggerMode != TriggerMode.Volume) {
+                EditorGUILayout.PropertyField(respectUI);
+            }
             EditorGUILayout.PropertyField(highlightOnHover);
             EditorGUILayout.PropertyField(selectOnClick);
             if (selectOnClick.boolValue) {

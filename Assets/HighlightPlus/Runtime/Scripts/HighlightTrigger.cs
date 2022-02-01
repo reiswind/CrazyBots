@@ -27,7 +27,12 @@ namespace HighlightPlus {
         public TriggerMode triggerMode = TriggerMode.ColliderEventsOnlyOnThisObject;
         public Camera raycastCamera;
         public RayCastSource raycastSource = RayCastSource.MousePosition;
+        [Tooltip("Minimum distance for target.")]
+        public float minDistance;
+        [Tooltip("Maximum distance for target. 0 = infinity")]
         public float maxDistance;
+        [Tooltip("Blocks interaction if pointer is over an UI element")]
+        public bool respectUI = true;
         public LayerMask volumeLayerMask;
 
         const int MAX_RAYCAST_HITS = 100;
@@ -54,6 +59,13 @@ namespace HighlightPlus {
 
         public event OnObjectSelectionEvent OnObjectSelected;
         public event OnObjectSelectionEvent OnObjectUnSelected;
+        public event OnObjectHighlightEvent OnObjectHighlightStart;
+        public event OnObjectHighlightEvent OnObjectHighlightEnd;
+
+        [RuntimeInitializeOnLoadMethod]
+        void DomainReloadDisabledSupport() {
+            HighlightManager.selectedObjects.Clear();
+        }
 
         void OnEnable() {
             Init();
@@ -99,7 +111,11 @@ namespace HighlightPlus {
                 if (raycastCamera != null) {
                     Ray ray;
                     if (raycastSource == RayCastSource.MousePosition) {
-                        ray = raycastCamera.ScreenPointToRay(Input.mousePosition);
+                        if (!CanInteract()) {
+                            yield return null;
+                            continue;
+                        }
+                        ray = raycastCamera.ScreenPointToRay(InputProxy.mousePosition);
                     } else {
                         ray = new Ray(raycastCamera.transform.position, raycastCamera.transform.forward);
                     }
@@ -111,11 +127,12 @@ namespace HighlightPlus {
                     }
                     bool hit = false;
                     for (int k = 0; k < hitCount; k++) {
+                        if (Vector3.Distance(hits[k].point, ray.origin) < minDistance) continue;
                         Collider theCollider = hits[k].collider;
                         for (int c = 0; c < colliders.Length; c++) {
                             if (colliders[c] == theCollider) {
                                 hit = true;
-                                if (selectOnClick && Input.GetMouseButtonDown(0)) {
+                                if (selectOnClick && InputProxy.GetMouseButtonDown(0)) {
                                     ToggleSelection();
                                     break;
                                 } else if (theCollider != currentCollider) {
@@ -146,10 +163,21 @@ namespace HighlightPlus {
             }
         }
 
+        bool CanInteract() {
+            if (respectUI && UnityEngine.EventSystems.EventSystem.current != null) {
+                if (Application.isMobilePlatform && InputProxy.touchCount > 0 && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject(InputProxy.GetFingerIdFromTouch(0))) {
+                    return false;
+                } else if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject(-1))
+                    return false;
+            }
+            return true;
+        }
+
 
         void OnMouseDown() {
             if (isActiveAndEnabled && triggerMode == TriggerMode.ColliderEventsOnlyOnThisObject) {
-                if (selectOnClick && Input.GetMouseButtonDown(0)) {
+                if (!CanInteract()) return;
+                if (selectOnClick && InputProxy.GetMouseButtonDown(0)) {
                     ToggleSelection();
                     return;
                 }
@@ -159,17 +187,32 @@ namespace HighlightPlus {
 
         void OnMouseEnter() {
             if (isActiveAndEnabled && triggerMode == TriggerMode.ColliderEventsOnlyOnThisObject) {
+                if (!CanInteract()) return;
                 Highlight(true);
             }
         }
 
         void OnMouseExit() {
             if (isActiveAndEnabled && triggerMode == TriggerMode.ColliderEventsOnlyOnThisObject) {
+                if (!CanInteract()) return;
                 Highlight(false);
             }
         }
 
         void Highlight(bool state) {
+            if (state) {
+                if (!hb.highlighted) {
+                    if (OnObjectHighlightStart != null && hb.target != null) {
+                        if (!OnObjectHighlightStart(hb.target.gameObject)) return;
+                    }
+                }
+            } else {
+                if (hb.highlighted) {
+                    if (OnObjectHighlightEnd != null && hb.target != null) {
+                        OnObjectHighlightEnd(hb.target.gameObject);
+                    }
+                }
+            }
             if (selectOnClick) {
                 if (hb.isSelected) {
                     if (state) {

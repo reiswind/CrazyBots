@@ -32,8 +32,8 @@ Properties {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma multi_compile _ HP_ALPHACLIP
-            #pragma multi_compile _ HP_DEPTH_OFFSET
+            #pragma multi_compile_local _ HP_ALPHACLIP
+            #pragma multi_compile_local _ HP_DEPTH_OFFSET
 
             #include "UnityCG.cginc"
             #include "CustomVertexTransform.cginc"
