@@ -22,6 +22,72 @@ namespace Engine.Ants
         }
         public override bool Move(ControlAnt control, Player player, List<Move> moves)
         {
+            bool needItems = false;
+            GameCommand runningGameCommand = null;
+
+            foreach (GameCommand existingGameCommand in player.GameCommands)
+            {
+                if (existingGameCommand.GameCommandType == GameCommandType.ItemRequest)
+                {
+                    foreach (GameCommandItem existingCommandItem in existingGameCommand.GameCommandItems)
+                    {
+                        if (existingCommandItem.TargetUnit.UnitId == Ant.Unit.UnitId)
+                        {
+                            runningGameCommand = existingGameCommand;
+                            break;
+                        }
+                    }
+                }
+                if (runningGameCommand != null)
+                    break;
+            }
+            
+            foreach (UnitItemOrder unitItemOrder in Ant.Unit.UnitOrders.unitItemOrders)
+            {
+                if (unitItemOrder.TileObjectState == TileObjectState.Accept)
+                {
+                    int maxTransferAmount = Ant.Unit.UnitOrders.GetAcceptedAmount(Ant.Unit, unitItemOrder.TileObjectType);
+                    if (maxTransferAmount > 0)
+                    {
+                        needItems = true;
+                        break;
+                    }
+                }
+            }
+            if (needItems == false && runningGameCommand != null)
+            {
+                // Finish this command.
+                runningGameCommand.CommandComplete = true;
+            }
+            if (needItems && runningGameCommand == null)
+            {
+                // Request delivery
+                GameCommand gameCommand = new GameCommand();
+                gameCommand.GameCommandType = GameCommandType.ItemRequest;
+                gameCommand.Layout = "UIDelivery";
+                gameCommand.TargetPosition = Ant.Unit.Pos;
+                gameCommand.DeleteWhenFinished = true;
+                gameCommand.PlayerId = player.PlayerModel.Id;
+
+                BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
+                blueprintCommandItem.BlueprintName = Ant.Unit.Blueprint.Name;
+                blueprintCommandItem.Direction = Direction.C;
+
+                GameCommandItem gameCommandItem = new GameCommandItem(gameCommand, blueprintCommandItem);
+                gameCommandItem.TargetUnit.SetUnitId(Ant.Unit.UnitId);
+                gameCommandItem.TargetUnit.SetStatus("WaitingForDelivery");
+
+                gameCommand.RequestedItems = new List<RecipeIngredient>();
+                foreach (RecipeIngredient recipeIngredient in player.Game.RecipeForAnyUnit.Ingredients)
+                {
+                    gameCommand.RequestedItems.Add(recipeIngredient);
+                }
+
+                //Ant.Unit.SetGameCommand(gameCommandItem);
+
+                gameCommand.GameCommandItems.Add(gameCommandItem);
+                player.GameCommands.Add(gameCommand);
+            }
             /*
             int items = Container.Unit.CountTileObjectsInContainer();
             int capacity = Container.Unit.CountCapacity();

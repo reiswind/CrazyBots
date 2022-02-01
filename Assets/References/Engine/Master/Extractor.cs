@@ -660,6 +660,7 @@ namespace Engine.Master
                 ExtractFromGround(fromTile, extractedItems);
             }
 
+            /* This check has been shifted to AntContainer move
             if (Unit.CurrentGameCommand != null &&
                 Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest &&
                 !Unit.CurrentGameCommand.GameCommand.CommandComplete &&
@@ -674,7 +675,7 @@ namespace Engine.Master
                         unit.ResetGameCommand();
                     }
                 }
-            }
+            }*/
 
             // The removed tileobjects will be in the move until the next move
             move.Stats = unit.CollectStats();
@@ -773,6 +774,10 @@ namespace Engine.Master
                     {
                         int transferAmount = capacity;
 
+                        int maxTransferAmount = unit.UnitOrders.GetAcceptedAmount(unit, pullItemOrder.TileObjectType);
+                        if (transferAmount > maxTransferAmount)
+                            transferAmount = maxTransferAmount;
+                        /*
                         int numberOfRequests = 0;
                         foreach (UnitItemOrder targetUnitItemOrder in unit.UnitOrders.unitItemOrders)
                         {
@@ -799,7 +804,7 @@ namespace Engine.Master
                                 if (transferAmount > maxTransferAmount)
                                     transferAmount = maxTransferAmount;
                             }
-                        }
+                        }*/
 
                         capacity = TransferTileObjects(otherUnit, changedUnits, extractedItems, pullItemOrder, transferAmount, excludeTileObjects);
                     }

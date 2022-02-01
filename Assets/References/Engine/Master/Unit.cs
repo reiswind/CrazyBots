@@ -71,6 +71,34 @@ namespace Engine.Master
             unitItemOrders = new List<UnitItemOrder>();
         }
         public List<UnitItemOrder> unitItemOrders { get; set; }
+
+        public int GetAcceptedAmount(Unit unit, TileObjectType tileObjectType)
+        {
+            int maxTransferAmount = 0;
+            int numberOfRequests = 0;
+            foreach (UnitItemOrder targetUnitItemOrder in unit.UnitOrders.unitItemOrders)
+            {
+                if (targetUnitItemOrder.TileObjectState == TileObjectState.Accept)
+                    numberOfRequests++;
+            }
+            if (numberOfRequests > 1)
+            {
+                int countInUnit = unit.CountTileObjectsInContainer(tileObjectType);
+
+                // Do not accept more than half/third.. of capacity
+                if (countInUnit >= unit.Container.TileContainer.Capacity / numberOfRequests)
+                {
+                    // Contains enough, leave room for other
+                    maxTransferAmount = 0;
+                }
+                else
+                {
+                    maxTransferAmount = (unit.Container.TileContainer.Capacity / numberOfRequests) - countInUnit;
+                }
+            }
+            return maxTransferAmount;
+        }
+
     }
 
     [DataContract]
