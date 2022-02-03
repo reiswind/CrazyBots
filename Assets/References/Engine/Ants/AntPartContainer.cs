@@ -49,7 +49,7 @@ namespace Engine.Ants
 
                     if (unitItemOrder.TileObjectState == TileObjectState.Accept)
                     {
-                        int maxTransferAmount = Ant.Unit.UnitOrders.GetAcceptedAmount(Ant.Unit, unitItemOrder.TileObjectType);
+                        int maxTransferAmount = UnitOrders.GetAcceptedAmount(Ant.Unit, unitItemOrder.TileObjectType);
                         if (maxTransferAmount > 0)
                         {
                             needItems = true;
@@ -88,7 +88,8 @@ namespace Engine.Ants
                     gameCommand.RequestedItems.Add(recipeIngredient);
                 }*/
 
-                Ant.Unit.SetGameCommand(gameCommandItem);
+                // Request would block factory commands.
+                //Ant.Unit.SetGameCommand(gameCommandItem);
 
                 gameCommand.GameCommandItems.Add(gameCommandItem);
                 player.GameCommands.Add(gameCommand);

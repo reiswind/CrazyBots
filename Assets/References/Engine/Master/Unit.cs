@@ -72,30 +72,30 @@ namespace Engine.Master
         }
         public List<UnitItemOrder> unitItemOrders { get; set; }
 
-        public int GetAcceptedAmount(Unit unit, TileObjectType tileObjectType)
+        public static int GetAcceptedAmount(Unit unit, TileObjectType tileObjectType)
         {
             int maxTransferAmount = 0;
             int numberOfRequests = 0;
+            int numberOf = 0;
             foreach (UnitItemOrder targetUnitItemOrder in unit.UnitOrders.unitItemOrders)
             {
                 if (targetUnitItemOrder.TileObjectState == TileObjectState.Accept)
                     numberOfRequests++;
-            }
-            if (numberOfRequests > 1)
-            {
-                int countInUnit = unit.CountTileObjectsInContainer(tileObjectType);
 
-                // Do not accept more than half/third.. of capacity
-                if (countInUnit >= unit.Container.TileContainer.Capacity / numberOfRequests)
+                if (targetUnitItemOrder.TileObjectType == tileObjectType &&
+                    targetUnitItemOrder.TileObjectState == TileObjectState.Deny)
                 {
-                    // Contains enough, leave room for other
-                    maxTransferAmount = 0;
-                }
-                else
-                {
-                    maxTransferAmount = (unit.Container.TileContainer.Capacity / numberOfRequests) - countInUnit;
+                    return 0;
                 }
             }
+            int countInUnit = unit.CountTileObjectsInContainer(tileObjectType);
+            if (numberOfRequests > 0)
+                maxTransferAmount = (unit.Container.TileContainer.Capacity / numberOfRequests) - countInUnit;
+            else
+                maxTransferAmount = unit.Container.TileContainer.Capacity - countInUnit;
+
+            if (maxTransferAmount < 0)
+                maxTransferAmount = 0;
             return maxTransferAmount;
         }
 
@@ -178,6 +178,11 @@ namespace Engine.Master
         public void OnDestroyed()
         {
             ResetGameCommand();
+        }
+        public void ResetGameCommandOnly()
+        {
+            Changed = true;
+            CurrentGameCommand = null;
         }
         public void ResetGameCommand()
         {
@@ -1769,17 +1774,6 @@ namespace Engine.Master
         }
         public bool IsSpaceForTileObject(TileObjectType tileObjectType)
         {
-            // Check Container settings
-            foreach (UnitItemOrder unitItemOrder in UnitOrders.unitItemOrders)
-            {
-                if (unitItemOrder.TileObjectType == tileObjectType)
-                {
-                    if (unitItemOrder.TileObjectState == TileObjectState.Deny)
-                    {
-                        return false;
-                    }
-                }
-            }
             // Check capacity
             if (Reactor != null && Reactor.TileContainer != null)
             {
@@ -1815,6 +1809,7 @@ namespace Engine.Master
             }
             return false;
         }
+        /*
         public bool IsSpaceForTileObject(TileObject tileObject)
         {
             if (Reactor != null && Reactor.TileContainer != null)
@@ -1850,7 +1845,7 @@ namespace Engine.Master
                 }
             }
             return false;
-        }
+        }*/
 
         public void AddTileObjects(List<TileObject> tileObjects)
         {

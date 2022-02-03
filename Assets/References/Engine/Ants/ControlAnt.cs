@@ -1755,18 +1755,25 @@ namespace Engine.Ants
                             {
                                 if (ant.Unit.CurrentGameCommand == null)
                                 {
-                                    /* Done by transport
+                                    // Done by transport
                                     if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                                     {
-                                        int score = ant.GetDeliveryScore(gameCommandItem.GameCommand);
+                                        if (ant.Unit.Blueprint.Name == "Worker")
+                                        {
+                                            gameCommandItem.TransportUnit.SetUnitId(ant.Unit.UnitId);
+                                            gameCommandItem.TransportUnit.SetStatus("Transport for " + gameCommand.GameCommandType);
+                                            ant.Unit.SetGameCommand(gameCommandItem);
+                                            requestUnit = false;
+                                        }
+                                        /*
+                                            int score = ant.GetDeliveryScore(gameCommandItem.GameCommand);
                                         if (score > bestDeliveryScore)
                                         {
                                             bestDeliveryScore = score;
                                             deliverySourceAnt = ant;
-                                        }
+                                        }*/
                                     }
-                                    else */
-                                    if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build)
+                                    else if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build)
                                     {
                                         if (ant.Unit.Blueprint.Name == "Builder")
                                         {
@@ -1776,10 +1783,7 @@ namespace Engine.Ants
                                             requestUnit = false;
                                         }
                                     }
-                                    else if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.ItemRequest)
-                                    {
-                                        int x = 0;
-                                    }
+                                   
                                     else
                                     {
                                         if (ant.Unit.Blueprint.Name == gameCommandItem.BlueprintName)
@@ -2417,12 +2421,12 @@ namespace Engine.Ants
                                     Unit factoryUnit = player.Game.Map.Units.FindUnit(ant.Unit.CurrentGameCommand.FactoryUnit.UnitId);
                                     if (factoryUnit != null)
                                     {
-                                        // If the assembler is kept, it will have no content and hang around useless
-                                        //factoryUnit.ResetGameCommand();
                                         // Leave the command alone, just remove the command from the factory.
                                         factoryUnit.CurrentGameCommand.FactoryUnit.ResetUnitId();
+                                        factoryUnit.ResetGameCommandOnly();
 
                                         // Kill the moving assembler (No more)
+                                        // If the assembler is kept, it will have no content and hang around useless
 
                                         if (ant.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Build &&
                                             factoryUnit.Engine != null)

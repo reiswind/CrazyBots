@@ -180,20 +180,22 @@ namespace Engine.Master
                             // Do not pickup stuff. Move to pickup location
                             continue;
                         }
-
-                        if (Unit.IsSpaceForTileObject(tileObjectType))
+                        if (UnitOrders.GetAcceptedAmount(Unit, tileObjectType) > 0)
                         {
-                            Move move = new Move();
+                            if (Unit.IsSpaceForTileObject(tileObjectType))
+                            {
+                                Move move = new Move();
 
-                            move.MoveType = MoveType.Extract;
+                                move.MoveType = MoveType.Extract;
 
-                            move.UnitId = Unit.UnitId;
-                            move.OtherUnitId = tileObject.TileObjectType.ToString();
-                            move.Positions = new List<Position2>();
-                            move.Positions.Add(Unit.Pos);
-                            move.Positions.Add(t.Pos);
+                                move.UnitId = Unit.UnitId;
+                                move.OtherUnitId = tileObject.TileObjectType.ToString();
+                                move.Positions = new List<Position2>();
+                                move.Positions.Add(Unit.Pos);
+                                move.Positions.Add(t.Pos);
 
-                            possibleMoves.Add(move);
+                                possibleMoves.Add(move);
+                            }
                         }
                     }
                 }
@@ -249,9 +251,12 @@ namespace Engine.Master
                                 }
                                 if (!added)
                                 {
-                                    if (t.Unit.CurrentGameCommand != null && t.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                                    if (t.Unit.CurrentGameCommand != null && 
+                                        t.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest &&
+                                        t.Unit.CurrentGameCommand.TargetUnit.UnitId != Unit.UnitId)
                                     {
                                         // Container should not extract from a worker that is used to deliver items.
+                                        int x = 0;
                                     }
                                     else
                                     {
@@ -276,11 +281,28 @@ namespace Engine.Master
                                         else if (Unit.Container != null)
                                         {
                                             // Transport from Container to Container
+                                            // Check if the targetUnit accepts at least one of the available item. 
+                                            foreach (TileObject tileObject in t.Unit.Container.TileContainer.TileObjects)
+                                            {
+                                                if (UnitOrders.GetAcceptedAmount(Unit, tileObject.TileObjectType) > 0)
+                                                {
+                                                    if (Unit.IsSpaceForTileObject(tileObject.TileObjectType))
+                                                    {
+                                                        Move move = CreateExtractMove(t.Unit);
+                                                        if (move != null)
+                                                        {
+                                                            possibleMoves.Add(move);
+                                                        }
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            /*
                                             Move move = CreateExtractMoveIfPossible(t.Unit);
                                             if (move != null)
                                             {
                                                 possibleMoves.Add(move);
-                                            }
+                                            }*/
                                         }
                                     }
                                 }
@@ -305,12 +327,32 @@ namespace Engine.Master
                                         possibleMoves.Add(move);
                                     }
                                 }
-                                if (Unit.CurrentGameCommand != null)
+
+                                if (Unit.UnitId == "unit2")
                                 {
-                                    if (Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                                    int x = 0;
+                                }
+                                if (Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                                {
+                                    if (Unit.UnitId == Unit.CurrentGameCommand.TransportUnit.UnitId)
                                     {
-                                        if (Unit.UnitId == Unit.CurrentGameCommand.TransportUnit.UnitId) // FactoryUnit
+                                        if (t.Unit.CurrentGameCommand != null &&
+                                            t.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest &&
+                                            t.Unit.UnitId == Unit.CurrentGameCommand.TargetUnit.UnitId)
                                         {
+                                            // Deliver
+                                            int xx = 0;
+                                            /*
+                                            Move move = CreateExtractMove(t.Unit);
+                                            if (move != null)
+                                            {
+                                                possibleMoves.Add(move);
+                                            }*/
+                                        }
+                                        else
+                                        {
+                                            // Pickup
+
                                             // This is the transporter, that should extract from container to deliver it
                                             // Assembler extract from Container. 
 
@@ -318,10 +360,26 @@ namespace Engine.Master
                                             if (t.Unit.CurrentGameCommand == null ||
                                                 t.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
                                             {
-                                                Move move = CreateExtractMoveIfPossible(t.Unit);
-                                                if (move != null)
+                                                Unit targetUnit = Unit.Game.Map.Units.FindUnit(Unit.CurrentGameCommand.TargetUnit.UnitId);
+                                                if (targetUnit != null)
                                                 {
-                                                    possibleMoves.Add(move);
+                                                    // Check if the targetUnit accepts at least one of the available item. These are put in the worker.
+                                                    foreach (TileObject tileObject in t.Unit.Container.TileContainer.TileObjects)
+                                                    {
+                                                        if (UnitOrders.GetAcceptedAmount(targetUnit, tileObject.TileObjectType) > 0)
+                                                        {
+                                                            if (Unit.IsSpaceForTileObject(tileObject.TileObjectType))
+                                                            {
+                                                                Move move = CreateExtractMove(t.Unit);
+                                                                if (move != null)
+                                                                {
+                                                                    possibleMoves.Add(move);
+                                                                }
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                    
                                                 }
                                             }
                                         }
@@ -359,6 +417,24 @@ namespace Engine.Master
 
         private Move CreateExtractMoveIfPossible(Unit otherInit)
         {
+            // Check if the targetUnit accepts at least one of the available item. 
+            foreach (TileObject tileObject in otherInit.Container.TileContainer.TileObjects)
+            {
+                if (UnitOrders.GetAcceptedAmount(Unit, tileObject.TileObjectType) > 0)
+                {
+                    if (Unit.IsSpaceForTileObject(tileObject.TileObjectType))
+                    {
+                        Move move = CreateExtractMove(otherInit);
+                        if (move != null)
+                        {
+                            return move;
+                        }
+                    }
+                }
+            }
+
+            // Need to be replaced
+            /*
             bool possibleItem = false;
             foreach (TileObject tileObject in otherInit.Container.TileContainer.TileObjects)
             {
@@ -369,25 +445,34 @@ namespace Engine.Master
                         continue;
                     }
                 }
-                if (Unit.IsSpaceForTileObject(tileObject))
+                if (UnitOrders.GetAcceptedAmount(Unit, collectedTileObjectType) > 0)
                 {
-                    possibleItem = true;
-                    break;
+                    if (Unit.IsSpaceForTileObject(tileObject.TileObjectType))
+                    {
+                        possibleItem = true;
+                        break;
+                    }
                 }
             }
-            Move move = null;
             if (possibleItem)
             {
-                move = new Move();
+                return CreateExtractMove(otherInit);
+            }*/
+            return null;
+        }
+        private Move CreateExtractMove(Unit otherInit)
+        {
+            Move move;
 
-                move.MoveType = MoveType.Extract;
+            move = new Move();
 
-                move.UnitId = Unit.UnitId;
-                move.OtherUnitId = otherInit.UnitId;
-                move.Positions = new List<Position2>();
-                move.Positions.Add(Unit.Pos);
-                move.Positions.Add(otherInit.Pos);
-            }
+            move.MoveType = MoveType.Extract;
+
+            move.UnitId = Unit.UnitId;
+            move.OtherUnitId = otherInit.UnitId;
+            move.Positions = new List<Position2>();
+            move.Positions.Add(Unit.Pos);
+            move.Positions.Add(otherInit.Pos);
             return move;
         }
 
@@ -454,7 +539,7 @@ namespace Engine.Master
             }
         }
 
-        public void ExtractFromUnit(Unit unit, Unit otherUnit, List<MoveRecipeIngredient> extractedItems, int capacity, Dictionary<Position2, Unit> changedUnits)
+        public int ExtractFromUnit(Unit unit, Unit otherUnit, List<MoveRecipeIngredient> extractedItems, int capacity, Dictionary<Position2, Unit> changedUnits)
         {
             if (!changedUnits.ContainsKey(otherUnit.Pos))
                 changedUnits.Add(otherUnit.Pos, otherUnit);
@@ -464,7 +549,7 @@ namespace Engine.Master
                 Ability hitPart = otherUnit.HitBy(true);
                 
                 if (hitPart.Level == 0 && hitPart.TileContainer != null)
-                {
+                {                    
                     if (hitPart.TileContainer.TileObjects.Count > 0)
                     {
                         int cntrIndex = 0;
@@ -480,9 +565,11 @@ namespace Engine.Master
                             unitIndigrient.Source = unitIndigrient.TileObjectType;
 
                             // Add it to target
+                            bool isSpace = false;
                             if (Unit.IsSpaceForIngredient(unitIndigrient))
-                            {
+                            {                                
                                 Unit.AddIngredient(unitIndigrient);
+                                capacity--;
                                 hitPart.TileContainer.Remove(tileObject);
                             }
                             else
@@ -523,6 +610,7 @@ namespace Engine.Master
                 if (Unit.IsSpaceForIngredient(realIndigrient))
                 {
                     Unit.AddIngredient(realIndigrient);
+                    capacity--;
                 }
                 else
                 {
@@ -537,6 +625,7 @@ namespace Engine.Master
                         throw new Exception();
                 }
             }
+            return capacity;
         }
 
 
@@ -553,19 +642,21 @@ namespace Engine.Master
                 if (otherUnit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
                 {
                     bool extractAnything = true;
+                    Unit targetUnit = unit;
 
                     if (unit.CurrentGameCommand != null)
                     {
-                        /*
+                        
                         if (unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                         {
                             if (unit.CurrentGameCommand.TargetUnit.UnitId == unit.UnitId &&
                                 unit.CurrentGameCommand.TransportUnit.UnitId == otherUnit.UnitId)
                             {
-                                extractAnything = false;
+                                //extractAnything = false;
                                 unit.CurrentGameCommand.GameCommand.CommandComplete = true;
 
                                 // unit is the recipient. otherunit is transporter
+                                /*
                                 foreach (RecipeIngredient moveRecipeIngredient in unit.CurrentGameCommand.GameCommand.RequestedItems)
                                 {
                                     if (moveRecipeIngredient.TileObjectType == TileObjectType.Burn ||
@@ -575,34 +666,37 @@ namespace Engine.Master
                                         capacity = ExtractFromOtherUnit(unit, otherUnit, moveRecipeIngredient.TileObjectType, changedUnits, extractedItems, capacity, moveRecipeIngredient.Count);
                                     }
                                 }
+                                */
                             }
-                            if (unit.CurrentGameCommand.TransportUnit.UnitId == unit.UnitId &&
-                                unit.CurrentGameCommand.AttachedUnit.UnitId == otherUnit.UnitId)
+                            if (unit.CurrentGameCommand.TransportUnit.UnitId == unit.UnitId)
                             {
                                 extractAnything = false;
 
-                                // Pick up from container, unit is the transporter. otherUnit is delivering
-                                capacity = PickFromContainer(unit, otherUnit, changedUnits, extractedItems, capacity);
-
+                                targetUnit = Unit.Game.Map.Units.FindUnit(Unit.CurrentGameCommand.TargetUnit.UnitId);
+                                if (targetUnit != null)
+                                {
+                                    // Pick up from container, unit is the transporter. otherUnit is delivering
+                                    capacity = ExtractFromOtherContainer(targetUnit, otherUnit, changedUnits, extractedItems, capacity);
+                                }
                                 // Remove the pickup location => deliver the items
-                                unit.CurrentGameCommand.AttachedUnit.ClearUnitId(); // unit.Owner.Game.Map.Units);
-                                unit.CurrentGameCommand.DeliverContent = true;
+                                //unit.CurrentGameCommand.AttachedUnit.ClearUnitId(); // unit.Owner.Game.Map.Units);
+                                //unit.CurrentGameCommand.DeliverContent = true;
                             }
-                        }*/
+                        }
                     }
                     if (extractAnything)
                     {
                         // friendly container, share 
-                        capacity = ExtractFromOtherContainer(unit, otherUnit, changedUnits, extractedItems, capacity);
+                        capacity = ExtractFromOtherContainer(targetUnit, otherUnit, changedUnits, extractedItems, capacity);
                     }
 
                     if (otherUnit.ExtractMe && !otherUnit.IsDead() && capacity > 0)
                     {
-                        ExtractFromUnit(unit, otherUnit, extractedItems, capacity, changedUnits);
+                        capacity = ExtractFromUnit(targetUnit, otherUnit, extractedItems, capacity, changedUnits);
                     }
 
                     // Near Field Delivery. Extract all items from the transporter and place it in nearby untis
-                    if (unit.Extractor != null && otherUnit.Engine != null && otherUnit.Container != null)
+                    if (unit.Extractor != null && otherUnit.Engine != null && otherUnit.Container != null && capacity > 0)
                     {
                         Tile unitTile = Unit.Game.Map.GetTile(Unit.Pos);
 
@@ -611,15 +705,19 @@ namespace Engine.Master
 
                         foreach (TileObject tileObject in availableTileObjects)
                         {
-                            bool outOfIndigrients = false;
                             foreach (Tile n in unitTile.Neighbors)
                             {
                                 if (n.Unit != null &&
                                     n.Unit != Unit &&
                                     n.Unit != otherUnit &&
                                     n.Unit.IsComplete() &&
+                                    n.Unit.Container != null &&
                                     n.Unit.Owner.PlayerModel.Id == Unit.Owner.PlayerModel.Id)
                                 {
+                                    capacity = ExtractFromOtherContainer(targetUnit, n.Unit, changedUnits, extractedItems, capacity);
+                                    if (capacity <= 0)
+                                        break;
+                                    /*
                                     MoveRecipeIngredient realIndigrient = otherUnit.GetConsumableIngredient(tileObject.TileObjectType, false);
                                     if (realIndigrient == null)
                                     {
@@ -637,10 +735,10 @@ namespace Engine.Master
                                         Unit.AddIngredient(realIndigrient);
 
                                         extractedItems.Add(realIndigrient);
-                                    }
+                                    }*/
                                 }
                             }
-                            if (outOfIndigrients)
+                            if (capacity <= 0)
                                 break;
                         }
                     }
@@ -715,21 +813,23 @@ namespace Engine.Master
                         continue;
                     collectedTileObjectType = tileObject.TileObjectType;
                 }
-
-                if (Unit.IsSpaceForTileObject(collectedTileObjectType))
+                if (UnitOrders.GetAcceptedAmount(Unit, collectedTileObjectType) > 0)
                 {
-                    if (fromTile.ExtractTileObject(tileObject))
+                    if (Unit.IsSpaceForTileObject(collectedTileObjectType))
                     {
-                        MoveRecipeIngredient indigrient = new MoveRecipeIngredient();
-                        indigrient.Count = 1;
-                        indigrient.SourcePosition = fromTile.Pos;
-                        indigrient.TargetPosition = Unit.Pos;
-                        indigrient.TileObjectType = collectedTileObjectType;
-                        indigrient.Source = TileObjectType.Ground;
-                        extractedItems.Add(indigrient);
+                        if (fromTile.ExtractTileObject(tileObject))
+                        {
+                            MoveRecipeIngredient indigrient = new MoveRecipeIngredient();
+                            indigrient.Count = 1;
+                            indigrient.SourcePosition = fromTile.Pos;
+                            indigrient.TargetPosition = Unit.Pos;
+                            indigrient.TileObjectType = collectedTileObjectType;
+                            indigrient.Source = TileObjectType.Ground;
+                            extractedItems.Add(indigrient);
 
-                        Unit.AddIngredient(indigrient);
-                        break;
+                            Unit.AddIngredient(indigrient);
+                            break;
+                        }
                     }
                 }
             }
@@ -739,7 +839,7 @@ namespace Engine.Master
             while (capacity > 0 && extractedItems.Count < 12) // 12 max transfer
             {
                 // ok, give it all to the other container
-                MoveRecipeIngredient realIndigrient = null;
+                MoveRecipeIngredient realIndigrient;
                 realIndigrient = otherUnit.FindIngredient(pullItemOrder.TileObjectType, false, excludeTileObjects);
                 if (realIndigrient == null) break;
 
@@ -766,7 +866,7 @@ namespace Engine.Master
             {
                 if (unitItemOrder.TileObjectType == pullItemOrder.TileObjectType)
                 {
-                    if (unitItemOrder.TileObjectState == pullItemOrder.TileObjectState && otherUnit.Engine == null)
+                    if (unitItemOrder.TileObjectState == pullItemOrder.TileObjectState && otherUnit.Engine == null && unit.Engine == null)
                     {
                         BalanceWithOtherContainer(unit, otherUnit, changedUnits, extractedItems, pullItemOrder, capacity);
                     }
@@ -774,7 +874,7 @@ namespace Engine.Master
                     {
                         int transferAmount = capacity;
 
-                        int maxTransferAmount = unit.UnitOrders.GetAcceptedAmount(unit, pullItemOrder.TileObjectType);
+                        int maxTransferAmount = UnitOrders.GetAcceptedAmount(unit, pullItemOrder.TileObjectType);
                         if (transferAmount > maxTransferAmount)
                             transferAmount = maxTransferAmount;
                         /*
@@ -861,16 +961,23 @@ namespace Engine.Master
             {
                 if (unitItemOrder.TileObjectState == TileObjectState.None)
                 {
-                    // Dont care
-                    if (otherUnit.Engine != null)
+                    if (unit.CurrentGameCommand != null && unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                     {
-                        // Pull everything from a worker
                         capacity = PullFromOtherContainer(unit, otherUnit, changedUnits, extractedItems, unitItemOrder, capacity);
                     }
                     else
                     {
-                        // Share with other container
-                        capacity = BalanceWithOtherContainer(unit, otherUnit, changedUnits, extractedItems, unitItemOrder, capacity);
+                        // Dont care
+                        if (otherUnit.Engine != null)
+                        {
+                            // Pull everything from a worker
+                            capacity = PullFromOtherContainer(unit, otherUnit, changedUnits, extractedItems, unitItemOrder, capacity);
+                        }
+                        else if (unit.Engine == null && otherUnit.Engine == null)
+                        {
+                            // Share with other container if both 
+                            capacity = BalanceWithOtherContainer(unit, otherUnit, changedUnits, extractedItems, unitItemOrder, capacity);
+                        }
                     }
                 }
                 if (unitItemOrder.TileObjectState == TileObjectState.Deny)
