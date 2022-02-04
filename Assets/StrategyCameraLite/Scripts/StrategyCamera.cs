@@ -178,9 +178,13 @@ public class StrategyCamera : MonoBehaviour
 
 		if (Input.GetMouseButton((int)DraggingMouseButton))
 		{
+			// No drag
+			return;
+			/*
 			var multiplier = InvertDragging ? DraggingSpeed : -DraggingSpeed;
 			forwards -= multiplier * Input.GetAxis(VerticalOrbitingAxis);
 			sideways += multiplier * Input.GetAxis(HorizontalOrbitingAxis);
+			*/
 		}
 		else
 		{

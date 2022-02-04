@@ -1117,7 +1117,12 @@ namespace Engine.Ants
                                 turnMove.Positions = new List<Position2>();
                                 turnMove.Positions.Add(cntrlUnit.Pos);
                                 moves.Add(turnMove);
+                                return true;
                             }
+                            // Command complete
+                            cntrlUnit.CurrentGameCommand.GameCommand.CommandComplete = true;
+                            cntrlUnit.CurrentGameCommand.GameCommand.DeleteWhenFinished = true;
+                            cntrlUnit.Engine.HoldPosition = true;
                             return true;
                         }
                         calcPathToPosition = targetUnitPosition;

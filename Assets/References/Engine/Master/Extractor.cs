@@ -320,14 +320,16 @@ namespace Engine.Master
                                 }
                                 if (Unit.Weapon != null)
                                 {
-                                    // Fighter extract from container
-                                    Move move = CreateExtractMoveIfPossible(t.Unit);
-                                    if (move != null)
+                                    if (Unit.Weapon != null)
                                     {
-                                        possibleMoves.Add(move);
+                                        // Fighter extract from container
+                                        Move move = CreateExtractMoveIfPossible(t.Unit);
+                                        if (move != null)
+                                        {
+                                            possibleMoves.Add(move);
+                                        }
                                     }
                                 }
-
                                 if (Unit.UnitId == "unit2")
                                 {
                                     int x = 0;
@@ -424,42 +426,29 @@ namespace Engine.Master
                 {
                     if (Unit.IsSpaceForTileObject(tileObject.TileObjectType))
                     {
-                        Move move = CreateExtractMove(otherInit);
-                        if (move != null)
+                        bool otherUnitWillGiveTheItem = true;
+                        foreach (UnitItemOrder unitItemOrder in otherInit.UnitOrders.unitItemOrders)
                         {
-                            return move;
+                            if (unitItemOrder.TileObjectState == TileObjectState.Accept)
+                            {
+                                otherUnitWillGiveTheItem = false;
+                                break;
+                            }
+                        }
+                        if (otherUnitWillGiveTheItem)
+                        {
+                            Move move = CreateExtractMove(otherInit);
+                            if (move != null)
+                            {
+                                return move;
+                            }
                         }
                     }
                 }
             }
-
-            // Need to be replaced
-            /*
-            bool possibleItem = false;
-            foreach (TileObject tileObject in otherInit.Container.TileContainer.TileObjects)
-            {
-                if (!TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType))
-                {
-                    if (TileObject.GetWoodForObjectType(tileObject.TileObjectType) == 0)
-                    {
-                        continue;
-                    }
-                }
-                if (UnitOrders.GetAcceptedAmount(Unit, collectedTileObjectType) > 0)
-                {
-                    if (Unit.IsSpaceForTileObject(tileObject.TileObjectType))
-                    {
-                        possibleItem = true;
-                        break;
-                    }
-                }
-            }
-            if (possibleItem)
-            {
-                return CreateExtractMove(otherInit);
-            }*/
             return null;
         }
+
         private Move CreateExtractMove(Unit otherInit)
         {
             Move move;

@@ -74,9 +74,9 @@ namespace Engine.Master
 
         public static int GetAcceptedAmount(Unit unit, TileObjectType tileObjectType)
         {
-            int maxTransferAmount = 0;
+            int maxTransferAmount;
             int numberOfRequests = 0;
-            int numberOf = 0;
+
             foreach (UnitItemOrder targetUnitItemOrder in unit.UnitOrders.unitItemOrders)
             {
                 if (targetUnitItemOrder.TileObjectState == TileObjectState.Accept)
@@ -89,15 +89,27 @@ namespace Engine.Master
                 }
             }
             int countInUnit = unit.CountTileObjectsInContainer(tileObjectType);
-            if (numberOfRequests > 0)
-                maxTransferAmount = (unit.Container.TileContainer.Capacity / numberOfRequests) - countInUnit;
+            if (unit.Container != null)
+            {
+                if (numberOfRequests > 0)
+                    maxTransferAmount = (unit.Container.TileContainer.Capacity / numberOfRequests) - countInUnit;
+                else
+                    maxTransferAmount = unit.Container.TileContainer.Capacity - countInUnit;
+            }
+            else if (unit.Weapon != null)
+            {
+                maxTransferAmount = unit.Weapon.TileContainer.Capacity - countInUnit;
+            }
             else
-                maxTransferAmount = unit.Container.TileContainer.Capacity - countInUnit;
-
+            {
+                maxTransferAmount = 0;
+            }
             if (maxTransferAmount < 0)
                 maxTransferAmount = 0;
             return maxTransferAmount;
         }
+
+        
 
     }
 

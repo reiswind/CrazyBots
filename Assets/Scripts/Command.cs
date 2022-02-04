@@ -279,8 +279,9 @@ namespace Assets.Scripts
                                     //Debug.Log("Deactivate: commandAttachedUnit.UnitBase");
 
                                     // Real unit exists, deactivate ghost
-                                    if (commandAttachedUnit.AttachedUnit.GhostUnit != null)
-                                        commandAttachedUnit.AttachedUnit.GhostUnit.IsVisible = false;
+                                    // NO, keep it until unit arrives and command is complete
+                                    //if (commandAttachedUnit.AttachedUnit.GhostUnit != null)
+                                    //    commandAttachedUnit.AttachedUnit.GhostUnit.IsVisible = false;
                                 }
                             }
                         }

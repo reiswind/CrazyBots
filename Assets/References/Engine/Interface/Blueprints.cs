@@ -29,7 +29,7 @@ namespace Engine.Interface
             blueprint.Parts.Add(new BlueprintPart("S-PartContainer", 24, 4));
             blueprint.Parts.Add(new BlueprintPart("S-PartReactor", 0, 6));
 
-            blueprint.BlueprintUnitOrders.AcceptAll();
+            blueprint.BlueprintUnitOrders.StoreAll();
             blueprint.BlueprintUnitOrders.Request(TileObjectType.Mineral, TileObjectState.Accept);
             blueprint.BlueprintUnitOrders.Request(TileObjectType.Wood, TileObjectState.Accept);
             blueprint.BlueprintUnitOrders.Request(TileObjectType.Stone, TileObjectState.Deny);
@@ -42,7 +42,7 @@ namespace Engine.Interface
             blueprint.Layout = "S-Container";
             blueprint.Parts.Add(new BlueprintPart("S-PartExtractor"));
             blueprint.Parts.Add(new BlueprintPart("S-PartContainer", TileObjectType.PartContainer, 3, 72, 4));
-            blueprint.BlueprintUnitOrders.AcceptAll();
+            blueprint.BlueprintUnitOrders.StoreAll();
 
             Items.Add(blueprint);
 
@@ -52,6 +52,8 @@ namespace Engine.Interface
             blueprint.Layout = "S-Turret";
             blueprint.Parts.Add(new BlueprintPart("S-PartExtractor"));
             blueprint.Parts.Add(new BlueprintPart("S-PartWeapon", TileObjectType.PartWeapon, 3, 3, 4));
+            blueprint.BlueprintUnitOrders.AcceptAmmo();
+
             Items.Add(blueprint);
 
             // Reactor
@@ -60,6 +62,11 @@ namespace Engine.Interface
             blueprint.Layout = "S-Reactor";
             blueprint.Parts.Add(new BlueprintPart("S-PartExtractor"));
             blueprint.Parts.Add(new BlueprintPart("S-PartReactor", TileObjectType.PartReactor, 3, 0, 8));
+            blueprint.BlueprintUnitOrders.StoreAll();
+            blueprint.BlueprintUnitOrders.Request(TileObjectType.Mineral, TileObjectState.Accept);
+            blueprint.BlueprintUnitOrders.Request(TileObjectType.Wood, TileObjectState.Accept);
+            blueprint.BlueprintUnitOrders.Request(TileObjectType.Stone, TileObjectState.Accept);
+
             Items.Add(blueprint);
 
             // Factory
@@ -86,7 +93,7 @@ namespace Engine.Interface
             blueprint.Parts.Add(new BlueprintPart("PartContainer", 12, 0));
             blueprint.Parts.Add(new BlueprintPart("PartExtractor"));
             blueprint.Parts.Add(new BlueprintPart("PartArmor"));
-            blueprint.BlueprintUnitOrders.AcceptAll();
+            blueprint.BlueprintUnitOrders.StoreAll();
 
             Items.Add(blueprint);
 
@@ -98,6 +105,8 @@ namespace Engine.Interface
             blueprint.Parts.Add(new BlueprintPart("PartWeapon", 1, 2));
             blueprint.Parts.Add(new BlueprintPart("PartExtractor"));
             blueprint.Parts.Add(new BlueprintPart("PartArmor"));
+            blueprint.BlueprintUnitOrders.AcceptAmmo();
+
             Items.Add(blueprint);
 
             // Bomber
@@ -107,6 +116,8 @@ namespace Engine.Interface
             blueprint.Parts.Add(new BlueprintPart("PartEngine"));
             blueprint.Parts.Add(new BlueprintPart("PartWeapon", TileObjectType.PartWeapon, 2, 3, 3));
             blueprint.Parts.Add(new BlueprintPart("PartExtractor"));
+            blueprint.BlueprintUnitOrders.AcceptAmmo();
+
             Items.Add(blueprint);
 
             // Assembler (moving)
@@ -153,7 +164,7 @@ namespace Engine.Interface
             blueprintCommand = new BlueprintCommand();
 
             blueprintCommand.Name = "Bomber";
-            blueprintCommand.Layout = "UIAttack";
+            blueprintCommand.Layout = "UINone";
             blueprintCommand.GameCommandType = GameCommandType.Attack;
 
             blueprintCommandItem = new BlueprintCommandItem();
@@ -168,7 +179,7 @@ namespace Engine.Interface
             blueprintCommand = new BlueprintCommand();
 
             blueprintCommand.Name = "Fighter";
-            blueprintCommand.Layout = "UIAttack";
+            blueprintCommand.Layout = "UINone";
             blueprintCommand.GameCommandType = GameCommandType.Attack;
 
             blueprintCommandItem = new BlueprintCommandItem();
@@ -452,7 +463,27 @@ namespace Engine.Interface
             }
         }
 
-        public void AcceptAll()
+        public void AcceptAmmo()
+        {
+            BlueprintUnitItemOrder unitItemOrder;
+
+            unitItemOrder = new BlueprintUnitItemOrder();
+            unitItemOrder.TileObjectType = TileObjectType.Stone;
+            unitItemOrder.TileObjectState = TileObjectState.Accept;
+            BlueprintItemOrders.Add(unitItemOrder);
+
+            unitItemOrder = new BlueprintUnitItemOrder();
+            unitItemOrder.TileObjectType = TileObjectType.Mineral;
+            unitItemOrder.TileObjectState = TileObjectState.Accept;
+            BlueprintItemOrders.Add(unitItemOrder);
+
+            unitItemOrder = new BlueprintUnitItemOrder();
+            unitItemOrder.TileObjectType = TileObjectType.Wood;
+            unitItemOrder.TileObjectState = TileObjectState.Accept;
+            BlueprintItemOrders.Add(unitItemOrder);
+        }
+
+        public void StoreAll()
         {
             BlueprintUnitItemOrder unitItemOrder;
 

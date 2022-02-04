@@ -775,6 +775,7 @@ namespace Assets.Scripts
             {
                 HexGrid.Destroy(previewGameCommand);
             }
+
             previewGameCommand = HexGrid.Instantiate(HexGrid.MainGrid.GetResource(GameCommand.Layout));
             previewGameCommand.transform.SetParent(HexGrid.MainGrid.transform, false);
 
