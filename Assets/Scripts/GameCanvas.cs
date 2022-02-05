@@ -541,7 +541,17 @@ namespace Assets.Scripts
 
             if (canvasMode == CanvasMode.Unit)
             {
-                HideButton(1);
+                if (selectedUnitFrame.HasEngine())
+                {
+                    SetButtonText(1, "(e) Move");
+                }
+                else
+                { 
+                    // Cannot move buildings
+                    HideButton(1);
+                }
+
+                //HideButton(1);
                 HideButton(2);
                 HideButton(3);
                 SetButtonText(4, "(r) Extract");
@@ -1067,6 +1077,12 @@ namespace Assets.Scripts
 
         void UpdateCommandPreviewMode()
         {
+            if (Input.GetMouseButtonUp(1) && selectedCommandPreview != null)
+            {
+                selectedCommandPreview.Execute();
+                SetMode(CanvasMode.Select);
+                return;
+            }
             if (CheckMouseButtons()) return;
             if (selectedCommandPreview == null) return;
 
@@ -1381,7 +1397,13 @@ namespace Assets.Scripts
                 SetMode(CanvasMode.Select);
                 return;
             }
-            if (CheckMouseButtons()) return;
+            //if (CheckMouseButtons()) return;
+            if (Input.GetMouseButtonDown(0))
+            {
+                //Debug.Log("LEFT MOUSE DOWN");
+                lastHighlightedGroundCell = null;
+            }
+
             HideAllParts();
             DisplayUnitframe(selectedUnitFrame);
 
@@ -1396,6 +1418,24 @@ namespace Assets.Scripts
 
             if (hitByMouseClick != null)
             {
+                if (Input.GetMouseButtonDown(1) && hitByMouseClick.GroundCell != null)
+                {
+                    Debug.Log("Input.GetMouseButtonDown");
+
+                    selectedCommandPreview = new CommandPreview();
+                    selectedCommandPreview.CreateCommandForMove(selectedUnitFrame, hitByMouseClick.GroundCell.Pos);
+                    selectedCommandPreview.SetSelected(true);
+                    highlightedCommandPreview = selectedCommandPreview;
+                    SetMode(CanvasMode.Preview);
+                    selectedCommandPreview.UpdatePositions(hitByMouseClick.GroundCell);
+
+                    // Move with RMB
+                    /*
+                    currentCommandPreview.SelectMoveMode();
+                    currentCommandPreview.SetPosition(hitByMouseClick.GroundCell);
+                    currentCommandPreview.Execute();*/
+                }
+
                 if (Input.GetMouseButtonDown(0))
                 {
                     SelectWithLeftClick(hitByMouseClick);

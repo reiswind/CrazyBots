@@ -2005,10 +2005,30 @@ namespace Engine.Ants
                         }
                     }
                 }
+                if (gameCommand.GameCommandType == GameCommandType.Attack)
+                {
+                    if (gameCommand.UnitId != null)
+                    {
+                        //UnityEngine.Debug.Log("AttachGamecommands MOVE");
+                        //removeCommands.Add(gameCommand);
+                        Unit unit = player.Game.Map.Units.FindUnit(gameCommand.UnitId);
+                        if (unit != null &&
+                            (unit.CurrentGameCommand == null || unit.CurrentGameCommand.GameCommand != gameCommand))
+                        {
+                            unit.ResetGameCommand();
+
+                            GameCommandItem gameCommandItem = gameCommand.GameCommandItems[0];
+                            gameCommandItem.AttachedUnit.SetUnitId(unit.UnitId);
+                            unit.SetGameCommand(gameCommandItem);
+                            unit.Engine.HoldPosition = false;
+                        }
+                    }
+                }
                 if (gameCommand.GameCommandType == GameCommandType.Move)
                 {
                     //UnityEngine.Debug.Log("AttachGamecommands MOVE");
                     removeCommands.Add(gameCommand);
+                    
                     foreach (GameCommand moveGameCommand in player.GameCommands)
                     {
                         //if (moveGameCommand.TargetPosition == gameCommand.TargetPosition)

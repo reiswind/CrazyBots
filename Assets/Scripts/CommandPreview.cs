@@ -119,6 +119,33 @@ namespace Assets.Scripts
             UpdateCommandPreview(GameCommand);
         }
 
+        public void CreateCommandForMove(UnitBase unitBase, Position2 targetPosition)
+        {
+            GameCommand.Layout = "UINone";
+            GameCommand.GameCommandType = GameCommandType.Attack;
+            GameCommand.Direction = unitBase.Direction;
+            GameCommand.UnitId = unitBase.UnitId;
+            GameCommand.PlayerId = unitBase.PlayerId;
+            GameCommand.DeleteWhenFinished = true;
+
+            displayPosition = targetPosition;
+            displayDirection = unitBase.Direction;
+
+            Position3 unitPos3 = new Position3(unitBase.CurrentPos);
+            Position3 targetPosition3 = new Position3(targetPosition);
+            Position3 position3 = new Position3(0,0,0); // targetPosition3.Subtract(unitPos3);
+
+            MapGameCommandItem mapGameCommandItem = new MapGameCommandItem(GameCommand);
+            mapGameCommandItem.BlueprintName = unitBase.MoveUpdateStats.BlueprintName;
+            mapGameCommandItem.Direction = unitBase.Direction;
+            mapGameCommandItem.Position3 = position3;
+            GameCommand.GameCommandItems.Add(mapGameCommandItem);
+
+            CreateCommandLogo();
+            IsPreview = true;
+            UpdateCommandPreview(GameCommand);
+        }
+
         public void Delete()
         {
             if (previewGameCommand != null)
