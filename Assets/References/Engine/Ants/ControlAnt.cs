@@ -1658,8 +1658,7 @@ namespace Engine.Ants
                     continue;
                 if (gameCommand.CommandCanceled || gameCommand.CommandComplete)
                 {
-                    if (gameCommand.GameCommandType != GameCommandType.Cancel &&
-                        gameCommand.GameCommandType != GameCommandType.Move)
+                    if (gameCommand.GameCommandType != GameCommandType.Cancel)
                         player.CompletedCommands.Add(gameCommand);
                     continue;
                 }
@@ -1963,6 +1962,7 @@ namespace Engine.Ants
             List<GameCommand> removeCommands = new List<GameCommand>();
             foreach (GameCommand gameCommand in player.GameCommands)
             {
+                /*
                 if (gameCommand.GameCommandType == GameCommandType.AddUnits)
                 {
                     removeCommands.Add(gameCommand);
@@ -1987,7 +1987,7 @@ namespace Engine.Ants
                             break;
                         }
                     }
-                }
+                }*/
                 if (gameCommand.GameCommandType == GameCommandType.ItemOrder)
                 {
                     removeCommands.Add(gameCommand);
@@ -2024,6 +2024,7 @@ namespace Engine.Ants
                         }
                     }
                 }
+                /*
                 if (gameCommand.GameCommandType == GameCommandType.Move)
                 {
                     //UnityEngine.Debug.Log("AttachGamecommands MOVE");
@@ -2054,6 +2055,7 @@ namespace Engine.Ants
                         }
                     }
                 }
+                */
                 if (gameCommand.GameCommandType == GameCommandType.Cancel)
                 {
                     removeCommands.Add(gameCommand);

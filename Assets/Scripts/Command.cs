@@ -332,7 +332,7 @@ namespace Assets.Scripts
                 remainingPos.AddRange(highlightedGroundCells.Keys);
 
                 Position2 center;
-                if (CommandPreview.IsPreview || CommandPreview.IsInSubCommandMode)
+                if (CommandPreview.IsPreview)
                     center = CommandPreview.DisplayPosition;
                 else
                     center = CommandPreview.GameCommand.TargetPosition;

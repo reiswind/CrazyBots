@@ -661,6 +661,33 @@ namespace Assets.Scripts
                 }
             }
         }
+        public bool HasExtractor()
+        {
+            foreach (UnitBasePart unitBasePart in UnitBaseParts)
+            {
+                if (unitBasePart.PartType == TileObjectType.PartExtractor)
+                    return true;
+            }
+            return false;
+        }
+        public bool HasWeapon()
+        {
+            foreach (UnitBasePart unitBasePart in UnitBaseParts)
+            {
+                if (unitBasePart.PartType == TileObjectType.PartWeapon)
+                    return true;
+            }
+            return false;
+        }
+        public bool HasAssembler()
+        {
+            foreach (UnitBasePart unitBasePart in UnitBaseParts)
+            {
+                if (unitBasePart.PartType == TileObjectType.PartAssembler)
+                    return true;
+            }
+            return false;
+        }
         public bool HasEngine()
         {
             foreach (UnitBasePart unitBasePart in UnitBaseParts)

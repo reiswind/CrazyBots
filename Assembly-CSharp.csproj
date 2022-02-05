@@ -129,6 +129,7 @@
     <Compile Include="Assets\Scripts\UnitBasePart.cs" />
     <Compile Include="Assets\References\Engine\Master\Command.cs" />
     <Compile Include="Assets\character shader pack\scripts\Selected_effect_touch.cs" />
+    <Compile Include="Assets\Scripts\BuildItem.cs" />
     <Compile Include="Assets\References\Engine\Master\Weapon.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
     <Compile Include="Assets\HighlightPlus\Demo\Scripts\SphereSelectionEventsExample.cs" />

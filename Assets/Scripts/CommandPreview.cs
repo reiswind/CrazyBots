@@ -119,10 +119,10 @@ namespace Assets.Scripts
             UpdateCommandPreview(GameCommand);
         }
 
-        public void CreateCommandForMove(UnitBase unitBase, Position2 targetPosition)
+        public void CreateCommand(UnitBase unitBase, Position2 targetPosition, GameCommandType gameCommandType)
         {
             GameCommand.Layout = "UINone";
-            GameCommand.GameCommandType = GameCommandType.Attack;
+            GameCommand.GameCommandType = gameCommandType;
             GameCommand.Direction = unitBase.Direction;
             GameCommand.UnitId = unitBase.UnitId;
             GameCommand.PlayerId = unitBase.PlayerId;
@@ -131,8 +131,8 @@ namespace Assets.Scripts
             displayPosition = targetPosition;
             displayDirection = unitBase.Direction;
 
-            Position3 unitPos3 = new Position3(unitBase.CurrentPos);
-            Position3 targetPosition3 = new Position3(targetPosition);
+            //Position3 unitPos3 = new Position3(unitBase.CurrentPos);
+            //Position3 targetPosition3 = new Position3(targetPosition);
             Position3 position3 = new Position3(0,0,0); // targetPosition3.Subtract(unitPos3);
 
             MapGameCommandItem mapGameCommandItem = new MapGameCommandItem(GameCommand);
@@ -252,8 +252,9 @@ namespace Assets.Scripts
             UpdateAllUnitBounds(true);
         }
 
-        private UnitBase addPreviewGhost;
-        private GameObject addPreviewUnitMarker;
+        //private UnitBase addPreviewGhost;
+        //private GameObject addPreviewUnitMarker;
+        /*
         public void AddUnitCommand(string bluePrint)
         {
             Blueprint blueprint = HexGrid.MainGrid.game.Blueprints.FindBlueprint(bluePrint);
@@ -265,21 +266,9 @@ namespace Assets.Scripts
             addPreviewGhost.transform.SetParent(HexGrid.MainGrid.transform, false);
             addPreviewUnitMarker = HexGrid.MainGrid.InstantiatePrefab("GroundFrame");
             addPreviewUnitMarker.transform.SetParent(HexGrid.MainGrid.transform, false);
-            /*
-            Vector3 unitPos3 = addPreviewGhost.transform.position;
-            unitPos3.y += 0.1f;
-            addPreviewUnitMarker.transform.position = unitPos3;*/
 
-            /*
-            Position3 relativePosition3 = gam.Add(commandAttachedUnit.RotatedPosition3);
-            Position3 neighborPosition3 = relativePosition3.GetNeighbor(displayDirection);
-            GroundCell neighbor;
-            if (HexGrid.MainGrid.GroundCells.TryGetValue(neighborPosition3.Pos, out neighbor))
-            {
-                addPreviewUnit.UpdateDirection(neighbor.transform.position);
-            }
-            */
-        }
+        }*/
+        /*
         public void CancelSubCommand()
         {
             if (isMoveMode)
@@ -322,7 +311,7 @@ namespace Assets.Scripts
             {
                 return isMoveMode || addPreviewGhost != null;
             }
-        }
+        }*/
 
         public void CancelCommand()
         {
@@ -338,14 +327,7 @@ namespace Assets.Scripts
         }
         public bool CanExecute()
         {
-            if (addPreviewGhost == null)
-            {
-                return displayPosition != Position2.Null;
-            }
-            else
-            {
-                return displayPosition != Position2.Null;
-            }
+            return displayPosition != Position2.Null;
         }
 
         public void AddUnit(GroundCell groundCell)
@@ -402,6 +384,7 @@ namespace Assets.Scripts
         {
             if (displayPosition != Position2.Null)
             {
+                /*
                 if (addPreviewGhost != null)
                 {
                     // Add unit
@@ -423,7 +406,7 @@ namespace Assets.Scripts
 
                     HexGrid.MainGrid.GameCommands.Add(mapGameCommand);
 
-                    /* Command is updated next turn if return here else: */
+                    
                     mapGameCommandItem = new MapGameCommandItem(GameCommand);
                     mapGameCommandItem.BlueprintName = "Fighter";
                     mapGameCommandItem.Direction = addPreviewGhost.TurnIntoDirection;
@@ -474,7 +457,7 @@ namespace Assets.Scripts
                     isMoveMode = false;
                 }
                 else
-                {
+                {*/
                     foreach (CommandAttachedItem commandAttachedUnit in PreviewUnits)
                     {
                         if (commandAttachedUnit.AttachedUnit.GhostUnitBounds != null)
@@ -504,7 +487,7 @@ namespace Assets.Scripts
 
                     HexGrid.MainGrid.GameCommands.Add(GameCommand);
                     HexGrid.MainGrid.CreatedCommandPreviews.Add(this);
-                }
+                
             }
         }
         /*
@@ -544,6 +527,7 @@ namespace Assets.Scripts
                 CreateCommandPreview(GameCommand);
                 displayDirection = GameCommand.Direction;
             }
+            /*
             if (addPreviewGhost != null)
             {
                 if (groundCell == null)
@@ -581,45 +565,46 @@ namespace Assets.Scripts
             }
             else
             {
-                if (groundCell == null)
+            */
+            if (groundCell == null)
+            {
+                if (displayPosition != Position2.Null)
                 {
-                    if (displayPosition != Position2.Null)
+                    Hide();
+                }
+            }
+            else
+            {
+                if (displayPosition == Position2.Null || displayPosition != groundCell.Pos)
+                {
+                    bool positionok;
+
+                    if (!IsPreview || GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                    {
+                        positionok = true;
+                    }
+                    else
+                    {
+                        positionok = CanBuildAt(groundCell);
+                    }
+                    if (positionok)
+                    {
+                        //Debug.Log("SetPosition: " + groundCell.Pos);
+
+                        if (previewGameCommand != null)
+                            previewGameCommand.SetActive(true);
+
+                        displayPosition = groundCell.Pos;
+                        UpdatePositions(groundCell);
+                    }
+                    else
                     {
                         Hide();
                     }
                 }
-                else
-                {
-                    if (displayPosition == Position2.Null || displayPosition != groundCell.Pos)
-                    {
-                        bool positionok;
-
-                        if (!IsPreview || GameCommand.GameCommandType == GameCommandType.ItemRequest)
-                        {
-                            positionok = true;
-                        }
-                        else
-                        {
-                            positionok = CanBuildAt(groundCell);
-                        }
-                        if (positionok)
-                        {
-                            //Debug.Log("SetPosition: " + groundCell.Pos);
-
-                            if (previewGameCommand != null)
-                                previewGameCommand.SetActive(true);
-
-                            displayPosition = groundCell.Pos;
-                            UpdatePositions(groundCell);
-                        }
-                        else
-                        {
-                            Hide();
-                        }
-                    }
-                }
             }
         }
+        
         public void IncreaseRadius()
         {
             if (collectUnitBounds != null && displayRadius < 6)
@@ -642,38 +627,31 @@ namespace Assets.Scripts
         }
         public void RotateCommand(bool turnRight)
         {
-            if (addPreviewGhost == null)
-            {
-                if (turnRight)
-                    displayDirection = Dir.TurnRight(displayDirection);
-                else
-                    displayDirection = Dir.TurnLeft(displayDirection);
 
-                foreach (CommandAttachedItem commandAttachedItem in PreviewUnits)
-                {
-                    Position3 position3;
-                    if (turnRight)
-                        position3 = commandAttachedItem.AttachedUnit.RotatedPosition3.RotateRight();
-                    else
-                        position3 = commandAttachedItem.AttachedUnit.RotatedPosition3.RotateLeft();
-                    commandAttachedItem.AttachedUnit.RotatedPosition3 = position3;
-                    commandAttachedItem.AttachedUnit.RotatedDirection = displayDirection;
-
-                    if (commandAttachedItem.AttachedUnit.GhostUnit != null)
-                        commandAttachedItem.AttachedUnit.GhostUnit.Direction = displayDirection;
-                }
-                GroundCell gc;
-                if (HexGrid.MainGrid.GroundCells.TryGetValue(DisplayPosition, out gc))
-                {
-                    UpdatePositions(gc);
-                }
-            }
+            if (turnRight)
+                displayDirection = Dir.TurnRight(displayDirection);
             else
+                displayDirection = Dir.TurnLeft(displayDirection);
+
+            foreach (CommandAttachedItem commandAttachedItem in PreviewUnits)
             {
-                // Turn only preview
-                addPreviewGhost.TurnIntoDirection = Dir.TurnRight(addPreviewGhost.TurnIntoDirection);
-                
+                Position3 position3;
+                if (turnRight)
+                    position3 = commandAttachedItem.AttachedUnit.RotatedPosition3.RotateRight();
+                else
+                    position3 = commandAttachedItem.AttachedUnit.RotatedPosition3.RotateLeft();
+                commandAttachedItem.AttachedUnit.RotatedPosition3 = position3;
+                commandAttachedItem.AttachedUnit.RotatedDirection = displayDirection;
+
+                if (commandAttachedItem.AttachedUnit.GhostUnit != null)
+                    commandAttachedItem.AttachedUnit.GhostUnit.Direction = displayDirection;
             }
+            GroundCell gc;
+            if (HexGrid.MainGrid.GroundCells.TryGetValue(DisplayPosition, out gc))
+            {
+                UpdatePositions(gc);
+            }
+
         }
         private void Hide()
         {

@@ -33,9 +33,10 @@ namespace Assets.Scripts
         public Sprite ButtonBackground;
 
         private Text[] buttonText;
-        private Text[] actionText;
         private Button[] buttons;
-        private Button[] actions;
+
+        private Transform panelBuild;
+
         private Transform panelParts;
         private GameObject panelEngine;
         private GameObject panelExtractor;
@@ -68,12 +69,15 @@ namespace Assets.Scripts
             Transform inGamePanel = transform.Find("InGame");
             Transform gameControlPanel = inGamePanel.Find("GameControl");
 
-            Transform panelItem = gameControlPanel.Find("PanelItem");
-            headerText = panelItem.Find("HeaderText").GetComponent<Text>();
-            headerSubText = panelItem.Find("SubText").GetComponent<Text>();
-            headerGroundText = panelItem.Find("GroundText").GetComponent<Text>();
-            alertHeaderText = panelItem.Find("AlertHeader").GetComponent<Text>();
-            alertText = panelItem.Find("AlertText").GetComponent<Text>();
+            panelBuild = gameControlPanel.Find("PanelBuild");
+            panelBuild.gameObject.SetActive(false);
+
+            Transform panelSelected = gameControlPanel.Find("PanelSelected");
+            headerText = panelSelected.Find("HeaderText").GetComponent<Text>();
+            headerSubText = panelSelected.Find("SubText").GetComponent<Text>();
+            headerGroundText = panelSelected.Find("GroundText").GetComponent<Text>();
+            alertHeaderText = panelSelected.Find("AlertHeader").GetComponent<Text>();
+            alertText = panelSelected.Find("AlertText").GetComponent<Text>();
 
             headerText.text = "";
             headerSubText.text = "";
@@ -87,7 +91,7 @@ namespace Assets.Scripts
             buildButton.onClick.AddListener(OnClickExtract);
             buildButtonText = buildButton.transform.Find("Text").GetComponent<Text>();
             */
-            panelParts = panelItem.Find("PanelParts");
+            panelParts = panelSelected.Find("PanelParts");
 
             panelEngine = panelParts.Find("PanelEngine").gameObject;
             panelExtractor = panelParts.Find("PanelExtractor").gameObject;
@@ -127,8 +131,9 @@ namespace Assets.Scripts
                 }
             }
 
-            Transform panelSelected = gameControlPanel.Find("PanelSelected");
+            Transform panelAction = gameControlPanel.Find("PanelAction");
 
+            /*
             actions = new Button[12];
             actionText = new Text[12];
             for (int i = 0; i < 4; i++)
@@ -136,9 +141,9 @@ namespace Assets.Scripts
                 actions[i] = panelSelected.Find("Action" + (i + 1).ToString()).GetComponent<Button>();
                 actionText[i] = actions[i].transform.Find("Text").GetComponent<Text>();
                 actions[i].name = "Action" + (i + 1).ToString();
-            }
+            }*/
 
-            Transform panelFrame = panelSelected.Find("PanelFrame");
+            Transform panelFrame = panelAction.Find("PanelFrame");
 
             buttons = new Button[12];
             buttonText = new Text[12];
@@ -161,25 +166,18 @@ namespace Assets.Scripts
             buttons[10].onClick.AddListener(OnClickBuild11);
             buttons[11].onClick.AddListener(OnClickBuild12);
 
+            /*
             actions[0].onClick.AddListener(OnClickAction1);
             actions[1].onClick.AddListener(OnClickAction2);
             actions[2].onClick.AddListener(OnClickAction3);
             actions[3].onClick.AddListener(OnClickAction4);
-
+            */
             if (ButtonFaster != null)
                 ButtonFaster.onClick.AddListener(OnFaster);
             if (ButtonPause != null)
                 ButtonPause.onClick.AddListener(OnPause); 
             if (ButtonSlower != null)
                 ButtonSlower.onClick.AddListener(OnSlower);
-
-            //SetActionText(1, "(t) Select");
-            //SetActionText(2, "(g) Command");
-            //SetActionText(3, "(b) Build");            
-            HideAction(1);
-            HideAction(2);
-            HideAction(3);
-            HideAction(4);
 
             SetMode(CanvasMode.Select);
             HexGrid.MainGrid.StartGame();
@@ -195,15 +193,8 @@ namespace Assets.Scripts
 
                 UpdateCommandButtons();
 
-                SetActionText(1, canvasMode.ToString());
-
                 if (canvasMode == CanvasMode.Select)
                 {
-                    SelectAction(1);
-                    UnselectAction(2);
-                    UnselectAction(3);
-                    UnselectAction(4);
-
                     UnselectButton(1);
                 }
             }
@@ -232,20 +223,6 @@ namespace Assets.Scripts
             HexGrid.MainGrid.RunSlower();
         }
 
-        void OnClickAction2()
-        {
-        }
-
-        void OnClickAction3()
-        {
-
-        }
-
-        void OnClickAction4()
-        {
-
-        }
-
 
         private Button GetButton(int btn)
         {
@@ -256,23 +233,9 @@ namespace Assets.Scripts
             return buttons[btn - 1];
         }
 
-        private Button GetAction(int btn)
-        {
-            if (btn == 0 || btn > 12)
-            {
-                return null;
-            }
-            return actions[btn - 1];
-        }
-
         private Text GetButtonText(int btn)
         {
             return buttonText[btn - 1];
-        }
-
-        private Text GetActionText(int btn)
-        {
-            return actionText[btn - 1];
         }
 
         private UnitBase highlightedUnitBase;
@@ -405,12 +368,6 @@ namespace Assets.Scripts
             }
         }
 
-        private void SetActionText(int btn, string text)
-        {
-            ShowAction(btn);
-            GetActionText(btn).text = text;
-        }
-
         private void SetButtonText(int btn, string text, string bluePrintName = null)
         {
             ShowButton(btn);
@@ -432,29 +389,10 @@ namespace Assets.Scripts
         {
             GetButton(btn).gameObject.SetActive(false);
         }
-        private void HideAction(int btn)
-        {
-            GetAction(btn).gameObject.SetActive(false);
-        }
-
-        private void SelectAction(int btn)
-        {
-            Button button = GetAction(btn);
-            button.image.sprite = SelectedButtonBackground;
-        }
-        private void UnselectAction(int btn)
-        {
-            GetAction(btn).image.sprite = ButtonBackground;
-        }
 
         private void UnselectButton(int btn)
         {
             GetButton(btn).image.sprite = ButtonBackground;
-        }
-
-        private void ShowAction(int btn)
-        {
-            GetAction(btn).gameObject.SetActive(true);
         }
         private void ShowButton(int btn)
         {
@@ -483,7 +421,13 @@ namespace Assets.Scripts
         {
             if (canvasMode == CanvasMode.Select)
             {
-                int idx = 1;
+                SetButtonText(1, "(q) Build");
+                HideButton(2);
+                HideButton(3);
+                SetButtonText(4, "(t) Collect");
+
+                int idx = 5;
+                /*
                 if (HexGrid.MainGrid.game != null)
                 {
                     foreach (BlueprintCommand blueprintCommand in HexGrid.MainGrid.game.Blueprints.Commands)
@@ -495,6 +439,7 @@ namespace Assets.Scripts
                         }
                     }
                 }
+                */
                 while (idx <= 12)
                 {
                     HideButton(idx++);
@@ -503,21 +448,13 @@ namespace Assets.Scripts
 
             if (canvasMode == CanvasMode.Command)
             {
-                if (selectedCommandPreview.GameCommand.GameCommandType == GameCommandType.Build)
-                {
-                    // Cannot move buildings
-                    HideButton(1);
-                }
-                else
-                {
-                    SetButtonText(1, "(e) Move");
-                }
+                HideButton(1);
                 HideButton(2);
                 HideButton(3);
-                //SetButtonText(3, "(e) Reinforce");
                 SetButtonText(4, "(r) Cancel");
 
                 int idx = 5;
+                /*
                 if (selectedCommandPreview.GameCommand.GameCommandType == GameCommandType.Attack)
                 {
                     if (HexGrid.MainGrid.game != null)
@@ -532,7 +469,7 @@ namespace Assets.Scripts
                             if (idx >= 12) break;
                         }
                     }
-                }
+                }*/
                 while (idx <= 12)
                 {
                     HideButton(idx++);
@@ -541,22 +478,51 @@ namespace Assets.Scripts
 
             if (canvasMode == CanvasMode.Unit)
             {
-                if (selectedUnitFrame.HasEngine())
+                if (selectedUnitFrame.HasAssembler())
                 {
-                    SetButtonText(1, "(e) Move");
+                    SetButtonText(1, "(q) Build");
                 }
                 else
-                { 
+                {
                     // Cannot move buildings
                     HideButton(1);
                 }
 
-                //HideButton(1);
-                HideButton(2);
-                HideButton(3);
-                SetButtonText(4, "(r) Extract");
+                if (selectedUnitFrame.HasEngine())
+                {
+                    SetButtonText(2, "(e) Move");
+                }
+                else
+                { 
+                    // Cannot move buildings
+                    HideButton(2);
+                }
 
-                int idx = 5;
+                if (selectedUnitFrame.HasWeapon())
+                {
+                    SetButtonText(3, "(r) Fire");
+                }
+                else
+                {
+                    // Cannot move buildings
+                    HideButton(3);
+                }
+
+                if (selectedUnitFrame.HasExtractor())
+                {
+                    SetButtonText(4, "(t) Collect");
+                }
+                else
+                {
+                    // Cannot move buildings
+                    HideButton(4);
+                }
+
+
+                SetButtonText(5, "( ) Clone");
+                SetButtonText(6, "( ) Remove");
+
+                int idx = 7;
                 while (idx <= 12)
                 {
                     HideButton(idx++);
@@ -599,14 +565,6 @@ namespace Assets.Scripts
             }
         }
 
-        void AddUnitCommand(string bluePrint)
-        {
-            if (selectedCommandPreview != null)
-            {
-                selectedCommandPreview.AddUnitCommand(bluePrint);
-                SetMode(CanvasMode.Preview);
-            }
-        }
         void MoveCommand()
         {
             if (selectedCommandPreview != null)
@@ -634,6 +592,17 @@ namespace Assets.Scripts
         }
 
         private CommandPreview selectedCommandPreview;
+
+        internal void ExecuteCommand(BlueprintCommand blueprintCommand)
+        {
+            HideBuildMenu();
+
+            selectedCommandPreview = new CommandPreview();
+            selectedCommandPreview.CreateCommandForBuild(blueprintCommand);
+            selectedCommandPreview.SetSelected(true);
+            highlightedCommandPreview = selectedCommandPreview;
+            SetMode(CanvasMode.Preview);
+        }
 
         void ExecuteCommand(int btn)
         {
@@ -692,10 +661,7 @@ namespace Assets.Scripts
                 {
                     CancelCommand();
                 }
-                else if (btn == 5)
-                {
-                    AddUnitCommand("Fighter");
-                }
+                
             }
         }
 
@@ -743,9 +709,83 @@ namespace Assets.Scripts
             }
         }
 
+        private bool buildMenuInit;
+        void ShowBuildMenu()
+        {
+            if (!buildMenuInit)
+            {
+                buildMenuInit = true;
+
+                List<BlueprintCommand> commands = new List<BlueprintCommand>();
+                if (HexGrid.MainGrid.game != null)
+                {
+                    foreach (BlueprintCommand blueprintCommand in HexGrid.MainGrid.game.Blueprints.Commands)
+                    {
+                        if (blueprintCommand.GameCommandType == GameCommandType.Build ||
+                            blueprintCommand.GameCommandType == GameCommandType.Attack)
+                        {
+                            commands.Add(blueprintCommand);
+                        }
+                    }
+                }
+
+                Transform panelFrame = panelBuild.Find("PanelFrame");
+                for (int i = 0; i < 12; i++)
+                {
+                    Transform transform = panelFrame.Find("Button" + (i + 1).ToString());
+                    if (transform != null)
+                    {
+                        BuildItem buildItem = transform.GetComponent<BuildItem>();
+                        if (buildItem == null || commands.Count == 0)
+                        {
+                            transform.gameObject.SetActive(false);
+                        }
+                        else
+                        {
+                            buildItem.SetCommand(this, commands[0]);
+                            commands.RemoveAt(0);
+
+                            transform.gameObject.SetActive(true);
+                        }
+                    }
+                }
+            }
+            panelBuild.gameObject.SetActive(true);
+        }
+        void HideBuildMenu()
+        {
+            panelBuild.gameObject.SetActive(false);
+        }
+
+        void ExecuteCollectCommand()
+        {
+            if (HexGrid.MainGrid.game != null)
+            {
+                foreach (BlueprintCommand blueprintCommand in HexGrid.MainGrid.game.Blueprints.Commands)
+                {
+                    if (blueprintCommand.GameCommandType == GameCommandType.Collect)
+                    {
+                        ExecuteCommand(blueprintCommand);
+                        break;
+                    }
+                }
+            }
+        }
+
+        void SelectedUnitCommand(GameCommandType gameCommandType)
+        {
+            selectedCommandPreview = new CommandPreview();
+            selectedCommandPreview.CreateCommand(selectedUnitFrame, Position2.Null, gameCommandType);
+            selectedCommandPreview.SetSelected(true);
+            highlightedCommandPreview = selectedCommandPreview;
+            SetMode(CanvasMode.Preview);
+        }
+
         void OnClickBuild1()
         {
-            ExecuteCommand(1);
+            if (canvasMode == CanvasMode.Select)
+                ShowBuildMenu();
+            //ExecuteCommand(1);
             /*
             if (canvasMode == CanvasMode.Build)
                 SelectBuildUnit(1);
@@ -756,18 +796,23 @@ namespace Assets.Scripts
         }
         void OnClickBuild2()
         {
-            ExecuteCommand(2);
-            /*
-            if (canvasMode == CanvasMode.Build)
-                SelectBuildUnit(2);
             if (canvasMode == CanvasMode.Unit)
-                SelectActionUnit(2);
-            else if (canvasMode == CanvasMode.Select)
-                CancelCommand();*/
+                SelectedUnitCommand(GameCommandType.Attack);
+                //ExecuteCommand(2);
+                /*
+                if (canvasMode == CanvasMode.Build)
+                    SelectBuildUnit(2);
+                if (canvasMode == CanvasMode.Unit)
+                    SelectActionUnit(2);
+                else if (canvasMode == CanvasMode.Select)
+                    CancelCommand();*/
         }
         void OnClickBuild3()
         {
-            ExecuteCommand(3);
+            if (canvasMode == CanvasMode.Unit)
+                SelectedUnitCommand(GameCommandType.Fire);
+
+            //ExecuteCommand(3);
             /*
             if (canvasMode == CanvasMode.Build)
                 SelectBuildUnit(3);
@@ -776,18 +821,17 @@ namespace Assets.Scripts
         }
         void OnClickBuild4()
         {
-            ExecuteCommand(4);
-            /*
-            if (canvasMode == CanvasMode.Build)
-                SelectBuildUnit(4);
-            if (canvasMode == CanvasMode.Unit)
-                SelectActionUnit(4);
-            */
+            if (canvasMode == CanvasMode.Select)
+                ExecuteCollectCommand();
+            else if (canvasMode == CanvasMode.Unit)
+                SelectedUnitCommand(GameCommandType.Collect);
+            else if (canvasMode == CanvasMode.Command)
+                CancelCommand();
         }
 
         void OnClickBuild5()
         {
-            ExecuteCommand(5);
+            //ExecuteCommand(5);
             /*
             if (canvasMode == CanvasMode.Build)
                 SelectBuildUnit(5);
@@ -795,31 +839,31 @@ namespace Assets.Scripts
         }
         void OnClickBuild6()
         {
-            ExecuteCommand(6);
+            //ExecuteCommand(6);
         }
         void OnClickBuild7()
         {
-            ExecuteCommand(7);
+            //ExecuteCommand(7);
         }
         void OnClickBuild8()
         {
-            ExecuteCommand(8);
+            //ExecuteCommand(8);
         }
         void OnClickBuild9()
         {
-            ExecuteCommand(9);
+            //ExecuteCommand(9);
         }
         void OnClickBuild10()
         {
-            ExecuteCommand(10);
+           // ExecuteCommand(10);
         }
         void OnClickBuild11()
         {
-            ExecuteCommand(11);
+            //ExecuteCommand(11);
         }
         void OnClickBuild12()
         {
-            ExecuteCommand(12);
+            //ExecuteCommand(12);
         }
 
 
@@ -1130,71 +1174,28 @@ namespace Assets.Scripts
             }
             if (executeCommand && selectedCommandPreview.CanExecute())
             {
-                bool wasSubCommandMode = selectedCommandPreview.IsInSubCommandMode;
                 selectedCommandPreview.Execute();
 
-                if (wasSubCommandMode)
+                if (Input.GetKey(KeyCode.LeftShift))
                 {
-                    if (Input.GetKey(KeyCode.LeftShift))
-                    {
-                        // Repeat command
-                        //selectedCommandPreview.SetSelected(false);
-                        //selectedCommandPreview.SetActive(false);
+                    // Repeat command
+                    selectedCommandPreview.SetSelected(false);
+                    selectedCommandPreview.SetActive(false);
 
+                    BlueprintCommand blueprintCommandCopy = selectedCommandPreview.Blueprint;
 
-                        AddUnitCommand("Fighter");
-
-                        // Keep executed command
-                        //BlueprintCommand blueprintCommand = selectedCommandPreview.Blueprint;
-
-                        //selectedCommandPreview = new CommandPreview();
-                        //selectedCommandPreview.CreateCommandForBuild(blueprintCommand);
-
-                        //selectedCommandPreview.SetSelected(true);
-                        //SetMode(CanvasMode.Command);
-                    }
-                    else
-                    {
-                        if (selectedCommandPreview.GameCommand.GameCommandType == GameCommandType.Attack)
-                        {
-                            SetMode(CanvasMode.Command);
-                        }
-                        else
-                        {
-                            selectedCommandPreview.SetSelected(false);
-                            selectedCommandPreview.SetActive(false);
-                            selectedCommandPreview = null;
-
-                            SetMode(CanvasMode.Select);
-                        }
-                    }
+                    selectedCommandPreview = new CommandPreview();
+                    selectedCommandPreview.CreateCommandForBuild(blueprintCommandCopy);
                 }
                 else
                 {
-                    if (Input.GetKey(KeyCode.LeftShift))
-                    {
-                        // Repeat command
-                        selectedCommandPreview.SetSelected(false);
-                        selectedCommandPreview.SetActive(false);
+                    selectedCommandPreview.SetSelected(false);
+                    selectedCommandPreview.SetActive(false);
+                    selectedCommandPreview = null;
 
-                        BlueprintCommand blueprintCommandCopy = selectedCommandPreview.Blueprint;
-
-                        selectedCommandPreview = new CommandPreview();
-                        selectedCommandPreview.CreateCommandForBuild(blueprintCommandCopy);
-                    }
-                    else if (selectedCommandPreview.GameCommand.GameCommandType == GameCommandType.Attack)
-                    {
-                        SetMode(CanvasMode.Command);
-                    }
-                    else
-                    {
-                        selectedCommandPreview.SetSelected(false);
-                        selectedCommandPreview.SetActive(false);
-                        selectedCommandPreview = null;
-
-                        SetMode(CanvasMode.Select);
-                    }
+                    SetMode(CanvasMode.Select);
                 }
+
             }
         }
 
@@ -1423,7 +1424,7 @@ namespace Assets.Scripts
                     Debug.Log("Input.GetMouseButtonDown");
 
                     selectedCommandPreview = new CommandPreview();
-                    selectedCommandPreview.CreateCommandForMove(selectedUnitFrame, hitByMouseClick.GroundCell.Pos);
+                    selectedCommandPreview.CreateCommand(selectedUnitFrame, hitByMouseClick.GroundCell.Pos, GameCommandType.Attack);
                     selectedCommandPreview.SetSelected(true);
                     highlightedCommandPreview = selectedCommandPreview;
                     SetMode(CanvasMode.Preview);
@@ -1447,57 +1448,61 @@ namespace Assets.Scripts
         {
             SelectNothing();
 
-            if (hitByMouseClick.CommandPreview != null)
-            {
-                if (selectedCommandPreview != null)
-                {
-                    selectedCommandPreview.SetSelected(false);
-                }
-                HighlightGameCommand(hitByMouseClick.CommandPreview);
-
-                selectedCommandPreview = hitByMouseClick.CommandPreview;
-                selectedCommandPreview.SetSelected(true);
-
-                StringBuilder sb = new StringBuilder();
-
-                sb.Append("GameCommandType: ");
-                sb.AppendLine(selectedCommandPreview.GameCommand.GameCommandType.ToString());
-
-                if (selectedCommandPreview.Blueprint != null)
-                {
-                    sb.Append("Blueprint: ");
-                    sb.AppendLine(selectedCommandPreview.Blueprint.Name);
-                }
-                sb.Append("DisplayPosition: ");
-                sb.AppendLine(selectedCommandPreview.DisplayPosition.ToString());
-
-                foreach (MapGameCommandItem gameCommandItem in selectedCommandPreview.GameCommand.GameCommandItems)
-                {                    
-                    sb.AppendLine("AttachedUnit" + gameCommandItem.AttachedUnit.ToString());
-                    sb.AppendLine("FactoryUnit" + gameCommandItem.FactoryUnit.ToString());
-                    sb.AppendLine("TransportUnit" + gameCommandItem.TransportUnit.ToString());
-                    sb.AppendLine("TargetUnit" + gameCommandItem.TargetUnit.ToString());
-                    sb.AppendLine(gameCommandItem.ToString());
-                }
-
-                Debug.Log(sb.ToString());
-
-                if (hitByMouseClick.UnitBase != null)
-                {
-                    HighlightUnitFrame(hitByMouseClick.UnitBase);
-                    SelectUnitFrame(hitByMouseClick.UnitBase);
-                }
-
-                if (canvasMode == CanvasMode.Command)
-                    UpdateCommandButtons();
-                else
-                    SetMode(CanvasMode.Command);
-            }
-            else if (hitByMouseClick.UnitBase != null)
+            if (hitByMouseClick.UnitBase != null)
             {
                 HighlightUnitFrame(hitByMouseClick.UnitBase);
                 SelectUnitFrame(hitByMouseClick.UnitBase);
                 SetMode(CanvasMode.Unit);
+            }
+            else
+            {
+                if (hitByMouseClick.CommandPreview != null)
+                {
+                    if (selectedCommandPreview != null)
+                    {
+                        selectedCommandPreview.SetSelected(false);
+                    }
+                    HighlightGameCommand(hitByMouseClick.CommandPreview);
+
+                    selectedCommandPreview = hitByMouseClick.CommandPreview;
+                    selectedCommandPreview.SetSelected(true);
+
+                    StringBuilder sb = new StringBuilder();
+
+                    sb.Append("GameCommandType: ");
+                    sb.AppendLine(selectedCommandPreview.GameCommand.GameCommandType.ToString());
+
+                    if (selectedCommandPreview.Blueprint != null)
+                    {
+                        sb.Append("Blueprint: ");
+                        sb.AppendLine(selectedCommandPreview.Blueprint.Name);
+                    }
+                    sb.Append("DisplayPosition: ");
+                    sb.AppendLine(selectedCommandPreview.DisplayPosition.ToString());
+
+                    foreach (MapGameCommandItem gameCommandItem in selectedCommandPreview.GameCommand.GameCommandItems)
+                    {
+                        sb.AppendLine("AttachedUnit" + gameCommandItem.AttachedUnit.ToString());
+                        sb.AppendLine("FactoryUnit" + gameCommandItem.FactoryUnit.ToString());
+                        sb.AppendLine("TransportUnit" + gameCommandItem.TransportUnit.ToString());
+                        sb.AppendLine("TargetUnit" + gameCommandItem.TargetUnit.ToString());
+                        sb.AppendLine(gameCommandItem.ToString());
+                    }
+
+                    Debug.Log(sb.ToString());
+
+                    if (hitByMouseClick.UnitBase != null)
+                    {
+                        HighlightUnitFrame(hitByMouseClick.UnitBase);
+                        SelectUnitFrame(hitByMouseClick.UnitBase);
+                    }
+
+                    if (canvasMode == CanvasMode.Command)
+                        UpdateCommandButtons();
+                    else
+                        SetMode(CanvasMode.Command);
+                }
+
             }
         }
 
@@ -1616,6 +1621,7 @@ namespace Assets.Scripts
 
         private void ShowNothing()
         {
+
             HighlightNothing();
 
             HideAllParts();
@@ -1628,18 +1634,12 @@ namespace Assets.Scripts
 
         private void SelectNothing()
         {
+            HideBuildMenu();
             UnselectUnitFrame();
 
-            if (selectedCommandPreview != null && selectedCommandPreview.IsInSubCommandMode)
-            {
-                selectedCommandPreview.CancelSubCommand();
-                SetMode(CanvasMode.Command);
-            }
-            else
-            {
-                CloseCommandPreview();
-                SetMode(CanvasMode.Select);
-            }
+            CloseCommandPreview();
+            SetMode(CanvasMode.Select);
+            
             ShowNothing();
         }
 

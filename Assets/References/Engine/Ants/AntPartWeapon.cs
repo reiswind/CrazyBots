@@ -24,8 +24,23 @@ namespace Engine.Ants
         {
             Unit cntrlUnit = Weapon.Unit;
 
+            if (Ant.Unit.CurrentGameCommand != null &&
+                Ant.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Fire)
+            {
+                Move move = new Move();
+                move.MoveType = MoveType.Fire;
+                move.UnitId = Ant.Unit.UnitId;
+                move.OtherUnitId = null; // tileObject.TileObjectType.ToString();
+                move.Positions = new List<Position2>();
+                move.Positions.Add(Ant.Unit.Pos);
+                move.Positions.Add(Ant.Unit.CurrentGameCommand.GameCommand.TargetPosition);
+
+                moves.Add(move);
+                return true;
+            }
+
             // Not yet for moving units
-            if (cntrlUnit.Engine == null && Weapon.TileContainer.Count == 0)
+                if (cntrlUnit.Engine == null && Weapon.TileContainer.Count == 0)
             {
                 // Request some ammo
                 Ant.Unit.DeliveryRequest(TileObjectType.Ammo, Weapon.TileContainer.Capacity);

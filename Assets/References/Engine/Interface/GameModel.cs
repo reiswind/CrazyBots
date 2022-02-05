@@ -16,13 +16,14 @@ namespace Engine.Interface
         Defend,
         //Scout,
         Cancel,
-        Move,
+        //Move,
         Collect,
         Build,
-        AddUnits,
+        //AddUnits,
         Extract,
         ItemRequest,
-        ItemOrder
+        ItemOrder,
+        Fire
     }
 
     public enum MoveFilter
