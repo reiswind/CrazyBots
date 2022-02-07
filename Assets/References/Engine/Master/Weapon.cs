@@ -76,7 +76,7 @@ namespace Engine.Master
                 if (tile.Pos == Unit.Pos)
                     return true;
 
-                // Cannot shoot at thins that are not visible
+                // Cannot shoot at things that are not visible
                 if (!Unit.Owner.VisiblePositions.ContainsKey(tile.Pos))
                     return false;
 

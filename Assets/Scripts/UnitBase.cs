@@ -182,6 +182,58 @@ namespace Assets.Scripts
         private Vector3 moveToVector;
         private int moveToVectorTimes;
 
+        public List<Position2> GetHitablePositions()
+        {
+            List<Position2> positions = null;
+
+            UnitBasePart unitBasePart = null;
+            foreach (UnitBasePart part in UnitBaseParts)
+            {
+                if (part.PartType == TileObjectType.PartWeapon)
+                {
+                    unitBasePart = part;
+                    break;
+                }
+            }
+            if (unitBasePart != null)
+            {
+                Position3 position3 = new Position3(CurrentPos);
+                if (HasEngine())
+                {
+                    positions = new List<Position2>();
+                    Position3 canFireAt = position3;
+
+                    for (int i = 0; i < unitBasePart.Range; i++)
+                    {
+                        canFireAt = canFireAt.GetNeighbor(Direction);
+                        positions.Add(canFireAt.Pos);
+                    }
+
+                    canFireAt = new Position3(positions[positions.Count - 2]);
+
+                    Position3 canFireLeft = canFireAt.GetNeighbor(Dir.TurnLeft(Direction));
+                    positions.Add(canFireLeft.Pos);
+
+                    List<Position3> line = canFireAt.DrawLine(canFireLeft.Pos);
+                    foreach (Position3 l in line)
+                        positions.Add(l.Pos);
+
+                    Position3 canFireRight = canFireAt.GetNeighbor(Dir.TurnRight(Direction));
+                    positions.Add(canFireRight.Pos);
+
+                }
+                else
+                {
+                    List<Position3> positions3 = position3.CreateRing(unitBasePart.Range);
+                    foreach (Position3 position in positions3)
+                    {
+                        positions.Add(position.Pos);
+                    }
+                }
+            }
+            return positions;
+        }
+
         public void MoveTo(Position2 pos)
         {
             DestinationPos = pos;
@@ -679,6 +731,23 @@ namespace Assets.Scripts
             }
             return false;
         }
+
+        public bool HasWeaponAndCanFire()
+        {
+            foreach (UnitBasePart unitBasePart in UnitBaseParts)
+            {
+                if (unitBasePart.PartType == TileObjectType.PartWeapon)
+                {
+                    if (unitBasePart.TileObjectContainer != null &&
+                        unitBasePart.TileObjectContainer.TileObjects.Count > 0)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         public bool HasAssembler()
         {
             foreach (UnitBasePart unitBasePart in UnitBaseParts)

@@ -498,9 +498,9 @@ namespace Assets.Scripts
                     HideButton(2);
                 }
 
-                if (selectedUnitFrame.HasWeapon())
+                if (selectedUnitFrame.HasWeaponAndCanFire())
                 {
-                    SetButtonText(3, "(r) Fire");
+                    SetButtonText(3, "(r) Throw");
                 }
                 else
                 {
@@ -521,8 +521,9 @@ namespace Assets.Scripts
 
                 SetButtonText(5, "( ) Clone");
                 SetButtonText(6, "( ) Remove");
+                SetButtonText(7, "( ) Automatic");
 
-                int idx = 7;
+                int idx = 8;
                 while (idx <= 12)
                 {
                     HideButton(idx++);
@@ -565,14 +566,6 @@ namespace Assets.Scripts
             }
         }
 
-        void MoveCommand()
-        {
-            if (selectedCommandPreview != null)
-            {
-                selectedCommandPreview.SelectMoveMode();
-                SetMode(CanvasMode.Preview);
-            }
-        }
         void IncreaseRadius()
         {
             selectedCommandPreview.IncreaseRadius();
@@ -655,7 +648,7 @@ namespace Assets.Scripts
             {
                 if (btn == 1)
                 {
-                    MoveCommand();
+                    
                 }
                 else if (btn == 4)
                 {
@@ -1248,7 +1241,7 @@ namespace Assets.Scripts
                 }
                 if (canvasMode == CanvasMode.Command)
                 {
-                    MoveCommand();
+                    //MoveCommand();
                 }
             }
             if (Input.GetKeyDown(KeyCode.R))
@@ -1669,10 +1662,6 @@ namespace Assets.Scripts
             {
                 position2 = commandPreview.DisplayPosition;
             }
-            else if (commandPreview.IsMoveMode)
-            {
-                position2 = commandPreview.DisplayPosition;
-            }
             else
             {
                 position2 = commandPreview.GameCommand.TargetPosition;
@@ -1836,7 +1825,10 @@ namespace Assets.Scripts
                         if (part.PartType == TileObjectType.PartWeapon)
                         {
                             panelWeapon.transform.Find("Partname").GetComponent<Text>().text = part.Name + state;
-                            panelWeapon.transform.Find("Content").GetComponent<Text>().text = "Ammo " + part.TileObjects.Count.ToString();
+                            if (part.TileObjects != null)
+                                panelWeapon.transform.Find("Content").GetComponent<Text>().text = "Ammo " + part.TileObjects.Count.ToString();
+                            else
+                                panelWeapon.transform.Find("Content").GetComponent<Text>().text = "No Container";
                             panelWeapon.SetActive(true);
 
                             /*

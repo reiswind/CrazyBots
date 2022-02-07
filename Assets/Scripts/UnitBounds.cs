@@ -87,12 +87,12 @@ namespace Assets.Scripts
 
         private Dictionary<Position2, GameObject> visibleFrames = new Dictionary<Position2, GameObject>();
         private List<GameObject> visibleGameObjects = new List<GameObject>();
-        public void CreateTargetFrame(Position3 position)
+        public void CreateTargetFrame(Position2 position)
         {
-            if (!visibleFrames.ContainsKey(position.Pos))
+            if (!visibleFrames.ContainsKey(position))
             {
                 GroundCell groundCell;
-                if (HexGrid.MainGrid.GroundCells.TryGetValue(position.Pos, out groundCell))
+                if (HexGrid.MainGrid.GroundCells.TryGetValue(position, out groundCell))
                 {
                     Vector3 vector3 = groundCell.transform.position;
                     vector3.y += 0.08f;
@@ -101,7 +101,7 @@ namespace Assets.Scripts
                     previewUnitMarker.transform.SetParent(HexGrid.MainGrid.transform, false);
                     previewUnitMarker.transform.position = vector3;
 
-                    visibleFrames.Add(position.Pos, previewUnitMarker);
+                    visibleFrames.Add(position, previewUnitMarker);
                 }
             }
         }
@@ -532,36 +532,10 @@ namespace Assets.Scripts
                 if (unitBasePart.PartType == TileObjectType.PartWeapon && !weaponAdded)
                 {
                     weaponAdded = true;
-                    if (UnitBase.HasEngine())
+                    List<Position2> positions = UnitBase.GetHitablePositions();
+                    if (positions != null)
                     {
-                        List<Position3> positions = new List<Position3>();
-                        Position3 canFireAt = position3;
-
-                        for (int i = 0; i < unitBasePart.Range; i++)
-                        {
-                            canFireAt = canFireAt.GetNeighbor(UnitBase.Direction);
-                            positions.Add(canFireAt);
-                        }
-
-                        canFireAt = positions[positions.Count - 2];
-
-                        Position3 canFireLeft = canFireAt.GetNeighbor(Dir.TurnLeft(canFireAt.Direction));
-                        positions.Add(canFireLeft);
-
-                        positions.AddRange(canFireAt.DrawLine(canFireLeft));
-
-                        Position3 canFireRight = canFireAt.GetNeighbor(Dir.TurnRight(canFireAt.Direction));
-                        positions.Add(canFireRight);
-
-                        foreach (Position3 position in positions)
-                        {
-                            gameFrame.CreateTargetFrame(position);
-                        }
-                    }
-                    else
-                    {
-                        List<Position3> positions = position3.CreateRing(unitBasePart.Range);
-                        foreach (Position3 position in positions)
+                        foreach (Position2 position in positions)
                         {
                             gameFrame.CreateTargetFrame(position);
                         }

@@ -137,7 +137,7 @@ namespace Assets.Scripts
               , ArrowTarget });
         }
 
-        private void DrawLine(Vector3 from, Vector3 to)
+        public void DrawLine(Vector3 from, Vector3 to)
         {
             GameObject lineRendererObject = new GameObject();
             lineRendererObject.name = "UnitLine";
@@ -167,14 +167,8 @@ namespace Assets.Scripts
             lineRendererList.Clear();
 
             Position3 targetPosition3;
-            if (CommandPreview.IsMoveMode)
-            {
-                targetPosition3 = new Position3(CommandPreview.DisplayPosition);
-            }
-            else
-            {
-                targetPosition3 = new Position3(CommandPreview.GameCommand.TargetPosition);
-            }
+
+            targetPosition3 = new Position3(CommandPreview.GameCommand.TargetPosition);
             if (IsSelected)
             {
                 foreach (MapGameCommandItem mapGameCommandItem in CommandPreview.GameCommand.GameCommandItems)
@@ -225,78 +219,122 @@ namespace Assets.Scripts
                     }
                 }
             }
-
-            //bool showAlert = false;
-
-            // Display Ghost?
-            foreach (CommandAttachedItem commandAttachedUnit in CommandPreview.PreviewUnits)
+            if (CommandPreview.GameCommand.GameCommandType == GameCommandType.Fire)
             {
-                /*
-                if (commandAttachedUnit.MapGameCommandItem.Alert)
+                Debug.Log("Command fire preview " + CommandPreview.GameCommand.UnitId + " to " + CommandPreview.GameCommand.TargetPosition.ToString());
+                if (CommandPreview.GameCommand.UnitId != null)
                 {
-                    showAlert = true;
-                }*/
-                if (string.IsNullOrEmpty(commandAttachedUnit.MapGameCommandItem.AttachedUnit.UnitId))
-                {
-                    // Display Ghost, unit does not exist
-                    if (commandAttachedUnit.AttachedUnit.IsVisible)
+                    UnitBase unitBase;
+                    if (HexGrid.MainGrid.BaseUnits.TryGetValue(CommandPreview.GameCommand.UnitId, out unitBase))
                     {
+                        List<Position2> positions = unitBase.GetHitablePositions();
+                        if (positions.Contains(CommandPreview.GameCommand.TargetPosition))
+                        {
+                            GroundCell groundCell;
+                            if (HexGrid.MainGrid.GroundCells.TryGetValue(CommandPreview.GameCommand.TargetPosition, out groundCell))
+                            {
+                                Vector3 unitPos3 = unitBase.transform.position;
+                                unitPos3.y += 0.1f;
 
+                                Vector3 groundPos3 = groundCell.transform.position;
+                                groundPos3.y += 0.1f;
+
+                                DrawLine(unitPos3, groundPos3);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                //bool showAlert = false;
+
+                // Display Ghost?
+                foreach (CommandAttachedItem commandAttachedUnit in CommandPreview.PreviewUnits)
+                {
+                    /*
+                    if (commandAttachedUnit.MapGameCommandItem.Alert)
+                    {
+                        showAlert = true;
+                    }*/
+
+                    if (string.IsNullOrEmpty(commandAttachedUnit.MapGameCommandItem.AttachedUnit.UnitId))
+                    {
+                        // Display Ghost, unit does not exist
+                        if (commandAttachedUnit.AttachedUnit.IsVisible)
+                        {
+
+                        }
+                        else
+                        {
+                            //Debug.Log("Activate: commandAttachedUnit.UnitBase");
+                            // Real unit missing, show ghost
+                            commandAttachedUnit.AttachedUnit.IsVisible = true;
+                            if (commandAttachedUnit.AttachedUnit.GhostUnit != null)
+                                commandAttachedUnit.AttachedUnit.GhostUnit.IsVisible = true;
+                            if (commandAttachedUnit.AttachedUnit.GhostUnitBounds != null)
+                                commandAttachedUnit.AttachedUnit.GhostUnitBounds.IsVisible = true;
+                        }
                     }
                     else
                     {
-                        //Debug.Log("Activate: commandAttachedUnit.UnitBase");
-                        // Real unit missing, show ghost
-                        commandAttachedUnit.AttachedUnit.IsVisible = true;
-                        if (commandAttachedUnit.AttachedUnit.GhostUnit != null)
-                            commandAttachedUnit.AttachedUnit.GhostUnit.IsVisible = true;
-                        if (commandAttachedUnit.AttachedUnit.GhostUnitBounds != null)
-                            commandAttachedUnit.AttachedUnit.GhostUnitBounds.IsVisible = true;
-                    }
-                }
-                else
-                {
-                    UnitBase realUnit;
-                    if (HexGrid.MainGrid.BaseUnits.TryGetValue(commandAttachedUnit.MapGameCommandItem.AttachedUnit.UnitId, out realUnit))
-                    {
-                        if (commandAttachedUnit.AttachedUnit.IsVisible)
+                        UnitBase realUnit;
+                        if (HexGrid.MainGrid.BaseUnits.TryGetValue(commandAttachedUnit.MapGameCommandItem.AttachedUnit.UnitId, out realUnit))
                         {
-                            if (CommandPreview.GameCommand.GameCommandType == GameCommandType.Build)
+                            if (commandAttachedUnit.AttachedUnit.IsVisible)
                             {
-                                // Build: Ghost stays until completion
-                            }
-                            else
-                            {
-                                // Unit exists
-                                if (realUnit.UnderConstruction)
+                                if (CommandPreview.GameCommand.GameCommandType == GameCommandType.Build)
                                 {
-                                    // Wait for completion (Keep Ghost)
-                                    //commandAttachedUnit.Marker.SetActive(true);
+                                    // Build: Ghost stays until completion
                                 }
                                 else
                                 {
-                                    // Unit complete, hide ghost
-                                    //Debug.Log("Deactivate: commandAttachedUnit.UnitBase");
+                                    // Unit exists
+                                    if (realUnit.UnderConstruction)
+                                    {
+                                        // Wait for completion (Keep Ghost)
+                                        //commandAttachedUnit.Marker.SetActive(true);
+                                    }
+                                    else
+                                    {
+                                        // Unit complete, hide ghost
+                                        //Debug.Log("Deactivate: commandAttachedUnit.UnitBase");
 
-                                    // Real unit exists, deactivate ghost
-                                    // NO, keep it until unit arrives and command is complete
-                                    //if (commandAttachedUnit.AttachedUnit.GhostUnit != null)
-                                    //    commandAttachedUnit.AttachedUnit.GhostUnit.IsVisible = false;
+                                        // Real unit exists, deactivate ghost
+                                        // NO, keep it until unit arrives and command is complete
+                                        //if (commandAttachedUnit.AttachedUnit.GhostUnit != null)
+                                        //    commandAttachedUnit.AttachedUnit.GhostUnit.IsVisible = false;
+                                    }
                                 }
                             }
-                        }
-                        if (commandAttachedUnit.AttachedUnit.GhostUnitBounds != null)
-                        {
-                            Position3 relativePosition3 = targetPosition3.Add(commandAttachedUnit.AttachedUnit.RotatedPosition3);
-                            if (IsSelected)
+                            if (commandAttachedUnit.AttachedUnit.GhostUnitBounds != null)
                             {
-                                commandAttachedUnit.AttachedUnit.GhostUnitBounds.IsVisible = true;
-                            }
-                            else
-                            {
-                                if (realUnit.CurrentPos == relativePosition3.Pos)
+                                Position3 relativePosition3 = targetPosition3.Add(commandAttachedUnit.AttachedUnit.RotatedPosition3);
+                                if (IsSelected)
                                 {
-                                    commandAttachedUnit.AttachedUnit.GhostUnitBounds.IsVisible = false;
+                                    commandAttachedUnit.AttachedUnit.GhostUnitBounds.IsVisible = true;
+                                }
+                                else
+                                {
+                                    if (realUnit.CurrentPos == relativePosition3.Pos)
+                                    {
+                                        commandAttachedUnit.AttachedUnit.GhostUnitBounds.IsVisible = false;
+                                    }
+                                    else
+                                    {
+                                        commandAttachedUnit.AttachedUnit.GhostUnitBounds.IsVisible = true;
+                                    }
+                                }
+                            }
+                            realUnit.SetHighlighted(IsHighlighted);
+                        }
+                        else
+                        {
+                            if (commandAttachedUnit.AttachedUnit.GhostUnitBounds != null)
+                            {
+                                if (IsSelected)
+                                {
+                                    commandAttachedUnit.AttachedUnit.GhostUnitBounds.IsVisible = true;
                                 }
                                 else
                                 {
@@ -304,25 +342,9 @@ namespace Assets.Scripts
                                 }
                             }
                         }
-                        realUnit.SetHighlighted(IsHighlighted);
-                    }
-                    else
-                    {
-                        if (commandAttachedUnit.AttachedUnit.GhostUnitBounds != null)
-                        {
-                            if (IsSelected)
-                            {
-                                commandAttachedUnit.AttachedUnit.GhostUnitBounds.IsVisible = true;
-                            }
-                            else
-                            {
-                                commandAttachedUnit.AttachedUnit.GhostUnitBounds.IsVisible = true;
-                            }
-                        }
                     }
                 }
             }
-
             //CommandPreview.ShowAlert(showAlert);
             
 
@@ -386,117 +408,83 @@ namespace Assets.Scripts
                 List<UnitBase> remainHighlighted = new List<UnitBase>();
                 remainHighlighted.AddRange(highlightedUnits);
 
-                if (CommandPreview.IsMoveMode)
+
+                // Highlight attached units
+                if (CommandPreview.GameCommand.GameCommandType == GameCommandType.Collect ||
+                    CommandPreview.GameCommand.GameCommandType == GameCommandType.Build ||
+                    CommandPreview.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                 {
-                    if (CommandPreview.GameCommand.GameCommandType != GameCommandType.Collect)
+                    foreach (MapGameCommandItem mapGameCommandItem in CommandPreview.GameCommand.GameCommandItems)
                     {
-                        foreach (CommandAttachedItem commandAttachedItem in CommandPreview.PreviewUnits)
+                        //break;
+                        /*
+                        if (CommandPreview.GameCommand.GameCommandType != GameCommandType.Collect)
                         {
-                            Position3 relativePosition3 = targetPosition3.Add(commandAttachedItem.AttachedUnit.RotatedPosition3);
+                            Position3 relativePosition3 = targetPosition3.Add(mapGameCommandItem.BlueprintCommandItem.Position3);
+
                             Position2 position2 = relativePosition3.Pos;
                             GroundCell gc;
-                            if (HexGrid.MainGrid.GroundCells.TryGetValue(position2, out gc))
+                            if (highlightedGroundCells.TryGetValue(position2, out gc))
                             {
-                                Vector3 unitPos3 = gc.transform.position;
-                                unitPos3.y += 0.10f;
-                                //commandAttachedUnit.Marker.transform.position = unitPos3;
-                                if (commandAttachedItem.AttachedUnit.GhostUnitBounds != null)
-                                    commandAttachedItem.AttachedUnit.GhostUnitBounds.Update();
-                                if (commandAttachedItem.AttachedUnit.GhostUnit != null)
-                                    commandAttachedItem.AttachedUnit.GhostUnit.IsVisible = true;
-                                commandAttachedItem.AttachedUnit.IsVisible = true;
-
-                                //remainingPos.Remove(position2);
+                                remainingPos.Remove(position2);
                             }
                             else
                             {
-                                //gc.SetHighlighted(IsHighlighted);
-                                //highlightedGroundCells.Add(gc.Pos, gc);
-                                //remainingPos.Remove(position2);
+                                gc = HexGrid.MainGrid.GroundCells[position2];
+                                gc.SetHighlighted(IsHighlighted);
+                                highlightedGroundCells.Add(gc.Pos, gc);
+                                remainingPos.Remove(position2);
                             }
                         }
-                    }
-                }
-                else
-                {
-
-                    // Highlight attached units
-                    if (CommandPreview.GameCommand.GameCommandType == GameCommandType.Collect ||
-                        CommandPreview.GameCommand.GameCommandType == GameCommandType.Build ||
-                        CommandPreview.GameCommand.GameCommandType == GameCommandType.ItemRequest)
-                    {
-                        foreach (MapGameCommandItem mapGameCommandItem in CommandPreview.GameCommand.GameCommandItems)
+                        */
+                        if (!string.IsNullOrEmpty(mapGameCommandItem.AttachedUnit.UnitId))
                         {
-                            //break;
-                            /*
-                            if (CommandPreview.GameCommand.GameCommandType != GameCommandType.Collect)
+                            UnitBase unitBase;
+                            if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.AttachedUnit.UnitId, out unitBase))
                             {
-                                Position3 relativePosition3 = targetPosition3.Add(mapGameCommandItem.BlueprintCommandItem.Position3);
 
-                                Position2 position2 = relativePosition3.Pos;
-                                GroundCell gc;
-                                if (highlightedGroundCells.TryGetValue(position2, out gc))
-                                {
-                                    remainingPos.Remove(position2);
-                                }
+                                if (!highlightedUnits.Contains(unitBase))
+                                    highlightedUnits.Add(unitBase);
                                 else
-                                {
-                                    gc = HexGrid.MainGrid.GroundCells[position2];
-                                    gc.SetHighlighted(IsHighlighted);
-                                    highlightedGroundCells.Add(gc.Pos, gc);
-                                    remainingPos.Remove(position2);
-                                }
+                                    remainHighlighted.Remove(unitBase);
+
+                                unitBase.SetHighlighted(IsHighlighted);
                             }
-                            */
-                            if (!string.IsNullOrEmpty(mapGameCommandItem.AttachedUnit.UnitId))
+                        }
+                        if (!string.IsNullOrEmpty(mapGameCommandItem.FactoryUnit.UnitId))
+                        {
+                            UnitBase unitBase;
+                            if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.FactoryUnit.UnitId, out unitBase))
                             {
-                                UnitBase unitBase;
-                                if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.AttachedUnit.UnitId, out unitBase))
-                                {
-                                    
-                                    if (!highlightedUnits.Contains(unitBase))
-                                        highlightedUnits.Add(unitBase);
-                                    else
-                                        remainHighlighted.Remove(unitBase);
-                                    
-                                    unitBase.SetHighlighted(IsHighlighted);
-                                }
+                                if (!highlightedUnits.Contains(unitBase))
+                                    highlightedUnits.Add(unitBase);
+                                else
+                                    remainHighlighted.Remove(unitBase);
+                                unitBase.SetHighlighted(IsHighlighted);
                             }
-                            if (!string.IsNullOrEmpty(mapGameCommandItem.FactoryUnit.UnitId))
+                        }
+                        if (!string.IsNullOrEmpty(mapGameCommandItem.TransportUnit.UnitId))
+                        {
+                            UnitBase unitBase;
+                            if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.TransportUnit.UnitId, out unitBase))
                             {
-                                UnitBase unitBase;
-                                if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.FactoryUnit.UnitId, out unitBase))
-                                {                                    
-                                    if (!highlightedUnits.Contains(unitBase))
-                                        highlightedUnits.Add(unitBase);
-                                    else
-                                        remainHighlighted.Remove(unitBase);
-                                    unitBase.SetHighlighted(IsHighlighted);
-                                }
+                                if (!highlightedUnits.Contains(unitBase))
+                                    highlightedUnits.Add(unitBase);
+                                else
+                                    remainHighlighted.Remove(unitBase);
+                                unitBase.SetHighlighted(IsHighlighted);
                             }
-                            if (!string.IsNullOrEmpty(mapGameCommandItem.TransportUnit.UnitId))
+                        }
+                        if (!string.IsNullOrEmpty(mapGameCommandItem.TargetUnit.UnitId))
+                        {
+                            UnitBase unitBase;
+                            if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.TargetUnit.UnitId, out unitBase))
                             {
-                                UnitBase unitBase;
-                                if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.TransportUnit.UnitId, out unitBase))
-                                {
-                                    if (!highlightedUnits.Contains(unitBase))
-                                        highlightedUnits.Add(unitBase);
-                                    else
-                                        remainHighlighted.Remove(unitBase);
-                                    unitBase.SetHighlighted(IsHighlighted);
-                                }
-                            }
-                            if (!string.IsNullOrEmpty(mapGameCommandItem.TargetUnit.UnitId))
-                            {
-                                UnitBase unitBase;
-                                if (HexGrid.MainGrid.BaseUnits.TryGetValue(mapGameCommandItem.TargetUnit.UnitId, out unitBase))
-                                {
-                                    if (!highlightedUnits.Contains(unitBase))
-                                        highlightedUnits.Add(unitBase);
-                                    else
-                                        remainHighlighted.Remove(unitBase);
-                                    unitBase.SetHighlighted(IsHighlighted);
-                                }
+                                if (!highlightedUnits.Contains(unitBase))
+                                    highlightedUnits.Add(unitBase);
+                                else
+                                    remainHighlighted.Remove(unitBase);
+                                unitBase.SetHighlighted(IsHighlighted);
                             }
                         }
                     }

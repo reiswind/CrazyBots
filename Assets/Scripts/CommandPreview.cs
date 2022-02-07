@@ -139,6 +139,7 @@ namespace Assets.Scripts
             mapGameCommandItem.BlueprintName = unitBase.MoveUpdateStats.BlueprintName;
             mapGameCommandItem.Direction = unitBase.Direction;
             mapGameCommandItem.Position3 = position3;
+            
             GameCommand.GameCommandItems.Add(mapGameCommandItem);
 
             CreateCommandLogo();
@@ -236,21 +237,6 @@ namespace Assets.Scripts
             return true;
         }
 
-        private bool isMoveMode;
-        public bool IsMoveMode
-        {
-            get
-            {
-                return isMoveMode;
-            }
-        }
-        public void SelectMoveMode()
-        {
-            isMoveMode = true;
-
-            // Append build grid
-            UpdateAllUnitBounds(true);
-        }
 
         //private UnitBase addPreviewGhost;
         //private GameObject addPreviewUnitMarker;
@@ -698,6 +684,33 @@ namespace Assets.Scripts
             }
         }
 
+        private LineRenderer fireLineRenderer;
+
+        private void UpdateFirePosition(GroundCell groundCell)
+        {
+            GameCommand.TargetPosition = groundCell.Pos;
+            //previewGameCommand.transform.position = groundCell.transform.position;
+
+
+            /*
+            GameObject lineRendererObject = new GameObject();
+            lineRendererObject.name = "UnitLine";
+
+            LineRenderer lineRenderer = lineRendererObject.AddComponent<LineRenderer>();
+            lineRenderer.transform.SetParent(HexGrid.MainGrid.transform, false);
+            lineRenderer.material = HexGrid.MainGrid.GetMaterial("Player1");
+
+            lineRenderer.startWidth = 0.05f;
+            lineRenderer.endWidth = 0.05f;
+            lineRenderer.positionCount = 2;
+            lineRenderer.SetPosition(0, unitBase.transform.position);
+            lineRenderer.SetPosition(1, groundCell.transform.position); 
+
+            fireLineRenderer = lineRenderer;
+            */
+
+        }
+
         public void UpdatePositions(GroundCell groundCell)
         {
             if (previewGameCommand == null)
@@ -707,12 +720,15 @@ namespace Assets.Scripts
                 UpdateCollectPosition(groundCell);
                 return;
             }
-
+            if (GameCommand.GameCommandType == GameCommandType.Fire)
+            {
+                UpdateFirePosition(groundCell);
+                return;
+            }
             Vector3 unitPos3 = groundCell.transform.position;
             if (GameCommand.GameCommandType == GameCommandType.Build)
                 unitPos3.y += 1.5f;
-            else if (GameCommand.GameCommandType == GameCommandType.Attack ||
-                     GameCommand.GameCommandType == GameCommandType.Collect)
+            else if (GameCommand.GameCommandType == GameCommandType.Attack)
                 unitPos3.y += 1.0f;
             else if (GameCommand.GameCommandType == GameCommandType.ItemRequest)
                 unitPos3.y += 2.0f;
@@ -729,9 +745,6 @@ namespace Assets.Scripts
                 GroundCell neighbor;
                 if (HexGrid.MainGrid.GroundCells.TryGetValue(neighborPosition3.Pos, out neighbor))
                 {
-
-                    //Debug.Log("Logo UpdateDirection to " + displayDirection.ToString());
-
                     Command.UpdateDirection(neighbor.transform.position);
                 }
             }
@@ -752,9 +765,6 @@ namespace Assets.Scripts
 
                 if (displayDirection != Direction.C)
                 {
-                    //if (isMoveMode)
-                    //    neighborPosition3 = relativePosition3.GetNeighbor(commandAttachedUnit.RotatedDirection);
-                    //else
                     neighborPosition3 = relativePosition3.GetNeighbor(displayDirection);
 
                     GroundCell neighbor;
@@ -852,7 +862,7 @@ namespace Assets.Scripts
                         // On select
                         commandAttachedUnit.AttachedUnit.GhostUnitBounds = new UnitBounds(commandAttachedUnit.AttachedUnit.GhostUnit);
 
-                        if (IsPreview || IsMoveMode)
+                        if (IsPreview)
                         {
                             commandAttachedUnit.AttachedUnit.GhostUnitBounds.AddBuildGrid();
                         }
@@ -907,7 +917,8 @@ namespace Assets.Scripts
             GameCommand = gameCommand;
 
             if (GameCommand.GameCommandType == GameCommandType.ItemRequest ||
-                GameCommand.GameCommandType == GameCommandType.Collect)
+                GameCommand.GameCommandType == GameCommandType.Collect ||
+                GameCommand.GameCommandType == GameCommandType.Fire)
             {
                 // Do not show the worker to build
             }

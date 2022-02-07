@@ -25,12 +25,13 @@ namespace Engine.Ants
             Unit cntrlUnit = Weapon.Unit;
 
             if (Ant.Unit.CurrentGameCommand != null &&
-                Ant.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Fire)
+                Ant.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Fire &&
+                cntrlUnit.Weapon.WeaponLoaded)
             {
                 Move move = new Move();
                 move.MoveType = MoveType.Fire;
                 move.UnitId = Ant.Unit.UnitId;
-                move.OtherUnitId = null; // tileObject.TileObjectType.ToString();
+                move.OtherUnitId = null;
                 move.Positions = new List<Position2>();
                 move.Positions.Add(Ant.Unit.Pos);
                 move.Positions.Add(Ant.Unit.CurrentGameCommand.GameCommand.TargetPosition);

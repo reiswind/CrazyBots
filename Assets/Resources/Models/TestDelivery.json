@@ -16,15 +16,15 @@
   "Units": [
     
     {
-      "Name": "Worker",
+      "Name": "Fighter",
       "PlayerId": 1,
 	  "ContainedMinerals": 0,
 	  "ContainedWood": 0,
-	  "ContainedStones": 0,
+	  "ContainedStones": 1,
 	  "Direction": "N",
-	  "HoldPosition": false,
-      "Blueprint": "Worker",
-      "Position": "2,2"
+	  "HoldPosition": true,
+      "Blueprint": "Fighter",
+      "Position": "-2,-2"
     },
 	{
       "Name": "Container",
