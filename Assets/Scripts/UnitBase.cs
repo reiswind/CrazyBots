@@ -224,6 +224,7 @@ namespace Assets.Scripts
                 }
                 else
                 {
+                    positions = new List<Position2>();
                     List<Position3> positions3 = position3.CreateRing(unitBasePart.Range);
                     foreach (Position3 position in positions3)
                     {

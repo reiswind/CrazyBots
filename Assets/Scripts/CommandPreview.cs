@@ -154,6 +154,11 @@ namespace Assets.Scripts
                 HexGrid.Destroy(previewGameCommand);
                 previewGameCommand = null;
             }
+            if (fireLineRenderer != null)
+            {
+                HexGrid.Destroy(fireLineRenderer.gameObject);
+                fireLineRenderer = null;
+            }
             foreach (CommandAttachedItem commandAttachedUnit in PreviewUnits)
             {
                 if (commandAttachedUnit.AttachedUnit.GhostUnit != null)
@@ -688,27 +693,69 @@ namespace Assets.Scripts
 
         private void UpdateFirePosition(GroundCell groundCell)
         {
+            if (fireLineRenderer != null)
+            {
+                HexGrid.Destroy(fireLineRenderer.gameObject);
+                fireLineRenderer = null;
+            }
+
             GameCommand.TargetPosition = groundCell.Pos;
             //previewGameCommand.transform.position = groundCell.transform.position;
+            Debug.Log("Command fire preview " + GameCommand.UnitId + " to " + GameCommand.TargetPosition.ToString());
+            if (GameCommand.UnitId != null)
+            {
+                UnitBase unitBase;
+                if (HexGrid.MainGrid.BaseUnits.TryGetValue(GameCommand.UnitId, out unitBase))
+                {
+                    UnitBasePart partWeapon = null;
+                    foreach (UnitBasePart unitBasePart in unitBase.UnitBaseParts)
+                    {
+                        if (unitBasePart.PartType == TileObjectType.PartWeapon && unitBasePart.Level == unitBasePart.CompleteLevel)
+                        {
+                            partWeapon = unitBasePart;
+                            break;
+                        }
+                    }
+                    if (partWeapon != null)
+                    {
+                        Transform transformWeapon = partWeapon.Part.transform;
+                        Transform barrelTrans = partWeapon.Part.transform.Find("Barrel");
 
+                        List<Position2> positions = unitBase.GetHitablePositions();
+                        if (positions.Contains(GameCommand.TargetPosition))
+                        {
+                            Vector3 groundPos3 = groundCell.transform.position;
 
-            /*
-            GameObject lineRendererObject = new GameObject();
-            lineRendererObject.name = "UnitLine";
+                            float angle;
+                            Vector3 velocityVector = partWeapon.CalcBallisticVelocityVector(barrelTrans.position, groundPos3, out angle);
+                            //Rotate the barrel
+                            //The equation we use assumes that if we are rotating the gun up from the
+                            //pointing "forward" position, the angle increase from 0, but our gun's angles
+                            //decreases from 360 degress when we are rotating up
+                            barrelTrans.localEulerAngles = new Vector3(360f - angle, 0f, 0f);
 
-            LineRenderer lineRenderer = lineRendererObject.AddComponent<LineRenderer>();
-            lineRenderer.transform.SetParent(HexGrid.MainGrid.transform, false);
-            lineRenderer.material = HexGrid.MainGrid.GetMaterial("Player1");
+                            //Rotate the gun turret towards the target
+                            transformWeapon.LookAt(groundPos3);
+                            transformWeapon.eulerAngles = new Vector3(0f, transformWeapon.rotation.eulerAngles.y, 0f);
 
-            lineRenderer.startWidth = 0.05f;
-            lineRenderer.endWidth = 0.05f;
-            lineRenderer.positionCount = 2;
-            lineRenderer.SetPosition(0, unitBase.transform.position);
-            lineRenderer.SetPosition(1, groundCell.transform.position); 
+                            Vector3 currentPos = barrelTrans.position;
+                            Vector3 currentVel = velocityVector;
 
-            fireLineRenderer = lineRenderer;
-            */
+                            GameObject lineRendererObject = new GameObject();
+                            lineRendererObject.name = "UnitLine";
+                            LineRenderer lineRenderer = lineRendererObject.AddComponent<LineRenderer>();
+                            lineRenderer.transform.SetParent(HexGrid.MainGrid.transform, false);
+                            lineRenderer.material = HexGrid.MainGrid.GetMaterial("Player1");
+                            lineRenderer.startWidth = 0.05f;
+                            lineRenderer.endWidth = 0.05f;
 
+                            UnitBullet.DrawTrajectoryPath(lineRenderer, currentVel, currentPos);
+
+                            fireLineRenderer = lineRenderer;
+                        }
+                    }
+                }
+            }
         }
 
         public void UpdatePositions(GroundCell groundCell)

@@ -82,6 +82,7 @@
     <Compile Include="Assets\References\Engine\Map\HexMetrics.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartExtractor.cs" />
     <Compile Include="Assets\References\Engine\Algorithms\Bresehnham.cs" />
+    <Compile Include="Assets\Scripts\UnitBullet.cs" />
     <Compile Include="Assets\References\Engine\Ants\MineralDeposit.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartArmor.cs" />
     <Compile Include="Assets\References\Engine\Master\Container.cs" />

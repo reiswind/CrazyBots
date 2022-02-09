@@ -102,7 +102,7 @@ namespace Engine.Interface
             blueprint.Name = "Fighter";
             blueprint.Layout = "U-Fighter";
             blueprint.Parts.Add(new BlueprintPart("PartEngine"));
-            blueprint.Parts.Add(new BlueprintPart("PartWeapon", 1, 2));
+            blueprint.Parts.Add(new BlueprintPart("PartWeapon", 1, 4));
             blueprint.Parts.Add(new BlueprintPart("PartExtractor"));
             blueprint.Parts.Add(new BlueprintPart("PartArmor"));
             blueprint.BlueprintUnitOrders.AcceptAmmo();

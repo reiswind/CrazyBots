@@ -221,29 +221,7 @@ namespace Assets.Scripts
             }
             if (CommandPreview.GameCommand.GameCommandType == GameCommandType.Fire)
             {
-                Debug.Log("Command fire preview " + CommandPreview.GameCommand.UnitId + " to " + CommandPreview.GameCommand.TargetPosition.ToString());
-                if (CommandPreview.GameCommand.UnitId != null)
-                {
-                    UnitBase unitBase;
-                    if (HexGrid.MainGrid.BaseUnits.TryGetValue(CommandPreview.GameCommand.UnitId, out unitBase))
-                    {
-                        List<Position2> positions = unitBase.GetHitablePositions();
-                        if (positions.Contains(CommandPreview.GameCommand.TargetPosition))
-                        {
-                            GroundCell groundCell;
-                            if (HexGrid.MainGrid.GroundCells.TryGetValue(CommandPreview.GameCommand.TargetPosition, out groundCell))
-                            {
-                                Vector3 unitPos3 = unitBase.transform.position;
-                                unitPos3.y += 0.1f;
-
-                                Vector3 groundPos3 = groundCell.transform.position;
-                                groundPos3.y += 0.1f;
-
-                                DrawLine(unitPos3, groundPos3);
-                            }
-                        }
-                    }
-                }
+                
             }
             else
             {

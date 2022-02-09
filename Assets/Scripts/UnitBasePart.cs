@@ -203,11 +203,24 @@ namespace Assets.Scripts
 
             Vector3 targetPos = weaponTargetCell.transform.position;
             Rigidbody rigidbody = shell.GetComponent<Rigidbody>();
-            rigidbody.velocity = CalcBallisticVelocityVector(shell.transform.position, targetPos, UnitBase.HasEngine()?30:1);
+
+            float angle;
+            rigidbody.velocity = CalcBallisticVelocityVector(shell.transform.position, targetPos, out angle);
             
         }
-        private Vector3 CalcBallisticVelocityVector(Vector3 initialPos, Vector3 finalPos, float angle)
+        public Vector3 CalcBallisticVelocityVector(Vector3 initialPos, Vector3 finalPos, out float angle)
         {
+            if (UnitBase.HasEngine())
+                angle = 30f;
+            else
+                angle = 1f;
+
+            float d = Vector3.Distance(initialPos, finalPos);
+            angle += d * 5;
+
+            Debug.Log("Distance " + d + " = angle " + angle);
+
+
             var toPos = initialPos - finalPos;
 
             var h = toPos.y;
