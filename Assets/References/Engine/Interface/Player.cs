@@ -69,6 +69,19 @@ namespace Engine.Interface
             return false;
         }
 
+        internal void AddGamecommand(GameCommand gameCommand)
+        {
+            foreach (GameCommand command in GameCommands)
+            {
+                if (command.UnitId == gameCommand.UnitId)
+                {
+                    // Revoke duplicate orders.
+                    command.CommandCanceled = true;
+                }
+            }
+            GameCommands.Add(gameCommand);
+        }
+
         internal void CollectVisiblePos(Unit unit)
         {
             if (unit.UnderConstruction)

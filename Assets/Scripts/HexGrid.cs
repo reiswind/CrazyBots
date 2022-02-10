@@ -1346,6 +1346,20 @@ namespace Assets.Scripts
         {
             MapGameCommand gameCommand = move.Command;
 
+            foreach (CommandPreview existingPreview in CreatedCommandPreviews)
+            {
+                if (existingPreview.GameCommand.TargetPosition == gameCommand.TargetPosition &&
+                    existingPreview.GameCommand.PlayerId == gameCommand.PlayerId &&
+                    existingPreview.GameCommand.GameCommandType == gameCommand.GameCommandType)
+                {
+                    //commandPreview = existingPreview;
+                    CommandPreviews.Add(gameCommand.CommandId, existingPreview);
+                    CreatedCommandPreviews.Remove(existingPreview);
+                    break;
+                }
+            }
+
+
             if (gameCommand.CommandCanceled || gameCommand.CommandComplete)
             {
                 CommandPreview commandPreview;
@@ -1360,18 +1374,7 @@ namespace Assets.Scripts
                 CommandPreview commandPreview;
                 if (!CommandPreviews.TryGetValue(gameCommand.CommandId, out commandPreview))
                 {
-                    foreach (CommandPreview existingPreview in CreatedCommandPreviews)
-                    {
-                        if (existingPreview.GameCommand.TargetPosition == gameCommand.TargetPosition &&
-                            existingPreview.GameCommand.PlayerId == gameCommand.PlayerId &&
-                            existingPreview.GameCommand.GameCommandType == gameCommand.GameCommandType)
-                        {
-                            commandPreview = existingPreview;
-                            CommandPreviews.Add(gameCommand.CommandId, commandPreview);
-                            CreatedCommandPreviews.Remove(existingPreview);
-                            break;
-                        }
-                    }
+                   int  x=0;
                 }
 
                 if (commandPreview == null)

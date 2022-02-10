@@ -34,8 +34,19 @@ namespace Engine.Master
             if ((moveFilter & MoveFilter.Move) == 0)
                 return;
 
-            if (Unit.Power == 0 || HoldPosition)
+            if (Unit.Power == 0)
                 return;
+            if (HoldPosition)
+            {
+                if (Unit.Weapon != null && !Unit.Weapon.WeaponLoaded)
+                {
+                    // Let the unit move to pick up ammo
+                }
+                else
+                {
+                    return;
+                }
+            }
             if (Unit.Stunned > 0)
                 return;
 

@@ -828,6 +828,13 @@ namespace Engine.Master
                 lastMoves.Add(move);
 
                 HitByBullet(move, fireingUnit, lastMoves, shellTileObject);
+
+                if (fireingUnit.CurrentGameCommand != null &&
+                    fireingUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Fire)
+                {
+                    fireingUnit.CurrentGameCommand.GameCommand.CommandComplete = true;
+                }
+
                 wasSuccessful = true;
             }
             return wasSuccessful;
@@ -2137,7 +2144,8 @@ namespace Engine.Master
 
                     if (Players.TryGetValue(mapGameCommand.PlayerId, out player))
                     {
-                        player.GameCommands.Add(gameCommand);
+                        player.AddGamecommand(gameCommand);
+                        //player.GameCommands.Add(gameCommand);
                     }
                 }
             }

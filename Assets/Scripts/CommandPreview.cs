@@ -449,36 +449,50 @@ namespace Assets.Scripts
                 }
                 else
                 {*/
-                    foreach (CommandAttachedItem commandAttachedUnit in PreviewUnits)
+                foreach (CommandAttachedItem commandAttachedUnit in PreviewUnits)
+                {
+                    if (commandAttachedUnit.AttachedUnit.GhostUnitBounds != null)
                     {
-                        if (commandAttachedUnit.AttachedUnit.GhostUnitBounds != null)
+                        commandAttachedUnit.AttachedUnit.GhostUnitBounds.Destroy();
+                        commandAttachedUnit.AttachedUnit.GhostUnitBounds = null;
+                    }
+                    foreach (MapGameCommandItem gameCommandItem in GameCommand.GameCommandItems)
+                    {
+                        if (commandAttachedUnit.AttachedUnit.Position3 == gameCommandItem.Position3)
                         {
-                            commandAttachedUnit.AttachedUnit.GhostUnitBounds.Destroy();
-                            commandAttachedUnit.AttachedUnit.GhostUnitBounds = null;
-                        }
-                        foreach (MapGameCommandItem gameCommandItem in GameCommand.GameCommandItems)
-                        {
-                            if (commandAttachedUnit.AttachedUnit.Position3 == gameCommandItem.Position3)
-                            {
-                                gameCommandItem.Direction = commandAttachedUnit.AttachedUnit.RotatedDirection;
-                                gameCommandItem.RotatedDirection = commandAttachedUnit.AttachedUnit.RotatedDirection;
-                            }
+                            gameCommandItem.Direction = commandAttachedUnit.AttachedUnit.RotatedDirection;
+                            gameCommandItem.RotatedDirection = commandAttachedUnit.AttachedUnit.RotatedDirection;
                         }
                     }
+                }
 
-                    GameCommand.GameCommandType = GameCommand.GameCommandType;
-                    GameCommand.TargetPosition = displayPosition;
-                    GameCommand.Direction = displayDirection;
-                    GameCommand.Radius = displayRadius;                    
-                    IsPreview = false;
+                GameCommand.GameCommandType = GameCommand.GameCommandType;
+                GameCommand.TargetPosition = displayPosition;
+                GameCommand.Direction = displayDirection;
+                GameCommand.Radius = displayRadius;
+                IsPreview = false;
 
-                    // Remove the command after the structure is complete
-                    if (GameCommand.GameCommandType == GameCommandType.Build)
-                        GameCommand.DeleteWhenFinished = true;
+                // Remove the command after the structure is complete
+                if (GameCommand.GameCommandType == GameCommandType.Build)
+                    GameCommand.DeleteWhenFinished = true;
 
-                    HexGrid.MainGrid.GameCommands.Add(GameCommand);
-                    HexGrid.MainGrid.CreatedCommandPreviews.Add(this);
-                
+                List<CommandPreview> dup = new List<CommandPreview>();
+                foreach (CommandPreview commandPreview in HexGrid.MainGrid.CreatedCommandPreviews)
+                {
+                    if (commandPreview.GameCommand.UnitId == GameCommand.UnitId)
+                    {
+                        dup.Add(commandPreview);
+                    }
+                }
+                foreach (CommandPreview commandPreview in dup)
+                {
+                    HexGrid.MainGrid.CreatedCommandPreviews.Remove(commandPreview);
+                    commandPreview.Delete();
+                }
+
+                HexGrid.MainGrid.GameCommands.Add(GameCommand);
+                HexGrid.MainGrid.CreatedCommandPreviews.Add(this);
+
             }
         }
         /*
@@ -891,8 +905,11 @@ namespace Assets.Scripts
 
             if (visible == true)
             {
-                collectUnitBounds = new CollectBounds(displayPosition, displayRadius);                
-                collectUnitBounds.Update(1);
+                if (displayRadius > 0)
+                {
+                    collectUnitBounds = new CollectBounds(displayPosition, displayRadius);
+                    collectUnitBounds.Update(1);
+                }
             }
             
             foreach (CommandAttachedItem commandAttachedUnit in PreviewUnits)

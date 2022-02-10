@@ -184,6 +184,8 @@ namespace Assets.Scripts
 
         public List<Position2> GetHitablePositions()
         {
+            Debug.Log("GetHitablePositions " + Direction);
+
             List<Position2> positions = null;
 
             UnitBasePart unitBasePart = null;

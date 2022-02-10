@@ -1683,70 +1683,117 @@ namespace Engine.Ants
                         requestUnit = true;
                     }
                     */
-                    if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build &&
-                        gameCommandItem.AttachedUnit.UnitId != null && gameCommandItem.FactoryUnit.UnitId == null)
+
+                    if (gameCommandItem.GameCommand.UnitId != null)
                     {
-                        // Check if the unit to be build is there
-                        Unit unit = player.Game.Map.Units.FindUnit(gameCommandItem.AttachedUnit.UnitId);
-                        if (unit == null)
+                        Ant ant;
+                        if (Ants.TryGetValue(gameCommand.UnitId, out ant))
                         {
-                            requestUnit = true;
+                            Unit unit = ant.Unit;
+                            if (gameCommand.CommandCanceled)
+                            {
+                                unit.ResetGameCommand();
+                            }
+                            else
+                            {
+                                if (unit.CurrentGameCommand == null)
+                                {
+
+                                }
+                                else if (unit.CurrentGameCommand.GameCommand == gameCommand)
+                                {
+                                    // Command already attached
+                                }
+                                else if (unit.CurrentGameCommand != null)
+                                {
+                                    unit.ResetGameCommand();
+                                }
+
+                                if (unit.CurrentGameCommand == null)
+                                { 
+                                    GameCommandItem gameCommandItemForUnit = gameCommand.GameCommandItems[0];
+                                    gameCommandItemForUnit.AttachedUnit.SetUnitId(unit.UnitId);
+                                    unit.SetGameCommand(gameCommandItemForUnit);
+
+                                    if (gameCommand.GameCommandType == GameCommandType.Attack)
+                                    {
+                                        ant.FollowThisRoute = null;
+                                        unit.Engine.HoldPosition = false;
+                                    }
+                                }
+                            }
                         }
                         else
                         {
-                            if (!unit.IsComplete())
-                            {
-                                requestUnit = true;
-                            }
+                            gameCommandItem.GameCommand.CommandCanceled = true;
                         }
+
+
                     }
-                    if (gameCommandItem.AttachedUnit.UnitId == null && gameCommandItem.FactoryUnit.UnitId == null)
+                    else
                     {
-                        if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build)
+                        if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build &&
+                            gameCommandItem.AttachedUnit.UnitId != null && gameCommandItem.FactoryUnit.UnitId == null)
                         {
-                            // Check if the target to be build is already there, if so, ignore this command
-                            Tile t = player.Game.Map.GetTile(gameCommandItem.GameCommand.TargetPosition);
-                            if (t.Unit == null)
+                            // Check if the unit to be build is there
+                            Unit unit = player.Game.Map.Units.FindUnit(gameCommandItem.AttachedUnit.UnitId);
+                            if (unit == null)
                             {
                                 requestUnit = true;
                             }
                             else
                             {
-                                if (t.Unit.Owner.PlayerModel.Id == player.PlayerModel.Id && t.Unit.Blueprint.Name == gameCommandItem.BlueprintName)
+                                if (!unit.IsComplete())
                                 {
-                                    // The building to build exists already, do not request a builder
-                                }
-                                else
-                                {
-                                    // Own unit or 
-                                    if (t.Unit.Engine != null)
-                                    {
-                                        // Unit may drive away
-                                        requestUnit = true;
-                                    }
-                                    else
-                                    {
-                                        // Another building is there
-                                    }
+                                    requestUnit = true;
                                 }
                             }
                         }
-                        else if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                        if (gameCommandItem.AttachedUnit.UnitId == null && gameCommandItem.FactoryUnit.UnitId == null)
                         {
-                            if (gameCommandItem.TransportUnit.UnitId == null)
+                            if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build)
+                            {
+                                // Check if the target to be build is already there, if so, ignore this command
+                                Tile t = player.Game.Map.GetTile(gameCommandItem.GameCommand.TargetPosition);
+                                if (t.Unit == null)
+                                {
+                                    requestUnit = true;
+                                }
+                                else
+                                {
+                                    if (t.Unit.Owner.PlayerModel.Id == player.PlayerModel.Id && t.Unit.Blueprint.Name == gameCommandItem.BlueprintName)
+                                    {
+                                        // The building to build exists already, do not request a builder
+                                    }
+                                    else
+                                    {
+                                        // Own unit or 
+                                        if (t.Unit.Engine != null)
+                                        {
+                                            // Unit may drive away
+                                            requestUnit = true;
+                                        }
+                                        else
+                                        {
+                                            // Another building is there
+                                        }
+                                    }
+                                }
+                            }
+                            else if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                            {
+                                if (gameCommandItem.TransportUnit.UnitId == null)
+                                    requestUnit = true;
+                            }
+                            else
+                            {
+                                // Request a fighter for example
                                 requestUnit = true;
-                        }
-                        else
-                        {
-                            // Request a fighter for example
-                            requestUnit = true;
+                            }
                         }
                     }
                     if (requestUnit)
                     {
-                        //int bestDeliveryScore = 0;
-                        //Ant deliverySourceAnt = null;
-
                         // Find a existing unit that can do/deliver it
                         foreach (Ant ant in unmovedAnts)
                         {
@@ -1764,13 +1811,6 @@ namespace Engine.Ants
                                             ant.Unit.SetGameCommand(gameCommandItem);
                                             requestUnit = false;
                                         }
-                                        /*
-                                            int score = ant.GetDeliveryScore(gameCommandItem.GameCommand);
-                                        if (score > bestDeliveryScore)
-                                        {
-                                            bestDeliveryScore = score;
-                                            deliverySourceAnt = ant;
-                                        }*/
                                     }
                                     else if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build)
                                     {
@@ -1781,9 +1821,8 @@ namespace Engine.Ants
                                             ant.Unit.SetGameCommand(gameCommandItem);
                                             requestUnit = false;
                                         }
-                                    }
-                                   
-                                    else
+                                    }                                   
+                                    else if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Attack)
                                     {
                                         if (ant.Unit.Blueprint.Name == gameCommandItem.BlueprintName)
                                         {
@@ -1957,7 +1996,7 @@ namespace Engine.Ants
             }
         }
 
-        private static void FinishCompleteCommands(Player player)
+        private void FinishCompleteCommands(Player player)
         {
             List<GameCommand> removeCommands = new List<GameCommand>();
             foreach (GameCommand gameCommand in player.GameCommands)
@@ -1991,39 +2030,23 @@ namespace Engine.Ants
                 if (gameCommand.GameCommandType == GameCommandType.ItemOrder)
                 {
                     removeCommands.Add(gameCommand);
-
-                    Unit unit = player.Game.Map.Units.FindUnit(gameCommand.UnitId);
-                    foreach (UnitItemOrder newUnitItemOrder in gameCommand.UnitItemOrders)
+                    Ant ant;
+                    if (Ants.TryGetValue(gameCommand.UnitId, out ant))
                     {
-                        foreach (UnitItemOrder unitItemOrder in unit.UnitOrders.unitItemOrders)
+                        foreach (UnitItemOrder newUnitItemOrder in gameCommand.UnitItemOrders)
                         {
-                            if (unitItemOrder.TileObjectType == newUnitItemOrder.TileObjectType)
+                            foreach (UnitItemOrder unitItemOrder in ant.Unit.UnitOrders.unitItemOrders)
                             {
-                                unitItemOrder.TileObjectState = newUnitItemOrder.TileObjectState;
-                                break;
+                                if (unitItemOrder.TileObjectType == newUnitItemOrder.TileObjectType)
+                                {
+                                    unitItemOrder.TileObjectState = newUnitItemOrder.TileObjectState;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-                if (gameCommand.GameCommandType == GameCommandType.Attack)
-                {
-                    if (gameCommand.UnitId != null)
-                    {
-                        //UnityEngine.Debug.Log("AttachGamecommands MOVE");
-                        //removeCommands.Add(gameCommand);
-                        Unit unit = player.Game.Map.Units.FindUnit(gameCommand.UnitId);
-                        if (unit != null &&
-                            (unit.CurrentGameCommand == null || unit.CurrentGameCommand.GameCommand != gameCommand))
-                        {
-                            unit.ResetGameCommand();
-
-                            GameCommandItem gameCommandItem = gameCommand.GameCommandItems[0];
-                            gameCommandItem.AttachedUnit.SetUnitId(unit.UnitId);
-                            unit.SetGameCommand(gameCommandItem);
-                            unit.Engine.HoldPosition = false;
-                        }
-                    }
-                }
+                
                 /*
                 if (gameCommand.GameCommandType == GameCommandType.Move)
                 {

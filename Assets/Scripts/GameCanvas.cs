@@ -1117,7 +1117,10 @@ namespace Assets.Scripts
             if (Input.GetMouseButtonUp(1) && selectedCommandPreview != null)
             {
                 selectedCommandPreview.Execute();
-                SetMode(CanvasMode.Select);
+                if (selectedUnitFrame != null)
+                    SetMode(CanvasMode.Unit);
+                else
+                    SetMode(CanvasMode.Select);
                 return;
             }
             if (CheckMouseButtons()) return;
@@ -1185,8 +1188,10 @@ namespace Assets.Scripts
                     selectedCommandPreview.SetSelected(false);
                     selectedCommandPreview.SetActive(false);
                     selectedCommandPreview = null;
-
-                    SetMode(CanvasMode.Select);
+                    if (selectedUnitFrame != null)
+                        SetMode(CanvasMode.Unit);
+                    else
+                        SetMode(CanvasMode.Select);
                 }
 
             }
@@ -1399,6 +1404,7 @@ namespace Assets.Scripts
             }
 
             HideAllParts();
+            UpdateCommandButtons(); // Reflect changes in unti state (like ammo)
             DisplayUnitframe(selectedUnitFrame);
 
             if (selectedUnitFrame != null &&

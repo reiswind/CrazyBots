@@ -982,9 +982,18 @@ namespace Engine.Ants
             {
                 return false;
             }
-
             if (cntrlUnit.Engine.HoldPosition)
-                return false;
+            {
+                if (cntrlUnit.Weapon != null && !cntrlUnit.Weapon.WeaponLoaded)
+                {
+                    // Let the unit move to pick up ammo
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
             if (cntrlUnit.Stunned > 0)
                 return false;
 
