@@ -977,21 +977,11 @@ namespace Engine.Ants
         {
             Unit cntrlUnit = Engine.Unit;
             bool unitMoved = false;
+            Position2 calcPathToPosition = Position2.Null;
 
             if (control.IsBeingExtracted(moves, cntrlUnit.Pos))
             {
                 return false;
-            }
-            if (cntrlUnit.Engine.HoldPosition)
-            {
-                if (cntrlUnit.Weapon != null && !cntrlUnit.Weapon.WeaponLoaded)
-                {
-                    // Let the unit move to pick up ammo
-                }
-                else
-                {
-                    return false;
-                }
             }
 
             if (cntrlUnit.Stunned > 0)
@@ -1000,10 +990,46 @@ namespace Engine.Ants
             if (cntrlUnit.UnderConstruction)
                 return false;
 
-            if (cntrlUnit.CurrentGameCommand != null && !cntrlUnit.CurrentGameCommand.FollowPheromones)
+            if (cntrlUnit.Engine.AttackPosition != Position2.Null)
             {
-                Position2 calcPathToPosition = Position2.Null;
+                if (cntrlUnit.Weapon != null && !cntrlUnit.Weapon.WeaponLoaded)
+                {
+                    // Let the unit move to pick up ammo
+                }
+                else
+                {
+                    // Position reached
+                    if (cntrlUnit.Engine.AttackPosition == cntrlUnit.Pos)
+                    {
+                        if (cntrlUnit.Engine.AttackDirection == cntrlUnit.Direction)
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            cntrlUnit.Direction = cntrlUnit.Engine.AttackDirection;
 
+                            Move turnMove = new Move();
+                            turnMove.MoveType = MoveType.Move;
+                            turnMove.UnitId = cntrlUnit.UnitId;
+                            turnMove.PlayerId = player.PlayerModel.Id;
+                            turnMove.Positions = new List<Position2>();
+                            turnMove.Positions.Add(cntrlUnit.Pos);
+                            moves.Add(turnMove);
+
+                            return true;
+                        }                        
+                    }
+                    else
+                    {
+                        calcPathToPosition = cntrlUnit.Engine.AttackPosition;
+                    }
+                }
+            }
+
+            if (calcPathToPosition == Position2.Null &&
+                cntrlUnit.CurrentGameCommand != null && !cntrlUnit.CurrentGameCommand.FollowPheromones)
+            {
                 if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
                 {
                     if (Ant.Unit.UnitId == cntrlUnit.CurrentGameCommand.AttachedUnit.UnitId)
@@ -1092,7 +1118,7 @@ namespace Engine.Ants
                         }*/
                     }
                 }
-                if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
+                else if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
                 {
                     if (cntrlUnit.Container != null && cntrlUnit.Container.TileContainer.IsFreeSpace)
                     {
@@ -1104,7 +1130,7 @@ namespace Engine.Ants
                         cntrlUnit.Changed = true;
                     }
                 }
-                if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Attack)
+                else if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Attack)
                 {
                     Position3 commandCenter = new Position3(cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition);
                     Position3 position3 = commandCenter.Add(cntrlUnit.CurrentGameCommand.Position3);
@@ -1131,13 +1157,15 @@ namespace Engine.Ants
                             // Command complete
                             cntrlUnit.CurrentGameCommand.GameCommand.CommandComplete = true;
                             cntrlUnit.CurrentGameCommand.GameCommand.DeleteWhenFinished = true;
-                            cntrlUnit.Engine.HoldPosition = true;
+
+                            cntrlUnit.Engine.AttackPosition = cntrlUnit.Pos;
+                            cntrlUnit.Engine.AttackDirection = cntrlUnit.Direction;
                             return true;
                         }
                         calcPathToPosition = targetUnitPosition;
                     }
                 }
-                if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Build)
+                else if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Build)
                 {
                     if (cntrlUnit.Assembler != null)
                     {
@@ -1161,43 +1189,37 @@ namespace Engine.Ants
                         calcPathToPosition = cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition;
                     }
                 }
-                
-                if (calcPathToPosition != Position2.Null)
+            }
+            if (calcPathToPosition != Position2.Null)
+            {
+                if (Ant.FollowThisRoute == null || Ant.FollowThisRoute.Count == 0)
                 {
-                    if (Ant.FollowThisRoute == null || Ant.FollowThisRoute.Count == 0)
+                    // Compute route to target
+                    List<Position2> positions = player.Game.FindPath(cntrlUnit.Pos, calcPathToPosition, cntrlUnit);
+                    if (positions == null && cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
                     {
-                        // Compute route to target
-                        List<Position2> positions = player.Game.FindPath(cntrlUnit.Pos, calcPathToPosition, cntrlUnit);
-                        if (positions == null && cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
+                        // Must not be exact
+                        Tile t = player.Game.Map.GetTile(cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition);
+                        foreach (Tile n in t.Neighbors)
                         {
-                            // Must not be exact
-                            Tile t = player.Game.Map.GetTile(cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition);
-                            foreach (Tile n in t.Neighbors)
-                            {
-                                positions = player.Game.FindPath(cntrlUnit.Pos, n.Pos, cntrlUnit);
-                                if (positions != null)
-                                    break;
-                            }
+                            positions = player.Game.FindPath(cntrlUnit.Pos, n.Pos, cntrlUnit);
+                            if (positions != null)
+                                break;
                         }
+                    }
 
-                        if (positions != null)
+                    if (positions != null)
+                    {
+                        Ant.FollowThisRoute = new List<Position2>();
+                        for (int i = 1; i < positions.Count; i++)
                         {
-                            Ant.FollowThisRoute = new List<Position2>();
-                            for (int i = 1; i < positions.Count; i++)
-                            {
-                                Ant.FollowThisRoute.Add(positions[i]);
-                            }
+                            Ant.FollowThisRoute.Add(positions[i]);
                         }
                     }
                 }
-                if (MoveUnit(control, player, moves))
-                    unitMoved = true;
             }
-            else
-            {
-                if (MoveUnit(control, player, moves))
-                    unitMoved = true;
-            }
+            if (MoveUnit(control, player, moves))
+                unitMoved = true;
             
             return unitMoved;
         }

@@ -152,8 +152,6 @@ namespace Engine.Master
         
         private void InitUnitWithModel(Unit thisUnit, UnitModel unitModel)
         {
-            if (unitModel.HoldPosition && thisUnit.Engine != null)
-                thisUnit.Engine.HoldPosition = true;
 
             if (unitModel.FireAtGround && thisUnit.Weapon != null)
                 thisUnit.Weapon.FireAtGround = true;
@@ -199,6 +197,15 @@ namespace Engine.Master
                 thisUnit.Direction = Direction.NE;
             else if (unitModel.Direction == "N")
                 thisUnit.Direction = Direction.N;
+
+            if (unitModel.HoldPosition && thisUnit.Engine != null)
+            {
+                thisUnit.Engine.AttackPosition = thisUnit.Pos;
+                if (thisUnit.Direction == Direction.C)
+                    thisUnit.Engine.AttackDirection = Direction.N;
+                else
+                    thisUnit.Engine.AttackDirection = thisUnit.Direction;
+            }
         }
 
         public void StartWithFactory(List<Move> newMoves)

@@ -12,7 +12,8 @@ namespace Engine.Master
     {
         public override string Name { get { return "Engine"; } }
 
-        public bool HoldPosition { get; set; }
+        public Position2 AttackPosition { get; set; }
+        public Direction AttackDirection { get; set; }
         public int Range
         {
             get
@@ -36,16 +37,9 @@ namespace Engine.Master
 
             if (Unit.Power == 0)
                 return;
-            if (HoldPosition)
+            if (AttackPosition != Position2.Null && AttackPosition == Unit.Pos)
             {
-                if (Unit.Weapon != null && !Unit.Weapon.WeaponLoaded)
-                {
-                    // Let the unit move to pick up ammo
-                }
-                else
-                {
-                    return;
-                }
+                return;
             }
             if (Unit.Stunned > 0)
                 return;
@@ -110,7 +104,6 @@ namespace Engine.Master
                                 if (!reachedPos.Contains(finalPos))
                                 {
                                     reachedPos.Add(finalPos);
-
 
                                     // Do not move on other units
                                     if (Unit.Game.Map.GetTile(finalPos).Unit == null)

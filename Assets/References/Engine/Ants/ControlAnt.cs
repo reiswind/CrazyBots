@@ -1718,7 +1718,7 @@ namespace Engine.Ants
                                     if (gameCommand.GameCommandType == GameCommandType.Attack)
                                     {
                                         ant.FollowThisRoute = null;
-                                        unit.Engine.HoldPosition = false;
+                                        unit.Engine.AttackPosition = Position2.Null;
                                     }
                                 }
                             }
@@ -1732,7 +1732,13 @@ namespace Engine.Ants
                     }
                     else
                     {
-                        if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build &&
+                        if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Attack &&
+                            gameCommandItem.AttachedUnit.UnitId == null && gameCommandItem.FactoryUnit.UnitId == null)
+                        {
+                            requestUnit = true;
+                        }
+
+                        else if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build &&
                             gameCommandItem.AttachedUnit.UnitId != null && gameCommandItem.FactoryUnit.UnitId == null)
                         {
                             // Check if the unit to be build is there
@@ -1749,7 +1755,7 @@ namespace Engine.Ants
                                 }
                             }
                         }
-                        if (gameCommandItem.AttachedUnit.UnitId == null && gameCommandItem.FactoryUnit.UnitId == null)
+                        else if (gameCommandItem.AttachedUnit.UnitId == null && gameCommandItem.FactoryUnit.UnitId == null)
                         {
                             if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Build)
                             {
@@ -1785,11 +1791,6 @@ namespace Engine.Ants
                                 if (gameCommandItem.TransportUnit.UnitId == null)
                                     requestUnit = true;
                             }
-                            else
-                            {
-                                // Request a fighter for example
-                                requestUnit = true;
-                            }
                         }
                     }
                     if (requestUnit)
@@ -1799,6 +1800,12 @@ namespace Engine.Ants
                         {
                             if (!ant.Unit.UnderConstruction && !ant.Unit.ExtractMe)
                             {
+                                if (ant.Unit.Engine != null &&
+                                    ant.Unit.Engine.AttackPosition != Position2.Null)
+                                {
+                                    // Unit is on hold
+                                    continue;
+                                }
                                 if (ant.Unit.CurrentGameCommand == null)
                                 {
                                     // Done by transport
@@ -1828,6 +1835,7 @@ namespace Engine.Ants
                                         {
                                             gameCommandItem.AttachedUnit.SetUnitId(ant.Unit.UnitId);
                                             gameCommandItem.AttachedUnit.SetStatus("AttachedUnitId: " + gameCommandItem.AttachedUnit.UnitId);
+
                                             ant.Unit.SetGameCommand(gameCommandItem);
                                             requestUnit = false;
                                         }
@@ -2439,18 +2447,21 @@ namespace Engine.Ants
                 else if (ant.Unit.IsComplete())
                 {
                     // Kill useless units
-                    if (ant.Unit.CurrentGameCommand == null)
+                    if (!player.PlayerModel.IsHuman)
                     {
-                        if (ant.AntPartEngine != null)
+                        if (ant.Unit.CurrentGameCommand == null)
                         {
-                            ant.MovesWithoutCommand++;
-                            if (ant.MovesWithoutCommand > 100) // && ant.AntWorkerType != AntWorkerType.Fighter)
-                                ant.AbandonUnit(player);
+                            if (ant.AntPartEngine != null)
+                            {
+                                ant.MovesWithoutCommand++;
+                                if (ant.MovesWithoutCommand > 100) // && ant.AntWorkerType != AntWorkerType.Fighter)
+                                    ant.AbandonUnit(player);
+                            }
                         }
-                    }
-                    else
-                    {
-                        ant.MovesWithoutCommand = 0;
+                        else
+                        {
+                            ant.MovesWithoutCommand = 0;
+                        }
                     }
 
                     //ant.CreateAntParts();

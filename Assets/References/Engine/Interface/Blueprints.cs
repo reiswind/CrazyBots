@@ -178,7 +178,7 @@ namespace Engine.Interface
             */
 
             // Attack
-            /*
+            
             blueprintCommand = new BlueprintCommand();
 
             blueprintCommand.Name = "Fighter";
@@ -191,15 +191,14 @@ namespace Engine.Interface
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
-            */
+            
 
             // Defend
-            /*
             blueprintCommand = new BlueprintCommand();
 
-            blueprintCommand.Name = "Defend";
-            blueprintCommand.Layout = "UIAttack";
-            blueprintCommand.GameCommandType = GameCommandType.Defend;
+            blueprintCommand.Name = "Bomber";
+            blueprintCommand.Layout = "UINone";
+            blueprintCommand.GameCommandType = GameCommandType.Attack;
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Bomber";
@@ -207,7 +206,7 @@ namespace Engine.Interface
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
-            */
+            
 
             // Build outpost
             blueprintCommand = new BlueprintCommand();
@@ -290,6 +289,7 @@ namespace Engine.Interface
 
 
             // Build Fighter
+            /*
             blueprintCommand = new BlueprintCommand();
 
             blueprintCommand.Name = "Fighter";
@@ -301,8 +301,10 @@ namespace Engine.Interface
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
+            */
 
             // Build Bomber
+            /*
             blueprintCommand = new BlueprintCommand();
 
             blueprintCommand.Name = "Bomber";
@@ -314,6 +316,7 @@ namespace Engine.Interface
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
+            */
 
             // Build Worker
             blueprintCommand = new BlueprintCommand();

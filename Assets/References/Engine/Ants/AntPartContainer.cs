@@ -58,6 +58,10 @@ namespace Engine.Ants
                     }
                 }
             }
+
+            needItems = false;
+            int disableDelivery = 0;
+
             if (needItems == false && runningGameCommand != null)
             {
                 // Finish this command.
