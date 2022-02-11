@@ -333,7 +333,15 @@ namespace Engine.Master
             pathFinder.IgnoreVisibility = true;
             return pathFinder.FindPath(unit, from, to, ignoreIfToIsOccupied);
         }
+        public List<Position2> FindPath(Position2 from, Position2 to, string unitId, bool ignoreIfToIsOccupied = false)
+        {
+            Unit unit = Map.Units.FindUnit(unitId);
+            if (unit == null) return null;
 
+            PathFinderFast pathFinder = new PathFinderFast(Map);
+            pathFinder.IgnoreVisibility = true;
+            return pathFinder.FindPath(unit, from, to, ignoreIfToIsOccupied);
+        }
         /*
         public Move MoveTo(Position2 from, Position2 to, Engine engine)
         {

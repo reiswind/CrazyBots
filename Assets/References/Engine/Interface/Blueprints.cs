@@ -102,7 +102,7 @@ namespace Engine.Interface
             blueprint.Name = "Fighter";
             blueprint.Layout = "U-Fighter";
             blueprint.Parts.Add(new BlueprintPart("PartEngine"));
-            blueprint.Parts.Add(new BlueprintPart("PartWeapon", 1, 4));
+            blueprint.Parts.Add(new BlueprintPart("PartWeapon", 1, 2));
             blueprint.Parts.Add(new BlueprintPart("PartExtractor"));
             blueprint.Parts.Add(new BlueprintPart("PartArmor"));
             blueprint.BlueprintUnitOrders.AcceptAmmo();
@@ -160,7 +160,9 @@ namespace Engine.Interface
 
             Commands.Add(blueprintCommand);
 
+
             // Attack
+            /*
             blueprintCommand = new BlueprintCommand();
 
             blueprintCommand.Name = "Bomber";
@@ -173,9 +175,10 @@ namespace Engine.Interface
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
-
+            */
 
             // Attack
+            /*
             blueprintCommand = new BlueprintCommand();
 
             blueprintCommand.Name = "Fighter";
@@ -188,6 +191,7 @@ namespace Engine.Interface
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
+            */
 
             // Defend
             /*

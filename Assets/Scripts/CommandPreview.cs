@@ -159,6 +159,11 @@ namespace Assets.Scripts
                 HexGrid.Destroy(fireLineRenderer.gameObject);
                 fireLineRenderer = null;
             }
+            if (attackLineRenderer != null)
+            {
+                HexGrid.Destroy(attackLineRenderer.gameObject);
+                attackLineRenderer = null;
+            }
             foreach (CommandAttachedItem commandAttachedUnit in PreviewUnits)
             {
                 if (commandAttachedUnit.AttachedUnit.GhostUnit != null)
@@ -770,6 +775,161 @@ namespace Assets.Scripts
                     }
                 }
             }
+        
+        }
+
+        public static Vector3[] SmoothLine(Vector3[] inputPoints, float segmentSize)
+        {
+            //create curves
+            AnimationCurve curveX = new AnimationCurve();
+            AnimationCurve curveY = new AnimationCurve();
+            AnimationCurve curveZ = new AnimationCurve();
+
+            //create keyframe sets
+            Keyframe[] keysX = new Keyframe[inputPoints.Length];
+            Keyframe[] keysY = new Keyframe[inputPoints.Length];
+            Keyframe[] keysZ = new Keyframe[inputPoints.Length];
+
+            //set keyframes
+            for (int i = 0; i < inputPoints.Length; i++)
+            {
+                keysX[i] = new Keyframe(i, inputPoints[i].x);
+                keysY[i] = new Keyframe(i, inputPoints[i].y);
+                keysZ[i] = new Keyframe(i, inputPoints[i].z);
+            }
+
+            //apply keyframes to curves
+            curveX.keys = keysX;
+            curveY.keys = keysY;
+            curveZ.keys = keysZ;
+
+            //smooth curve tangents
+            for (int i = 0; i < inputPoints.Length; i++)
+            {
+                curveX.SmoothTangents(i, 0);
+                curveY.SmoothTangents(i, 0);
+                curveZ.SmoothTangents(i, 0);
+            }
+
+            //list to write smoothed values to
+            List<Vector3> lineSegments = new List<Vector3>();
+
+            //find segments in each section
+            for (int i = 0; i < inputPoints.Length; i++)
+            {
+                //add first point
+                lineSegments.Add(inputPoints[i]);
+
+                //make sure within range of array
+                if (i + 1 < inputPoints.Length)
+                {
+                    //find distance to next point
+                    float distanceToNext = Vector3.Distance(inputPoints[i], inputPoints[i + 1]);
+
+                    //number of segments
+                    int segments = (int)(distanceToNext / segmentSize);
+
+                    //add segments
+                    for (int s = 1; s < segments; s++)
+                    {
+                        //interpolated time on curve
+                        float time = ((float)s / (float)segments) + (float)i;
+
+                        //sample curves to find smoothed position
+                        Vector3 newSegment = new Vector3(curveX.Evaluate(time), curveY.Evaluate(time), curveZ.Evaluate(time));
+
+                        //add to list
+                        lineSegments.Add(newSegment);
+                    }
+                }
+            }
+
+            return lineSegments.ToArray();
+        }
+
+
+        private LineRenderer attackLineRenderer;
+
+        private void UpdateAttackPosition(GroundCell groundCell)
+        {
+            if (attackLineRenderer != null)
+            {
+                HexGrid.Destroy(attackLineRenderer.gameObject);
+                attackLineRenderer = null;
+            }
+
+            GameCommand.TargetPosition = groundCell.Pos;
+            //previewGameCommand.transform.position = groundCell.transform.position;
+            Debug.Log("Command attack preview " + GameCommand.UnitId + " to " + GameCommand.TargetPosition.ToString());
+            if (GameCommand.UnitId != null)
+            {
+                UnitBase unitBase;
+                if (HexGrid.MainGrid.BaseUnits.TryGetValue(GameCommand.UnitId, out unitBase))
+                {
+                    List<Position2> path = HexGrid.MainGrid.FindPath(unitBase.CurrentPos, groundCell.Pos, unitBase.UnitId);
+                    if (path != null && path.Count > 1)
+                    {
+                        Position3 dir = new Position3(path[path.Count-2]);
+                        foreach (Position3 n in dir.Neighbors)
+                        {
+                            if (n.Pos == path[path.Count - 1])
+                            {
+                                displayDirection = n.Direction;
+                                foreach (CommandAttachedItem commandAttachedUnit in PreviewUnits)
+                                {
+                                    commandAttachedUnit.AttachedUnit.RotatedDirection = displayDirection;
+                                    commandAttachedUnit.AttachedUnit.Direction = displayDirection;
+                                }
+                                break;
+                            }
+                        }
+
+                        GameObject lineRendererObject = new GameObject();
+                        lineRendererObject.name = "AttackLine";
+
+                        LineRenderer lineRenderer = lineRendererObject.AddComponent<LineRenderer>();
+                        lineRenderer.transform.SetParent(HexGrid.MainGrid.transform, false);
+                        lineRenderer.material = HexGrid.MainGrid.GetMaterial("Player1");
+                        lineRenderer.startWidth = 0.1f;
+                        lineRenderer.endWidth = 0.1f;
+
+                        List<Vector3> positions = new List<Vector3>();
+
+                        //Vector3 startPosition = unitBase.transform.position;
+                        //startPosition.y += 0.2f + unitBase.AboveGround;
+                        //positions.Add(startPosition);
+                        //Vector3 endPosition = groundCell.transform.position;
+                        //endPosition.y += 0.1f;
+                        //positions.Add(endPosition);
+
+                        //foreach (Position2 pos in path)
+                        for (int i = 0; i < path.Count; i++)
+                        {
+                            Position2 pos = path[i];
+
+                            GroundCell pathCell;
+                            if (HexGrid.MainGrid.GroundCells.TryGetValue(pos, out pathCell))
+                            {
+                                Vector3 pathPosition = pathCell.transform.position;
+                                pathPosition.y += 0.2f;
+                                positions.Add(pathPosition);
+                            }
+
+                        }
+
+                        Vector3[] sm = SmoothLine(positions.ToArray(), 0.01f);
+
+                        
+                        lineRenderer.positionCount = sm.Length;
+                        for (int i = 0; i < sm.Length; i++)
+                        {
+                            lineRenderer.SetPosition(i, sm[i]);
+                        }
+
+                        attackLineRenderer = lineRenderer;
+                    }
+                }
+            }
         }
 
         public void UpdatePositions(GroundCell groundCell)
@@ -786,6 +946,11 @@ namespace Assets.Scripts
                 UpdateFirePosition(groundCell);
                 return;
             }
+            if (GameCommand.GameCommandType == GameCommandType.Attack)
+            {
+                UpdateAttackPosition(groundCell);
+            }
+
             Vector3 unitPos3 = groundCell.transform.position;
             if (GameCommand.GameCommandType == GameCommandType.Build)
                 unitPos3.y += 1.5f;

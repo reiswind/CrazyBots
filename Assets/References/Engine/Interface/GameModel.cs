@@ -50,6 +50,7 @@ namespace Engine.Interface
         void ComputePossibleMoves(Position2 pos, List<Move> possibleMoves, List<Position2> includedPosition2s, MoveFilter moveFilter);
         //Move MoveTo(Position2 From, Position2 To, Master.Engine engine);
         List<Position2> FindPath(Position2 from, Position2 to, Unit unit, bool ignoreIfToIsOccupied = false);
+        List<Position2> FindPath(Position2 from, Position2 to, string unitId, bool ignoreIfToIsOccupied = false);
         Dictionary<int, Player> Players { get; }
         int Seed { get; }
         Tile GetTile(Position2 p);
