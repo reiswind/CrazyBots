@@ -1791,6 +1791,10 @@ namespace Engine.Ants
                                 if (gameCommandItem.TransportUnit.UnitId == null)
                                     requestUnit = true;
                             }
+                            else if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Collect)
+                            {
+                                requestUnit = true;
+                            }
                         }
                     }
                     if (requestUnit)
@@ -2054,7 +2058,7 @@ namespace Engine.Ants
                         }
                     }
                 }
-                
+
                 /*
                 if (gameCommand.GameCommandType == GameCommandType.Move)
                 {
@@ -2087,6 +2091,20 @@ namespace Engine.Ants
                     }
                 }
                 */
+                if (gameCommand.GameCommandType == GameCommandType.Automate)
+                {
+                    removeCommands.Add(gameCommand);
+                    gameCommand.CommandComplete = true;
+                    gameCommand.DeleteWhenFinished = true;
+
+                    Ant ant;
+                    if (Ants.TryGetValue(gameCommand.UnitId, out ant))
+                    {
+                        if (ant.Unit.Engine != null)
+                            ant.Unit.Engine.AttackPosition = Position2.Null;
+                        ant.Unit.ResetGameCommand();
+                    }
+                }
                 if (gameCommand.GameCommandType == GameCommandType.Cancel)
                 {
                     removeCommands.Add(gameCommand);
@@ -2110,6 +2128,16 @@ namespace Engine.Ants
                 }
                 if (gameCommand.GameCommandType == GameCommandType.Extract)
                 {
+                    removeCommands.Add(gameCommand);
+                    gameCommand.CommandComplete = true;
+                    gameCommand.DeleteWhenFinished = true;
+
+                    Ant ant;
+                    if (Ants.TryGetValue(gameCommand.UnitId, out ant))
+                    {
+                        ant.Unit.ResetGameCommand();
+                        ant.Unit.ExtractUnit();
+                    }
                 }
             }
             foreach (GameCommand removeCommand in removeCommands)
@@ -2660,8 +2688,8 @@ namespace Engine.Ants
 
             if (MapPlayerInfo.PowerOutInTurns < 10)
             {
-                // Sacrifice a unit
-                SacrificeAnt(player, unmovedAnts);
+                // Sacrifice a unit (Count is wrong)
+                //SacrificeAnt(player, unmovedAnts);
             }
             FinishCompleteCommands(player);
             AttachGamecommands(player, unmovedAnts, moves, 1);

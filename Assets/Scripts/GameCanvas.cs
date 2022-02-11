@@ -520,8 +520,15 @@ namespace Assets.Scripts
 
 
                 SetButtonText(5, "( ) Clone");
-                SetButtonText(6, "( ) Remove");
-                SetButtonText(7, "( ) Automatic");
+                if (selectedUnitFrame.MoveUpdateStats.MarkedForExtraction)
+                    HideButton(6);
+                else
+                    SetButtonText(6, "( ) Delete");
+
+                if (selectedUnitFrame.MoveUpdateStats.Automatic)
+                    HideButton(7);
+                else
+                    SetButtonText(7, "( ) Automatic");
 
                 int idx = 8;
                 while (idx <= 12)
@@ -832,11 +839,26 @@ namespace Assets.Scripts
         }
         void OnClickBuild6()
         {
-            //ExecuteCommand(6);
+            if (canvasMode == CanvasMode.Unit)
+            {
+                selectedCommandPreview = new CommandPreview();
+                selectedCommandPreview.CreateCommand(selectedUnitFrame, Position2.Null, GameCommandType.Extract);
+                selectedCommandPreview.Execute();
+                selectedUnitFrame.MoveUpdateStats.MarkedForExtraction = true;
+                UpdateCommandButtons();
+            }
         }
         void OnClickBuild7()
         {
-            //ExecuteCommand(7);
+            if (canvasMode == CanvasMode.Unit)
+            {
+                selectedCommandPreview = new CommandPreview();
+                selectedCommandPreview.CreateCommand(selectedUnitFrame, Position2.Null, GameCommandType.Automate);
+                selectedCommandPreview.Execute();
+
+                selectedUnitFrame.MoveUpdateStats.Automatic = true;
+                UpdateCommandButtons();
+            }
         }
         void OnClickBuild8()
         {

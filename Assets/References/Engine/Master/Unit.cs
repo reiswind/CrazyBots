@@ -281,6 +281,8 @@ namespace Engine.Master
 
         public void ExtractUnit()
         {
+            if (Engine != null)
+                Engine.AttackPosition = Position2.Null;
             if (Armor != null)
             {
                 Armor.RemoveShield();
@@ -1421,6 +1423,19 @@ namespace Engine.Master
             stats.MarkedForExtraction = ExtractMe;
             stats.Direction = Direction;
             stats.UnitParts = new List<MoveUpdateUnitPart>();
+
+            if (CurrentGameCommand != null)
+            {
+                stats.Automatic = false;
+            }
+            else if (Engine != null && Engine.AttackPosition != Position2.Null)
+            {
+                stats.Automatic = false;
+            }
+            else
+            {
+                stats.Automatic = true;
+            }
 
             Game.SetVisibilityMask(pos, stats);
 

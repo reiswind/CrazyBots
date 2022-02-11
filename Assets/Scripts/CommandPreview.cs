@@ -378,7 +378,7 @@ namespace Assets.Scripts
 
         public void Execute()
         {
-            if (displayPosition != Position2.Null)
+            //if (displayPosition != Position2.Null)
             {
                 /*
                 if (addPreviewGhost != null)

@@ -23,7 +23,8 @@ namespace Engine.Interface
         Extract,
         ItemRequest,
         ItemOrder,
-        Fire
+        Fire,
+        Automate
     }
 
     public enum MoveFilter

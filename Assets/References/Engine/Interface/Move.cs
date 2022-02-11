@@ -293,6 +293,8 @@ namespace Engine.Interface
 
         [DataMember]
         public Direction Direction { get; set; }
+        [DataMember]
+        public bool Automatic { get; set; }
     }
 
     [DataContract]
