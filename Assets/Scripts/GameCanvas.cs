@@ -722,7 +722,7 @@ namespace Assets.Scripts
                     foreach (BlueprintCommand blueprintCommand in HexGrid.MainGrid.game.Blueprints.Commands)
                     {
                         if (blueprintCommand.GameCommandType == GameCommandType.Build ||
-                            blueprintCommand.GameCommandType == GameCommandType.Attack)
+                            blueprintCommand.GameCommandType == GameCommandType.AttackMove)
                         {
                             commands.Add(blueprintCommand);
                         }
@@ -797,7 +797,7 @@ namespace Assets.Scripts
         void OnClickBuild2()
         {
             if (canvasMode == CanvasMode.Unit)
-                SelectedUnitCommand(GameCommandType.Attack);
+                SelectedUnitCommand(GameCommandType.AttackMove);
                 //ExecuteCommand(2);
                 /*
                 if (canvasMode == CanvasMode.Build)
@@ -1178,17 +1178,7 @@ namespace Assets.Scripts
             }
             else
             {
-                if (leftMouseButtonDown && !executeCommand)
-                {
-                    if (selectedCommandPreview.GameCommand.GameCommandType == GameCommandType.Attack)
-                    {
-                        selectedCommandPreview.AddUnit(hitByMouseClick.GroundCell);
-                    }
-                }
-                else
-                {
-                    selectedCommandPreview.SetPosition(hitByMouseClick.GroundCell);
-                }
+                selectedCommandPreview.SetPosition(hitByMouseClick.GroundCell);
             }
             if (executeCommand && selectedCommandPreview.CanExecute())
             {
@@ -1202,8 +1192,13 @@ namespace Assets.Scripts
 
                     BlueprintCommand blueprintCommandCopy = selectedCommandPreview.Blueprint;
 
+                    GameCommandType gameCommandType = selectedCommandPreview.GameCommand.GameCommandType;
+
                     selectedCommandPreview = new CommandPreview();
-                    selectedCommandPreview.CreateCommandForBuild(blueprintCommandCopy);
+                    if (gameCommandType == GameCommandType.Build)
+                        selectedCommandPreview.CreateCommandForBuild(blueprintCommandCopy);
+                    else
+                        selectedCommandPreview.CreateCommand(selectedUnitFrame, hitByMouseClick.GroundCell.Pos, gameCommandType);
                 }
                 else
                 {
@@ -1445,7 +1440,7 @@ namespace Assets.Scripts
                     Debug.Log("Input.GetMouseButtonDown");
 
                     selectedCommandPreview = new CommandPreview();
-                    selectedCommandPreview.CreateCommand(selectedUnitFrame, hitByMouseClick.GroundCell.Pos, GameCommandType.Attack);
+                    selectedCommandPreview.CreateCommand(selectedUnitFrame, hitByMouseClick.GroundCell.Pos, GameCommandType.AttackMove);
                     selectedCommandPreview.SetSelected(true);
                     highlightedCommandPreview = selectedCommandPreview;
                     SetMode(CanvasMode.Preview);

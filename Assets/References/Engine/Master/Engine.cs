@@ -12,8 +12,8 @@ namespace Engine.Master
     {
         public override string Name { get { return "Engine"; } }
 
-        public Position2 AttackPosition { get; set; }
-        public Direction AttackDirection { get; set; }
+        //public Position2 AttackPosition { get; set; }
+        //public Direction AttackDirection { get; set; }
         public int Range
         {
             get
@@ -37,7 +37,10 @@ namespace Engine.Master
 
             if (Unit.Power == 0)
                 return;
-            if (AttackPosition != Position2.Null && AttackPosition == Unit.Pos)
+
+            if (Unit.CurrentGameCommand != null &&
+                Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Attack &&
+                Unit.CurrentGameCommand.GameCommand.TargetPosition == Unit.Pos)
             {
                 return;
             }

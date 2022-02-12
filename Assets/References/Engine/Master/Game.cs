@@ -198,6 +198,7 @@ namespace Engine.Master
             else if (unitModel.Direction == "N")
                 thisUnit.Direction = Direction.N;
 
+            /*
             if (unitModel.HoldPosition && thisUnit.Engine != null)
             {
                 thisUnit.Engine.AttackPosition = thisUnit.Pos;
@@ -205,7 +206,7 @@ namespace Engine.Master
                     thisUnit.Engine.AttackDirection = Direction.N;
                 else
                     thisUnit.Engine.AttackDirection = thisUnit.Direction;
-            }
+            }*/
         }
 
         public void StartWithFactory(List<Move> newMoves)

@@ -950,7 +950,7 @@ namespace Assets.Scripts
                 UpdateFirePosition(groundCell);
                 return;
             }
-            if (GameCommand.GameCommandType == GameCommandType.Attack)
+            if (GameCommand.GameCommandType == GameCommandType.AttackMove)
             {
                 UpdateAttackPosition(groundCell);
             }
@@ -958,7 +958,7 @@ namespace Assets.Scripts
             Vector3 unitPos3 = groundCell.transform.position;
             if (GameCommand.GameCommandType == GameCommandType.Build)
                 unitPos3.y += 1.5f;
-            else if (GameCommand.GameCommandType == GameCommandType.Attack)
+            else if (GameCommand.GameCommandType == GameCommandType.AttackMove)
                 unitPos3.y += 1.0f;
             else if (GameCommand.GameCommandType == GameCommandType.ItemRequest)
                 unitPos3.y += 2.0f;
@@ -1147,6 +1147,12 @@ namespace Assets.Scripts
         public bool UpdateCommandPreview(MapGameCommand gameCommand)
         {
             bool updatePosition = false;
+            if (GameCommand.GameCommandType != gameCommand.GameCommandType)
+            {
+                Delete();
+            }
+
+
             GameCommand = gameCommand;
 
             if (GameCommand.GameCommandType == GameCommandType.ItemRequest ||
@@ -1204,7 +1210,7 @@ namespace Assets.Scripts
                         commandAttachedItem.MapGameCommandItem = mapGameCommandItem;
                         remainingPreviews.Remove(commandAttachedItem);
 
-                        if (GameCommand.GameCommandType == GameCommandType.Attack)
+                        if (GameCommand.GameCommandType == GameCommandType.AttackMove)
                         {
                             updatePosition = true;
                         }

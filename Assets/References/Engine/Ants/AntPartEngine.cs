@@ -990,7 +990,10 @@ namespace Engine.Ants
             if (cntrlUnit.UnderConstruction)
                 return false;
 
-            if (cntrlUnit.Engine.AttackPosition != Position2.Null)
+            //if (cntrlUnit.Engine.AttackPosition != Position2.Null)
+
+            if (cntrlUnit.CurrentGameCommand != null &&
+                cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Attack)
             {
                 if (cntrlUnit.Weapon != null && !cntrlUnit.Weapon.WeaponLoaded)
                 {
@@ -999,15 +1002,15 @@ namespace Engine.Ants
                 else
                 {
                     // Position reached
-                    if (cntrlUnit.Engine.AttackPosition == cntrlUnit.Pos)
+                    if (cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition == cntrlUnit.Pos)
                     {
-                        if (cntrlUnit.Engine.AttackDirection == cntrlUnit.Direction)
+                        if (cntrlUnit.CurrentGameCommand.GameCommand.Direction == cntrlUnit.Direction)
                         {
                             return false;
                         }
                         else
                         {
-                            cntrlUnit.Direction = cntrlUnit.Engine.AttackDirection;
+                            cntrlUnit.Direction = cntrlUnit.CurrentGameCommand.GameCommand.Direction;
 
                             Move turnMove = new Move();
                             turnMove.MoveType = MoveType.Move;
@@ -1022,7 +1025,7 @@ namespace Engine.Ants
                     }
                     else
                     {
-                        calcPathToPosition = cntrlUnit.Engine.AttackPosition;
+                        calcPathToPosition = cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition;
                     }
                 }
             }
@@ -1130,7 +1133,7 @@ namespace Engine.Ants
                         cntrlUnit.Changed = true;
                     }
                 }
-                else if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Attack)
+                else if (cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.AttackMove)
                 {
                     Position3 commandCenter = new Position3(cntrlUnit.CurrentGameCommand.GameCommand.TargetPosition);
                     Position3 position3 = commandCenter.Add(cntrlUnit.CurrentGameCommand.Position3);
@@ -1140,7 +1143,7 @@ namespace Engine.Ants
                     {
                         if (cntrlUnit.Pos == targetUnitPosition)
                         {
-                            // Stay at targetposition
+                            // Turn into direction
                             if (cntrlUnit.Direction != cntrlUnit.CurrentGameCommand.Direction)
                             {
                                 cntrlUnit.Direction = cntrlUnit.CurrentGameCommand.Direction;
@@ -1154,12 +1157,8 @@ namespace Engine.Ants
                                 moves.Add(turnMove);
                                 return true;
                             }
-                            // Command complete
-                            cntrlUnit.CurrentGameCommand.GameCommand.CommandComplete = true;
-                            cntrlUnit.CurrentGameCommand.GameCommand.DeleteWhenFinished = true;
-
-                            cntrlUnit.Engine.AttackPosition = cntrlUnit.Pos;
-                            cntrlUnit.Engine.AttackDirection = cntrlUnit.Direction;
+                            // Command complete, change command type to attack
+                            cntrlUnit.CurrentGameCommand.GameCommand.GameCommandType = GameCommandType.Attack;
                             return true;
                         }
                         calcPathToPosition = targetUnitPosition;

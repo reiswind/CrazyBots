@@ -12,18 +12,49 @@ namespace Engine.Interface
     public enum GameCommandType
     {
         None,
+        /// <summary>
+        /// Move to this position, attack on the way there
+        /// </summary>
+        AttackMove,
+        /// <summary>
+        /// Stay on position attack enemy in sight
+        /// </summary>
         Attack,
-        Defend,
-        //Scout,
+        ///Defend,
+        ///Scout,
+
+        /// <summary>
+        /// Cancel command by id
+        /// </summary>
         Cancel,
         //Move,
+        /// <summary>
+        /// Collect things in range
+        /// </summary>
         Collect,
+        /// <summary>
+        /// Build a unit
+        /// </summary>
         Build,
-        //AddUnits,
+        /// <summary>
+        /// Extract the unit
+        /// </summary>        
         Extract,
+        /// <summary>
+        /// Request items
+        /// </summary>
         ItemRequest,
+        /// <summary>
+        /// Change the container settings
+        /// </summary>
         ItemOrder,
+        /// <summary>
+        /// Throw things
+        /// </summary>
         Fire,
+        /// <summary>
+        /// Give up control 
+        /// </summary>
         Automate
     }
 

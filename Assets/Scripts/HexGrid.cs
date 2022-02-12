@@ -1357,7 +1357,8 @@ namespace Assets.Scripts
                     existingPreview.GameCommand.PlayerId == gameCommand.PlayerId &&
                     existingPreview.GameCommand.GameCommandType == gameCommand.GameCommandType)
                 {
-                    //commandPreview = existingPreview;
+                    if (CommandPreviews.ContainsKey(gameCommand.CommandId))
+                        CommandPreviews.Remove(gameCommand.CommandId); // Not sure
                     CommandPreviews.Add(gameCommand.CommandId, existingPreview);
                     CreatedCommandPreviews.Remove(existingPreview);
                     break;

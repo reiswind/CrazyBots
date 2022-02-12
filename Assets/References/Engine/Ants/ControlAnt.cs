@@ -162,7 +162,7 @@ namespace Engine.Ants
                 //List<GameCommand> notOnEnemy = new List<GameCommand>();
                 foreach (GameCommand gameCommand in player.GameCommands)
                 {
-                    if (gameCommand.GameCommandType == GameCommandType.Attack)
+                    if (gameCommand.GameCommandType == GameCommandType.AttackMove)
                     {
                         countAttacks++;
                         if (enemyUnits.Contains(gameCommand.TargetPosition))
@@ -367,7 +367,7 @@ namespace Engine.Ants
             bool commandActive = false;
             foreach (GameCommand gameCommand in player.GameCommands)
             {
-                if (gameCommand.GameCommandType == GameCommandType.Attack)
+                if (gameCommand.GameCommandType == GameCommandType.AttackMove)
                 {
                     if (gameCommand.TargetPosition == pos)
                     {
@@ -388,7 +388,7 @@ namespace Engine.Ants
                 // Create a command to attack the enemy
                 foreach (BlueprintCommand blueprintCommand in player.Game.Blueprints.Commands)
                 {
-                    if (blueprintCommand.GameCommandType == GameCommandType.Attack)
+                    if (blueprintCommand.GameCommandType == GameCommandType.AttackMove)
                     {
                         GameCommand gameCommand = new GameCommand(blueprintCommand);
 
@@ -1715,10 +1715,9 @@ namespace Engine.Ants
                                     gameCommandItemForUnit.AttachedUnit.SetUnitId(unit.UnitId);
                                     unit.SetGameCommand(gameCommandItemForUnit);
 
-                                    if (gameCommand.GameCommandType == GameCommandType.Attack)
+                                    if (gameCommand.GameCommandType == GameCommandType.AttackMove)
                                     {
                                         ant.FollowThisRoute = null;
-                                        unit.Engine.AttackPosition = Position2.Null;
                                     }
                                 }
                             }
@@ -1732,7 +1731,7 @@ namespace Engine.Ants
                     }
                     else
                     {
-                        if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Attack &&
+                        if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.AttackMove &&
                             gameCommandItem.AttachedUnit.UnitId == null && gameCommandItem.FactoryUnit.UnitId == null)
                         {
                             requestUnit = true;
@@ -1804,12 +1803,13 @@ namespace Engine.Ants
                         {
                             if (!ant.Unit.UnderConstruction && !ant.Unit.ExtractMe)
                             {
+                                /*
                                 if (ant.Unit.Engine != null &&
                                     ant.Unit.Engine.AttackPosition != Position2.Null)
                                 {
                                     // Unit is on hold
                                     continue;
-                                }
+                                }*/
                                 if (ant.Unit.CurrentGameCommand == null)
                                 {
                                     // Done by transport
@@ -1833,7 +1833,7 @@ namespace Engine.Ants
                                             requestUnit = false;
                                         }
                                     }                                   
-                                    else if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.Attack)
+                                    else if (gameCommandItem.GameCommand.GameCommandType == GameCommandType.AttackMove)
                                     {
                                         if (ant.Unit.Blueprint.Name == gameCommandItem.BlueprintName)
                                         {
@@ -2100,8 +2100,6 @@ namespace Engine.Ants
                     Ant ant;
                     if (Ants.TryGetValue(gameCommand.UnitId, out ant))
                     {
-                        if (ant.Unit.Engine != null)
-                            ant.Unit.Engine.AttackPosition = Position2.Null;
                         ant.Unit.ResetGameCommand();
                     }
                 }

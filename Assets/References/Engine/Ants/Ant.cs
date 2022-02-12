@@ -339,8 +339,7 @@ namespace Engine.Ants
 
         static public float MaxFoodIntensity = 100;
         public float FoodIntensity { get; set; }
-
-        //public bool HoldPosition2 { get; set; }
+        
         public int MoveAttempts { get; set; }
         public int StuckCounter { get; set; }
         public int MovesWithoutCommand { get; set; }

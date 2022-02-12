@@ -808,7 +808,7 @@ namespace Assets.Scripts
                         //var go = new GameObject();
                         var lr = unitCommand.GameObject.GetComponent<LineRenderer>();
 
-                        if (unitCommand.GameCommand.GameCommandType == GameCommandType.Attack)
+                        if (unitCommand.GameCommand.GameCommandType == GameCommandType.AttackMove)
                         {
                             //lr.startWidth = 0.1f;
                             lr.startColor = Color.red;

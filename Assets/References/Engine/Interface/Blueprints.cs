@@ -183,7 +183,7 @@ namespace Engine.Interface
 
             blueprintCommand.Name = "Fighter";
             blueprintCommand.Layout = "UINone";
-            blueprintCommand.GameCommandType = GameCommandType.Attack;
+            blueprintCommand.GameCommandType = GameCommandType.AttackMove;
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Fighter";
@@ -198,7 +198,7 @@ namespace Engine.Interface
 
             blueprintCommand.Name = "Bomber";
             blueprintCommand.Layout = "UINone";
-            blueprintCommand.GameCommandType = GameCommandType.Attack;
+            blueprintCommand.GameCommandType = GameCommandType.AttackMove;
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Bomber";
