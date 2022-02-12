@@ -1399,7 +1399,8 @@ namespace Assets.Scripts
                 {
                     if (commandPreview.UpdateCommandPreview(gameCommand))
                     {
-                        commandPreview.SetPosition(GroundCells[gameCommand.TargetPosition]);
+                        //commandPreview.SetPosition(GroundCells[gameCommand.TargetPosition]);
+                        commandPreview.UpdatePositions(GroundCells[gameCommand.TargetPosition]);
                     }
                 }
             }

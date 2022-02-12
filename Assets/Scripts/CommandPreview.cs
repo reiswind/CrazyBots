@@ -861,72 +861,76 @@ namespace Assets.Scripts
             GameCommand.TargetPosition = groundCell.Pos;
             //previewGameCommand.transform.position = groundCell.transform.position;
             Debug.Log("Command attack preview " + GameCommand.UnitId + " to " + GameCommand.TargetPosition.ToString());
-            if (GameCommand.UnitId != null)
+            foreach (MapGameCommandItem mapGameCommandItem in GameCommand.GameCommandItems)
             {
-                UnitBase unitBase;
-                if (HexGrid.MainGrid.BaseUnits.TryGetValue(GameCommand.UnitId, out unitBase))
+                string unitID;
+                if (IsPreview)
                 {
-                    List<Position2> path = HexGrid.MainGrid.FindPath(unitBase.CurrentPos, groundCell.Pos, unitBase.UnitId);
-                    if (path != null && path.Count > 1)
+                    unitID = GameCommand.UnitId;
+                }
+                else
+                
+                {
+                    unitID = mapGameCommandItem.AttachedUnit.UnitId;
+                }
+                if (unitID != null)
+                { 
+                    UnitBase unitBase;
+                    if (HexGrid.MainGrid.BaseUnits.TryGetValue(unitID, out unitBase))
                     {
-                        Position3 dir = new Position3(path[path.Count-2]);
-                        foreach (Position3 n in dir.Neighbors)
+                        List<Position2> path = HexGrid.MainGrid.FindPath(unitBase.CurrentPos, groundCell.Pos, unitBase.UnitId);
+                        if (path != null && path.Count > 1)
                         {
-                            if (n.Pos == path[path.Count - 1])
+                            if (IsPreview)
                             {
-                                displayDirection = n.Direction;
-                                foreach (CommandAttachedItem commandAttachedUnit in PreviewUnits)
+                                Position3 dir = new Position3(path[path.Count - 2]);
+                                foreach (Position3 n in dir.Neighbors)
                                 {
-                                    commandAttachedUnit.AttachedUnit.RotatedDirection = displayDirection;
-                                    commandAttachedUnit.AttachedUnit.Direction = displayDirection;
+                                    if (n.Pos == path[path.Count - 1])
+                                    {
+                                        displayDirection = n.Direction;
+                                        foreach (CommandAttachedItem commandAttachedUnit in PreviewUnits)
+                                        {
+                                            commandAttachedUnit.AttachedUnit.RotatedDirection = displayDirection;
+                                            commandAttachedUnit.AttachedUnit.Direction = displayDirection;
+                                        }
+                                        break;
+                                    }
                                 }
-                                break;
                             }
-                        }
 
-                        GameObject lineRendererObject = new GameObject();
-                        lineRendererObject.name = "AttackLine";
+                            GameObject lineRendererObject = new GameObject();
+                            lineRendererObject.name = "AttackLine";
 
-                        LineRenderer lineRenderer = lineRendererObject.AddComponent<LineRenderer>();
-                        lineRenderer.transform.SetParent(HexGrid.MainGrid.transform, false);
-                        lineRenderer.material = HexGrid.MainGrid.GetMaterial("Player1");
-                        lineRenderer.startWidth = 0.1f;
-                        lineRenderer.endWidth = 0.1f;
+                            LineRenderer lineRenderer = lineRendererObject.AddComponent<LineRenderer>();
+                            lineRenderer.transform.SetParent(HexGrid.MainGrid.transform, false);
+                            lineRenderer.material = HexGrid.MainGrid.GetMaterial("Player1");
+                            lineRenderer.startWidth = 0.1f;
+                            lineRenderer.endWidth = 0.1f;
 
-                        List<Vector3> positions = new List<Vector3>();
-
-                        //Vector3 startPosition = unitBase.transform.position;
-                        //startPosition.y += 0.2f + unitBase.AboveGround;
-                        //positions.Add(startPosition);
-                        //Vector3 endPosition = groundCell.transform.position;
-                        //endPosition.y += 0.1f;
-                        //positions.Add(endPosition);
-
-                        //foreach (Position2 pos in path)
-                        for (int i = 0; i < path.Count; i++)
-                        {
-                            Position2 pos = path[i];
-
-                            GroundCell pathCell;
-                            if (HexGrid.MainGrid.GroundCells.TryGetValue(pos, out pathCell))
+                            List<Vector3> positions = new List<Vector3>();
+                            for (int i = 0; i < path.Count; i++)
                             {
-                                Vector3 pathPosition = pathCell.transform.position;
-                                pathPosition.y += 0.2f;
-                                positions.Add(pathPosition);
+                                Position2 pos = path[i];
+
+                                GroundCell pathCell;
+                                if (HexGrid.MainGrid.GroundCells.TryGetValue(pos, out pathCell))
+                                {
+                                    Vector3 pathPosition = pathCell.transform.position;
+                                    pathPosition.y += 0.2f;
+                                    positions.Add(pathPosition);
+                                }
                             }
 
+                            Vector3[] sm = SmoothLine(positions.ToArray(), 0.01f);
+                            lineRenderer.positionCount = sm.Length;
+                            for (int i = 0; i < sm.Length; i++)
+                            {
+                                lineRenderer.SetPosition(i, sm[i]);
+                            }
+
+                            attackLineRenderer = lineRenderer;
                         }
-
-                        Vector3[] sm = SmoothLine(positions.ToArray(), 0.01f);
-
-                        
-                        lineRenderer.positionCount = sm.Length;
-                        for (int i = 0; i < sm.Length; i++)
-                        {
-                            lineRenderer.SetPosition(i, sm[i]);
-                        }
-
-                        attackLineRenderer = lineRenderer;
                     }
                 }
             }
@@ -1199,6 +1203,11 @@ namespace Assets.Scripts
                     {
                         commandAttachedItem.MapGameCommandItem = mapGameCommandItem;
                         remainingPreviews.Remove(commandAttachedItem);
+
+                        if (GameCommand.GameCommandType == GameCommandType.Attack)
+                        {
+                            updatePosition = true;
+                        }
                     }
                 }
                 foreach (CommandAttachedItem searchAttachedUnit in remainingPreviews)
