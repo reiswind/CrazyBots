@@ -598,7 +598,7 @@ namespace Assets.Scripts
             HideBuildMenu();
 
             selectedCommandPreview = new CommandPreview();
-            selectedCommandPreview.CreateCommandForBuild(blueprintCommand);
+            selectedCommandPreview.CreateCommandForBuild(blueprintCommand, selectedUnitFrame?.UnitId);
             selectedCommandPreview.SetSelected(true);
             highlightedCommandPreview = selectedCommandPreview;
             SetMode(CanvasMode.Preview);
@@ -618,7 +618,7 @@ namespace Assets.Scripts
                 BlueprintCommand blueprint = HexGrid.MainGrid.game.Blueprints.Commands[btn - 1];
 
                 selectedCommandPreview = new CommandPreview();
-                selectedCommandPreview.CreateCommandForBuild(blueprint);
+                selectedCommandPreview.CreateCommandForBuild(blueprint, null);
                 selectedCommandPreview.SetSelected(true);
                 highlightedCommandPreview = selectedCommandPreview;
                 SetMode(CanvasMode.Preview);
@@ -785,27 +785,26 @@ namespace Assets.Scripts
         {
             if (canvasMode == CanvasMode.Select)
                 ShowBuildMenu();
-            //ExecuteCommand(1);
-            /*
-            if (canvasMode == CanvasMode.Build)
-                SelectBuildUnit(1);
-            else if (canvasMode == CanvasMode.Unit)
-                SelectActionUnit(1);
-            else if (canvasMode == CanvasMode.Select)
-                MarkUnitForExtraction();*/
+            if (canvasMode == CanvasMode.Unit)
+            {
+                if (selectedUnitFrame.HasAssembler())
+                {
+                    ShowBuildMenu();
+                }
+            }
         }
         void OnClickBuild2()
         {
             if (canvasMode == CanvasMode.Unit)
                 SelectedUnitCommand(GameCommandType.AttackMove);
-                //ExecuteCommand(2);
-                /*
-                if (canvasMode == CanvasMode.Build)
-                    SelectBuildUnit(2);
-                if (canvasMode == CanvasMode.Unit)
-                    SelectActionUnit(2);
-                else if (canvasMode == CanvasMode.Select)
-                    CancelCommand();*/
+            //ExecuteCommand(2);
+            /*
+            if (canvasMode == CanvasMode.Build)
+                SelectBuildUnit(2);
+            if (canvasMode == CanvasMode.Unit)
+                SelectActionUnit(2);
+            else if (canvasMode == CanvasMode.Select)
+                CancelCommand();*/
         }
         void OnClickBuild3()
         {
@@ -1193,10 +1192,11 @@ namespace Assets.Scripts
                     BlueprintCommand blueprintCommandCopy = selectedCommandPreview.Blueprint;
 
                     GameCommandType gameCommandType = selectedCommandPreview.GameCommand.GameCommandType;
+                    string unitId = selectedCommandPreview.GameCommand.UnitId;
 
                     selectedCommandPreview = new CommandPreview();
                     if (gameCommandType == GameCommandType.Build)
-                        selectedCommandPreview.CreateCommandForBuild(blueprintCommandCopy);
+                        selectedCommandPreview.CreateCommandForBuild(blueprintCommandCopy, unitId);
                     else
                         selectedCommandPreview.CreateCommand(selectedUnitFrame, hitByMouseClick.GroundCell.Pos, gameCommandType);
                 }

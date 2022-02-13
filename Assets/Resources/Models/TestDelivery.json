@@ -22,14 +22,14 @@
 	  "ContainedWood": 0,
 	  "ContainedStones": 1,
 	  "Direction": "N",
-	  "HoldPosition": true,
+	  "AttackPosition": true,
       "Blueprint": "Fighter",
       "Position": "-2,-2"
     },
 	{
       "Name": "Container",
       "PlayerId": 1,
-	  "ContainedMinerals": 20,
+	  "ContainedMinerals": 60,
 	  "ContainedWood": 0,
 	  "ContainedStones": 0,
       "Blueprint": "Container",

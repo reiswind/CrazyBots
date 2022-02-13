@@ -1715,6 +1715,13 @@ namespace Engine.Ants
                                     gameCommandItemForUnit.AttachedUnit.SetUnitId(unit.UnitId);
                                     unit.SetGameCommand(gameCommandItemForUnit);
 
+                                    if (gameCommand.GameCommandType == GameCommandType.AttackMove ||
+                                        gameCommand.GameCommandType == GameCommandType.Build)
+                                    {
+                                        gameCommandItemForUnit.FactoryUnit.SetUnitId(gameCommand.UnitId);
+                                        // Build this only once, Remove the factory id from the command. The command will remain.
+                                        gameCommand.UnitId = null;
+                                    }
                                     if (gameCommand.GameCommandType == GameCommandType.AttackMove)
                                     {
                                         ant.FollowThisRoute = null;

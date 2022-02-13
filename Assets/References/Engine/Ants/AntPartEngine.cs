@@ -1010,6 +1010,7 @@ namespace Engine.Ants
                         }
                         else
                         {
+                            // Turn into direction
                             cntrlUnit.Direction = cntrlUnit.CurrentGameCommand.GameCommand.Direction;
 
                             Move turnMove = new Move();

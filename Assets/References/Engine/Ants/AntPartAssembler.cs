@@ -249,7 +249,8 @@ namespace Engine.Ants
                         return false;
                     }
 
-                    if (selectedGameCommand.GameCommand.GameCommandType == GameCommandType.Build)
+                    if (selectedGameCommand.GameCommand.GameCommandType == GameCommandType.Build ||
+                        selectedGameCommand.GameCommand.GameCommandType == GameCommandType.AttackMove)
                     {
                         // Check if already built but cannot upgrade for a reason
                         Dictionary<Position2, TileWithDistance> neighbors = Assembler.Unit.Game.Map.EnumerateTiles(Assembler.Unit.Pos, 1, false);
@@ -460,11 +461,32 @@ namespace Engine.Ants
                     }
                     if (possibleMoves.Count > 0)
                     {
-                        int idx = player.Game.Random.Next(possibleMoves.Count);
-                        Move move = possibleMoves[idx];
+                        Move move = null;
+                        int bestDistance = 0;
+                        if (selectedGameCommand != null && selectedGameCommand.GameCommand.TargetPosition != Position2.Null)
+                        {
+                            // Select closest
+                            foreach (Move possibleMove in possibleMoves)
+                            {
+                                int d = Position3.Distance(selectedGameCommand.GameCommand.TargetPosition, possibleMove.Positions[1]);
+                                if (move == null)
+                                {
+                                    move = possibleMove;
+                                    bestDistance = d;
+                                }
+                                else if (d < bestDistance)
+                                {
+                                    move = possibleMove;
+                                }
+                            }
+                        }
+                        else
+                        {
 
-                        move.GameCommandItem = passGameCommandToNewUnit;
-                        
+                            int idx = player.Game.Random.Next(possibleMoves.Count);
+                            move = possibleMoves[idx];
+                        }
+                        move.GameCommandItem = passGameCommandToNewUnit;                        
                         moves.Add(move);
 
                         return true;

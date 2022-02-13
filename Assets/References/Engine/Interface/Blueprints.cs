@@ -177,8 +177,7 @@ namespace Engine.Interface
             Commands.Add(blueprintCommand);
             */
 
-            // Attack
-            
+            // Fighter
             blueprintCommand = new BlueprintCommand();
 
             blueprintCommand.Name = "Fighter";
@@ -191,9 +190,9 @@ namespace Engine.Interface
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
-            
 
-            // Defend
+
+            // Bomber
             blueprintCommand = new BlueprintCommand();
 
             blueprintCommand.Name = "Bomber";
@@ -206,7 +205,34 @@ namespace Engine.Interface
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
-            
+
+            // Build Worker
+            blueprintCommand = new BlueprintCommand();
+
+            blueprintCommand.Name = "Worker";
+            blueprintCommand.Layout = "UINone";
+            blueprintCommand.GameCommandType = GameCommandType.AttackMove;
+
+            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem.BlueprintName = "Worker";
+            blueprintCommand.Units.Add(blueprintCommandItem);
+
+            Commands.Add(blueprintCommand);
+
+            // Build Assembler
+            blueprintCommand = new BlueprintCommand();
+
+            blueprintCommand.Name = "Assembler";
+            blueprintCommand.Layout = "UINone";
+            blueprintCommand.GameCommandType = GameCommandType.AttackMove;
+
+            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem.BlueprintName = "Assembler";
+            blueprintCommand.Units.Add(blueprintCommandItem);
+
+            Commands.Add(blueprintCommand);
+
+            // Structures
 
             // Build outpost
             blueprintCommand = new BlueprintCommand();
@@ -318,18 +344,7 @@ namespace Engine.Interface
             Commands.Add(blueprintCommand);
             */
 
-            // Build Worker
-            blueprintCommand = new BlueprintCommand();
-
-            blueprintCommand.Name = "Worker";
-            blueprintCommand.Layout = "UIBuild";
-            blueprintCommand.GameCommandType = GameCommandType.Build;
-
-            blueprintCommandItem = new BlueprintCommandItem();
-            blueprintCommandItem.BlueprintName = "Worker";
-            blueprintCommand.Units.Add(blueprintCommandItem);
-
-            Commands.Add(blueprintCommand);
+            
             
         }
 

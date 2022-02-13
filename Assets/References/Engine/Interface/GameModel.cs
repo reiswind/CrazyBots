@@ -140,7 +140,7 @@ namespace Engine.Interface
         public string Direction { get; set; }
 
         [DataMember]
-        public bool HoldPosition { get; set; }
+        public bool AttackPosition { get; set; }
         [DataMember]
         public bool HoldFire { get; set; }
         [DataMember]

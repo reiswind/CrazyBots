@@ -198,15 +198,18 @@ namespace Engine.Master
             else if (unitModel.Direction == "N")
                 thisUnit.Direction = Direction.N;
 
-            /*
-            if (unitModel.HoldPosition && thisUnit.Engine != null)
+            
+            if (unitModel.AttackPosition && thisUnit.Engine != null)
             {
-                thisUnit.Engine.AttackPosition = thisUnit.Pos;
-                if (thisUnit.Direction == Direction.C)
-                    thisUnit.Engine.AttackDirection = Direction.N;
-                else
-                    thisUnit.Engine.AttackDirection = thisUnit.Direction;
-            }*/
+                GameCommand gameCommand = new GameCommand();
+                gameCommand.GameCommandType = GameCommandType.Attack;
+                gameCommand.UnitId = thisUnit.UnitId;
+                gameCommand.TargetPosition = thisUnit.Pos;
+                gameCommand.Direction = thisUnit.Direction;
+
+                GameCommandItem gameCommandItem = new GameCommandItem(gameCommand);                
+                thisUnit.SetGameCommand(gameCommandItem);
+            }
         }
 
         public void StartWithFactory(List<Move> newMoves)

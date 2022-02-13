@@ -98,12 +98,13 @@ namespace Assets.Scripts
 
         public List<CommandAttachedItem> PreviewUnits { get; set; }
 
-        public void CreateCommandForBuild(BlueprintCommand blueprint)
+        public void CreateCommandForBuild(BlueprintCommand blueprint, string unitId)
         {
             Blueprint = blueprint;
             GameCommand.Layout = blueprint.Layout;
             GameCommand.GameCommandType = blueprint.GameCommandType;
             GameCommand.Direction = displayDirection;
+            GameCommand.UnitId = unitId;
 
             if (GameCommand.GameCommandType == GameCommandType.Collect)
                 displayRadius = 3;
@@ -126,14 +127,11 @@ namespace Assets.Scripts
             GameCommand.Direction = unitBase.Direction;
             GameCommand.UnitId = unitBase.UnitId;
             GameCommand.PlayerId = unitBase.PlayerId;
-            GameCommand.DeleteWhenFinished = true;
 
             displayPosition = targetPosition;
             displayDirection = unitBase.Direction;
 
-            //Position3 unitPos3 = new Position3(unitBase.CurrentPos);
-            //Position3 targetPosition3 = new Position3(targetPosition);
-            Position3 position3 = new Position3(0,0,0); // targetPosition3.Subtract(unitPos3);
+            Position3 position3 = new Position3(0,0,0);
 
             MapGameCommandItem mapGameCommandItem = new MapGameCommandItem(GameCommand);
             mapGameCommandItem.BlueprintName = unitBase.MoveUpdateStats.BlueprintName;
