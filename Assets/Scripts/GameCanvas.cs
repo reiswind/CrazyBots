@@ -775,7 +775,7 @@ namespace Assets.Scripts
         void SelectedUnitCommand(GameCommandType gameCommandType)
         {
             selectedCommandPreview = new CommandPreview();
-            selectedCommandPreview.CreateCommand(selectedUnitFrame, Position2.Null, gameCommandType);
+            selectedCommandPreview.CreateCommand(selectedUnitFrame, gameCommandType);
             selectedCommandPreview.SetSelected(true);
             highlightedCommandPreview = selectedCommandPreview;
             SetMode(CanvasMode.Preview);
@@ -841,7 +841,7 @@ namespace Assets.Scripts
             if (canvasMode == CanvasMode.Unit)
             {
                 selectedCommandPreview = new CommandPreview();
-                selectedCommandPreview.CreateCommand(selectedUnitFrame, Position2.Null, GameCommandType.Extract);
+                selectedCommandPreview.CreateCommand(selectedUnitFrame, GameCommandType.Extract);
                 selectedCommandPreview.Execute();
                 selectedUnitFrame.MoveUpdateStats.MarkedForExtraction = true;
                 UpdateCommandButtons();
@@ -852,7 +852,7 @@ namespace Assets.Scripts
             if (canvasMode == CanvasMode.Unit)
             {
                 selectedCommandPreview = new CommandPreview();
-                selectedCommandPreview.CreateCommand(selectedUnitFrame, Position2.Null, GameCommandType.Automate);
+                selectedCommandPreview.CreateCommand(selectedUnitFrame, GameCommandType.Automate);
                 selectedCommandPreview.Execute();
 
                 selectedUnitFrame.MoveUpdateStats.Automatic = true;
@@ -1198,7 +1198,7 @@ namespace Assets.Scripts
                     if (gameCommandType == GameCommandType.Build)
                         selectedCommandPreview.CreateCommandForBuild(blueprintCommandCopy, unitId);
                     else
-                        selectedCommandPreview.CreateCommand(selectedUnitFrame, hitByMouseClick.GroundCell.Pos, gameCommandType);
+                        selectedCommandPreview.CreateCommand(selectedUnitFrame, gameCommandType);
                 }
                 else
                 {
@@ -1440,7 +1440,7 @@ namespace Assets.Scripts
                     Debug.Log("Input.GetMouseButtonDown");
 
                     selectedCommandPreview = new CommandPreview();
-                    selectedCommandPreview.CreateCommand(selectedUnitFrame, hitByMouseClick.GroundCell.Pos, GameCommandType.AttackMove);
+                    selectedCommandPreview.CreateCommand(selectedUnitFrame, GameCommandType.AttackMove); // hitByMouseClick.GroundCell);
                     selectedCommandPreview.SetSelected(true);
                     highlightedCommandPreview = selectedCommandPreview;
                     SetMode(CanvasMode.Preview);

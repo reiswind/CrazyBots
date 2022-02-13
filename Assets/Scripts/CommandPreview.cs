@@ -120,15 +120,49 @@ namespace Assets.Scripts
             UpdateCommandPreview(GameCommand);
         }
 
-        public void CreateCommand(UnitBase unitBase, Position2 targetPosition, GameCommandType gameCommandType)
+        /// <summary>
+        /// Command for unit at this position
+        /// </summary>
+        /// <param name="unitBase"></param>
+        /// <param name="groundCell"></param>
+        public void SelectCommandType(UnitBase unitBase, GroundCell groundCell)
         {
+            displayPosition = groundCell.Pos;
+
+            GameCommandType gameCommandType = GameCommandType.AttackMove;
+
+            UnitBasePart container = unitBase.GetContainer();
+            if (container != null)
+            {
+
+                foreach (TileObject tileObject in groundCell.Stats.MoveUpdateGroundStat.TileObjects)
+                {
+                    if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType) &&
+                        container.TileObjectContainer.IsSpaceFor(tileObject))
+                    {
+                        gameCommandType = GameCommandType.Collect;
+                    }
+                }
+            }   
+            GameCommand.GameCommandType = gameCommandType;
+        }
+
+        public UnitBase UnitBase { get; set; }
+
+        /// <summary>
+        /// Command for unit at no specific position
+        /// </summary>
+        /// <param name="unitBase"></param>
+        /// <param name="gameCommandType"></param>
+        public void CreateCommand(UnitBase unitBase, GameCommandType gameCommandType)
+        {
+            UnitBase = unitBase;
+
             GameCommand.Layout = "UINone";
             GameCommand.GameCommandType = gameCommandType;
             GameCommand.Direction = unitBase.Direction;
             GameCommand.UnitId = unitBase.UnitId;
             GameCommand.PlayerId = unitBase.PlayerId;
-
-            displayPosition = targetPosition;
             displayDirection = unitBase.Direction;
 
             Position3 position3 = new Position3(0,0,0);
@@ -585,6 +619,9 @@ namespace Assets.Scripts
             {
                 if (displayPosition == Position2.Null || displayPosition != groundCell.Pos)
                 {
+                    if (UnitBase != null)
+                        SelectCommandType(UnitBase, groundCell);
+
                     bool positionok;
 
                     if (!IsPreview || GameCommand.GameCommandType == GameCommandType.ItemRequest)

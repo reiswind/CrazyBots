@@ -751,6 +751,16 @@ namespace Assets.Scripts
             return false;
         }
 
+        public UnitBasePart GetContainer()
+        {
+            foreach (UnitBasePart unitBasePart in UnitBaseParts)
+            {
+                if (unitBasePart.PartType == TileObjectType.PartContainer)
+                    return unitBasePart;
+            }
+            return null;
+        }
+
         public bool HasAssembler()
         {
             foreach (UnitBasePart unitBasePart in UnitBaseParts)

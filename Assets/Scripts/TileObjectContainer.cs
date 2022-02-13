@@ -22,6 +22,11 @@ namespace Assets.Scripts
         private List<GameObject> emptyCubes;
         private List<UnitBaseTileObject> tileObjects;
 
+        public bool IsSpaceFor(TileObject tileObject)
+        {
+            return true;
+        }
+
         public ReadOnlyCollection<UnitBaseTileObject> TileObjects
         {
             get
