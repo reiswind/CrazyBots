@@ -28,7 +28,7 @@ namespace Engine.Ants
             bool moved;
 
             if (Assembler.Unit.CurrentGameCommand != null &&
-                Assembler.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Build &&
+                Assembler.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build &&
                 Assembler.Unit.CurrentGameCommand.BuildPositionReached &&
                 Assembler.Unit.CurrentGameCommand.FactoryUnit.UnitId == Ant.Unit.UnitId)
             {
@@ -46,7 +46,7 @@ namespace Engine.Ants
         public bool BuildStructure(ControlAnt control, Player player, List<Move> moves)
         {
             List<Position2> includePositions = new List<Position2>();
-            includePositions.Add(Assembler.Unit.CurrentGameCommand.GameCommand.TargetPosition);
+            includePositions.Add(Assembler.Unit.CurrentGameCommand.TargetPosition);
 
             MoveRecipeIngredient moveRecipeIngredient = new MoveRecipeIngredient();
             moveRecipeIngredient.Count = 1;
@@ -95,7 +95,7 @@ namespace Engine.Ants
                 if (Ant.StuckCounter > 5)
                 {
                     // Impossible to build, cancel this and kill the builder
-                    Assembler.Unit.CurrentGameCommand.GameCommand.CommandCanceled = true;
+                    Assembler.Unit.CurrentGameCommand.CommandCanceled = true;
                     Ant.Unit.ResetGameCommand();
                     Ant.Unit.ExtractUnit();
                 }
@@ -104,7 +104,7 @@ namespace Engine.Ants
             {
                 Ant.StuckCounter = 0;
                 Move move = possiblemoves[0];
-                move.GameCommandItem = Assembler.Unit.CurrentGameCommand;
+                move.GameCommand = Assembler.Unit.CurrentGameCommand;
                 moves.Add(move);
             }
             return possiblemoves.Count == 1;
@@ -145,9 +145,9 @@ namespace Engine.Ants
             blueprintCommandItem.BlueprintName = Ant.Unit.Blueprint.Name;
             blueprintCommandItem.Direction = Direction.C;
 
-            GameCommandItem gameCommandItem = new GameCommandItem(gameCommand, blueprintCommandItem);
-            gameCommandItem.TargetUnit.SetUnitId(Ant.Unit.UnitId);
-            gameCommandItem.TargetUnit.SetStatus("WaitingForDelivery");
+
+            gameCommand.TargetUnit.SetUnitId(Ant.Unit.UnitId);
+            gameCommand.TargetUnit.SetStatus("WaitingForDelivery");
 
             /*
             gameCommand.RequestedItems = new List<RecipeIngredient>();
@@ -156,9 +156,8 @@ namespace Engine.Ants
                 gameCommand.RequestedItems.Add(recipeIngredient);
             }*/
 
-            Ant.Unit.SetGameCommand(gameCommandItem);
+            Ant.Unit.SetGameCommand(gameCommand);
 
-            gameCommand.GameCommandItems.Add(gameCommandItem);
             player.GameCommands.Add(gameCommand);
         }
 
@@ -193,7 +192,7 @@ namespace Engine.Ants
             {
                 // If engine, move to target and upgrade then. Do not upgrade anything else.
                 includePositions = new List<Position2>();
-                includePositions.Add(Assembler.Unit.CurrentGameCommand.GameCommand.TargetPosition);
+                includePositions.Add(Assembler.Unit.CurrentGameCommand.TargetPosition);
             }
             List<Move> possiblemoves = new List<Move>();
 
@@ -217,8 +216,8 @@ namespace Engine.Ants
 
             if (!upgrading)
             {
-                GameCommandItem selectedGameCommand = Ant.Unit.CurrentGameCommand;
-                GameCommandItem passGameCommandToNewUnit;
+                GameCommand selectedGameCommand = Ant.Unit.CurrentGameCommand;
+                GameCommand passGameCommandToNewUnit;
                 
                 bool computePossibleMoves = true;
 
@@ -228,19 +227,19 @@ namespace Engine.Ants
                 }
                 else
                 {
-                    if (selectedGameCommand.GameCommand.GameCommandType == GameCommandType.Build &&
+                    if (selectedGameCommand.GameCommandType == GameCommandType.Build &&
                         selectedGameCommand.AttachedUnit.UnitId != null)
                     {
                         // The unit to be build is already attached and under construction, do not build another
                         return false;
                     }
-                    if (selectedGameCommand.GameCommand.GameCommandType == GameCommandType.Build &&
+                    if (selectedGameCommand.GameCommandType == GameCommandType.Build &&
                         selectedGameCommand.AttachedUnit.UnitId == Ant.Unit.UnitId)
                     {
                         // This is the command, that is attached to this factory, when the factory was build.
                         return false;
                     }
-                    if (selectedGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest &&
+                    if (selectedGameCommand.GameCommandType == GameCommandType.ItemRequest &&
                         selectedGameCommand.FactoryUnit.UnitId != Ant.Unit.UnitId)
                     {
                         // This is not the factory to build the transporter
@@ -249,8 +248,8 @@ namespace Engine.Ants
                         return false;
                     }
 
-                    if (selectedGameCommand.GameCommand.GameCommandType == GameCommandType.Build ||
-                        selectedGameCommand.GameCommand.GameCommandType == GameCommandType.AttackMove)
+                    if (selectedGameCommand.GameCommandType == GameCommandType.Build)
+                        // Not now ||selectedGameCommand.GameCommandType == GameCommandType.AttackMove)
                     {
                         // Check if already built but cannot upgrade for a reason
                         Dictionary<Position2, TileWithDistance> neighbors = Assembler.Unit.Game.Map.EnumerateTiles(Assembler.Unit.Pos, 1, false);
@@ -275,7 +274,7 @@ namespace Engine.Ants
                         else
                         {*/
                         includePositions = new List<Position2>();
-                        includePositions.Add(selectedGameCommand.GameCommand.TargetPosition);
+                        includePositions.Add(selectedGameCommand.TargetPosition);
 
                         passGameCommandToNewUnit = selectedGameCommand;                        
                     }
@@ -311,11 +310,11 @@ namespace Engine.Ants
                         if (engineFound)
                         {
                             Tile tile = player.Game.Map.GetTile(Ant.Unit.Pos);
-                            if (tile.IsNeighbor(selectedGameCommand.GameCommand.TargetPosition))
+                            if (tile.IsNeighbor(selectedGameCommand.TargetPosition))
                             {
                                 // No need to build an assembler. Just build the unit at this position
                                 includePositions = new List<Position2>();
-                                includePositions.Add(selectedGameCommand.GameCommand.TargetPosition);
+                                includePositions.Add(selectedGameCommand.TargetPosition);
                             }
 
                             // Build this unit, it will move to the target COMMAND-STEP3
@@ -325,11 +324,11 @@ namespace Engine.Ants
                         {
                             // Check if TargetPosition is neighbor!
                             Tile tile = player.Game.Map.GetTile(Ant.Unit.Pos);
-                            if (tile.IsNeighbor(selectedGameCommand.GameCommand.TargetPosition))
+                            if (tile.IsNeighbor(selectedGameCommand.TargetPosition))
                             {
                                 // No need to build an assembler. Just build the unit
                                 includePositions = new List<Position2>();
-                                includePositions.Add(selectedGameCommand.GameCommand.TargetPosition);
+                                includePositions.Add(selectedGameCommand.TargetPosition);
 
                                 passGameCommandToNewUnit = selectedGameCommand;
                             }
@@ -371,7 +370,7 @@ namespace Engine.Ants
                                             container = true;
                                         }
                                     }
-                                    if (selectedGameCommand.GameCommand.GameCommandType == GameCommandType.Build)
+                                    if (selectedGameCommand.GameCommandType == GameCommandType.Build)
                                     {
                                         if (assembler && engine && reactor) // Select the builder
                                         {
@@ -381,7 +380,7 @@ namespace Engine.Ants
                                             break;
                                         }
                                     }
-                                    if (selectedGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                                    if (selectedGameCommand.GameCommandType == GameCommandType.ItemRequest)
                                     {
                                         if (container && engine)
                                         {
@@ -396,16 +395,16 @@ namespace Engine.Ants
                                 GameCommand newCommand = new GameCommand(blueprintCommand);
 
                                 newCommand.GameCommandType = GameCommandType.Build;
-                                newCommand.TargetPosition = selectedGameCommand.GameCommand.TargetPosition;
+                                newCommand.TargetPosition = selectedGameCommand.TargetPosition;
 
                                 newCommand.PlayerId = player.PlayerModel.Id;
                                 newCommand.DeleteWhenFinished = true;
-                                GameCommandItem gameCommandItem = newCommand.GameCommandItems[0];
+                                
 
                                 computePossibleMoves = false;
 
                                 // Hack to create build assembler moves
-                                Assembler.Unit.SetTempGameCommand(gameCommandItem);
+                                Assembler.Unit.SetTempGameCommand(newCommand);
                                 Assembler.ComputePossibleMoves(possiblemoves, includePositions, MoveFilter.Assemble, moveRecipeIngredient);
 
                                 Assembler.Unit.SetTempGameCommand(selectedGameCommand);
@@ -425,9 +424,9 @@ namespace Engine.Ants
                 {
                     if (selectedGameCommand.FactoryUnit.UnitId == Ant.Unit.UnitId)
                     {
-                        if (selectedGameCommand.GameCommand.TargetPosition != Position2.Null)
+                        if (selectedGameCommand.TargetPosition != Position2.Null)
                         {
-                            Tile tile = player.Game.Map.GetTile(selectedGameCommand.GameCommand.TargetPosition);
+                            Tile tile = player.Game.Map.GetTile(selectedGameCommand.TargetPosition);
                             // Must be possible to move the output there (blocking units..)
                             if (!tile.CanMoveTo(Ant.Unit.Pos))
                             {
@@ -440,7 +439,7 @@ namespace Engine.Ants
                                 else
                                 {
                                     Ant.Unit.ResetGameCommand();
-                                    selectedGameCommand.GameCommand.CommandCanceled = true;
+                                    selectedGameCommand.CommandCanceled = true;
                                 }
                             }
                         }
@@ -463,12 +462,12 @@ namespace Engine.Ants
                     {
                         Move move = null;
                         int bestDistance = 0;
-                        if (selectedGameCommand != null && selectedGameCommand.GameCommand.TargetPosition != Position2.Null)
+                        if (selectedGameCommand != null && selectedGameCommand.TargetPosition != Position2.Null)
                         {
                             // Select closest
                             foreach (Move possibleMove in possibleMoves)
                             {
-                                int d = Position3.Distance(selectedGameCommand.GameCommand.TargetPosition, possibleMove.Positions[1]);
+                                int d = Position3.Distance(selectedGameCommand.TargetPosition, possibleMove.Positions[1]);
                                 if (move == null)
                                 {
                                     move = possibleMove;
@@ -486,7 +485,7 @@ namespace Engine.Ants
                             int idx = player.Game.Random.Next(possibleMoves.Count);
                             move = possibleMoves[idx];
                         }
-                        move.GameCommandItem = passGameCommandToNewUnit;                        
+                        move.GameCommand = passGameCommandToNewUnit;                        
                         moves.Add(move);
 
                         return true;

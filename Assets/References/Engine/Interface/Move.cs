@@ -359,7 +359,7 @@ namespace Engine.Interface
         /// <summary>
         /// Transfer attached command
         /// </summary>
-        internal Master.GameCommandItem GameCommandItem { get; set; }
+        internal Master.GameCommand GameCommand { get; set; }
         /// <summary>
         /// Text of unit
         /// </summary>

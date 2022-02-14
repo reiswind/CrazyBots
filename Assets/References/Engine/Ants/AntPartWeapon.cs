@@ -25,7 +25,7 @@ namespace Engine.Ants
             Unit cntrlUnit = Weapon.Unit;
 
             if (Ant.Unit.CurrentGameCommand != null &&
-                Ant.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Fire &&
+                Ant.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Fire &&
                 cntrlUnit.Weapon.WeaponLoaded)
             {
                 Move move = new Move();
@@ -34,7 +34,7 @@ namespace Engine.Ants
                 move.OtherUnitId = null;
                 move.Positions = new List<Position2>();
                 move.Positions.Add(Ant.Unit.Pos);
-                move.Positions.Add(Ant.Unit.CurrentGameCommand.GameCommand.TargetPosition);
+                move.Positions.Add(Ant.Unit.CurrentGameCommand.TargetPosition);
 
                 moves.Add(move);
                 return true;

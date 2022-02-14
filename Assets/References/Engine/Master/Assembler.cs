@@ -139,7 +139,7 @@ namespace Engine.Master
                 {
                     if (neighbor.Unit.CurrentGameCommand != null)
                     {
-                        if (neighbor.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Build &&
+                        if (neighbor.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build &&
                             neighbor.Unit.CurrentGameCommand.AttachedUnit.UnitId == neighbor.Unit.UnitId)
                         {
                             // The unit to upgrade is upgraded by a command. If this unit is not the factory,

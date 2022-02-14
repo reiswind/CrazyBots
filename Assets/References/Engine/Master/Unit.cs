@@ -170,13 +170,13 @@ namespace Engine.Master
         public UnitOrders UnitOrders { get; set; }
         public string UnitId { get; set; }
 
-        internal GameCommandItem CurrentGameCommand { get; private set; }
+        internal GameCommand CurrentGameCommand { get; private set; }
 
-        internal void SetTempGameCommand(GameCommandItem gameCommand)
+        internal void SetTempGameCommand(GameCommand gameCommand)
         {
             CurrentGameCommand = gameCommand;
         }        
-        internal void SetGameCommand(GameCommandItem gameCommand)
+        internal void SetGameCommand(GameCommand gameCommand)
         {
             if (gameCommand != null && gameCommand.BuildPositionReached)
             {
@@ -206,32 +206,31 @@ namespace Engine.Master
                     Player player = Game.Players[Owner.PlayerModel.Id];
                     foreach (GameCommand gameCommand in player.GameCommands)
                     {
-                        foreach (GameCommandItem blueprintCommandItem in gameCommand.GameCommandItems)
-                        {
-                            if (blueprintCommandItem == CurrentGameCommand)
-                                continue;
 
-                            if (blueprintCommandItem.AttachedUnit.UnitId == UnitId)
-                            {
-                                blueprintCommandItem.AttachedUnit.ResetStatus();
-                                blueprintCommandItem.AttachedUnit.ResetUnitId();
-                            }
-                            if (blueprintCommandItem.TransportUnit.UnitId == UnitId)
-                            {
-                                blueprintCommandItem.TransportUnit.ResetStatus();
-                                blueprintCommandItem.TransportUnit.ResetUnitId();
-                            }
-                            if (blueprintCommandItem.TargetUnit.UnitId == UnitId)
-                            {
-                                blueprintCommandItem.TargetUnit.ResetStatus();
-                                blueprintCommandItem.TargetUnit.ResetUnitId();
-                            }
-                            if (blueprintCommandItem.FactoryUnit.UnitId == UnitId)
-                            {
-                                blueprintCommandItem.FactoryUnit.ResetStatus();
-                                blueprintCommandItem.FactoryUnit.ResetUnitId();
-                            }
+                        if (gameCommand == CurrentGameCommand)
+                            continue;
+
+                        if (gameCommand.AttachedUnit.UnitId == UnitId)
+                        {
+                            gameCommand.AttachedUnit.ResetStatus();
+                            gameCommand.AttachedUnit.ResetUnitId();
                         }
+                        if (gameCommand.TransportUnit.UnitId == UnitId)
+                        {
+                            gameCommand.TransportUnit.ResetStatus();
+                            gameCommand.TransportUnit.ResetUnitId();
+                        }
+                        if (gameCommand.TargetUnit.UnitId == UnitId)
+                        {
+                            gameCommand.TargetUnit.ResetStatus();
+                            gameCommand.TargetUnit.ResetUnitId();
+                        }
+                        if (gameCommand.FactoryUnit.UnitId == UnitId)
+                        {
+                            gameCommand.FactoryUnit.ResetStatus();
+                            gameCommand.FactoryUnit.ResetUnitId();
+                        }
+
                     }
                 }
 
@@ -239,8 +238,7 @@ namespace Engine.Master
                 {
                     if (CurrentGameCommand.DeleteWhenDestroyed)
                     {
-                        CurrentGameCommand.AttachedUnit.SetStatus("DeleteBecauseDestroyed");
-                        CurrentGameCommand.GameCommand.GameCommandItems.Remove(CurrentGameCommand);                        
+                        CurrentGameCommand.AttachedUnit.SetStatus("DeleteBecauseDestroyed");                       
                     }
                     else
                     {
@@ -382,9 +380,9 @@ namespace Engine.Master
             blueprintCommandItem.BlueprintName = Blueprint.Name;
             blueprintCommandItem.Direction = Direction.C;
 
-            GameCommandItem gameCommandItem = new GameCommandItem(gameCommand, blueprintCommandItem);
-            gameCommandItem.TargetUnit.SetUnitId(UnitId);
-            gameCommandItem.TargetUnit.SetStatus(Blueprint.Name + " WaitingForDelivery");
+
+            gameCommand.TargetUnit.SetUnitId(UnitId);
+            gameCommand.TargetUnit.SetStatus(Blueprint.Name + " WaitingForDelivery");
             Changed = true;
 
             /*
@@ -392,9 +390,8 @@ namespace Engine.Master
             RecipeIngredient recipeIngredient = new RecipeIngredient(tileObjectType, capacity);
             gameCommand.RequestedItems.Add(recipeIngredient);*/
 
-            SetGameCommand(gameCommandItem);
+            SetGameCommand(gameCommand);
 
-            gameCommand.GameCommandItems.Add(gameCommandItem);
             Owner.GameCommands.Add(gameCommand);
         }
 
@@ -1507,8 +1504,8 @@ namespace Engine.Master
             if (CurrentGameCommand != null)
             {
                 stats.MoveUpdateStatsCommand = new MoveUpdateStatsCommand();
-                stats.MoveUpdateStatsCommand.GameCommandType = CurrentGameCommand.GameCommand.GameCommandType;
-                stats.MoveUpdateStatsCommand.TargetPosition = CurrentGameCommand.GameCommand.TargetPosition;
+                stats.MoveUpdateStatsCommand.GameCommandType = CurrentGameCommand.GameCommandType;
+                stats.MoveUpdateStatsCommand.TargetPosition = CurrentGameCommand.TargetPosition;
 
                 stats.MoveUpdateStatsCommand.AttachedUnit = new MapGameCommandItemUnit();
                 stats.MoveUpdateStatsCommand.AttachedUnit.UnitId = CurrentGameCommand.AttachedUnit.UnitId;

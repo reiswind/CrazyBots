@@ -1353,9 +1353,7 @@ namespace Assets.Scripts
 
             foreach (CommandPreview existingPreview in CreatedCommandPreviews)
             {
-                if (existingPreview.GameCommand.TargetPosition == gameCommand.TargetPosition &&
-                    existingPreview.GameCommand.PlayerId == gameCommand.PlayerId &&
-                    existingPreview.GameCommand.GameCommandType == gameCommand.GameCommandType)
+                if (existingPreview.GameCommand.ClientId == gameCommand.ClientId)
                 {
                     if (CommandPreviews.ContainsKey(gameCommand.CommandId))
                         CommandPreviews.Remove(gameCommand.CommandId); // Not sure
@@ -1917,21 +1915,17 @@ namespace Assets.Scripts
 
         public CommandPreview FindCommandForUnit(UnitBase unitBase)
         {
-            foreach (CommandPreview mapGameCommand in CommandPreviews.Values)
+            foreach (CommandPreview commandPreview in CommandPreviews.Values)
             {
-                foreach (CommandAttachedItem commandAttachedUnit in mapGameCommand.PreviewUnits)
+
+                if (commandPreview.AttachedUnit.GhostUnit == unitBase)
                 {
-                    if (commandAttachedUnit.AttachedUnit.GhostUnit == unitBase)
-                    {
-                        // Preview Ghost unit
-                        return mapGameCommand;
-                    }
+                    // Preview Ghost unit
+                    return commandPreview;
                 }
-                foreach (MapGameCommandItem mapGameCommandItem in mapGameCommand.GameCommand.GameCommandItems)
-                {
-                    if (mapGameCommandItem.AttachedUnit.UnitId == unitBase.UnitId)
-                        return mapGameCommand;
-                }
+
+                if (commandPreview.GameCommand.AttachedUnit.UnitId == unitBase.UnitId)
+                    return commandPreview;
             }
             return null;
         }

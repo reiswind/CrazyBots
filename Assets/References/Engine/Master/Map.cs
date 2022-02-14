@@ -39,9 +39,13 @@ namespace Engine.Interface
     {
         public MapGameCommand()
         {
-            GameCommandItems = new List<MapGameCommandItem>();
+            AttachedUnit = new MapGameCommandItemUnit();
+            FactoryUnit = new MapGameCommandItemUnit();
+            TransportUnit = new MapGameCommandItemUnit();
+            TargetUnit = new MapGameCommandItemUnit();
         }
         public int CommandId { get; set; }
+        public int ClientId { get; set; }
         public string Layout { get; set; }
         public bool CommandComplete { get; set; }
         public bool DeleteWhenFinished { get; set; }
@@ -55,9 +59,47 @@ namespace Engine.Interface
         public string UnitId { get; set; }
         public List<MoveUnitItemOrder> MoveUnitItemOrders { get; set; }
 
+        public string BlueprintName { get; set; }
+        public MapGameCommand NextGameCommand { get; set; }
+        public MapGameCommandItemUnit AttachedUnit { get; set; }
+        public MapGameCommandItemUnit FactoryUnit { get; set; }
+        internal MapGameCommandItemUnit TargetUnit { get; set; }
+        internal MapGameCommandItemUnit TransportUnit { get; set; }
+
         public GameCommandType GameCommandType { get; set; }
 
-        public List<MapGameCommandItem> GameCommandItems { get; private set; }
+        internal GameCommand Copy()
+        {
+            GameCommand gameCommand = new GameCommand();
+            gameCommand.CommandId = CommandId;
+            gameCommand.ClientId = ClientId;
+            gameCommand.DeleteWhenFinished = DeleteWhenFinished;
+            gameCommand.CommandCanceled = CommandCanceled;
+            gameCommand.CommandComplete = CommandComplete;
+            gameCommand.GameCommandType = GameCommandType;
+            gameCommand.PlayerId = PlayerId;
+            gameCommand.TargetPosition = TargetPosition;
+            gameCommand.Radius = Radius;
+            gameCommand.Direction = Direction;
+            gameCommand.Layout = Layout;
+            gameCommand.BlueprintName = BlueprintName;
+            gameCommand.UnitId = UnitId;
+
+            if (MoveUnitItemOrders != null)
+            {
+                gameCommand.UnitItemOrders = new List<UnitItemOrder>();
+                foreach (MoveUnitItemOrder moveUnitItemOrder in MoveUnitItemOrders)
+                {
+                    UnitItemOrder unitItemOrder = new UnitItemOrder();
+                    unitItemOrder.TileObjectType = moveUnitItemOrder.TileObjectType;
+                    unitItemOrder.TileObjectState = moveUnitItemOrder.TileObjectState;
+                    gameCommand.UnitItemOrders.Add(unitItemOrder);
+                }
+            }
+
+            return gameCommand;
+        }
+
         public override string ToString()
         {
             string s = GameCommandType.ToString() + " at " + TargetPosition.ToString();
@@ -65,11 +107,8 @@ namespace Engine.Interface
             if (CommandComplete) s += " Complete";
             s += "\r\n";
 
-            foreach (MapGameCommandItem mapGameCommandItem in GameCommandItems)
-            {
-                s += mapGameCommandItem.ToString();
-                s += "\r\n";
-            }
+            s += "BlueprintName: " + BlueprintName + " Pos: " + TargetPosition.ToString() + " Dir: " + Direction.ToString();
+
             return s;
         }
     }
@@ -85,7 +124,7 @@ namespace Engine.Interface
         }
 
     }
-
+    /*
     public class MapGameCommandItem
     {
         internal MapGameCommandItem(MapGameCommand gamecommand)
@@ -127,7 +166,7 @@ namespace Engine.Interface
         {
             return "BlueprintName: " + BlueprintName + " Pos: " + Position3.ToString() + " Dir: " + Direction.ToString();
         }
-    }
+    }*/
 
     public class MapPheromoneItem
     {

@@ -29,13 +29,9 @@ namespace Engine.Ants
             {
                 if (existingGameCommand.GameCommandType == GameCommandType.ItemRequest)
                 {
-                    foreach (GameCommandItem existingCommandItem in existingGameCommand.GameCommandItems)
+                    if (existingGameCommand.TargetUnit.UnitId == Ant.Unit.UnitId)
                     {
-                        if (existingCommandItem.TargetUnit.UnitId == Ant.Unit.UnitId)
-                        {
-                            runningGameCommand = existingGameCommand;
-                            break;
-                        }
+                        runningGameCommand = existingGameCommand;
                     }
                 }
                 if (runningGameCommand != null)
@@ -81,9 +77,8 @@ namespace Engine.Ants
                 blueprintCommandItem.BlueprintName = Ant.Unit.Blueprint.Name;
                 blueprintCommandItem.Direction = Direction.C;
 
-                GameCommandItem gameCommandItem = new GameCommandItem(gameCommand, blueprintCommandItem);
-                gameCommandItem.TargetUnit.SetUnitId(Ant.Unit.UnitId);
-                gameCommandItem.TargetUnit.SetStatus("WaitingForDelivery");
+                gameCommand.TargetUnit.SetUnitId(Ant.Unit.UnitId);
+                gameCommand.TargetUnit.SetStatus("WaitingForDelivery");
 
                 /*
                 gameCommand.RequestedItems = new List<RecipeIngredient>();
@@ -95,7 +90,6 @@ namespace Engine.Ants
                 // Request would block factory commands.
                 //Ant.Unit.SetGameCommand(gameCommandItem);
 
-                gameCommand.GameCommandItems.Add(gameCommandItem);
                 player.GameCommands.Add(gameCommand);
             }
             /*

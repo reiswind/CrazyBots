@@ -39,12 +39,12 @@ namespace Engine.Master
         public Dictionary<Position2, TileWithDistance> CollectExtractableTiles()
         {
             Dictionary<Position2, TileWithDistance> includePositions = null;
-            if (Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
+            if (Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.GameCommandType == GameCommandType.Collect)
             {
                 // Only for units who collect in the area, not for factory units
                 if (Unit.CurrentGameCommand.AttachedUnit.UnitId == Unit.UnitId)
                 {
-                    includePositions = Unit.CurrentGameCommand.GameCommand.IncludedPositions;
+                    includePositions = Unit.CurrentGameCommand.IncludedPositions;
                 }
             }
 
@@ -174,7 +174,7 @@ namespace Engine.Master
                         }
 
                         if (Unit.CurrentGameCommand != null &&
-                            Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest &&
+                            Unit.CurrentGameCommand.GameCommandType == GameCommandType.ItemRequest &&
                             Unit.CurrentGameCommand.AttachedUnit.UnitId != null)
                         {
                             // Do not pickup stuff. Move to pickup location
@@ -229,7 +229,7 @@ namespace Engine.Master
                             if (Unit.Engine == null)
                             {
                                 bool added = false;
-                                if (Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                                if (Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.GameCommandType == GameCommandType.ItemRequest)
                                 {
                                     if (Unit.UnitId == Unit.CurrentGameCommand.TargetUnit.UnitId &&
                                         Unit.CurrentGameCommand.TransportUnit.UnitId == t.Unit.UnitId)
@@ -239,7 +239,7 @@ namespace Engine.Master
                                         if (move == null)
                                         {
                                             // Cannot extract what has been delivered
-                                            Unit.CurrentGameCommand.GameCommand.CommandCanceled = true;
+                                            Unit.CurrentGameCommand.CommandCanceled = true;
                                             //Unit.ResetGameCommand();
                                         }
                                         else
@@ -252,7 +252,7 @@ namespace Engine.Master
                                 if (!added)
                                 {
                                     if (t.Unit.CurrentGameCommand != null && 
-                                        t.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest &&
+                                        t.Unit.CurrentGameCommand.GameCommandType == GameCommandType.ItemRequest &&
                                         t.Unit.CurrentGameCommand.TargetUnit.UnitId != Unit.UnitId)
                                     {
                                         // Container should not extract from a worker that is used to deliver items.
@@ -334,12 +334,12 @@ namespace Engine.Master
                                 {
                                     int x = 0;
                                 }
-                                if (Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                                if (Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.GameCommandType == GameCommandType.ItemRequest)
                                 {
                                     if (Unit.UnitId == Unit.CurrentGameCommand.TransportUnit.UnitId)
                                     {
                                         if (t.Unit.CurrentGameCommand != null &&
-                                            t.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest &&
+                                            t.Unit.CurrentGameCommand.GameCommandType == GameCommandType.ItemRequest &&
                                             t.Unit.UnitId == Unit.CurrentGameCommand.TargetUnit.UnitId)
                                         {
                                             // Deliver
@@ -360,7 +360,7 @@ namespace Engine.Master
 
                                             // Extract only if the other unit does not have a task (Or the task is to collect)
                                             if (t.Unit.CurrentGameCommand == null ||
-                                                t.Unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.Collect)
+                                                t.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Collect)
                                             {
                                                 Unit targetUnit = Unit.Game.Map.Units.FindUnit(Unit.CurrentGameCommand.TargetUnit.UnitId);
                                                 if (targetUnit != null)
@@ -636,13 +636,13 @@ namespace Engine.Master
                     if (unit.CurrentGameCommand != null)
                     {
                         
-                        if (unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                        if (unit.CurrentGameCommand.GameCommandType == GameCommandType.ItemRequest)
                         {
                             if (unit.CurrentGameCommand.TargetUnit.UnitId == unit.UnitId &&
                                 unit.CurrentGameCommand.TransportUnit.UnitId == otherUnit.UnitId)
                             {
                                 //extractAnything = false;
-                                unit.CurrentGameCommand.GameCommand.CommandComplete = true;
+                                unit.CurrentGameCommand.CommandComplete = true;
 
                                 // unit is the recipient. otherunit is transporter
                                 /*
@@ -950,7 +950,7 @@ namespace Engine.Master
             {
                 if (unitItemOrder.TileObjectState == TileObjectState.None)
                 {
-                    if (unit.CurrentGameCommand != null && unit.CurrentGameCommand.GameCommand.GameCommandType == GameCommandType.ItemRequest)
+                    if (unit.CurrentGameCommand != null && unit.CurrentGameCommand.GameCommandType == GameCommandType.ItemRequest)
                     {
                         capacity = PullFromOtherContainer(unit, otherUnit, changedUnits, extractedItems, unitItemOrder, capacity);
                     }

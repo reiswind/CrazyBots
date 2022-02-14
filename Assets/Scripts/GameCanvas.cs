@@ -694,6 +694,7 @@ namespace Assets.Scripts
                         gameCommand.PlayerId = selectedUnitFrame.PlayerId;
                         gameCommand.GameCommandType = GameCommandType.ItemOrder;
                         gameCommand.UnitId = selectedUnitFrame.UnitId;
+                        gameCommand.ClientId = CommandPreview.GetNextClientCommandId();
                         gameCommand.MoveUnitItemOrders = new List<MoveUnitItemOrder>();
 
                         MoveUnitItemOrder moveUnitItemOrder = new MoveUnitItemOrder();
@@ -1186,6 +1187,7 @@ namespace Assets.Scripts
                 if (Input.GetKey(KeyCode.LeftShift))
                 {
                     // Repeat command
+                    /*
                     selectedCommandPreview.SetSelected(false);
                     selectedCommandPreview.SetActive(false);
 
@@ -1199,6 +1201,7 @@ namespace Assets.Scripts
                         selectedCommandPreview.CreateCommandForBuild(blueprintCommandCopy, unitId);
                     else
                         selectedCommandPreview.CreateCommand(selectedUnitFrame, gameCommandType);
+                    */
                 }
                 else
                 {
@@ -1488,22 +1491,19 @@ namespace Assets.Scripts
                     sb.Append("GameCommandType: ");
                     sb.AppendLine(selectedCommandPreview.GameCommand.GameCommandType.ToString());
 
-                    if (selectedCommandPreview.Blueprint != null)
+                    if (selectedCommandPreview.GameCommand.BlueprintName != null)
                     {
                         sb.Append("Blueprint: ");
-                        sb.AppendLine(selectedCommandPreview.Blueprint.Name);
+                        sb.AppendLine(selectedCommandPreview.GameCommand.BlueprintName);
                     }
                     sb.Append("DisplayPosition: ");
                     sb.AppendLine(selectedCommandPreview.DisplayPosition.ToString());
 
-                    foreach (MapGameCommandItem gameCommandItem in selectedCommandPreview.GameCommand.GameCommandItems)
-                    {
-                        sb.AppendLine("AttachedUnit" + gameCommandItem.AttachedUnit.ToString());
-                        sb.AppendLine("FactoryUnit" + gameCommandItem.FactoryUnit.ToString());
-                        sb.AppendLine("TransportUnit" + gameCommandItem.TransportUnit.ToString());
-                        sb.AppendLine("TargetUnit" + gameCommandItem.TargetUnit.ToString());
-                        sb.AppendLine(gameCommandItem.ToString());
-                    }
+                    sb.AppendLine("AttachedUnit" + selectedCommandPreview.GameCommand.AttachedUnit.ToString());
+                    sb.AppendLine("FactoryUnit" + selectedCommandPreview.GameCommand.FactoryUnit.ToString());
+                    sb.AppendLine("TransportUnit" + selectedCommandPreview.GameCommand.TransportUnit.ToString());
+                    sb.AppendLine("TargetUnit" + selectedCommandPreview.GameCommand.TargetUnit.ToString());
+                    sb.AppendLine(selectedCommandPreview.GameCommand.ToString());
 
                     Debug.Log(sb.ToString());
 
@@ -1693,13 +1693,10 @@ namespace Assets.Scripts
             headerText.text = gameCommand.GameCommandType.ToString() + " Pl: " + gameCommand.PlayerId;
             //headerSubText.text = "Radius " + gameCommand.Radius.ToString() + " sel: " + commandPreview.IsSelected.ToString();
 
-            foreach (MapGameCommandItem gameCommandItem in gameCommand.GameCommandItems)
-            {
-                headerSubText.text = gameCommandItem.AttachedUnit.Status;
-                if (gameCommandItem.AttachedUnit.Alert)
-                    headerSubText.text += " ALERT";
-                break;
-            }
+            headerSubText.text = gameCommand.AttachedUnit.Status;
+            if (gameCommand.AttachedUnit.Alert)
+                headerSubText.text += " ALERT";
+
 
             if (commandPreview.GameCommand.GameCommandType == GameCommandType.Collect &&
                 commandPreview.CollectBounds != null)

@@ -97,7 +97,7 @@ namespace Engine.Master
     }
 
 
-
+    /*
     internal class GameCommandItem
     {
         internal GameCommandItem(GameCommand gamecommand)
@@ -147,37 +147,47 @@ namespace Engine.Master
             return GameCommand.ToString();
         }
     }
-
+    */
     internal class GameCommand
     {
         private static int staticCommandId;
 
         public GameCommand()
         {
+            AttachedUnit = new GameCommandItemUnit();
+            FactoryUnit = new GameCommandItemUnit();
+            TargetUnit = new GameCommandItemUnit();
+            TransportUnit = new GameCommandItemUnit();
+
             CommandId = ++staticCommandId;
             if (CommandId == 9)
             {
                 int x=0;
             }
-            GameCommandItems = new List<GameCommandItem>();
             Priority = 1;
         }
         public GameCommand(BlueprintCommand blueprintCommand)
         {
+            AttachedUnit = new GameCommandItemUnit();
+            FactoryUnit = new GameCommandItemUnit();
+            TargetUnit = new GameCommandItemUnit();
+            TransportUnit = new GameCommandItemUnit();
+
             CommandId = ++staticCommandId;
             Layout = blueprintCommand.Layout;
             BlueprintName = blueprintCommand.Name;
-            GameCommandItems = new List<GameCommandItem>();
+
             GameCommandType = blueprintCommand.GameCommandType;
             foreach (BlueprintCommandItem blueprintCommandItem in blueprintCommand.Units)
             {
-                GameCommandItem gameCommandItem = new GameCommandItem(this, blueprintCommandItem);
-                GameCommandItems.Add(gameCommandItem);
+                //GameCommandItem gameCommandItem = new GameCommandItem(this, blueprintCommandItem);
+                //GameCommandItems.Add(gameCommandItem);
             }
             Priority = 1;
         }
 
         public int CommandId { get; set; }
+        public int ClientId { get; set; }
         public int Priority { get; set; }
 
         public string Layout { get; set; }
@@ -192,11 +202,22 @@ namespace Engine.Master
         public int Radius { get; set; }
         public Direction Direction { get; set; }
         public Position2 TargetPosition { get; set; }
+
+        public GameCommand NextGameCommand { get; set; }
         
         public GameCommandType GameCommandType { get; set; }
-        public List<GameCommandItem> GameCommandItems { get; private set; }
-        //public List<RecipeIngredient> RequestedItems { get; set; }
         internal Dictionary<Position2, TileWithDistance> IncludedPositions { get; set; }
+
+        internal GameCommandItemUnit AttachedUnit { get; private set; }
+        internal GameCommandItemUnit TransportUnit { get; private set; }
+        internal GameCommandItemUnit TargetUnit { get; private set; }
+        internal GameCommandItemUnit FactoryUnit { get; private set; }
+
+        public bool AssemblerToBuild { get; set; }
+        public bool DeleteWhenDestroyed { get; set; }
+        public bool FollowPheromones { get; set; }
+        public bool BuildPositionReached { get; set; }
+        public bool DeliverContent { get; set; } // Items have been picked up, deliver the content
 
         public string UnitId { get; set; }
         public List<UnitItemOrder> UnitItemOrders { get; set; }
@@ -207,14 +228,12 @@ namespace Engine.Master
             if (CommandCanceled) s += " Canceled";
             if (CommandComplete) s += " Complete";
 
-            foreach (GameCommandItem blueprintCommandItem in GameCommandItems)
-            {
-                s += blueprintCommandItem.BlueprintName;
-                s += " ";
-                if (blueprintCommandItem.FactoryUnit.UnitId != null)
-                    s += " Factory" + blueprintCommandItem.FactoryUnit.UnitId;
-                s += "\r\n";
-            }
+            s += BlueprintName;
+            s += " ";
+            if (FactoryUnit.UnitId != null)
+                s += " Factory" + FactoryUnit.UnitId;
+            s += "\r\n";
+
             return s;
         }
     }
