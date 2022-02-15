@@ -1161,7 +1161,10 @@ namespace Engine.Ants
                                 return true;
                             }
                             // Command complete, change command type to attack
-                            cntrlUnit.CurrentGameCommand.GameCommandType = GameCommandType.Attack;
+                            if (cntrlUnit.CurrentGameCommand.FollowUpUnitCommand == FollowUpUnitCommand.Attack)
+                                cntrlUnit.CurrentGameCommand.GameCommandType = GameCommandType.Attack;
+                            else if (cntrlUnit.CurrentGameCommand.FollowUpUnitCommand == FollowUpUnitCommand.HoldPosition)
+                                cntrlUnit.CurrentGameCommand.GameCommandType = GameCommandType.Attack;
                             return true;
                         }
                         calcPathToPosition = targetUnitPosition;

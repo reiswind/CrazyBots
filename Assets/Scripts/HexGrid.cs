@@ -1378,17 +1378,13 @@ namespace Assets.Scripts
                 CommandPreview commandPreview;
                 if (!CommandPreviews.TryGetValue(gameCommand.CommandId, out commandPreview))
                 {
-                   int  x=0;
-                }
-
-                if (commandPreview == null)
-                {
                     // New (form other player)
                     commandPreview = new CommandPreview();
 
                     commandPreview.CreateCommandPreview(gameCommand);
                     commandPreview.IsPreview = false;
                     commandPreview.SetActive(false);
+
                     if (gameCommand.TargetPosition != Position2.Null)
                         commandPreview.UpdatePositions(GroundCells[gameCommand.TargetPosition]);
 
@@ -1404,6 +1400,31 @@ namespace Assets.Scripts
                 }
             }
         }
+
+        public void AddCommand(CommandPreview commandPreview)
+        {
+            // Remove the command after the structure is complete
+            //if (GameCommand.GameCommandType == GameCommandType.Build)
+            //    GameCommand.DeleteWhenFinished = true;
+
+            List<CommandPreview> dup = new List<CommandPreview>();
+            foreach (CommandPreview existCommandPreview in HexGrid.MainGrid.CreatedCommandPreviews)
+            {
+                if (existCommandPreview.GameCommand.UnitId == commandPreview.GameCommand.UnitId)
+                {
+                    dup.Add(commandPreview);
+                }
+            }
+            foreach (CommandPreview dupCommandPreview in dup)
+            {
+                HexGrid.MainGrid.CreatedCommandPreviews.Remove(dupCommandPreview);
+                commandPreview.Delete();
+            }
+
+            HexGrid.MainGrid.GameCommands.Add(commandPreview.GameCommand);
+            HexGrid.MainGrid.CreatedCommandPreviews.Add(commandPreview);
+        }
+
         public void HitMove(Move move)
         {
             Position2 fireingPostion = move.Positions[0];

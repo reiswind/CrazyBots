@@ -206,6 +206,7 @@ namespace Engine.Master
         public GameCommand NextGameCommand { get; set; }
         
         public GameCommandType GameCommandType { get; set; }
+        public FollowUpUnitCommand FollowUpUnitCommand { get; set; }
         internal Dictionary<Position2, TileWithDistance> IncludedPositions { get; set; }
 
         internal GameCommandItemUnit AttachedUnit { get; private set; }

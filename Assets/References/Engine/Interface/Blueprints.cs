@@ -182,7 +182,8 @@ namespace Engine.Interface
 
             blueprintCommand.Name = "Fighter";
             blueprintCommand.Layout = "UINone";
-            blueprintCommand.GameCommandType = GameCommandType.AttackMove;
+            blueprintCommand.GameCommandType = GameCommandType.Build;
+            blueprintCommand.FollowUpUnitCommand = FollowUpUnitCommand.Attack;
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Fighter";
@@ -197,7 +198,8 @@ namespace Engine.Interface
 
             blueprintCommand.Name = "Bomber";
             blueprintCommand.Layout = "UINone";
-            blueprintCommand.GameCommandType = GameCommandType.AttackMove;
+            blueprintCommand.GameCommandType = GameCommandType.Build;
+            blueprintCommand.FollowUpUnitCommand = FollowUpUnitCommand.Attack;
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Bomber";
@@ -211,7 +213,8 @@ namespace Engine.Interface
 
             blueprintCommand.Name = "Worker";
             blueprintCommand.Layout = "UINone";
-            blueprintCommand.GameCommandType = GameCommandType.AttackMove;
+            blueprintCommand.GameCommandType = GameCommandType.Build;
+            blueprintCommand.FollowUpUnitCommand = FollowUpUnitCommand.HoldPosition;
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Worker";
@@ -224,7 +227,8 @@ namespace Engine.Interface
 
             blueprintCommand.Name = "Assembler";
             blueprintCommand.Layout = "UINone";
-            blueprintCommand.GameCommandType = GameCommandType.AttackMove;
+            blueprintCommand.GameCommandType = GameCommandType.Build;
+            blueprintCommand.FollowUpUnitCommand = FollowUpUnitCommand.HoldPosition;
 
             blueprintCommandItem = new BlueprintCommandItem();
             blueprintCommandItem.BlueprintName = "Assembler";
@@ -369,6 +373,7 @@ namespace Engine.Interface
         public string Layout { get; set; }
 
         public GameCommandType GameCommandType { get; set; }
+        public FollowUpUnitCommand FollowUpUnitCommand { get; set; }
 
         public List<BlueprintCommandItem> Units { get; private set; }
 

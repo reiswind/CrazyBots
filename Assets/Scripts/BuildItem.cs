@@ -23,7 +23,7 @@ public class BuildItem : MonoBehaviour
     }
     void OnClick()
     {
-        gameCanvas.ExecuteCommand(blueprintCommand);
+        gameCanvas.PreviewExecuteCommand(blueprintCommand);
     }
         
     private void Start()

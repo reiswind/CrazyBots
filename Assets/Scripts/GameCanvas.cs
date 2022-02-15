@@ -593,7 +593,7 @@ namespace Assets.Scripts
 
         private CommandPreview selectedCommandPreview;
 
-        internal void ExecuteCommand(BlueprintCommand blueprintCommand)
+        internal void PreviewExecuteCommand(BlueprintCommand blueprintCommand)
         {
             HideBuildMenu();
 
@@ -601,9 +601,22 @@ namespace Assets.Scripts
             selectedCommandPreview.CreateCommandForBuild(blueprintCommand, selectedUnitFrame?.UnitId);
             selectedCommandPreview.SetSelected(true);
             highlightedCommandPreview = selectedCommandPreview;
-            SetMode(CanvasMode.Preview);
-        }
 
+            SetMode(CanvasMode.Preview);
+            /*
+            if (blueprintCommand.GameCommandType == GameCommandType.Build)
+            {
+                MapGameCommand nextGameCommand = new MapGameCommand();
+                nextGameCommand.ClientId = CommandPreview.GetNextClientCommandId();
+                selectedCommandPreview.GameCommand.NextGameCommand = nextGameCommand;
+
+                CommandPreview attackmovePreview = new CommandPreview();                
+                attackmovePreview.CreateCommandPreview(nextGameCommand);
+                attackmovePreview.SetSelected(true);
+                selectedCommandPreview.NextCommandPreview = attackmovePreview;
+            }*/
+        }
+        /*
         void ExecuteCommand(int btn)
         {
             if (selectedBuildButton != btn)
@@ -664,6 +677,7 @@ namespace Assets.Scripts
                 
             }
         }
+        */
 
         void OnClickItem(CanvasItem canvasItem)
         {
@@ -722,8 +736,7 @@ namespace Assets.Scripts
                 {
                     foreach (BlueprintCommand blueprintCommand in HexGrid.MainGrid.game.Blueprints.Commands)
                     {
-                        if (blueprintCommand.GameCommandType == GameCommandType.Build ||
-                            blueprintCommand.GameCommandType == GameCommandType.AttackMove)
+                        if (blueprintCommand.GameCommandType == GameCommandType.Build)
                         {
                             commands.Add(blueprintCommand);
                         }
@@ -766,7 +779,7 @@ namespace Assets.Scripts
                 {
                     if (blueprintCommand.GameCommandType == GameCommandType.Collect)
                     {
-                        ExecuteCommand(blueprintCommand);
+                        PreviewExecuteCommand(blueprintCommand);
                         break;
                     }
                 }

@@ -2135,7 +2135,6 @@ namespace Engine.Master
                     {
                         gameCommand.NextGameCommand = currentGameCommand.NextGameCommand.Copy();
                         gameCommand = gameCommand.NextGameCommand;
-
                         currentGameCommand = currentGameCommand.NextGameCommand;
                     }
                     /*

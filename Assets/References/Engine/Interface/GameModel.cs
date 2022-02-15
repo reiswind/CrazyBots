@@ -9,6 +9,15 @@ using System.Threading.Tasks;
 
 namespace Engine.Interface
 {
+    public enum FollowUpUnitCommand
+    { 
+        None,
+        HoldPosition,
+        Attack,
+        Defend,
+        Scount,
+    }
+
     public enum GameCommandType
     {
         None,

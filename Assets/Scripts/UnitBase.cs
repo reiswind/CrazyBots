@@ -200,7 +200,7 @@ namespace Assets.Scripts
             if (unitBasePart != null)
             {
                 Position3 position3 = new Position3(CurrentPos);
-                if (HasEngine())
+                if (HasEngine() && Direction != Direction.C)
                 {
                     positions = new List<Position2>();
                     Position3 canFireAt = position3;

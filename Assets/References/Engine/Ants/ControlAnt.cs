@@ -1683,8 +1683,7 @@ namespace Engine.Ants
                                 gameCommand.AttachedUnit.SetUnitId(unit.UnitId);
                                 unit.SetGameCommand(gameCommand);
 
-                                if (gameCommand.GameCommandType == GameCommandType.AttackMove ||
-                                    gameCommand.GameCommandType == GameCommandType.Build)
+                                if (gameCommand.GameCommandType == GameCommandType.Build)
                                 {
                                     gameCommand.FactoryUnit.SetUnitId(gameCommand.UnitId);
                                     // Build this only once, Remove the factory id from the command. The command will remain.
@@ -2512,19 +2511,19 @@ namespace Engine.Ants
                                     }
                                     else if (ant.Unit.CurrentGameCommand.GameCommandType == GameCommandType.ItemRequest)
                                     {
-                                        // The transpor unit is the one, who delivers the content (Need resevation!)
+                                        // The transport unit is the one, who delivers the content (Need resevation!)
                                         ant.Unit.CurrentGameCommand.TransportUnit.SetStatus("PickUpFrom: " + ant.Unit.CurrentGameCommand.AttachedUnit.UnitId);
                                     }
                                     else if (ant.Unit.Blueprint.Name == "Assembler")
                                     {
-                                        ant.Unit.CurrentGameCommand.AttachedUnit.ClearUnitId(); // player.Game.Map.Units);
+                                        ant.Unit.CurrentGameCommand.AttachedUnit.ClearUnitId(); 
                                         ant.Unit.CurrentGameCommand.FactoryUnit.SetUnitId(ant.Unit.UnitId);
                                         ant.Unit.CurrentGameCommand.FactoryUnit.SetStatus("Assemble", false);
                                         ant.Unit.Changed = true;
                                     }
                                     else if (ant.Unit.Blueprint.Name == "Builder")
                                     {
-                                        ant.Unit.CurrentGameCommand.AttachedUnit.ClearUnitId(); // player.Game.Map.Units);
+                                        ant.Unit.CurrentGameCommand.AttachedUnit.ClearUnitId();
                                         ant.Unit.CurrentGameCommand.FactoryUnit.SetUnitId(ant.Unit.UnitId);
                                         ant.Unit.CurrentGameCommand.FactoryUnit.SetStatus("Assemble", false);
                                         ant.Unit.Changed = true;
@@ -2537,6 +2536,8 @@ namespace Engine.Ants
                                             GameCommand currentGameCommand = ant.Unit.CurrentGameCommand;
                                             GameCommand nextGameCommand = ant.Unit.CurrentGameCommand.NextGameCommand;
 
+                                            nextGameCommand.PlayerId = currentGameCommand.PlayerId;
+
                                             // Finish the current Command
                                             currentGameCommand.NextGameCommand = null;
                                             currentGameCommand.CommandComplete = true;
@@ -2546,12 +2547,19 @@ namespace Engine.Ants
                                             nextGameCommand.AttachedUnit.SetUnitId(ant.Unit.UnitId);
                                             ant.Unit.SetGameCommand(nextGameCommand);
                                         }
-                                        else if (ant.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build)
+                                        else //if (ant.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build)
                                         {
-                                            // Unit has been build. Eiher keep the command, so it is rebuild, oder remove the command.
-                                            // But the command cannot stay at the build units, since this blocks all further commands.
-                                            if (ant.Unit.CurrentGameCommand.DeleteWhenFinished)
+                                            if (ant.Unit.CurrentGameCommand.FollowUpUnitCommand == FollowUpUnitCommand.Attack ||
+                                                ant.Unit.CurrentGameCommand.FollowUpUnitCommand == FollowUpUnitCommand.HoldPosition)
                                             {
+                                                ant.Unit.CurrentGameCommand.GameCommandType = GameCommandType.AttackMove;
+                                                ant.Unit.CurrentGameCommand.AttachedUnit.SetStatus("AttackMoveToTarget");
+                                                ant.Unit.Changed = true;
+                                            }
+                                            else if (ant.Unit.CurrentGameCommand.DeleteWhenFinished)
+                                            {
+                                                // Unit has been build. Eiher keep the command, so it is rebuild, oder remove the command.
+                                                // But the command cannot stay at the build units, since this blocks all further commands.
                                                 ant.Unit.CurrentGameCommand.CommandComplete = true;
                                                 ant.Unit.CurrentGameCommand.AttachedUnit.SetStatus("CommandComplete");
                                                 ant.Unit.Changed = true;

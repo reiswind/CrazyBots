@@ -68,12 +68,16 @@ namespace Engine.Interface
 
         public GameCommandType GameCommandType { get; set; }
 
+        public FollowUpUnitCommand FollowUpUnitCommand { get; set; }
+
         internal GameCommand Copy()
         {
             GameCommand gameCommand = new GameCommand();
-            gameCommand.CommandId = CommandId;
+            if (CommandId != 0)
+                gameCommand.CommandId = CommandId;
             gameCommand.ClientId = ClientId;
             gameCommand.DeleteWhenFinished = DeleteWhenFinished;
+            gameCommand.FollowUpUnitCommand = FollowUpUnitCommand;
             gameCommand.CommandCanceled = CommandCanceled;
             gameCommand.CommandComplete = CommandComplete;
             gameCommand.GameCommandType = GameCommandType;
