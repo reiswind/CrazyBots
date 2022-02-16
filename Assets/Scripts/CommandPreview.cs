@@ -494,6 +494,7 @@ namespace Assets.Scripts
                     GameCommand.NextGameCommand.Radius = displayRadius;
                 }
                 HexGrid.MainGrid.AddCommand(this);
+                IsPreview = false;
             }
         }
         /*
@@ -980,21 +981,21 @@ namespace Assets.Scripts
                     Command.UpdateDirection(neighbor.transform.position);
                 }
             }
-
             Position3 relativePosition3 = centerPosition3.Add(AttachedUnit.RotatedPosition3);
-
-            AttachedUnit.GhostUnit.CurrentPos = relativePosition3.Pos;
-            AttachedUnit.GhostUnit.TeleportToPosition(true);
-            AttachedUnit.IsVisible = true;
-
-            AttachedUnit.GhostUnit.IsVisible = true;
+            if (AttachedUnit.GhostUnit != null)
+            {
+                AttachedUnit.GhostUnit.CurrentPos = relativePosition3.Pos;
+                AttachedUnit.GhostUnit.TeleportToPosition(true);
+                AttachedUnit.IsVisible = true;
+                AttachedUnit.GhostUnit.IsVisible = true;
+            }
             if (AttachedUnit.GhostUnitBounds != null)
             {
                 AttachedUnit.GhostUnitBounds.IsVisible = true;
                 AttachedUnit.GhostUnitBounds.Update();
             }
 
-            if (displayDirection != Direction.C)
+            if (displayDirection != Direction.C && AttachedUnit.GhostUnit != null)
             {
                 neighborPosition3 = relativePosition3.GetNeighbor(displayDirection);
 
@@ -1004,7 +1005,6 @@ namespace Assets.Scripts
                     AttachedUnit.GhostUnit.UpdateDirection(neighbor.transform.position, true);
                 }
             }
-
         }
 
         public void ShowAlert(bool showAlert)

@@ -128,11 +128,6 @@ namespace Engine.Ants
                 }
             }
 
-            if (Ant.Unit.Engine != null)
-            {
-                int here = 0;
-            }
-
             // Need something to assemble
             GameCommand gameCommand = new GameCommand();
             gameCommand.GameCommandType = GameCommandType.ItemRequest;
@@ -140,12 +135,6 @@ namespace Engine.Ants
             gameCommand.TargetPosition = Ant.Unit.Pos;
             gameCommand.DeleteWhenFinished = true;
             gameCommand.PlayerId = player.PlayerModel.Id;
-
-            BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
-            blueprintCommandItem.BlueprintName = Ant.Unit.Blueprint.Name;
-            blueprintCommandItem.Direction = Direction.C;
-
-
             gameCommand.TargetUnit.SetUnitId(Ant.Unit.UnitId);
             gameCommand.TargetUnit.SetStatus("WaitingForDelivery");
 
@@ -340,6 +329,8 @@ namespace Engine.Ants
                                 blueprintCommand.GameCommandType = GameCommandType.Build;
                                 blueprintCommand.Name = "BuildUnitForAssemble";
 
+                                BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem(blueprintCommand);
+
                                 bool assembler;
                                 bool engine;
                                 bool container;
@@ -374,7 +365,6 @@ namespace Engine.Ants
                                     {
                                         if (assembler && engine && reactor) // Select the builder
                                         {
-                                            BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
                                             blueprintCommandItem.BlueprintName = blueprint.Name;
                                             blueprintCommand.Units.Add(blueprintCommandItem);
                                             break;
@@ -384,7 +374,6 @@ namespace Engine.Ants
                                     {
                                         if (container && engine)
                                         {
-                                            BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
                                             blueprintCommandItem.BlueprintName = blueprint.Name;
                                             blueprintCommand.Units.Add(blueprintCommandItem);
                                             break;
@@ -392,7 +381,7 @@ namespace Engine.Ants
                                     }
                                 }
 
-                                GameCommand newCommand = new GameCommand(blueprintCommand);
+                                GameCommand newCommand = new GameCommand(blueprintCommandItem);
 
                                 newCommand.GameCommandType = GameCommandType.Build;
                                 newCommand.TargetPosition = selectedGameCommand.TargetPosition;

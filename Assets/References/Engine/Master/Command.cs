@@ -166,7 +166,7 @@ namespace Engine.Master
             }
             Priority = 1;
         }
-        public GameCommand(BlueprintCommand blueprintCommand)
+        public GameCommand(BlueprintCommandItem blueprintCommandItem)
         {
             AttachedUnit = new GameCommandItemUnit();
             FactoryUnit = new GameCommandItemUnit();
@@ -174,15 +174,11 @@ namespace Engine.Master
             TransportUnit = new GameCommandItemUnit();
 
             CommandId = ++staticCommandId;
-            Layout = blueprintCommand.Layout;
-            BlueprintName = blueprintCommand.Name;
+            Layout = blueprintCommandItem.BlueprintCommand.Layout;
+            BlueprintName = blueprintCommandItem.BlueprintName;
 
-            GameCommandType = blueprintCommand.GameCommandType;
-            foreach (BlueprintCommandItem blueprintCommandItem in blueprintCommand.Units)
-            {
-                //GameCommandItem gameCommandItem = new GameCommandItem(this, blueprintCommandItem);
-                //GameCommandItems.Add(gameCommandItem);
-            }
+            GameCommandType = blueprintCommandItem.BlueprintCommand.GameCommandType;
+            
             Priority = 1;
         }
 

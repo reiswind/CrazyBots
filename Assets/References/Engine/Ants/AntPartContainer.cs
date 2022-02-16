@@ -72,11 +72,6 @@ namespace Engine.Ants
                 gameCommand.TargetPosition = Ant.Unit.Pos;
                 gameCommand.DeleteWhenFinished = true;
                 gameCommand.PlayerId = player.PlayerModel.Id;
-
-                BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
-                blueprintCommandItem.BlueprintName = Ant.Unit.Blueprint.Name;
-                blueprintCommandItem.Direction = Direction.C;
-
                 gameCommand.TargetUnit.SetUnitId(Ant.Unit.UnitId);
                 gameCommand.TargetUnit.SetStatus("WaitingForDelivery");
 

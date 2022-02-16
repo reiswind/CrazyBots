@@ -73,7 +73,9 @@ namespace Engine.Interface
         {
             foreach (GameCommand command in GameCommands)
             {
-                if (command.UnitId == gameCommand.UnitId)
+                if (command.UnitId != null &&
+                    gameCommand.UnitId != null &&
+                    command.UnitId == gameCommand.UnitId)
                 {
                     // Revoke duplicate orders.
                     command.CommandCanceled = true;

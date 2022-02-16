@@ -96,7 +96,7 @@ namespace Engine.Ants
                 {
                     if (blueprintCommand.Name == "Fighter")
                     {
-                        patrolCommand = new GameCommand(blueprintCommand);
+                        patrolCommand = new GameCommand(blueprintCommand.Units[0]);
                         patrolCommand.Priority = 0;
                         patrolCommand.DeleteWhenDestroyed = true;
                         patrolCommand.FollowPheromones = true;
@@ -382,7 +382,7 @@ namespace Engine.Ants
                 {
                     if (blueprintCommand.GameCommandType == GameCommandType.AttackMove)
                     {
-                        GameCommand gameCommand = new GameCommand(blueprintCommand);
+                        GameCommand gameCommand = new GameCommand(blueprintCommand.Units[0]);
 
                         gameCommand.GameCommandType = blueprintCommand.GameCommandType;
                         gameCommand.TargetPosition = pos;
@@ -428,7 +428,7 @@ namespace Engine.Ants
                 {
                     if (blueprintCommand.GameCommandType == GameCommandType.Collect)
                     {
-                        GameCommand gameCommand = new GameCommand(blueprintCommand);
+                        GameCommand gameCommand = new GameCommand(blueprintCommand.Units[0]);
 
                         gameCommand.GameCommandType = GameCommandType.Collect;
                         gameCommand.Radius = 4;
@@ -662,7 +662,7 @@ namespace Engine.Ants
                 {
                     if (chanceoutpost < 4 && blueprintCommand.Name == "Outpost")
                     {
-                        GameCommand gameCommand = new GameCommand(blueprintCommand);
+                        GameCommand gameCommand = new GameCommand(blueprintCommand.Units[0]);
 
                         // Simple the first one BUILD-STEP1 (KI: Select fixed blueprint)
                         gameCommand.GameCommandType = GameCommandType.Build;
@@ -677,7 +677,7 @@ namespace Engine.Ants
                     }
                     else if (blueprintCommand.Name == "Container")
                     {
-                        GameCommand gameCommand = new GameCommand(blueprintCommand);
+                        GameCommand gameCommand = new GameCommand(blueprintCommand.Units[0]);
 
                         // Simple the first one BUILD-STEP1 (KI: Select fixed blueprint)
                         gameCommand.GameCommandType = GameCommandType.Build;
@@ -1935,6 +1935,12 @@ namespace Engine.Ants
                                     // Unit is already creating something
                                     continue;
                                 }
+
+                                if (!ant.Unit.Assembler.CanProduce())
+                                {
+                                    continue;
+                                }
+
                                 if (ant.Unit.Pos == gameCommand.TargetPosition)
                                 {
                                     bestAnt = ant;

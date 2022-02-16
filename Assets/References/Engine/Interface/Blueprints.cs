@@ -153,29 +153,13 @@ namespace Engine.Interface
             blueprintCommand.Layout = "UICollect";
             blueprintCommand.GameCommandType = GameCommandType.Collect;
 
-            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem = new BlueprintCommandItem(blueprintCommand);
             blueprintCommandItem.BlueprintName = "Worker";
             blueprintCommandItem.Position3 = new Position3();
             blueprintCommand.Units.Add(blueprintCommandItem);
 
             Commands.Add(blueprintCommand);
 
-
-            // Attack
-            /*
-            blueprintCommand = new BlueprintCommand();
-
-            blueprintCommand.Name = "Bomber";
-            blueprintCommand.Layout = "UINone";
-            blueprintCommand.GameCommandType = GameCommandType.Attack;
-
-            blueprintCommandItem = new BlueprintCommandItem();
-            blueprintCommandItem.BlueprintName = "Bomber";
-            blueprintCommandItem.Position3 = new Position3();
-            blueprintCommand.Units.Add(blueprintCommandItem);
-
-            Commands.Add(blueprintCommand);
-            */
 
             // Fighter
             blueprintCommand = new BlueprintCommand();
@@ -185,7 +169,7 @@ namespace Engine.Interface
             blueprintCommand.GameCommandType = GameCommandType.Build;
             blueprintCommand.FollowUpUnitCommand = FollowUpUnitCommand.Attack;
 
-            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem = new BlueprintCommandItem(blueprintCommand);
             blueprintCommandItem.BlueprintName = "Fighter";
             blueprintCommandItem.Position3 = new Position3();
             blueprintCommand.Units.Add(blueprintCommandItem);
@@ -201,7 +185,7 @@ namespace Engine.Interface
             blueprintCommand.GameCommandType = GameCommandType.Build;
             blueprintCommand.FollowUpUnitCommand = FollowUpUnitCommand.Attack;
 
-            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem = new BlueprintCommandItem(blueprintCommand);
             blueprintCommandItem.BlueprintName = "Bomber";
             blueprintCommandItem.Position3 = new Position3();
             blueprintCommand.Units.Add(blueprintCommandItem);
@@ -216,7 +200,7 @@ namespace Engine.Interface
             blueprintCommand.GameCommandType = GameCommandType.Build;
             blueprintCommand.FollowUpUnitCommand = FollowUpUnitCommand.HoldPosition;
 
-            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem = new BlueprintCommandItem(blueprintCommand);
             blueprintCommandItem.BlueprintName = "Worker";
             blueprintCommand.Units.Add(blueprintCommandItem);
 
@@ -230,7 +214,7 @@ namespace Engine.Interface
             blueprintCommand.GameCommandType = GameCommandType.Build;
             blueprintCommand.FollowUpUnitCommand = FollowUpUnitCommand.HoldPosition;
 
-            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem = new BlueprintCommandItem(blueprintCommand);
             blueprintCommandItem.BlueprintName = "Assembler";
             blueprintCommand.Units.Add(blueprintCommandItem);
 
@@ -245,7 +229,7 @@ namespace Engine.Interface
             blueprintCommand.Layout = "UIBuild";
             blueprintCommand.GameCommandType = GameCommandType.Build;
 
-            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem = new BlueprintCommandItem(blueprintCommand);
             blueprintCommandItem.BlueprintName = "Outpost";
             blueprintCommand.Units.Add(blueprintCommandItem);
 
@@ -258,7 +242,7 @@ namespace Engine.Interface
             blueprintCommand.Layout = "UIBuild";
             blueprintCommand.GameCommandType = GameCommandType.Build;
 
-            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem = new BlueprintCommandItem(blueprintCommand);
             blueprintCommandItem.BlueprintName = "Container";
             blueprintCommand.Units.Add(blueprintCommandItem);
 
@@ -271,7 +255,7 @@ namespace Engine.Interface
             blueprintCommand.Layout = "UIBuild";
             blueprintCommand.GameCommandType = GameCommandType.Build;
 
-            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem = new BlueprintCommandItem(blueprintCommand);
             blueprintCommandItem.BlueprintName = "Turret";
             blueprintCommand.Units.Add(blueprintCommandItem);
 
@@ -284,7 +268,7 @@ namespace Engine.Interface
             blueprintCommand.Layout = "UIBuild";
             blueprintCommand.GameCommandType = GameCommandType.Build;
 
-            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem = new BlueprintCommandItem(blueprintCommand);
             blueprintCommandItem.BlueprintName = "Reactor";
             blueprintCommand.Units.Add(blueprintCommandItem);
 
@@ -298,7 +282,7 @@ namespace Engine.Interface
             blueprintCommand.Layout = "UIBuild";
             blueprintCommand.GameCommandType = GameCommandType.Build;
 
-            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem = new BlueprintCommandItem(blueprintCommand);
             blueprintCommandItem.BlueprintName = "Factory";
             blueprintCommand.Units.Add(blueprintCommandItem);
 
@@ -311,7 +295,7 @@ namespace Engine.Interface
             blueprintCommand.Layout = "UIBuild";
             blueprintCommand.GameCommandType = GameCommandType.Build;
 
-            blueprintCommandItem = new BlueprintCommandItem();
+            blueprintCommandItem = new BlueprintCommandItem(blueprintCommand);
             blueprintCommandItem.BlueprintName = "Radar";
             blueprintCommand.Units.Add(blueprintCommandItem);
 
@@ -425,6 +409,11 @@ namespace Engine.Interface
 
     public class BlueprintCommandItem
     {
+        public BlueprintCommandItem(BlueprintCommand blueprintCommand)
+        {
+            BlueprintCommand = blueprintCommand;
+        }
+        public BlueprintCommand BlueprintCommand { get; private set; }
         public Position3 Position3 { get; set; }
         public Direction Direction { get; set; }
         public string BlueprintName { get; set; }

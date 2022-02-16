@@ -375,12 +375,6 @@ namespace Engine.Master
             gameCommand.TargetPosition = Pos;
             gameCommand.DeleteWhenFinished = true;
             gameCommand.PlayerId = Owner.PlayerModel.Id;
-
-            BlueprintCommandItem blueprintCommandItem = new BlueprintCommandItem();
-            blueprintCommandItem.BlueprintName = Blueprint.Name;
-            blueprintCommandItem.Direction = Direction.C;
-
-
             gameCommand.TargetUnit.SetUnitId(UnitId);
             gameCommand.TargetUnit.SetStatus(Blueprint.Name + " WaitingForDelivery");
             Changed = true;

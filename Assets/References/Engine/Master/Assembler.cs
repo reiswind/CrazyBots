@@ -18,10 +18,17 @@ namespace Engine.Master
         {
             if (Unit.Power == 0)
                 return false;
-            if (TileContainer != null && TileContainer.Minerals > 0)
+
+            MoveRecipeIngredient moveRecipeIngredient = Unit.FindIngredient(TileObjectType.Mineral, true, null);
+            if (moveRecipeIngredient != null)
+            {
+                return true;
+            }
+            /*
+                if (TileContainer != null && TileContainer.Minerals > 0)
                 return true;
             if (Unit.Container != null && Unit.Container.TileContainer.Minerals> 0)
-                return true;
+                return true;*/
             return false;
         }
 
