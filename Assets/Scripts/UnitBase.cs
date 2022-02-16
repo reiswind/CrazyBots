@@ -1695,10 +1695,6 @@ namespace Assets.Scripts
 
         public void UpdateParts()
         {
-            if (UnitId == "unit2")
-            {
-                int x = 0;
-            }
             if (MoveUpdateStats.UnitParts != null)
             {
                 foreach (MoveUpdateUnitPart moveUpdateUnitPart in MoveUpdateStats.UnitParts)
@@ -1751,10 +1747,7 @@ namespace Assets.Scripts
 
                                 unitBasePart.TileObjectContainer.UpdateContent(this, unitBasePart.Part, tileObjects);
 
-                                if (level == moveUpdateUnitPart.CompleteLevel && tileObjects.Count != 0)
-                                {
-                                    int x = 0;
-                                }
+
                             }
                         }
                         else

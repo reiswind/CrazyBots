@@ -159,18 +159,56 @@ namespace Engine.Ants
             {
                 if (Assembler.Unit.CurrentGameCommand != null)
                 {
-                    if (Assembler.Unit.CurrentGameCommand.FactoryUnit.UnitId == Ant.Unit.UnitId)
+                    if (Assembler.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build)
                     {
-                        Assembler.Unit.CurrentGameCommand.FactoryUnit.StuckCounter++;
-                        if (Assembler.Unit.CurrentGameCommand.FactoryUnit.StuckCounter > 20)
+                        if (Assembler.Unit.CurrentGameCommand.FactoryUnit.UnitId == Ant.Unit.UnitId)
+                        {
+                            if (player.PlayerModel.IsHuman)
+                            {
+                                // If not attacked to a specific unit, reset the command.
+                                if (Assembler.Unit.CurrentGameCommand.UnitId == null)
+                                {
+                                    if (Assembler.Unit.Blueprint.Name == "Builder")
+                                    {
+                                        // Keep the command. The Builder does not have indigrients.
+                                    }
+                                    else
+                                    {
+                                        Assembler.Unit.ResetGameCommand();
+                                    }
+                                }
+                                else
+                                {
+                                    Assembler.Unit.CurrentGameCommand.FactoryUnit.SetStatus("NoMinerals", true);
+                                    Assembler.Unit.Changed = true;
+                                }
+                            }
+                            else
+                            {
+                                Assembler.Unit.CurrentGameCommand.FactoryUnit.StuckCounter++;
+                                if (Assembler.Unit.CurrentGameCommand.FactoryUnit.StuckCounter > 2)
+                                {
+                                    Assembler.Unit.ResetGameCommand();
+                                }
+                            }
+                        }
+                        else if (Assembler.Unit.CurrentGameCommand.FactoryUnit.UnitId == null)
+                        {
+                            Assembler.Unit.ResetGameCommand();
+                        }
+                        else
                         {
                             Assembler.Unit.ResetGameCommand();
                         }
                     }
+                    else
+                    {
+                        // Moving assembler may have other tasks
+                    }
                 }
                 if (Assembler.Unit.CurrentGameCommand == null)
                 {
-                    // Delivery requst not by assembler!
+                    // Delivery request not by assembler!
                     //RequestIngredientsForUnit(player);
                 }
                 // Cannot build a unit, no mins
@@ -216,6 +254,12 @@ namespace Engine.Ants
                 }
                 else
                 {
+                    if (selectedGameCommand.GameCommandType == GameCommandType.AttackMove)
+                    {
+                        // The unit is a moving assembler
+                        return false;
+                    }
+
                     if (selectedGameCommand.GameCommandType == GameCommandType.Build &&
                         selectedGameCommand.AttachedUnit.UnitId != null)
                     {
@@ -476,6 +520,9 @@ namespace Engine.Ants
                         }
                         move.GameCommand = passGameCommandToNewUnit;                        
                         moves.Add(move);
+
+                        Assembler.Unit.CurrentGameCommand.FactoryUnit.SetStatus("Building");
+                        Assembler.Unit.Changed = true;
 
                         return true;
                     }

@@ -256,7 +256,6 @@ namespace Engine.Master
                                         t.Unit.CurrentGameCommand.TargetUnit.UnitId != Unit.UnitId)
                                     {
                                         // Container should not extract from a worker that is used to deliver items.
-                                        int x = 0;
                                     }
                                     else
                                     {
@@ -330,10 +329,6 @@ namespace Engine.Master
                                         }
                                     }
                                 }
-                                if (Unit.UnitId == "unit2")
-                                {
-                                    int x = 0;
-                                }
                                 if (Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.GameCommandType == GameCommandType.ItemRequest)
                                 {
                                     if (Unit.UnitId == Unit.CurrentGameCommand.TransportUnit.UnitId)
@@ -343,7 +338,7 @@ namespace Engine.Master
                                             t.Unit.UnitId == Unit.CurrentGameCommand.TargetUnit.UnitId)
                                         {
                                             // Deliver
-                                            int xx = 0;
+
                                             /*
                                             Move move = CreateExtractMove(t.Unit);
                                             if (move != null)
@@ -554,7 +549,6 @@ namespace Engine.Master
                             unitIndigrient.Source = unitIndigrient.TileObjectType;
 
                             // Add it to target
-                            bool isSpace = false;
                             if (Unit.IsSpaceForIngredient(unitIndigrient))
                             {                                
                                 Unit.AddIngredient(unitIndigrient);
@@ -941,11 +935,6 @@ namespace Engine.Master
 
         private int ExtractFromOtherContainer(Unit unit, Unit otherUnit, Dictionary<Position2, Unit> changedUnits, List<MoveRecipeIngredient> extractedItems, int capacity)
         {
-            if (unit.UnitId == "unit6" || otherUnit.UnitId == "unit6")
-            {
-                int x = 0;
-            }
-
             foreach (UnitItemOrder unitItemOrder in unit.UnitOrders.unitItemOrders)
             {
                 if (unitItemOrder.TileObjectState == TileObjectState.None)

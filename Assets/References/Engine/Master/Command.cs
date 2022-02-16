@@ -72,10 +72,7 @@ namespace Engine.Master
             }
             UnitId = null;
         }
-        public void ClearUnitId()
-        {
-            UnitId = null;
-        }
+
         public void SetUnitId(string unitId)
         {
             if (UnitId != null && UnitId != unitId)
@@ -160,10 +157,6 @@ namespace Engine.Master
             TransportUnit = new GameCommandItemUnit();
 
             CommandId = ++staticCommandId;
-            if (CommandId == 9)
-            {
-                int x=0;
-            }
             Priority = 1;
         }
         public GameCommand(BlueprintCommandItem blueprintCommandItem)

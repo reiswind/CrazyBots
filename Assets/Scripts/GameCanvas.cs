@@ -598,7 +598,7 @@ namespace Assets.Scripts
             HideBuildMenu();
 
             selectedCommandPreview = new CommandPreview();
-            selectedCommandPreview.CreateCommandForBuild(blueprintCommand, selectedUnitFrame?.UnitId);
+            selectedCommandPreview.CreateCommand(blueprintCommand, selectedUnitFrame?.UnitId);
             selectedCommandPreview.SetSelected(true);
             highlightedCommandPreview = selectedCommandPreview;
 
@@ -1145,7 +1145,7 @@ namespace Assets.Scripts
             return false;
         }
 
-        private bool leftMouseButtonDown;
+        
 
         void UpdateCommandPreviewMode()
         {
@@ -1181,11 +1181,11 @@ namespace Assets.Scripts
             bool executeCommand = false;
             if (Input.GetMouseButtonDown(0))
             {
-                leftMouseButtonDown = true;
+                //leftMouseButtonDown = true;
             }
             if (Input.GetMouseButtonUp(0))
             {
-                leftMouseButtonDown = false;
+                //leftMouseButtonDown = false;
                 executeCommand = true;
                 //Debug.Log("Input.GetMouseButtonUp");
             }
@@ -1197,19 +1197,31 @@ namespace Assets.Scripts
             {
                 selectedCommandPreview.Execute();
 
-                if (Input.GetKey(KeyCode.LeftShift))
+                // Cannot repeat commands for units, they are not stacked now
+                if (Input.GetKey(KeyCode.LeftShift) && selectedCommandPreview.GameCommand.UnitId == null)
                 {
                     // Repeat command
-                    /*
                     selectedCommandPreview.SetSelected(false);
                     selectedCommandPreview.SetActive(false);
 
-                    BlueprintCommand blueprintCommandCopy = selectedCommandPreview.Blueprint;
+                    MapGameCommand gameCommand = selectedCommandPreview.GameCommand;
+                    MapGameCommand mapGameCommand = new MapGameCommand();
+                    mapGameCommand.Layout = gameCommand.Layout;
+                    mapGameCommand.GameCommandType = gameCommand.GameCommandType;
+                    mapGameCommand.Direction = gameCommand.Direction;
+                    mapGameCommand.UnitId = gameCommand.UnitId;
+                    mapGameCommand.PlayerId = gameCommand.PlayerId;
+                    mapGameCommand.BlueprintName = gameCommand.BlueprintName;
+                    mapGameCommand.FollowUpUnitCommand = gameCommand.FollowUpUnitCommand;
 
-                    GameCommandType gameCommandType = selectedCommandPreview.GameCommand.GameCommandType;
-                    string unitId = selectedCommandPreview.GameCommand.UnitId;
+                    //GameCommandType gameCommandType = selectedCommandPreview.GameCommand.GameCommandType;
+                    //string unitId = selectedCommandPreview.GameCommand.UnitId;
 
                     selectedCommandPreview = new CommandPreview();
+                    selectedCommandPreview.CreateCommandPreview(mapGameCommand);
+                    selectedCommandPreview.SetSelected(true);
+                    selectedCommandPreview.SetActive(true);
+                    /*
                     if (gameCommandType == GameCommandType.Build)
                         selectedCommandPreview.CreateCommandForBuild(blueprintCommandCopy, unitId);
                     else

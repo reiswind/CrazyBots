@@ -147,7 +147,7 @@ namespace Assets.Scripts
             gameCommand.UnitId = unitBase.UnitId;
             gameCommand.PlayerId = unitBase.PlayerId;
             gameCommand.BlueprintName = unitBase.MoveUpdateStats.BlueprintName;
-            gameCommand.Direction = unitBase.Direction;
+            
             Initialize(gameCommand);
 
             CreateCommandLogo();
@@ -155,24 +155,27 @@ namespace Assets.Scripts
             UpdateCommandPreview(GameCommand);
         }
 
-        public void CreateCommandForBuild(BlueprintCommand blueprint, string factoryUnitId)
+        public void CreateCommand(BlueprintCommand blueprintCommand, string factoryUnitId)
         {
-            MapGameCommand gameCommand = new MapGameCommand();
-            gameCommand.Layout = blueprint.Layout;
-            gameCommand.GameCommandType = GameCommandType.Build;
-            gameCommand.FollowUpUnitCommand = blueprint.FollowUpUnitCommand;
-            gameCommand.Direction = Direction.N;
-            gameCommand.UnitId = factoryUnitId;
-            gameCommand.BlueprintName = blueprint.Name;
+            foreach (BlueprintCommandItem blueprintCommandItem in blueprintCommand.Units)
+            {
+                MapGameCommand gameCommand = new MapGameCommand();
+                gameCommand.Layout = blueprintCommand.Layout;
+                gameCommand.GameCommandType = blueprintCommand.GameCommandType; // GameCommandType.Build;
+                gameCommand.FollowUpUnitCommand = blueprintCommand.FollowUpUnitCommand;
+                gameCommand.Direction = blueprintCommandItem.Direction;
+                gameCommand.UnitId = factoryUnitId;
+                gameCommand.BlueprintName = blueprintCommandItem.BlueprintName;
 
-            Initialize(gameCommand);
+                Initialize(gameCommand);
 
-            if (GameCommand.GameCommandType == GameCommandType.Collect)
-                displayRadius = 3;
+                if (GameCommand.GameCommandType == GameCommandType.Collect)
+                    displayRadius = 3;
 
-            CreateCommandLogo();
-            IsPreview = true;
-            UpdateCommandPreview(GameCommand);
+                CreateCommandLogo();
+                IsPreview = true;
+                UpdateCommandPreview(GameCommand);
+            }
         }
 
         /// <summary>

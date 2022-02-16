@@ -798,31 +798,33 @@ namespace Engine.Ants
 
             // Create a list 
             Dictionary<int, List<Tile>> sortedPositions = new Dictionary<int, List<Tile>>();
-
-            foreach (TileWithDistance tileWithDistance in tilesInArea.Values)
+            if (tilesInArea != null)
             {
-                /*
-                if (cntrlUnit.Pos == tileWithDistance.Pos)
-                    continue;
-               
-                if (tileWithDistance.Tile.Unit == null)
-                    continue;
-                if (tileWithDistance.Tile.Unit.Owner.PlayerModel.Id == player.PlayerModel.Id)
-                    continue;
-                */
-                int d = Position3.Distance(cntrlUnit.Pos, tileWithDistance.Pos);
+                foreach (TileWithDistance tileWithDistance in tilesInArea.Values)
+                {
+                    /*
+                    if (cntrlUnit.Pos == tileWithDistance.Pos)
+                        continue;
 
-                List<Tile> tiles;
-                if (sortedPositions.ContainsKey(d))
-                {
-                    tiles = sortedPositions[d];
+                    if (tileWithDistance.Tile.Unit == null)
+                        continue;
+                    if (tileWithDistance.Tile.Unit.Owner.PlayerModel.Id == player.PlayerModel.Id)
+                        continue;
+                    */
+                    int d = Position3.Distance(cntrlUnit.Pos, tileWithDistance.Pos);
+
+                    List<Tile> tiles;
+                    if (sortedPositions.ContainsKey(d))
+                    {
+                        tiles = sortedPositions[d];
+                    }
+                    else
+                    {
+                        tiles = new List<Tile>();
+                        sortedPositions.Add(d, tiles);
+                    }
+                    tiles.Add(tileWithDistance.Tile);
                 }
-                else
-                {
-                    tiles = new List<Tile>();
-                    sortedPositions.Add(d, tiles);
-                }
-                tiles.Add(tileWithDistance.Tile);
             }
             foreach (List<Tile> tiles in sortedPositions.Values)
             {
@@ -1068,7 +1070,6 @@ namespace Engine.Ants
                     }
                     else if (Ant.Unit.UnitId == cntrlUnit.CurrentGameCommand.TransportUnit.UnitId)
                     {
-                        int x = 0;
                         /*
                         if (cntrlUnit.Extractor != null && cntrlUnit.Extractor.CanExtract)
                         {

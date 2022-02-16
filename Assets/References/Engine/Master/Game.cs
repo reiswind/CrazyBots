@@ -804,10 +804,6 @@ namespace Engine.Master
             Unit fireingUnit = Map.Units.GetUnitAt(move.Positions[0]);
             if (fireingUnit != null && fireingUnit.Weapon != null && fireingUnit.Weapon.WeaponLoaded)
             {
-                if (fireingUnit.UnitId == "unit2")
-                {
-                    int x = 0;
-                }
                 MoveRecipeIngredient moveRecipeIngredient;
                 if (fireingUnit.Weapon.EndlessAmmo)
                 {
@@ -1969,11 +1965,6 @@ namespace Engine.Master
         public List<Move> ProcessMove(int playerId, Move myMove, List<MapGameCommand> mapGameCommands)
         {
             List<Move> returnMoves = new List<Move>();
-
-            if (MoveNr == 9)
-            {
-                int x = 0;
-            }
             if (myMove != null && myMove.MoveType == MoveType.UpdateAll)
             {
                 UpdateAll(playerId, returnMoves);

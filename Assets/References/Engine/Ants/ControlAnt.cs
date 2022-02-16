@@ -1680,18 +1680,30 @@ namespace Engine.Ants
 
                             if (unit.CurrentGameCommand == null)
                             {
-                                gameCommand.AttachedUnit.SetUnitId(unit.UnitId);
-                                unit.SetGameCommand(gameCommand);
-
                                 if (gameCommand.GameCommandType == GameCommandType.Build)
                                 {
-                                    gameCommand.FactoryUnit.SetUnitId(gameCommand.UnitId);
-                                    // Build this only once, Remove the factory id from the command. The command will remain.
-                                    gameCommand.UnitId = null;
+                                    if (gameCommand.FactoryUnit.UnitId == null)
+                                    {
+                                        gameCommand.FactoryUnit.SetUnitId(gameCommand.UnitId);
+                                        unit.SetGameCommand(gameCommand);
+                                    }
+                                    else
+                                    {
+                                        // Already built
+                                    }
                                 }
-                                if (gameCommand.GameCommandType == GameCommandType.AttackMove)
+                                else
                                 {
-                                    ant.FollowThisRoute = null;
+                                    if (gameCommand.AttachedUnit.UnitId == null)
+                                    {
+                                        gameCommand.AttachedUnit.SetUnitId(unit.UnitId);
+
+                                        if (gameCommand.GameCommandType == GameCommandType.AttackMove)
+                                        {
+                                            ant.FollowThisRoute = null;
+                                        }
+                                        unit.SetGameCommand(gameCommand);
+                                    }
                                 }
                             }
                         }
@@ -2505,14 +2517,14 @@ namespace Engine.Ants
                                             // The attached unit is the transporter to execute the build
                                             ant.Unit.CurrentGameCommand.TransportUnit.SetUnitId(ant.Unit.UnitId);
                                             ant.Unit.CurrentGameCommand.AssemblerToBuild = false;
-                                            ant.Unit.CurrentGameCommand.AttachedUnit.ClearUnitId();
+                                            ant.Unit.CurrentGameCommand.AttachedUnit.ResetUnitId();
                                         }
                                         else if (ant.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build)
                                         {
                                             // The attached unit is the assmbler to execute the build
                                             ant.Unit.CurrentGameCommand.FactoryUnit.SetUnitId(ant.Unit.UnitId);
                                             ant.Unit.CurrentGameCommand.AssemblerToBuild = false;
-                                            ant.Unit.CurrentGameCommand.AttachedUnit.ClearUnitId();
+                                            ant.Unit.CurrentGameCommand.AttachedUnit.ResetUnitId();
                                         }
                                     }
                                     else if (ant.Unit.CurrentGameCommand.GameCommandType == GameCommandType.ItemRequest)
@@ -2520,16 +2532,16 @@ namespace Engine.Ants
                                         // The transport unit is the one, who delivers the content (Need resevation!)
                                         ant.Unit.CurrentGameCommand.TransportUnit.SetStatus("PickUpFrom: " + ant.Unit.CurrentGameCommand.AttachedUnit.UnitId);
                                     }
-                                    else if (ant.Unit.Blueprint.Name == "Assembler")
+                                    else if (ant.Unit.Blueprint.Name == "xxAssembler")
                                     {
-                                        ant.Unit.CurrentGameCommand.AttachedUnit.ClearUnitId(); 
+                                        ant.Unit.CurrentGameCommand.AttachedUnit.ResetUnitId(); 
                                         ant.Unit.CurrentGameCommand.FactoryUnit.SetUnitId(ant.Unit.UnitId);
                                         ant.Unit.CurrentGameCommand.FactoryUnit.SetStatus("Assemble", false);
                                         ant.Unit.Changed = true;
                                     }
                                     else if (ant.Unit.Blueprint.Name == "Builder")
                                     {
-                                        ant.Unit.CurrentGameCommand.AttachedUnit.ClearUnitId();
+                                        ant.Unit.CurrentGameCommand.AttachedUnit.ResetUnitId();
                                         ant.Unit.CurrentGameCommand.FactoryUnit.SetUnitId(ant.Unit.UnitId);
                                         ant.Unit.CurrentGameCommand.FactoryUnit.SetStatus("Assemble", false);
                                         ant.Unit.Changed = true;
@@ -2553,13 +2565,14 @@ namespace Engine.Ants
                                             nextGameCommand.AttachedUnit.SetUnitId(ant.Unit.UnitId);
                                             ant.Unit.SetGameCommand(nextGameCommand);
                                         }
-                                        else //if (ant.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build)
+                                        else if (ant.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Build)
                                         {
                                             if (ant.Unit.CurrentGameCommand.FollowUpUnitCommand == FollowUpUnitCommand.Attack ||
                                                 ant.Unit.CurrentGameCommand.FollowUpUnitCommand == FollowUpUnitCommand.HoldPosition)
                                             {
                                                 ant.Unit.CurrentGameCommand.GameCommandType = GameCommandType.AttackMove;
                                                 ant.Unit.CurrentGameCommand.AttachedUnit.SetStatus("AttackMoveToTarget");
+                                                ant.Unit.CurrentGameCommand.UnitId = null;
                                                 ant.Unit.Changed = true;
                                             }
                                             else if (ant.Unit.CurrentGameCommand.DeleteWhenFinished)
@@ -2572,8 +2585,13 @@ namespace Engine.Ants
                                             }
                                             else
                                             {
+                                                ant.Unit.CurrentGameCommand.CommandComplete = true;
                                                 ant.Unit.ResetGameCommand();
                                             }
+                                        }
+                                        else
+                                        {
+
                                         }
                                     }
                                 }
