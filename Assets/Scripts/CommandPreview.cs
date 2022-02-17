@@ -190,6 +190,7 @@ namespace Assets.Scripts
             if (groundCell != null)
                 displayPosition = groundCell.Pos;
 
+            displayRadius = 0;
             GameCommandType gameCommandType = initialCommandType;
             if (unitBase != null)
             {
@@ -202,6 +203,8 @@ namespace Assets.Scripts
                             container.TileObjectContainer.IsSpaceFor(tileObject))
                         {
                             gameCommandType = GameCommandType.Collect;
+                            displayRadius = 1;
+                            break;
                         }
                     }
                 }
@@ -242,6 +245,34 @@ namespace Assets.Scripts
             {
                 AttachedUnit.GhostUnitBounds.Destroy();
                 AttachedUnit.GhostUnitBounds = null;
+            }
+        }
+        private void Hide()
+        {
+            if (fireLineRenderer != null)
+            {
+                HexGrid.Destroy(fireLineRenderer.gameObject);
+                fireLineRenderer = null;
+            }
+            if (attackLineRenderer != null)
+            {
+                HexGrid.Destroy(attackLineRenderer.gameObject);
+                attackLineRenderer = null;
+            }
+            if (previewGameCommand != null)
+                previewGameCommand.SetActive(false);
+
+            displayPosition = Position2.Null;
+            AttachedUnit.IsVisible = false;
+            if (AttachedUnit.GhostUnit != null)
+                AttachedUnit.GhostUnit.IsVisible = false;
+            if (AttachedUnit.GhostUnitBounds != null)
+                AttachedUnit.GhostUnitBounds.IsVisible = false;
+
+            if (collectUnitBounds != null)
+            {
+                collectUnitBounds.Destroy();
+                collectUnitBounds = null;
             }
         }
 
@@ -670,26 +701,6 @@ namespace Assets.Scripts
             }
 
         }
-        private void Hide()
-        {
-            if (previewGameCommand != null)
-                previewGameCommand.SetActive(false);
-
-            displayPosition = Position2.Null;
-            //foreach (CommandAttachedItem commandAttachedUnit in PreviewUnits)
-            {
-                AttachedUnit.IsVisible = false;
-                if (AttachedUnit.GhostUnit != null)
-                    AttachedUnit.GhostUnit.IsVisible = false;
-                if (AttachedUnit.GhostUnitBounds != null)
-                    AttachedUnit.GhostUnitBounds.IsVisible = false;
-            }
-            if (collectUnitBounds != null)
-            {
-                collectUnitBounds.Destroy();
-                collectUnitBounds = null;
-            }
-        }
 
         private CollectBounds collectUnitBounds;
         public CollectBounds CollectBounds
@@ -711,8 +722,11 @@ namespace Assets.Scripts
 
             if (IsPreview || IsSelected || IsHighlighted)
             {
-                collectUnitBounds = new CollectBounds(groundCell.Pos, displayRadius);
-                collectUnitBounds.Update(1);
+                if (displayRadius > 0)
+                {
+                    collectUnitBounds = new CollectBounds(groundCell.Pos, displayRadius);
+                    collectUnitBounds.Update(1);
+                }
             }
         }
 
@@ -885,7 +899,11 @@ namespace Assets.Scripts
                 UnitBase unitBase;
                 if (HexGrid.MainGrid.BaseUnits.TryGetValue(unitID, out unitBase))
                 {
-                    List<Position2> path = HexGrid.MainGrid.FindPath(unitBase.CurrentPos, groundCell.Pos, unitBase.UnitId);
+                    bool ignoreIfTargetIsOccupied = false;
+                    if (GameCommand.GameCommandType == GameCommandType.Collect)
+                        ignoreIfTargetIsOccupied = true;
+
+                    List<Position2> path = HexGrid.MainGrid.FindPath(unitBase.CurrentPos, groundCell.Pos, unitBase.UnitId, ignoreIfTargetIsOccupied);
                     if (path != null && path.Count > 1)
                     {
                         if (IsPreview || displayDirection == Direction.C)
@@ -893,20 +911,6 @@ namespace Assets.Scripts
                             displayDirection = Position3.CalcDirection(path[path.Count - 2], path[path.Count - 1]);
                             AttachedUnit.RotatedDirection = displayDirection;
                             AttachedUnit.Direction = displayDirection;
-
-                            /*
-                            Position3 dir = new Position3(path[path.Count - 2]);
-                            foreach (Position3 n in dir.Neighbors)
-                            {
-                                if (n.Pos == path[path.Count - 1])
-                                {
-                                    displayDirection = n.Direction;
-                                    AttachedUnit.RotatedDirection = displayDirection;
-                                    AttachedUnit.Direction = displayDirection;
-                                    break;
-                                }
-                            }*/
-
                         }
 
                         GameObject lineRendererObject = new GameObject();
@@ -952,7 +956,8 @@ namespace Assets.Scripts
             if (GameCommand.GameCommandType == GameCommandType.Collect)
             {
                 UpdateCollectPosition(groundCell);
-                return;
+                UpdateAttackPosition(groundCell);
+                
             }
             if (GameCommand.GameCommandType == GameCommandType.Fire)
             {

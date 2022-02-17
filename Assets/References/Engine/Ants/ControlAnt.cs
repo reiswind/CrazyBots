@@ -1745,7 +1745,7 @@ namespace Engine.Ants
                     }
                     else if (gameCommand.AttachedUnit.UnitId == null && gameCommand.FactoryUnit.UnitId == null)
                     {
-                        if (gameCommand.GameCommandType == GameCommandType.Build)
+                        if (gameCommand.GameCommandType == GameCommandType.Build && gameCommand.TargetPosition != Position2.Null)
                         {
                             // Check if the target to be build is already there, if so, ignore this command
                             Tile t = player.Game.Map.GetTile(gameCommand.TargetPosition);

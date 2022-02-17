@@ -697,7 +697,7 @@ namespace Assets.Scripts
 
         public List<Position2> FindPath(Position2 from, Position2 to, string unitId, bool ignoreIfToIsOccupied = false)
         {
-            return game.FindPath(from, to, unitId, false);
+            return game.FindPath(from, to, unitId, ignoreIfToIsOccupied);
         }
 
         private void SelectStartPosition()
