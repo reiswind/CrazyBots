@@ -183,7 +183,7 @@ namespace Engine.Master
         public string BlueprintName { get; set; }
 
         public bool CommandComplete { get; set; }
-        public bool DeleteWhenFinished { get; set; }
+        //public bool DeleteWhenFinished { get; set; }
         public bool CommandCanceled { get; set; }
         public int PlayerId { get; set; }
         public int TargetZone { get; set; }

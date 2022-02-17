@@ -99,6 +99,7 @@ namespace Assets.Scripts
         public Command Command { get; set; }
         public CommandPreview NextCommandPreview { get; set; }
         internal bool IsPreview { get; set; }
+        private GameCommandType initialCommandType;
 
         private GameObject previewGameCommand;
         private GameObject alertGameObject;
@@ -109,6 +110,7 @@ namespace Assets.Scripts
             GameCommand.PlayerId = 1;
             GameCommand.ClientId = GetNextClientCommandId();
             GameCommand.TargetPosition = Position2.Null;
+            initialCommandType = gameCommand.GameCommandType;
 
             displayDirection = gameCommand.Direction;
             displayPosition = gameCommand.TargetPosition;
@@ -188,13 +190,12 @@ namespace Assets.Scripts
             if (groundCell != null)
                 displayPosition = groundCell.Pos;
 
-            GameCommandType gameCommandType = GameCommandType.AttackMove;
+            GameCommandType gameCommandType = initialCommandType;
             if (unitBase != null)
             {
                 UnitBasePart container = unitBase.GetContainer();
                 if (container != null)
                 {
-
                     foreach (TileObject tileObject in groundCell.Stats.MoveUpdateGroundStat.TileObjects)
                     {
                         if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType) &&

@@ -16,6 +16,7 @@ namespace Engine.Interface
         Attack,
         Defend,
         Scount,
+        DeleteCommand
     }
 
     public enum GameCommandType

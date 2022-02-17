@@ -373,7 +373,7 @@ namespace Engine.Master
             gameCommand.GameCommandType = GameCommandType.ItemRequest;
             gameCommand.Layout = "UIDelivery";
             gameCommand.TargetPosition = Pos;
-            gameCommand.DeleteWhenFinished = true;
+            gameCommand.FollowUpUnitCommand = FollowUpUnitCommand.DeleteCommand;
             gameCommand.PlayerId = Owner.PlayerModel.Id;
             gameCommand.TargetUnit.SetUnitId(UnitId);
             gameCommand.TargetUnit.SetStatus(Blueprint.Name + " WaitingForDelivery");

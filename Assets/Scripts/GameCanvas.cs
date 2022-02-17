@@ -790,6 +790,7 @@ namespace Assets.Scripts
         {
             selectedCommandPreview = new CommandPreview();
             selectedCommandPreview.CreateCommand(selectedUnitFrame, gameCommandType);
+            //selectedCommandPreview.GameCommand.FollowUpUnitCommand = FollowUpUnitCommand.DeleteCommand;
             selectedCommandPreview.SetSelected(true);
             highlightedCommandPreview = selectedCommandPreview;
             SetMode(CanvasMode.Preview);

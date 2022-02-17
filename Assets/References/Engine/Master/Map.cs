@@ -48,7 +48,6 @@ namespace Engine.Interface
         public int ClientId { get; set; }
         public string Layout { get; set; }
         public bool CommandComplete { get; set; }
-        public bool DeleteWhenFinished { get; set; }
         public bool CommandCanceled { get; set; }
         public int Radius { get; set; }
         
@@ -75,8 +74,7 @@ namespace Engine.Interface
             GameCommand gameCommand = new GameCommand();
             if (CommandId != 0)
                 gameCommand.CommandId = CommandId;
-            gameCommand.ClientId = ClientId;
-            gameCommand.DeleteWhenFinished = DeleteWhenFinished;
+            gameCommand.ClientId = ClientId;            
             gameCommand.FollowUpUnitCommand = FollowUpUnitCommand;
             gameCommand.CommandCanceled = CommandCanceled;
             gameCommand.CommandComplete = CommandComplete;

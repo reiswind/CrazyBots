@@ -1171,6 +1171,16 @@ namespace Engine.Ants
                         calcPathToPosition = targetUnitPosition;
                     }
                 }
+                else if (cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Fire)
+                {
+                    // Do not move around
+                    return true;
+                }
+                else if (cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Attack)
+                {
+                    // Do not move around
+                    return true;
+                }
                 else if (cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Build)
                 {
                     if (cntrlUnit.Assembler != null)

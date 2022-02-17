@@ -844,7 +844,8 @@ namespace Engine.Master
                 HitByBullet(move, fireingUnit, lastMoves, shellTileObject);
 
                 if (fireingUnit.CurrentGameCommand != null &&
-                    fireingUnit.CurrentGameCommand.GameCommandType == GameCommandType.Fire)
+                    fireingUnit.CurrentGameCommand.GameCommandType == GameCommandType.Fire &&
+                    fireingUnit.CurrentGameCommand.FollowUpUnitCommand == FollowUpUnitCommand.DeleteCommand)
                 {
                     fireingUnit.CurrentGameCommand.CommandComplete = true;
                 }
@@ -2356,7 +2357,6 @@ namespace Engine.Master
                     mapGameCommand.ClientId = gameCommand.ClientId;
                     mapGameCommand.CommandCanceled = gameCommand.CommandCanceled;
                     mapGameCommand.CommandComplete = gameCommand.CommandComplete;
-                    mapGameCommand.DeleteWhenFinished = gameCommand.DeleteWhenFinished;
                     mapGameCommand.GameCommandType = gameCommand.GameCommandType;
                     mapGameCommand.PlayerId = gameCommand.PlayerId;
                     mapGameCommand.TargetPosition = gameCommand.TargetPosition;

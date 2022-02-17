@@ -69,7 +69,7 @@ namespace Engine.Ants
                 gameCommand.GameCommandType = GameCommandType.ItemRequest;
                 gameCommand.Layout = "UIDelivery";
                 gameCommand.TargetPosition = Ant.Unit.Pos;
-                gameCommand.DeleteWhenFinished = true;
+                gameCommand.FollowUpUnitCommand = FollowUpUnitCommand.DeleteCommand;
                 gameCommand.PlayerId = player.PlayerModel.Id;
                 gameCommand.TargetUnit.SetUnitId(Ant.Unit.UnitId);
                 gameCommand.TargetUnit.SetStatus("WaitingForDelivery");
