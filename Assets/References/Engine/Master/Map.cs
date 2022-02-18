@@ -68,6 +68,7 @@ namespace Engine.Interface
         public GameCommandType GameCommandType { get; set; }
 
         public FollowUpUnitCommand FollowUpUnitCommand { get; set; }
+        public GameCommandState GameCommandState { get; set; }
 
         internal GameCommand Copy()
         {
@@ -80,12 +81,22 @@ namespace Engine.Interface
             gameCommand.CommandComplete = CommandComplete;
             gameCommand.GameCommandType = GameCommandType;
             gameCommand.PlayerId = PlayerId;
+            gameCommand.GameCommandState = GameCommandState;
             gameCommand.TargetPosition = TargetPosition;
             gameCommand.Radius = Radius;
             gameCommand.Direction = Direction;
             gameCommand.Layout = Layout;
             gameCommand.BlueprintName = BlueprintName;
             gameCommand.UnitId = UnitId;
+
+            if (AttachedUnit.UnitId != null)
+                gameCommand.AttachedUnit.SetUnitId(TargetUnit.UnitId);
+            if (TransportUnit.UnitId != null)
+                gameCommand.TransportUnit.SetUnitId(TargetUnit.UnitId);
+            if (TargetUnit.UnitId != null)
+                gameCommand.TargetUnit.SetUnitId(TargetUnit.UnitId);
+            if (FactoryUnit.UnitId != null)
+                gameCommand.FactoryUnit.SetUnitId(TargetUnit.UnitId);
 
             if (MoveUnitItemOrders != null)
             {

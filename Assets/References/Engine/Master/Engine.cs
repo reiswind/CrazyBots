@@ -39,8 +39,8 @@ namespace Engine.Master
                 return;
 
             if (Unit.CurrentGameCommand != null &&
-                Unit.CurrentGameCommand.GameCommandType == GameCommandType.Attack &&
-                Unit.CurrentGameCommand.TargetPosition == Unit.Pos)
+                Unit.CurrentGameCommand.GameCommandType == GameCommandType.AttackMove &&
+                Unit.CurrentGameCommand.GameCommandState == GameCommandState.TargetPositionReached)
             {
                 return;
             }

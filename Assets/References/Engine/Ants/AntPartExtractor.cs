@@ -32,11 +32,19 @@ namespace Engine.Ants
                 if (possiblemoves.Count > 0)
                     return false;
             }
+            List<Position2> includedPositions = null;
+            if (cntrlUnit.CurrentGameCommand != null &&
+                cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Collect &&
+                cntrlUnit.CurrentGameCommand.TransportUnit.UnitId == Ant.Unit.UnitId)
+            {
+                includedPositions = new List<Position2>();
+                includedPositions.Add(cntrlUnit.CurrentGameCommand.TargetPosition);
+            }
 
             if (cntrlUnit.Extractor != null && cntrlUnit.Extractor.CanExtract)
             {
                 List<Move> possiblemoves = new List<Move>();
-                cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, null, MoveFilter.Extract);
+                cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, includedPositions, MoveFilter.Extract);
                 if (possiblemoves.Count > 0)
                 {
                     // Assume Minerals for now

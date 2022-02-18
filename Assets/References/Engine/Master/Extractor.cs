@@ -88,7 +88,7 @@ namespace Engine.Master
             });
         }
 
-        public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position2> includedPosition2s, MoveFilter moveFilter)
+        public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position2> includedPositions, MoveFilter moveFilter)
         {
             if ((moveFilter & MoveFilter.Extract) == 0)
                 return;
@@ -158,6 +158,10 @@ namespace Engine.Master
 
             foreach (TileWithDistance t in resultList.Values)
             {
+                if (includedPositions != null && !includedPositions.Contains(t.Pos))
+                {
+                    continue;
+                }
                 if (!enemyfound)
                 {
                     foreach (TileObject tileObject in t.Tile.TileObjects)
@@ -180,6 +184,14 @@ namespace Engine.Master
                             // Do not pickup stuff. Move to pickup location
                             continue;
                         }
+                        if (Unit.CurrentGameCommand != null &&
+                            Unit.CurrentGameCommand.GameCommandType == GameCommandType.Collect &&
+                            Unit.CurrentGameCommand.TransportUnit.UnitId == Unit.UnitId)
+                        {
+                            // Do not pickup stuff. Move to pickup location
+                            continue;
+                        }
+
                         if (UnitOrders.GetAcceptedAmount(Unit, tileObjectType) > 0)
                         {
                             if (Unit.IsSpaceForTileObject(tileObjectType))
@@ -327,6 +339,18 @@ namespace Engine.Master
                                         {
                                             possibleMoves.Add(move);
                                         }
+                                    }
+                                }
+                                // The command is to collect from this unit
+                                if (Unit.CurrentGameCommand != null && 
+                                    Unit.CurrentGameCommand.GameCommandType == GameCommandType.Collect &&
+                                    Unit.UnitId == Unit.CurrentGameCommand.TransportUnit.UnitId &&
+                                    t.Unit.UnitId == Unit.CurrentGameCommand.TargetUnit.UnitId)
+                                {
+                                    Move move = CreateExtractMove(t.Unit);
+                                    if (move != null)
+                                    {
+                                        possibleMoves.Add(move);
                                     }
                                 }
                                 if (Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.GameCommandType == GameCommandType.ItemRequest)
@@ -629,7 +653,15 @@ namespace Engine.Master
 
                     if (unit.CurrentGameCommand != null)
                     {
-                        
+                        // The command is to collect from this unit
+                        if (Unit.CurrentGameCommand != null &&
+                            Unit.CurrentGameCommand.GameCommandType == GameCommandType.Collect &&
+                            Unit.UnitId == Unit.CurrentGameCommand.TransportUnit.UnitId &&
+                            otherUnit.UnitId == Unit.CurrentGameCommand.TargetUnit.UnitId)
+                        {
+                            // Pick up from container, unit is the transporter. otherUnit is delivering
+                            capacity = ExtractFromOtherContainer(targetUnit, otherUnit, changedUnits, extractedItems, capacity, true);
+                        }
                         if (unit.CurrentGameCommand.GameCommandType == GameCommandType.ItemRequest)
                         {
                             if (unit.CurrentGameCommand.TargetUnit.UnitId == unit.UnitId &&
@@ -777,6 +809,15 @@ namespace Engine.Master
                         changedUnits.Add(otherUnit.Pos, otherUnit);
                 }
             }
+
+            if (didRemove && Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.GameCommandType == GameCommandType.Collect)
+            { 
+                Unit.CurrentGameCommand.GameCommandState = GameCommandState.Collecting;
+                Unit.CurrentGameCommand.CommandComplete = false;
+                Unit.CurrentGameCommand.AttachedUnit.SetStatus("Collecting");
+                Unit.Changed = true;
+            }
+
             return didRemove;
         }
 
@@ -842,16 +883,28 @@ namespace Engine.Master
         }
 
         private int PullFromOtherContainer(Unit unit, Unit otherUnit, Dictionary<Position2, Unit> changedUnits, 
-            List<MoveRecipeIngredient> extractedItems, UnitItemOrder pullItemOrder, int capacity)
+            List<MoveRecipeIngredient> extractedItems, UnitItemOrder pullItemOrder, int capacity, bool force = false)
         {
             List<TileObject> excludeTileObjects = new List<TileObject>();
             foreach (UnitItemOrder unitItemOrder in otherUnit.UnitOrders.unitItemOrders)
             {
                 if (unitItemOrder.TileObjectType == pullItemOrder.TileObjectType)
                 {
-                    if (unitItemOrder.TileObjectState == pullItemOrder.TileObjectState && otherUnit.Engine == null && unit.Engine == null)
+                    if (!force && unitItemOrder.TileObjectState == pullItemOrder.TileObjectState && otherUnit.Engine == null && unit.Engine == null)
                     {
                         BalanceWithOtherContainer(unit, otherUnit, changedUnits, extractedItems, pullItemOrder, capacity);
+                    }
+                    else if (unitItemOrder.TileObjectState == TileObjectState.Accept)
+                    {
+                        if (force)
+                        {
+                            int transferAmount = capacity;
+
+                            int maxTransferAmount = UnitOrders.GetAcceptedAmount(unit, pullItemOrder.TileObjectType);
+                            if (transferAmount > maxTransferAmount)
+                                transferAmount = maxTransferAmount;
+                            capacity = TransferTileObjects(otherUnit, changedUnits, extractedItems, pullItemOrder, transferAmount, excludeTileObjects);
+                        }
                     }
                     else if (unitItemOrder.TileObjectState == TileObjectState.None || unitItemOrder.TileObjectState == TileObjectState.Deny)
                     {
@@ -860,35 +913,7 @@ namespace Engine.Master
                         int maxTransferAmount = UnitOrders.GetAcceptedAmount(unit, pullItemOrder.TileObjectType);
                         if (transferAmount > maxTransferAmount)
                             transferAmount = maxTransferAmount;
-                        /*
-                        int numberOfRequests = 0;
-                        foreach (UnitItemOrder targetUnitItemOrder in unit.UnitOrders.unitItemOrders)
-                        {
-                            if (targetUnitItemOrder.TileObjectState == TileObjectState.Accept)
-                                numberOfRequests++;
-                        }
-                        if (numberOfRequests > 1)
-                        {
-                            if (unit.UnitId == "unit6" || otherUnit.UnitId == "unit6")
-                            {
-                                int x = 0;
-                            }
-                            int countInUnit = unit.CountTileObjectsInContainer(pullItemOrder.TileObjectType);
-
-                            // Do not accept more than half/third.. of capacity
-                            if (countInUnit >= unit.Container.TileContainer.Capacity / numberOfRequests)
-                            {
-                                // Contains enough, leave room for other
-                                transferAmount = 0;
-                            }
-                            else
-                            {
-                                int maxTransferAmount = (unit.Container.TileContainer.Capacity / numberOfRequests) - countInUnit;
-                                if (transferAmount > maxTransferAmount)
-                                    transferAmount = maxTransferAmount;
-                            }
-                        }*/
-
+                        
                         capacity = TransferTileObjects(otherUnit, changedUnits, extractedItems, pullItemOrder, transferAmount, excludeTileObjects);
                     }
                 }
@@ -933,15 +958,16 @@ namespace Engine.Master
             return capacity;
         }
 
-        private int ExtractFromOtherContainer(Unit unit, Unit otherUnit, Dictionary<Position2, Unit> changedUnits, List<MoveRecipeIngredient> extractedItems, int capacity)
+        private int ExtractFromOtherContainer(Unit unit, Unit otherUnit, Dictionary<Position2, Unit> changedUnits, List<MoveRecipeIngredient> extractedItems, int capacity, bool forceExtract = false)
         {
             foreach (UnitItemOrder unitItemOrder in unit.UnitOrders.unitItemOrders)
             {
                 if (unitItemOrder.TileObjectState == TileObjectState.None)
                 {
-                    if (unit.CurrentGameCommand != null && unit.CurrentGameCommand.GameCommandType == GameCommandType.ItemRequest)
+                    if (unit.CurrentGameCommand != null && unit.CurrentGameCommand.GameCommandType == GameCommandType.ItemRequest ||
+                        unit.CurrentGameCommand != null && unit.CurrentGameCommand.GameCommandType == GameCommandType.Collect)
                     {
-                        capacity = PullFromOtherContainer(unit, otherUnit, changedUnits, extractedItems, unitItemOrder, capacity);
+                        capacity = PullFromOtherContainer(unit, otherUnit, changedUnits, extractedItems, unitItemOrder, capacity, forceExtract);
                     }
                     else
                     {

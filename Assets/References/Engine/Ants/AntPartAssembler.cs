@@ -432,6 +432,7 @@ namespace Engine.Ants
 
                                 newCommand.PlayerId = player.PlayerModel.Id;
                                 newCommand.FollowUpUnitCommand = FollowUpUnitCommand.DeleteCommand;
+                                newCommand.GameCommandState = GameCommandState.MoveToTargetPosition;
 
                                 computePossibleMoves = false;
 

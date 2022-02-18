@@ -1092,9 +1092,8 @@ namespace Engine.Ants
 
         public Position2 FindContainer(Player player, Ant antWorker)
         {
-            return Position2.Null;
-            /*
-            Dictionary<Position2, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(antWorker.PlayerUnit.Unit.Pos, 3, false, matcher: tile =>
+
+            Dictionary<Position2, TileWithDistance> tiles = player.Game.Map.EnumerateTiles(antWorker.Unit.Pos, 3, false, matcher: tile =>
             {
                 // If engine is not null, could be a friendly unit that needs refuel.
                 if (tile.Unit != null && tile.Unit.IsComplete() &&
@@ -1108,7 +1107,7 @@ namespace Engine.Ants
 
             foreach (TileWithDistance t in tiles.Values)
             {
-                List<Position2> positions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, t.Pos, antWorker.PlayerUnit.Unit);
+                List<Position2> positions = player.Game.FindPath(antWorker.Unit.Pos, t.Pos, antWorker.Unit);
                 if (bestPositions == null || bestPositions.Count > positions?.Count)
                 {
                     bestPositions = positions;
@@ -1119,19 +1118,18 @@ namespace Engine.Ants
             {                
                 foreach (Ant ant in Ants.Values)
                 {
-                    if (ant.PlayerUnit == null) // Ghost
-                        continue;
+
                     //if (ant is AntWorker)
                     //    continue;
 
-                    if (ant.PlayerUnit.Unit.IsComplete() &&
-                        ant.PlayerUnit.Unit.Engine == null &&
-                        ant.PlayerUnit.Unit.CanFill())
+                    if (ant.Unit.IsComplete() &&
+                        ant.Unit.Engine == null &&
+                        ant.Unit.CanFill())
                     {
                         // Distance at all
-                        Position2 posFactory = ant.PlayerUnit.Unit.Pos;
+                        Position2 posFactory = ant.Unit.Pos;
                         //double d = posFactory.GetDistanceTo(antWorker.PlayerUnit.Unit.Pos);
-                        int d = CubePosition.Distance(posFactory, antWorker.PlayerUnit.Unit.Pos);
+                        int d = Position3.Distance(posFactory, antWorker.Unit.Pos);
                         if (d < 18)
                         {
                             if (bestPositions != null)
@@ -1143,7 +1141,7 @@ namespace Engine.Ants
                                 }
                             }
 
-                            List<Position2> positions = player.Game.FindPath(antWorker.PlayerUnit.Unit.Pos, posFactory, antWorker.PlayerUnit.Unit);
+                            List<Position2> positions = player.Game.FindPath(antWorker.Unit.Pos, posFactory, antWorker.Unit);
                             if (positions != null && positions.Count > 2)
                             {
                                 if (bestPositions == null || bestPositions.Count > positions?.Count)
@@ -1156,7 +1154,7 @@ namespace Engine.Ants
                 }
             }
             return MakePathFromPositions(bestPositions, antWorker);
-            */
+            
         }
 
         private List<Position2> FindMineralForCommand(Player player, Ant ant, List<Position2> bestPositions)
@@ -1692,18 +1690,27 @@ namespace Engine.Ants
                                         // Already built
                                     }
                                 }
-                                else
+                                else if (gameCommand.GameCommandType == GameCommandType.AttackMove)
                                 {
                                     if (gameCommand.AttachedUnit.UnitId == null)
                                     {
                                         gameCommand.AttachedUnit.SetUnitId(unit.UnitId);
-
-                                        if (gameCommand.GameCommandType == GameCommandType.AttackMove)
-                                        {
-                                            ant.FollowThisRoute = null;
-                                        }
+                                        ant.FollowThisRoute = null;
                                         unit.SetGameCommand(gameCommand);
                                     }
+                                }
+                                else if (gameCommand.GameCommandType == GameCommandType.Collect)
+                                {
+                                    if (gameCommand.TransportUnit.UnitId == null)
+                                    {
+                                        gameCommand.TransportUnit.SetUnitId(unit.UnitId);
+                                        ant.FollowThisRoute = null;
+                                        unit.SetGameCommand(gameCommand);
+                                    }
+                                }
+                                else
+                                {
+                                    int xx = 0;
                                 }
                             }
                         }

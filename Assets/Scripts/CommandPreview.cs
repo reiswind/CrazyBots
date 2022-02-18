@@ -149,7 +149,7 @@ namespace Assets.Scripts
             gameCommand.UnitId = unitBase.UnitId;
             gameCommand.PlayerId = unitBase.PlayerId;
             gameCommand.BlueprintName = unitBase.MoveUpdateStats.BlueprintName;
-            
+            gameCommand.GameCommandState = GameCommandState.MoveToTargetPosition;
             Initialize(gameCommand);
 
             CreateCommandLogo();
@@ -163,11 +163,12 @@ namespace Assets.Scripts
             {
                 MapGameCommand gameCommand = new MapGameCommand();
                 gameCommand.Layout = blueprintCommand.Layout;
-                gameCommand.GameCommandType = blueprintCommand.GameCommandType; // GameCommandType.Build;
+                gameCommand.GameCommandType = blueprintCommand.GameCommandType;
                 gameCommand.FollowUpUnitCommand = blueprintCommand.FollowUpUnitCommand;
                 gameCommand.Direction = blueprintCommandItem.Direction;
                 gameCommand.UnitId = factoryUnitId;
                 gameCommand.BlueprintName = blueprintCommandItem.BlueprintName;
+                gameCommand.GameCommandState = GameCommandState.MoveToTargetPosition;
 
                 Initialize(gameCommand);
 
@@ -191,28 +192,40 @@ namespace Assets.Scripts
                 displayPosition = groundCell.Pos;
 
             displayRadius = 0;
+            GameCommand.TargetUnit.UnitId = null;
+
             GameCommandType gameCommandType = initialCommandType;
             if (unitBase != null)
             {
                 UnitBasePart container = unitBase.GetContainer();
                 if (container != null)
                 {
-                    foreach (TileObject tileObject in groundCell.Stats.MoveUpdateGroundStat.TileObjects)
+                    UnitBase groundUnitBase = groundCell.FindUnit();
+                    if (groundUnitBase != null)
                     {
-                        if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType) &&
-                            container.TileObjectContainer.IsSpaceFor(tileObject))
+                        if (groundUnitBase.HasContainer())
                         {
                             gameCommandType = GameCommandType.Collect;
-                            displayRadius = 1;
-                            break;
+                            GameCommand.TargetUnit.UnitId = groundUnitBase.UnitId;
+                        }
+                    }
+                    else
+                    {
+                        foreach (TileObject tileObject in groundCell.Stats.MoveUpdateGroundStat.TileObjects)
+                        {
+                            if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType) &&
+                                container.TileObjectContainer.IsSpaceFor(tileObject))
+                            {
+                                gameCommandType = GameCommandType.Collect;
+                                displayRadius = 1;
+                                break;
+                            }
                         }
                     }
                 }
             }
             GameCommand.GameCommandType = gameCommandType;
         }
-
-
 
         public void Delete()
         {
@@ -305,12 +318,7 @@ namespace Assets.Scripts
         {
             if (groundCell != null)
             {
-                UnitBase unitBase = groundCell.FindUnit();
-                if (unitBase != null)
-                {
-                    if (!unitBase.HasEngine())
-                        return false;
-                }
+                
 
                 MoveUpdateGroundStat stats = groundCell.Stats.MoveUpdateGroundStat;
                 if (stats.IsUnderwater)
@@ -324,6 +332,13 @@ namespace Assets.Scripts
                 }
                 else if (GameCommand.GameCommandType == GameCommandType.Build)
                 {
+                    UnitBase unitBase = groundCell.FindUnit();
+                    if (unitBase != null)
+                    {
+                        if (!unitBase.HasEngine())
+                            return false;
+                    }
+
                     if (groundCell.Stats.MoveUpdateGroundStat.Owner == 1)
                     {
                         canMove = TileObject.CanMoveTo(groundCell.TileCounter);
@@ -881,8 +896,12 @@ namespace Assets.Scripts
             }
 
             GameCommand.TargetPosition = groundCell.Pos;
-            //previewGameCommand.transform.position = groundCell.transform.position;
             Debug.Log("Command attack preview " + GameCommand.UnitId + " to " + GameCommand.TargetPosition.ToString());
+
+
+            bool ignoreIfTargetIsOccupied = false;
+            if (GameCommand.GameCommandType == GameCommandType.Collect)
+                ignoreIfTargetIsOccupied = true;
 
             string unitID;
             if (IsPreview)
@@ -892,17 +911,22 @@ namespace Assets.Scripts
             else
 
             {
-                unitID = GameCommand.AttachedUnit.UnitId;
+
+                if (GameCommand.GameCommandType == GameCommandType.Build)
+                {
+                    unitID = GameCommand.FactoryUnit.UnitId;
+                    ignoreIfTargetIsOccupied = true;
+                }
+                else
+                {
+                    unitID = GameCommand.AttachedUnit.UnitId;
+                }
             }
             if (unitID != null)
             {
                 UnitBase unitBase;
                 if (HexGrid.MainGrid.BaseUnits.TryGetValue(unitID, out unitBase))
                 {
-                    bool ignoreIfTargetIsOccupied = false;
-                    if (GameCommand.GameCommandType == GameCommandType.Collect)
-                        ignoreIfTargetIsOccupied = true;
-
                     List<Position2> path = HexGrid.MainGrid.FindPath(unitBase.CurrentPos, groundCell.Pos, unitBase.UnitId, ignoreIfTargetIsOccupied);
                     if (path != null && path.Count > 1)
                     {
@@ -956,17 +980,24 @@ namespace Assets.Scripts
             if (GameCommand.GameCommandType == GameCommandType.Collect)
             {
                 UpdateCollectPosition(groundCell);
-                UpdateAttackPosition(groundCell);
                 
             }
             if (GameCommand.GameCommandType == GameCommandType.Fire)
             {
                 UpdateFirePosition(groundCell);
-                return;
             }
-            if (GameCommand.GameCommandType == GameCommandType.AttackMove)
+            //if (GameCommand.GameCommandType == GameCommandType.AttackMove)
+            if (GameCommand.GameCommandState == GameCommandState.MoveToTargetPosition)
             {
                 UpdateAttackPosition(groundCell);
+            }
+            else
+            {
+                if (attackLineRenderer != null)
+                {
+                    HexGrid.Destroy(attackLineRenderer.gameObject);
+                    attackLineRenderer = null;
+                }
             }
 
             Vector3 unitPos3 = groundCell.transform.position;
@@ -1166,7 +1197,7 @@ namespace Assets.Scripts
                 GameCommand.GameCommandType == GameCommandType.Collect ||
                 GameCommand.GameCommandType == GameCommandType.Fire)
             {
-                // Do not show the worker to build
+                updatePosition = true;
             }
             else if (GameCommand.GameCommandType == GameCommandType.AttackMove ||
                      GameCommand.GameCommandType == GameCommandType.Build)

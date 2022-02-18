@@ -202,7 +202,8 @@ namespace Engine.Master
             if (unitModel.AttackPosition && thisUnit.Engine != null)
             {
                 GameCommand gameCommand = new GameCommand();
-                gameCommand.GameCommandType = GameCommandType.Attack;
+                gameCommand.GameCommandType = GameCommandType.AttackMove;
+                gameCommand.GameCommandState = GameCommandState.TargetPositionReached;
                 gameCommand.UnitId = thisUnit.UnitId;
                 gameCommand.TargetPosition = thisUnit.Pos;
                 gameCommand.Direction = thisUnit.Direction;
@@ -2129,34 +2130,6 @@ namespace Engine.Master
                         gameCommand = gameCommand.NextGameCommand;
                         currentGameCommand = currentGameCommand.NextGameCommand;
                     }
-                    /*
-                    if (mapGameCommand.CommandId != 0)
-                        gameCommand.CommandId = mapGameCommand.CommandId;
-                    gameCommand.DeleteWhenFinished = mapGameCommand.DeleteWhenFinished;
-                    gameCommand.CommandCanceled = mapGameCommand.CommandCanceled;
-                    gameCommand.CommandComplete = mapGameCommand.CommandComplete;
-                    gameCommand.GameCommandType = mapGameCommand.GameCommandType;                    
-                    gameCommand.PlayerId = mapGameCommand.PlayerId;
-                    gameCommand.TargetPosition = mapGameCommand.TargetPosition;
-                    gameCommand.Radius = mapGameCommand.Radius;
-                    gameCommand.Direction = mapGameCommand.Direction;
-                    gameCommand.Layout = mapGameCommand.Layout;
-                    gameCommand.BlueprintName = mapGameCommand.BlueprintName;
-                    gameCommand.UnitId = mapGameCommand.UnitId;
-
-                    if (mapGameCommand.MoveUnitItemOrders != null)
-                    {
-                        gameCommand.UnitItemOrders = new List<UnitItemOrder>();
-                        foreach (MoveUnitItemOrder moveUnitItemOrder in mapGameCommand.MoveUnitItemOrders)
-                        {
-                            UnitItemOrder unitItemOrder = new UnitItemOrder();
-                            unitItemOrder.TileObjectType = moveUnitItemOrder.TileObjectType;
-                            unitItemOrder.TileObjectState = moveUnitItemOrder.TileObjectState;
-                            gameCommand.UnitItemOrders.Add(unitItemOrder);
-                        }
-                    }
-                    */
-                    
                 }
             }
             Pheromones.Evaporate();
@@ -2358,6 +2331,7 @@ namespace Engine.Master
                     mapGameCommand.CommandCanceled = gameCommand.CommandCanceled;
                     mapGameCommand.CommandComplete = gameCommand.CommandComplete;
                     mapGameCommand.GameCommandType = gameCommand.GameCommandType;
+                    mapGameCommand.GameCommandState = gameCommand.GameCommandState;
                     mapGameCommand.PlayerId = gameCommand.PlayerId;
                     mapGameCommand.TargetPosition = gameCommand.TargetPosition;
                     mapGameCommand.Radius = gameCommand.Radius;

@@ -145,6 +145,16 @@ namespace Engine.Master
         }
     }
     */
+
+    public enum GameCommandState
+    {
+        None,
+        MoveToTargetPosition,
+        TargetPositionReached,
+        Collecting,
+        ReturnToUnload
+    }
+
     internal class GameCommand
     {
         private static int staticCommandId;
@@ -196,6 +206,7 @@ namespace Engine.Master
         
         public GameCommandType GameCommandType { get; set; }
         public FollowUpUnitCommand FollowUpUnitCommand { get; set; }
+        public GameCommandState GameCommandState { get; set; }
         internal Dictionary<Position2, TileWithDistance> IncludedPositions { get; set; }
 
         internal GameCommandItemUnit AttachedUnit { get; private set; }
@@ -206,8 +217,7 @@ namespace Engine.Master
         public bool AssemblerToBuild { get; set; }
         public bool DeleteWhenDestroyed { get; set; }
         public bool FollowPheromones { get; set; }
-        public bool BuildPositionReached { get; set; }
-        public bool DeliverContent { get; set; } // Items have been picked up, deliver the content
+        public bool BuildPositionReached { get; set; }        
 
         public string UnitId { get; set; }
         public List<UnitItemOrder> UnitItemOrders { get; set; }

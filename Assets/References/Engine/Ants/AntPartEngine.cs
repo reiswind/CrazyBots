@@ -399,10 +399,16 @@ namespace Engine.Ants
                             if (pheromoneType == PheromoneType.Mineral)
                             {
                                 // Controlled by gamecommand
+                                if (cntrlUnit.CurrentGameCommand.GameCommandState != GameCommandState.MoveToTargetPosition)
+                                {
+                                    cntrlUnit.CurrentGameCommand.GameCommandState = GameCommandState.MoveToTargetPosition;
+                                    cntrlUnit.Changed = true;
+                                }
                                 return true;
                             }
                             if (pheromoneType == PheromoneType.Container)
                             {
+                                cntrlUnit.CurrentGameCommand.GameCommandState = GameCommandState.ReturnToUnload;
                                 cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("ReturnToUnload", false);
                                 cntrlUnit.Changed = true;
                             }
@@ -891,68 +897,72 @@ namespace Engine.Ants
 
         private bool FindPathForCollect(Player player, Unit cntrlUnit)
         {
-            if (cntrlUnit.CurrentGameCommand == null || cntrlUnit.CurrentGameCommand.IncludedPositions == null)
+            if (cntrlUnit.CurrentGameCommand == null)
             {
+                cntrlUnit.CurrentGameCommand.GameCommandState = GameCommandState.None;
                 cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("NoArea");
                 cntrlUnit.Changed = true;
                 return false;
             }
-
-            // Create a list 
-            Dictionary<int, List<Tile>> sortedPositions = new Dictionary<int, List<Tile>>();
-
-            foreach (TileWithDistance tileWithDistance in cntrlUnit.CurrentGameCommand.IncludedPositions.Values)
+            if (cntrlUnit.CurrentGameCommand.IncludedPositions != null)
             {
-                if (cntrlUnit.Pos == tileWithDistance.Pos)
-                    continue;
+                // Create a list to closest in this area
+                Dictionary<int, List<Tile>> sortedPositions = new Dictionary<int, List<Tile>>();
 
-                // Collect all
-                if (tileWithDistance.Tile.Counter.NumberOfCollectables == 0)
-                    continue;
+                foreach (TileWithDistance tileWithDistance in cntrlUnit.CurrentGameCommand.IncludedPositions.Values)
+                {
+                    if (cntrlUnit.Pos == tileWithDistance.Pos)
+                        continue;
 
-                // Is it in powered zone?
-                Pheromone pheromone = player.Game.Pheromones.FindAt(tileWithDistance.Pos);
-                if (pheromone == null || pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Energy) == 0)
-                {
-                    // no power
-                    //continue;
-                }
+                    // Collect all
+                    if (tileWithDistance.Tile.Counter.NumberOfCollectables == 0)
+                        continue;
 
-                int d = Position3.Distance(cntrlUnit.Pos, tileWithDistance.Pos);
-
-                List<Tile> tiles;
-                if (sortedPositions.ContainsKey(d))
-                {
-                    tiles = sortedPositions[d];
-                }
-                else
-                {
-                    tiles = new List<Tile>();
-                    sortedPositions.Add(d, tiles);
-                }
-                tiles.Add(tileWithDistance.Tile);
-            }
-            foreach (List<Tile> tiles in sortedPositions.Values)
-            {
-                foreach (Tile tile in tiles)
-                {
-                    List<Position2> positions = player.Game.FindPath(cntrlUnit.Pos, tile.Pos, cntrlUnit, true);
-                    if (positions != null && positions.Count >= 3)
+                    // Is it in powered zone?
+                    Pheromone pheromone = player.Game.Pheromones.FindAt(tileWithDistance.Pos);
+                    if (pheromone == null || pheromone.GetIntensityF(player.PlayerModel.Id, PheromoneType.Energy) == 0)
                     {
-                        Ant.FollowThisRoute = new List<Position2>();
-                        for (int i = 1; i < positions.Count - 1; i++)
+                        // no power
+                        //continue;
+                    }
+
+                    int d = Position3.Distance(cntrlUnit.Pos, tileWithDistance.Pos);
+
+                    List<Tile> tiles;
+                    if (sortedPositions.ContainsKey(d))
+                    {
+                        tiles = sortedPositions[d];
+                    }
+                    else
+                    {
+                        tiles = new List<Tile>();
+                        sortedPositions.Add(d, tiles);
+                    }
+                    tiles.Add(tileWithDistance.Tile);
+                }
+                foreach (List<Tile> tiles in sortedPositions.Values)
+                {
+                    foreach (Tile tile in tiles)
+                    {
+                        List<Position2> positions = player.Game.FindPath(cntrlUnit.Pos, tile.Pos, cntrlUnit, true);
+                        if (positions != null && positions.Count >= 3)
                         {
-                            Ant.FollowThisRoute.Add(positions[i]);
+                            Ant.FollowThisRoute = new List<Position2>();
+                            for (int i = 1; i < positions.Count - 1; i++)
+                            {
+                                Ant.FollowThisRoute.Add(positions[i]);
+                            }
+                            cntrlUnit.CurrentGameCommand.GameCommandState = GameCommandState.MoveToTargetPosition;
+                            return true;
                         }
-                        cntrlUnit.CurrentGameCommand.CommandComplete = false;
-                        cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("Collecting");
-                        cntrlUnit.Changed = true;
-                        return true;
                     }
                 }
             }
             if (cntrlUnit.Pos != cntrlUnit.CurrentGameCommand.TargetPosition)
             {
+                cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("OutOfResourcesReturnHome", true);
+                cntrlUnit.CurrentGameCommand.GameCommandState = GameCommandState.MoveToTargetPosition;
+
                 // Wait at targetposition if empty. If it contains stuff, it can be anywhere trying to return the items.
                 // Careful not to move between container and targetpostion
                 if (cntrlUnit.Container == null || cntrlUnit.Container.TileContainer.Count == 0)
@@ -969,8 +979,12 @@ namespace Engine.Ants
                     }
                 }
             }
-            cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("OutOfResources", true);
-            cntrlUnit.CurrentGameCommand.CommandComplete = true;
+            else
+            {
+                cntrlUnit.CurrentGameCommand.GameCommandState = GameCommandState.None;
+                cntrlUnit.CurrentGameCommand.AttachedUnit.SetStatus("OutOfResources", true);
+            }
+            //cntrlUnit.CurrentGameCommand.CommandComplete = true;
             cntrlUnit.Changed = true;
             return false;
         }
@@ -995,7 +1009,7 @@ namespace Engine.Ants
             //if (cntrlUnit.Engine.AttackPosition != Position2.Null)
 
             if (cntrlUnit.CurrentGameCommand != null &&
-                cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Attack)
+                cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.AttackMove)
             {
                 if (cntrlUnit.Weapon != null && !cntrlUnit.Weapon.WeaponLoaded)
                 {
@@ -1125,7 +1139,13 @@ namespace Engine.Ants
                 }
                 else if (cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Collect)
                 {
-                    if (cntrlUnit.Container != null && cntrlUnit.Container.TileContainer.IsFreeSpace)
+                    if (cntrlUnit.CurrentGameCommand.Radius == 0 && cntrlUnit.CurrentGameCommand.TransportUnit.UnitId != null)
+                    {
+                        // Pick up from targetlocation
+                        cntrlUnit.CurrentGameCommand.TransportUnit.SetStatus("TransportUnitMovingToTarget", false);
+                        calcPathToPosition = cntrlUnit.CurrentGameCommand.TargetPosition;
+                    }
+                    else if (cntrlUnit.Container != null && cntrlUnit.Container.TileContainer.IsFreeSpace)
                     {
                         FindPathForCollect(player, cntrlUnit);
                     }
@@ -1137,10 +1157,6 @@ namespace Engine.Ants
                 }
                 else if (cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.AttackMove)
                 {
-                    //Position3 commandCenter = new Position3(cntrlUnit.CurrentGameCommand.TargetPosition);
-                    //Position3 position3 = commandCenter.Add(cntrlUnit.CurrentGameCommand.Position3);
-                    //Position2 targetUnitPosition = position3.Pos;
-
                     Position2 targetUnitPosition = cntrlUnit.CurrentGameCommand.TargetPosition;
 
                     if (!FindPathToEnemyOrAmmo(player, cntrlUnit, targetUnitPosition))
@@ -1162,10 +1178,7 @@ namespace Engine.Ants
                                 return true;
                             }
                             // Command complete, change command type to attack
-                            if (cntrlUnit.CurrentGameCommand.FollowUpUnitCommand == FollowUpUnitCommand.Attack)
-                                cntrlUnit.CurrentGameCommand.GameCommandType = GameCommandType.Attack;
-                            else if (cntrlUnit.CurrentGameCommand.FollowUpUnitCommand == FollowUpUnitCommand.HoldPosition)
-                                cntrlUnit.CurrentGameCommand.GameCommandType = GameCommandType.Attack;
+                            cntrlUnit.CurrentGameCommand.GameCommandState = GameCommandState.TargetPositionReached;
                             return true;
                         }
                         calcPathToPosition = targetUnitPosition;
@@ -1176,11 +1189,7 @@ namespace Engine.Ants
                     // Do not move around
                     return true;
                 }
-                else if (cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Attack)
-                {
-                    // Do not move around
-                    return true;
-                }
+                
                 else if (cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Build)
                 {
                     if (cntrlUnit.Assembler != null)

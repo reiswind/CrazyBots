@@ -760,12 +760,20 @@ namespace Assets.Scripts
             }
             return null;
         }
-
         public bool HasAssembler()
         {
             foreach (UnitBasePart unitBasePart in UnitBaseParts)
             {
                 if (unitBasePart.PartType == TileObjectType.PartAssembler)
+                    return true;
+            }
+            return false;
+        }
+        public bool HasContainer()
+        {
+            foreach (UnitBasePart unitBasePart in UnitBaseParts)
+            {
+                if (unitBasePart.PartType == TileObjectType.PartContainer)
                     return true;
             }
             return false;

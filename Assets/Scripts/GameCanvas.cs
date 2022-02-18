@@ -530,7 +530,17 @@ namespace Assets.Scripts
                 else
                     SetButtonText(7, "( ) Automatic");
 
-                int idx = 8;
+                if (selectedUnitFrame.HasContainer())
+                {
+                    SetButtonText(8, "( ) Deliver");
+                }
+                else
+                {
+                    // Cannot move buildings
+                    HideButton(8);
+                }
+
+                int idx = 9;
                 while (idx <= 12)
                 {
                     HideButton(idx++);
@@ -1689,6 +1699,7 @@ namespace Assets.Scripts
 
         private void DisplayUpdateStatsCommand(UnitBase unit)
         {
+            //unit.MoveUpdateStats.
             alertHeaderText.text = unit.UnitAlert.Header;
             alertText.text = unit.UnitAlert.Text;
         }
@@ -1716,7 +1727,7 @@ namespace Assets.Scripts
                 position2 = commandPreview.GameCommand.TargetPosition;
             }
             MapGameCommand gameCommand = commandPreview.GameCommand;
-            headerText.text = gameCommand.GameCommandType.ToString() + " Pl: " + gameCommand.PlayerId;
+            headerText.text = gameCommand.GameCommandType.ToString() + " State: " + gameCommand.GameCommandState; //.PlayerId;
             //headerSubText.text = "Radius " + gameCommand.Radius.ToString() + " sel: " + commandPreview.IsSelected.ToString();
 
             headerSubText.text = gameCommand.AttachedUnit.Status;

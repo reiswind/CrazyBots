@@ -26,10 +26,6 @@ namespace Engine.Interface
         /// Move to this position, attack on the way there
         /// </summary>
         AttackMove,
-        /// <summary>
-        /// Stay on position attack enemy in sight
-        /// </summary>
-        Attack,
         ///Defend,
         ///Scout,
 
