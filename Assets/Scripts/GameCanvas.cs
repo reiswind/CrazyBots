@@ -45,6 +45,7 @@ namespace Assets.Scripts
         private GameObject panelArmor;
         private GameObject panelWeapon;
         private GameObject panelReactor;
+        private GameObject panelUnit;
 
         private Text headerText;
         private Text headerSubText;
@@ -91,6 +92,8 @@ namespace Assets.Scripts
             buildButton.onClick.AddListener(OnClickExtract);
             buildButtonText = buildButton.transform.Find("Text").GetComponent<Text>();
             */
+            panelUnit = panelSelected.Find("PanelUnit").gameObject;
+
             panelParts = panelSelected.Find("PanelParts");
 
             panelEngine = panelParts.Find("PanelEngine").gameObject;
@@ -1063,6 +1066,7 @@ namespace Assets.Scripts
 
         private void HideAllParts()
         {
+            panelUnit.SetActive(false);
             for (int i = 0; i < panelParts.childCount; i++)
             {
                 GameObject child = panelParts.transform.GetChild(i).gameObject;
@@ -1833,6 +1837,43 @@ namespace Assets.Scripts
             {
                 if (unit.MoveUpdateStats != null)
                 {
+                    panelUnit.SetActive(true);
+
+                    CanvasRenderer panelRenderer = panelUnit.GetComponent<CanvasRenderer>();
+                    RectTransform panelRectTransform = panelUnit.GetComponent<RectTransform>();
+                    
+                    if (panelUnit.name != unit.MoveUpdateStats.BlueprintName)
+                    {
+                        int childs = panelUnit.transform.childCount;
+                        for (int i = childs - 1; i >= 0; i--)
+                        {
+                            DestroyImmediate (panelUnit.transform.GetChild(i).gameObject);
+                        }
+                        Blueprint blueprint = HexGrid.MainGrid.game.Blueprints.FindBlueprint(unit.MoveUpdateStats.BlueprintName);
+                        UnitBase unitBaseIcon = HexGrid.MainGrid.CreateTempUnit(blueprint, unit.PlayerId);
+
+                        unitBaseIcon.transform.SetParent(panelUnit.transform);
+                        unitBaseIcon.transform.position = new Vector3(0, 0, 0);
+                        unitBaseIcon.transform.localPosition = new Vector3(0, 0, 0);
+
+                        if (unitBaseIcon.HasEngine())
+                            unitBaseIcon.transform.localScale = new Vector3(100, 100, 100);
+                        else
+                            unitBaseIcon.transform.localScale = new Vector3(30, 30, 30);
+
+                        RectTransform panelRectTransform1 = unitBaseIcon.GetComponent<RectTransform>();
+                        
+                        Renderer renderer = unitBaseIcon.GetComponent<Renderer>();
+                        /*
+                        if (renderer.bounds.size.x > panelRenderer.bounds.size.x)
+                        {
+                            unitBaseIcon.transform.localScale = new Vector3(50, 50, 50);
+                        }
+                        */
+                        panelUnit.name = unit.MoveUpdateStats.BlueprintName;
+                    }
+
+
                     headerText.text = unit.MoveUpdateStats.BlueprintName;
 
                     if (unit.HasBeenDestroyed)
