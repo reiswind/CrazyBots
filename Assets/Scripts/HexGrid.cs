@@ -1770,10 +1770,11 @@ namespace Assets.Scripts
             }
         }
 
-        public UnitBase CreateTempUnit(Blueprint blueprint, int playerId)
+        public UnitBase CreateTempUnit(Blueprint blueprint, int playerId, bool underConstruction = true, bool ghost = true, bool preview = false)
         {
             UnitBase unit = InstantiatePrefab<UnitBase>(blueprint.Layout);
             unit.PlayerId = playerId;
+            unit.Preview = preview;
             unit.name = blueprint.Name;
             unit.Temporary = true;
             MoveUpdateStats stats = new MoveUpdateStats();
@@ -1785,7 +1786,7 @@ namespace Assets.Scripts
                 MoveUpdateUnitPart moveUpdateUnitPart = new MoveUpdateUnitPart();
 
                 moveUpdateUnitPart.Name = blueprintPart.Name;
-                moveUpdateUnitPart.Exists = false;
+                moveUpdateUnitPart.Exists = !ghost;
                 moveUpdateUnitPart.PartType = blueprintPart.PartType;
                 moveUpdateUnitPart.Level = blueprintPart.Level;
                 moveUpdateUnitPart.CompleteLevel = blueprintPart.Level;
@@ -1796,7 +1797,7 @@ namespace Assets.Scripts
             }
             unit.MoveUpdateStats = stats;
             //StartCoroutine(AnimateAssembleGhost(unit));
-            unit.Assemble(true, true);
+            unit.Assemble(underConstruction, ghost, preview);
 
             return unit;
         }

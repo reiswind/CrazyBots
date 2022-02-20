@@ -168,6 +168,7 @@
     <Compile Include="Assets\References\Engine\Algorithms\PriorityQueueB.cs" />
     <Compile Include="Assets\Scripts\CommandPreview.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartReactor.cs" />
+    <Compile Include="Assets\Scripts\CanvasUnit.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Resources\Shader\Wireframe.cginc" />

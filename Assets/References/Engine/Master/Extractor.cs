@@ -377,9 +377,10 @@ namespace Engine.Master
                                             // This is the transporter, that should extract from container to deliver it
                                             // Assembler extract from Container. 
 
-                                            // Extract only if the other unit does not have a task (Or the task is to collect)
+                                            // Extract only if the other unit does not have a task (Or the task is to collect
+                                            // )
                                             if (t.Unit.CurrentGameCommand == null ||
-                                                t.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Collect)
+                                                (t.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Collect && !t.Unit.CurrentGameCommand.IsHuman))
                                             {
                                                 Unit targetUnit = Unit.Game.Map.Units.FindUnit(Unit.CurrentGameCommand.TargetUnit.UnitId);
                                                 if (targetUnit != null)

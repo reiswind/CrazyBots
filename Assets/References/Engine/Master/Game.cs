@@ -2109,7 +2109,7 @@ namespace Engine.Master
                 foreach (MapGameCommand mapGameCommand in mapGameCommands)
                 {
                     GameCommand gameCommand = mapGameCommand.Copy();
-
+                    gameCommand.IsHuman = true;
                     if (gameCommand.Radius > 0)
                     {
                         gameCommand.IncludedPositions = Map.EnumerateTiles(gameCommand.TargetPosition, gameCommand.Radius, true);

@@ -20,6 +20,15 @@ public class BuildItem : MonoBehaviour
         {
             text.text = blueprintCommand.Name;
         }
+        Transform unitGameObject = transform.Find("Panel");
+        if (unitGameObject != null)
+        {
+            CanvasUnit unit = unitGameObject.GetComponent<CanvasUnit>();
+            if (unit != null)
+            {
+                unit.ShowBluePrint(blueprintCommand.Name, 1);
+            }
+        }
     }
     void OnClick()
     {

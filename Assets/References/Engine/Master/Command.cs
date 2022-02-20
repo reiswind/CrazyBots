@@ -214,6 +214,7 @@ namespace Engine.Master
         internal GameCommandItemUnit TargetUnit { get; private set; }
         internal GameCommandItemUnit FactoryUnit { get; private set; }
 
+        public bool IsHuman { get; set; }
         public bool AssemblerToBuild { get; set; }
         public bool DeleteWhenDestroyed { get; set; }
         public bool FollowPheromones { get; set; }

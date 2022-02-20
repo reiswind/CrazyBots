@@ -106,6 +106,7 @@ namespace Assets.Scripts
         internal Direction Direction { get; set; }
         internal Position2 DestinationPos { get; set; }
         internal int PlayerId { get; set; }
+        internal bool Preview { get; set; }
         internal string UnitId { get; set; }
         public MoveUpdateStats MoveUpdateStats { get; set; }
 
@@ -368,7 +369,7 @@ namespace Assets.Scripts
         // Update is called once per frame
         void FixedUpdate()
         {
-            if (IsGhost)
+            if (IsGhost || Preview)
                 return;
             if (HexGrid.MainGrid.IsPause || HexGrid.MainGrid.GroundCells == null)
                 return;
@@ -1619,7 +1620,7 @@ namespace Assets.Scripts
             highlightEffect.innerGlow = 0;*/
         }
 
-        public void Assemble(bool underConstruction, bool ghost)
+        public void Assemble(bool underConstruction, bool ghost, bool preview = false)
         {
             highlightEffect = GetComponent<HighlightEffect>();
             if (highlightEffect != null)
@@ -1648,7 +1649,7 @@ namespace Assets.Scripts
                         unitBasePart.Name = moveUpdateUnitPart.Name;
                         unitBasePart.PartType = moveUpdateUnitPart.PartType;
                         unitBasePart.Part = part;
-                        if (!ghost)
+                        if (!ghost && !preview)
                             part.SetActive(false);
 
                         if (moveUpdateUnitPart.TileObjects != null)
