@@ -305,9 +305,6 @@ namespace Assets.Scripts
 
         public void TeleportToPosition(bool force)
         {
-            
-            
-            //moveToVector = Vector3.zero;
             if (CurrentPos == Position2.Null)
                 return;
 
@@ -370,7 +367,10 @@ namespace Assets.Scripts
         void FixedUpdate()
         {
             if (IsGhost || Preview)
+            {
+                StayUpright();
                 return;
+            }
             if (HexGrid.MainGrid.IsPause || HexGrid.MainGrid.GroundCells == null)
                 return;
 
@@ -518,10 +518,7 @@ namespace Assets.Scripts
 
             if (TurnIntoDirection == Direction.C)
             {
-                if (_rigidbody != null)
-                {
-                    StayUpright();
-                }
+                StayUpright();
             }
             else
             {
@@ -536,23 +533,35 @@ namespace Assets.Scripts
                     {
                         UpdateDirection(unitPos3, teleportToPosition);
                     }
+                    else
+                    {
+                        StayUpright();
+
+                    }
                 }
             }
         }
         
         private void StayUpright()
         {
-            Quaternion deltaQuat = Quaternion.FromToRotation(_rigidbody.transform.up, Vector3.up);
+            if (_rigidbody == null)
+            {
+                transform.up = Vector3.up;
+            }
+            else
+            {
+                Quaternion deltaQuat = Quaternion.FromToRotation(_rigidbody.transform.up, Vector3.up);
 
-            Vector3 axis;
-            float angle;
-            deltaQuat.ToAngleAxis(out angle, out axis);
+                Vector3 axis;
+                float angle;
+                deltaQuat.ToAngleAxis(out angle, out axis);
 
-            float dampenFactor = 0.8f; // this value requires tuning
-            _rigidbody.AddTorque(-_rigidbody.angularVelocity * dampenFactor, ForceMode.Acceleration);
+                float dampenFactor = 0.8f; // this value requires tuning
+                _rigidbody.AddTorque(-_rigidbody.angularVelocity * dampenFactor, ForceMode.Acceleration);
 
-            float adjustFactor = 0.5f; // this value requires tuning
-            _rigidbody.AddTorque(axis.normalized * angle * adjustFactor, ForceMode.Acceleration);
+                float adjustFactor = 0.5f; // this value requires tuning
+                _rigidbody.AddTorque(axis.normalized * angle * adjustFactor, ForceMode.Acceleration);
+            }
         }
 
         public void UpdateDirection(Vector3 position, bool teleportToPosition)
@@ -1664,6 +1673,10 @@ namespace Assets.Scripts
                     }
                 }
             }
+            if (!HasEngine())
+            {
+                AboveGround = -0.2f;
+            }
             if (ghost)
             {
                 /*
@@ -1879,7 +1892,7 @@ namespace Assets.Scripts
 
         public void ActivateUnit()
         {
-            if (!IsActive)
+            if (!IsActive && HasEngine())
             {
                 GameObject activeAnimation = FindChildNyName(gameObject, "ActiveAnimation");
                 if (activeAnimation != null)
@@ -1892,33 +1905,35 @@ namespace Assets.Scripts
                     moveAnimation.SetActive(true);
                 }
                 SetAlert(new UnitAlert("Activated", "Chilling", false));
+
                 AboveGround = 0.08f;
-                IsActive = true;
-                UnderConstruction = false;
             }
+            IsActive = true;
+            UnderConstruction = false;
         }
 
         public void DectivateUnit()
         {
+            if (IsActive && HasEngine())
+            {
+                GameObject activeAnimation = FindChildNyName(gameObject, "ActiveAnimation");
+                if (activeAnimation != null)
+                {
+                    activeAnimation.SetActive(false);
+                }
+                GameObject moveAnimation = FindChildNyName(gameObject, "MoveAnimation");
+                if (moveAnimation != null)
+                {
+                    moveAnimation.SetActive(false);
+                }
+                Vector3 unitPos3 = transform.position;
+                unitPos3.y -= AboveGround;
+                transform.position = unitPos3;
+                SetAlert(new UnitAlert("Dectivated", "", false));
+
+                AboveGround = 0;
+            }
             IsActive = false;
-
-            GameObject activeAnimation = FindChildNyName(gameObject, "ActiveAnimation");
-            if (activeAnimation != null)
-            {
-                activeAnimation.SetActive(false);
-            }
-            GameObject moveAnimation = FindChildNyName(gameObject, "MoveAnimation");
-            if (moveAnimation != null)
-            {
-                moveAnimation.SetActive(false);
-            }
-            Vector3 unitPos3 = transform.position;
-            unitPos3.y -= AboveGround;
-            transform.position = unitPos3;
-            SetAlert(new UnitAlert("Dectivated", "", false));
-
-            AboveGround = 0;
-
         }
     }
 

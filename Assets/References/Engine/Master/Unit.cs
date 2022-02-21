@@ -397,19 +397,19 @@ namespace Engine.Master
                 tileObject.TileObjectType = tileObjectType;
                 tileObject.Direction = Direction.C;
 
-                if (Container != null && Container.TileContainer.IsFreeSpace)
+                if (Container != null && Container.TileContainer != null && Container.TileContainer.IsFreeSpace)
                 {
                     Container.TileContainer.Add(tileObject);
                 }
-                if (Assembler != null && Assembler.TileContainer.IsFreeSpace)
+                if (Assembler != null && Assembler.TileContainer != null && Assembler.TileContainer.IsFreeSpace)
                 {
                     Container.TileContainer.Add(tileObject);
                 }
-                if (Reactor != null && Reactor.TileContainer.IsFreeSpace)
+                if (Reactor != null && Reactor.TileContainer != null && Reactor.TileContainer.IsFreeSpace)
                 {
                     Reactor.TileContainer.Add(tileObject);
                 }
-                if (Weapon != null && Weapon.TileContainer.IsFreeSpace)
+                if (Weapon != null && Weapon.TileContainer != null && Weapon.TileContainer.IsFreeSpace)
                 {
                     Weapon.TileContainer.Add(tileObject);
                 }

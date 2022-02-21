@@ -1772,7 +1772,8 @@ namespace Assets.Scripts
 
         public UnitBase CreateTempUnit(Blueprint blueprint, int playerId, bool underConstruction = true, bool ghost = true, bool preview = false)
         {
-            UnitBase unit = InstantiatePrefab<UnitBase>(blueprint.Layout);
+            UnitBase unit = InstantiatePrefab<UnitBase>(blueprint.Layout); 
+            unit.transform.up = Vector3.up;
             unit.PlayerId = playerId;
             unit.Preview = preview;
             unit.name = blueprint.Name;
@@ -1821,7 +1822,7 @@ namespace Assets.Scripts
                 return;
             }
             UnitBase unit = InstantiatePrefab<UnitBase>(blueprint.Layout);
-
+            
             //unit.gameObject.layer = LayerMask.GetMask("UI");
 
             unit.CurrentPos = masterunit.Pos;
@@ -1872,6 +1873,7 @@ namespace Assets.Scripts
             }
             UnitBase unit = InstantiatePrefab<UnitBase>(blueprint.Layout);
             if (unit == null) return;
+            unit.transform.up = Vector3.up;
 
             // Hide parts, so the do not appear to early
             for (int i = 0; i < unit.transform.childCount; i++)

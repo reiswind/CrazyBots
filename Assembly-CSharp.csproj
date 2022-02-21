@@ -103,6 +103,7 @@
     <Compile Include="Assets\Scripts\HexMapEditor.cs" />
     <Compile Include="Assets\References\Engine\Interface\Move.cs" />
     <Compile Include="Assets\References\Engine\Interface\IControl.cs" />
+    <Compile Include="Assets\Scripts\CanvasUnit.cs" />
     <Compile Include="Assets\Epic Toon FX\Demo\Scripts\ETFXEffectController.cs" />
     <Compile Include="Assets\StrategyCameraLite\Example\Scripts\DemoUI.cs" />
     <Compile Include="Assets\References\Engine\Ants\PheromoneDeposit.cs" />
@@ -168,7 +169,6 @@
     <Compile Include="Assets\References\Engine\Algorithms\PriorityQueueB.cs" />
     <Compile Include="Assets\Scripts\CommandPreview.cs" />
     <Compile Include="Assets\References\Engine\Ants\AntPartReactor.cs" />
-    <Compile Include="Assets\Scripts\CanvasUnit.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Resources\Shader\Wireframe.cginc" />
