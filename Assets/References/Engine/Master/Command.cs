@@ -216,7 +216,6 @@ namespace Engine.Master
 
         public bool IsHuman { get; set; }
         public bool AssemblerToBuild { get; set; }
-        public bool DeleteWhenDestroyed { get; set; }
         public bool FollowPheromones { get; set; }
         public bool BuildPositionReached { get; set; }        
 

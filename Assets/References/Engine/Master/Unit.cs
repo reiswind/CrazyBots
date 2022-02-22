@@ -233,17 +233,13 @@ namespace Engine.Master
 
                     }
                 }
-
+                if (CurrentGameCommand.UnitId == UnitId)
+                {
+                    CurrentGameCommand.CommandComplete = true;
+                }
                 if (CurrentGameCommand.AttachedUnit.UnitId == UnitId)
                 {
-                    if (CurrentGameCommand.DeleteWhenDestroyed)
-                    {
-                        CurrentGameCommand.AttachedUnit.SetStatus("DeleteBecauseDestroyed");                       
-                    }
-                    else
-                    {
-                        CurrentGameCommand.AttachedUnit.SetStatus("Removed: " + UnitId);
-                    }
+                    CurrentGameCommand.AttachedUnit.ResetStatus();
                     CurrentGameCommand.AttachedUnit.ResetUnitId();
                 }
                 if (CurrentGameCommand.TransportUnit.UnitId == UnitId)

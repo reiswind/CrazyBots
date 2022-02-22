@@ -909,12 +909,11 @@ namespace Assets.Scripts
                 unitID = GameCommand.UnitId;
             }
             else
-
             {
 
                 if (GameCommand.GameCommandType == GameCommandType.Build)
                 {
-                    unitID = GameCommand.FactoryUnit.UnitId;
+                    unitID = GameCommand.AttachedUnit.UnitId;
                     ignoreIfTargetIsOccupied = true;
                 }
                 else
