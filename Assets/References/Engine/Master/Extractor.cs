@@ -90,8 +90,15 @@ namespace Engine.Master
 
         public override void ComputePossibleMoves(List<Move> possibleMoves, List<Position2> includedPositions, MoveFilter moveFilter)
         {
-            if ((moveFilter & MoveFilter.Extract) == 0)
-                return;
+            if ((moveFilter & MoveFilter.Extract) != 0)
+            {
+                ComputePossibleExtractMoves(possibleMoves, includedPositions, moveFilter);
+            }
+            if ((moveFilter & MoveFilter.Unload) != 0)
+            {
+                ComputePossibleUnloadMoves(possibleMoves, includedPositions, moveFilter);
+            }
+
             /* TODOMIN
             if (CanExtractDirt)
             {
@@ -152,7 +159,39 @@ namespace Engine.Master
             */
             if (Unit.ExtractMe)
                 return;
+        }
+        public void ComputePossibleUnloadMoves(List<Move> possibleMoves, List<Position2> includedPositions, MoveFilter moveFilter)
+        {
+            if (Unit.CurrentGameCommand != null &&
+                Unit.CurrentGameCommand.GameCommandType == GameCommandType.Unload &&
+                Unit.CurrentGameCommand.AttachedUnit.UnitId == Unit.UnitId)
+            {
+                Tile t = Unit.Owner.Game.Map.GetTile(Unit.CurrentGameCommand.TargetPosition);
+                if (t.Unit == null)
+                {
+                    // Unload to ground
+                    Move move;
 
+                    move = new Move();
+
+                    move.MoveType = MoveType.Extract;
+                    move.UnitId = null;
+                    move.OtherUnitId = Unit.UnitId;
+                    move.Positions = new List<Position2>();
+                    move.Positions.Add(t.Pos);
+                    move.Positions.Add(Unit.Pos);
+
+                    possibleMoves.Add(move);
+                }
+                else
+                {
+                    // Unload into unit
+                }
+            }
+        }
+
+        public void ComputePossibleExtractMoves(List<Move> possibleMoves, List<Position2> includedPositions, MoveFilter moveFilter)
+        {
             bool enemyfound = false;
             Dictionary<Position2, TileWithDistance> resultList = CollectExtractableTiles();
 
@@ -280,6 +319,11 @@ namespace Engine.Master
                                     {
                                         // Container should not extract from a worker that is used to collect items.
                                     }
+                                    else if (t.Unit.CurrentGameCommand != null &&
+                                        t.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Unload && t.Unit.CurrentGameCommand.IsHuman)
+                                    {
+                                        // Container should not extract from a worker that is used to collect items.
+                                    }
                                     else
                                     {
                                         // Container extracting from worker
@@ -365,6 +409,7 @@ namespace Engine.Master
                                         possibleMoves.Add(move);
                                     }
                                 }
+                                
                                 if (Unit.CurrentGameCommand != null && Unit.CurrentGameCommand.GameCommandType == GameCommandType.ItemRequest)
                                 {
                                     if (Unit.UnitId == Unit.CurrentGameCommand.TransportUnit.UnitId)
@@ -840,6 +885,33 @@ namespace Engine.Master
             }
 
             return didRemove;
+        }
+        public bool UnloadInto(Unit unit, Move move, Tile targetTile, Dictionary<Position2, Unit> changedUnits)
+        {
+            foreach (TileObject tileObject in unit.Container.TileContainer.TileObjects)
+            {
+                targetTile.Add(tileObject);
+            }
+            unit.Container.TileContainer.Clear();
+            if (!changedUnits.ContainsKey(unit.Pos))
+                changedUnits.Add(unit.Pos, Unit);
+
+            // The command is to unload all from this unit to ground
+            if (Unit.CurrentGameCommand != null &&
+                Unit.CurrentGameCommand.GameCommandType == GameCommandType.Unload &&
+                Unit.UnitId == Unit.CurrentGameCommand.AttachedUnit.UnitId)
+            {
+                // Pick up from container, unit is the transporter. otherUnit is delivering
+                if (Unit.CurrentGameCommand.FollowUpUnitCommand == FollowUpUnitCommand.HoldPosition)
+                {
+                    Unit.CurrentGameCommand.AttachedUnit.SetUnitId(Unit.UnitId);
+                    Unit.CurrentGameCommand.TransportUnit.ResetUnitId();
+                    Unit.CurrentGameCommand.TargetUnit.ResetUnitId();
+                    Unit.CurrentGameCommand.GameCommandType = GameCommandType.HoldPosition;
+                    Unit.CurrentGameCommand.GameCommandState = GameCommandState.TargetPositionReached;
+                }
+            }
+            return true;
         }
 
         private void ExtractFromGround(Tile fromTile, List<MoveRecipeIngredient> extractedItems)

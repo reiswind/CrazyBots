@@ -1155,6 +1155,60 @@ namespace Engine.Ants
                         cntrlUnit.Changed = true;
                     }
                 }
+                else if (cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Unload)
+                {
+                    Position2 targetUnitPosition = cntrlUnit.CurrentGameCommand.TargetPosition;
+                    Tile t = player.Game.Map.GetTile(targetUnitPosition);
+                    //if ((t.Unit != null && t.Unit != cntrlUnit) || !t.CanMoveTo(cntrlUnit.Pos))
+                    {
+                        // Move next to target
+                        foreach (Tile n in t.Neighbors)
+                        {
+                            if (n.Pos == cntrlUnit.Pos)
+                            {
+                                targetUnitPosition = n.Pos;
+                                break;
+                            }
+                        }
+                    }
+                    // Do not move around
+                    if (cntrlUnit.Pos == targetUnitPosition)
+                    {
+                        // Turn into direction
+                        if (cntrlUnit.Direction != cntrlUnit.CurrentGameCommand.Direction)
+                        {
+                            cntrlUnit.Direction = cntrlUnit.CurrentGameCommand.Direction;
+
+                            Move turnMove = new Move();
+                            turnMove.MoveType = MoveType.Move;
+                            turnMove.UnitId = cntrlUnit.UnitId;
+                            turnMove.PlayerId = player.PlayerModel.Id;
+                            turnMove.Positions = new List<Position2>();
+                            turnMove.Positions.Add(cntrlUnit.Pos);
+                            moves.Add(turnMove);
+
+                            if (cntrlUnit.CurrentGameCommand.GameCommandState != GameCommandState.MoveToTargetPosition)
+                            {
+                                cntrlUnit.CurrentGameCommand.GameCommandState = GameCommandState.MoveToTargetPosition;
+                                cntrlUnit.Changed = true;
+                            }
+                            return true;
+                        }
+                        // Command complete, change command type to attack
+                        if (cntrlUnit.CurrentGameCommand.GameCommandState != GameCommandState.TargetPositionReached)
+                        {
+                            cntrlUnit.CurrentGameCommand.GameCommandState = GameCommandState.TargetPositionReached;
+                            cntrlUnit.Changed = true;
+                        }
+                        return true;
+                    }
+                    if (cntrlUnit.CurrentGameCommand.GameCommandState != GameCommandState.MoveToTargetPosition)
+                    {
+                        cntrlUnit.CurrentGameCommand.GameCommandState = GameCommandState.MoveToTargetPosition;
+                        cntrlUnit.Changed = true;
+                    }
+                    calcPathToPosition = targetUnitPosition;
+                }
                 else if (cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.AttackMove)
                 {
                     Position2 targetUnitPosition = cntrlUnit.CurrentGameCommand.TargetPosition;
@@ -1199,7 +1253,7 @@ namespace Engine.Ants
                         foreach (Tile n in t.Neighbors)
                         {
                             if (n.Pos == cntrlUnit.Pos)
-                            {                                
+                            {
                                 cntrlUnit.CurrentGameCommand.TargetPosition = targetUnitPosition = n.Pos;
                                 break;
                             }

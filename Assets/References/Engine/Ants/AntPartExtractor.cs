@@ -27,12 +27,14 @@ namespace Engine.Ants
             if (cntrlUnit.Weapon != null && cntrlUnit.Weapon.TileContainer.Count > 0)
             {
                 // Prefer Fight, do not extract if can fire
-                List<Move> possiblemoves = new List<Move>();
-                cntrlUnit.Weapon.ComputePossibleMoves(possiblemoves, null, MoveFilter.Fire);
-                if (possiblemoves.Count > 0)
+                List<Move> possibleFireMoves = new List<Move>();
+                cntrlUnit.Weapon.ComputePossibleMoves(possibleFireMoves, null, MoveFilter.Fire);
+                if (possibleFireMoves.Count > 0)
                     return false;
             }
+            List<Move> possiblemoves = new List<Move>();
             List<Position2> includedPositions = null;
+
             if (cntrlUnit.CurrentGameCommand != null &&
                 cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Collect &&
                 cntrlUnit.CurrentGameCommand.TransportUnit.UnitId == Ant.Unit.UnitId)
@@ -41,40 +43,54 @@ namespace Engine.Ants
                 includedPositions.Add(cntrlUnit.CurrentGameCommand.TargetPosition);
             }
 
-            if (cntrlUnit.Extractor != null && cntrlUnit.Extractor.CanExtract)
+            if (cntrlUnit.CurrentGameCommand != null &&
+                cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Unload &&
+                cntrlUnit.CurrentGameCommand.AttachedUnit.UnitId == Ant.Unit.UnitId)
             {
-                List<Move> possiblemoves = new List<Move>();
-                cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, includedPositions, MoveFilter.Extract);
-                if (possiblemoves.Count > 0)
+                includedPositions = new List<Position2>();
+                includedPositions.Add(cntrlUnit.CurrentGameCommand.TargetPosition);
+                if (cntrlUnit.Extractor != null)
                 {
-                    // Assume Minerals for now
-                    List<Move> mineralmoves = new List<Move>();
-                    foreach (Move mineralMove in possiblemoves)
-                    {
-                        if (Ant.AntWorkerType == AntWorkerType.Worker && Ant.Unit.CurrentGameCommand == null)
-                        {
-                            // Worker will only extract minerals if no command is attached.
-                            if (mineralMove.OtherUnitId != "Mineral")
-                            {
-                                continue;
-                            }
-                        }
-
-                        // Everything
-                        mineralmoves.Add(mineralMove);
-                    }
-                    if (mineralmoves.Count > 0)
-                    {
-                        int idx = player.Game.Random.Next(mineralmoves.Count);
-                        Move move = mineralmoves[idx];
-                        moves.Add(move);
-
-                        Ant.FollowThisRoute = null;
-
-                        return true;
-                    }
+                    cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, includedPositions, MoveFilter.Unload);
                 }
             }
+            else
+            {
+                if (cntrlUnit.Extractor != null && cntrlUnit.Extractor.CanExtract)
+                {
+                    cntrlUnit.Extractor.ComputePossibleMoves(possiblemoves, includedPositions, MoveFilter.Extract);
+                }
+            }
+            if (possiblemoves.Count > 0)
+            {
+                // Assume Minerals for now
+                List<Move> mineralmoves = new List<Move>();
+                foreach (Move mineralMove in possiblemoves)
+                {
+                    if (Ant.AntWorkerType == AntWorkerType.Worker && Ant.Unit.CurrentGameCommand == null)
+                    {
+                        // Worker will only extract minerals if no command is attached.
+                        if (mineralMove.OtherUnitId != "Mineral")
+                        {
+                            continue;
+                        }
+                    }
+
+                    // Everything
+                    mineralmoves.Add(mineralMove);
+                }
+                if (mineralmoves.Count > 0)
+                {
+                    int idx = player.Game.Random.Next(mineralmoves.Count);
+                    Move move = mineralmoves[idx];
+                    moves.Add(move);
+
+                    Ant.FollowThisRoute = null;
+
+                    return true;
+                }
+            }
+            
             
             return false;
         }

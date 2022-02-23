@@ -1079,10 +1079,18 @@ namespace Engine.Master
                             }
                             else if (move.MoveType == MoveType.Extract)
                             {
-                                Unit unit = Map.Units.GetUnitAt(move.Positions[0]);
-
-                                if (unit.Extractor == null)
-                                    throw new Exception("Cheater");
+                                if (move.UnitId == null)
+                                {
+                                    Unit unit = Map.Units.GetUnitAt(move.Positions[1]);
+                                    if (unit.Extractor == null)
+                                        throw new Exception("Cheater");
+                                }
+                                else
+                                {
+                                    Unit unit = Map.Units.GetUnitAt(move.Positions[0]);
+                                    if (unit.Extractor == null)
+                                        throw new Exception("Cheater");
+                                }
                             }
                             else if (move.MoveType != MoveType.Upgrade)
                             {
@@ -1262,75 +1270,91 @@ namespace Engine.Master
                     mapInfoPrev.ComputeMapInfo(this, null);
 
 #endif
-                    Unit unit = Map.Units.GetUnitAt(move.Positions[0]);
-                    if (unit != null && unit.Extractor != null)
+                    Unit unit;
+                    if (move.UnitId == null)
                     {
-                        bool extracted = false;
+                        // Extract from unit to ground
+                        Position2 targetPos = move.Positions[0];
+                        Tile targetTile = Map.GetTile(targetPos);
 
-                        Position2 fromPos = move.Positions[move.Positions.Count - 1];
-                        Tile fromTile = Map.GetTile(fromPos);
-
-                        Unit otherUnit = null;
-
-                        //TileObject tileObject = null;
-                        if (move.OtherUnitId.StartsWith("unit"))
+                        unit = Map.Units.GetUnitAt(move.Positions[1]);
+                        if (unit.Extractor.UnloadInto(unit, move, targetTile, changedUnits))
                         {
-                            otherUnit = fromTile.Unit;
-                            if (otherUnit == null || otherUnit.UnitId != move.OtherUnitId)
-                            {
-                                // Extract from unit, but no longer there or not from this unit
-                                move.MoveType = MoveType.Skip;
-                            }
-
-                        }
-                        else
-                        {
-
-                            //tileObject = move.Stats.MoveUpdateGroundStat.TileObjects[0];
-                        }
-                        if (move.MoveType != MoveType.Skip)
-                        {
-                            extracted = unit.Extractor.ExtractInto(unit, move, fromTile, otherUnit, changedUnits);
-
-                            if (extracted)
-                            {
-                                if (!changedGroundPositions.ContainsKey(fromPos))
-                                    changedGroundPositions.Add(fromPos, null);
-
-                                if (otherUnit != null && !changedUnits.ContainsKey(otherUnit.Pos))
-                                    changedUnits.Add(otherUnit.Pos, otherUnit);
-
-                                lastMoves.Add(move);
-
-                                if (otherUnit != null && otherUnit.IsDead())
-                                {
-                                    otherUnit.OnDestroyed();
-
-                                    // Unit has died!
-                                    Move deleteMove = new Move();
-                                    deleteMove.PlayerId = otherUnit.Owner.PlayerModel.Id;
-                                    deleteMove.MoveType = MoveType.Delete;
-                                    deleteMove.Positions = new List<Position2>();
-                                    deleteMove.Positions.Add(otherUnit.Pos);
-                                    deleteMove.UnitId = otherUnit.UnitId;
-                                    lastMoves.Add(deleteMove);
-
-                                    Map.Units.Remove(otherUnit.UnitId);
-                                    Map.Units.Remove(otherUnit.Pos);
-                                }
-
-                            }
-                            else
-                            {
-                                // cloud not extract, ignore move
-                                move.MoveType = MoveType.Skip;
-                            }
+                            if (!changedGroundPositions.ContainsKey(targetPos))
+                                changedGroundPositions.Add(targetPos, null);
                         }
                     }
                     else
                     {
-                        // move failed, no unit or no extractor
-                        move.MoveType = MoveType.Skip;
+                        unit = Map.Units.GetUnitAt(move.Positions[0]);
+
+                        if (unit != null && unit.Extractor != null)
+                        {
+                            bool extracted = false;
+
+                            Position2 fromPos = move.Positions[move.Positions.Count - 1];
+                            Tile fromTile = Map.GetTile(fromPos);
+
+                            Unit otherUnit = null;
+                            if (move.OtherUnitId != null &&
+                                move.OtherUnitId.StartsWith("unit"))
+                            {
+                                otherUnit = fromTile.Unit;
+                                if (otherUnit == null || otherUnit.UnitId != move.OtherUnitId)
+                                {
+                                    // Extract from unit, but no longer there or not from this unit
+                                    move.MoveType = MoveType.Skip;
+                                }
+                            }
+                            else
+                            {
+
+                                //tileObject = move.Stats.MoveUpdateGroundStat.TileObjects[0];
+                            }
+                            if (move.MoveType != MoveType.Skip)
+                            {
+                                extracted = unit.Extractor.ExtractInto(unit, move, fromTile, otherUnit, changedUnits);
+
+                                if (extracted)
+                                {
+                                    if (!changedGroundPositions.ContainsKey(fromPos))
+                                        changedGroundPositions.Add(fromPos, null);
+
+                                    if (otherUnit != null && !changedUnits.ContainsKey(otherUnit.Pos))
+                                        changedUnits.Add(otherUnit.Pos, otherUnit);
+
+                                    lastMoves.Add(move);
+
+                                    if (otherUnit != null && otherUnit.IsDead())
+                                    {
+                                        otherUnit.OnDestroyed();
+
+                                        // Unit has died!
+                                        Move deleteMove = new Move();
+                                        deleteMove.PlayerId = otherUnit.Owner.PlayerModel.Id;
+                                        deleteMove.MoveType = MoveType.Delete;
+                                        deleteMove.Positions = new List<Position2>();
+                                        deleteMove.Positions.Add(otherUnit.Pos);
+                                        deleteMove.UnitId = otherUnit.UnitId;
+                                        lastMoves.Add(deleteMove);
+
+                                        Map.Units.Remove(otherUnit.UnitId);
+                                        Map.Units.Remove(otherUnit.Pos);
+                                    }
+
+                                }
+                                else
+                                {
+                                    // cloud not extract, ignore move
+                                    move.MoveType = MoveType.Skip;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // move failed, no unit or no extractor
+                            move.MoveType = MoveType.Skip;
+                        }
                     }
 #if MEASURE_MINS
                     MapInfo mapInfoNow = new MapInfo();

@@ -204,14 +204,6 @@ namespace Assets.Scripts
             //leftMouseButtonDown = false;
         }
 
-        void OnClickAction1()
-        {
-            if (canvasMode != CanvasMode.Select)
-            {
-                SetMode(CanvasMode.Select);
-            }
-        }
-
         void OnFaster()
         {
             HexGrid.MainGrid.RunFaster();
@@ -225,7 +217,6 @@ namespace Assets.Scripts
         {
             HexGrid.MainGrid.RunSlower();
         }
-
 
         private Button GetButton(int btn)
         {
@@ -533,9 +524,10 @@ namespace Assets.Scripts
                 else
                     SetButtonText(7, "( ) Automatic");
 
-                if (selectedUnitFrame.HasContainer())
-                {
-                    SetButtonText(8, "( ) Deliver");
+                UnitBasePart container = selectedUnitFrame.GetContainer();
+                if (selectedUnitFrame.HasExtractor() && container != null && container.TileObjectContainer.TileObjects.Count > 0)
+                { 
+                    SetButtonText(8, "( ) Unload");
                 }
                 else
                 {
@@ -894,7 +886,15 @@ namespace Assets.Scripts
         }
         void OnClickBuild8()
         {
-            //ExecuteCommand(8);
+            if (canvasMode == CanvasMode.Select)
+            {
+
+            }
+                //ExecuteCollectCommand();
+            else if (canvasMode == CanvasMode.Unit)
+                SelectedUnitCommand(GameCommandType.Unload);
+            //else if (canvasMode == CanvasMode.Command)
+                //CancelCommand();
         }
         void OnClickBuild9()
         {

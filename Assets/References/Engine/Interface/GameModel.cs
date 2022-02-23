@@ -46,6 +46,10 @@ namespace Engine.Interface
         /// </summary>
         Collect,
         /// <summary>
+        /// Unload content
+        /// </summary>
+        Unload,
+        /// <summary>
         /// Build a unit
         /// </summary>
         Build,
@@ -79,6 +83,7 @@ namespace Engine.Interface
         Upgrade = 0x0008,
         Extract = 0x0020,
         Transport = 0x0040,
+        Unload = 0x0080,
         All = Fire | Move | Assemble  | Extract
     }
 

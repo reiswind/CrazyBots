@@ -18,8 +18,8 @@
     {
       "Name": "Worker",
       "PlayerId": 1,
-	  "ContainedMinerals": 0,
-	  "ContainedWood": 0,
+	  "ContainedMinerals": 10,
+	  "ContainedWood": 1,
 	  "ContainedStones": 1,
 	  "Direction": "N",
 	  "AttackPosition": true,

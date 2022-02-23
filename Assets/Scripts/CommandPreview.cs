@@ -205,21 +205,34 @@ namespace Assets.Scripts
                     {
                         if (groundUnitBase.HasContainer())
                         {
-                            gameCommandType = GameCommandType.Collect;
-                            GameCommand.TargetUnit.UnitId = groundUnitBase.UnitId;
-                            GameCommand.FollowUpUnitCommand = FollowUpUnitCommand.HoldPosition;
+                            if (gameCommandType == GameCommandType.Unload)
+                            {
+                            }
+                            else
+                            { 
+                                gameCommandType = GameCommandType.Collect;
+                                GameCommand.TargetUnit.UnitId = groundUnitBase.UnitId;
+                                GameCommand.FollowUpUnitCommand = FollowUpUnitCommand.HoldPosition;
+                            }
                         }
                     }
                     else
                     {
-                        foreach (TileObject tileObject in groundCell.Stats.MoveUpdateGroundStat.TileObjects)
+                        if (gameCommandType == GameCommandType.Unload)
                         {
-                            if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType) &&
-                                container.TileObjectContainer.IsSpaceFor(tileObject))
+                            GameCommand.FollowUpUnitCommand = FollowUpUnitCommand.HoldPosition;
+                        }
+                        else
+                        {
+                            foreach (TileObject tileObject in groundCell.Stats.MoveUpdateGroundStat.TileObjects)
                             {
-                                gameCommandType = GameCommandType.Collect;
-                                displayRadius = 1;
-                                break;
+                                if (TileObject.IsTileObjectTypeCollectable(tileObject.TileObjectType) &&
+                                    container.TileObjectContainer.IsSpaceFor(tileObject))
+                                {
+                                    gameCommandType = GameCommandType.Collect;
+                                    displayRadius = 1;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -1196,7 +1209,8 @@ namespace Assets.Scripts
             if (GameCommand.GameCommandType == GameCommandType.ItemRequest ||
                 GameCommand.GameCommandType == GameCommandType.Collect ||
                 GameCommand.GameCommandType == GameCommandType.Fire ||
-                GameCommand.GameCommandType == GameCommandType.HoldPosition)
+                GameCommand.GameCommandType == GameCommandType.HoldPosition ||
+                GameCommand.GameCommandType == GameCommandType.Unload)
             {
                 updatePosition = true;
             }
