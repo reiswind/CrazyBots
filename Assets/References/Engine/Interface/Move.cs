@@ -240,6 +240,9 @@ namespace Engine.Interface
         [DataMember(EmitDefaultValue = false)] 
         public GameCommandType GameCommandType { get; set; }
         [DataMember(EmitDefaultValue = false)]
+        public GameCommandState GameCommandState { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
         public MapGameCommandItemUnit AttachedUnit { get; set; }
         [DataMember(EmitDefaultValue = false)]
         public MapGameCommandItemUnit FactoryUnit { get; set; }

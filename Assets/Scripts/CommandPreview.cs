@@ -207,6 +207,7 @@ namespace Assets.Scripts
                         {
                             gameCommandType = GameCommandType.Collect;
                             GameCommand.TargetUnit.UnitId = groundUnitBase.UnitId;
+                            GameCommand.FollowUpUnitCommand = FollowUpUnitCommand.HoldPosition;
                         }
                     }
                     else
@@ -1194,7 +1195,8 @@ namespace Assets.Scripts
 
             if (GameCommand.GameCommandType == GameCommandType.ItemRequest ||
                 GameCommand.GameCommandType == GameCommandType.Collect ||
-                GameCommand.GameCommandType == GameCommandType.Fire)
+                GameCommand.GameCommandType == GameCommandType.Fire ||
+                GameCommand.GameCommandType == GameCommandType.HoldPosition)
             {
                 updatePosition = true;
             }

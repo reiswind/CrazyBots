@@ -18,7 +18,14 @@ namespace Engine.Interface
         Scount,
         DeleteCommand
     }
-
+    public enum GameCommandState
+    {
+        None,
+        MoveToTargetPosition,
+        TargetPositionReached,
+        Collecting,
+        ReturnToUnload
+    }
     public enum GameCommandType
     {
         None,
@@ -28,7 +35,7 @@ namespace Engine.Interface
         AttackMove,
         ///Defend,
         ///Scout,
-
+        HoldPosition,
         /// <summary>
         /// Cancel command by id
         /// </summary>

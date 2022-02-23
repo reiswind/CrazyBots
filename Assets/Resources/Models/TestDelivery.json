@@ -23,7 +23,7 @@
 	  "ContainedStones": 1,
 	  "Direction": "N",
 	  "AttackPosition": true,
-      "Blueprint": "Reactor",
+      "Blueprint": "Worker",
       "Position": "-3,-2"
     },
 	{

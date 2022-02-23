@@ -261,6 +261,7 @@ namespace Engine.Master
                                         }
                                     }
                                 }
+
                                 if (!added)
                                 {
                                     if (t.Unit.CurrentGameCommand != null && 
@@ -268,6 +269,16 @@ namespace Engine.Master
                                         t.Unit.CurrentGameCommand.TargetUnit.UnitId != Unit.UnitId)
                                     {
                                         // Container should not extract from a worker that is used to deliver items.
+                                    }
+                                    else if (t.Unit.CurrentGameCommand != null &&
+                                        t.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Collect && t.Unit.CurrentGameCommand.IsHuman)
+                                    {
+                                        // Container should not extract from a worker that is used to collect items.
+                                    }
+                                    else if (t.Unit.CurrentGameCommand != null &&
+                                        t.Unit.CurrentGameCommand.GameCommandType == GameCommandType.HoldPosition && t.Unit.CurrentGameCommand.IsHuman)
+                                    {
+                                        // Container should not extract from a worker that is used to collect items.
                                     }
                                     else
                                     {
@@ -347,6 +358,7 @@ namespace Engine.Master
                                     Unit.UnitId == Unit.CurrentGameCommand.TransportUnit.UnitId &&
                                     t.Unit.UnitId == Unit.CurrentGameCommand.TargetUnit.UnitId)
                                 {
+                                    // Worker collect command from Container
                                     Move move = CreateExtractMove(t.Unit);
                                     if (move != null)
                                     {
@@ -662,6 +674,14 @@ namespace Engine.Master
                         {
                             // Pick up from container, unit is the transporter. otherUnit is delivering
                             capacity = ExtractFromOtherContainer(targetUnit, otherUnit, changedUnits, extractedItems, capacity, true);
+                            if (Unit.CurrentGameCommand.FollowUpUnitCommand == FollowUpUnitCommand.HoldPosition)
+                            {
+                                Unit.CurrentGameCommand.AttachedUnit.SetUnitId(Unit.UnitId);
+                                Unit.CurrentGameCommand.TransportUnit.ResetUnitId();
+                                Unit.CurrentGameCommand.TargetUnit.ResetUnitId();
+                                Unit.CurrentGameCommand.GameCommandType = GameCommandType.HoldPosition;
+                                
+                            }
                         }
                         if (unit.CurrentGameCommand.GameCommandType == GameCommandType.ItemRequest)
                         {

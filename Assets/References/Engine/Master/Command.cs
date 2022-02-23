@@ -146,14 +146,7 @@ namespace Engine.Master
     }
     */
 
-    public enum GameCommandState
-    {
-        None,
-        MoveToTargetPosition,
-        TargetPositionReached,
-        Collecting,
-        ReturnToUnload
-    }
+
 
     internal class GameCommand
     {

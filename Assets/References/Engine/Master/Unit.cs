@@ -1459,6 +1459,7 @@ namespace Engine.Master
             {
                 stats.MoveUpdateStatsCommand = new MoveUpdateStatsCommand();
                 stats.MoveUpdateStatsCommand.GameCommandType = CurrentGameCommand.GameCommandType;
+                stats.MoveUpdateStatsCommand.GameCommandState = CurrentGameCommand.GameCommandState;
                 stats.MoveUpdateStatsCommand.TargetPosition = CurrentGameCommand.TargetPosition;
 
                 stats.MoveUpdateStatsCommand.AttachedUnit = new MapGameCommandItemUnit();

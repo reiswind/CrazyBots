@@ -824,7 +824,12 @@ namespace Assets.Scripts
         void OnClickBuild2()
         {
             if (canvasMode == CanvasMode.Unit)
-                SelectedUnitCommand(GameCommandType.AttackMove);
+            {
+                if (selectedUnitFrame.MoveUpdateStats?.MoveUpdateStatsCommand?.GameCommandType == GameCommandType.HoldPosition)
+                    SelectedUnitCommand(GameCommandType.HoldPosition);
+                else
+                    SelectedUnitCommand(GameCommandType.AttackMove);
+            }
             //ExecuteCommand(2);
             /*
             if (canvasMode == CanvasMode.Build)
@@ -1481,9 +1486,14 @@ namespace Assets.Scripts
                 if (Input.GetMouseButtonDown(1) && hitByMouseClick.GroundCell != null)
                 {
                     Debug.Log("Input.GetMouseButtonDown");
+                    GameCommandType gameCommandType;
+                    if (selectedUnitFrame.MoveUpdateStats?.MoveUpdateStatsCommand?.GameCommandType == GameCommandType.HoldPosition)
+                        gameCommandType= GameCommandType.HoldPosition;
+                    else
+                        gameCommandType = GameCommandType.AttackMove;
 
                     selectedCommandPreview = new CommandPreview();
-                    selectedCommandPreview.CreateCommand(selectedUnitFrame, GameCommandType.AttackMove); // hitByMouseClick.GroundCell);
+                    selectedCommandPreview.CreateCommand(selectedUnitFrame, gameCommandType); // hitByMouseClick.GroundCell);
                     selectedCommandPreview.SetSelected(true);
                     highlightedCommandPreview = selectedCommandPreview;
                     SetMode(CanvasMode.Preview);
@@ -1703,9 +1713,22 @@ namespace Assets.Scripts
 
         private void DisplayUpdateStatsCommand(UnitBase unit)
         {
-            //unit.MoveUpdateStats.
-            alertHeaderText.text = unit.UnitAlert.Header;
-            alertText.text = unit.UnitAlert.Text;
+            if (unit.MoveUpdateStats == null)
+            {
+                alertHeaderText.text = "NoStats!";
+                alertText.text = "";
+            }
+            else if (unit.MoveUpdateStats.MoveUpdateStatsCommand == null)
+            {
+                alertHeaderText.text = "Automatic";
+                alertText.text = "";
+            }
+            else
+            {
+                alertHeaderText.text = unit.MoveUpdateStats.MoveUpdateStatsCommand.GameCommandType.ToString();
+                alertText.text = unit.MoveUpdateStats.MoveUpdateStatsCommand.GameCommandState.ToString();
+                //unit.UnitAlert.Text;
+            }
         }
 
         private void DisplayGroundInfo(GroundCell groundCell)

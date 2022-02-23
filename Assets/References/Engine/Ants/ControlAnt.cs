@@ -1792,6 +1792,15 @@ namespace Engine.Ants
                                         unit.SetGameCommand(gameCommand);
                                     }
                                 }
+                                else if (gameCommand.GameCommandType == GameCommandType.HoldPosition)
+                                {
+                                    if (gameCommand.AttachedUnit.UnitId == null)
+                                    {
+                                        gameCommand.AttachedUnit.SetUnitId(unit.UnitId);
+                                        ant.FollowThisRoute = null;
+                                        unit.SetGameCommand(gameCommand);
+                                    }
+                                }
                                 else if (gameCommand.GameCommandType == GameCommandType.Collect)
                                 {
                                     if (gameCommand.TransportUnit.UnitId == null)
