@@ -289,7 +289,8 @@ namespace Assets.Scripts
                                     }
                                 }
                             }
-                            realUnit.SetHighlighted(IsHighlighted);
+                            if (IsSelected)
+                                realUnit.SetHighlighted(IsHighlighted);
                         }
                         else
                         {

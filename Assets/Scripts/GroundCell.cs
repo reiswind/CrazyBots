@@ -648,10 +648,12 @@ namespace Assets.Scripts
                 groundCellBorder.Positions = positions;
                 groundCellBorder.Borderline = lineRendererObject;
 
-                lineRenderer.positionCount = allvertices.Count;
-                for (int i = 0; i < allvertices.Count; i++)
+                Vector3[] sm = CommandPreview.SmoothLine(allvertices.ToArray(), 0.01f);
+
+                lineRenderer.positionCount = sm.Length;
+                for (int i = 0; i < sm.Length; i++)
                 {
-                    lineRenderer.SetPosition(i, allvertices[i]);
+                    lineRenderer.SetPosition(i, sm[i]);
                 }
 
                 //Debug.Log(sb.ToString());

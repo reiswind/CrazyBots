@@ -166,26 +166,32 @@ namespace Engine.Master
                 Unit.CurrentGameCommand.GameCommandType == GameCommandType.Unload &&
                 Unit.CurrentGameCommand.AttachedUnit.UnitId == Unit.UnitId)
             {
-                Tile t = Unit.Owner.Game.Map.GetTile(Unit.CurrentGameCommand.TargetPosition);
-                if (t.Unit == null)
+                Tile currentPos = Unit.Owner.Game.Map.GetTile(Unit.Pos);
+                foreach (Tile n in currentPos.Neighbors)
                 {
-                    // Unload to ground
-                    Move move;
+                    if (n.Pos == Unit.CurrentGameCommand.TargetPosition)
+                    {
+                        if (n.Unit == null)
+                        {
+                            // Unload to ground
+                            Move move;
 
-                    move = new Move();
+                            move = new Move();
 
-                    move.MoveType = MoveType.Extract;
-                    move.UnitId = null;
-                    move.OtherUnitId = Unit.UnitId;
-                    move.Positions = new List<Position2>();
-                    move.Positions.Add(t.Pos);
-                    move.Positions.Add(Unit.Pos);
+                            move.MoveType = MoveType.Extract;
+                            move.UnitId = null;
+                            move.OtherUnitId = Unit.UnitId;
+                            move.Positions = new List<Position2>();
+                            move.Positions.Add(n.Pos);
+                            move.Positions.Add(Unit.Pos);
 
-                    possibleMoves.Add(move);
-                }
-                else
-                {
-                    // Unload into unit
+                            possibleMoves.Add(move);
+                        }
+                        else
+                        {
+                            // Unload into unit
+                        }
+                    }
                 }
             }
         }
@@ -221,6 +227,12 @@ namespace Engine.Master
                             Unit.CurrentGameCommand.AttachedUnit.UnitId != null)
                         {
                             // Do not pickup stuff. Move to pickup location
+                            continue;
+                        }
+                        if (Unit.CurrentGameCommand != null &&
+                            Unit.CurrentGameCommand.GameCommandType == GameCommandType.HoldPosition && Unit.CurrentGameCommand.IsHuman)
+                        {
+                            // Do not pickup stuff. Hold location
                             continue;
                         }
                         if (Unit.CurrentGameCommand != null &&
@@ -901,6 +913,9 @@ namespace Engine.Master
                 Unit.CurrentGameCommand.GameCommandType == GameCommandType.Unload &&
                 Unit.UnitId == Unit.CurrentGameCommand.AttachedUnit.UnitId)
             {
+                // Keep the position while unloading.
+                Unit.CurrentGameCommand.TargetPosition = unit.Pos;
+
                 // Pick up from container, unit is the transporter. otherUnit is delivering
                 if (Unit.CurrentGameCommand.FollowUpUnitCommand == FollowUpUnitCommand.HoldPosition)
                 {

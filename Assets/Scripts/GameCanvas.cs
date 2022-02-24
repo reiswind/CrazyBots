@@ -1003,7 +1003,8 @@ namespace Assets.Scripts
                             hitByMouseClick.Units.Add(unitBase);
                     }
                 }
-                // Find command by pos
+                // Find command by pos no more, select unit
+                /*
                 if (commandPreview == null && hitByMouseClick.GroundCell != null && HexGrid.MainGrid.CommandPreviews != null)
                 {
                     foreach (CommandPreview commandPreview1 in HexGrid.MainGrid.CommandPreviews.Values)
@@ -1014,7 +1015,7 @@ namespace Assets.Scripts
                             break;
                         }
                     }
-                }
+                }*/
                 hitByMouseClick.Update(commandPreview);
             }
 
