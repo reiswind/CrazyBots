@@ -900,9 +900,21 @@ namespace Engine.Master
         }
         public bool UnloadInto(Unit unit, Move move, Tile targetTile, Dictionary<Position2, Unit> changedUnits)
         {
+            move.MoveRecipe = new MoveRecipe();
+
             foreach (TileObject tileObject in unit.Container.TileContainer.TileObjects)
             {
                 targetTile.Add(tileObject);
+
+                MoveRecipeIngredient unitIndigrient = new MoveRecipeIngredient();
+                unitIndigrient.Count = 1;
+                unitIndigrient.SourcePosition = unit.Pos;
+                unitIndigrient.SourceUnitId = unit.UnitId;
+                unitIndigrient.TargetPosition = targetTile.Pos;
+                unitIndigrient.TileObjectType = tileObject.TileObjectType;
+                unitIndigrient.Source = TileObjectType.PartContainer;
+
+                move.MoveRecipe.Ingredients.Add(unitIndigrient);
             }
             unit.Container.TileContainer.Clear();
             if (!changedUnits.ContainsKey(unit.Pos))

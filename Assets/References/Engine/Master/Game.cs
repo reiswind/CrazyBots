@@ -1282,6 +1282,7 @@ namespace Engine.Master
                         {
                             if (!changedGroundPositions.ContainsKey(targetPos))
                                 changedGroundPositions.Add(targetPos, null);
+                            lastMoves.Add(move);
                         }
                     }
                     else

@@ -1814,7 +1814,16 @@ namespace Engine.Ants
                                 {
                                     if (gameCommand.TransportUnit.UnitId == null)
                                     {
-                                        gameCommand.TransportUnit.SetUnitId(unit.UnitId);
+                                        if (gameCommand.Radius == 0)
+                                        {
+                                            // Unit is assigend to collect from this position, so it transports
+                                            gameCommand.TransportUnit.SetUnitId(unit.UnitId);
+                                        }
+                                        else
+                                        {
+                                            // Unit is assigend to collect in an area.
+                                            gameCommand.AttachedUnit.SetUnitId(unit.UnitId);
+                                        }
                                         ant.FollowThisRoute = null;
                                         unit.SetGameCommand(gameCommand);
                                     }

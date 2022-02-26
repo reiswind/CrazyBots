@@ -63,7 +63,7 @@ namespace Assets.Scripts
         public bool ScaleDown { get; set; }
         public bool ScaleUp { get; set; }
         public bool TargetReached { get; set; }
-
+        public Position2 GroundTargetPosition { get; set; } // While extracing to ground
         public string UnitId { get; set; }
         public MoveUpdateStats UpdateUnitStats { get; set; }
     }
@@ -881,12 +881,18 @@ namespace Assets.Scripts
                 SetPlayerColor(PlayerId, unitBasePart.Part);
             }
         }
-
-        public void Extract(Move move, UnitBase unit, UnitBase otherUnit)
+        public void Unload(Move move)
         {
             if (IsVisible)
             {
-                Extractor.Extract(move, unit, otherUnit);
+                Extractor.Unload(move, this);
+            }
+        }
+        public void Extract(Move move, UnitBase otherUnit)
+        {
+            if (IsVisible)
+            {
+                Extractor.Extract(move, this, otherUnit);
             }
         }
 

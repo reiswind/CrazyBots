@@ -59,7 +59,25 @@ namespace Assets.Scripts
                 HexGrid.MainGrid.AddTransitTileObject(transitObject);
             }*/
         }
+        public static void Unload(Move move, UnitBase unit)
+        {
+            if (move.MoveRecipe != null && move.MoveRecipe.Ingredients.Count > 0)
+            {
+                TransitObject lastTransitObject = null;
+                float delayStart = 0;
 
+                foreach (MoveRecipeIngredient moveRecipeIngredient in move.MoveRecipe.Ingredients)
+                {
+                    lastTransitObject = Extractor.ExtractFromUnitToGround(unit, moveRecipeIngredient, delayStart);
+                    delayStart += 0.01f;
+                }
+                
+                if (lastTransitObject != null)
+                {
+                    lastTransitObject.GroundTargetPosition = move.MoveRecipe.Ingredients[0].TargetPosition;
+                }
+            }
+        }
         public static void Extract(Move move, UnitBase unit, UnitBase otherUnit)
         {
             if (move.MoveRecipe != null && move.MoveRecipe.Ingredients.Count > 0)
@@ -93,6 +111,50 @@ namespace Assets.Scripts
                     lastTransitObject.UnitId = unit.UnitId;
                 }
             }
+        }
+
+        public static TransitObject ExtractFromUnitToGround(UnitBase unit, MoveRecipeIngredient moveRecipeIngredient, float delayStart)
+        {
+            GroundCell sourceCell;
+            if (!HexGrid.MainGrid.GroundCells.TryGetValue(unit.CurrentPos, out sourceCell))
+            {
+                throw new Exception("Wrong");
+            }
+            Vector3 sourcePosition;
+            if (unit.HasEngine())
+            {
+                sourcePosition = GetTargetPostionInUnit(unit);
+            }
+            else
+            {
+                sourcePosition = unit.GetDeliveryPos(unit.Direction);
+            }
+            GameObject transitGameObject = RemoveObjectFromOtherUnit(unit, moveRecipeIngredient, sourceCell, sourcePosition);
+            if (transitGameObject == null)
+            {
+                throw new Exception("Missing source");
+            }
+            transitGameObject.transform.rotation = UnityEngine.Random.rotation;
+
+            // Target ground
+            GroundCell targetCell;
+            if (!HexGrid.MainGrid.GroundCells.TryGetValue(moveRecipeIngredient.TargetPosition, out targetCell))
+            {
+                throw new Exception("Wrong");
+            }
+
+            TransitObject transitObject = new TransitObject();
+            transitObject.GameObject = transitGameObject;
+            transitObject.TargetPosition = targetCell.transform.position;
+            transitObject.DestroyAtArrival = true;
+            transitObject.StartAfterThis = Time.time + (delayStart * HexGrid.MainGrid.GameSpeed);
+            //transitObject.GroundTargetPosition = moveRecipeIngredient.TargetPosition;
+
+            if (!TileObject.IsTileObjectTypeCollectable(moveRecipeIngredient.TileObjectType))
+                transitObject.ScaleDown = true;
+
+            HexGrid.MainGrid.AddTransitTileObject(transitObject);
+            return transitObject;
         }
 
         public static TransitObject TransitIndigirent(UnitBase unit, MoveRecipeIngredient moveRecipeIngredient, float delayStart)

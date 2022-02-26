@@ -37,7 +37,8 @@ namespace Engine.Ants
 
             if (cntrlUnit.CurrentGameCommand != null &&
                 cntrlUnit.CurrentGameCommand.GameCommandType == GameCommandType.Collect &&
-                cntrlUnit.CurrentGameCommand.TransportUnit.UnitId == Ant.Unit.UnitId)
+                cntrlUnit.CurrentGameCommand.TransportUnit.UnitId == Ant.Unit.UnitId &&
+                cntrlUnit.CurrentGameCommand.Radius == 0)
             {
                 includedPositions = new List<Position2>();
                 includedPositions.Add(cntrlUnit.CurrentGameCommand.TargetPosition);

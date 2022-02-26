@@ -22,6 +22,10 @@ namespace Assets.Scripts
         [Header("Unit Settings")]
         public GameObject UnitStunned;
 
+        [Header("Status")]
+        public GameObject WayPointUnload;
+        public GameObject WayPointLoad;
+
         [Header("Reactor Settings")]
         public GameObject ReactorBurnMineral;
         public GameObject ReactorBurnWood;
@@ -96,9 +100,9 @@ namespace Assets.Scripts
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Simple");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/UnittestFight");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Unittest");
-            UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
+            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestSingleUnit");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/TestShoot");
-            //UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
+            UnityEngine.Object gameModelContent = Resources.Load("Models/TestDelivery");
             //UnityEngine.Object gameModelContent = Resources.Load("Models/Test");
 
 
@@ -995,13 +999,19 @@ namespace Assets.Scripts
                     }
                     else if (move.MoveType == MoveType.Extract)
                     {
-                        if (BaseUnits.ContainsKey(move.UnitId))
+                        if (move.UnitId == null)
+                        {
+                            // Unload to ground
+                            UnitBase unloadingUnit = BaseUnits[move.OtherUnitId];
+                            unloadingUnit.Unload(move);
+                        }
+                        else if (BaseUnits.ContainsKey(move.UnitId))
                         {
                             UnitBase unit = BaseUnits[move.UnitId];
-                            UnitBase otherUnit = null; ;
+                            UnitBase otherUnit = null;
                             if (move.OtherUnitId.StartsWith("unit"))
                                 otherUnit = BaseUnits[move.OtherUnitId];
-                            unit.Extract(move, unit, otherUnit);
+                            unit.Extract(move, otherUnit);
                         }
                     }
                     else if (move.MoveType == MoveType.Transport)
@@ -1092,7 +1102,6 @@ namespace Assets.Scripts
                             else if (move.Positions.Count > 1)
                             {
                                 unit.TurnTo(move.Stats.Direction);
-                                //unit.Direction = move.Stats.Direction;
                                 unit.MoveTo(move.Positions[1]);
                             }
                         }
@@ -1119,6 +1128,17 @@ namespace Assets.Scripts
                             {
                                 hitByBullet.UpdateGroundStats = move.Stats;
                                 skip = true;
+                            }
+                        }
+                        if (!skip)
+                        {
+                            foreach (TransitObject transitObject in tileObjectsInTransit)
+                            {
+                                if (transitObject.GroundTargetPosition == move.Positions[0])
+                                {
+                                    transitObject.UpdateUnitStats = move.Stats;
+                                    skip = true;
+                                }
                             }
                         }
                         if (!skip)
@@ -1660,12 +1680,26 @@ namespace Assets.Scripts
 
             if (transitObject.UpdateUnitStats != null)
             {
-                UnitBase unit;
-                if (BaseUnits.TryGetValue(transitObject.UnitId, out unit))
+                if (transitObject.UnitId != null)
                 {
-                    unit.UpdateStats(transitObject.UpdateUnitStats);
+                    UnitBase unit;
+                    if (BaseUnits.TryGetValue(transitObject.UnitId, out unit))
+                    {
+                        unit.UpdateStats(transitObject.UpdateUnitStats);
+                    }
+                    transitObject.UpdateUnitStats = null;
                 }
-                transitObject.UpdateUnitStats = null;
+                if (transitObject.GroundTargetPosition != Position2.Null)
+                {
+                    GroundCell targetCell;
+                    if (HexGrid.MainGrid.GroundCells.TryGetValue(transitObject.GroundTargetPosition, out targetCell))
+                    {
+                        Position2 borderPos = targetCell.UpdateGround(transitObject.UpdateUnitStats);
+                        //if (borderPos != Position2.Null)
+                        //    groundCellBorderChanged.Add(borderPos);
+                    }
+                    transitObject.UpdateUnitStats = null;
+                }
             }
 
             return true;

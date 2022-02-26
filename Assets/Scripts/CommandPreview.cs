@@ -29,6 +29,7 @@ namespace Assets.Scripts
         public UnitBase GhostUnit { get; set; }
         public UnitBounds GhostUnitBounds { get; set; }
         public GameObject Line { get; set; }
+        public GameObject TargetMarker { get; set; }
 
         public void Delete()
         {
@@ -262,7 +263,11 @@ namespace Assets.Scripts
                 HexGrid.Destroy(attackLineRenderer.gameObject);
                 attackLineRenderer = null;
             }
-
+            if (AttachedUnit.TargetMarker != null)
+            {
+                HexGrid.Destroy(AttachedUnit.TargetMarker);
+                AttachedUnit.TargetMarker = null;
+            }
             if (AttachedUnit.GhostUnit != null)
             {
                 AttachedUnit.GhostUnit.Delete();
@@ -1018,8 +1023,11 @@ namespace Assets.Scripts
                 unitPos3.y += 1.5f;
             else if (GameCommand.GameCommandType == GameCommandType.ItemRequest)
                 unitPos3.y += 2.0f;
+            else if (GameCommand.GameCommandType == GameCommandType.Unload ||
+                     GameCommand.GameCommandType == GameCommandType.Collect)
+                unitPos3.y += 0.2f;
             else
-                unitPos3.y += 2.0f;
+                unitPos3.y += 0.2f;
             previewGameCommand.transform.position = unitPos3;
 
             Position3 centerPosition3 = new Position3(displayPosition);
@@ -1041,6 +1049,12 @@ namespace Assets.Scripts
                 AttachedUnit.GhostUnit.TeleportToPosition(true);
                 AttachedUnit.IsVisible = true;
                 AttachedUnit.GhostUnit.IsVisible = true;
+            }
+            if (AttachedUnit.TargetMarker != null)
+            {
+                Debug.Log("AttachedUnit.TargetMarker play");
+                AttachedUnit.TargetMarker.transform.position = unitPos3;
+                
             }
             if (AttachedUnit.GhostUnitBounds != null)
             {
@@ -1144,6 +1158,7 @@ namespace Assets.Scripts
                     AttachedUnit.GhostUnitBounds.Destroy();
                     AttachedUnit.GhostUnitBounds = null;
                 }
+                
                 if (AttachedUnit.GhostUnit != null)
                 {
                     // On select
@@ -1212,6 +1227,33 @@ namespace Assets.Scripts
                 GameCommand.GameCommandType == GameCommandType.HoldPosition ||
                 GameCommand.GameCommandType == GameCommandType.Unload)
             {
+                if (GameCommand.GameCommandType == GameCommandType.Unload && AttachedUnit.TargetMarker == null)
+                {
+                    Debug.Log("Instantiate AttachedUnit.TargetMarker");
+                    AttachedUnit.TargetMarker = HexGrid.Instantiate(HexGrid.MainGrid.WayPointUnload); //, HexGrid.MainGrid.transform, false);
+                    AttachedUnit.TargetMarker.transform.SetParent(HexGrid.MainGrid.transform, false);
+
+                    ParticleSystem particleSystem = AttachedUnit.TargetMarker.GetComponent<ParticleSystem>();
+                    if (particleSystem != null)
+                    {
+                        ParticleSystem.MainModule main = particleSystem.main;
+                        main.startColor = UnitBase.GetPlayerColor(1);
+                    }
+
+                }
+                if (GameCommand.GameCommandType == GameCommandType.Collect && AttachedUnit.TargetMarker == null)
+                {
+                    Debug.Log("Instantiate AttachedUnit.TargetMarker");
+                    AttachedUnit.TargetMarker = HexGrid.Instantiate(HexGrid.MainGrid.WayPointLoad, HexGrid.MainGrid.transform, false);
+
+                    ParticleSystem particleSystem = AttachedUnit.TargetMarker.GetComponent<ParticleSystem>();
+                    if (particleSystem != null)
+                    {
+                        ParticleSystem.MainModule main = particleSystem.main;
+                        main.startColor = UnitBase.GetPlayerColor(1);
+                    }
+
+                }
                 updatePosition = true;
             }
             else if (GameCommand.GameCommandType == GameCommandType.AttackMove ||
