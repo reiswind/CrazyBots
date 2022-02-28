@@ -192,7 +192,6 @@ namespace Assets.Scripts
             if (groundCell != null)
                 displayPosition = groundCell.Pos;
 
-            displayRadius = 0;
             GameCommand.TargetUnit.UnitId = null;
 
             GameCommandType gameCommandType = initialCommandType;
@@ -206,12 +205,17 @@ namespace Assets.Scripts
                     {
                         if (groundUnitBase.HasContainer())
                         {
-                            if (gameCommandType == GameCommandType.Unload)
+                            if (container.TileObjectContainer.IsFreeSpace())
                             {
+                                gameCommandType = GameCommandType.Collect;
+                                displayRadius = 0;
+                                GameCommand.TargetUnit.UnitId = groundUnitBase.UnitId;
+                                GameCommand.FollowUpUnitCommand = FollowUpUnitCommand.HoldPosition;
                             }
                             else
-                            { 
-                                gameCommandType = GameCommandType.Collect;
+                            {
+                                gameCommandType = GameCommandType.Unload;
+                                displayRadius = 0;
                                 GameCommand.TargetUnit.UnitId = groundUnitBase.UnitId;
                                 GameCommand.FollowUpUnitCommand = FollowUpUnitCommand.HoldPosition;
                             }
@@ -221,7 +225,13 @@ namespace Assets.Scripts
                     {
                         if (gameCommandType == GameCommandType.Unload)
                         {
+                            displayRadius = 0;
                             GameCommand.FollowUpUnitCommand = FollowUpUnitCommand.HoldPosition;
+                        }
+                        else if (initialCommandType == GameCommandType.Collect)
+                        {
+                            if (displayRadius == 0)
+                                displayRadius = 1;
                         }
                         else
                         {
@@ -231,7 +241,9 @@ namespace Assets.Scripts
                                     container.TileObjectContainer.IsSpaceFor(tileObject))
                                 {
                                     gameCommandType = GameCommandType.Collect;
-                                    displayRadius = 1;
+                                    if (displayRadius == 0)
+                                        displayRadius = 1;
+                                    
                                     break;
                                 }
                             }
@@ -240,6 +252,7 @@ namespace Assets.Scripts
                 }
             }
             GameCommand.GameCommandType = gameCommandType;
+            Debug.Log("Selected GameCommandType = " + GameCommand.GameCommandType.ToString() + " Radius: " + displayRadius);
         }
 
         public void Delete()
@@ -915,7 +928,7 @@ namespace Assets.Scripts
             }
 
             GameCommand.TargetPosition = groundCell.Pos;
-            Debug.Log("Command attack preview " + GameCommand.UnitId + " to " + GameCommand.TargetPosition.ToString());
+            //Debug.Log("Command attack preview " + GameCommand.UnitId + " to " + GameCommand.TargetPosition.ToString());
 
 
             bool ignoreIfTargetIsOccupied = false;

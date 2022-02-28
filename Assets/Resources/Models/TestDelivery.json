@@ -18,7 +18,7 @@
     {
       "Name": "Worker",
       "PlayerId": 1,
-	  "ContainedMinerals": 10,
+	  "ContainedMinerals": 0,
 	  "ContainedWood": 1,
 	  "ContainedStones": 1,
 	  "Direction": "N",

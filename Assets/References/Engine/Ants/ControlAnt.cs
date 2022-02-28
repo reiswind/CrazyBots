@@ -1649,7 +1649,8 @@ namespace Engine.Ants
                     Ant ant;
                     if (Ants.TryGetValue(gameCommand.UnitId, out ant))
                     {
-                        ant.Unit.ResetGameCommand();
+                        if (ant.Unit.CurrentGameCommand != null)
+                            ant.Unit.CurrentGameCommand.CommandCanceled = true;
                     }
                 }
                 else if (gameCommand.GameCommandType == GameCommandType.Cancel)
@@ -1949,6 +1950,16 @@ namespace Engine.Ants
                                         requestUnit = false;
                                     }
                                 }
+                                else if (gameCommand.GameCommandType == GameCommandType.Collect)
+                                {
+                                    if (ant.Unit.Blueprint.Name == "Worker")
+                                    {
+                                        gameCommand.AttachedUnit.SetUnitId(ant.Unit.UnitId);
+                                        gameCommand.AttachedUnit.SetStatus("Collect for " + gameCommand.GameCommandType);
+                                        ant.Unit.SetGameCommand(gameCommand);
+                                        requestUnit = false;
+                                    }
+                                }
                                 /* Not now
                                 else if (gameCommand.GameCommandType == GameCommandType.AttackMove)
                                 {
@@ -2116,6 +2127,31 @@ namespace Engine.Ants
         {
             foreach (GameCommand gameCommand in player.CompletedCommands)
             {
+                Unit unit;
+                if (gameCommand.AttachedUnit.UnitId != null)
+                {
+                    unit = player.Game.Map.Units.FindUnit(gameCommand.AttachedUnit.UnitId);
+                    if (unit != null)
+                        unit.ResetGameCommand();
+                }
+                if (gameCommand.FactoryUnit.UnitId != null)
+                {
+                    unit = player.Game.Map.Units.FindUnit(gameCommand.FactoryUnit.UnitId);
+                    if (unit != null)
+                        unit.ResetGameCommand();
+                }
+                if (gameCommand.TransportUnit.UnitId != null)
+                {
+                    unit = player.Game.Map.Units.FindUnit(gameCommand.TransportUnit.UnitId);
+                    if (unit != null)
+                        unit.ResetGameCommand();
+                }
+                if (gameCommand.TargetUnit.UnitId != null)
+                {
+                    unit = player.Game.Map.Units.FindUnit(gameCommand.TargetUnit.UnitId);
+                    if (unit != null)
+                        unit.ResetGameCommand();
+                }
                 /*
                 if (gameCommand.FollowUpUnitCommand == FollowUpUnitCommand.DeleteCommand)
                 {

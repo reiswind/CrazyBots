@@ -27,6 +27,12 @@ namespace Assets.Scripts
             return true;
         }
 
+        public bool IsFreeSpace()
+        {
+            return emptyCubes.Count > 0;
+        }
+
+
         public ReadOnlyCollection<UnitBaseTileObject> TileObjects
         {
             get

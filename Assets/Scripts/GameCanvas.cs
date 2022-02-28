@@ -445,9 +445,13 @@ namespace Assets.Scripts
                 HideButton(1);
                 HideButton(2);
                 HideButton(3);
-                SetButtonText(4, "(r) Cancel");
+                HideButton(4);
+                HideButton(5);
+                HideButton(6);
+                HideButton(7);
+                SetButtonText(8, "(r) Cancel");
 
-                int idx = 5;
+                int idx = 9;
                 /*
                 if (selectedCommandPreview.GameCommand.GameCommandType == GameCommandType.Attack)
                 {
@@ -519,21 +523,23 @@ namespace Assets.Scripts
                 else
                     SetButtonText(6, "( ) Delete");
 
-                if (selectedUnitFrame.MoveUpdateStats.Automatic)
-                    HideButton(7);
-                else
-                    SetButtonText(7, "( ) Automatic");
+
 
                 UnitBasePart container = selectedUnitFrame.GetContainer();
                 if (selectedUnitFrame.HasExtractor() && container != null && container.TileObjectContainer.TileObjects.Count > 0)
                 { 
-                    SetButtonText(8, "( ) Unload");
+                    SetButtonText(7, "( ) Unload");
                 }
                 else
                 {
                     // Cannot move buildings
-                    HideButton(8);
+                    HideButton(7);
                 }
+
+                if (selectedUnitFrame.MoveUpdateStats.Automatic)
+                    HideButton(8);
+                else
+                    SetButtonText(8, "( ) CancelCmd");
 
                 int idx = 9;
                 while (idx <= 12)
@@ -849,8 +855,7 @@ namespace Assets.Scripts
                 ExecuteCollectCommand();
             else if (canvasMode == CanvasMode.Unit)
                 SelectedUnitCommand(GameCommandType.Collect);
-            else if (canvasMode == CanvasMode.Command)
-                CancelCommand();
+            
         }
 
         void OnClickBuild5()
@@ -872,19 +877,20 @@ namespace Assets.Scripts
                 UpdateCommandButtons();
             }
         }
-        void OnClickBuild7()
+        void OnClickBuild8()
         {
             if (canvasMode == CanvasMode.Unit)
             {
                 selectedCommandPreview = new CommandPreview();
                 selectedCommandPreview.CreateCommand(selectedUnitFrame, GameCommandType.Automate);
                 selectedCommandPreview.Execute();
-
                 selectedUnitFrame.MoveUpdateStats.Automatic = true;
                 UpdateCommandButtons();
             }
+            else if (canvasMode == CanvasMode.Command)
+                CancelCommand();
         }
-        void OnClickBuild8()
+        void OnClickBuild7()
         {
             if (canvasMode == CanvasMode.Select)
             {
@@ -1004,18 +1010,20 @@ namespace Assets.Scripts
                     }
                 }
                 // Find command by pos no more, select unit
-                /*
-                if (commandPreview == null && hitByMouseClick.GroundCell != null && HexGrid.MainGrid.CommandPreviews != null)
+                if (hitByMouseClick.Units.Count == 0)
                 {
-                    foreach (CommandPreview commandPreview1 in HexGrid.MainGrid.CommandPreviews.Values)
+                    if (commandPreview == null && hitByMouseClick.GroundCell != null && HexGrid.MainGrid.CommandPreviews != null)
                     {
-                        if (commandPreview1.GameCommand.TargetPosition == hitByMouseClick.GroundCell.Pos)
+                        foreach (CommandPreview commandPreview1 in HexGrid.MainGrid.CommandPreviews.Values)
                         {
-                            commandPreview = commandPreview1;
-                            break;
+                            if (commandPreview1.GameCommand.TargetPosition == hitByMouseClick.GroundCell.Pos)
+                            {
+                                commandPreview = commandPreview1;
+                                break;
+                            }
                         }
                     }
-                }*/
+                }
                 hitByMouseClick.Update(commandPreview);
             }
 

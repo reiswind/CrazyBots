@@ -2137,7 +2137,16 @@ namespace Engine.Master
                     gameCommand.IsHuman = true;
                     if (gameCommand.Radius > 0)
                     {
-                        gameCommand.IncludedPositions = Map.EnumerateTiles(gameCommand.TargetPosition, gameCommand.Radius, true);
+                        if (gameCommand.Radius == 1)
+                        {
+                            TileWithDistance tileWithDistance = new TileWithDistance(Map.GetTile(mapGameCommand.TargetPosition), 0);
+                            gameCommand.IncludedPositions = new Dictionary<Position2, TileWithDistance>();
+                            gameCommand.IncludedPositions.Add(mapGameCommand.TargetPosition, tileWithDistance);
+                        }
+                        else
+                        {
+                            gameCommand.IncludedPositions = Map.EnumerateTiles(gameCommand.TargetPosition, gameCommand.Radius-1, true);
+                        }
                     }
 
                     Player player;

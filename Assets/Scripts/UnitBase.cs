@@ -716,7 +716,7 @@ namespace Assets.Scripts
             if (IsGhost)
                 return;
 
-            Debug.Log("Highlight: " + this.UnitId + " " + highlighted);
+            //Debug.Log("Highlight: " + this.UnitId + " " + highlighted);
             if (IsHighlighted != highlighted)
             {
                 IsHighlighted = highlighted;

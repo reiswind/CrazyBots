@@ -321,10 +321,12 @@ namespace Engine.Master
                                     {
                                         // Container should not extract from a worker that is used to deliver items.
                                     }
-                                    else if (t.Unit.CurrentGameCommand != null &&
-                                        t.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Collect && t.Unit.CurrentGameCommand.IsHuman)
-                                    {
-                                        // Container should not extract from a worker that is used to collect items.
+                                    else if (false && t.Unit.CurrentGameCommand != null &&
+                                        t.Unit.CurrentGameCommand.GameCommandType == GameCommandType.Collect && 
+                                        t.Unit.CurrentGameCommand.IsHuman &&
+                                        t.Unit.CurrentGameCommand.Radius == 0)
+                                    {                                        
+                                        // Container should not extract from a worker that is used to collect items from a specific target
                                     }
                                     else if (t.Unit.CurrentGameCommand != null &&
                                         t.Unit.CurrentGameCommand.GameCommandType == GameCommandType.HoldPosition && t.Unit.CurrentGameCommand.IsHuman)
